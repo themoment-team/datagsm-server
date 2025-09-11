@@ -41,6 +41,10 @@ dependencies {
     implementation(dependency.Dependencies.QUERY_DSL)
     ksp(dependency.Dependencies.QUERY_DSL_APT)
 
+    // Jakarta EE
+    implementation(dependency.Dependencies.JAKARTA_PERSISTENCE_API)
+    implementation(dependency.Dependencies.JAKARTA_TRANSACTION_API)
+
     // Spring Data
     implementation(dependency.Dependencies.SPRING_DATA_JPA)
     implementation(dependency.Dependencies.SPRING_DATA_REDIS)
@@ -84,5 +88,16 @@ idea {
         val kspMain = file("build/generated/ksp/main/kotlin")
         sourceDirs.add(kspMain)
         generatedSourceDirs.add(kspMain)
+    }
+}
+
+ksp {
+    arg("querydsl.entityAccessors", "true")
+    arg("querydsl.useFields", "false")
+}
+
+kotlin {
+    sourceSets.main {
+        kotlin.srcDirs("build/generated/ksp/main/kotlin")
     }
 }
