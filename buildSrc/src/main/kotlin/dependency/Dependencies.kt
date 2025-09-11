@@ -14,8 +14,12 @@ object Dependencies {
     const val JJWT_JACKSON = "io.jsonwebtoken:jjwt-jackson:${DependencyVersions.JJWT_VERSION}"
 
     /* QueryDSL */
-    const val QUERY_DSL = "com.querydsl:querydsl-jpa:${DependencyVersions.QUERY_DSL_VERSION}"
-    const val QUERY_DSL_APT = "com.querydsl:querydsl-apt:${DependencyVersions.QUERY_DSL_VERSION}:jpa"
+    const val QUERY_DSL = "com.querydsl:querydsl-jpa:${DependencyVersions.QUERY_DSL_VERSION}:jakarta"
+    const val QUERY_DSL_APT = "com.querydsl:querydsl-apt:${DependencyVersions.QUERY_DSL_VERSION}:jakarta"
+
+    /* Jakarta EE */
+    const val JAKARTA_PERSISTENCE_API = "jakarta.persistence:jakarta.persistence-api"
+    const val JAKARTA_TRANSACTION_API = "jakarta.transaction:jakarta.transaction-api"
 
     /* Spring Data */
     const val SPRING_DATA_JPA = "org.springframework.boot:spring-boot-starter-data-jpa"
