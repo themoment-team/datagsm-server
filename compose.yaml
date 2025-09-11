@@ -2,10 +2,10 @@ services:
   mysql:
     image: 'mysql:latest'
     environment:
-      - 'MYSQL_DATABASE=mydatabase'
+      - 'MYSQL_DATABASE=datagsm'
       - 'MYSQL_PASSWORD=secret'
-      - 'MYSQL_ROOT_PASSWORD=verysecret'
-      - 'MYSQL_USER=myuser'
+      - 'MYSQL_ROOT_PASSWORD=secret'
+      - 'MYSQL_USER=datagsm'
     ports:
       - '3306'
   redis:
