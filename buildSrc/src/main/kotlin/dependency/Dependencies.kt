@@ -14,8 +14,7 @@ object Dependencies {
     const val JJWT_JACKSON = "io.jsonwebtoken:jjwt-jackson:${DependencyVersions.JJWT_VERSION}"
 
     /* QueryDSL */
-    const val QUERY_DSL = "com.querydsl:querydsl-jpa:${DependencyVersions.QUERY_DSL_VERSION}:jakarta"
-    const val QUERY_DSL_APT = "com.querydsl:querydsl-apt:${DependencyVersions.QUERY_DSL_VERSION}:jakarta"
+    const val QUERY_DSL = "io.github.openfeign.querydsl:querydsl-jpa:${DependencyVersions.QUERY_DSL_VERSION}"
 
     /* Jakarta EE */
     const val JAKARTA_PERSISTENCE_API = "jakarta.persistence:jakarta.persistence-api"

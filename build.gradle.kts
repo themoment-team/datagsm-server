@@ -13,15 +13,16 @@ plugins {
 
 group = "team.themoment"
 version = "0.0.1-SNAPSHOT"
+java.sourceCompatibility = JavaVersion.VERSION_24
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(24)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(24)
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
     maven { url = uri("https://jitpack.io") }
 }
 
@@ -39,7 +40,6 @@ dependencies {
 
     // QueryDSL
     implementation(dependency.Dependencies.QUERY_DSL)
-    ksp(dependency.Dependencies.QUERY_DSL_APT)
 
     // Jakarta EE
     implementation(dependency.Dependencies.JAKARTA_PERSISTENCE_API)
@@ -68,19 +68,13 @@ dependencies {
     testImplementation(dependency.Dependencies.MOCKK)
 }
 kotlin {
-	compilerOptions {
-		freeCompilerArgs.addAll("-Xjsr305=strict")
-	}
-}
-
-allOpen {
-	annotation("jakarta.persistence.Entity")
-	annotation("jakarta.persistence.MappedSuperclass")
-	annotation("jakarta.persistence.Embeddable")
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xjsr305=strict")
+    }
 }
 
 tasks.withType<Test> {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 idea {
@@ -94,10 +88,17 @@ idea {
 ksp {
     arg("querydsl.entityAccessors", "true")
     arg("querydsl.useFields", "false")
+    arg("querydsl.kotlin", "true")
+    arg("querydsl.nullCheck", "true")
+    arg("querydsl.packageMapping", "true")
 }
 
 kotlin {
     sourceSets.main {
         kotlin.srcDirs("build/generated/ksp/main/kotlin")
     }
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    dependsOn("kspKotlin")
 }

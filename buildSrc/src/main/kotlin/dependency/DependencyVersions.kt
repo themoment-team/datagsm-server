@@ -6,5 +6,5 @@ object DependencyVersions {
 
     const val JJWT_VERSION = "0.13.0"
 
-    const val QUERY_DSL_VERSION = "5.1.0"
+    const val QUERY_DSL_VERSION = "7.0"
 }
