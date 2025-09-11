@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class DatagsmApplication
 
 fun main(args: Array<String>) {
-	runApplication<DatagsmApplication>(*args)
+    runApplication<DatagsmApplication>(*args)
 }
