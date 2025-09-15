@@ -7,9 +7,12 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import org.hibernate.annotations.DynamicUpdate
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
+import team.themoment.datagsm.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 
 @Table(name = "tb_club")
 @Entity
@@ -29,4 +32,8 @@ class ClubJpaEntity {
     @Column(name = "club_type", nullable = false)
     @Enumerated(EnumType.STRING)
     lateinit var clubType: ClubType
+
+    @OneToMany(mappedBy = "ownerClub")
+    var projectList: MutableList<ProjectJpaEntity> = mutableListOf()
+
 }
