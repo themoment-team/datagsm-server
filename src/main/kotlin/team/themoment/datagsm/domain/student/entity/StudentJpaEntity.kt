@@ -6,6 +6,7 @@ import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
 import team.themoment.datagsm.domain.student.entity.constant.Major
+import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.entity.constant.StudentNumber
 
 @Table(name = "tb_student")
@@ -51,4 +52,8 @@ class StudentJpaEntity {
 
     @field:Column(name = "student_is_leave_school", nullable = false)
     var studentIsLeaveSchool: Boolean = false
+
+    @field:Column(name = "student_sex", nullable = false)
+    @field:Enumerated(EnumType.STRING)
+    lateinit var studentSex: Sex
 }
