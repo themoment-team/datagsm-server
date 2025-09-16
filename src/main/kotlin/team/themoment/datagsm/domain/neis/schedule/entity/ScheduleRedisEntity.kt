@@ -9,7 +9,15 @@ import java.util.concurrent.TimeUnit
 @RedisHash(value = "schedule", timeToLive = 2592000) // 30일
 data class ScheduleRedisEntity(
     @Id
-    val scheduleId: LocalDate,
+    val scheduleId: String,
+
+    val grade: Int,
+
+    val classNumber: Int,
+
+    val scheduleDate: LocalDate,
+
+    val content: String,
 
     @TimeToLive(unit = TimeUnit.DAYS)
     val ttl: Long = 7

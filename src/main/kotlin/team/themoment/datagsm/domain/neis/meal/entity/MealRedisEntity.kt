@@ -3,31 +3,24 @@ package team.themoment.datagsm.domain.neis.meal.entity
 import org.springframework.data.annotation.Id
 import org.springframework.data.redis.core.RedisHash
 import org.springframework.data.redis.core.TimeToLive
+import team.themoment.datagsm.domain.neis.meal.entity.constant.MealType
 import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 
 @RedisHash(value = "Meal")
 data class MealRedisEntity(
     @Id
-    val mealId: LocalDate,
+    val mealId: String,
 
-    val breakfast: String,
+    val mealType: MealType,
 
-    val breakfastAlergy: String? = null,
+    val allergyInfo: String,
 
-    val breakfastCalorie: Double? = null,
+    val mealDate: LocalDate,
 
-    val lunch: String,
+    val menu: String,
 
-    val lunchAlergy: String? = null,
-
-    val lunchCalorie: Double? = null,
-
-    val dinner: String? = null,
-
-    val dinnerAlergy: String? = null,
-
-    val dinnerCalorie: Double? = null,
+    val calories: Double,
 
     @TimeToLive(unit = TimeUnit.DAYS)
     val ttl: Long = 30
