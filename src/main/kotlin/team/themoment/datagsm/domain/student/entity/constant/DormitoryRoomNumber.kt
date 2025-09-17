@@ -6,14 +6,14 @@ import jakarta.persistence.Embeddable
 @Embeddable
 class DormitoryRoomNumber {
     @field:Column(name = "room_number", nullable = false)
-    var roomNumber: Int = 0
+    var dormitoryRoomNumber: Int = 0
 
     constructor()
 
     constructor(roomNumber: Int) {
-        this.roomNumber = roomNumber
+        this.dormitoryRoomNumber = roomNumber
     }
 
-    val floor: Int
-        get() = roomNumber / 100
+    val dormitoryRoomFloor: Int
+        get() = dormitoryRoomNumber / 100
 }

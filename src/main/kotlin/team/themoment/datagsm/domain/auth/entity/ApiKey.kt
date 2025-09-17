@@ -6,10 +6,10 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.DynamicUpdate
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
-import jakarta.persistence.OneToOne
 import java.util.UUID
 
 @Table(name = "tb_api_key")
