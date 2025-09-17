@@ -9,9 +9,8 @@ enum class Role : GrantedAuthority {
     LIBRARY_MANAGER,
     GENERAL_STUDENT,
     TEACHER,
-    ADMIN;
+    ADMIN,
+    ;
 
-    override fun getAuthority(): String {
-        return "ROLE_$name"
-    }
+    override fun getAuthority(): String = "ROLE_$name"
 }

@@ -11,17 +11,11 @@ import java.util.concurrent.TimeUnit
 data class MealRedisEntity(
     @Id
     val mealId: String,
-
     val mealType: MealType,
-
     val mealAllergyInfo: String,
-
     val mealDate: LocalDate,
-
     val mealMenu: String,
-
     val mealCalories: Double,
-
     @TimeToLive(unit = TimeUnit.DAYS)
-    val mealTtl: Long = 30
+    val mealTtl: Long = 30,
 )

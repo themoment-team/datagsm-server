@@ -1,6 +1,16 @@
-package team.themoment.datagsm.domain.student.entity;
+package team.themoment.datagsm.domain.student.entity
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Embedded
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
 import org.hibernate.annotations.DynamicUpdate
 import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.club.entity.ClubJpaEntity

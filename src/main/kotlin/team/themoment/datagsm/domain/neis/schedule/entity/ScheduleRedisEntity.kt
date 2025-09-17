@@ -10,15 +10,10 @@ import java.util.concurrent.TimeUnit
 data class ScheduleRedisEntity(
     @Id
     val scheduleId: String,
-
     val scheduleGrade: Int,
-
     val scheduleClassNumber: Int,
-
     val scheduleDate: LocalDate,
-
     val scheduleContent: String,
-
     @TimeToLive(unit = TimeUnit.DAYS)
-    val scheduleTtl: Long = 7
+    val scheduleTtl: Long = 7,
 )
