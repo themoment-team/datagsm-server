@@ -34,6 +34,9 @@ object Dependencies {
     /* Database */
     const val MYSQL_CONNECTOR = "com.mysql:mysql-connector-j"
 
+    /* Swagger */
+    const val SWAGGER_UI = "org.springdoc:springdoc-openapi-starter-webmvc-ui:${DependencyVersions.SWAGGER_VERSION}"
+
     /* Testing */
     const val SPRING_TEST = "org.springframework.boot:spring-boot-starter-test"
     const val KOTLIN_JUNIT5 = "org.jetbrains.kotlin:kotlin-test-junit5"

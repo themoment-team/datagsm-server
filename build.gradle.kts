@@ -59,6 +59,9 @@ dependencies {
     // Database
     runtimeOnly(dependency.Dependencies.MYSQL_CONNECTOR)
 
+    // Swagger
+    implementation(dependency.Dependencies.SWAGGER_UI)
+
     // Testing
     testImplementation(dependency.Dependencies.SPRING_TEST)
     testImplementation(dependency.Dependencies.KOTLIN_JUNIT5)
