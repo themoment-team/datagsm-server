@@ -11,14 +11,14 @@ data class ScheduleRedisEntity(
     @Id
     val scheduleId: String,
 
-    val grade: Int,
+    val scheduleGrade: Int,
 
-    val classNumber: Int,
+    val scheduleClassNumber: Int,
 
     val scheduleDate: LocalDate,
 
-    val content: String,
+    val scheduleContent: String,
 
     @TimeToLive(unit = TimeUnit.DAYS)
-    val ttl: Long = 7
+    val scheduleTtl: Long = 7
 )

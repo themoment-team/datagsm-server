@@ -14,14 +14,14 @@ data class MealRedisEntity(
 
     val mealType: MealType,
 
-    val allergyInfo: String,
+    val mealAllergyInfo: String,
 
     val mealDate: LocalDate,
 
-    val menu: String,
+    val mealMenu: String,
 
-    val calories: Double,
+    val mealCalories: Double,
 
     @TimeToLive(unit = TimeUnit.DAYS)
-    val ttl: Long = 30
+    val mealTtl: Long = 30
 )

@@ -44,7 +44,7 @@ class StudentJpaEntity {
     lateinit var studentAutonomousClub: ClubJpaEntity
 
     @field:Embedded
-    lateinit var dormitoryRoomNumber: DormitoryRoomNumber
+    lateinit var studentDormitoryRoomNumber: DormitoryRoomNumber
 
     @field:Column(name = "student_role", nullable = false)
     @field:Enumerated(EnumType.STRING)
