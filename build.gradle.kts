@@ -40,6 +40,7 @@ dependencies {
 
     // QueryDSL
     implementation(dependency.Dependencies.QUERY_DSL)
+    ksp(dependency.Dependencies.QUERY_DSL_PROCESSOR)
 
     // Jakarta EE
     implementation(dependency.Dependencies.JAKARTA_PERSISTENCE_API)
@@ -88,14 +89,6 @@ idea {
     }
 }
 
-ksp {
-    arg("querydsl.entityAccessors", "true")
-    arg("querydsl.useFields", "false")
-    arg("querydsl.kotlin", "true")
-    arg("querydsl.nullCheck", "true")
-    arg("querydsl.packageMapping", "true")
-}
-
 kotlin {
     sourceSets.main {
         kotlin.srcDirs("build/generated/ksp/main/kotlin")
@@ -104,4 +97,17 @@ kotlin {
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     dependsOn("kspKotlin")
+}
+
+ktlint {
+    filter {
+        exclude("**/build/**")
+        exclude {
+            projectDir
+                .toURI()
+                .relativize(it.file.toURI())
+                .path
+                .contains("/generated/")
+        }
+    }
 }

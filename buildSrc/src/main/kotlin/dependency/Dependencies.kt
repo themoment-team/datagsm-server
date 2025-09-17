@@ -15,6 +15,7 @@ object Dependencies {
 
     /* QueryDSL */
     const val QUERY_DSL = "io.github.openfeign.querydsl:querydsl-jpa:${DependencyVersions.QUERY_DSL_VERSION}"
+    const val QUERY_DSL_PROCESSOR = "io.github.openfeign.querydsl:querydsl-ksp-codegen:${DependencyVersions.QUERY_DSL_VERSION}"
 
     /* Jakarta EE */
     const val JAKARTA_PERSISTENCE_API = "jakarta.persistence:jakarta.persistence-api"
