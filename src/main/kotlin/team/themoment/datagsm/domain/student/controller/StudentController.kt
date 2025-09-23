@@ -10,13 +10,13 @@ import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.service.QueryStudentService
 
 @RestController
-@RequestMapping("/v1/student")
+@RequestMapping("/v1/students")
 class StudentController(
     private val queryStudentService: QueryStudentService,
 ) {
     @GetMapping
     fun getStudentInfo(
-        @RequestParam(required = false) studentId: Long,
+        @RequestParam(required = false) studentId: Long?,
         @RequestParam(required = false) name: String?,
         @RequestParam(required = false) email: String?,
         @RequestParam(required = false) grade: Int?,

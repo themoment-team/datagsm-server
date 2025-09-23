@@ -12,6 +12,7 @@ data class StudentDto(
     val grade: Int,
     val classNum: Int,
     val number: Int,
+    val studnetNumber: Int,
     val major: Major,
     val role: Role,
     val dormitoryFloor: Int,

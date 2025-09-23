@@ -45,7 +45,7 @@ class StudentJpaEntity {
     @field:ManyToOne(optional = true)
     lateinit var studentMajorClub: ClubJpaEntity
 
-    @field:ManyToOne(optional = false)
+    @field:ManyToOne(optional = true)
     @field:JoinColumn(name = "student_job_club_id", nullable = true, referencedColumnName = "club_id")
     lateinit var studentJobClub: ClubJpaEntity
 
