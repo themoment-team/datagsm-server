@@ -55,7 +55,7 @@ class QueryStudentServiceImpl(
                         grade = entity.studentNumber.studentGrade,
                         classNum = entity.studentNumber.studentClass,
                         number = entity.studentNumber.studentNumber,
-                        studnetNumber = entity.studentNumber.fullStudentNumber,
+                        studentNumber = entity.studentNumber.fullStudentNumber,
                         major = entity.studentMajor,
                         role = entity.studentRole,
                         dormitoryFloor = entity.studentDormitoryRoomNumber.dormitoryRoomFloor,
