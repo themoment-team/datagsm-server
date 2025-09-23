@@ -12,6 +12,10 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
+  security:
+    cors:
+      allowed-origins:
+        - "*"
   jpa:
     hibernate:
       ddl-auto: update
