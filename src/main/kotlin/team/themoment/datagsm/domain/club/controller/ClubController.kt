@@ -14,9 +14,9 @@ class ClubController(
 ) {
     @GetMapping("/")
     fun getClubInfo(
-        @RequestParam(value = "clubId", required = false) clubId: Long?,
-        @RequestParam(value = "clubName", required = false) clubName: String?,
-        @RequestParam(value = "clubType", required = false) clubType: ClubType?,
+        @RequestParam(required = false) clubId: Long?,
+        @RequestParam(required = false) clubName: String?,
+        @RequestParam(required = false) clubType: ClubType?,
         @RequestParam(required = false, defaultValue = "0") page: Int,
         @RequestParam(required = false, defaultValue = "100") size: Int,
     ) = queryClubService.execute(clubId, clubName, clubType, page, size)
