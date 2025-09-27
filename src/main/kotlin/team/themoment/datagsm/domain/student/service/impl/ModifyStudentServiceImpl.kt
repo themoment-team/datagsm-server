@@ -47,9 +47,9 @@ class ModifyStudentServiceImpl(
 
             student.studentNumber = StudentNumber(newGrade, newClassNum, newNumber)
 
-            if (reqDto.grade != null) {
-                student.studentMajor = Major.fromGrade(newGrade)
-                    ?: throw IllegalArgumentException("유효하지 않은 학년입니다: $newGrade")
+            if (reqDto.classNum != null) {
+                student.studentMajor = Major.fromGrade(newClassNum)
+                    ?: throw IllegalArgumentException("유효하지 않은 학급입니다: $newClassNum")
             }
         }
 
