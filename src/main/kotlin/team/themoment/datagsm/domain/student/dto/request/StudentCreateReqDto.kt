@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size
 import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.student.entity.constant.Sex
 
-data class StudentReqDto(
+data class StudentCreateReqDto(
     @param:Size(max = 30)
     @param:NotBlank
     val name: String,

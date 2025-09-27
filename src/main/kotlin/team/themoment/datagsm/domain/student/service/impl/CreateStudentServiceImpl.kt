@@ -3,7 +3,7 @@ package team.themoment.datagsm.domain.student.service.impl
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.student.dto.internal.StudentDto
-import team.themoment.datagsm.domain.student.dto.request.StudentReqDto
+import team.themoment.datagsm.domain.student.dto.request.StudentCreateReqDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
@@ -17,7 +17,7 @@ import team.themoment.datagsm.domain.student.service.CreateStudentService
 class CreateStudentServiceImpl(
     private final val studentJpaRepository: StudentJpaRepository,
 ) : CreateStudentService {
-    override fun createStudent(reqDto: StudentReqDto): StudentResDto {
+    override fun createStudent(reqDto: StudentCreateReqDto): StudentResDto {
         if (studentJpaRepository.existsByStudentEmail(reqDto.email)) {
             throw IllegalArgumentException("이미 존재하는 이메일입니다: ${reqDto.email}")
         }
