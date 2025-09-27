@@ -1,6 +1,7 @@
 package team.themoment.datagsm.domain.student.service.impl
 
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.student.dto.internal.StudentDto
 import team.themoment.datagsm.domain.student.dto.request.StudentReqDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
@@ -12,17 +13,27 @@ import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.domain.student.service.CreateStudentService
 
 @Service
+@Transactional
 class CreateStudentServiceImpl(
-    val studentJpaRepository: StudentJpaRepository,
+    private final val studentJpaRepository: StudentJpaRepository,
 ) : CreateStudentService {
     override fun createStudent(reqDto: StudentReqDto): StudentResDto {
+        if (studentJpaRepository.existsByStudentEmail(reqDto.email)) {
+            throw IllegalArgumentException("이미 존재하는 이메일입니다: ${reqDto.email}")
+        }
+
+        if (studentJpaRepository.existsByStudentNumber(reqDto.grade, reqDto.classNum, reqDto.number)) {
+            throw IllegalArgumentException("이미 존재하는 학번입니다: ${reqDto.grade}학년 ${reqDto.classNum}반 ${reqDto.number}번")
+        }
+
         val studentEntity =
             StudentJpaEntity().apply {
                 studentName = reqDto.name
                 studentSex = reqDto.sex
                 studentEmail = reqDto.email
                 studentNumber = StudentNumber(reqDto.grade, reqDto.classNum, reqDto.number)
-                studentMajor = Major.fromGrade(reqDto.grade)!!
+                studentMajor = Major.fromGrade(reqDto.grade)
+                    ?: throw IllegalArgumentException("유효하지 않은 학년입니다: ${reqDto.grade}")
                 studentRole = reqDto.role
                 studentDormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
             }
