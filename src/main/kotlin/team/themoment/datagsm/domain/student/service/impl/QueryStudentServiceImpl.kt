@@ -11,7 +11,7 @@ import team.themoment.datagsm.domain.student.service.QueryStudentService
 
 @Service
 class QueryStudentServiceImpl(
-    val studentJpaRepository: StudentJpaRepository,
+    private final val studentJpaRepository: StudentJpaRepository,
 ) : QueryStudentService {
     override fun execute(
         studentId: Long?,
