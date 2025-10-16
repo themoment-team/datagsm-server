@@ -10,8 +10,8 @@ import team.themoment.datagsm.domain.auth.dto.TokenResDto
 import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
 import team.themoment.datagsm.global.security.jwt.JwtProvider
-import team.themoment.datagsm.global.thirdparty.feign.google.GoogleOAuth2Client
-import team.themoment.datagsm.global.thirdparty.feign.google.GoogleUserInfoClient
+import team.themoment.datagsm.global.thirdparty.feign.oauth.GoogleOAuth2Client
+import team.themoment.datagsm.global.thirdparty.feign.oauth.GoogleUserInfoClient
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 

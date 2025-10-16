@@ -1,4 +1,4 @@
-package team.themoment.datagsm.global.thirdparty.feign.google.dto
+package team.themoment.datagsm.global.thirdparty.feign.oauth.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
