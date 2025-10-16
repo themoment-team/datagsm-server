@@ -7,10 +7,13 @@ import java.lang.reflect.Method
 
 @Component
 class GlobalAsyncExceptionHandler : AsyncUncaughtExceptionHandler {
-
     private val logger = LoggerFactory.getLogger(GlobalAsyncExceptionHandler::class.java)
 
-    override fun handleUncaughtException(ex: Throwable, method: Method, vararg params: Any?) {
+    override fun handleUncaughtException(
+        ex: Throwable,
+        method: Method,
+        vararg params: Any?,
+    ) {
         logger.error("[ASYNC-DISCORD-ERROR] method: {}, exception: {}", method.name, ex)
     }
 }

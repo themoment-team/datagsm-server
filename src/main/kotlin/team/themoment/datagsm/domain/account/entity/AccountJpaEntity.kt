@@ -18,7 +18,6 @@ import java.time.LocalDateTime
 @Entity
 @DynamicUpdate
 class AccountJpaEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "account_id")
@@ -40,10 +39,9 @@ class AccountJpaEntity {
     var accountUpdatedAt: LocalDateTime? = null
 
     companion object {
-        fun create(email: String): AccountJpaEntity {
-            return AccountJpaEntity().apply {
+        fun create(email: String): AccountJpaEntity =
+            AccountJpaEntity().apply {
                 this.accountEmail = email
             }
-        }
     }
 }

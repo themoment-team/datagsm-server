@@ -12,13 +12,10 @@ import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
 @RestController
 @RequestMapping("/v1/auth")
 class AuthController(
-    private val authenticateGoogleOAuthService: AuthenticateGoogleOAuthService
+    private val authenticateGoogleOAuthService: AuthenticateGoogleOAuthService,
 ) {
-
     @PostMapping
     fun authenticateWithGoogle(
-        @RequestBody @Valid reqDto: OAuthCodeReqDto
-    ): TokenResDto {
-        return authenticateGoogleOAuthService.execute(reqDto.code)
-    }
+        @RequestBody @Valid reqDto: OAuthCodeReqDto,
+    ): TokenResDto = authenticateGoogleOAuthService.execute(reqDto.code)
 }

@@ -9,10 +9,11 @@ import team.themoment.datagsm.global.thirdparty.feign.oauth.dto.GoogleUserInfoRe
 @FeignClient(
     name = "google-userinfo-client",
     url = "https://www.googleapis.com",
-    configuration = [FeignConfig::class]
+    configuration = [FeignConfig::class],
 )
 interface GoogleUserInfoClient {
-
     @GetMapping("/oauth2/v2/userinfo")
-    fun getUserInfo(@RequestHeader("Authorization") authorization: String): GoogleUserInfoResDto
+    fun getUserInfo(
+        @RequestHeader("Authorization") authorization: String,
+    ): GoogleUserInfoResDto
 }

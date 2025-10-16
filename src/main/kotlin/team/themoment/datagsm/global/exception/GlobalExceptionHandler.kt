@@ -17,7 +17,6 @@ import team.themoment.datagsm.global.exception.error.ExpectedException
 @EnableWebMvc
 @RestControllerAdvice
 class GlobalExceptionHandler {
-
     private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
     private val objectMapper = ObjectMapper()
 
@@ -70,7 +69,7 @@ class GlobalExceptionHandler {
         logger.trace("The file is too big Details : ", ex)
         return CommonApiResponse.error(
             "The file is too big, limited file size : ${ex.maxUploadSize}",
-            HttpStatus.BAD_REQUEST
+            HttpStatus.BAD_REQUEST,
         )
     }
 

@@ -21,24 +21,26 @@ class AuthenticateGoogleOAuthServiceImpl(
     private val googleOAuth2Client: GoogleOAuth2Client,
     private val googleUserInfoClient: GoogleUserInfoClient,
     private val accountJpaRepository: AccountJpaRepository,
-    private val jwtProvider: JwtProvider
+    private val jwtProvider: JwtProvider,
 ) : AuthenticateGoogleOAuthService {
-
     @Transactional
     override fun execute(authorizationCode: String): TokenResDto {
         val decodedCode = URLDecoder.decode(authorizationCode, StandardCharsets.UTF_8)
 
-        val clientRegistration = clientRegistrationRepository.findByRegistrationId("google")
-            ?: throw IllegalArgumentException("Google OAuth 설정을 찾을 수 없습니다.")
+        val clientRegistration =
+            clientRegistrationRepository.findByRegistrationId("google")
+                ?: throw IllegalArgumentException("Google OAuth 설정을 찾을 수 없습니다.")
 
         val tokenResponse = exchangeCodeForToken(decodedCode, clientRegistration)
 
         val userInfo = googleUserInfoClient.getUserInfo("Bearer ${tokenResponse.accessToken}")
 
-        val account = accountJpaRepository.findByAccountEmail(userInfo.email)
-            .orElseGet {
-                accountJpaRepository.save(AccountJpaEntity.create(userInfo.email))
-            }
+        val account =
+            accountJpaRepository
+                .findByAccountEmail(userInfo.email)
+                .orElseGet {
+                    accountJpaRepository.save(AccountJpaEntity.create(userInfo.email))
+                }
 
         val role = account.accountStudent?.studentRole ?: Role.GENERAL_STUDENT
 
@@ -47,18 +49,20 @@ class AuthenticateGoogleOAuthServiceImpl(
 
         return TokenResDto(
             accessToken = accessToken,
-            refreshToken = refreshToken
+            refreshToken = refreshToken,
         )
     }
 
-    private fun exchangeCodeForToken(code: String, clientRegistration: ClientRegistration) =
-        googleOAuth2Client.exchangeCodeForToken(
-            mapOf(
-                "code" to code,
-                "client_id" to clientRegistration.clientId,
-                "client_secret" to clientRegistration.clientSecret,
-                "redirect_uri" to clientRegistration.redirectUri,
-                "grant_type" to "authorization_code"
-            )
-        )
+    private fun exchangeCodeForToken(
+        code: String,
+        clientRegistration: ClientRegistration,
+    ) = googleOAuth2Client.exchangeCodeForToken(
+        mapOf(
+            "code" to code,
+            "client_id" to clientRegistration.clientId,
+            "client_secret" to clientRegistration.clientSecret,
+            "redirect_uri" to clientRegistration.redirectUri,
+            "grant_type" to "authorization_code",
+        ),
+    )
 }

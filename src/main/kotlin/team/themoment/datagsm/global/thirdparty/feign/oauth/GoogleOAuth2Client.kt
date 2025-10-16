@@ -10,10 +10,11 @@ import team.themoment.datagsm.global.thirdparty.feign.oauth.dto.GoogleTokenResDt
 @FeignClient(
     name = "google-oauth2-client",
     url = "https://oauth2.googleapis.com",
-    configuration = [FeignConfig::class]
+    configuration = [FeignConfig::class],
 )
 interface GoogleOAuth2Client {
-
     @PostMapping(value = ["/token"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
-    fun exchangeCodeForToken(@RequestBody formParams: Map<String, String>): GoogleTokenResDto
+    fun exchangeCodeForToken(
+        @RequestBody formParams: Map<String, String>,
+    ): GoogleTokenResDto
 }

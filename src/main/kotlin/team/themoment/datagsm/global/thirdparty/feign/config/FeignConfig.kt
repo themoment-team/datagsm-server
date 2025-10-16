@@ -8,9 +8,6 @@ import team.themoment.datagsm.global.thirdparty.feign.error.FeignErrorDecoder
 @Configuration
 @EnableFeignClients(basePackages = ["team.themoment.datagsm"])
 class FeignConfig {
-
     @Bean
-    fun feignErrorDecoder(): FeignErrorDecoder {
-        return FeignErrorDecoder()
-    }
+    fun feignErrorDecoder(): FeignErrorDecoder = FeignErrorDecoder()
 }
