@@ -1,4 +1,4 @@
-package team.themoment.datagsm.domain.auth.service
+package team.themoment.datagsm.domain.auth.service.impl
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
@@ -8,6 +8,7 @@ import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.domain.auth.dto.TokenResDto
 import team.themoment.datagsm.domain.auth.entity.constant.Role
+import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
 import team.themoment.datagsm.global.security.jwt.JwtProvider
 import team.themoment.datagsm.global.thirdparty.feign.google.GoogleOAuth2Client
 import team.themoment.datagsm.global.thirdparty.feign.google.GoogleUserInfoClient
@@ -15,16 +16,16 @@ import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
 @Service
-class GoogleOAuthService(
+class AuthenticateGoogleOAuthServiceImpl(
     private val clientRegistrationRepository: ClientRegistrationRepository,
     private val googleOAuth2Client: GoogleOAuth2Client,
     private val googleUserInfoClient: GoogleUserInfoClient,
     private val accountJpaRepository: AccountJpaRepository,
     private val jwtProvider: JwtProvider
-) {
+) : AuthenticateGoogleOAuthService {
 
     @Transactional
-    fun authenticate(authorizationCode: String): TokenResDto {
+    override fun execute(authorizationCode: String): TokenResDto {
         val decodedCode = URLDecoder.decode(authorizationCode, StandardCharsets.UTF_8)
 
         val clientRegistration = clientRegistrationRepository.findByRegistrationId("google")

@@ -7,18 +7,18 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.domain.auth.dto.OAuthCodeReqDto
 import team.themoment.datagsm.domain.auth.dto.TokenResDto
-import team.themoment.datagsm.domain.auth.service.GoogleOAuthService
+import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
 
 @RestController
 @RequestMapping("/v1/auth")
 class AuthController(
-    private val googleOAuthService: GoogleOAuthService
+    private val authenticateGoogleOAuthService: AuthenticateGoogleOAuthService
 ) {
 
     @PostMapping
     fun authenticateWithGoogle(
         @RequestBody @Valid reqDto: OAuthCodeReqDto
     ): TokenResDto {
-        return googleOAuthService.authenticate(reqDto.code)
+        return authenticateGoogleOAuthService.execute(reqDto.code)
     }
 }
