@@ -10,3 +10,4 @@ object DependencyVersions {
 
     const val SWAGGER_VERSION = "2.8.11"
 }
+
