@@ -31,6 +31,7 @@ dependencies {
     implementation(dependency.Dependencies.SPRING_WEB)
     implementation(dependency.Dependencies.SPRING_VALIDATION)
     implementation(dependency.Dependencies.SPRING_SECURITY)
+    implementation(dependency.Dependencies.SPRING_OAUTH2_CLIENT)
     implementation(dependency.Dependencies.SPRINT_MAIL)
     implementation(dependency.Dependencies.SPRING_OPENFEIGN)
 

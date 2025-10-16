@@ -5,6 +5,7 @@ object Dependencies {
     const val SPRING_WEB = "org.springframework.boot:spring-boot-starter-web"
     const val SPRING_VALIDATION = "org.springframework.boot:spring-boot-starter-validation"
     const val SPRING_SECURITY = "org.springframework.boot:spring-boot-starter-security"
+    const val SPRING_OAUTH2_CLIENT = "org.springframework.boot:spring-boot-starter-oauth2-client"
     const val SPRINT_MAIL = "org.springframework.boot:spring-boot-starter-mail"
     const val SPRING_OPENFEIGN = "org.springframework.cloud:spring-cloud-starter-openfeign"
 
