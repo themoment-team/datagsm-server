@@ -27,26 +27,20 @@ class GoogleOAuthService(
     fun authenticate(authorizationCode: String): TokenResDto {
         val decodedCode = URLDecoder.decode(authorizationCode, StandardCharsets.UTF_8)
 
-        // Get Google client registration
         val clientRegistration = clientRegistrationRepository.findByRegistrationId("google")
             ?: throw IllegalArgumentException("Google OAuth 설정을 찾을 수 없습니다.")
 
-        // Exchange authorization code for access token
         val tokenResponse = exchangeCodeForToken(decodedCode, clientRegistration)
 
-        // Get user info with access token
         val userInfo = googleUserInfoClient.getUserInfo("Bearer ${tokenResponse.accessToken}")
 
-        // Find or create account
         val account = accountJpaRepository.findByAccountEmail(userInfo.email)
             .orElseGet {
                 accountJpaRepository.save(AccountJpaEntity.create(userInfo.email))
             }
 
-        // Determine role based on student association
         val role = account.accountStudent?.studentRole ?: Role.GENERAL_STUDENT
 
-        // Generate JWT tokens
         val accessToken = jwtProvider.generateAccessToken(userInfo.email, role)
         val refreshToken = jwtProvider.generateRefreshToken(userInfo.email)
 
