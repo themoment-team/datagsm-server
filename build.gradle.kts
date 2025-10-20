@@ -1,6 +1,6 @@
 plugins {
     id(plugin.Plugins.SPRING_BOOT) version plugin.PluginVersions.SPRING_BOOT_VERSION
-    id(plugin.Plugins.DEPENDENCY_MANAGEMENT) version plugin.PluginVersions.DEPENDENCY_MANAGEMENT_VERSION
+    id(plugin.Plugins.SPRING_DEPENDENCY_MANAGEMENT) version plugin.PluginVersions.SPRING_DEPENDENCY_MANAGEMENT_VERSION
     id(plugin.Plugins.KSP) version plugin.PluginVersions.KSP_VERSION
     id(plugin.Plugins.KOTLIN_JVM) version plugin.PluginVersions.KOTLIN_VERSION
     id(plugin.Plugins.KOTLIN_SPRING) version plugin.PluginVersions.KOTLIN_VERSION
@@ -31,7 +31,9 @@ dependencies {
     implementation(dependency.Dependencies.SPRING_WEB)
     implementation(dependency.Dependencies.SPRING_VALIDATION)
     implementation(dependency.Dependencies.SPRING_SECURITY)
+    implementation(dependency.Dependencies.SPRING_OAUTH2_CLIENT)
     implementation(dependency.Dependencies.SPRINT_MAIL)
+    implementation(dependency.Dependencies.SPRING_OPENFEIGN)
 
     // JWT
     implementation(dependency.Dependencies.JJWT)
@@ -111,5 +113,11 @@ ktlint {
                 .path
                 .contains("/generated/")
         }
+    }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom(plugin.Plugins.SPRING_CLOUD_DEPENDENCY_MANAGEMENT)
     }
 }
