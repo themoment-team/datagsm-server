@@ -13,8 +13,9 @@ class CurrentUserProvider(
     private val accountJpaRepository: AccountJpaRepository,
 ) {
     fun getCurrentUserEmail(): String {
-        val authentication = SecurityContextHolder.getContext().authentication
-            ?: throw ExpectedException("인증 정보가 없습니다.", HttpStatus.UNAUTHORIZED)
+        val authentication =
+            SecurityContextHolder.getContext().authentication
+                ?: throw ExpectedException("인증 정보가 없습니다.", HttpStatus.UNAUTHORIZED)
         return authentication.name
     }
 
