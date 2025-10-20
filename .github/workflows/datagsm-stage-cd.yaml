@@ -9,6 +9,7 @@ on:
 jobs:
   CD:
     runs-on: ubuntu-latest
+    environment: stage
     steps:
       - name: Checkout Code
         uses: actions/checkout@v5
