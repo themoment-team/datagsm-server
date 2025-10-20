@@ -65,4 +65,56 @@ class StudentJpaCustomRepositoryImpl(
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
     }
+
+    override fun existsByStudentEmail(email: String): Boolean =
+        jpaQueryFactory
+            .selectOne()
+            .from(studentJpaEntity)
+            .where(studentJpaEntity.studentEmail.eq(email))
+            .fetchFirst() != null
+
+    override fun existsByStudentNumber(
+        grade: Int,
+        classNum: Int,
+        number: Int,
+    ): Boolean =
+        jpaQueryFactory
+            .selectOne()
+            .from(studentJpaEntity)
+            .where(
+                studentJpaEntity.studentNumber.studentGrade
+                    .eq(grade)
+                    .and(studentJpaEntity.studentNumber.studentClass.eq(classNum))
+                    .and(studentJpaEntity.studentNumber.studentNumber.eq(number)),
+            ).fetchFirst() != null
+
+    override fun existsByStudentEmailAndNotStudentId(
+        email: String,
+        studentId: Long,
+    ): Boolean =
+        jpaQueryFactory
+            .selectOne()
+            .from(studentJpaEntity)
+            .where(
+                studentJpaEntity.studentEmail
+                    .eq(email)
+                    .and(studentJpaEntity.studentId.ne(studentId)),
+            ).fetchFirst() != null
+
+    override fun existsByStudentNumberAndNotStudentId(
+        grade: Int,
+        classNum: Int,
+        number: Int,
+        studentId: Long,
+    ): Boolean =
+        jpaQueryFactory
+            .selectOne()
+            .from(studentJpaEntity)
+            .where(
+                studentJpaEntity.studentNumber.studentGrade
+                    .eq(grade)
+                    .and(studentJpaEntity.studentNumber.studentClass.eq(classNum))
+                    .and(studentJpaEntity.studentNumber.studentNumber.eq(number))
+                    .and(studentJpaEntity.studentId.ne(studentId)),
+            ).fetchFirst() != null
 }

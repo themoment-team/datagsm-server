@@ -20,4 +20,24 @@ interface StudentJpaCustomRepository {
         isLeaveSchool: Boolean,
         pageable: Pageable,
     ): Page<StudentJpaEntity>
+
+    fun existsByStudentEmail(email: String): Boolean
+
+    fun existsByStudentNumber(
+        grade: Int,
+        classNum: Int,
+        number: Int,
+    ): Boolean
+
+    fun existsByStudentEmailAndNotStudentId(
+        email: String,
+        studentId: Long,
+    ): Boolean
+
+    fun existsByStudentNumberAndNotStudentId(
+        grade: Int,
+        classNum: Int,
+        number: Int,
+        studentId: Long,
+    ): Boolean
 }

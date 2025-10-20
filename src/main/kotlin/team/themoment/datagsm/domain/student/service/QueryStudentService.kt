@@ -1,7 +1,7 @@
 package team.themoment.datagsm.domain.student.service
 
 import team.themoment.datagsm.domain.auth.entity.constant.Role
-import team.themoment.datagsm.domain.student.dto.response.StudentReqDto
+import team.themoment.datagsm.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.domain.student.entity.constant.Sex
 
 interface QueryStudentService {
@@ -18,5 +18,5 @@ interface QueryStudentService {
         isLeaveSchool: Boolean,
         page: Int,
         size: Int,
-    ): StudentReqDto
+    ): StudentResDto
 }

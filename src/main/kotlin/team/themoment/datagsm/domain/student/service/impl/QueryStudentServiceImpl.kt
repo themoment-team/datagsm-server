@@ -4,14 +4,14 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.student.dto.internal.StudentDto
-import team.themoment.datagsm.domain.student.dto.response.StudentReqDto
+import team.themoment.datagsm.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.domain.student.service.QueryStudentService
 
 @Service
 class QueryStudentServiceImpl(
-    val studentJpaRepository: StudentJpaRepository,
+    private final val studentJpaRepository: StudentJpaRepository,
 ) : QueryStudentService {
     override fun execute(
         studentId: Long?,
@@ -26,7 +26,7 @@ class QueryStudentServiceImpl(
         isLeaveSchool: Boolean,
         page: Int,
         size: Int,
-    ): StudentReqDto {
+    ): StudentResDto {
         val studentPage =
             studentJpaRepository.searchStudentsWithPaging(
                 studentId = studentId,
@@ -42,7 +42,7 @@ class QueryStudentServiceImpl(
                 pageable = PageRequest.of(page, size),
             )
 
-        return StudentReqDto(
+        return StudentResDto(
             totalElements = studentPage.totalElements,
             totalPages = studentPage.totalPages,
             students =
@@ -55,7 +55,7 @@ class QueryStudentServiceImpl(
                         grade = entity.studentNumber.studentGrade,
                         classNum = entity.studentNumber.studentClass,
                         number = entity.studentNumber.studentNumber,
-                        studnetNumber = entity.studentNumber.fullStudentNumber,
+                        studentNumber = entity.studentNumber.fullStudentNumber,
                         major = entity.studentMajor,
                         role = entity.studentRole,
                         dormitoryFloor = entity.studentDormitoryRoomNumber.dormitoryRoomFloor,
