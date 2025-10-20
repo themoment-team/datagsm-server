@@ -25,10 +25,9 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
 
       - name: Make YML File
-        run: touch ./src/main/resources/application-stage.yml
-
+        run: |
+          touch ./src/main/resources/application-stage.yml
           echo "${{ secrets.STAGE_APPLICATION_YAML }}" > ./src/main/resources/application-stage.yml
-
         shell: bash
 
       - name: Build with Gradle
@@ -46,10 +45,10 @@ jobs:
         shell: bash
 
       - name: Upload to S3
-        run: aws s3 cp --region ${{ secrets.AWS_REGION }} ./$GITHUB_SHA.zip s3://${{ secrets.AWS_S3_BUCKET_NAME }}/dev/$GITHUB_SHA.zip
+        run: aws s3 cp --region ${{ secrets.AWS_REGION }} ./$GITHUB_SHA.zip s3://${{ secrets.AWS_S3_BUCKET_NAME }}/stage/$GITHUB_SHA.zip
 
       - name: Code Deploy
-        run: aws deploy create-deployment --application-name hellogsm-dev-codedeploy --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name api-stage-hellogsm-kr --s3-location bucket=${{ secrets.AWS_S3_BUCKET_NAME }},bundleType=zip,key=dev/$GITHUB_SHA.zip
+        run: aws deploy create-deployment --application-name datagsm-stage-server-codedeploy --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name datagsm-stage-server --s3-location bucket=${{ secrets.AWS_S3_BUCKET_NAME }},bundleType=zip,key=stage/$GITHUB_SHA.zip
 
       - name: CD Success Notification
         uses: sarisia/actions-status-discord@v1
