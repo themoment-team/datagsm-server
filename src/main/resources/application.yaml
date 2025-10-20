@@ -26,6 +26,10 @@ spring:
                 authorization-grant-type: authorization_code
                 scope:
                 - email
+    jwt:
+      secret: ${JWT_SECRET}
+      access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
+      refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
   jpa:
     hibernate:
       ddl-auto: update
