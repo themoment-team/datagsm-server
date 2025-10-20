@@ -1,7 +1,7 @@
 ---
 name: ToDo
-about: 해야 할 일을 정리해요!📝
-title: "[{Scope}] "
+about: 해야 할 일을 정리해요!
+title: "[{Scope}]"
 labels: Feature
 assignees: ''
 ---
@@ -17,4 +17,4 @@ assignees: ''
 
 ## 기타 사항
 ---
-> 참고 해야하거나 기타 사항이 있다면 적어주세요.
+> 참고해야 하거나 기타 사항이 있다면 적어주세요.
