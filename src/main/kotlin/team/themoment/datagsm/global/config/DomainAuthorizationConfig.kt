@@ -21,7 +21,14 @@ class DomainAuthorizationConfig {
             .requestMatchers("/v1/auth/google")
             .permitAll()
             .requestMatchers("/v1/auth/api-key")
-            .hasAnyAuthority(Role.ADMIN.authority, Role.TEACHER.authority)
+            .hasAnyAuthority(
+                Role.GENERAL_STUDENT.authority,
+                Role.STUDENT_COUNCIL.authority,
+                Role.ADMIN.authority,
+                Role.LIBRARY_MANAGER.authority,
+                Role.DORMITORY_MANAGER.authority,
+                Role.MEDIA_DEPARTMENT.authority,
+            )
             // Others
             .anyRequest()
             .permitAll()
