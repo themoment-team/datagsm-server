@@ -27,7 +27,7 @@ jobs:
       - name: Make YML File
         run: touch ./src/main/resources/application-stage.yml
 
-          echo "${{ secrets.STAGE_APPLICATION_YAML }}" > ./src/main/resources/application-dev.yml
+          echo "${{ secrets.STAGE_APPLICATION_YAML }}" > ./src/main/resources/application-stage.yml
 
         shell: bash
 
@@ -49,7 +49,7 @@ jobs:
         run: aws s3 cp --region ${{ secrets.AWS_REGION }} ./$GITHUB_SHA.zip s3://${{ secrets.AWS_S3_BUCKET_NAME }}/dev/$GITHUB_SHA.zip
 
       - name: Code Deploy
-        run: aws deploy create-deployment --application-name hellogsm-dev-codedeploy --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name api-stage-hellogsm-kr --s3-location bucket=${{ secrets.BUCKET_NAME }},bundleType=zip,key=dev/$GITHUB_SHA.zip
+        run: aws deploy create-deployment --application-name hellogsm-dev-codedeploy --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name api-stage-hellogsm-kr --s3-location bucket=${{ secrets.AWS_S3_BUCKET_NAME }},bundleType=zip,key=dev/$GITHUB_SHA.zip
 
       - name: CD Success Notification
         uses: sarisia/actions-status-discord@v1
