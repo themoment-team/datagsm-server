@@ -2,7 +2,6 @@
 name: ToDo
 about: 해야 할 일을 정리해요!
 title: "[{Scope}]"
-labels: Feature
 assignees: ''
 ---
 
