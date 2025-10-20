@@ -1,21 +1,33 @@
 package team.themoment.datagsm.domain.auth.controller
 
 import jakarta.validation.Valid
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import team.themoment.datagsm.domain.auth.dto.ApiKeyResDto
 import team.themoment.datagsm.domain.auth.dto.OAuthCodeReqDto
 import team.themoment.datagsm.domain.auth.dto.TokenResDto
 import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
+import team.themoment.datagsm.domain.auth.service.CreateApiKeyService
+import team.themoment.datagsm.domain.auth.service.DeleteApiKeyService
 
 @RestController
 @RequestMapping("/v1/auth")
 class AuthController(
     private val authenticateGoogleOAuthService: AuthenticateGoogleOAuthService,
+    private val createApiKeyService: CreateApiKeyService,
+    private val deleteApiKeyService: DeleteApiKeyService,
 ) {
     @PostMapping
     fun authenticateWithGoogle(
         @RequestBody @Valid reqDto: OAuthCodeReqDto,
     ): TokenResDto = authenticateGoogleOAuthService.execute(reqDto.code)
+
+    @PostMapping("/api-key")
+    fun createApiKey(): ApiKeyResDto = createApiKeyService.execute()
+
+    @DeleteMapping("/api-key")
+    fun deleteApiKey() = deleteApiKeyService.execute()
 }
