@@ -14,8 +14,8 @@ class CreateApiKeyServiceImpl(
     private val currentUserProvider: CurrentUserProvider,
 ) : CreateApiKeyService {
     @Transactional
-    override fun execute(authorization: String): ApiKeyResDto {
-        val student = currentUserProvider.getCurrentStudent(authorization)
+    override fun execute(): ApiKeyResDto {
+        val student = currentUserProvider.getCurrentStudent()
 
         apiKeyJpaRepository.findByApiKeyStudent(student).ifPresent {
             apiKeyJpaRepository.delete(it)
