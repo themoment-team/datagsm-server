@@ -6,8 +6,8 @@ WORKDIR /datagsm-server
 
 ARG JAR_FILE=build/libs/*.jar
 
-COPY ${JAR_FILE} hellogsm-stage-server.jar
+COPY ${JAR_FILE} datagsm-stage-server.jar
 
 RUN ln -snf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
 
-ENTRYPOINT ["java", "-Dspring.profiles.active=dev", "-jar", "hellogsm-stage-server.jar"]
+ENTRYPOINT ["java", "-Dspring.profiles.active=stage", "-jar", "datagsm-stage-server.jar"]
