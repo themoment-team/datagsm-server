@@ -20,7 +20,7 @@ class AuthController(
     private val createApiKeyService: CreateApiKeyService,
     private val deleteApiKeyService: DeleteApiKeyService,
 ) {
-    @PostMapping
+    @PostMapping("/google")
     fun authenticateWithGoogle(
         @RequestBody @Valid reqDto: OAuthCodeReqDto,
     ): TokenResDto = authenticateGoogleOAuthService.execute(reqDto.code)
