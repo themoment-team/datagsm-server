@@ -3,7 +3,6 @@ package team.themoment.datagsm.domain.student.service
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -21,30 +20,34 @@ import java.util.Optional
 class ModifyStudentServiceTest :
     DescribeSpec({
 
-        val mockStudentRepository = mockk<StudentJpaRepository>()
+        lateinit var mockStudentRepository: StudentJpaRepository
+        lateinit var modifyStudentService: ModifyStudentService
 
-        val modifyStudentService = ModifyStudentServiceImpl(mockStudentRepository)
-
-        afterEach {
-            clearAllMocks()
+        beforeEach {
+            mockStudentRepository = mockk<StudentJpaRepository>()
+            modifyStudentService = ModifyStudentServiceImpl(mockStudentRepository)
         }
 
         describe("ModifyStudentService 클래스의") {
             describe("execute 메서드는") {
 
                 val studentId = 1L
-                val existingStudent =
-                    StudentJpaEntity().apply {
-                        this.studentId = studentId
-                        studentName = "기존학생"
-                        studentSex = Sex.MAN
-                        studentEmail = "existing@gsm.hs.kr"
-                        studentNumber = StudentNumber(2, 1, 5)
-                        studentMajor = Major.SW_DEVELOPMENT
-                        studentRole = Role.GENERAL_STUDENT
-                        studentDormitoryRoomNumber = DormitoryRoomNumber(201)
-                        studentIsLeaveSchool = false
-                    }
+                lateinit var existingStudent: StudentJpaEntity
+
+                beforeEach {
+                    existingStudent =
+                        StudentJpaEntity().apply {
+                            this.studentId = studentId
+                            studentName = "기존학생"
+                            studentSex = Sex.MAN
+                            studentEmail = "existing@gsm.hs.kr"
+                            studentNumber = StudentNumber(2, 1, 5)
+                            studentMajor = Major.SW_DEVELOPMENT
+                            studentRole = Role.GENERAL_STUDENT
+                            studentDormitoryRoomNumber = DormitoryRoomNumber(201)
+                            studentIsLeaveSchool = false
+                        }
+                }
 
                 context("존재하는 학생의 이름을 수정할 때") {
                     val updateRequest =
@@ -62,8 +65,16 @@ class ModifyStudentServiceTest :
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
                         every { mockStudentRepository.save(any()) } returns
-                            existingStudent.apply {
+                            StudentJpaEntity().apply {
+                                this.studentId = studentId
                                 studentName = updateRequest.name!!
+                                studentSex = Sex.MAN
+                                studentEmail = "existing@gsm.hs.kr"
+                                studentNumber = StudentNumber(2, 1, 5)
+                                studentMajor = Major.SW_DEVELOPMENT
+                                studentRole = Role.GENERAL_STUDENT
+                                studentDormitoryRoomNumber = DormitoryRoomNumber(201)
+                                studentIsLeaveSchool = false
                             }
                     }
 
@@ -103,8 +114,16 @@ class ModifyStudentServiceTest :
                             )
                         } returns false
                         every { mockStudentRepository.save(any()) } returns
-                            existingStudent.apply {
+                            StudentJpaEntity().apply {
+                                this.studentId = studentId
+                                studentName = "기존학생"
+                                studentSex = Sex.MAN
+                                studentEmail = "existing@gsm.hs.kr"
                                 studentNumber = StudentNumber(3, 1, 5)
+                                studentMajor = Major.SW_DEVELOPMENT
+                                studentRole = Role.GENERAL_STUDENT
+                                studentDormitoryRoomNumber = DormitoryRoomNumber(201)
+                                studentIsLeaveSchool = false
                             }
                     }
 
@@ -152,9 +171,16 @@ class ModifyStudentServiceTest :
                             )
                         } returns false
                         every { mockStudentRepository.save(any()) } returns
-                            existingStudent.apply {
+                            StudentJpaEntity().apply {
+                                this.studentId = studentId
+                                studentName = "기존학생"
+                                studentSex = Sex.MAN
+                                studentEmail = "existing@gsm.hs.kr"
                                 studentNumber = StudentNumber(2, 3, 5)
                                 studentMajor = Major.SMART_IOT
+                                studentRole = Role.GENERAL_STUDENT
+                                studentDormitoryRoomNumber = DormitoryRoomNumber(201)
+                                studentIsLeaveSchool = false
                             }
                     }
 
@@ -193,9 +219,16 @@ class ModifyStudentServiceTest :
                             )
                         } returns false
                         every { mockStudentRepository.save(any()) } returns
-                            existingStudent.apply {
+                            StudentJpaEntity().apply {
+                                this.studentId = studentId
+                                studentName = "기존학생"
+                                studentSex = Sex.MAN
+                                studentEmail = "existing@gsm.hs.kr"
                                 studentNumber = StudentNumber(1, 4, 5)
                                 studentMajor = Major.AI
+                                studentRole = Role.GENERAL_STUDENT
+                                studentDormitoryRoomNumber = DormitoryRoomNumber(201)
+                                studentIsLeaveSchool = false
                             }
                     }
 
@@ -361,6 +394,14 @@ class ModifyStudentServiceTest :
                         exception.message shouldBe "유효하지 않은 학급입니다: 5"
 
                         verify(exactly = 1) { mockStudentRepository.findById(studentId) }
+                        verify(exactly = 1) {
+                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                                2,
+                                5,
+                                5,
+                                studentId,
+                            )
+                        }
                         verify(exactly = 0) { mockStudentRepository.save(any()) }
                     }
                 }
@@ -381,8 +422,16 @@ class ModifyStudentServiceTest :
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
                         every { mockStudentRepository.save(any()) } returns
-                            existingStudent.apply {
+                            StudentJpaEntity().apply {
+                                this.studentId = studentId
+                                studentName = "기존학생"
+                                studentSex = Sex.MAN
+                                studentEmail = "existing@gsm.hs.kr"
+                                studentNumber = StudentNumber(2, 1, 5)
+                                studentMajor = Major.SW_DEVELOPMENT
+                                studentRole = Role.GENERAL_STUDENT
                                 studentDormitoryRoomNumber = DormitoryRoomNumber(updateRequest.dormitoryRoomNumber!!)
+                                studentIsLeaveSchool = false
                             }
                     }
 
@@ -414,9 +463,16 @@ class ModifyStudentServiceTest :
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
                         every { mockStudentRepository.save(any()) } returns
-                            existingStudent.apply {
+                            StudentJpaEntity().apply {
+                                this.studentId = studentId
+                                studentName = "기존학생"
                                 studentSex = updateRequest.sex!!
+                                studentEmail = "existing@gsm.hs.kr"
+                                studentNumber = StudentNumber(2, 1, 5)
+                                studentMajor = Major.SW_DEVELOPMENT
                                 studentRole = updateRequest.role!!
+                                studentDormitoryRoomNumber = DormitoryRoomNumber(201)
+                                studentIsLeaveSchool = false
                             }
                     }
 
@@ -462,7 +518,8 @@ class ModifyStudentServiceTest :
                             )
                         } returns false
                         every { mockStudentRepository.save(any()) } returns
-                            existingStudent.apply {
+                            StudentJpaEntity().apply {
+                                this.studentId = studentId
                                 studentName = updateRequest.name!!
                                 studentSex = updateRequest.sex!!
                                 studentEmail = updateRequest.email!!
@@ -475,6 +532,7 @@ class ModifyStudentServiceTest :
                                 studentMajor = Major.SW_DEVELOPMENT
                                 studentRole = updateRequest.role!!
                                 studentDormitoryRoomNumber = DormitoryRoomNumber(updateRequest.dormitoryRoomNumber!!)
+                                studentIsLeaveSchool = false
                             }
                     }
 
