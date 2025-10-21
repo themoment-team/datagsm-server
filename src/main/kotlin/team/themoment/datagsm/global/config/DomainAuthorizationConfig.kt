@@ -11,15 +11,16 @@ class DomainAuthorizationConfig {
         authorizeRequests: AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry,
     ) {
         authorizeRequests
-            // Swagger
             .requestMatchers("/swagger-ui/**", "/api-docs/**")
             .permitAll()
-            // Health Check
             .requestMatchers("/v1/health")
             .permitAll()
-            // Auth
-            .requestMatchers("/v1/auth/google")
+            .requestMatchers("/v1/auth/google", "/v1/auth/refresh")
             .permitAll()
+            .requestMatchers("/v1/students")
+            .authenticated()
+            .requestMatchers("/v1/students/**")
+            .authenticated()
             .requestMatchers("/v1/auth/api-key")
             .hasAnyAuthority(
                 Role.GENERAL_STUDENT.authority,
@@ -28,9 +29,7 @@ class DomainAuthorizationConfig {
                 Role.LIBRARY_MANAGER.authority,
                 Role.DORMITORY_MANAGER.authority,
                 Role.MEDIA_DEPARTMENT.authority,
-            )
-            // Others
-            .anyRequest()
-            .permitAll()
+            ).anyRequest()
+            .authenticated()
     }
 }

@@ -7,9 +7,12 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.domain.auth.dto.TokenResDto
+import team.themoment.datagsm.domain.auth.entity.RefreshTokenRedisEntity
 import team.themoment.datagsm.domain.auth.entity.constant.Role
+import team.themoment.datagsm.domain.auth.repository.RefreshTokenRedisRepository
 import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
+import team.themoment.datagsm.global.security.jwt.JwtProperties
 import team.themoment.datagsm.global.security.jwt.JwtProvider
 import team.themoment.datagsm.global.thirdparty.feign.oauth.GoogleOAuth2Client
 import team.themoment.datagsm.global.thirdparty.feign.oauth.GoogleUserInfoClient
@@ -24,6 +27,8 @@ class AuthenticateGoogleOAuthServiceImpl(
     private val accountJpaRepository: AccountJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
     private val jwtProvider: JwtProvider,
+    private val jwtProperties: JwtProperties,
+    private val refreshTokenRedisRepository: RefreshTokenRedisRepository,
 ) : AuthenticateGoogleOAuthService {
     @Transactional
     override fun execute(authorizationCode: String): TokenResDto {
@@ -51,6 +56,17 @@ class AuthenticateGoogleOAuthServiceImpl(
 
         val accessToken = jwtProvider.generateAccessToken(userInfo.email, role)
         val refreshToken = jwtProvider.generateRefreshToken(userInfo.email)
+
+        refreshTokenRedisRepository.deleteByEmail(userInfo.email)
+
+        val ttlSeconds = jwtProperties.refreshTokenExpiration / 1000
+        val refreshTokenEntity =
+            RefreshTokenRedisEntity.of(
+                email = userInfo.email,
+                token = refreshToken,
+                ttl = ttlSeconds,
+            )
+        refreshTokenRedisRepository.save(refreshTokenEntity)
 
         return TokenResDto(
             accessToken = accessToken,

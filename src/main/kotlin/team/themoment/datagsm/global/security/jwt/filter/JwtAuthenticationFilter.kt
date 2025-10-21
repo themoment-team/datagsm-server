@@ -7,6 +7,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
+import team.themoment.datagsm.global.security.config.AuthenticationPathConfig
 import team.themoment.datagsm.global.security.jwt.JwtProvider
 
 class JwtAuthenticationFilter(
@@ -14,20 +15,21 @@ class JwtAuthenticationFilter(
 ) : OncePerRequestFilter() {
     private val pathMatcher = AntPathMatcher()
 
-    companion object {
-        private val EXCLUDED_PATHS =
-            listOf(
-                "/v1/auth/google",
-                "/v1/health",
-                "/swagger-ui/**",
-                "/api-docs/**",
-            )
-    }
+    override fun shouldNotFilter(request: HttpServletRequest): Boolean {
+        val requestPath = request.requestURI
 
-    override fun shouldNotFilter(request: HttpServletRequest): Boolean =
-        EXCLUDED_PATHS.any { path ->
-            pathMatcher.match(path, request.requestURI)
-        }
+        val isPublicPath =
+            AuthenticationPathConfig.PUBLIC_PATHS.any { path ->
+                pathMatcher.match(path, requestPath)
+            }
+
+        val isApiKeyPath =
+            AuthenticationPathConfig.API_KEY_PATHS.any { path ->
+                pathMatcher.match(path, requestPath)
+            }
+
+        return isPublicPath || isApiKeyPath
+    }
 
     override fun doFilterInternal(
         request: HttpServletRequest,
