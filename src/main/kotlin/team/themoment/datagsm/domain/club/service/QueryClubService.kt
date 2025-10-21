@@ -1,5 +1,6 @@
 package team.themoment.datagsm.domain.club.service
 
+import team.themoment.datagsm.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
 
 interface QueryClubService {
@@ -8,6 +9,6 @@ interface QueryClubService {
         clubName: String?,
         clubType: ClubType?,
         page: Int,
-        size: Int
-    )
+        size: Int,
+    ): ClubResDto
 }

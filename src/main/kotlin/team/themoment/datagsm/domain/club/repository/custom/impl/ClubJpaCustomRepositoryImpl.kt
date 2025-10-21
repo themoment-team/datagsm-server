@@ -12,34 +12,35 @@ import team.themoment.datagsm.domain.club.repository.custom.ClubJpaCustomReposit
 
 @Repository
 class ClubJpaCustomRepositoryImpl(
-    private val jpaQueryFactory: JPAQueryFactory
+    private val jpaQueryFactory: JPAQueryFactory,
 ) : ClubJpaCustomRepository {
     override fun searchClubWithPaging(
         clubId: Long?,
         clubName: String?,
         clubType: ClubType?,
-        pageable: Pageable
+        pageable: Pageable,
     ): Page<ClubJpaEntity> {
-        val content = jpaQueryFactory
-            .selectFrom(clubJpaEntity)
-            .where(
-                clubId?.let { clubJpaEntity.clubId.eq(it) },
-                clubName?.let { clubJpaEntity.clubName.contains(it) },
-                clubType?.let { clubJpaEntity.clubType.eq(it) }
-            )
-            .offset(pageable.offset)
-            .limit(pageable.pageSize.toLong())
-            .fetch()
+        val content =
+            jpaQueryFactory
+                .selectFrom(clubJpaEntity)
+                .where(
+                    clubId?.let { clubJpaEntity.clubId.eq(it) },
+                    clubName?.let { clubJpaEntity.clubName.contains(it) },
+                    clubType?.let { clubJpaEntity.clubType.eq(it) },
+                ).offset(pageable.offset)
+                .limit(pageable.pageSize.toLong())
+                .fetch()
 
-        val countQuery = jpaQueryFactory
-            .select(clubJpaEntity.count())
-            .from(clubJpaEntity)
-            .where(
-                clubId?.let { clubJpaEntity.clubId.eq(it) },
-                clubName?.let { clubJpaEntity.clubName.contains(it) },
-                clubType?.let { clubJpaEntity.clubType.eq(it) }
-            );
+        val countQuery =
+            jpaQueryFactory
+                .select(clubJpaEntity.count())
+                .from(clubJpaEntity)
+                .where(
+                    clubId?.let { clubJpaEntity.clubId.eq(it) },
+                    clubName?.let { clubJpaEntity.clubName.contains(it) },
+                    clubType?.let { clubJpaEntity.clubType.eq(it) },
+                )
 
-        return PageableExecutionUtils.getPage(content,pageable) { countQuery.fetchOne() ?: 0L }
+        return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
     }
 }

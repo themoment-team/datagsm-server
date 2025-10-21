@@ -10,6 +10,6 @@ interface ClubJpaCustomRepository {
         clubId: Long?,
         clubName: String?,
         clubType: ClubType?,
-        pageable: Pageable
+        pageable: Pageable,
     ): Page<ClubJpaEntity>
 }
