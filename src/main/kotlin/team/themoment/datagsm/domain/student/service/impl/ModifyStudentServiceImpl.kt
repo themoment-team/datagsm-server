@@ -48,7 +48,7 @@ class ModifyStudentServiceImpl(
             student.studentNumber = StudentNumber(newGrade, newClassNum, newNumber)
 
             if (reqDto.classNum != null) {
-                student.studentMajor = Major.fromGrade(newClassNum)
+                student.studentMajor = Major.fromClassNum(newClassNum)
                     ?: throw IllegalArgumentException("유효하지 않은 학급입니다: $newClassNum")
             }
         }
