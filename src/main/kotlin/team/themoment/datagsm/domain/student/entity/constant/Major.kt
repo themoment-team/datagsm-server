@@ -7,8 +7,8 @@ enum class Major {
     ;
 
     companion object {
-        fun fromGrade(grade: Int): Major? =
-            when (grade) {
+        fun fromClassNum(classNum: Int): Major? =
+            when (classNum) {
                 1, 2 -> SW_DEVELOPMENT
                 3 -> SMART_IOT
                 4 -> AI

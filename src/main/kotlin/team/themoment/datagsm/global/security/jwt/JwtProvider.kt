@@ -63,6 +63,13 @@ class JwtProvider(
         return Role.valueOf(roleName)
     }
 
+    fun extractToken(bearerToken: String?): String? =
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            bearerToken.substring(7)
+        } else {
+            null
+        }
+
     private fun parseClaims(token: String): Claims =
         Jwts
             .parser()
