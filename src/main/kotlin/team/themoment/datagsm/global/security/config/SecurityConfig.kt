@@ -39,8 +39,10 @@ class SecurityConfig(
             .logout(LogoutConfigurer<*>::disable)
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .exceptionHandling { it.authenticationEntryPoint(customAuthenticationEntryPoint) }
-            .addFilterBefore(ApiKeyAuthenticationFilter(apiKeyJpaRepository), UsernamePasswordAuthenticationFilter::class.java)
-            .addFilterBefore(JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter::class.java)
+            .addFilterBefore(
+                ApiKeyAuthenticationFilter(apiKeyJpaRepository),
+                UsernamePasswordAuthenticationFilter::class.java,
+            ).addFilterBefore(JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter::class.java)
             .authorizeHttpRequests { domainAuthorizationConfig.configure(it) }
 
         return http.build()

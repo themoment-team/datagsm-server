@@ -29,8 +29,7 @@ class DomainAuthorizationConfig {
                 Role.LIBRARY_MANAGER.authority,
                 Role.DORMITORY_MANAGER.authority,
                 Role.MEDIA_DEPARTMENT.authority,
-            )
-            .anyRequest()
+            ).anyRequest()
             .authenticated()
     }
 }

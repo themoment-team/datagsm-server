@@ -12,6 +12,7 @@ import team.themoment.datagsm.domain.auth.service.ReissueTokenService
 import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.jwt.JwtProperties
 import team.themoment.datagsm.global.security.jwt.JwtProvider
+import java.security.MessageDigest
 
 @Service
 class ReissueTokenServiceImpl(
@@ -35,7 +36,7 @@ class ReissueTokenServiceImpl(
                     ExpectedException("저장된 refresh token을 찾을 수 없습니다.", HttpStatus.UNAUTHORIZED)
                 }
 
-        if (storedToken.token != refreshToken) {
+        if (!MessageDigest.isEqual(storedToken.token.toByteArray(), refreshToken.toByteArray())) {
             refreshTokenRedisRepository.deleteByEmail(email)
             throw ExpectedException("Refresh token이 일치하지 않습니다. 재로그인이 필요합니다.", HttpStatus.UNAUTHORIZED)
         }
