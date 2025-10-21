@@ -12,6 +12,7 @@ import team.themoment.datagsm.domain.auth.dto.TokenResDto
 import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
 import team.themoment.datagsm.domain.auth.service.CreateApiKeyService
 import team.themoment.datagsm.domain.auth.service.DeleteApiKeyService
+import team.themoment.datagsm.global.common.response.dto.response.CommonApiResponse
 
 @RestController
 @RequestMapping("/v1/auth")
@@ -20,7 +21,7 @@ class AuthController(
     private val createApiKeyService: CreateApiKeyService,
     private val deleteApiKeyService: DeleteApiKeyService,
 ) {
-    @PostMapping
+    @PostMapping("/google")
     fun authenticateWithGoogle(
         @RequestBody @Valid reqDto: OAuthCodeReqDto,
     ): TokenResDto = authenticateGoogleOAuthService.execute(reqDto.code)
@@ -29,5 +30,8 @@ class AuthController(
     fun createApiKey(): ApiKeyResDto = createApiKeyService.execute()
 
     @DeleteMapping("/api-key")
-    fun deleteApiKey() = deleteApiKeyService.execute()
+    fun deleteApiKey(): CommonApiResponse<Nothing> {
+        deleteApiKeyService.execute()
+        return CommonApiResponse.success("API 키가 삭제되었습니다.")
+    }
 }

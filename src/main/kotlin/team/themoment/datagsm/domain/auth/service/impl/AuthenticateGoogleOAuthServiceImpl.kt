@@ -9,6 +9,7 @@ import team.themoment.datagsm.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.domain.auth.dto.TokenResDto
 import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
+import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.global.security.jwt.JwtProvider
 import team.themoment.datagsm.global.thirdparty.feign.oauth.GoogleOAuth2Client
 import team.themoment.datagsm.global.thirdparty.feign.oauth.GoogleUserInfoClient
@@ -21,6 +22,7 @@ class AuthenticateGoogleOAuthServiceImpl(
     private val googleOAuth2Client: GoogleOAuth2Client,
     private val googleUserInfoClient: GoogleUserInfoClient,
     private val accountJpaRepository: AccountJpaRepository,
+    private val studentJpaRepository: StudentJpaRepository,
     private val jwtProvider: JwtProvider,
 ) : AuthenticateGoogleOAuthService {
     @Transactional
@@ -39,7 +41,10 @@ class AuthenticateGoogleOAuthServiceImpl(
             accountJpaRepository
                 .findByAccountEmail(userInfo.email)
                 .orElseGet {
-                    accountJpaRepository.save(AccountJpaEntity.create(userInfo.email))
+                    val newAccount = AccountJpaEntity.create(userInfo.email)
+                    val student = studentJpaRepository.findByStudentEmail(userInfo.email).orElse(null)
+                    newAccount.accountStudent = student
+                    accountJpaRepository.save(newAccount)
                 }
 
         val role = account.accountStudent?.studentRole ?: Role.GENERAL_STUDENT

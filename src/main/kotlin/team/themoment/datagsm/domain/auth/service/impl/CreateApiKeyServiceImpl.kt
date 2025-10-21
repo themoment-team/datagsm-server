@@ -7,6 +7,7 @@ import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.CreateApiKeyService
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
+import java.util.UUID
 
 @Service
 class CreateApiKeyServiceImpl(
@@ -17,16 +18,16 @@ class CreateApiKeyServiceImpl(
     override fun execute(): ApiKeyResDto {
         val student = currentUserProvider.getCurrentStudent()
 
-        apiKeyJpaRepository.findByApiKeyStudent(student).ifPresent {
-            apiKeyJpaRepository.delete(it)
-        }
+        val apiKey =
+            apiKeyJpaRepository
+                .findByApiKeyStudent(student)
+                .map {
+                    it.apply { apiKeyValue = UUID.randomUUID() }
+                }.orElseGet {
+                    ApiKey().apply { apiKeyStudent = student }
+                }
 
-        val newApiKey =
-            ApiKey().apply {
-                apiKeyStudent = student
-            }
-
-        val savedApiKey = apiKeyJpaRepository.save(newApiKey)
+        val savedApiKey = apiKeyJpaRepository.save(apiKey)
 
         return ApiKeyResDto(apiKey = savedApiKey.apiKeyValue)
     }
