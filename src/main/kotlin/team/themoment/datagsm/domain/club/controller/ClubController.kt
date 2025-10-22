@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.domain.club.dto.request.ClubReqDto
-import team.themoment.datagsm.domain.club.dto.response.ClubResDto
+import team.themoment.datagsm.domain.club.dto.response.ClubListResDto
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.domain.club.service.CreateClubService
 import team.themoment.datagsm.domain.club.service.DeleteClubService
@@ -33,18 +33,18 @@ class ClubController(
         @RequestParam(required = false) clubType: ClubType?,
         @RequestParam(required = false, defaultValue = "0") page: Int,
         @RequestParam(required = false, defaultValue = "100") size: Int,
-    ): ClubResDto = queryClubService.execute(clubId, clubName, clubType, page, size)
+    ): ClubListResDto = queryClubService.execute(clubId, clubName, clubType, page, size)
 
     @PostMapping
     fun createClub(
         @RequestBody @Valid clubReqDto: ClubReqDto,
-    ): ClubResDto = createClubService.execute(clubReqDto)
+    ): ClubListResDto = createClubService.execute(clubReqDto)
 
     @PatchMapping("/{clubId}")
     fun updateClub(
         @PathVariable clubId: Long,
         @RequestBody @Valid clubReqDto: ClubReqDto,
-    ): ClubResDto = modifyClubService.execute(clubId, clubReqDto)
+    ): ClubListResDto = modifyClubService.execute(clubId, clubReqDto)
 
     @DeleteMapping("/{clubId}")
     fun deleteClub(

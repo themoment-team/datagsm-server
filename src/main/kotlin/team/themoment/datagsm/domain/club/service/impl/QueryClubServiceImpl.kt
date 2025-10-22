@@ -3,7 +3,7 @@ package team.themoment.datagsm.domain.club.service.impl
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.domain.club.dto.internal.ClubDto
-import team.themoment.datagsm.domain.club.dto.response.ClubResDto
+import team.themoment.datagsm.domain.club.dto.response.ClubListResDto
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.club.service.QueryClubService
@@ -18,7 +18,7 @@ class QueryClubServiceImpl(
         clubType: ClubType?,
         page: Int,
         size: Int,
-    ): ClubResDto {
+    ): ClubListResDto {
         val clubPage =
             clubJpaRepository.searchClubWithPaging(
                 clubId = clubId,
@@ -27,7 +27,7 @@ class QueryClubServiceImpl(
                 pageable = PageRequest.of(page, size),
             )
 
-        return ClubResDto(
+        return ClubListResDto(
             totalPages = clubPage.totalPages,
             totalElements = clubPage.totalElements,
             clubs =

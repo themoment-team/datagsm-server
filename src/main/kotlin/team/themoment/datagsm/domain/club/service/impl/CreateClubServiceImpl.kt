@@ -3,7 +3,7 @@ package team.themoment.datagsm.domain.club.service.impl
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.domain.club.dto.internal.ClubDto
 import team.themoment.datagsm.domain.club.dto.request.ClubReqDto
-import team.themoment.datagsm.domain.club.dto.response.ClubResDto
+import team.themoment.datagsm.domain.club.dto.response.ClubListResDto
 import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.club.service.CreateClubService
@@ -12,7 +12,7 @@ import team.themoment.datagsm.domain.club.service.CreateClubService
 class CreateClubServiceImpl(
     private final val clubJpaRepository: ClubJpaRepository,
 ) : CreateClubService {
-    override fun execute(clubReqDto: ClubReqDto): ClubResDto {
+    override fun execute(clubReqDto: ClubReqDto): ClubListResDto {
         if (clubJpaRepository.existsByClubName(clubReqDto.clubName)) {
             throw IllegalArgumentException("이미 존재하는 동아리 이름입니다: ${clubReqDto.clubName}")
         }
@@ -33,7 +33,7 @@ class CreateClubServiceImpl(
                 clubType = savedClubEntity.clubType,
             )
 
-        return ClubResDto(
+        return ClubListResDto(
             totalPages = 1,
             totalElements = 1L,
             clubs = listOf(clubDto),
