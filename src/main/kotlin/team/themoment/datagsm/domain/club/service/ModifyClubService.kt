@@ -1,10 +1,11 @@
-package team.themoment.datagsm.domain.club.service;
+package team.themoment.datagsm.domain.club.service
 
-import org.jetbrains.annotations.NotNull;
-import team.themoment.datagsm.domain.club.dto.request.ClubReqDto;
-import team.themoment.datagsm.domain.club.dto.response.ClubResDto;
+import team.themoment.datagsm.domain.club.dto.request.ClubReqDto
+import team.themoment.datagsm.domain.club.dto.response.ClubResDto
 
-public interface ModifyClubService {
-    @NotNull
-    ClubResDto execute(long clubId, @NotNull ClubReqDto reqDto);
+interface ModifyClubService {
+    fun execute(
+        clubId: Long,
+        reqDto: ClubReqDto,
+    ): ClubResDto
 }
