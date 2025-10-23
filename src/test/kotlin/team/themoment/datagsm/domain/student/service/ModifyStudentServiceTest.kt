@@ -81,9 +81,8 @@ class ModifyStudentServiceTest :
                     it("학생 이름이 성공적으로 업데이트되어야 한다") {
                         val result = modifyStudentService.execute(studentId, updateRequest)
 
-                        result.students.size shouldBe 1
-                        result.students[0].studentId shouldBe studentId
-                        result.students[0].name shouldBe "수정된이름"
+                        result.studentId shouldBe studentId
+                        result.name shouldBe "수정된이름"
 
                         verify(exactly = 1) { mockStudentRepository.findById(studentId) }
                         verify(exactly = 1) { mockStudentRepository.save(any()) }
@@ -130,11 +129,10 @@ class ModifyStudentServiceTest :
                     it("학년만 변경하고 반이 변경되지 않으면 전공은 유지되어야 한다") {
                         val result = modifyStudentService.execute(studentId, updateRequest)
 
-                        val student = result.students[0]
-                        student.grade shouldBe 3
-                        student.classNum shouldBe 1
-                        student.major shouldBe Major.SW_DEVELOPMENT
-                        student.studentNumber shouldBe 3105
+                        result.grade shouldBe 3
+                        result.classNum shouldBe 1
+                        result.major shouldBe Major.SW_DEVELOPMENT
+                        result.studentNumber shouldBe 3105
 
                         verify(exactly = 1) {
                             mockStudentRepository.existsByStudentNumberAndNotStudentId(
@@ -187,11 +185,10 @@ class ModifyStudentServiceTest :
                     it("반 변경 시 새로운 반에 따라 전공이 변경되어야 한다") {
                         val result = modifyStudentService.execute(studentId, updateRequest)
 
-                        val student = result.students[0]
-                        student.grade shouldBe 2
-                        student.classNum shouldBe 3
-                        student.major shouldBe Major.SMART_IOT
-                        student.studentNumber shouldBe 2305
+                        result.grade shouldBe 2
+                        result.classNum shouldBe 3
+                        result.major shouldBe Major.SMART_IOT
+                        result.studentNumber shouldBe 2305
                     }
                 }
 
@@ -235,11 +232,10 @@ class ModifyStudentServiceTest :
                     it("반 변경 시 새로운 반에 따라 전공이 변경되어야 한다") {
                         val result = modifyStudentService.execute(studentId, updateRequest)
 
-                        val student = result.students[0]
-                        student.grade shouldBe 1
-                        student.classNum shouldBe 4
-                        student.major shouldBe Major.AI
-                        student.studentNumber shouldBe 1405
+                        result.grade shouldBe 1
+                        result.classNum shouldBe 4
+                        result.major shouldBe Major.AI
+                        result.studentNumber shouldBe 1405
                     }
                 }
 
@@ -438,9 +434,8 @@ class ModifyStudentServiceTest :
                     it("기숙사 방 번호가 성공적으로 변경되어야 한다") {
                         val result = modifyStudentService.execute(studentId, updateRequest)
 
-                        val student = result.students[0]
-                        student.dormitoryRoom shouldBe 305
-                        student.dormitoryFloor shouldBe 3
+                        result.dormitoryRoom shouldBe 305
+                        result.dormitoryFloor shouldBe 3
 
                         verify(exactly = 1) { mockStudentRepository.findById(studentId) }
                         verify(exactly = 1) { mockStudentRepository.save(any()) }
@@ -479,9 +474,8 @@ class ModifyStudentServiceTest :
                     it("성별과 역할이 성공적으로 변경되어야 한다") {
                         val result = modifyStudentService.execute(studentId, updateRequest)
 
-                        val student = result.students[0]
-                        student.sex shouldBe Sex.WOMAN
-                        student.role shouldBe Role.STUDENT_COUNCIL
+                        result.sex shouldBe Sex.WOMAN
+                        result.role shouldBe Role.STUDENT_COUNCIL
 
                         verify(exactly = 1) { mockStudentRepository.findById(studentId) }
                         verify(exactly = 1) { mockStudentRepository.save(any()) }
@@ -539,18 +533,17 @@ class ModifyStudentServiceTest :
                     it("모든 필드가 성공적으로 업데이트되어야 한다") {
                         val result = modifyStudentService.execute(studentId, updateRequest)
 
-                        val student = result.students[0]
-                        student.name shouldBe "완전수정학생"
-                        student.sex shouldBe Sex.WOMAN
-                        student.email shouldBe "updated@gsm.hs.kr"
-                        student.grade shouldBe 4
-                        student.classNum shouldBe 2
-                        student.number shouldBe 8
-                        student.studentNumber shouldBe 4208
-                        student.major shouldBe Major.SW_DEVELOPMENT
-                        student.role shouldBe Role.DORMITORY_MANAGER
-                        student.dormitoryRoom shouldBe 418
-                        student.dormitoryFloor shouldBe 4
+                        result.name shouldBe "완전수정학생"
+                        result.sex shouldBe Sex.WOMAN
+                        result.email shouldBe "updated@gsm.hs.kr"
+                        result.grade shouldBe 4
+                        result.classNum shouldBe 2
+                        result.number shouldBe 8
+                        result.studentNumber shouldBe 4208
+                        result.major shouldBe Major.SW_DEVELOPMENT
+                        result.role shouldBe Role.DORMITORY_MANAGER
+                        result.dormitoryRoom shouldBe 418
+                        result.dormitoryFloor shouldBe 4
 
                         verify(exactly = 1) { mockStudentRepository.findById(studentId) }
                         verify(exactly = 1) {
