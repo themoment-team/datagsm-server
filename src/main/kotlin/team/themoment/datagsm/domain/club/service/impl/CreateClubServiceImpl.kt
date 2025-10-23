@@ -3,7 +3,6 @@ package team.themoment.datagsm.domain.club.service.impl
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.domain.club.dto.internal.ClubDto
 import team.themoment.datagsm.domain.club.dto.request.ClubReqDto
-import team.themoment.datagsm.domain.club.dto.response.ClubListResDto
 import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.club.service.CreateClubService
@@ -12,7 +11,7 @@ import team.themoment.datagsm.domain.club.service.CreateClubService
 class CreateClubServiceImpl(
     private final val clubJpaRepository: ClubJpaRepository,
 ) : CreateClubService {
-    override fun execute(clubReqDto: ClubReqDto): ClubListResDto {
+    override fun execute(clubReqDto: ClubReqDto): ClubDto {
         if (clubJpaRepository.existsByClubName(clubReqDto.clubName)) {
             throw IllegalArgumentException("이미 존재하는 동아리 이름입니다: ${clubReqDto.clubName}")
         }
@@ -25,18 +24,11 @@ class CreateClubServiceImpl(
             }
         val savedClubEntity = clubJpaRepository.save(clubEntity)
 
-        val clubDto =
-            ClubDto(
-                clubId = savedClubEntity.clubId!!,
-                clubName = savedClubEntity.clubName,
-                clubDescription = savedClubEntity.clubDescription,
-                clubType = savedClubEntity.clubType,
-            )
-
-        return ClubListResDto(
-            totalPages = 1,
-            totalElements = 1L,
-            clubs = listOf(clubDto),
+        return ClubDto(
+            clubId = savedClubEntity.clubId!!,
+            clubName = savedClubEntity.clubName,
+            clubDescription = savedClubEntity.clubDescription,
+            clubType = savedClubEntity.clubType,
         )
     }
 }
