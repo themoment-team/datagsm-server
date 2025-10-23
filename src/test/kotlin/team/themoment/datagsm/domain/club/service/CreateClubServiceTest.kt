@@ -65,18 +65,12 @@ class CreateClubServiceTest :
                         }
                     }
 
-                    it("1개의 결과를 반환하고 생성된 동아리 정보를 포함해야 한다") {
+                    it("생성된 동아리 정보를 반환해야 한다") {
                         val res = createClubService.execute(req)
 
-                        res.totalPages shouldBe 1
-                        res.totalElements shouldBe 1L
-                        res.clubs.size shouldBe 1
-
-                        val club = res.clubs[0]
-                        club.clubId shouldBe 10L
-                        club.clubName shouldBe req.clubName
-                        club.clubDescription shouldBe req.clubDescription
-                        club.clubType shouldBe req.clubType
+                        res.clubName shouldBe req.clubName
+                        res.clubDescription shouldBe req.clubDescription
+                        res.clubType shouldBe req.clubType
 
                         verify(exactly = 1) { mockClubRepository.existsByClubName(req.clubName) }
                         verify(exactly = 1) { mockClubRepository.save(any()) }

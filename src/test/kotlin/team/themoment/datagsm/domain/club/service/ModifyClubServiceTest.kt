@@ -59,19 +59,12 @@ class ModifyClubServiceTest :
                     it("업데이트된 정보가 반환되어야 한다") {
                         val res = modifyClubService.execute(clubId, req)
 
-                        res.totalPages shouldBe 1
-                        res.totalElements shouldBe 1L
-                        res.clubs.size shouldBe 1
-
-                        val club = res.clubs[0]
-                        club.clubId shouldBe clubId
-                        club.clubName shouldBe req.clubName
-                        club.clubDescription shouldBe req.clubDescription
-                        club.clubType shouldBe req.clubType
+                        res.clubName shouldBe req.clubName
+                        res.clubDescription shouldBe req.clubDescription
+                        res.clubType shouldBe req.clubType
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
                         verify(exactly = 1) { mockClubRepository.existsByClubNameAndClubIdNot(req.clubName, clubId) }
-                        verify(exactly = 1) { mockClubRepository.save(any()) }
                     }
                 }
 
@@ -85,21 +78,17 @@ class ModifyClubServiceTest :
 
                     beforeEach {
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
-                        every { mockClubRepository.save(any()) } answers { firstArg<ClubJpaEntity>() }
                     }
 
                     it("중복 이름 검사 없이 저장되어야 한다") {
                         val res = modifyClubService.execute(clubId, req)
 
-                        val club = res.clubs[0]
-                        club.clubId shouldBe clubId
-                        club.clubName shouldBe req.clubName
-                        club.clubDescription shouldBe req.clubDescription
-                        club.clubType shouldBe req.clubType
+                        res.clubName shouldBe req.clubName
+                        res.clubDescription shouldBe req.clubDescription
+                        res.clubType shouldBe req.clubType
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
                         verify(exactly = 0) { mockClubRepository.existsByClubNameAndClubIdNot(any(), any()) }
-                        verify(exactly = 1) { mockClubRepository.save(any()) }
                     }
                 }
 
