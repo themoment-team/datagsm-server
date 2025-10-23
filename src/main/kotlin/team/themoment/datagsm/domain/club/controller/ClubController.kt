@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.domain.club.dto.internal.ClubDto
+import team.themoment.datagsm.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.domain.club.dto.response.ClubListResDto
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
@@ -39,13 +39,13 @@ class ClubController(
     @PostMapping
     fun createClub(
         @RequestBody @Valid clubReqDto: ClubReqDto,
-    ): ClubDto = createClubService.execute(clubReqDto)
+    ): ClubResDto = createClubService.execute(clubReqDto)
 
     @PatchMapping("/{clubId}")
     fun updateClub(
         @PathVariable clubId: Long,
         @RequestBody @Valid clubReqDto: ClubReqDto,
-    ): ClubDto = modifyClubService.execute(clubId, clubReqDto)
+    ): ClubResDto = modifyClubService.execute(clubId, clubReqDto)
 
     @DeleteMapping("/{clubId}")
     fun deleteClub(

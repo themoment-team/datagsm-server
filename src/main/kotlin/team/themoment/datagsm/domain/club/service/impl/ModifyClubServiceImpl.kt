@@ -2,7 +2,7 @@ package team.themoment.datagsm.domain.club.service.impl
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.domain.club.dto.internal.ClubDto
+import team.themoment.datagsm.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.club.service.ModifyClubService
@@ -15,7 +15,7 @@ class ModifyClubServiceImpl(
     override fun execute(
         clubId: Long,
         reqDto: ClubReqDto,
-    ): ClubDto {
+    ): ClubResDto {
         val club =
             clubJpaRepository
                 .findById(clubId)
@@ -31,7 +31,7 @@ class ModifyClubServiceImpl(
         club.clubDescription = reqDto.clubDescription
         club.clubType = reqDto.clubType
 
-        return ClubDto(
+        return ClubResDto(
             clubId = club.clubId!!,
             clubName = club.clubName,
             clubDescription = club.clubDescription,

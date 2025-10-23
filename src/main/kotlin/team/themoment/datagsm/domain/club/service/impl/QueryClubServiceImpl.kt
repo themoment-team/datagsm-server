@@ -2,7 +2,7 @@ package team.themoment.datagsm.domain.club.service.impl
 
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
-import team.themoment.datagsm.domain.club.dto.internal.ClubDto
+import team.themoment.datagsm.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.domain.club.dto.response.ClubListResDto
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
@@ -32,7 +32,7 @@ class QueryClubServiceImpl(
             totalElements = clubPage.totalElements,
             clubs =
                 clubPage.content.map { entity ->
-                    ClubDto(
+                    ClubResDto(
                         clubId = entity.clubId!!,
                         clubName = entity.clubName,
                         clubDescription = entity.clubDescription,
