@@ -2,7 +2,6 @@ package team.themoment.datagsm.domain.student.service.impl
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.domain.student.dto.internal.StudentDto
 import team.themoment.datagsm.domain.student.dto.request.StudentCreateReqDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
@@ -17,7 +16,7 @@ import team.themoment.datagsm.domain.student.service.CreateStudentService
 class CreateStudentServiceImpl(
     private final val studentJpaRepository: StudentJpaRepository,
 ) : CreateStudentService {
-    override fun createStudent(reqDto: StudentCreateReqDto): StudentResDto {
+    override fun execute(reqDto: StudentCreateReqDto): StudentResDto {
         if (studentJpaRepository.existsByStudentEmail(reqDto.email)) {
             throw IllegalArgumentException("이미 존재하는 이메일입니다: ${reqDto.email}")
         }
@@ -40,27 +39,20 @@ class CreateStudentServiceImpl(
 
         val savedStudent = studentJpaRepository.save(studentEntity)
 
-        val studentDto =
-            StudentDto(
-                studentId = savedStudent.studentId!!,
-                name = savedStudent.studentName,
-                sex = savedStudent.studentSex,
-                email = savedStudent.studentEmail,
-                grade = savedStudent.studentNumber.studentGrade,
-                classNum = savedStudent.studentNumber.studentClass,
-                number = savedStudent.studentNumber.studentNumber,
-                studentNumber = savedStudent.studentNumber.fullStudentNumber,
-                major = savedStudent.studentMajor,
-                role = savedStudent.studentRole,
-                dormitoryFloor = savedStudent.studentDormitoryRoomNumber.dormitoryRoomFloor,
-                dormitoryRoom = savedStudent.studentDormitoryRoomNumber.dormitoryRoomNumber,
-                isLeaveSchool = savedStudent.studentIsLeaveSchool,
-            )
-
         return StudentResDto(
-            totalPages = 1,
-            totalElements = 1L,
-            students = listOf(studentDto),
+            studentId = savedStudent.studentId!!,
+            name = savedStudent.studentName,
+            sex = savedStudent.studentSex,
+            email = savedStudent.studentEmail,
+            grade = savedStudent.studentNumber.studentGrade,
+            classNum = savedStudent.studentNumber.studentClass,
+            number = savedStudent.studentNumber.studentNumber,
+            studentNumber = savedStudent.studentNumber.fullStudentNumber,
+            major = savedStudent.studentMajor,
+            role = savedStudent.studentRole,
+            dormitoryFloor = savedStudent.studentDormitoryRoomNumber.dormitoryRoomFloor,
+            dormitoryRoom = savedStudent.studentDormitoryRoomNumber.dormitoryRoomNumber,
+            isLeaveSchool = savedStudent.studentIsLeaveSchool,
         )
     }
 }
