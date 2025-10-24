@@ -2,7 +2,6 @@ package team.themoment.datagsm.domain.student.service.impl
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.domain.student.dto.internal.StudentDto
 import team.themoment.datagsm.domain.student.dto.request.StudentUpdateReqDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
@@ -62,27 +61,20 @@ class ModifyStudentServiceImpl(
 
         val savedStudent = studentJpaRepository.save(student)
 
-        val studentDto =
-            StudentDto(
-                studentId = savedStudent.studentId!!,
-                name = savedStudent.studentName,
-                sex = savedStudent.studentSex,
-                email = savedStudent.studentEmail,
-                grade = savedStudent.studentNumber.studentGrade,
-                classNum = savedStudent.studentNumber.studentClass,
-                number = savedStudent.studentNumber.studentNumber,
-                studentNumber = savedStudent.studentNumber.fullStudentNumber,
-                major = savedStudent.studentMajor,
-                role = savedStudent.studentRole,
-                dormitoryFloor = savedStudent.studentDormitoryRoomNumber.dormitoryRoomFloor,
-                dormitoryRoom = savedStudent.studentDormitoryRoomNumber.dormitoryRoomNumber,
-                isLeaveSchool = savedStudent.studentIsLeaveSchool,
-            )
-
         return StudentResDto(
-            totalPages = 1,
-            totalElements = 1L,
-            students = listOf(studentDto),
+            studentId = savedStudent.studentId!!,
+            name = savedStudent.studentName,
+            sex = savedStudent.studentSex,
+            email = savedStudent.studentEmail,
+            grade = savedStudent.studentNumber.studentGrade,
+            classNum = savedStudent.studentNumber.studentClass,
+            number = savedStudent.studentNumber.studentNumber,
+            studentNumber = savedStudent.studentNumber.fullStudentNumber,
+            major = savedStudent.studentMajor,
+            role = savedStudent.studentRole,
+            dormitoryFloor = savedStudent.studentDormitoryRoomNumber.dormitoryRoomFloor,
+            dormitoryRoom = savedStudent.studentDormitoryRoomNumber.dormitoryRoomNumber,
+            isLeaveSchool = savedStudent.studentIsLeaveSchool,
         )
     }
 }

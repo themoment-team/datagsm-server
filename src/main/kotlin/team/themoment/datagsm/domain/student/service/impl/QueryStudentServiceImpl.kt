@@ -2,14 +2,16 @@ package team.themoment.datagsm.domain.student.service.impl
 
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.auth.entity.constant.Role
-import team.themoment.datagsm.domain.student.dto.internal.StudentDto
+import team.themoment.datagsm.domain.student.dto.response.StudentListResDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.domain.student.service.QueryStudentService
 
 @Service
+@Transactional(readOnly = true)
 class QueryStudentServiceImpl(
     private final val studentJpaRepository: StudentJpaRepository,
 ) : QueryStudentService {
@@ -26,7 +28,7 @@ class QueryStudentServiceImpl(
         isLeaveSchool: Boolean,
         page: Int,
         size: Int,
-    ): StudentResDto {
+    ): StudentListResDto {
         val studentPage =
             studentJpaRepository.searchStudentsWithPaging(
                 studentId = studentId,
@@ -42,12 +44,12 @@ class QueryStudentServiceImpl(
                 pageable = PageRequest.of(page, size),
             )
 
-        return StudentResDto(
+        return StudentListResDto(
             totalElements = studentPage.totalElements,
             totalPages = studentPage.totalPages,
             students =
                 studentPage.content.map { entity ->
-                    StudentDto(
+                    StudentResDto(
                         studentId = entity.studentId!!,
                         name = entity.studentName,
                         sex = entity.studentSex,

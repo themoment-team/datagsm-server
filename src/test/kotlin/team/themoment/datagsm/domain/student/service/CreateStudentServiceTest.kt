@@ -29,7 +29,7 @@ class CreateStudentServiceTest :
         }
 
         describe("CreateStudentService 클래스의") {
-            describe("createStudent 메서드는") {
+            describe("execute 메서드는") {
 
                 context("유효한 1반 학생 정보로 생성 요청할 때") {
                     val createRequest =
@@ -71,25 +71,20 @@ class CreateStudentServiceTest :
                     }
 
                     it("새로운 학생을 생성하고 저장 후 결과를 반환한다") {
-                        val result = createStudentService.createStudent(createRequest)
+                        val result = createStudentService.execute(createRequest)
 
-                        result.totalElements shouldBe 1L
-                        result.totalPages shouldBe 1
-                        result.students.size shouldBe 1
-
-                        val student = result.students[0]
-                        student.name shouldBe "김학생"
-                        student.sex shouldBe Sex.WOMAN
-                        student.email shouldBe "kim@gsm.hs.kr"
-                        student.grade shouldBe 2
-                        student.classNum shouldBe 1
-                        student.number shouldBe 15
-                        student.studentNumber shouldBe 2115
-                        student.major shouldBe Major.SW_DEVELOPMENT
-                        student.role shouldBe Role.GENERAL_STUDENT
-                        student.dormitoryFloor shouldBe 2
-                        student.dormitoryRoom shouldBe 205
-                        student.isLeaveSchool shouldBe false
+                        result.name shouldBe "김학생"
+                        result.sex shouldBe Sex.WOMAN
+                        result.email shouldBe "kim@gsm.hs.kr"
+                        result.grade shouldBe 2
+                        result.classNum shouldBe 1
+                        result.number shouldBe 15
+                        result.studentNumber shouldBe 2115
+                        result.major shouldBe Major.SW_DEVELOPMENT
+                        result.role shouldBe Role.GENERAL_STUDENT
+                        result.dormitoryFloor shouldBe 2
+                        result.dormitoryRoom shouldBe 205
+                        result.isLeaveSchool shouldBe false
 
                         verify(exactly = 1) { mockStudentRepository.existsByStudentEmail(createRequest.email) }
                         verify(exactly = 1) {
@@ -143,13 +138,12 @@ class CreateStudentServiceTest :
                     }
 
                     it("3반 학생이 SMART_IOT 전공으로 생성되어야 한다") {
-                        val result = createStudentService.createStudent(createRequest)
+                        val result = createStudentService.execute(createRequest)
 
-                        val student = result.students[0]
-                        student.major shouldBe Major.SMART_IOT
-                        student.classNum shouldBe 3
-                        student.studentNumber shouldBe 1305
-                        student.dormitoryFloor shouldBe 3
+                        result.major shouldBe Major.SMART_IOT
+                        result.classNum shouldBe 3
+                        result.studentNumber shouldBe 1305
+                        result.dormitoryFloor shouldBe 3
                     }
                 }
 
@@ -173,7 +167,7 @@ class CreateStudentServiceTest :
                     it("IllegalArgumentException이 발생해야 한다") {
                         val exception =
                             shouldThrow<IllegalArgumentException> {
-                                createStudentService.createStudent(createRequest)
+                                createStudentService.execute(createRequest)
                             }
 
                         exception.message shouldBe "이미 존재하는 이메일입니다: ${createRequest.email}"
@@ -210,7 +204,7 @@ class CreateStudentServiceTest :
                     it("IllegalArgumentException이 발생해야 한다") {
                         val exception =
                             shouldThrow<IllegalArgumentException> {
-                                createStudentService.createStudent(createRequest)
+                                createStudentService.execute(createRequest)
                             }
 
                         exception.message shouldBe
@@ -256,7 +250,7 @@ class CreateStudentServiceTest :
                     it("IllegalArgumentException이 발생해야 한다") {
                         val exception =
                             shouldThrow<IllegalArgumentException> {
-                                createStudentService.createStudent(createRequest)
+                                createStudentService.execute(createRequest)
                             }
 
                         exception.message shouldBe "유효하지 않은 학급입니다: ${createRequest.classNum}"
@@ -303,12 +297,11 @@ class CreateStudentServiceTest :
                     }
 
                     it("1반 학생이 SW_DEVELOPMENT 전공으로 생성되어야 한다") {
-                        val result = createStudentService.createStudent(createRequest)
+                        val result = createStudentService.execute(createRequest)
 
-                        val student = result.students[0]
-                        student.major shouldBe Major.SW_DEVELOPMENT
-                        student.classNum shouldBe 1
-                        student.name shouldBe "1반학생"
+                        result.major shouldBe Major.SW_DEVELOPMENT
+                        result.classNum shouldBe 1
+                        result.name shouldBe "1반학생"
                     }
                 }
 
@@ -352,12 +345,11 @@ class CreateStudentServiceTest :
                     }
 
                     it("2반 학생이 SW_DEVELOPMENT 전공으로 생성되어야 한다") {
-                        val result = createStudentService.createStudent(createRequest)
+                        val result = createStudentService.execute(createRequest)
 
-                        val student = result.students[0]
-                        student.major shouldBe Major.SW_DEVELOPMENT
-                        student.classNum shouldBe 2
-                        student.name shouldBe "2반학생"
+                        result.major shouldBe Major.SW_DEVELOPMENT
+                        result.classNum shouldBe 2
+                        result.name shouldBe "2반학생"
                     }
                 }
 
@@ -401,12 +393,11 @@ class CreateStudentServiceTest :
                     }
 
                     it("4반 학생이 AI 전공으로 생성되어야 한다") {
-                        val result = createStudentService.createStudent(createRequest)
+                        val result = createStudentService.execute(createRequest)
 
-                        val student = result.students[0]
-                        student.major shouldBe Major.AI
-                        student.classNum shouldBe 4
-                        student.name shouldBe "4반학생"
+                        result.major shouldBe Major.AI
+                        result.classNum shouldBe 4
+                        result.name shouldBe "4반학생"
                     }
                 }
             }
