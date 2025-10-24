@@ -11,7 +11,7 @@ class DomainAuthorizationConfig {
         authorizeRequests: AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry,
     ) {
         authorizeRequests
-            .requestMatchers("/swagger-ui/**", "/api-docs/**")
+            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
             .permitAll()
             .requestMatchers("/v1/health")
             .permitAll()
