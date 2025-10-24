@@ -3,8 +3,8 @@ package team.themoment.datagsm.domain.club.service.impl
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.domain.club.dto.response.ClubListResDto
+import team.themoment.datagsm.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.club.service.QueryClubService

@@ -12,6 +12,7 @@ import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.club.service.impl.DeleteClubServiceImpl
+import team.themoment.datagsm.global.exception.error.ExpectedException
 import java.util.Optional
 
 class DeleteClubServiceTest :
@@ -57,9 +58,9 @@ class DeleteClubServiceTest :
                         every { mockClubRepository.findById(clubId) } returns Optional.empty()
                     }
 
-                    it("IllegalArgumentException이 발생해야 한다") {
+                    it("ExpectedException이 발생해야 한다") {
                         val ex =
-                            shouldThrow<IllegalArgumentException> {
+                            shouldThrow<ExpectedException> {
                                 deleteClubService.execute(clubId)
                             }
                         ex.message shouldBe "동아리를 찾을 수 없습니다. clubId: $clubId"

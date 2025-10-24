@@ -3,16 +3,16 @@ package team.themoment.datagsm.global.thirdparty.feign.oauth.dto
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class GoogleTokenResDto(
-    @JsonProperty("access_token")
+    @param:JsonProperty("access_token")
     val accessToken: String,
-    @JsonProperty("token_type")
+    @param:JsonProperty("token_type")
     val tokenType: String,
-    @JsonProperty("expires_in")
+    @param:JsonProperty("expires_in")
     val expiresIn: Int,
-    @JsonProperty("refresh_token")
+    @param:JsonProperty("refresh_token")
     val refreshToken: String? = null,
-    @JsonProperty("scope")
+    @param:JsonProperty("scope")
     val scope: String,
-    @JsonProperty("id_token")
+    @param:JsonProperty("id_token")
     val idToken: String? = null,
 )

@@ -11,6 +11,7 @@ import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.club.service.impl.CreateClubServiceImpl
+import team.themoment.datagsm.global.exception.error.ExpectedException
 
 class CreateClubServiceTest :
     DescribeSpec({
@@ -37,9 +38,9 @@ class CreateClubServiceTest :
                         every { mockClubRepository.existsByClubName(req.clubName) } returns true
                     }
 
-                    it("IllegalArgumentException이 발생해야 한다") {
+                    it("ExpectedException이 발생해야 한다") {
                         val ex =
-                            shouldThrow<IllegalArgumentException> {
+                            shouldThrow<ExpectedException> {
                                 createClubService.execute(req)
                             }
                         ex.message shouldBe "이미 존재하는 동아리 이름입니다: ${req.clubName}"

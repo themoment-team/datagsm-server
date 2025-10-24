@@ -16,6 +16,7 @@ import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.entity.constant.StudentNumber
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.domain.student.service.impl.CreateStudentServiceImpl
+import team.themoment.datagsm.global.exception.error.ExpectedException
 
 class CreateStudentServiceTest :
     DescribeSpec({
@@ -164,9 +165,9 @@ class CreateStudentServiceTest :
                         every { mockStudentRepository.existsByStudentEmail(createRequest.email) } returns true
                     }
 
-                    it("IllegalArgumentException이 발생해야 한다") {
+                    it("ExpectedException이 발생해야 한다") {
                         val exception =
-                            shouldThrow<IllegalArgumentException> {
+                            shouldThrow<ExpectedException> {
                                 createStudentService.execute(createRequest)
                             }
 
@@ -201,9 +202,9 @@ class CreateStudentServiceTest :
                         } returns true
                     }
 
-                    it("IllegalArgumentException이 발생해야 한다") {
+                    it("ExpectedException이 발생해야 한다") {
                         val exception =
-                            shouldThrow<IllegalArgumentException> {
+                            shouldThrow<ExpectedException> {
                                 createStudentService.execute(createRequest)
                             }
 
@@ -247,9 +248,9 @@ class CreateStudentServiceTest :
                         } returns false
                     }
 
-                    it("IllegalArgumentException이 발생해야 한다") {
+                    it("ExpectedException이 발생해야 한다") {
                         val exception =
-                            shouldThrow<IllegalArgumentException> {
+                            shouldThrow<ExpectedException> {
                                 createStudentService.execute(createRequest)
                             }
 

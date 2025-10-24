@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.domain.club.dto.response.ClubListResDto
+import team.themoment.datagsm.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.domain.club.service.CreateClubService
 import team.themoment.datagsm.domain.club.service.DeleteClubService

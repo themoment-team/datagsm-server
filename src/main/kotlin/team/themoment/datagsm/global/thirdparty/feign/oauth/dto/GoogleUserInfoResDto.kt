@@ -3,20 +3,20 @@ package team.themoment.datagsm.global.thirdparty.feign.oauth.dto
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class GoogleUserInfoResDto(
-    @JsonProperty("id")
+    @param:JsonProperty("id")
     val id: String,
-    @JsonProperty("email")
+    @param:JsonProperty("email")
     val email: String,
-    @JsonProperty("verified_email")
+    @param:JsonProperty("verified_email")
     val verifiedEmail: Boolean,
-    @JsonProperty("name")
+    @param:JsonProperty("name")
     val name: String? = null,
-    @JsonProperty("given_name")
+    @param:JsonProperty("given_name")
     val givenName: String? = null,
-    @JsonProperty("family_name")
+    @param:JsonProperty("family_name")
     val familyName: String? = null,
-    @JsonProperty("picture")
+    @param:JsonProperty("picture")
     val picture: String? = null,
-    @JsonProperty("locale")
+    @param:JsonProperty("locale")
     val locale: String? = null,
 )

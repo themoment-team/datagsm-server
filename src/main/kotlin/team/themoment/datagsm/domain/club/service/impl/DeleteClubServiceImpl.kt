@@ -1,9 +1,11 @@
 package team.themoment.datagsm.domain.club.service.impl
 
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.club.service.DeleteClubService
+import team.themoment.datagsm.global.exception.error.ExpectedException
 
 @Service
 @Transactional
@@ -14,7 +16,7 @@ class DeleteClubServiceImpl(
         val club =
             clubJpaRepository
                 .findById(clubId)
-                .orElseThrow { IllegalArgumentException("동아리를 찾을 수 없습니다. clubId: $clubId") }
+                .orElseThrow { ExpectedException("동아리를 찾을 수 없습니다. clubId: $clubId", HttpStatus.NOT_FOUND) }
         clubJpaRepository.delete(club)
     }
 }

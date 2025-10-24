@@ -118,36 +118,41 @@ class QueryClubServiceTest :
                     lateinit var e5: ClubJpaEntity
 
                     beforeEach {
-                        e1 = ClubJpaEntity().apply {
-                            this.clubId = 1L
-                            this.clubName = "A"
-                            this.clubDescription = "descA"
-                            this.clubType = ClubType.MAJOR_CLUB
-                        }
-                        e2 = ClubJpaEntity().apply {
-                            this.clubId = 2L
-                            this.clubName = "B"
-                            this.clubDescription = "descB"
-                            this.clubType = ClubType.MAJOR_CLUB
-                        }
-                        e3 = ClubJpaEntity().apply {
-                            this.clubId = 3L
-                            this.clubName = "C"
-                            this.clubDescription = "descC"
-                            this.clubType = ClubType.MAJOR_CLUB
-                        }
-                        e4 = ClubJpaEntity().apply {
-                            this.clubId = 4L
-                            this.clubName = "D"
-                            this.clubDescription = "descD"
-                            this.clubType = ClubType.MAJOR_CLUB
-                        }
-                        e5 = ClubJpaEntity().apply {
-                            this.clubId = 5L
-                            this.clubName = "E"
-                            this.clubDescription = "descE"
-                            this.clubType = ClubType.MAJOR_CLUB
-                        }
+                        e1 =
+                            ClubJpaEntity().apply {
+                                this.clubId = 1L
+                                this.clubName = "A"
+                                this.clubDescription = "descA"
+                                this.clubType = ClubType.MAJOR_CLUB
+                            }
+                        e2 =
+                            ClubJpaEntity().apply {
+                                this.clubId = 2L
+                                this.clubName = "B"
+                                this.clubDescription = "descB"
+                                this.clubType = ClubType.MAJOR_CLUB
+                            }
+                        e3 =
+                            ClubJpaEntity().apply {
+                                this.clubId = 3L
+                                this.clubName = "C"
+                                this.clubDescription = "descC"
+                                this.clubType = ClubType.MAJOR_CLUB
+                            }
+                        e4 =
+                            ClubJpaEntity().apply {
+                                this.clubId = 4L
+                                this.clubName = "D"
+                                this.clubDescription = "descD"
+                                this.clubType = ClubType.MAJOR_CLUB
+                            }
+                        e5 =
+                            ClubJpaEntity().apply {
+                                this.clubId = 5L
+                                this.clubName = "E"
+                                this.clubDescription = "descE"
+                                this.clubType = ClubType.MAJOR_CLUB
+                            }
 
                         every { mockClubRepository.searchClubWithPaging(any(), any(), any(), any()) } answers {
                             val pageable = arg<Pageable>(3)
