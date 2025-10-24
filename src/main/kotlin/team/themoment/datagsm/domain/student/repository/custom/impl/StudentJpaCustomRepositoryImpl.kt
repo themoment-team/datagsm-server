@@ -10,6 +10,7 @@ import team.themoment.datagsm.domain.student.entity.QStudentJpaEntity.Companion.
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.repository.custom.StudentJpaCustomRepository
+import com.querydsl.core.types.dsl.Expressions
 
 @Repository
 class StudentJpaCustomRepositoryImpl(
@@ -28,13 +29,43 @@ class StudentJpaCustomRepositoryImpl(
         isLeaveSchool: Boolean,
         pageable: Pageable,
     ): Page<StudentJpaEntity> {
-        val content =
+
+        var searchResult = searchStudentsWithStartsWith(
+            studentId, name, email, grade, classNum, number, sex, role, dormitoryRoom, isLeaveSchool, pageable
+        )
+        if (searchResult.content.isEmpty()) {
+            searchResult = searchStudentsWithContains(
+                studentId, name, email, grade, classNum, number, sex, role, dormitoryRoom, isLeaveSchool, pageable
+            )
+        }
+        return searchResult
+    }
+
+    private fun searchStudentsWithStartsWith(
+        studentId: Long?,
+        name: String?,
+        email: String?,
+        grade: Int?,
+        classNum: Int?,
+        number: Int?,
+        sex: Sex?,
+        role: Role?,
+        dormitoryRoom: Int?,
+        isLeaveSchool: Boolean,
+        pageable: Pageable,
+    ): Page<StudentJpaEntity> {
+        val countExpression = Expressions.numberTemplate(Long::class.javaObjectType, "COUNT(*) OVER()")
+        val queryResult =
             jpaQueryFactory
-                .selectFrom(studentJpaEntity)
+                .select(
+                    studentJpaEntity,
+                    countExpression.`as`("count"),
+                )
+                .from(studentJpaEntity)
                 .where(
                     studentId?.let { studentJpaEntity.studentId.eq(it) },
-                    name?.let { studentJpaEntity.studentName.contains(it) },
-                    email?.let { studentJpaEntity.studentEmail.contains(it) },
+                    name?.let { studentJpaEntity.studentName.startsWith(it) },
+                    email?.let { studentJpaEntity.studentEmail.startsWith(it) },
                     grade?.let { studentJpaEntity.studentNumber.studentGrade.eq(it) },
                     classNum?.let { studentJpaEntity.studentNumber.studentClass.eq(it) },
                     number?.let { studentJpaEntity.studentNumber.studentNumber.eq(it) },
@@ -42,13 +73,39 @@ class StudentJpaCustomRepositoryImpl(
                     role?.let { studentJpaEntity.studentRole.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.studentDormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
                     studentJpaEntity.studentIsLeaveSchool.eq(isLeaveSchool),
-                ).offset(pageable.offset)
+                )
+                .offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
 
-        val countQuery =
+        if (queryResult.isEmpty()) {
+            return PageableExecutionUtils.getPage(emptyList(), pageable) { 0L }
+        }
+        val students = queryResult.map { it.get(studentJpaEntity) }
+        val count = queryResult.first().get(countExpression)!!
+        return PageableExecutionUtils.getPage(students, pageable) { count }
+    }
+
+    private fun searchStudentsWithContains(
+        studentId: Long?,
+        name: String?,
+        email: String?,
+        grade: Int?,
+        classNum: Int?,
+        number: Int?,
+        sex: Sex?,
+        role: Role?,
+        dormitoryRoom: Int?,
+        isLeaveSchool: Boolean,
+        pageable: Pageable,
+    ): Page<StudentJpaEntity> {
+        val countExpression = Expressions.numberTemplate(Long::class.javaObjectType, "COUNT(*) OVER()")
+        val queryResult =
             jpaQueryFactory
-                .select(studentJpaEntity.count())
+                .select(
+                    studentJpaEntity,
+                    countExpression.`as`("count"),
+                )
                 .from(studentJpaEntity)
                 .where(
                     studentId?.let { studentJpaEntity.studentId.eq(it) },
@@ -62,8 +119,16 @@ class StudentJpaCustomRepositoryImpl(
                     dormitoryRoom?.let { studentJpaEntity.studentDormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
                     studentJpaEntity.studentIsLeaveSchool.eq(isLeaveSchool),
                 )
+                .offset(pageable.offset)
+                .limit(pageable.pageSize.toLong())
+                .fetch()
 
-        return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
+        if (queryResult.isEmpty()) {
+            return PageableExecutionUtils.getPage(emptyList(), pageable) { 0L }
+        }
+        val students = queryResult.map { it.get(studentJpaEntity) }
+        val count = queryResult.first().get(countExpression)!!
+        return PageableExecutionUtils.getPage(students, pageable) { count }
     }
 
     override fun existsByStudentEmail(email: String): Boolean =
