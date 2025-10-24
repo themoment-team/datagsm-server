@@ -15,6 +15,7 @@ import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.entity.constant.StudentNumber
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.domain.student.service.impl.ModifyStudentServiceImpl
+import team.themoment.datagsm.global.exception.error.ExpectedException
 import java.util.Optional
 
 class ModifyStudentServiceTest :
@@ -64,28 +65,16 @@ class ModifyStudentServiceTest :
 
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
-                        every { mockStudentRepository.save(any()) } returns
-                            StudentJpaEntity().apply {
-                                this.studentId = studentId
-                                studentName = updateRequest.name!!
-                                studentSex = Sex.MAN
-                                studentEmail = "existing@gsm.hs.kr"
-                                studentNumber = StudentNumber(2, 1, 5)
-                                studentMajor = Major.SW_DEVELOPMENT
-                                studentRole = Role.GENERAL_STUDENT
-                                studentDormitoryRoomNumber = DormitoryRoomNumber(201)
-                                studentIsLeaveSchool = false
-                            }
                     }
 
                     it("학생 이름이 성공적으로 업데이트되어야 한다") {
+                        existingStudent.studentName = updateRequest.name!!
                         val result = modifyStudentService.execute(studentId, updateRequest)
 
                         result.studentId shouldBe studentId
                         result.name shouldBe "수정된이름"
 
                         verify(exactly = 1) { mockStudentRepository.findById(studentId) }
-                        verify(exactly = 1) { mockStudentRepository.save(any()) }
                     }
                 }
 
@@ -112,18 +101,6 @@ class ModifyStudentServiceTest :
                                 studentId,
                             )
                         } returns false
-                        every { mockStudentRepository.save(any()) } returns
-                            StudentJpaEntity().apply {
-                                this.studentId = studentId
-                                studentName = "기존학생"
-                                studentSex = Sex.MAN
-                                studentEmail = "existing@gsm.hs.kr"
-                                studentNumber = StudentNumber(3, 1, 5)
-                                studentMajor = Major.SW_DEVELOPMENT
-                                studentRole = Role.GENERAL_STUDENT
-                                studentDormitoryRoomNumber = DormitoryRoomNumber(201)
-                                studentIsLeaveSchool = false
-                            }
                     }
 
                     it("학년만 변경하고 반이 변경되지 않으면 전공은 유지되어야 한다") {
@@ -168,18 +145,6 @@ class ModifyStudentServiceTest :
                                 studentId,
                             )
                         } returns false
-                        every { mockStudentRepository.save(any()) } returns
-                            StudentJpaEntity().apply {
-                                this.studentId = studentId
-                                studentName = "기존학생"
-                                studentSex = Sex.MAN
-                                studentEmail = "existing@gsm.hs.kr"
-                                studentNumber = StudentNumber(2, 3, 5)
-                                studentMajor = Major.SMART_IOT
-                                studentRole = Role.GENERAL_STUDENT
-                                studentDormitoryRoomNumber = DormitoryRoomNumber(201)
-                                studentIsLeaveSchool = false
-                            }
                     }
 
                     it("반 변경 시 새로운 반에 따라 전공이 변경되어야 한다") {
@@ -215,18 +180,6 @@ class ModifyStudentServiceTest :
                                 studentId,
                             )
                         } returns false
-                        every { mockStudentRepository.save(any()) } returns
-                            StudentJpaEntity().apply {
-                                this.studentId = studentId
-                                studentName = "기존학생"
-                                studentSex = Sex.MAN
-                                studentEmail = "existing@gsm.hs.kr"
-                                studentNumber = StudentNumber(1, 4, 5)
-                                studentMajor = Major.AI
-                                studentRole = Role.GENERAL_STUDENT
-                                studentDormitoryRoomNumber = DormitoryRoomNumber(201)
-                                studentIsLeaveSchool = false
-                            }
                     }
 
                     it("반 변경 시 새로운 반에 따라 전공이 변경되어야 한다") {
@@ -262,9 +215,9 @@ class ModifyStudentServiceTest :
                         } returns true
                     }
 
-                    it("IllegalArgumentException이 발생해야 한다") {
+                    it("ExpectedException이 발생해야 한다") {
                         val exception =
-                            shouldThrow<IllegalArgumentException> {
+                            shouldThrow<ExpectedException> {
                                 modifyStudentService.execute(studentId, updateRequest)
                             }
 
@@ -306,9 +259,9 @@ class ModifyStudentServiceTest :
                         } returns true
                     }
 
-                    it("IllegalArgumentException이 발생해야 한다") {
+                    it("ExpectedException이 발생해야 한다") {
                         val exception =
-                            shouldThrow<IllegalArgumentException> {
+                            shouldThrow<ExpectedException> {
                                 modifyStudentService.execute(studentId, updateRequest)
                             }
 
@@ -343,9 +296,9 @@ class ModifyStudentServiceTest :
                         every { mockStudentRepository.findById(studentId) } returns Optional.empty()
                     }
 
-                    it("IllegalArgumentException이 발생해야 한다") {
+                    it("ExpectedException이 발생해야 한다") {
                         val exception =
-                            shouldThrow<IllegalArgumentException> {
+                            shouldThrow<ExpectedException> {
                                 modifyStudentService.execute(studentId, updateRequest)
                             }
 
@@ -381,9 +334,9 @@ class ModifyStudentServiceTest :
                         } returns false
                     }
 
-                    it("IllegalArgumentException이 발생해야 한다") {
+                    it("ExpectedException이 발생해야 한다") {
                         val exception =
-                            shouldThrow<IllegalArgumentException> {
+                            shouldThrow<ExpectedException> {
                                 modifyStudentService.execute(studentId, updateRequest)
                             }
 
@@ -417,18 +370,6 @@ class ModifyStudentServiceTest :
 
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
-                        every { mockStudentRepository.save(any()) } returns
-                            StudentJpaEntity().apply {
-                                this.studentId = studentId
-                                studentName = "기존학생"
-                                studentSex = Sex.MAN
-                                studentEmail = "existing@gsm.hs.kr"
-                                studentNumber = StudentNumber(2, 1, 5)
-                                studentMajor = Major.SW_DEVELOPMENT
-                                studentRole = Role.GENERAL_STUDENT
-                                studentDormitoryRoomNumber = DormitoryRoomNumber(updateRequest.dormitoryRoomNumber!!)
-                                studentIsLeaveSchool = false
-                            }
                     }
 
                     it("기숙사 방 번호가 성공적으로 변경되어야 한다") {
@@ -438,7 +379,6 @@ class ModifyStudentServiceTest :
                         result.dormitoryFloor shouldBe 3
 
                         verify(exactly = 1) { mockStudentRepository.findById(studentId) }
-                        verify(exactly = 1) { mockStudentRepository.save(any()) }
                     }
                 }
 
@@ -457,18 +397,6 @@ class ModifyStudentServiceTest :
 
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
-                        every { mockStudentRepository.save(any()) } returns
-                            StudentJpaEntity().apply {
-                                this.studentId = studentId
-                                studentName = "기존학생"
-                                studentSex = updateRequest.sex!!
-                                studentEmail = "existing@gsm.hs.kr"
-                                studentNumber = StudentNumber(2, 1, 5)
-                                studentMajor = Major.SW_DEVELOPMENT
-                                studentRole = updateRequest.role!!
-                                studentDormitoryRoomNumber = DormitoryRoomNumber(201)
-                                studentIsLeaveSchool = false
-                            }
                     }
 
                     it("성별과 역할이 성공적으로 변경되어야 한다") {
@@ -478,7 +406,6 @@ class ModifyStudentServiceTest :
                         result.role shouldBe Role.STUDENT_COUNCIL
 
                         verify(exactly = 1) { mockStudentRepository.findById(studentId) }
-                        verify(exactly = 1) { mockStudentRepository.save(any()) }
                     }
                 }
 
@@ -511,23 +438,6 @@ class ModifyStudentServiceTest :
                                 studentId,
                             )
                         } returns false
-                        every { mockStudentRepository.save(any()) } returns
-                            StudentJpaEntity().apply {
-                                this.studentId = studentId
-                                studentName = updateRequest.name!!
-                                studentSex = updateRequest.sex!!
-                                studentEmail = updateRequest.email!!
-                                studentNumber =
-                                    StudentNumber(
-                                        updateRequest.grade!!,
-                                        updateRequest.classNum!!,
-                                        updateRequest.number!!,
-                                    )
-                                studentMajor = Major.SW_DEVELOPMENT
-                                studentRole = updateRequest.role!!
-                                studentDormitoryRoomNumber = DormitoryRoomNumber(updateRequest.dormitoryRoomNumber!!)
-                                studentIsLeaveSchool = false
-                            }
                     }
 
                     it("모든 필드가 성공적으로 업데이트되어야 한다") {
@@ -560,7 +470,6 @@ class ModifyStudentServiceTest :
                                 studentId,
                             )
                         }
-                        verify(exactly = 1) { mockStudentRepository.save(any()) }
                     }
                 }
             }

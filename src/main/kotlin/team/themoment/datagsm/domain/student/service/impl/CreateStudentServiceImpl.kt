@@ -37,7 +37,7 @@ class CreateStudentServiceImpl(
                 studentEmail = reqDto.email
                 studentNumber = StudentNumber(reqDto.grade, reqDto.classNum, reqDto.number)
                 studentMajor = Major.fromClassNum(reqDto.classNum)
-                    ?: throw IllegalArgumentException("유효하지 않은 학급입니다: ${reqDto.classNum}")
+                    ?: throw ExpectedException("유효하지 않은 학급입니다: ${reqDto.classNum}", HttpStatus.BAD_REQUEST)
                 studentRole = reqDto.role
                 studentDormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
             }
