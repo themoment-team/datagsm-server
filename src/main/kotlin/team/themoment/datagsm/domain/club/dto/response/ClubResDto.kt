@@ -1,8 +1,8 @@
-package team.themoment.datagsm.domain.club.dto.internal
+package team.themoment.datagsm.domain.club.dto.response
 
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
 
-data class ClubDto(
+data class ClubResDto(
     val clubId: Long,
     val clubName: String,
     val clubDescription: String,
