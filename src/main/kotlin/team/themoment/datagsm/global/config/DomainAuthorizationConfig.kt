@@ -7,9 +7,7 @@ import team.themoment.datagsm.domain.auth.entity.constant.Role
 
 @Component
 class DomainAuthorizationConfig {
-    fun configure(
-        authorizeRequests: AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry,
-    ) {
+    fun configure(authorizeRequests: AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry) {
         authorizeRequests
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
             .permitAll()

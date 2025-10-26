@@ -50,8 +50,7 @@ class StudentController(
         @Parameter(description = "성별") @RequestParam(required = false) sex: Sex?,
         @Parameter(description = "역할") @RequestParam(required = false) role: Role?,
         @Parameter(description = "기숙사 호실") @RequestParam(required = false) dormitoryRoom: Int?,
-        @Parameter(description = "자퇴 여부")
-        @RequestParam(required = false, defaultValue = "false") isLeaveSchool: Boolean,
+        @Parameter(description = "자퇴 여부") @RequestParam(required = false, defaultValue = "false") isLeaveSchool: Boolean,
         @Parameter(description = "페이지 번호") @RequestParam(required = false, defaultValue = "0") page: Int,
         @Parameter(description = "페이지 크기") @RequestParam(required = false, defaultValue = "300") size: Int,
     ): StudentListResDto =
