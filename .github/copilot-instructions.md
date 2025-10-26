@@ -25,7 +25,7 @@ DataGSM is a Spring Boot REST API service providing school information (students
 - Separate Entity and DTO clearly
 
 ## Key Practices
-- Security: No hardcoded secrets, use SLF4J Logger (with Logback, not println), validate JWT/API keys properly
+- Security: No hardcoded secrets, use SLF4J Logger (with Logback, not println()), validate JWT/API keys properly
 - JPA: Avoid N+1 problems, use `@Transactional(readOnly = true)` for queries
 - API: Use `CommonApiResponse` wrapper, validate with `@Valid`
 - Testing: Write Kotest tests for business logic using Given-When-Then pattern
