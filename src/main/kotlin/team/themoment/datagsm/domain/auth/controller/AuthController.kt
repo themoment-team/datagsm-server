@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.domain.auth.dto.ApiKeyResDto
-import team.themoment.datagsm.domain.auth.dto.OAuthCodeReqDto
-import team.themoment.datagsm.domain.auth.dto.RefreshTokenReqDto
-import team.themoment.datagsm.domain.auth.dto.TokenResDto
+import team.themoment.datagsm.domain.auth.dto.request.OAuthCodeReqDto
+import team.themoment.datagsm.domain.auth.dto.request.RefreshTokenReqDto
+import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
+import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
 import team.themoment.datagsm.domain.auth.service.CreateApiKeyService
 import team.themoment.datagsm.domain.auth.service.DeleteApiKeyService
