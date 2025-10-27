@@ -52,16 +52,21 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
-
 server:
   shutdown: graceful
   port: 8080
 springdoc:
   api-docs:
-    path: /v3/api-docs
+    path: /api-docs
+    groups:
+      enabled: true
   swagger-ui:
-    path: /swagger-ui/index.html
-    operationsSorter: alpha
-    tagsSorter: alpha
+    enabled: true
+    disable-swagger-default-url: true
+    display-request-duration: true
+    tags-sorter: alpha
+    operations-sorter: method
+  show-actuator: true
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
+  writer-with-default-pretty-printer: true
