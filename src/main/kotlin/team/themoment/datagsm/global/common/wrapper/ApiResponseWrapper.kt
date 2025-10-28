@@ -17,7 +17,8 @@ class ApiResponseWrapper : ResponseBodyAdvice<Any> {
     companion object {
         private val NOT_WRAPPING_URL =
             arrayOf(
-                "/api-docs/**",
+                "/v3/api-docs/**",
+                "/v3/api-docs",
                 "/swagger-ui/**",
             )
     }
