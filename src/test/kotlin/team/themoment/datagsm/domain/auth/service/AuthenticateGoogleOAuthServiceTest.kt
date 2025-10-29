@@ -108,9 +108,9 @@ class AuthenticateGoogleOAuthServiceTest :
 
                     val userInfo =
                         GoogleUserInfoResDto(
-                            sub = "123456",
+                            id = "123456",
                             email = email,
-                            emailVerified = true,
+                            verifiedEmail = true,
                             name = "Test User",
                             picture = "https://example.com/picture.jpg",
                         )
@@ -159,9 +159,9 @@ class AuthenticateGoogleOAuthServiceTest :
 
                     val userInfo =
                         GoogleUserInfoResDto(
-                            sub = "123456",
+                            id = "123456",
                             email = email,
-                            emailVerified = true,
+                            verifiedEmail = true,
                             name = "Existing User",
                             picture = "https://example.com/picture.jpg",
                         )
@@ -208,9 +208,9 @@ class AuthenticateGoogleOAuthServiceTest :
 
                     val userInfo =
                         GoogleUserInfoResDto(
-                            sub = "123456",
+                            id = "123456",
                             email = email,
-                            emailVerified = true,
+                            verifiedEmail = true,
                             name = "Student User",
                             picture = "https://example.com/picture.jpg",
                         )
@@ -264,9 +264,9 @@ class AuthenticateGoogleOAuthServiceTest :
 
                     val userInfo =
                         GoogleUserInfoResDto(
-                            sub = "123456",
+                            id = "123456",
                             email = email,
-                            emailVerified = true,
+                            verifiedEmail = true,
                             name = "Test User",
                             picture = "https://example.com/picture.jpg",
                         )
