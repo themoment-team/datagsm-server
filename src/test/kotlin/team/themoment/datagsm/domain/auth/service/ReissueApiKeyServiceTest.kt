@@ -82,6 +82,7 @@ class ReissueApiKeyServiceTest :
                             apiKeyValue = UUID.randomUUID()
                             apiKeyStudent = mockStudent
                             createdAt = now.minusDays(10)
+                            updatedAt = now.minusDays(10)
                             this.expiresAt = expiresAt
                         }
 
@@ -113,6 +114,7 @@ class ReissueApiKeyServiceTest :
                             apiKeyValue = UUID.randomUUID()
                             apiKeyStudent = mockStudent
                             createdAt = now.minusDays(50)
+                            updatedAt = now.minusDays(50)
                             this.expiresAt = expiresAt
                         }
 
@@ -146,6 +148,7 @@ class ReissueApiKeyServiceTest :
                             apiKeyValue = oldApiKeyValue
                             apiKeyStudent = mockStudent
                             createdAt = now.minusDays(20)
+                            updatedAt = now.minusDays(20)
                             this.expiresAt = expiresAt
                         }
 
@@ -176,6 +179,7 @@ class ReissueApiKeyServiceTest :
                             apiKeyValue = oldApiKeyValue
                             apiKeyStudent = mockStudent
                             createdAt = now.minusDays(35)
+                            updatedAt = now.minusDays(35)
                             this.expiresAt = expiresAt
                         }
 
@@ -206,6 +210,7 @@ class ReissueApiKeyServiceTest :
                             apiKeyValue = UUID.randomUUID()
                             apiKeyStudent = mockStudent
                             createdAt = now.minusDays(15)
+                            updatedAt = now.minusDays(15)
                             this.expiresAt = expiresAt
                         }
 
@@ -233,6 +238,7 @@ class ReissueApiKeyServiceTest :
                             apiKeyValue = UUID.randomUUID()
                             apiKeyStudent = mockStudent
                             createdAt = now.minusDays(45)
+                            updatedAt = now.minusDays(45)
                             this.expiresAt = expiresAt
                         }
 
