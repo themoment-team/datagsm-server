@@ -1,4 +1,4 @@
-package team.themoment.datagsm.global.common.wrapper
+package team.themoment.datagsm.global.common.response.wrapper
 
 import org.springframework.core.MethodParameter
 import org.springframework.http.HttpStatus
@@ -85,7 +85,7 @@ class ApiResponseWrapper : ResponseBodyAdvice<Any> {
         if (statusValue is Int && statusValue in 400..599) {
             val status = HttpStatus.valueOf(statusValue)
             response.setStatusCode(HttpStatusCode.valueOf(statusValue))
-            return CommonApiResponse.error(status.reasonPhrase, status)
+            return CommonApiResponse.Companion.error(status.reasonPhrase, status)
         }
         return null
     }
