@@ -85,7 +85,7 @@ class ApiResponseWrapper : ResponseBodyAdvice<Any> {
         if (statusValue is Int && statusValue in 400..599) {
             val status = HttpStatus.valueOf(statusValue)
             response.setStatusCode(HttpStatusCode.valueOf(statusValue))
-            return CommonApiResponse.Companion.error(status.reasonPhrase, status)
+            return CommonApiResponse.error(status.reasonPhrase, status)
         }
         return null
     }
