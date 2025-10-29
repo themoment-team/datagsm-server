@@ -19,6 +19,7 @@ import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
 import team.themoment.datagsm.domain.auth.service.CreateApiKeyService
 import team.themoment.datagsm.domain.auth.service.DeleteApiKeyService
+import team.themoment.datagsm.domain.auth.service.ReissueApiKeyService
 import team.themoment.datagsm.domain.auth.service.ReissueTokenService
 import team.themoment.datagsm.global.common.response.dto.response.CommonApiResponse
 
@@ -29,6 +30,7 @@ class AuthController(
     private val authenticateGoogleOAuthService: AuthenticateGoogleOAuthService,
     private val createApiKeyService: CreateApiKeyService,
     private val deleteApiKeyService: DeleteApiKeyService,
+    private val reissueApiKeyService: ReissueApiKeyService,
     private val reissueTokenService: ReissueTokenService,
 ) {
     @Operation(summary = "Google OAuth 인증", description = "Google OAuth 인증 코드로 토큰을 발급받습니다.")
@@ -68,6 +70,17 @@ class AuthController(
     )
     @PostMapping("/api-key")
     fun createApiKey(): ApiKeyResDto = createApiKeyService.execute()
+
+    @Operation(summary = "API 키 갱신", description = "기존 API 키를 갱신합니다. 만료 15일 전부터 만료 15일 후까지만 갱신 가능합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "API 키 갱신 성공"),
+            ApiResponse(responseCode = "400", description = "갱신 기간이 아님 / 학생 정보 없음", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
+        ],
+    )
+    @PutMapping("/api-key")
+    fun reissueApiKey(): ApiKeyResDto = reissueApiKeyService.execute()
 
     @Operation(summary = "API 키 삭제", description = "기존 API 키를 삭제합니다.")
     @ApiResponses(
