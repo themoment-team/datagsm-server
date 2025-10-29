@@ -41,6 +41,6 @@ class ApiKey {
         val now = LocalDateTime.now()
         val renewalStartDate = expiresAt.minusDays(renewalPeriodDays)
         val renewalEndDate = expiresAt.plusDays(renewalPeriodDays)
-        return now.isAfter(renewalStartDate) && now.isBefore(renewalEndDate)
+        return !now.isBefore(renewalStartDate) && now.isBefore(renewalEndDate)
     }
 }

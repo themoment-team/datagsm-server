@@ -16,5 +16,5 @@ interface ApiKeyJpaRepository : JpaRepository<ApiKey, Long> {
 
     fun deleteByApiKeyStudent(student: StudentJpaEntity)
 
-    fun findAllByExpiresAtBefore(dateTime: LocalDateTime): List<ApiKey>
+    fun findAllByExpiresAtLessThanEqual(dateTime: LocalDateTime): List<ApiKey>
 }

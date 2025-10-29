@@ -17,7 +17,7 @@ class ApiKeyCleanupScheduler(
     @Transactional
     fun cleanupExpiredApiKeys() {
         val cutoffDate = LocalDateTime.now().minusDays(apiKeyEnvironment.renewalPeriodDays)
-        val expiredKeys = apiKeyJpaRepository.findAllByExpiresAtBefore(cutoffDate)
+        val expiredKeys = apiKeyJpaRepository.findAllByExpiresAtLessThanEqual(cutoffDate)
 
         if (expiredKeys.isNotEmpty()) {
             apiKeyJpaRepository.deleteAll(expiredKeys)

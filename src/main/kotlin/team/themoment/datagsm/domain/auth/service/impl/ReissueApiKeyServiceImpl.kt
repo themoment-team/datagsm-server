@@ -31,10 +31,10 @@ class ReissueApiKeyServiceImpl(
 
         if (!apiKey.canBeRenewed(apiKeyEnvironment.renewalPeriodDays)) {
             val renewalEndDate = apiKey.expiresAt.plusDays(apiKeyEnvironment.renewalPeriodDays)
-            if (LocalDateTime.now().isAfter(renewalEndDate)) {
+            if (!LocalDateTime.now().isBefore(renewalEndDate)) {
                 apiKeyJpaRepository.delete(apiKey)
                 throw ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
+                    HttpStatus.GONE,
                     "API 키 갱신 기간이 지났습니다. 해당 API 키는 삭제되었습니다.",
                 )
             }
