@@ -11,7 +11,7 @@ import io.mockk.verify
 import org.springframework.web.server.ResponseStatusException
 import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
-import team.themoment.datagsm.domain.auth.service.impl.ReissueApiKeyServiceImpl
+import team.themoment.datagsm.domain.auth.service.impl.ModifyApiKeyServiceImpl
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
@@ -19,15 +19,15 @@ import java.time.LocalDateTime
 import java.util.Optional
 import java.util.UUID
 
-class ReissueApiKeyServiceTest :
+class ModifyApiKeyServiceTest :
     DescribeSpec({
 
         val mockApiKeyRepository = mockk<ApiKeyJpaRepository>()
         val mockCurrentUserProvider = mockk<CurrentUserProvider>()
         val mockApiKeyEnvironment = mockk<ApiKeyEnvironment>()
 
-        val reissueApiKeyService =
-            ReissueApiKeyServiceImpl(
+        val modifyApiKeyService =
+            ModifyApiKeyServiceImpl(
                 mockApiKeyRepository,
                 mockCurrentUserProvider,
                 mockApiKeyEnvironment,
@@ -37,7 +37,7 @@ class ReissueApiKeyServiceTest :
             clearAllMocks()
         }
 
-        describe("ReissueApiKeyService 클래스의") {
+        describe("ModifyApiKeyService 클래스의") {
             describe("execute 메서드는") {
 
                 val mockStudent =
@@ -60,7 +60,7 @@ class ReissueApiKeyServiceTest :
                     it("ResponseStatusException이 발생해야 한다") {
                         val exception =
                             shouldThrow<ResponseStatusException> {
-                                reissueApiKeyService.execute()
+                                modifyApiKeyService.execute()
                             }
 
                         exception.statusCode.value() shouldBe 404
@@ -93,7 +93,7 @@ class ReissueApiKeyServiceTest :
                     it("ResponseStatusException이 발생해야 한다") {
                         val exception =
                             shouldThrow<ResponseStatusException> {
-                                reissueApiKeyService.execute()
+                                modifyApiKeyService.execute()
                             }
 
                         exception.statusCode.value() shouldBe 400
@@ -126,7 +126,7 @@ class ReissueApiKeyServiceTest :
                     it("API 키가 삭제되고 410 GONE 예외가 발생해야 한다") {
                         val exception =
                             shouldThrow<ResponseStatusException> {
-                                reissueApiKeyService.execute()
+                                modifyApiKeyService.execute()
                             }
 
                         exception.statusCode.value() shouldBe 410
@@ -158,7 +158,7 @@ class ReissueApiKeyServiceTest :
                     }
 
                     it("기존 API 키를 유지하고 만료일자만 갱신해야 한다") {
-                        val result = reissueApiKeyService.execute()
+                        val result = modifyApiKeyService.execute()
 
                         result.apiKey shouldBe oldApiKeyValue
                         result.expiresAt shouldNotBe null
@@ -189,7 +189,7 @@ class ReissueApiKeyServiceTest :
                     }
 
                     it("기존 API 키를 유지하고 만료일자만 갱신해야 한다") {
-                        val result = reissueApiKeyService.execute()
+                        val result = modifyApiKeyService.execute()
 
                         result.apiKey shouldBe oldApiKeyValue
                         apiKey.apiKeyValue shouldBe oldApiKeyValue
@@ -220,7 +220,7 @@ class ReissueApiKeyServiceTest :
                     }
 
                     it("갱신이 가능해야 한다") {
-                        val result = reissueApiKeyService.execute()
+                        val result = modifyApiKeyService.execute()
 
                         result.apiKey shouldNotBe null
 
@@ -250,7 +250,7 @@ class ReissueApiKeyServiceTest :
                     it("갱신 기간이 지나 삭제되어야 한다") {
                         val exception =
                             shouldThrow<ResponseStatusException> {
-                                reissueApiKeyService.execute()
+                                modifyApiKeyService.execute()
                             }
 
                         exception.statusCode.value() shouldBe 410

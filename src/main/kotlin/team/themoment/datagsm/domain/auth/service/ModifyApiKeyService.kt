@@ -2,6 +2,6 @@ package team.themoment.datagsm.domain.auth.service
 
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 
-interface ReissueApiKeyService {
+interface ModifyApiKeyService {
     fun execute(): ApiKeyResDto
 }

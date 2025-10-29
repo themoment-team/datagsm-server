@@ -6,17 +6,17 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
-import team.themoment.datagsm.domain.auth.service.ReissueApiKeyService
+import team.themoment.datagsm.domain.auth.service.ModifyApiKeyService
 import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
 
 @Service
-class ReissueApiKeyServiceImpl(
+class ModifyApiKeyServiceImpl(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
     private val apiKeyEnvironment: ApiKeyEnvironment,
-) : ReissueApiKeyService {
+) : ModifyApiKeyService {
     @Transactional
     override fun execute(): ApiKeyResDto {
         val student = currentUserProvider.getCurrentStudent()
