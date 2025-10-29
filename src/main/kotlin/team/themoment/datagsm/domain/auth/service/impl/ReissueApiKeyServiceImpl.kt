@@ -10,7 +10,6 @@ import team.themoment.datagsm.domain.auth.service.ReissueApiKeyService
 import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
-import java.util.UUID
 
 @Service
 class ReissueApiKeyServiceImpl(
@@ -48,7 +47,6 @@ class ReissueApiKeyServiceImpl(
         val expiresAt = now.plusDays(apiKeyEnvironment.expirationDays)
 
         apiKey.apply {
-            apiKeyValue = UUID.randomUUID()
             createdAt = now
             this.expiresAt = expiresAt
         }

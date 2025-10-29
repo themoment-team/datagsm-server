@@ -154,10 +154,10 @@ class ReissueApiKeyServiceTest :
                         every { mockApiKeyRepository.save(apiKey) } returns apiKey
                     }
 
-                    it("새로운 API 키를 발급하고 반환해야 한다") {
+                    it("기존 API 키를 유지하고 만료일자만 갱신해야 한다") {
                         val result = reissueApiKeyService.execute()
 
-                        result.apiKey shouldNotBe oldApiKeyValue
+                        result.apiKey shouldBe oldApiKeyValue
                         result.expiresAt shouldNotBe null
 
                         verify(exactly = 1) { mockApiKeyRepository.findByApiKeyStudent(mockStudent) }
@@ -184,11 +184,11 @@ class ReissueApiKeyServiceTest :
                         every { mockApiKeyRepository.save(apiKey) } returns apiKey
                     }
 
-                    it("새로운 API 키를 발급하고 만료일자를 갱신해야 한다") {
+                    it("기존 API 키를 유지하고 만료일자만 갱신해야 한다") {
                         val result = reissueApiKeyService.execute()
 
-                        result.apiKey shouldNotBe oldApiKeyValue
-                        apiKey.apiKeyValue shouldNotBe oldApiKeyValue
+                        result.apiKey shouldBe oldApiKeyValue
+                        apiKey.apiKeyValue shouldBe oldApiKeyValue
                         apiKey.expiresAt shouldNotBe expiresAt
 
                         verify(exactly = 1) { mockApiKeyRepository.findByApiKeyStudent(mockStudent) }
