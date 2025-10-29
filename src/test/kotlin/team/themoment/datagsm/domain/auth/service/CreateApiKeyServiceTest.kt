@@ -79,6 +79,7 @@ class CreateApiKeyServiceTest :
                             apiKeyValue = oldApiKeyValue
                             apiKeyStudent = mockStudent
                             createdAt = LocalDateTime.now().minusDays(20)
+                            updatedAt = LocalDateTime.now().minusDays(20)
                             expiresAt = oldExpiresAt
                         }
 

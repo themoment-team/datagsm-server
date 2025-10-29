@@ -82,6 +82,7 @@ class ReissueApiKeyServiceTest :
                             apiKeyValue = UUID.randomUUID()
                             apiKeyStudent = mockStudent
                             createdAt = now.minusDays(10)
+                            updatedAt = now.minusDays(10)
                             this.expiresAt = expiresAt
                         }
 
@@ -113,6 +114,7 @@ class ReissueApiKeyServiceTest :
                             apiKeyValue = UUID.randomUUID()
                             apiKeyStudent = mockStudent
                             createdAt = now.minusDays(50)
+                            updatedAt = now.minusDays(50)
                             this.expiresAt = expiresAt
                         }
 
@@ -146,6 +148,7 @@ class ReissueApiKeyServiceTest :
                             apiKeyValue = oldApiKeyValue
                             apiKeyStudent = mockStudent
                             createdAt = now.minusDays(20)
+                            updatedAt = now.minusDays(20)
                             this.expiresAt = expiresAt
                         }
 
@@ -154,10 +157,10 @@ class ReissueApiKeyServiceTest :
                         every { mockApiKeyRepository.save(apiKey) } returns apiKey
                     }
 
-                    it("새로운 API 키를 발급하고 반환해야 한다") {
+                    it("기존 API 키를 유지하고 만료일자만 갱신해야 한다") {
                         val result = reissueApiKeyService.execute()
 
-                        result.apiKey shouldNotBe oldApiKeyValue
+                        result.apiKey shouldBe oldApiKeyValue
                         result.expiresAt shouldNotBe null
 
                         verify(exactly = 1) { mockApiKeyRepository.findByApiKeyStudent(mockStudent) }
@@ -176,6 +179,7 @@ class ReissueApiKeyServiceTest :
                             apiKeyValue = oldApiKeyValue
                             apiKeyStudent = mockStudent
                             createdAt = now.minusDays(35)
+                            updatedAt = now.minusDays(35)
                             this.expiresAt = expiresAt
                         }
 
@@ -184,11 +188,11 @@ class ReissueApiKeyServiceTest :
                         every { mockApiKeyRepository.save(apiKey) } returns apiKey
                     }
 
-                    it("새로운 API 키를 발급하고 만료일자를 갱신해야 한다") {
+                    it("기존 API 키를 유지하고 만료일자만 갱신해야 한다") {
                         val result = reissueApiKeyService.execute()
 
-                        result.apiKey shouldNotBe oldApiKeyValue
-                        apiKey.apiKeyValue shouldNotBe oldApiKeyValue
+                        result.apiKey shouldBe oldApiKeyValue
+                        apiKey.apiKeyValue shouldBe oldApiKeyValue
                         apiKey.expiresAt shouldNotBe expiresAt
 
                         verify(exactly = 1) { mockApiKeyRepository.findByApiKeyStudent(mockStudent) }
@@ -206,6 +210,7 @@ class ReissueApiKeyServiceTest :
                             apiKeyValue = UUID.randomUUID()
                             apiKeyStudent = mockStudent
                             createdAt = now.minusDays(15)
+                            updatedAt = now.minusDays(15)
                             this.expiresAt = expiresAt
                         }
 
@@ -233,6 +238,7 @@ class ReissueApiKeyServiceTest :
                             apiKeyValue = UUID.randomUUID()
                             apiKeyStudent = mockStudent
                             createdAt = now.minusDays(45)
+                            updatedAt = now.minusDays(45)
                             this.expiresAt = expiresAt
                         }
 
