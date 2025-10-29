@@ -1,4 +1,4 @@
-package team.themoment.datagsm.global.common.wrapper
+package team.themoment.datagsm.global.common.response.wrapper
 
 import org.springframework.core.MethodParameter
 import org.springframework.http.HttpStatus
