@@ -3,7 +3,6 @@ package team.themoment.datagsm.domain.auth.service
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -13,7 +12,6 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.AuthorizationGrantType
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.account.repository.AccountJpaRepository
-import team.themoment.datagsm.domain.auth.entity.RefreshTokenRedisEntity
 import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.auth.repository.RefreshTokenRedisRepository
 import team.themoment.datagsm.domain.auth.service.impl.AuthenticateGoogleOAuthServiceImpl
