@@ -1,3 +1,35 @@
+import dependency.Dependencies.AWS_SDK_BOM
+import dependency.Dependencies.JACKSON_KOTLIN
+import dependency.Dependencies.JAKARTA_PERSISTENCE_API
+import dependency.Dependencies.JAKARTA_TRANSACTION_API
+import dependency.Dependencies.JJWT
+import dependency.Dependencies.JJWT_IMPL
+import dependency.Dependencies.JJWT_JACKSON
+import dependency.Dependencies.JUNIT_PLATFORM_LAUNCHER
+import dependency.Dependencies.KOTEST_ASSERTIONS
+import dependency.Dependencies.KOTEST_FRAMEWORK
+import dependency.Dependencies.KOTEST_RUNNER
+import dependency.Dependencies.KOTLIN_JUNIT5
+import dependency.Dependencies.KOTLIN_REFLECT
+import dependency.Dependencies.LOGBACK_AWS_APPENDER
+import dependency.Dependencies.MOCKK
+import dependency.Dependencies.MYSQL_CONNECTOR
+import dependency.Dependencies.QUERY_DSL
+import dependency.Dependencies.QUERY_DSL_PROCESSOR
+import dependency.Dependencies.SPRING_CLOUD_BOM
+import dependency.Dependencies.SPRING_DATA_JPA
+import dependency.Dependencies.SPRING_DATA_REDIS
+import dependency.Dependencies.SPRING_DOCKER_SUPPORT
+import dependency.Dependencies.SPRING_OAUTH2_CLIENT
+import dependency.Dependencies.SPRING_OPENFEIGN
+import dependency.Dependencies.SPRING_SECURITY
+import dependency.Dependencies.SPRING_SECURITY_TEST
+import dependency.Dependencies.SPRING_TEST
+import dependency.Dependencies.SPRING_VALIDATION
+import dependency.Dependencies.SPRING_WEB
+import dependency.Dependencies.SPRINT_MAIL
+import dependency.Dependencies.SWAGGER_UI
+
 plugins {
     id(plugin.Plugins.SPRING_BOOT) version plugin.PluginVersions.SPRING_BOOT_VERSION
     id(plugin.Plugins.SPRING_DEPENDENCY_MANAGEMENT) version plugin.PluginVersions.SPRING_DEPENDENCY_MANAGEMENT_VERSION
@@ -28,52 +60,55 @@ repositories {
 
 dependencies {
     // Spring Starters
-    implementation(dependency.Dependencies.SPRING_WEB)
-    implementation(dependency.Dependencies.SPRING_VALIDATION)
-    implementation(dependency.Dependencies.SPRING_SECURITY)
-    implementation(dependency.Dependencies.SPRING_OAUTH2_CLIENT)
-    implementation(dependency.Dependencies.SPRINT_MAIL)
-    implementation(dependency.Dependencies.SPRING_OPENFEIGN)
+    implementation(SPRING_WEB)
+    implementation(SPRING_VALIDATION)
+    implementation(SPRING_SECURITY)
+    implementation(SPRING_OAUTH2_CLIENT)
+    implementation(SPRINT_MAIL)
+    implementation(SPRING_OPENFEIGN)
 
     // JWT
-    implementation(dependency.Dependencies.JJWT)
-    runtimeOnly(dependency.Dependencies.JJWT_IMPL)
-    runtimeOnly(dependency.Dependencies.JJWT_JACKSON)
+    implementation(JJWT)
+    runtimeOnly(JJWT_IMPL)
+    runtimeOnly(JJWT_JACKSON)
 
     // QueryDSL
-    implementation(dependency.Dependencies.QUERY_DSL)
-    ksp(dependency.Dependencies.QUERY_DSL_PROCESSOR)
+    implementation(QUERY_DSL)
+    ksp(QUERY_DSL_PROCESSOR)
 
     // Jakarta EE
-    implementation(dependency.Dependencies.JAKARTA_PERSISTENCE_API)
-    implementation(dependency.Dependencies.JAKARTA_TRANSACTION_API)
+    implementation(JAKARTA_PERSISTENCE_API)
+    implementation(JAKARTA_TRANSACTION_API)
 
     // Spring Data
-    implementation(dependency.Dependencies.SPRING_DATA_JPA)
-    implementation(dependency.Dependencies.SPRING_DATA_REDIS)
+    implementation(SPRING_DATA_JPA)
+    implementation(SPRING_DATA_REDIS)
 
     // Development Tools
-    developmentOnly(dependency.Dependencies.SPRING_DOCKER_SUPPORT)
+    developmentOnly(SPRING_DOCKER_SUPPORT)
 
     // Kotlin
-    implementation(dependency.Dependencies.JACKSON_KOTLIN)
-    implementation(dependency.Dependencies.KOTLIN_REFLECT)
+    implementation(JACKSON_KOTLIN)
+    implementation(KOTLIN_REFLECT)
 
     // Database
-    runtimeOnly(dependency.Dependencies.MYSQL_CONNECTOR)
+    runtimeOnly(MYSQL_CONNECTOR)
 
     // Swagger
-    implementation(dependency.Dependencies.SWAGGER_UI)
+    implementation(SWAGGER_UI)
+
+    // Logging
+    implementation(LOGBACK_AWS_APPENDER)
 
     // Testing
-    testImplementation(dependency.Dependencies.SPRING_TEST)
-    testImplementation(dependency.Dependencies.KOTLIN_JUNIT5)
-    testImplementation(dependency.Dependencies.KOTEST_ASSERTIONS)
-    testImplementation(dependency.Dependencies.KOTEST_RUNNER)
-    testImplementation(dependency.Dependencies.KOTEST_FRAMEWORK)
-    testImplementation(dependency.Dependencies.SPRING_SECURITY_TEST)
-    testRuntimeOnly(dependency.Dependencies.JUNIT_PLATFORM_LAUNCHER)
-    testImplementation(dependency.Dependencies.MOCKK)
+    testImplementation(SPRING_TEST)
+    testImplementation(KOTLIN_JUNIT5)
+    testImplementation(KOTEST_ASSERTIONS)
+    testImplementation(KOTEST_RUNNER)
+    testImplementation(KOTEST_FRAMEWORK)
+    testImplementation(SPRING_SECURITY_TEST)
+    testRuntimeOnly(JUNIT_PLATFORM_LAUNCHER)
+    testImplementation(MOCKK)
 }
 kotlin {
     compilerOptions {
@@ -118,6 +153,7 @@ ktlint {
 
 dependencyManagement {
     imports {
-        mavenBom(plugin.Plugins.SPRING_CLOUD_DEPENDENCY_MANAGEMENT)
+        mavenBom(SPRING_CLOUD_BOM)
+        mavenBom(AWS_SDK_BOM)
     }
 }

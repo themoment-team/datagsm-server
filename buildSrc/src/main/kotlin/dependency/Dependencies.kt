@@ -1,5 +1,14 @@
 package dependency
 
+import dependency.DependencyVersions.AWS_SDK_VERSION
+import dependency.DependencyVersions.JJWT_VERSION
+import dependency.DependencyVersions.KOTEST_VERSION
+import dependency.DependencyVersions.LOGBACK_AWS_APPENDER_VERSION
+import dependency.DependencyVersions.MOCKK_VERSION
+import dependency.DependencyVersions.QUERY_DSL_VERSION
+import dependency.DependencyVersions.SPRING_CLOUD_VERSION
+import dependency.DependencyVersions.SWAGGER_VERSION
+
 object Dependencies {
     // Spring Starters
     const val SPRING_WEB = "org.springframework.boot:spring-boot-starter-web"
@@ -10,13 +19,13 @@ object Dependencies {
     const val SPRING_OPENFEIGN = "org.springframework.cloud:spring-cloud-starter-openfeign"
 
     // JWT
-    const val JJWT = "io.jsonwebtoken:jjwt-api:${DependencyVersions.JJWT_VERSION}"
-    const val JJWT_IMPL = "io.jsonwebtoken:jjwt-impl:${DependencyVersions.JJWT_VERSION}"
-    const val JJWT_JACKSON = "io.jsonwebtoken:jjwt-jackson:${DependencyVersions.JJWT_VERSION}"
+    const val JJWT = "io.jsonwebtoken:jjwt-api:${JJWT_VERSION}"
+    const val JJWT_IMPL = "io.jsonwebtoken:jjwt-impl:${JJWT_VERSION}"
+    const val JJWT_JACKSON = "io.jsonwebtoken:jjwt-jackson:${JJWT_VERSION}"
 
     // QueryDSL
-    const val QUERY_DSL = "io.github.openfeign.querydsl:querydsl-jpa:${DependencyVersions.QUERY_DSL_VERSION}"
-    const val QUERY_DSL_PROCESSOR = "io.github.openfeign.querydsl:querydsl-ksp-codegen:${DependencyVersions.QUERY_DSL_VERSION}"
+    const val QUERY_DSL = "io.github.openfeign.querydsl:querydsl-jpa:${QUERY_DSL_VERSION}"
+    const val QUERY_DSL_PROCESSOR = "io.github.openfeign.querydsl:querydsl-ksp-codegen:${QUERY_DSL_VERSION}"
 
     // Jakarta EE
     const val JAKARTA_PERSISTENCE_API = "jakarta.persistence:jakarta.persistence-api"
@@ -49,10 +58,10 @@ object Dependencies {
     // Testing
     const val SPRING_TEST = "org.springframework.boot:spring-boot-starter-test"
     const val KOTLIN_JUNIT5 = "org.jetbrains.kotlin:kotlin-test-junit5"
-    const val KOTEST_ASSERTIONS = "io.kotest:kotest-assertions-core:${DependencyVersions.KOTEST_VERSION}"
-    const val KOTEST_RUNNER = "io.kotest:kotest-runner-junit5:${DependencyVersions.KOTEST_VERSION}"
-    const val KOTEST_FRAMEWORK = "io.kotest:kotest-framework-engine:${DependencyVersions.KOTEST_VERSION}"
+    const val KOTEST_ASSERTIONS = "io.kotest:kotest-assertions-core:${KOTEST_VERSION}"
+    const val KOTEST_RUNNER = "io.kotest:kotest-runner-junit5:${KOTEST_VERSION}"
+    const val KOTEST_FRAMEWORK = "io.kotest:kotest-framework-engine:${KOTEST_VERSION}"
     const val SPRING_SECURITY_TEST = "org.springframework.security:spring-security-test"
     const val JUNIT_PLATFORM_LAUNCHER = "org.junit.platform:junit-platform-launcher"
-    const val MOCKK = "io.mockk:mockk:${DependencyVersions.MOCKK_VERSION}"
+    const val MOCKK = "io.mockk:mockk:${MOCKK_VERSION}"
 }
