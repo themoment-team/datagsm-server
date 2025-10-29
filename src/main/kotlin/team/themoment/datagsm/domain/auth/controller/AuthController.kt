@@ -71,14 +71,6 @@ class AuthController(
     @PostMapping("/api-key")
     fun createApiKey(): ApiKeyResDto = createApiKeyService.execute()
 
-    @Operation(summary = "API 키 삭제", description = "기존 API 키를 삭제합니다.")
-    @ApiResponses(
-        value = [
-            ApiResponse(responseCode = "200", description = "API 키 삭제 성공"),
-            ApiResponse(responseCode = "400", description = "학생 정보 없음", content = [Content()]),
-            ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
-        ],
-    )
     @Operation(summary = "API 키 갱신", description = "기존 API 키를 갱신합니다. 만료 15일 전부터 만료 15일 후까지만 갱신 가능합니다.")
     @ApiResponses(
         value = [
@@ -90,6 +82,14 @@ class AuthController(
     @PutMapping("/api-key")
     fun reissueApiKey(): ApiKeyResDto = reissueApiKeyService.execute()
 
+    @Operation(summary = "API 키 삭제", description = "기존 API 키를 삭제합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "API 키 삭제 성공"),
+            ApiResponse(responseCode = "400", description = "학생 정보 없음", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
+        ],
+    )
     @DeleteMapping("/api-key")
     fun deleteApiKey(): CommonApiResponse<Nothing> {
         deleteApiKeyService.execute()
