@@ -14,4 +14,6 @@ object DependencyVersions {
 
     const val SPRING_CLOUD_VERSION = "2025.0.0"
     const val AWS_SDK_VERSION = "2.29.45"
+
+    const val PEANUT_BUTTER_VERSION = "1.4.1"
 }

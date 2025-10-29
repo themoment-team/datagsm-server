@@ -14,6 +14,7 @@ import dependency.Dependencies.KOTLIN_REFLECT
 import dependency.Dependencies.LOGBACK_AWS_APPENDER
 import dependency.Dependencies.MOCKK
 import dependency.Dependencies.MYSQL_CONNECTOR
+import dependency.Dependencies.PEANUT_BUTTER
 import dependency.Dependencies.QUERY_DSL
 import dependency.Dependencies.QUERY_DSL_PROCESSOR
 import dependency.Dependencies.SPRING_CLOUD_BOM
@@ -109,6 +110,9 @@ dependencies {
     testImplementation(SPRING_SECURITY_TEST)
     testRuntimeOnly(JUNIT_PLATFORM_LAUNCHER)
     testImplementation(MOCKK)
+
+    // Custom Libraries
+    implementation(PEANUT_BUTTER)
 }
 kotlin {
     compilerOptions {

@@ -5,6 +5,7 @@ import dependency.DependencyVersions.JJWT_VERSION
 import dependency.DependencyVersions.KOTEST_VERSION
 import dependency.DependencyVersions.LOGBACK_AWS_APPENDER_VERSION
 import dependency.DependencyVersions.MOCKK_VERSION
+import dependency.DependencyVersions.PEANUT_BUTTER_VERSION
 import dependency.DependencyVersions.QUERY_DSL_VERSION
 import dependency.DependencyVersions.SPRING_CLOUD_VERSION
 import dependency.DependencyVersions.SWAGGER_VERSION
@@ -64,4 +65,7 @@ object Dependencies {
     const val SPRING_SECURITY_TEST = "org.springframework.security:spring-security-test"
     const val JUNIT_PLATFORM_LAUNCHER = "org.junit.platform:junit-platform-launcher"
     const val MOCKK = "io.mockk:mockk:${MOCKK_VERSION}"
+
+    // Custom Libraries
+    const val PEANUT_BUTTER = "com.github.snowykte0426:peanut-butter:${PEANUT_BUTTER_VERSION}"
 }
