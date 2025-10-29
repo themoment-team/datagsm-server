@@ -10,6 +10,7 @@ import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.DynamicUpdate
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Table(name = "tb_api_key")
@@ -24,7 +25,22 @@ class ApiKey {
     @Column(name = "api_key_value", nullable = false, unique = true)
     var apiKeyValue: UUID = UUID.randomUUID()
 
+    @Column(name = "created_at", nullable = false)
+    var createdAt: LocalDateTime = LocalDateTime.now()
+
+    @Column(name = "expires_at", nullable = false)
+    var expiresAt: LocalDateTime = LocalDateTime.now()
+
     @OneToOne
     @JoinColumn(name = "api_key_student_id", nullable = false, referencedColumnName = "student_id")
     var apiKeyStudent: StudentJpaEntity? = null
+
+    fun isExpired(): Boolean = LocalDateTime.now().isAfter(expiresAt)
+
+    fun canBeRenewed(renewalPeriodDays: Long): Boolean {
+        val now = LocalDateTime.now()
+        val renewalStartDate = expiresAt.minusDays(renewalPeriodDays)
+        val renewalEndDate = expiresAt.plusDays(renewalPeriodDays)
+        return now.isAfter(renewalStartDate) && now.isBefore(renewalEndDate)
+    }
 }

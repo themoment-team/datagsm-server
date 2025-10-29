@@ -50,6 +50,11 @@ class ApiKeyAuthenticationFilter(
                 return
             }
 
+            if (apiKey.isExpired()) {
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), "만료된 API Key입니다.")
+                return
+            }
+
             val student = apiKey.apiKeyStudent
             val email = student?.studentEmail ?: ""
             val role = student?.studentRole
