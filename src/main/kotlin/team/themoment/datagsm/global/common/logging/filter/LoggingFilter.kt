@@ -82,7 +82,7 @@ class LoggingFilter : OncePerRequestFilter() {
             requestLogging(cachedRequest, logId, cachedRequest.cachedBody)
             filterChain.doFilter(cachedRequest, responseWrapper)
         } catch (e: Exception) {
-            logger.error("LoggingFilter의 FilterChain에서 예외가 발생했습니다.", e)
+            logger().error("LoggingFilter의 FilterChain에서 예외가 발생했습니다.", e)
         } finally {
             responseLogging(responseWrapper, startTime, logId)
             copyResponseBody(responseWrapper)
@@ -113,9 +113,11 @@ class LoggingFilter : OncePerRequestFilter() {
         }
     }
 
-    private fun isNotLoggingURL(requestURI: String): Boolean = NOT_LOGGING_URL.any { pattern -> matcher.match(pattern, requestURI) }
+    private fun isNotLoggingURL(requestURI: String): Boolean =
+        NOT_LOGGING_URL.any { pattern -> matcher.match(pattern, requestURI) }
 
-    private fun isMultipart(request: HttpServletRequest): Boolean = request.contentType?.lowercase()?.startsWith("multipart/") ?: false
+    private fun isMultipart(request: HttpServletRequest): Boolean =
+        request.contentType?.lowercase()?.startsWith("multipart/") ?: false
 
     private fun requestLogging(
         request: HttpServletRequest,
@@ -182,5 +184,6 @@ class LoggingFilter : OncePerRequestFilter() {
         return if (StringUtils.hasText(oneLineContent)) oneLineContent else "[empty]"
     }
 
-    private fun formatCookies(cookies: Array<Cookie>?): String = cookies?.joinToString(", ") { "${it.name}=${it.value}" } ?: "[none]"
+    private fun formatCookies(cookies: Array<Cookie>?): String =
+        cookies?.joinToString(", ") { "${it.name}=${it.value}" } ?: "[none]"
 }
