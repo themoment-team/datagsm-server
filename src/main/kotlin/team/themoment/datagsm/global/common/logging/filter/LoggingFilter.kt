@@ -20,7 +20,7 @@ class LoggingFilter : OncePerRequestFilter() {
     companion object {
         private val NOT_LOGGING_URL =
             arrayOf(
-                "/api-docs/**",
+                "/v3/api-docs/**",
                 "/swagger-ui/**",
             )
     }
