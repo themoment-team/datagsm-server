@@ -1,5 +1,6 @@
 package team.themoment.datagsm.domain.auth.service
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -7,6 +8,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.springframework.web.server.ResponseStatusException
 import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.impl.CreateApiKeyServiceImpl
@@ -86,19 +88,20 @@ class CreateApiKeyServiceTest :
                     beforeEach {
                         every { mockApiKeyRepository.findByApiKeyStudent(mockStudent) } returns
                             Optional.of(existingApiKey)
-                        every { mockApiKeyRepository.save(existingApiKey) } returns existingApiKey
                     }
 
-                    it("기존 API 키를 갱신하고 반환해야 한다") {
-                        val result = createApiKeyService.execute()
+                    it("409 CONFLICT 예외가 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ResponseStatusException> {
+                                createApiKeyService.execute()
+                            }
 
-                        result.apiKey shouldNotBe oldApiKeyValue
-                        result.expiresAt shouldNotBe oldExpiresAt
-                        existingApiKey.apiKeyValue shouldNotBe oldApiKeyValue
+                        exception.statusCode.value() shouldBe 409
+                        exception.reason shouldBe "이미 API 키가 존재합니다."
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentStudent() }
                         verify(exactly = 1) { mockApiKeyRepository.findByApiKeyStudent(mockStudent) }
-                        verify(exactly = 1) { mockApiKeyRepository.save(existingApiKey) }
+                        verify(exactly = 0) { mockApiKeyRepository.save(any()) }
                     }
                 }
 
