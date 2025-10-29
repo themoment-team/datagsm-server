@@ -30,12 +30,14 @@ class CreateApiKeyServiceImpl(
                     it.apply {
                         apiKeyValue = UUID.randomUUID()
                         createdAt = now
+                        updatedAt = now
                         this.expiresAt = expiresAt
                     }
                 }.orElseGet {
                     ApiKey().apply {
                         apiKeyStudent = student
                         createdAt = now
+                        updatedAt = now
                         this.expiresAt = expiresAt
                     }
                 }

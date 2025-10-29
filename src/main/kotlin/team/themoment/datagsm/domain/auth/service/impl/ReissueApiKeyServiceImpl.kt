@@ -47,7 +47,7 @@ class ReissueApiKeyServiceImpl(
         val expiresAt = now.plusDays(apiKeyEnvironment.expirationDays)
 
         apiKey.apply {
-            createdAt = now
+            updatedAt = now
             this.expiresAt = expiresAt
         }
 
