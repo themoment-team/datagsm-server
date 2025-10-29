@@ -37,7 +37,14 @@ object Dependencies {
     const val MYSQL_CONNECTOR = "com.mysql:mysql-connector-j"
 
     // Swagger
-    const val SWAGGER_UI = "org.springdoc:springdoc-openapi-starter-webmvc-ui:${DependencyVersions.SWAGGER_VERSION}"
+    const val SWAGGER_UI = "org.springdoc:springdoc-openapi-starter-webmvc-ui:${SWAGGER_VERSION}"
+
+    // Logging
+    const val LOGBACK_AWS_APPENDER = "ca.pjer:logback-awslogs-appender:${LOGBACK_AWS_APPENDER_VERSION}"
+
+    // BOM
+    const val SPRING_CLOUD_BOM = "org.springframework.cloud:spring-cloud-dependencies:${SPRING_CLOUD_VERSION}"
+    const val AWS_SDK_BOM = "software.amazon.awssdk:bom:${AWS_SDK_VERSION}"
 
     // Testing
     const val SPRING_TEST = "org.springframework.boot:spring-boot-starter-test"
