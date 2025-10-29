@@ -27,11 +27,18 @@ class GlobalExceptionHandler {
         return CommonApiResponse.error(ex.message ?: "An error occurred", ex.statusCode)
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException::class, HttpMessageNotReadableException::class)
+    @ExceptionHandler(MethodArgumentNotValidException::class)
     fun validationException(ex: MethodArgumentNotValidException): CommonApiResponse<Nothing> {
         logger.warn("Validation Failed : {}", ex.message)
         logger.trace("Validation Failed Details : ", ex)
         return CommonApiResponse.error(methodArgumentNotValidExceptionToJson(ex), HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun httpMessageNotReadableException(ex: HttpMessageNotReadableException): CommonApiResponse<Nothing> {
+        logger.warn("Invalid Request Body : {}", ex.message)
+        logger.trace("Invalid Request Body Details : ", ex)
+        return CommonApiResponse.error("Invalid request body format", HttpStatus.BAD_REQUEST)
     }
 
     @ExceptionHandler(ConstraintViolationException::class)
