@@ -18,11 +18,11 @@ class QueryApiKeyRenewableServiceImpl(
 ) : QueryApiKeyRenewableService {
     @Transactional(readOnly = true)
     override fun execute(): ApiKeyRenewableResDto {
-        val student = currentUserProvider.getCurrentStudent()
+        val account = currentUserProvider.getCurrentAccount()
 
         val apiKey =
             apiKeyJpaRepository
-                .findByApiKeyStudent(student)
+                .findByApiKeyAccount(account)
                 .orElseThrow {
                     ResponseStatusException(HttpStatus.NOT_FOUND, "API 키를 찾을 수 없습니다.")
                 }

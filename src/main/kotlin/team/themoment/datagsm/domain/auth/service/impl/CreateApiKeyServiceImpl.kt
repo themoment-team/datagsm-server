@@ -20,9 +20,9 @@ class CreateApiKeyServiceImpl(
 ) : CreateApiKeyService {
     @Transactional
     override fun execute(): ApiKeyResDto {
-        val student = currentUserProvider.getCurrentStudent()
+        val account = currentUserProvider.getCurrentAccount()
 
-        if (apiKeyJpaRepository.findByApiKeyStudent(student).isPresent) {
+        if (apiKeyJpaRepository.findByApiKeyAccount(account).isPresent) {
             throw ResponseStatusException(HttpStatus.CONFLICT, "이미 API 키가 존재합니다.")
         }
 
@@ -31,7 +31,7 @@ class CreateApiKeyServiceImpl(
 
         val apiKey =
             ApiKey().apply {
-                apiKeyStudent = student
+                apiKeyAccount = account
                 createdAt = now
                 updatedAt = now
                 this.expiresAt = expiresAt
