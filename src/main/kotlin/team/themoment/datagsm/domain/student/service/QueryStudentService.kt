@@ -1,8 +1,8 @@
 package team.themoment.datagsm.domain.student.service
 
-import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.student.dto.response.StudentListResDto
 import team.themoment.datagsm.domain.student.entity.constant.Sex
+import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 
 interface QueryStudentService {
     fun execute(
@@ -13,7 +13,7 @@ interface QueryStudentService {
         classNum: Int?,
         number: Int?,
         sex: Sex?,
-        role: Role?,
+        role: StudentRole?,
         dormitoryRoom: Int?,
         isLeaveSchool: Boolean,
         page: Int,

@@ -5,10 +5,10 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
-import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.student.entity.QStudentJpaEntity.Companion.studentJpaEntity
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.domain.student.entity.constant.Sex
+import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.domain.student.repository.custom.StudentJpaCustomRepository
 
 @Repository
@@ -23,7 +23,7 @@ class StudentJpaCustomRepositoryImpl(
         classNum: Int?,
         number: Int?,
         sex: Sex?,
-        role: Role?,
+        role: StudentRole?,
         dormitoryRoom: Int?,
         isLeaveSchool: Boolean,
         pageable: Pageable,

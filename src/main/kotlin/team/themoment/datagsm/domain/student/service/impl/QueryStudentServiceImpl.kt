@@ -3,10 +3,10 @@ package team.themoment.datagsm.domain.student.service.impl
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.student.dto.response.StudentListResDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.domain.student.entity.constant.Sex
+import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.domain.student.service.QueryStudentService
 
@@ -23,7 +23,7 @@ class QueryStudentServiceImpl(
         classNum: Int?,
         number: Int?,
         sex: Sex?,
-        role: Role?,
+        role: StudentRole?,
         dormitoryRoom: Int?,
         isLeaveSchool: Boolean,
         page: Int,
