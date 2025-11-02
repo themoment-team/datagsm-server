@@ -2,9 +2,9 @@ spring:
   application:
     name: datagsm
   datasource:
-    url: jdbc:mysql://localhost:3306/datagsm?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://amond-server.kro.kr:3306/datagsm
     username: root
-    password: datagsm1234!
+    password: rootpassword
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 20
@@ -41,9 +41,9 @@ spring:
             scope:
               - email
     jwt:
-      secret: ${JWT_SECRET_KEY}
-      access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
-      refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
+      secret: sdafsfasdfasfqf423fasdfsadf23423423sdf
+      access-token-expiration: 2400000
+      refresh-token-expiration: 604800000
     api-key:
       expiration-days: 30
       renewal-period-days: 15
@@ -55,6 +55,12 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
+  docker:
+    compose:
+      enabled: false
+  sql:
+    init:
+      mode: never
 server:
   shutdown: graceful
   port: 8080
