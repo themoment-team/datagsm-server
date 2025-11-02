@@ -5,9 +5,9 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.impl.DeleteApiKeyServiceImpl
-import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 
 class DeleteApiKeyServiceTest :
@@ -25,32 +25,32 @@ class DeleteApiKeyServiceTest :
         describe("DeleteApiKeyService 클래스의") {
             describe("execute 메서드는") {
 
-                val mockStudent =
-                    StudentJpaEntity().apply {
-                        studentId = 1L
-                        studentEmail = "test@gsm.hs.kr"
+                val mockAccount =
+                    AccountJpaEntity().apply {
+                        accountId = 1L
+                        accountEmail = "test@gsm.hs.kr"
                     }
 
                 beforeEach {
-                    every { mockCurrentUserProvider.getCurrentStudent() } returns mockStudent
+                    every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                 }
 
                 context("정상적으로 API 키를 삭제할 때") {
                     beforeEach {
-                        every { mockApiKeyRepository.deleteByApiKeyStudent(mockStudent) } returns Unit
+                        every { mockApiKeyRepository.deleteByApiKeyAccount(mockAccount) } returns Unit
                     }
 
                     it("현재 학생의 API 키를 삭제해야 한다") {
                         deleteApiKeyService.execute()
 
-                        verify(exactly = 1) { mockCurrentUserProvider.getCurrentStudent() }
-                        verify(exactly = 1) { mockApiKeyRepository.deleteByApiKeyStudent(mockStudent) }
+                        verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
+                        verify(exactly = 1) { mockApiKeyRepository.deleteByApiKeyAccount(mockAccount) }
                     }
                 }
 
                 context("여러 번 호출될 때") {
                     beforeEach {
-                        every { mockApiKeyRepository.deleteByApiKeyStudent(mockStudent) } returns Unit
+                        every { mockApiKeyRepository.deleteByApiKeyAccount(mockAccount) } returns Unit
                     }
 
                     it("매번 삭제 작업이 수행되어야 한다") {
@@ -58,8 +58,8 @@ class DeleteApiKeyServiceTest :
                         deleteApiKeyService.execute()
                         deleteApiKeyService.execute()
 
-                        verify(exactly = 3) { mockCurrentUserProvider.getCurrentStudent() }
-                        verify(exactly = 3) { mockApiKeyRepository.deleteByApiKeyStudent(mockStudent) }
+                        verify(exactly = 3) { mockCurrentUserProvider.getCurrentAccount() }
+                        verify(exactly = 3) { mockApiKeyRepository.deleteByApiKeyAccount(mockAccount) }
                     }
                 }
             }

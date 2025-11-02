@@ -8,12 +8,13 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.domain.auth.entity.RefreshTokenRedisEntity
-import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.auth.repository.RefreshTokenRedisRepository
 import team.themoment.datagsm.domain.auth.service.impl.ReissueTokenServiceImpl
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.jwt.JwtProperties
 import team.themoment.datagsm.global.security.jwt.JwtProvider
@@ -168,7 +169,7 @@ class ReissueTokenServiceTest :
                         every { mockJwtProvider.getEmailFromToken(refreshToken) } returns email
                         every { mockRefreshTokenRepository.findByEmail(email) } returns Optional.of(storedToken)
                         every { mockAccountRepository.findByAccountEmail(email) } returns Optional.of(account)
-                        every { mockJwtProvider.generateAccessToken(email, Role.GENERAL_STUDENT) } returns
+                        every { mockJwtProvider.generateAccessToken(email, AccountRole.USER) } returns
                             newAccessToken
                         every { mockJwtProvider.generateRefreshToken(email) } returns newRefreshToken
                         every { mockRefreshTokenRepository.deleteByEmail(email) } returns Unit
@@ -185,7 +186,7 @@ class ReissueTokenServiceTest :
                         verify(exactly = 1) { mockJwtProvider.getEmailFromToken(refreshToken) }
                         verify(exactly = 1) { mockRefreshTokenRepository.findByEmail(email) }
                         verify(exactly = 1) { mockAccountRepository.findByAccountEmail(email) }
-                        verify(exactly = 1) { mockJwtProvider.generateAccessToken(email, Role.GENERAL_STUDENT) }
+                        verify(exactly = 1) { mockJwtProvider.generateAccessToken(email, AccountRole.USER) }
                         verify(exactly = 1) { mockJwtProvider.generateRefreshToken(email) }
                         verify(exactly = 1) { mockRefreshTokenRepository.deleteByEmail(email) }
                         verify(exactly = 1) { mockRefreshTokenRepository.save(any()) }
@@ -204,7 +205,7 @@ class ReissueTokenServiceTest :
                         StudentJpaEntity().apply {
                             studentId = 1L
                             studentEmail = email
-                            studentRole = Role.STUDENT_COUNCIL
+                            studentRole = StudentRole.STUDENT_COUNCIL
                         }
 
                     val account =
@@ -218,7 +219,7 @@ class ReissueTokenServiceTest :
                         every { mockJwtProvider.getEmailFromToken(refreshToken) } returns email
                         every { mockRefreshTokenRepository.findByEmail(email) } returns Optional.of(storedToken)
                         every { mockAccountRepository.findByAccountEmail(email) } returns Optional.of(account)
-                        every { mockJwtProvider.generateAccessToken(email, Role.STUDENT_COUNCIL) } returns
+                        every { mockJwtProvider.generateAccessToken(email, AccountRole.USER) } returns
                             newAccessToken
                         every { mockJwtProvider.generateRefreshToken(email) } returns newRefreshToken
                         every { mockRefreshTokenRepository.deleteByEmail(email) } returns Unit
@@ -231,7 +232,7 @@ class ReissueTokenServiceTest :
                         result.accessToken shouldBe newAccessToken
                         result.refreshToken shouldBe newRefreshToken
 
-                        verify(exactly = 1) { mockJwtProvider.generateAccessToken(email, Role.STUDENT_COUNCIL) }
+                        verify(exactly = 1) { mockJwtProvider.generateAccessToken(email, AccountRole.USER) }
                         verify(exactly = 1) { mockRefreshTokenRepository.save(any()) }
                     }
                 }
