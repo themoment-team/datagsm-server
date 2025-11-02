@@ -55,9 +55,9 @@ class ApiKeyAuthenticationFilter(
                 return
             }
 
-            val student = apiKey.apiKeyStudent
-            val email = student?.studentEmail ?: ""
-            val role = student?.studentRole
+            val account = apiKey.apiKeyAccount
+            val email = account?.accountEmail ?: ""
+            val role = account?.accountRole
 
             val authentication =
                 UsernamePasswordAuthenticationToken(
