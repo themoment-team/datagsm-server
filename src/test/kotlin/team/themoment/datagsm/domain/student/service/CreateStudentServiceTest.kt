@@ -7,13 +7,13 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.student.dto.request.StudentCreateReqDto
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
 import team.themoment.datagsm.domain.student.entity.constant.Major
 import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.entity.constant.StudentNumber
+import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.domain.student.service.impl.CreateStudentServiceImpl
 import team.themoment.datagsm.global.exception.error.ExpectedException
@@ -41,7 +41,7 @@ class CreateStudentServiceTest :
                             grade = 2,
                             classNum = 1,
                             number = 15,
-                            role = Role.GENERAL_STUDENT,
+                            role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 205,
                         )
 
@@ -82,7 +82,7 @@ class CreateStudentServiceTest :
                         result.number shouldBe 15
                         result.studentNumber shouldBe 2115
                         result.major shouldBe Major.SW_DEVELOPMENT
-                        result.role shouldBe Role.GENERAL_STUDENT
+                        result.role shouldBe StudentRole.GENERAL_STUDENT
                         result.dormitoryFloor shouldBe 2
                         result.dormitoryRoom shouldBe 205
                         result.isLeaveSchool shouldBe false
@@ -108,7 +108,7 @@ class CreateStudentServiceTest :
                             grade = 1,
                             classNum = 3,
                             number = 5,
-                            role = Role.GENERAL_STUDENT,
+                            role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 301,
                         )
 
@@ -157,7 +157,7 @@ class CreateStudentServiceTest :
                             grade = 1,
                             classNum = 1,
                             number = 1,
-                            role = Role.GENERAL_STUDENT,
+                            role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
                         )
 
@@ -187,7 +187,7 @@ class CreateStudentServiceTest :
                             grade = 2,
                             classNum = 2,
                             number = 10,
-                            role = Role.GENERAL_STUDENT,
+                            role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 410,
                         )
 
@@ -233,7 +233,7 @@ class CreateStudentServiceTest :
                             grade = 1,
                             classNum = 5,
                             number = 1,
-                            role = Role.GENERAL_STUDENT,
+                            role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
                         )
 
@@ -267,7 +267,7 @@ class CreateStudentServiceTest :
                             grade = 3,
                             classNum = 1,
                             number = 1,
-                            role = Role.GENERAL_STUDENT,
+                            role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 211,
                         )
 
@@ -315,7 +315,7 @@ class CreateStudentServiceTest :
                             grade = 2,
                             classNum = 2,
                             number = 2,
-                            role = Role.GENERAL_STUDENT,
+                            role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 222,
                         )
 
@@ -363,7 +363,7 @@ class CreateStudentServiceTest :
                             grade = 1,
                             classNum = 4,
                             number = 4,
-                            role = Role.GENERAL_STUDENT,
+                            role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 241,
                         )
 
