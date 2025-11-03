@@ -9,7 +9,6 @@ import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 enum class StudentRole {
     STUDENT_COUNCIL,
     DORMITORY_MANAGER,
-    TEACHER,
     ADMIN,
     GENERAL_STUDENT,
 }
