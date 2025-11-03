@@ -4,7 +4,7 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.springframework.stereotype.Component
-import team.themoment.datagsm.domain.auth.entity.constant.Role
+import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 import java.nio.charset.StandardCharsets
 import java.util.Date
 import javax.crypto.SecretKey
@@ -20,7 +20,7 @@ class JwtProvider(
 
     fun generateAccessToken(
         email: String,
-        role: Role,
+        role: AccountRole,
     ): String {
         val now = Date()
         val expiration = Date(now.time + jwtProperties.accessTokenExpiration)
@@ -58,9 +58,9 @@ class JwtProvider(
 
     fun getEmailFromToken(token: String): String = parseClaims(token).subject
 
-    fun getRoleFromToken(token: String): Role {
+    fun getRoleFromToken(token: String): AccountRole {
         val roleName = parseClaims(token)["role"] as String
-        return Role.valueOf(roleName)
+        return AccountRole.valueOf(roleName)
     }
 
     fun extractToken(bearerToken: String?): String? =

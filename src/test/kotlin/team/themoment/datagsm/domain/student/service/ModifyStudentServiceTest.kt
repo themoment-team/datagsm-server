@@ -6,13 +6,13 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.student.dto.request.StudentUpdateReqDto
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
 import team.themoment.datagsm.domain.student.entity.constant.Major
 import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.entity.constant.StudentNumber
+import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.domain.student.service.impl.ModifyStudentServiceImpl
 import team.themoment.datagsm.global.exception.error.ExpectedException
@@ -44,7 +44,7 @@ class ModifyStudentServiceTest :
                             studentEmail = "existing@gsm.hs.kr"
                             studentNumber = StudentNumber(2, 1, 5)
                             studentMajor = Major.SW_DEVELOPMENT
-                            studentRole = Role.GENERAL_STUDENT
+                            studentRole = StudentRole.GENERAL_STUDENT
                             studentDormitoryRoomNumber = DormitoryRoomNumber(201)
                             studentIsLeaveSchool = false
                         }
@@ -391,7 +391,7 @@ class ModifyStudentServiceTest :
                             grade = null,
                             classNum = null,
                             number = null,
-                            role = Role.STUDENT_COUNCIL,
+                            role = StudentRole.STUDENT_COUNCIL,
                             dormitoryRoomNumber = null,
                         )
 
@@ -403,7 +403,7 @@ class ModifyStudentServiceTest :
                         val result = modifyStudentService.execute(studentId, updateRequest)
 
                         result.sex shouldBe Sex.WOMAN
-                        result.role shouldBe Role.STUDENT_COUNCIL
+                        result.role shouldBe StudentRole.STUDENT_COUNCIL
 
                         verify(exactly = 1) { mockStudentRepository.findById(studentId) }
                     }
@@ -418,7 +418,7 @@ class ModifyStudentServiceTest :
                             grade = 4,
                             classNum = 2,
                             number = 8,
-                            role = Role.DORMITORY_MANAGER,
+                            role = StudentRole.DORMITORY_MANAGER,
                             dormitoryRoomNumber = 418,
                         )
 
@@ -451,7 +451,7 @@ class ModifyStudentServiceTest :
                         result.number shouldBe 8
                         result.studentNumber shouldBe 4208
                         result.major shouldBe Major.SW_DEVELOPMENT
-                        result.role shouldBe Role.DORMITORY_MANAGER
+                        result.role shouldBe StudentRole.DORMITORY_MANAGER
                         result.dormitoryRoom shouldBe 418
                         result.dormitoryFloor shouldBe 4
 

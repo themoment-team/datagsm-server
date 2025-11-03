@@ -12,12 +12,12 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.DynamicUpdate
-import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
 import team.themoment.datagsm.domain.student.entity.constant.Major
 import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.entity.constant.StudentNumber
+import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 
 @Table(name = "tb_student")
 @Entity
@@ -58,7 +58,7 @@ class StudentJpaEntity {
 
     @field:Column(name = "student_role", nullable = false)
     @field:Enumerated(EnumType.STRING)
-    var studentRole: Role = Role.GENERAL_STUDENT
+    var studentRole: StudentRole = StudentRole.GENERAL_STUDENT
 
     @field:Column(name = "student_is_leave_school", nullable = false)
     var studentIsLeaveSchool: Boolean = false

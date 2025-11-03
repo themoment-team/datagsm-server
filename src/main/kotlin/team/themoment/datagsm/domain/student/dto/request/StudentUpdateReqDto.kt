@@ -5,8 +5,8 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
-import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.student.entity.constant.Sex
+import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 
 data class StudentUpdateReqDto(
     @field:Size(max = 30)
@@ -31,7 +31,7 @@ data class StudentUpdateReqDto(
     @param:Schema(description = "번호 (1-18)", example = "1", minimum = "1", maximum = "18")
     val number: Int?,
     @param:Schema(description = "역할", example = "GENERAL_STUDENT")
-    val role: Role?,
+    val role: StudentRole?,
     @field:Min(value = 201)
     @field:Max(value = 518)
     @param:Schema(description = "기숙사 호실 (201-518)", example = "301", minimum = "201", maximum = "518")

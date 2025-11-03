@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.domain.auth.entity.RefreshTokenRedisEntity
-import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.auth.repository.RefreshTokenRedisRepository
 import team.themoment.datagsm.domain.auth.service.ReissueTokenService
 import team.themoment.datagsm.global.exception.error.ExpectedException
@@ -48,9 +47,7 @@ class ReissueTokenServiceImpl(
                     ExpectedException("계정을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
                 }
 
-        val role = account.accountStudent?.studentRole ?: Role.GENERAL_STUDENT
-
-        val newAccessToken = jwtProvider.generateAccessToken(email, role)
+        val newAccessToken = jwtProvider.generateAccessToken(email, account.accountRole)
         val newRefreshToken = jwtProvider.generateRefreshToken(email)
 
         refreshTokenRedisRepository.deleteByEmail(email)

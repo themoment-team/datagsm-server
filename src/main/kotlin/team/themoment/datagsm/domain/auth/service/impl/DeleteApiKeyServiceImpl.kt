@@ -13,7 +13,7 @@ class DeleteApiKeyServiceImpl(
 ) : DeleteApiKeyService {
     @Transactional
     override fun execute() {
-        val student = currentUserProvider.getCurrentStudent()
-        apiKeyJpaRepository.deleteByApiKeyStudent(student)
+        val account = currentUserProvider.getCurrentAccount()
+        apiKeyJpaRepository.deleteByApiKeyAccount(account)
     }
 }

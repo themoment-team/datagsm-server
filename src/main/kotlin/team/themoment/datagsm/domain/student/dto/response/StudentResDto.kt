@@ -1,9 +1,9 @@
 package team.themoment.datagsm.domain.student.dto.response
 
 import io.swagger.v3.oas.annotations.media.Schema
-import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.student.entity.constant.Major
 import team.themoment.datagsm.domain.student.entity.constant.Sex
+import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 
 data class StudentResDto(
     @param:Schema(description = "학생 ID", example = "1")
@@ -25,7 +25,7 @@ data class StudentResDto(
     @param:Schema(description = "전공", example = "SW")
     val major: Major,
     @param:Schema(description = "역할", example = "GENERAL_STUDENT")
-    val role: Role,
+    val role: StudentRole,
     @param:Schema(description = "기숙사 층", example = "3")
     val dormitoryFloor: Int,
     @param:Schema(description = "기숙사 호실", example = "301")

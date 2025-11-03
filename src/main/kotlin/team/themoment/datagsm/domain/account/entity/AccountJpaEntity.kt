@@ -2,6 +2,8 @@ package team.themoment.datagsm.domain.account.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -11,6 +13,7 @@ import jakarta.persistence.Table
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.DynamicUpdate
 import org.hibernate.annotations.UpdateTimestamp
+import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import java.time.LocalDateTime
 
@@ -25,6 +28,10 @@ class AccountJpaEntity {
 
     @Column(name = "account_email", nullable = false, unique = true)
     lateinit var accountEmail: String
+
+    @Column(name = "account_role", nullable = false)
+    @Enumerated(EnumType.STRING)
+    var accountRole: AccountRole = AccountRole.USER
 
     @OneToOne
     @JoinColumn(name = "account_student_id", nullable = true, referencedColumnName = "student_id")

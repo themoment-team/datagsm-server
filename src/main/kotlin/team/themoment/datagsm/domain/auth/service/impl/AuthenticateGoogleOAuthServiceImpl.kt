@@ -8,7 +8,6 @@ import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.domain.auth.entity.RefreshTokenRedisEntity
-import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.auth.repository.RefreshTokenRedisRepository
 import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
@@ -52,9 +51,7 @@ class AuthenticateGoogleOAuthServiceImpl(
                     accountJpaRepository.save(newAccount)
                 }
 
-        val role = account.accountStudent?.studentRole ?: Role.GENERAL_STUDENT
-
-        val accessToken = jwtProvider.generateAccessToken(userInfo.email, role)
+        val accessToken = jwtProvider.generateAccessToken(userInfo.email, account.accountRole)
         val refreshToken = jwtProvider.generateRefreshToken(userInfo.email)
 
         refreshTokenRedisRepository.deleteByEmail(userInfo.email)

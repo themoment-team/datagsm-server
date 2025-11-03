@@ -8,12 +8,12 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
-import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
 import team.themoment.datagsm.domain.student.entity.constant.Major
 import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.entity.constant.StudentNumber
+import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.domain.student.service.impl.QueryStudentServiceImpl
 
@@ -39,7 +39,7 @@ class QueryStudentServiceTest :
                         studentEmail = "hong@gsm.hs.kr"
                         studentNumber = StudentNumber(1, 1, 1)
                         studentMajor = Major.SW_DEVELOPMENT
-                        studentRole = Role.GENERAL_STUDENT
+                        studentRole = StudentRole.GENERAL_STUDENT
                         studentDormitoryRoomNumber = DormitoryRoomNumber(101)
                         studentIsLeaveSchool = false
                     }
@@ -94,7 +94,7 @@ class QueryStudentServiceTest :
                         student.number shouldBe 1
                         student.studentNumber shouldBe 1101
                         student.major shouldBe Major.SW_DEVELOPMENT
-                        student.role shouldBe Role.GENERAL_STUDENT
+                        student.role shouldBe StudentRole.GENERAL_STUDENT
                         student.dormitoryRoom shouldBe 101
                         student.dormitoryFloor shouldBe 1
                         student.isLeaveSchool shouldBe false
@@ -211,7 +211,7 @@ class QueryStudentServiceTest :
                                 studentEmail = "student$index@gsm.hs.kr"
                                 studentNumber = StudentNumber(1, 1, index)
                                 studentMajor = Major.SW_DEVELOPMENT
-                                studentRole = Role.GENERAL_STUDENT
+                                studentRole = StudentRole.GENERAL_STUDENT
                                 studentDormitoryRoomNumber = DormitoryRoomNumber(100 + index)
                                 studentIsLeaveSchool = false
                             }

@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.domain.auth.entity.constant.Role
 import team.themoment.datagsm.domain.student.dto.request.StudentCreateReqDto
 import team.themoment.datagsm.domain.student.dto.request.StudentUpdateReqDto
 import team.themoment.datagsm.domain.student.dto.response.StudentListResDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.domain.student.entity.constant.Sex
+import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.domain.student.service.CreateStudentService
 import team.themoment.datagsm.domain.student.service.ModifyStudentService
 import team.themoment.datagsm.domain.student.service.QueryStudentService
@@ -48,7 +48,7 @@ class StudentController(
         @Parameter(description = "반 (1-4)") @RequestParam(required = false) classNum: Int?,
         @Parameter(description = "번호 (1-18)") @RequestParam(required = false) number: Int?,
         @Parameter(description = "성별") @RequestParam(required = false) sex: Sex?,
-        @Parameter(description = "역할") @RequestParam(required = false) role: Role?,
+        @Parameter(description = "역할") @RequestParam(required = false) role: StudentRole?,
         @Parameter(description = "기숙사 호실") @RequestParam(required = false) dormitoryRoom: Int?,
         @Parameter(description = "자퇴 여부") @RequestParam(required = false, defaultValue = "false") isLeaveSchool: Boolean,
         @Parameter(description = "페이지 번호") @RequestParam(required = false, defaultValue = "0") page: Int,
