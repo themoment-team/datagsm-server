@@ -37,7 +37,6 @@ class QueryClubServiceImpl(
                     ClubResDto(
                         clubId = entity.clubId!!,
                         clubName = entity.clubName,
-                        clubDescription = entity.clubDescription,
                         clubType = entity.clubType,
                     )
                 },

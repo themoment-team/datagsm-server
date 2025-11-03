@@ -35,7 +35,6 @@ class ModifyClubServiceTest :
                         ClubJpaEntity().apply {
                             this.clubId = clubId
                             clubName = "기존동아리"
-                            clubDescription = "기존설명"
                             clubType = ClubType.MAJOR_CLUB
                         }
                 }
@@ -44,7 +43,6 @@ class ModifyClubServiceTest :
                     val req =
                         ClubReqDto(
                             clubName = "새이름",
-                            clubDescription = "새설명",
                             clubType = ClubType.JOB_CLUB,
                         )
 
@@ -61,7 +59,6 @@ class ModifyClubServiceTest :
                         val res = modifyClubService.execute(clubId, req)
 
                         res.clubName shouldBe req.clubName
-                        res.clubDescription shouldBe req.clubDescription
                         res.clubType shouldBe req.clubType
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
@@ -73,7 +70,6 @@ class ModifyClubServiceTest :
                     val req =
                         ClubReqDto(
                             clubName = "기존동아리",
-                            clubDescription = "변경된설명",
                             clubType = ClubType.AUTONOMOUS_CLUB,
                         )
 
@@ -85,7 +81,6 @@ class ModifyClubServiceTest :
                         val res = modifyClubService.execute(clubId, req)
 
                         res.clubName shouldBe req.clubName
-                        res.clubDescription shouldBe req.clubDescription
                         res.clubType shouldBe req.clubType
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
@@ -97,7 +92,6 @@ class ModifyClubServiceTest :
                     val req =
                         ClubReqDto(
                             clubName = "기존있는이름",
-                            clubDescription = "desc",
                             clubType = ClubType.MAJOR_CLUB,
                         )
 
@@ -123,7 +117,6 @@ class ModifyClubServiceTest :
                     val req =
                         ClubReqDto(
                             clubName = "아무이름",
-                            clubDescription = "설명",
                             clubType = ClubType.MAJOR_CLUB,
                         )
 
