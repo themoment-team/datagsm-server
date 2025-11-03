@@ -5,7 +5,7 @@ import jakarta.persistence.Embeddable
 
 @Embeddable
 class DormitoryRoomNumber {
-    @field:Column(name = "room_number", nullable = false)
+    @field:Column(name = "room_number", nullable = true)
     var dormitoryRoomNumber: Int = 0
 
     constructor()
