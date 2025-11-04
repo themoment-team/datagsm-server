@@ -30,7 +30,6 @@ class CreateClubServiceTest :
                     val req =
                         ClubReqDto(
                             clubName = "동아리A",
-                            clubDescription = "설명",
                             clubType = ClubType.MAJOR_CLUB,
                         )
 
@@ -54,7 +53,6 @@ class CreateClubServiceTest :
                     val req =
                         ClubReqDto(
                             clubName = "동아리B",
-                            clubDescription = "B 설명",
                             clubType = ClubType.AUTONOMOUS_CLUB,
                         )
 
@@ -70,7 +68,6 @@ class CreateClubServiceTest :
                         val res = createClubService.execute(req)
 
                         res.clubName shouldBe req.clubName
-                        res.clubDescription shouldBe req.clubDescription
                         res.clubType shouldBe req.clubType
 
                         verify(exactly = 1) { mockClubRepository.existsByClubName(req.clubName) }

@@ -23,7 +23,6 @@ class CreateClubServiceImpl(
         val clubEntity =
             ClubJpaEntity().apply {
                 clubName = clubReqDto.clubName
-                clubDescription = clubReqDto.clubDescription
                 clubType = clubReqDto.clubType
             }
         val savedClubEntity = clubJpaRepository.save(clubEntity)
@@ -31,7 +30,6 @@ class CreateClubServiceImpl(
         return ClubResDto(
             clubId = savedClubEntity.clubId!!,
             clubName = savedClubEntity.clubName,
-            clubDescription = savedClubEntity.clubDescription,
             clubType = savedClubEntity.clubType,
         )
     }

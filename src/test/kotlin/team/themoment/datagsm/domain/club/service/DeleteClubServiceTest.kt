@@ -38,7 +38,6 @@ class DeleteClubServiceTest :
                             ClubJpaEntity().apply {
                                 this.clubId = clubId
                                 clubName = "삭제대상"
-                                clubDescription = "desc"
                                 clubType = ClubType.JOB_CLUB
                             }
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)

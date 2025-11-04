@@ -70,14 +70,12 @@ class QueryClubServiceTest :
                             ClubJpaEntity().apply {
                                 this.clubId = 1L
                                 this.clubName = "A"
-                                this.clubDescription = "descA"
                                 this.clubType = ClubType.MAJOR_CLUB
                             }
                         e2 =
                             ClubJpaEntity().apply {
                                 this.clubId = 2L
                                 this.clubName = "B"
-                                this.clubDescription = "descB"
                                 this.clubType = ClubType.MAJOR_CLUB
                             }
                         every {
@@ -96,12 +94,10 @@ class QueryClubServiceTest :
                         res.clubs.size shouldBe 2
                         res.clubs[0].clubId shouldBe 1L
                         res.clubs[0].clubName shouldBe "A"
-                        res.clubs[0].clubDescription shouldBe "descA"
                         res.clubs[0].clubType shouldBe ClubType.MAJOR_CLUB
 
                         res.clubs[1].clubId shouldBe 2L
                         res.clubs[1].clubName shouldBe "B"
-                        res.clubs[1].clubDescription shouldBe "descB"
                         res.clubs[1].clubType shouldBe ClubType.MAJOR_CLUB
 
                         verify(exactly = 1) {
@@ -122,35 +118,30 @@ class QueryClubServiceTest :
                             ClubJpaEntity().apply {
                                 this.clubId = 1L
                                 this.clubName = "A"
-                                this.clubDescription = "descA"
                                 this.clubType = ClubType.MAJOR_CLUB
                             }
                         e2 =
                             ClubJpaEntity().apply {
                                 this.clubId = 2L
                                 this.clubName = "B"
-                                this.clubDescription = "descB"
                                 this.clubType = ClubType.MAJOR_CLUB
                             }
                         e3 =
                             ClubJpaEntity().apply {
                                 this.clubId = 3L
                                 this.clubName = "C"
-                                this.clubDescription = "descC"
                                 this.clubType = ClubType.MAJOR_CLUB
                             }
                         e4 =
                             ClubJpaEntity().apply {
                                 this.clubId = 4L
                                 this.clubName = "D"
-                                this.clubDescription = "descD"
                                 this.clubType = ClubType.MAJOR_CLUB
                             }
                         e5 =
                             ClubJpaEntity().apply {
                                 this.clubId = 5L
                                 this.clubName = "E"
-                                this.clubDescription = "descE"
                                 this.clubType = ClubType.MAJOR_CLUB
                             }
 
@@ -173,12 +164,10 @@ class QueryClubServiceTest :
                         res.clubs.size shouldBe 2
                         res.clubs[0].clubId shouldBe 3L
                         res.clubs[0].clubName shouldBe "C"
-                        res.clubs[0].clubDescription shouldBe "descC"
                         res.clubs[0].clubType shouldBe ClubType.MAJOR_CLUB
 
                         res.clubs[1].clubId shouldBe 4L
                         res.clubs[1].clubName shouldBe "D"
-                        res.clubs[1].clubDescription shouldBe "descD"
                         res.clubs[1].clubType shouldBe ClubType.MAJOR_CLUB
 
                         verify(exactly = 1) { mockClubRepository.searchClubWithPaging(null, null, null, any()) }

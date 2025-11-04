@@ -23,9 +23,6 @@ class ClubJpaEntity {
     @Column(name = "club_name", nullable = false, unique = true, length = 50)
     lateinit var clubName: String
 
-    @Column(name = "club_description", nullable = false, columnDefinition = "TEXT")
-    lateinit var clubDescription: String
-
     @Column(name = "club_type", nullable = false)
     @Enumerated(EnumType.STRING)
     lateinit var clubType: ClubType

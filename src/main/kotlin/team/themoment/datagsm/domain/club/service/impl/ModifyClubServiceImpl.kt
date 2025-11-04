@@ -30,13 +30,11 @@ class ModifyClubServiceImpl(
             club.clubName = reqDto.clubName
         }
 
-        club.clubDescription = reqDto.clubDescription
         club.clubType = reqDto.clubType
 
         return ClubResDto(
             clubId = club.clubId!!,
             clubName = club.clubName,
-            clubDescription = club.clubDescription,
             clubType = club.clubType,
         )
     }
