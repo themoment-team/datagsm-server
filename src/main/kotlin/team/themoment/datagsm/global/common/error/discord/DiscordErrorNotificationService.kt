@@ -2,6 +2,7 @@ package team.themoment.datagsm.global.common.error.discord
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
@@ -19,9 +20,11 @@ class DiscordErrorNotificationService(
     private val discordWebhookClient: DiscordWebhookClient,
 ) {
     private val logger = LoggerFactory.getLogger(DiscordErrorNotificationService::class.java)
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     companion object {
         private const val MAX_FIELD_LENGTH = 1000
+        private const val STACK_TRACE_DEPTH = 5
     }
 
     fun notifyError(
@@ -29,7 +32,7 @@ class DiscordErrorNotificationService(
         context: String? = null,
         additionalInfo: Map<String, Any> = emptyMap(),
     ) {
-        CoroutineScope(Dispatchers.IO).launch {
+        coroutineScope.launch {
             runCatching {
                 val embed = createErrorEmbed(exception, context, additionalInfo)
                 val payload = DiscordWebhookPayload.embedMessage(embed)
@@ -73,7 +76,7 @@ class DiscordErrorNotificationService(
 
                 val stackTrace =
                     exception.stackTrace
-                        .take(5)
+                        .take(STACK_TRACE_DEPTH)
                         .joinToString("\n") { "at ${it.className}.${it.methodName}(${it.fileName}:${it.lineNumber})" }
 
                 if (stackTrace.isNotEmpty()) {
