@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.global.common.discord.data.DiscordEmbed
 import team.themoment.datagsm.global.common.discord.data.DiscordField
@@ -12,6 +13,7 @@ import team.themoment.datagsm.global.common.discord.data.EmbedColor
 import team.themoment.datagsm.global.thirdparty.feign.discord.DiscordWebhookClient
 import java.time.Instant
 
+@Profile("stage", "prod")
 @Component
 class DiscordErrorNotificationService(
     private val discordWebhookClient: DiscordWebhookClient,
