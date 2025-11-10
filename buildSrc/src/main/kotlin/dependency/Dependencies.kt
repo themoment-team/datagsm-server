@@ -3,6 +3,7 @@ package dependency
 import dependency.DependencyVersions.AWS_SDK_VERSION
 import dependency.DependencyVersions.JJWT_VERSION
 import dependency.DependencyVersions.KOTEST_VERSION
+import dependency.DependencyVersions.KOTLIN_COROUTINES_VERSION
 import dependency.DependencyVersions.LOGBACK_AWS_APPENDER_VERSION
 import dependency.DependencyVersions.MOCKK_VERSION
 import dependency.DependencyVersions.PEANUT_BUTTER_VERSION
@@ -42,6 +43,7 @@ object Dependencies {
     // Kotlin
     const val JACKSON_KOTLIN = "com.fasterxml.jackson.module:jackson-module-kotlin"
     const val KOTLIN_REFLECT = "org.jetbrains.kotlin:kotlin-reflect"
+    const val KOTLIN_COROUTINES = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${KOTLIN_COROUTINES_VERSION}"
 
     // Database
     const val MYSQL_CONNECTOR = "com.mysql:mysql-connector-j"

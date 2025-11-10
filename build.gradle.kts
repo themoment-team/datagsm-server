@@ -9,6 +9,7 @@ import dependency.Dependencies.JUNIT_PLATFORM_LAUNCHER
 import dependency.Dependencies.KOTEST_ASSERTIONS
 import dependency.Dependencies.KOTEST_FRAMEWORK
 import dependency.Dependencies.KOTEST_RUNNER
+import dependency.Dependencies.KOTLIN_COROUTINES
 import dependency.Dependencies.KOTLIN_JUNIT5
 import dependency.Dependencies.KOTLIN_REFLECT
 import dependency.Dependencies.LOGBACK_AWS_APPENDER
@@ -91,6 +92,7 @@ dependencies {
     // Kotlin
     implementation(JACKSON_KOTLIN)
     implementation(KOTLIN_REFLECT)
+    implementation(KOTLIN_COROUTINES)
 
     // Database
     runtimeOnly(MYSQL_CONNECTOR)
