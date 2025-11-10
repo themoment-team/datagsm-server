@@ -75,7 +75,6 @@ class GlobalExceptionHandler(
             context = "An unexpected runtime exception occurred in the application.",
             additionalInfo =
                 mapOf(
-                    "Exception Type" to (ex::class.simpleName ?: "Unknown"),
                     "Thread" to Thread.currentThread().name,
                     "Request URI" to getCurrentRequestUri(),
                     "Profile" to getActiveProfile(),

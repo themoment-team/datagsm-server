@@ -14,7 +14,6 @@ import team.themoment.datagsm.global.common.discord.data.DiscordWebhookPayload
 interface DiscordWebhookClient {
     @PostMapping(
         consumes = ["application/json"],
-        produces = ["application/json"],
     )
     fun sendMessage(
         @RequestBody payload: DiscordWebhookPayload,
