@@ -3,6 +3,7 @@ package team.themoment.datagsm.global.exception
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.validation.ConstraintViolationException
 import org.slf4j.LoggerFactory
+import org.springframework.core.env.Environment
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -13,7 +14,6 @@ import org.springframework.web.context.request.ServletRequestAttributes
 import org.springframework.web.multipart.MaxUploadSizeExceededException
 import org.springframework.web.servlet.NoHandlerFoundException
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
-import org.springframework.core.env.Environment
 import team.themoment.datagsm.global.common.error.discord.DiscordErrorNotificationService
 import team.themoment.datagsm.global.common.response.dto.response.CommonApiResponse
 import team.themoment.datagsm.global.exception.error.ExpectedException
@@ -127,6 +127,5 @@ class GlobalExceptionHandler(
             "Unable to get request URI"
         }
 
-    private fun getActiveProfile(): String =
-        environment.activeProfiles.firstOrNull() ?: "default"
+    private fun getActiveProfile(): String = environment.activeProfiles.firstOrNull() ?: "default"
 }
