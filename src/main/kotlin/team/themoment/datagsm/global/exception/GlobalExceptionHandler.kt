@@ -3,20 +3,29 @@ package team.themoment.datagsm.global.exception
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.validation.ConstraintViolationException
 import org.slf4j.LoggerFactory
+import org.springframework.core.env.Environment
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.context.request.RequestContextHolder
+import org.springframework.web.context.request.ServletRequestAttributes
 import org.springframework.web.multipart.MaxUploadSizeExceededException
 import org.springframework.web.servlet.NoHandlerFoundException
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
+import team.themoment.datagsm.global.common.error.discord.DiscordErrorNotificationService
 import team.themoment.datagsm.global.common.response.dto.response.CommonApiResponse
 import team.themoment.datagsm.global.exception.error.ExpectedException
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 @EnableWebMvc
 @RestControllerAdvice
-class GlobalExceptionHandler {
+class GlobalExceptionHandler(
+    private val discordErrorNotificationService: DiscordErrorNotificationService? = null,
+    private val environment: Environment,
+) {
     private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
     private val objectMapper = ObjectMapper()
 
@@ -60,6 +69,18 @@ class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException::class)
     fun unExpectedException(ex: RuntimeException): CommonApiResponse<Nothing> {
         logger.error("UnExpectedException Occur : ", ex)
+
+        discordErrorNotificationService?.notifyError(
+            exception = ex,
+            context = "An unexpected runtime exception occurred in the application.",
+            additionalInfo =
+                mapOf(
+                    "Thread" to Thread.currentThread().name,
+                    "Request URI" to getCurrentRequestUri(),
+                    "Profile" to getActiveProfile(),
+                ),
+        )
+
         return CommonApiResponse.error("internal server error has occurred", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
@@ -96,4 +117,14 @@ class GlobalExceptionHandler {
 
         return objectMapper.writeValueAsString(globalResults).replace("\"", "'")
     }
+
+    private fun getCurrentRequestUri(): String =
+        try {
+            val requestAttributes = RequestContextHolder.getRequestAttributes() as? ServletRequestAttributes
+            URLDecoder.decode(requestAttributes?.request?.requestURI, StandardCharsets.UTF_8) ?: "Unknown"
+        } catch (_: Exception) {
+            "Unable to get request URI"
+        }
+
+    private fun getActiveProfile(): String = environment.activeProfiles.firstOrNull() ?: "default"
 }

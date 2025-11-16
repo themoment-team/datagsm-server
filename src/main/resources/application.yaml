@@ -26,6 +26,10 @@ spring:
           min-idle: 0
           max-wait: -1ms
         shutdown-timeout: 100ms
+  cloud:
+    discord:
+      webhook:
+        url: ${DISCORD_EMERGENCY_ALERT_CHANNEL_WEBHOOK}
   security:
     cors:
       allowed-origins:
