@@ -8,11 +8,11 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.springframework.web.server.ResponseStatusException
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.impl.ModifyApiKeyServiceImpl
+import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
@@ -57,14 +57,14 @@ class ModifyApiKeyServiceTest :
                         every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.empty()
                     }
 
-                    it("ResponseStatusException이 발생해야 한다") {
+                    it("ExpectedException이 발생해야 한다") {
                         val exception =
-                            shouldThrow<ResponseStatusException> {
+                            shouldThrow<ExpectedException> {
                                 modifyApiKeyService.execute()
                             }
 
                         exception.statusCode.value() shouldBe 404
-                        exception.reason shouldBe "API 키를 찾을 수 없습니다."
+                        exception.message shouldBe "API 키를 찾을 수 없습니다."
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
                         verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
@@ -90,14 +90,14 @@ class ModifyApiKeyServiceTest :
                         every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.of(apiKey)
                     }
 
-                    it("ResponseStatusException이 발생해야 한다") {
+                    it("ExpectedException이 발생해야 한다") {
                         val exception =
-                            shouldThrow<ResponseStatusException> {
+                            shouldThrow<ExpectedException> {
                                 modifyApiKeyService.execute()
                             }
 
                         exception.statusCode.value() shouldBe 400
-                        exception.reason shouldBe "API 키 갱신 기간이 아닙니다. 만료 15일 전부터 만료 15일 후까지만 갱신 가능합니다."
+                        exception.message shouldBe "API 키 갱신 기간이 아닙니다. 만료 15일 전부터 만료 15일 후까지만 갱신 가능합니다."
 
                         verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
                         verify(exactly = 0) { mockApiKeyRepository.save(any()) }
@@ -125,12 +125,12 @@ class ModifyApiKeyServiceTest :
 
                     it("API 키가 삭제되고 410 GONE 예외가 발생해야 한다") {
                         val exception =
-                            shouldThrow<ResponseStatusException> {
+                            shouldThrow<ExpectedException> {
                                 modifyApiKeyService.execute()
                             }
 
                         exception.statusCode.value() shouldBe 410
-                        exception.reason shouldBe "API 키 갱신 기간이 지났습니다. 해당 API 키는 삭제되었습니다."
+                        exception.message shouldBe "API 키 갱신 기간이 지났습니다. 해당 API 키는 삭제되었습니다."
 
                         verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
                         verify(exactly = 1) { mockApiKeyRepository.delete(apiKey) }
@@ -249,7 +249,7 @@ class ModifyApiKeyServiceTest :
 
                     it("갱신 기간이 지나 삭제되어야 한다") {
                         val exception =
-                            shouldThrow<ResponseStatusException> {
+                            shouldThrow<ExpectedException> {
                                 modifyApiKeyService.execute()
                             }
 
