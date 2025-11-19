@@ -8,11 +8,11 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.springframework.web.server.ResponseStatusException
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.impl.CreateApiKeyServiceImpl
+import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
@@ -92,12 +92,12 @@ class CreateApiKeyServiceTest :
 
                     it("409 CONFLICT 예외가 발생해야 한다") {
                         val exception =
-                            shouldThrow<ResponseStatusException> {
+                            shouldThrow<ExpectedException> {
                                 createApiKeyService.execute()
                             }
 
                         exception.statusCode.value() shouldBe 409
-                        exception.reason shouldBe "이미 API 키가 존재합니다."
+                        exception.message shouldBe "이미 API 키가 존재합니다."
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
                         verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
