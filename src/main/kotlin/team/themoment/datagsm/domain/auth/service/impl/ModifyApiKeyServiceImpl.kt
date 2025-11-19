@@ -7,6 +7,7 @@ import org.springframework.web.server.ResponseStatusException
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.ModifyApiKeyService
+import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
@@ -25,21 +26,21 @@ class ModifyApiKeyServiceImpl(
             apiKeyJpaRepository
                 .findByApiKeyAccount(account)
                 .orElseThrow {
-                    ResponseStatusException(HttpStatus.NOT_FOUND, "API 키를 찾을 수 없습니다.")
+                    ExpectedException("API 키를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
                 }
 
         if (!apiKey.canBeRenewed(apiKeyEnvironment.renewalPeriodDays)) {
             val renewalEndDate = apiKey.expiresAt.plusDays(apiKeyEnvironment.renewalPeriodDays)
             if (!LocalDateTime.now().isBefore(renewalEndDate)) {
                 apiKeyJpaRepository.delete(apiKey)
-                throw ResponseStatusException(
-                    HttpStatus.GONE,
+                throw ExpectedException(
                     "API 키 갱신 기간이 지났습니다. 해당 API 키는 삭제되었습니다.",
+                    HttpStatus.GONE,
                 )
             }
-            throw ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
+            throw ExpectedException(
                 "API 키 갱신 기간이 아닙니다. 만료 ${apiKeyEnvironment.renewalPeriodDays}일 전부터 만료 ${apiKeyEnvironment.renewalPeriodDays}일 후까지만 갱신 가능합니다.",
+                HttpStatus.BAD_REQUEST,
             )
         }
 

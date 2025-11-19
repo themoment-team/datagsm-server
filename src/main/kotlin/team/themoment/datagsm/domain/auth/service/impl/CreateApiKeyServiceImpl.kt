@@ -8,6 +8,7 @@ import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.CreateApiKeyService
+import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
@@ -23,7 +24,7 @@ class CreateApiKeyServiceImpl(
         val account = currentUserProvider.getCurrentAccount()
 
         if (apiKeyJpaRepository.findByApiKeyAccount(account).isPresent) {
-            throw ResponseStatusException(HttpStatus.CONFLICT, "이미 API 키가 존재합니다.")
+            throw ExpectedException("이미 API 키가 존재합니다.", HttpStatus.CONFLICT)
         }
 
         val now = LocalDateTime.now()
