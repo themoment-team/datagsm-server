@@ -1,6 +1,5 @@
 package team.themoment.datagsm.domain.project.repository.custom.impl
 
-import com.querydsl.core.types.dsl.Expressions
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -20,70 +19,42 @@ class ProjectJpaCustomRepositoryImpl(
         clubId: Long?,
         pageable: Pageable,
     ): Page<ProjectJpaEntity> {
-        var searchResult = searchProjectWithStartsWith(projectId, projectName, clubId, pageable)
-        if (searchResult.content.isEmpty()) {
-            searchResult = searchProjectWithContains(projectId, projectName, clubId, pageable)
+        var searchResult = executeSearch(projectId, projectName, clubId, pageable, projectJpaEntity.projectName::startsWith)
+        if (searchResult.content.isEmpty() && projectName != null) {
+            searchResult = executeSearch(projectId, projectName, clubId, pageable, projectJpaEntity.projectName::contains)
         }
         return searchResult
     }
 
-    private fun searchProjectWithStartsWith(
+    private fun executeSearch(
         projectId: Long?,
         projectName: String?,
         clubId: Long?,
         pageable: Pageable,
+        nameMatcher: (String) -> com.querydsl.core.types.dsl.BooleanExpression
     ): Page<ProjectJpaEntity> {
-        val countExpression = Expressions.numberTemplate(Long::class.javaObjectType, "COUNT(*) OVER()")
-        val queryResult =
-            jpaQueryFactory
-                .select(
-                    projectJpaEntity,
-                    countExpression.`as`("count"),
-                ).from(projectJpaEntity)
-                .leftJoin(projectJpaEntity.projectOwnerClub)
-                .fetchJoin()
-                .where(
-                    projectId?.let { projectJpaEntity.projectId.eq(it) },
-                    projectName?.let { projectJpaEntity.projectName.startsWith(it) },
-                    clubId?.let { projectJpaEntity.projectOwnerClub.clubId.eq(it) },
-                ).offset(pageable.offset)
-                .limit(pageable.pageSize.toLong())
-                .fetch()
-        if (queryResult.isEmpty()) {
-            return PageableExecutionUtils.getPage(emptyList(), pageable) { 0L }
-        }
-        val projects = queryResult.map { it.get(projectJpaEntity) }
-        val count = queryResult.first().get(countExpression)!!
-        return PageableExecutionUtils.getPage(projects, pageable) { count }
-    }
+        val content = jpaQueryFactory
+            .select(projectJpaEntity)
+            .from(projectJpaEntity)
+            .leftJoin(projectJpaEntity.projectOwnerClub).fetchJoin()
+            .where(
+                projectId?.let { projectJpaEntity.projectId.eq(it) },
+                projectName?.let { nameMatcher(it) },
+                clubId?.let { projectJpaEntity.projectOwnerClub.clubId.eq(it) }
+            )
+            .offset(pageable.offset)
+            .limit(pageable.pageSize.toLong())
+            .fetch()
 
-    private fun searchProjectWithContains(
-        projectId: Long?,
-        projectName: String?,
-        clubId: Long?,
-        pageable: Pageable,
-    ): Page<ProjectJpaEntity> {
-        val countExpression = Expressions.numberTemplate(Long::class.javaObjectType, "COUNT(*) OVER()")
-        val queryResult =
-            jpaQueryFactory
-                .select(
-                    projectJpaEntity,
-                    countExpression.`as`("count"),
-                ).from(projectJpaEntity)
-                .leftJoin(projectJpaEntity.projectOwnerClub)
-                .fetchJoin()
-                .where(
-                    projectId?.let { projectJpaEntity.projectId.eq(it) },
-                    projectName?.let { projectJpaEntity.projectName.contains(it) },
-                    clubId?.let { projectJpaEntity.projectOwnerClub.clubId.eq(it) },
-                ).offset(pageable.offset)
-                .limit(pageable.pageSize.toLong())
-                .fetch()
-        if (queryResult.isEmpty()) {
-            return PageableExecutionUtils.getPage(emptyList(), pageable) { 0L }
-        }
-        val projects = queryResult.map { it.get(projectJpaEntity) }
-        val count = queryResult.first().get(countExpression)!!
-        return PageableExecutionUtils.getPage(projects, pageable) { count }
+        val countQuery = jpaQueryFactory
+            .select(projectJpaEntity.count())
+            .from(projectJpaEntity)
+            .where(
+                projectId?.let { projectJpaEntity.projectId.eq(it) },
+                projectName?.let { nameMatcher(it) },
+                clubId?.let { projectJpaEntity.projectOwnerClub.clubId.eq(it) }
+            )
+
+        return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
     }
 }
