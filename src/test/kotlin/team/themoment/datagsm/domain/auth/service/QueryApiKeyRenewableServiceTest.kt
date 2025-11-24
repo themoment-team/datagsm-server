@@ -55,7 +55,7 @@ class QueryApiKeyRenewableServiceTest :
                         every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.empty()
                     }
 
-                    it("404 ExpectedException를 던져야 한다") {
+                    it("404 상태코드와 함께 ExpectedException를 던져야 한다") {
                         val exception =
                             shouldThrow<ExpectedException> {
                                 queryApiKeyRenewableService.execute()
