@@ -7,11 +7,11 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.springframework.web.server.ResponseStatusException
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.impl.QueryApiKeyRenewableServiceImpl
+import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
@@ -55,14 +55,14 @@ class QueryApiKeyRenewableServiceTest :
                         every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.empty()
                     }
 
-                    it("404 ResponseStatusException이 발생해야 한다") {
+                    it("404 ExpectedException를 던져야 한다") {
                         val exception =
-                            shouldThrow<ResponseStatusException> {
+                            shouldThrow<ExpectedException> {
                                 queryApiKeyRenewableService.execute()
                             }
 
                         exception.statusCode.value() shouldBe 404
-                        exception.reason shouldBe "API 키를 찾을 수 없습니다."
+                        exception.message shouldBe "API 키를 찾을 수 없습니다."
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
                         verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
