@@ -1,0 +1,147 @@
+package team.themoment.datagsm.domain.project.service
+
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.shouldBe
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.domain.club.entity.constant.ClubType
+import team.themoment.datagsm.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.domain.project.repository.ProjectJpaRepository
+import team.themoment.datagsm.domain.project.service.impl.DeleteProjectServiceImpl
+import team.themoment.datagsm.global.exception.error.ExpectedException
+import java.util.Optional
+
+class DeleteProjectServiceTest :
+    DescribeSpec({
+
+        val mockProjectRepository = mockk<ProjectJpaRepository>()
+
+        val deleteProjectService = DeleteProjectServiceImpl(mockProjectRepository)
+
+        afterEach {
+            clearAllMocks()
+        }
+
+        describe("DeleteProjectService 클래스의") {
+            describe("execute 메서드는") {
+
+                context("존재하는 프로젝트 ID로 삭제 요청할 때") {
+                    val projectId = 1L
+
+                    val ownerClub =
+                        ClubJpaEntity().apply {
+                            clubId = 1L
+                            clubName = "SW개발동아리"
+                            clubType = ClubType.MAJOR_CLUB
+                        }
+
+                    val existingProject =
+                        ProjectJpaEntity().apply {
+                            this.projectId = projectId
+                            projectName = "DataGSM 프로젝트"
+                            projectDescription = "학교 데이터를 제공하는 API 서비스"
+                            projectOwnerClub = ownerClub
+                        }
+
+                    beforeEach {
+                        every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
+                        every { mockProjectRepository.delete(existingProject) } returns Unit
+                    }
+
+                    it("프로젝트가 성공적으로 삭제되어야 한다") {
+                        deleteProjectService.execute(projectId)
+
+                        verify(exactly = 1) { mockProjectRepository.findById(projectId) }
+                        verify(exactly = 1) { mockProjectRepository.delete(existingProject) }
+                    }
+                }
+
+                context("존재하지 않는 프로젝트 ID로 삭제 요청할 때") {
+                    val projectId = 999L
+
+                    beforeEach {
+                        every { mockProjectRepository.findById(projectId) } returns Optional.empty()
+                    }
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                deleteProjectService.execute(projectId)
+                            }
+
+                        exception.message shouldBe "프로젝트를 찾을 수 없습니다. projectId: $projectId"
+
+                        verify(exactly = 1) { mockProjectRepository.findById(projectId) }
+                        verify(exactly = 0) { mockProjectRepository.delete(any()) }
+                    }
+                }
+
+                context("다양한 타입의 동아리 프로젝트를 삭제할 때") {
+                    val projectId = 2L
+
+                    val autonomousClub =
+                        ClubJpaEntity().apply {
+                            clubId = 2L
+                            clubName = "자율동아리"
+                            clubType = ClubType.AUTONOMOUS_CLUB
+                        }
+
+                    val autonomousProject =
+                        ProjectJpaEntity().apply {
+                            this.projectId = projectId
+                            projectName = "자율동아리 프로젝트"
+                            projectDescription = "자율 프로젝트"
+                            projectOwnerClub = autonomousClub
+                        }
+
+                    beforeEach {
+                        every { mockProjectRepository.findById(projectId) } returns Optional.of(autonomousProject)
+                        every { mockProjectRepository.delete(autonomousProject) } returns Unit
+                    }
+
+                    it("자율동아리 프로젝트도 정상적으로 삭제되어야 한다") {
+                        deleteProjectService.execute(projectId)
+
+                        verify(exactly = 1) { mockProjectRepository.findById(projectId) }
+                        verify(exactly = 1) { mockProjectRepository.delete(autonomousProject) }
+                    }
+                }
+
+                context("취업동아리 프로젝트를 삭제할 때") {
+                    val projectId = 3L
+
+                    val jobClub =
+                        ClubJpaEntity().apply {
+                            clubId = 3L
+                            clubName = "취업동아리"
+                            clubType = ClubType.JOB_CLUB
+                        }
+
+                    val jobProject =
+                        ProjectJpaEntity().apply {
+                            this.projectId = projectId
+                            projectName = "취업 포트폴리오"
+                            projectDescription = "취업 준비 프로젝트"
+                            projectOwnerClub = jobClub
+                        }
+
+                    beforeEach {
+                        every { mockProjectRepository.findById(projectId) } returns Optional.of(jobProject)
+                        every { mockProjectRepository.delete(jobProject) } returns Unit
+                    }
+
+                    it("취업동아리 프로젝트도 정상적으로 삭제되어야 한다") {
+                        deleteProjectService.execute(projectId)
+
+                        verify(exactly = 1) { mockProjectRepository.findById(projectId) }
+                        verify(exactly = 1) { mockProjectRepository.delete(jobProject) }
+                    }
+                }
+            }
+        }
+    })
+
