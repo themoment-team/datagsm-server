@@ -1,5 +1,6 @@
 package team.themoment.datagsm.domain.project.repository.custom.impl
 
+import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -31,7 +32,7 @@ class ProjectJpaCustomRepositoryImpl(
         projectName: String?,
         clubId: Long?,
         pageable: Pageable,
-        nameMatcher: (String) -> com.querydsl.core.types.dsl.BooleanExpression,
+        nameMatcher: (String) -> BooleanExpression,
     ): Page<ProjectJpaEntity> {
         val content =
             jpaQueryFactory
