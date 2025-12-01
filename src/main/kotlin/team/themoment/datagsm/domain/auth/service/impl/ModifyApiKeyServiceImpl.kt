@@ -53,6 +53,6 @@ class ModifyApiKeyServiceImpl(
 
         val savedApiKey = apiKeyJpaRepository.save(apiKey)
 
-        return ApiKeyResDto(apiKey = savedApiKey.apiKey, expiresAt = savedApiKey.expiresAt)
+        return ApiKeyResDto(apiKey = savedApiKey.value, expiresAt = savedApiKey.expiresAt)
     }
 }

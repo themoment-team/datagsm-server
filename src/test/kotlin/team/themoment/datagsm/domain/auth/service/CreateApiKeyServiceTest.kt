@@ -78,7 +78,7 @@ class CreateApiKeyServiceTest :
                     val existingApiKey =
                         ApiKey().apply {
                             id = 1L
-                            apiKey = oldApiKeyValue
+                            value = oldApiKeyValue
                             account = mockAccount
                             createdAt = LocalDateTime.now().minusDays(20)
                             updatedAt = LocalDateTime.now().minusDays(20)

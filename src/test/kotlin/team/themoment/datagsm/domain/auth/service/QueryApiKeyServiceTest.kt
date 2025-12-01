@@ -52,7 +52,7 @@ class QueryApiKeyServiceTest :
                     val apiKey =
                         ApiKey().apply {
                             id = 1L
-                            this.apiKey = apiKeyValue
+                            this.value = apiKeyValue
                             account = mockAccount
                             createdAt = LocalDateTime.now()
                             updatedAt = LocalDateTime.now()
