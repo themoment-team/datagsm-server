@@ -203,9 +203,9 @@ class ReissueTokenServiceTest :
 
                     val student =
                         StudentJpaEntity().apply {
-                            studentId = 1L
-                            studentEmail = email
-                            studentRole = StudentRole.STUDENT_COUNCIL
+                            id = 1L
+                            this.email = email
+                            role = StudentRole.STUDENT_COUNCIL
                         }
 
                     val account =

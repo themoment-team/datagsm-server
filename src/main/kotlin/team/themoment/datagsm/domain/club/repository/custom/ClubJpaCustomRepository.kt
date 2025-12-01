@@ -7,9 +7,9 @@ import team.themoment.datagsm.domain.club.entity.constant.ClubType
 
 interface ClubJpaCustomRepository {
     fun searchClubWithPaging(
-        clubId: Long?,
-        clubName: String?,
-        clubType: ClubType?,
+        id: Long?,
+        name: String?,
+        type: ClubType?,
         pageable: Pageable,
     ): Page<ClubJpaEntity>
 }

@@ -19,7 +19,7 @@ class CreateStudentServiceImpl(
     private final val studentJpaRepository: StudentJpaRepository,
 ) : CreateStudentService {
     override fun execute(reqDto: CreateStudentReqDto): StudentResDto {
-        if (studentJpaRepository.existsByStudentEmail(reqDto.email)) {
+        if (studentJpaRepository.existsByEmail(reqDto.email)) {
             throw ExpectedException("이미 존재하는 이메일입니다: ${reqDto.email}", HttpStatus.CONFLICT)
         }
 
@@ -32,32 +32,32 @@ class CreateStudentServiceImpl(
 
         val studentEntity =
             StudentJpaEntity().apply {
-                studentName = reqDto.name
-                studentSex = reqDto.sex
-                studentEmail = reqDto.email
+                name = reqDto.name
+                sex = reqDto.sex
+                email = reqDto.email
                 studentNumber = StudentNumber(reqDto.grade, reqDto.classNum, reqDto.number)
-                studentMajor = Major.fromClassNum(reqDto.classNum)
+                major = Major.fromClassNum(reqDto.classNum)
                     ?: throw ExpectedException("유효하지 않은 학급입니다: ${reqDto.classNum}", HttpStatus.BAD_REQUEST)
-                studentRole = reqDto.role
-                studentDormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
+                role = reqDto.role
+                dormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
             }
 
         val savedStudent = studentJpaRepository.save(studentEntity)
 
         return StudentResDto(
-            studentId = savedStudent.studentId!!,
-            name = savedStudent.studentName,
-            sex = savedStudent.studentSex,
-            email = savedStudent.studentEmail,
+            studentId = savedStudent.id!!,
+            name = savedStudent.name,
+            sex = savedStudent.sex,
+            email = savedStudent.email,
             grade = savedStudent.studentNumber.studentGrade,
             classNum = savedStudent.studentNumber.studentClass,
             number = savedStudent.studentNumber.studentNumber,
             studentNumber = savedStudent.studentNumber.fullStudentNumber,
-            major = savedStudent.studentMajor,
-            role = savedStudent.studentRole,
-            dormitoryFloor = savedStudent.studentDormitoryRoomNumber.dormitoryRoomFloor,
-            dormitoryRoom = savedStudent.studentDormitoryRoomNumber.dormitoryRoomNumber,
-            isLeaveSchool = savedStudent.studentIsLeaveSchool,
+            major = savedStudent.major,
+            role = savedStudent.role,
+            dormitoryFloor = savedStudent.dormitoryRoomNumber.dormitoryRoomFloor,
+            dormitoryRoom = savedStudent.dormitoryRoomNumber.dormitoryRoomNumber,
+            isLeaveSchool = savedStudent.isLeaveSchool,
         )
     }
 }

@@ -35,9 +35,9 @@ class QueryClubServiceTest :
                     beforeEach {
                         every {
                             mockClubRepository.searchClubWithPaging(
-                                clubId = clubId,
-                                clubName = clubName,
-                                clubType = clubType,
+                                id = clubId,
+                                name = clubName,
+                                type = clubType,
                                 pageable = any(),
                             )
                         } returns PageImpl(emptyList())
@@ -80,9 +80,9 @@ class QueryClubServiceTest :
                             }
                         every {
                             mockClubRepository.searchClubWithPaging(
-                                clubId = clubId,
-                                clubName = clubName,
-                                clubType = clubType,
+                                id = clubId,
+                                name = clubName,
+                                type = clubType,
                                 pageable = any(),
                             )
                         } returns PageImpl(listOf(e1, e2))

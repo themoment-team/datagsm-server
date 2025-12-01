@@ -38,15 +38,15 @@ class ModifyStudentServiceTest :
                 beforeEach {
                     existingStudent =
                         StudentJpaEntity().apply {
-                            this.studentId = studentId
-                            studentName = "기존학생"
-                            studentSex = Sex.MAN
-                            studentEmail = "existing@gsm.hs.kr"
+                            this.id = studentId
+                            name = "기존학생"
+                            sex = Sex.MAN
+                            email = "existing@gsm.hs.kr"
                             studentNumber = StudentNumber(2, 1, 5)
-                            studentMajor = Major.SW_DEVELOPMENT
-                            studentRole = StudentRole.GENERAL_STUDENT
-                            studentDormitoryRoomNumber = DormitoryRoomNumber(201)
-                            studentIsLeaveSchool = false
+                            major = Major.SW_DEVELOPMENT
+                            role = StudentRole.GENERAL_STUDENT
+                            dormitoryRoomNumber = DormitoryRoomNumber(201)
+                            isLeaveSchool = false
                         }
                 }
 
@@ -68,7 +68,7 @@ class ModifyStudentServiceTest :
                     }
 
                     it("학생 이름이 성공적으로 업데이트되어야 한다") {
-                        existingStudent.studentName = updateRequest.name!!
+                        existingStudent.name = updateRequest.name!!
                         val result = modifyStudentService.execute(studentId, updateRequest)
 
                         result.studentId shouldBe studentId
@@ -94,7 +94,7 @@ class ModifyStudentServiceTest :
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
                         every {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 3,
                                 1,
                                 5,
@@ -112,7 +112,7 @@ class ModifyStudentServiceTest :
                         result.studentNumber shouldBe 3105
 
                         verify(exactly = 1) {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 3,
                                 1,
                                 5,
@@ -138,7 +138,7 @@ class ModifyStudentServiceTest :
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
                         every {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 2,
                                 3,
                                 5,
@@ -173,7 +173,7 @@ class ModifyStudentServiceTest :
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
                         every {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 1,
                                 4,
                                 5,
@@ -208,7 +208,7 @@ class ModifyStudentServiceTest :
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
                         every {
-                            mockStudentRepository.existsByStudentEmailAndNotStudentId(
+                            mockStudentRepository.existsByStudentEmailAndNotId(
                                 updateRequest.email!!,
                                 studentId,
                             )
@@ -225,7 +225,7 @@ class ModifyStudentServiceTest :
 
                         verify(exactly = 1) { mockStudentRepository.findById(studentId) }
                         verify(exactly = 1) {
-                            mockStudentRepository.existsByStudentEmailAndNotStudentId(
+                            mockStudentRepository.existsByStudentEmailAndNotId(
                                 updateRequest.email!!,
                                 studentId,
                             )
@@ -250,7 +250,7 @@ class ModifyStudentServiceTest :
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
                         every {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 2,
                                 2,
                                 10,
@@ -268,7 +268,7 @@ class ModifyStudentServiceTest :
                         exception.message shouldBe "이미 존재하는 학번입니다: 2학년 2반 10번"
 
                         verify(exactly = 1) {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 2,
                                 2,
                                 10,
@@ -325,7 +325,7 @@ class ModifyStudentServiceTest :
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
                         every {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 2,
                                 5,
                                 5,
@@ -344,7 +344,7 @@ class ModifyStudentServiceTest :
 
                         verify(exactly = 1) { mockStudentRepository.findById(studentId) }
                         verify(exactly = 1) {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 2,
                                 5,
                                 5,
@@ -425,13 +425,13 @@ class ModifyStudentServiceTest :
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
                         every {
-                            mockStudentRepository.existsByStudentEmailAndNotStudentId(
+                            mockStudentRepository.existsByStudentEmailAndNotId(
                                 updateRequest.email!!,
                                 studentId,
                             )
                         } returns false
                         every {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 4,
                                 2,
                                 8,
@@ -457,13 +457,13 @@ class ModifyStudentServiceTest :
 
                         verify(exactly = 1) { mockStudentRepository.findById(studentId) }
                         verify(exactly = 1) {
-                            mockStudentRepository.existsByStudentEmailAndNotStudentId(
+                            mockStudentRepository.existsByStudentEmailAndNotId(
                                 updateRequest.email!!,
                                 studentId,
                             )
                         }
                         verify(exactly = 1) {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 4,
                                 2,
                                 8,

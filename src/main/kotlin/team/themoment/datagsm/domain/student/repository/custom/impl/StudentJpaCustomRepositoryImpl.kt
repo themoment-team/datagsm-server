@@ -16,7 +16,7 @@ class StudentJpaCustomRepositoryImpl(
     val jpaQueryFactory: JPAQueryFactory,
 ) : StudentJpaCustomRepository {
     override fun searchStudentsWithPaging(
-        studentId: Long?,
+        id: Long?,
         name: String?,
         email: String?,
         grade: Int?,
@@ -32,16 +32,16 @@ class StudentJpaCustomRepositoryImpl(
             jpaQueryFactory
                 .selectFrom(studentJpaEntity)
                 .where(
-                    studentId?.let { studentJpaEntity.studentId.eq(it) },
-                    name?.let { studentJpaEntity.studentName.contains(it) },
-                    email?.let { studentJpaEntity.studentEmail.contains(it) },
+                    id?.let { studentJpaEntity.id.eq(it) },
+                    name?.let { studentJpaEntity.name.contains(it) },
+                    email?.let { studentJpaEntity.email.contains(it) },
                     grade?.let { studentJpaEntity.studentNumber.studentGrade.eq(it) },
                     classNum?.let { studentJpaEntity.studentNumber.studentClass.eq(it) },
                     number?.let { studentJpaEntity.studentNumber.studentNumber.eq(it) },
-                    sex?.let { studentJpaEntity.studentSex.eq(it) },
-                    role?.let { studentJpaEntity.studentRole.eq(it) },
-                    dormitoryRoom?.let { studentJpaEntity.studentDormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
-                    studentJpaEntity.studentIsLeaveSchool.eq(isLeaveSchool),
+                    sex?.let { studentJpaEntity.sex.eq(it) },
+                    role?.let { studentJpaEntity.role.eq(it) },
+                    dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
+                    studentJpaEntity.isLeaveSchool.eq(isLeaveSchool),
                 ).offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
@@ -51,26 +51,26 @@ class StudentJpaCustomRepositoryImpl(
                 .select(studentJpaEntity.count())
                 .from(studentJpaEntity)
                 .where(
-                    studentId?.let { studentJpaEntity.studentId.eq(it) },
-                    name?.let { studentJpaEntity.studentName.contains(it) },
-                    email?.let { studentJpaEntity.studentEmail.contains(it) },
+                    id?.let { studentJpaEntity.id.eq(it) },
+                    name?.let { studentJpaEntity.name.contains(it) },
+                    email?.let { studentJpaEntity.email.contains(it) },
                     grade?.let { studentJpaEntity.studentNumber.studentGrade.eq(it) },
                     classNum?.let { studentJpaEntity.studentNumber.studentClass.eq(it) },
                     number?.let { studentJpaEntity.studentNumber.studentNumber.eq(it) },
-                    sex?.let { studentJpaEntity.studentSex.eq(it) },
-                    role?.let { studentJpaEntity.studentRole.eq(it) },
-                    dormitoryRoom?.let { studentJpaEntity.studentDormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
-                    studentJpaEntity.studentIsLeaveSchool.eq(isLeaveSchool),
+                    sex?.let { studentJpaEntity.sex.eq(it) },
+                    role?.let { studentJpaEntity.role.eq(it) },
+                    dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
+                    studentJpaEntity.isLeaveSchool.eq(isLeaveSchool),
                 )
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
     }
 
-    override fun existsByStudentEmail(email: String): Boolean =
+    override fun existsByEmail(email: String): Boolean =
         jpaQueryFactory
             .selectOne()
             .from(studentJpaEntity)
-            .where(studentJpaEntity.studentEmail.eq(email))
+            .where(studentJpaEntity.email.eq(email))
             .fetchFirst() != null
 
     override fun existsByStudentNumber(
@@ -88,24 +88,24 @@ class StudentJpaCustomRepositoryImpl(
                     .and(studentJpaEntity.studentNumber.studentNumber.eq(number)),
             ).fetchFirst() != null
 
-    override fun existsByStudentEmailAndNotStudentId(
+    override fun existsByStudentEmailAndNotId(
         email: String,
-        studentId: Long,
+        id: Long,
     ): Boolean =
         jpaQueryFactory
             .selectOne()
             .from(studentJpaEntity)
             .where(
-                studentJpaEntity.studentEmail
+                studentJpaEntity.email
                     .eq(email)
-                    .and(studentJpaEntity.studentId.ne(studentId)),
+                    .and(studentJpaEntity.id.ne(id)),
             ).fetchFirst() != null
 
-    override fun existsByStudentNumberAndNotStudentId(
+    override fun existsByStudentNumberAndNotId(
         grade: Int,
         classNum: Int,
         number: Int,
-        studentId: Long,
+        id: Long,
     ): Boolean =
         jpaQueryFactory
             .selectOne()
@@ -115,6 +115,6 @@ class StudentJpaCustomRepositoryImpl(
                     .eq(grade)
                     .and(studentJpaEntity.studentNumber.studentClass.eq(classNum))
                     .and(studentJpaEntity.studentNumber.studentNumber.eq(number))
-                    .and(studentJpaEntity.studentId.ne(studentId)),
+                    .and(studentJpaEntity.id.ne(id)),
             ).fetchFirst() != null
 }

@@ -31,7 +31,7 @@ class QueryStudentServiceImpl(
     ): StudentListResDto {
         val studentPage =
             studentJpaRepository.searchStudentsWithPaging(
-                studentId = studentId,
+                id = studentId,
                 name = name,
                 email = email,
                 grade = grade,
@@ -50,19 +50,19 @@ class QueryStudentServiceImpl(
             students =
                 studentPage.content.map { entity ->
                     StudentResDto(
-                        studentId = entity.studentId!!,
-                        name = entity.studentName,
-                        sex = entity.studentSex,
-                        email = entity.studentEmail,
+                        studentId = entity.id!!,
+                        name = entity.name,
+                        sex = entity.sex,
+                        email = entity.email,
                         grade = entity.studentNumber.studentGrade,
                         classNum = entity.studentNumber.studentClass,
                         number = entity.studentNumber.studentNumber,
                         studentNumber = entity.studentNumber.fullStudentNumber,
-                        major = entity.studentMajor,
-                        role = entity.studentRole,
-                        dormitoryFloor = entity.studentDormitoryRoomNumber.dormitoryRoomFloor,
-                        dormitoryRoom = entity.studentDormitoryRoomNumber.dormitoryRoomNumber,
-                        isLeaveSchool = entity.studentIsLeaveSchool,
+                        major = entity.major,
+                        role = entity.role,
+                        dormitoryFloor = entity.dormitoryRoomNumber.dormitoryRoomFloor,
+                        dormitoryRoom = entity.dormitoryRoomNumber.dormitoryRoomNumber,
+                        isLeaveSchool = entity.isLeaveSchool,
                     )
                 },
         )

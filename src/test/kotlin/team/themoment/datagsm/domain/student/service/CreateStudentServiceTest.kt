@@ -47,20 +47,20 @@ class CreateStudentServiceTest :
 
                     val savedStudent =
                         StudentJpaEntity().apply {
-                            studentId = 1L
-                            studentName = createRequest.name
-                            studentSex = createRequest.sex
-                            studentEmail = createRequest.email
+                            id = 1L
+                            name = createRequest.name
+                            sex = createRequest.sex
+                            email = createRequest.email
                             studentNumber =
                                 StudentNumber(createRequest.grade, createRequest.classNum, createRequest.number)
-                            studentMajor = Major.SW_DEVELOPMENT
-                            studentRole = createRequest.role
-                            studentDormitoryRoomNumber = DormitoryRoomNumber(createRequest.dormitoryRoomNumber)
-                            studentIsLeaveSchool = false
+                            major = Major.SW_DEVELOPMENT
+                            role = createRequest.role
+                            dormitoryRoomNumber = DormitoryRoomNumber(createRequest.dormitoryRoomNumber)
+                            isLeaveSchool = false
                         }
 
                     beforeEach {
-                        every { mockStudentRepository.existsByStudentEmail(createRequest.email) } returns false
+                        every { mockStudentRepository.existsByEmail(createRequest.email) } returns false
                         every {
                             mockStudentRepository.existsByStudentNumber(
                                 createRequest.grade,
@@ -87,7 +87,7 @@ class CreateStudentServiceTest :
                         result.dormitoryRoom shouldBe 205
                         result.isLeaveSchool shouldBe false
 
-                        verify(exactly = 1) { mockStudentRepository.existsByStudentEmail(createRequest.email) }
+                        verify(exactly = 1) { mockStudentRepository.existsByEmail(createRequest.email) }
                         verify(exactly = 1) {
                             mockStudentRepository.existsByStudentNumber(
                                 createRequest.grade,
@@ -114,20 +114,20 @@ class CreateStudentServiceTest :
 
                     val savedStudent =
                         StudentJpaEntity().apply {
-                            studentId = 2L
-                            studentName = createRequest.name
-                            studentSex = createRequest.sex
-                            studentEmail = createRequest.email
+                            id = 2L
+                            name = createRequest.name
+                            sex = createRequest.sex
+                            email = createRequest.email
                             studentNumber =
                                 StudentNumber(createRequest.grade, createRequest.classNum, createRequest.number)
-                            studentMajor = Major.SMART_IOT
-                            studentRole = createRequest.role
-                            studentDormitoryRoomNumber = DormitoryRoomNumber(createRequest.dormitoryRoomNumber)
-                            studentIsLeaveSchool = false
+                            major = Major.SMART_IOT
+                            role = createRequest.role
+                            dormitoryRoomNumber = DormitoryRoomNumber(createRequest.dormitoryRoomNumber)
+                            isLeaveSchool = false
                         }
 
                     beforeEach {
-                        every { mockStudentRepository.existsByStudentEmail(createRequest.email) } returns false
+                        every { mockStudentRepository.existsByEmail(createRequest.email) } returns false
                         every {
                             mockStudentRepository.existsByStudentNumber(
                                 createRequest.grade,
@@ -162,7 +162,7 @@ class CreateStudentServiceTest :
                         )
 
                     beforeEach {
-                        every { mockStudentRepository.existsByStudentEmail(createRequest.email) } returns true
+                        every { mockStudentRepository.existsByEmail(createRequest.email) } returns true
                     }
 
                     it("ExpectedException이 발생해야 한다") {
@@ -173,7 +173,7 @@ class CreateStudentServiceTest :
 
                         exception.message shouldBe "이미 존재하는 이메일입니다: ${createRequest.email}"
 
-                        verify(exactly = 1) { mockStudentRepository.existsByStudentEmail(createRequest.email) }
+                        verify(exactly = 1) { mockStudentRepository.existsByEmail(createRequest.email) }
                         verify(exactly = 0) { mockStudentRepository.save(any()) }
                     }
                 }
@@ -192,7 +192,7 @@ class CreateStudentServiceTest :
                         )
 
                     beforeEach {
-                        every { mockStudentRepository.existsByStudentEmail(createRequest.email) } returns false
+                        every { mockStudentRepository.existsByEmail(createRequest.email) } returns false
                         every {
                             mockStudentRepository.existsByStudentNumber(
                                 createRequest.grade,
@@ -212,7 +212,7 @@ class CreateStudentServiceTest :
                             "이미 존재하는 학번입니다: ${createRequest.grade}학년 ${createRequest.classNum}반" +
                             " ${createRequest.number}번"
 
-                        verify(exactly = 1) { mockStudentRepository.existsByStudentEmail(createRequest.email) }
+                        verify(exactly = 1) { mockStudentRepository.existsByEmail(createRequest.email) }
                         verify(exactly = 1) {
                             mockStudentRepository.existsByStudentNumber(
                                 createRequest.grade,
@@ -238,7 +238,7 @@ class CreateStudentServiceTest :
                         )
 
                     beforeEach {
-                        every { mockStudentRepository.existsByStudentEmail(createRequest.email) } returns false
+                        every { mockStudentRepository.existsByEmail(createRequest.email) } returns false
                         every {
                             mockStudentRepository.existsByStudentNumber(
                                 createRequest.grade,
@@ -273,20 +273,20 @@ class CreateStudentServiceTest :
 
                     val savedStudent =
                         StudentJpaEntity().apply {
-                            studentId = 1L
-                            studentName = createRequest.name
-                            studentSex = createRequest.sex
-                            studentEmail = createRequest.email
+                            id = 1L
+                            name = createRequest.name
+                            sex = createRequest.sex
+                            email = createRequest.email
                             studentNumber =
                                 StudentNumber(createRequest.grade, createRequest.classNum, createRequest.number)
-                            studentMajor = Major.SW_DEVELOPMENT
-                            studentRole = createRequest.role
-                            studentDormitoryRoomNumber = DormitoryRoomNumber(createRequest.dormitoryRoomNumber)
-                            studentIsLeaveSchool = false
+                            major = Major.SW_DEVELOPMENT
+                            role = createRequest.role
+                            dormitoryRoomNumber = DormitoryRoomNumber(createRequest.dormitoryRoomNumber)
+                            isLeaveSchool = false
                         }
 
                     beforeEach {
-                        every { mockStudentRepository.existsByStudentEmail(createRequest.email) } returns false
+                        every { mockStudentRepository.existsByEmail(createRequest.email) } returns false
                         every {
                             mockStudentRepository.existsByStudentNumber(
                                 createRequest.grade,
@@ -321,20 +321,20 @@ class CreateStudentServiceTest :
 
                     val savedStudent =
                         StudentJpaEntity().apply {
-                            studentId = 2L
-                            studentName = createRequest.name
-                            studentSex = createRequest.sex
-                            studentEmail = createRequest.email
+                            id = 2L
+                            name = createRequest.name
+                            sex = createRequest.sex
+                            email = createRequest.email
                             studentNumber =
                                 StudentNumber(createRequest.grade, createRequest.classNum, createRequest.number)
-                            studentMajor = Major.SW_DEVELOPMENT
-                            studentRole = createRequest.role
-                            studentDormitoryRoomNumber = DormitoryRoomNumber(createRequest.dormitoryRoomNumber)
-                            studentIsLeaveSchool = false
+                            major = Major.SW_DEVELOPMENT
+                            role = createRequest.role
+                            dormitoryRoomNumber = DormitoryRoomNumber(createRequest.dormitoryRoomNumber)
+                            isLeaveSchool = false
                         }
 
                     beforeEach {
-                        every { mockStudentRepository.existsByStudentEmail(createRequest.email) } returns false
+                        every { mockStudentRepository.existsByEmail(createRequest.email) } returns false
                         every {
                             mockStudentRepository.existsByStudentNumber(
                                 createRequest.grade,
@@ -369,20 +369,20 @@ class CreateStudentServiceTest :
 
                     val savedStudent =
                         StudentJpaEntity().apply {
-                            studentId = 4L
-                            studentName = createRequest.name
-                            studentSex = createRequest.sex
-                            studentEmail = createRequest.email
+                            id = 4L
+                            name = createRequest.name
+                            sex = createRequest.sex
+                            email = createRequest.email
                             studentNumber =
                                 StudentNumber(createRequest.grade, createRequest.classNum, createRequest.number)
-                            studentMajor = Major.AI
-                            studentRole = createRequest.role
-                            studentDormitoryRoomNumber = DormitoryRoomNumber(createRequest.dormitoryRoomNumber)
-                            studentIsLeaveSchool = false
+                            major = Major.AI
+                            role = createRequest.role
+                            dormitoryRoomNumber = DormitoryRoomNumber(createRequest.dormitoryRoomNumber)
+                            isLeaveSchool = false
                         }
 
                     beforeEach {
-                        every { mockStudentRepository.existsByStudentEmail(createRequest.email) } returns false
+                        every { mockStudentRepository.existsByEmail(createRequest.email) } returns false
                         every {
                             mockStudentRepository.existsByStudentNumber(
                                 createRequest.grade,

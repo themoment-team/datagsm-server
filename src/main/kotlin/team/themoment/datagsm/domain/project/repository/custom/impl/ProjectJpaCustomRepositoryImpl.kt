@@ -43,7 +43,7 @@ class ProjectJpaCustomRepositoryImpl(
                 .where(
                     projectId?.let { projectJpaEntity.projectId.eq(it) },
                     projectName?.let { nameMatcher(it) },
-                    clubId?.let { projectJpaEntity.projectOwnerClub.clubId.eq(it) },
+                    clubId?.let { projectJpaEntity.projectOwnerClub.id.eq(it) },
                 ).offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
@@ -55,7 +55,7 @@ class ProjectJpaCustomRepositoryImpl(
                 .where(
                     projectId?.let { projectJpaEntity.projectId.eq(it) },
                     projectName?.let { nameMatcher(it) },
-                    clubId?.let { projectJpaEntity.projectOwnerClub.clubId.eq(it) },
+                    clubId?.let { projectJpaEntity.projectOwnerClub.id.eq(it) },
                 )
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
