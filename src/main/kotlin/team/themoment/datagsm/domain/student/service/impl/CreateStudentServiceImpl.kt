@@ -3,7 +3,7 @@ package team.themoment.datagsm.domain.student.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.domain.student.dto.request.StudentCreateReqDto
+import team.themoment.datagsm.domain.student.dto.request.CreateStudentReqDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
@@ -18,7 +18,7 @@ import team.themoment.datagsm.global.exception.error.ExpectedException
 class CreateStudentServiceImpl(
     private final val studentJpaRepository: StudentJpaRepository,
 ) : CreateStudentService {
-    override fun execute(reqDto: StudentCreateReqDto): StudentResDto {
+    override fun execute(reqDto: CreateStudentReqDto): StudentResDto {
         if (studentJpaRepository.existsByStudentEmail(reqDto.email)) {
             throw ExpectedException("이미 존재하는 이메일입니다: ${reqDto.email}", HttpStatus.CONFLICT)
         }

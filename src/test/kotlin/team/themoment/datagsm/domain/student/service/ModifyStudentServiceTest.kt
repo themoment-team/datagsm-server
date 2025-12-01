@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import team.themoment.datagsm.domain.student.dto.request.StudentUpdateReqDto
+import team.themoment.datagsm.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
 import team.themoment.datagsm.domain.student.entity.constant.Major
@@ -52,7 +52,7 @@ class ModifyStudentServiceTest :
 
                 context("존재하는 학생의 이름을 수정할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = "수정된이름",
                             sex = null,
                             email = null,
@@ -80,7 +80,7 @@ class ModifyStudentServiceTest :
 
                 context("학생의 학년만 변경할 때 (반은 변경하지 않음)") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = null,
                             sex = null,
                             email = null,
@@ -124,7 +124,7 @@ class ModifyStudentServiceTest :
 
                 context("학생의 반만 변경할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = null,
                             sex = null,
                             email = null,
@@ -159,7 +159,7 @@ class ModifyStudentServiceTest :
 
                 context("학생의 학년과 반을 동시에 변경할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = null,
                             sex = null,
                             email = null,
@@ -194,7 +194,7 @@ class ModifyStudentServiceTest :
 
                 context("이미 존재하는 이메일로 변경을 시도할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = null,
                             sex = null,
                             email = "duplicate@gsm.hs.kr",
@@ -236,7 +236,7 @@ class ModifyStudentServiceTest :
 
                 context("이미 존재하는 학번으로 변경을 시도할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = null,
                             sex = null,
                             email = null,
@@ -281,7 +281,7 @@ class ModifyStudentServiceTest :
 
                 context("존재하지 않는 학생 ID로 수정을 시도할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = "수정이름",
                             sex = null,
                             email = null,
@@ -311,7 +311,7 @@ class ModifyStudentServiceTest :
 
                 context("유효하지 않은 학급으로 반을 변경할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = null,
                             sex = null,
                             email = null,
@@ -357,7 +357,7 @@ class ModifyStudentServiceTest :
 
                 context("기숙사 방 번호를 변경할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = null,
                             sex = null,
                             email = null,
@@ -384,7 +384,7 @@ class ModifyStudentServiceTest :
 
                 context("학생의 성별과 역할을 동시에 변경할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = null,
                             sex = Sex.WOMAN,
                             email = null,
@@ -411,7 +411,7 @@ class ModifyStudentServiceTest :
 
                 context("모든 필드를 한번에 수정할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = "완전수정학생",
                             sex = Sex.WOMAN,
                             email = "updated@gsm.hs.kr",

@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size
 import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 
-data class StudentUpdateReqDto(
+data class UpdateStudentReqDto(
     @field:Size(max = 30)
     @param:Schema(description = "이름", example = "홍길동", maxLength = 30)
     val name: String?,

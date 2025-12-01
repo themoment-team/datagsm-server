@@ -3,7 +3,7 @@ package team.themoment.datagsm.domain.student.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.domain.student.dto.request.StudentUpdateReqDto
+import team.themoment.datagsm.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
 import team.themoment.datagsm.domain.student.entity.constant.Major
@@ -19,7 +19,7 @@ class ModifyStudentServiceImpl(
 ) : ModifyStudentService {
     override fun execute(
         studentId: Long,
-        reqDto: StudentUpdateReqDto,
+        reqDto: UpdateStudentReqDto,
     ): StudentResDto {
         val student =
             studentJpaRepository

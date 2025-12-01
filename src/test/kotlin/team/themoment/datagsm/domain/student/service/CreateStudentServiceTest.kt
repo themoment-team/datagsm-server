@@ -7,7 +7,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import team.themoment.datagsm.domain.student.dto.request.StudentCreateReqDto
+import team.themoment.datagsm.domain.student.dto.request.CreateStudentReqDto
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
 import team.themoment.datagsm.domain.student.entity.constant.Major
@@ -34,7 +34,7 @@ class CreateStudentServiceTest :
 
                 context("유효한 1반 학생 정보로 생성 요청할 때") {
                     val createRequest =
-                        StudentCreateReqDto(
+                        CreateStudentReqDto(
                             name = "김학생",
                             sex = Sex.WOMAN,
                             email = "kim@gsm.hs.kr",
@@ -101,7 +101,7 @@ class CreateStudentServiceTest :
 
                 context("유효한 3반 학생 정보로 생성 요청할 때") {
                     val createRequest =
-                        StudentCreateReqDto(
+                        CreateStudentReqDto(
                             name = "이학생",
                             sex = Sex.MAN,
                             email = "lee@gsm.hs.kr",
@@ -150,7 +150,7 @@ class CreateStudentServiceTest :
 
                 context("이미 존재하는 이메일로 생성 요청할 때") {
                     val createRequest =
-                        StudentCreateReqDto(
+                        CreateStudentReqDto(
                             name = "중복학생",
                             sex = Sex.WOMAN,
                             email = "duplicate@gsm.hs.kr",
@@ -180,7 +180,7 @@ class CreateStudentServiceTest :
 
                 context("이미 존재하는 학번으로 생성 요청할 때") {
                     val createRequest =
-                        StudentCreateReqDto(
+                        CreateStudentReqDto(
                             name = "학번중복",
                             sex = Sex.MAN,
                             email = "unique@gsm.hs.kr",
@@ -226,7 +226,7 @@ class CreateStudentServiceTest :
 
                 context("유효하지 않은 학급으로 생성 요청할 때") {
                     val createRequest =
-                        StudentCreateReqDto(
+                        CreateStudentReqDto(
                             name = "무효학급",
                             sex = Sex.WOMAN,
                             email = "invalid@gsm.hs.kr",
@@ -260,7 +260,7 @@ class CreateStudentServiceTest :
 
                 context("1반 학생 생성 시 SW_DEVELOPMENT 전공이 할당될 때") {
                     val createRequest =
-                        StudentCreateReqDto(
+                        CreateStudentReqDto(
                             name = "1반학생",
                             sex = Sex.WOMAN,
                             email = "class1@gsm.hs.kr",
@@ -308,7 +308,7 @@ class CreateStudentServiceTest :
 
                 context("2반 학생 생성 시 SW_DEVELOPMENT 전공이 할당될 때") {
                     val createRequest =
-                        StudentCreateReqDto(
+                        CreateStudentReqDto(
                             name = "2반학생",
                             sex = Sex.MAN,
                             email = "class2@gsm.hs.kr",
@@ -356,7 +356,7 @@ class CreateStudentServiceTest :
 
                 context("4반 학생 생성 시 AI 전공이 할당될 때") {
                     val createRequest =
-                        StudentCreateReqDto(
+                        CreateStudentReqDto(
                             name = "4반학생",
                             sex = Sex.MAN,
                             email = "class4@gsm.hs.kr",

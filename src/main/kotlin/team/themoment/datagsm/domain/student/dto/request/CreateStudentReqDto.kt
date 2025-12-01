@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Size
 import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 
-data class StudentCreateReqDto(
+data class CreateStudentReqDto(
     @field:Size(max = 30)
     @field:NotBlank
     @param:Schema(description = "이름", example = "홍길동", maxLength = 30)
