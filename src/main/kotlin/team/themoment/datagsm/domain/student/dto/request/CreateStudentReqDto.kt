@@ -15,7 +15,7 @@ data class CreateStudentReqDto(
     @param:Schema(description = "이름", example = "홍길동", maxLength = 30)
     val name: String,
     @field:NotBlank
-    @param:Schema(description = "성별", example = "MALE")
+    @param:Schema(description = "성별", example = "WOMAN")
     val sex: Sex,
     @param:Size(max = 50)
     @field:Email

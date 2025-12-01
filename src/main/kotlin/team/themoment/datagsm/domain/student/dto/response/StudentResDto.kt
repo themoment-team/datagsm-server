@@ -10,7 +10,7 @@ data class StudentResDto(
     val id: Long,
     @param:Schema(description = "이름", example = "홍길동")
     val name: String,
-    @param:Schema(description = "성별", example = "MALE")
+    @param:Schema(description = "성별", example = "WOMAN")
     val sex: Sex,
     @param:Schema(description = "이메일", example = "student@gsm.hs.kr")
     val email: String,

@@ -12,7 +12,7 @@ data class UpdateStudentReqDto(
     @field:Size(max = 30)
     @param:Schema(description = "이름", example = "홍길동", maxLength = 30)
     val name: String?,
-    @param:Schema(description = "성별", example = "MALE")
+    @param:Schema(description = "성별", example = "WOMAN")
     val sex: Sex?,
     @field:Size(max = 50)
     @field:Email
