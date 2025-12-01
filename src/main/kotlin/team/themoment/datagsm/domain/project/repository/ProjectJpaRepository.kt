@@ -1,4 +1,4 @@
-    package team.themoment.datagsm.domain.project.repository
+package team.themoment.datagsm.domain.project.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
 import team.themoment.datagsm.domain.project.entity.ProjectJpaEntity
