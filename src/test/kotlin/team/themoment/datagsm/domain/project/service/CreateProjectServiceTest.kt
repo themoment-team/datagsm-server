@@ -52,7 +52,7 @@ class CreateProjectServiceTest :
                             id = 1L
                             name = createRequest.name
                             description = createRequest.description
-                            this.ownerClub = ownerClub
+                            this.club = ownerClub
                         }
 
                     beforeEach {
@@ -67,9 +67,9 @@ class CreateProjectServiceTest :
                         result.id shouldBe 1L
                         result.name shouldBe "DataGSM 프로젝트"
                         result.description shouldBe "학교 데이터를 제공하는 API 서비스"
-                        result.club.id shouldBe 1L
-                        result.club.name shouldBe "SW개발동아리"
-                        result.club.type shouldBe ClubType.MAJOR_CLUB
+                        result.club?.id shouldBe 1L
+                        result.club?.name shouldBe "SW개발동아리"
+                        result.club?.type shouldBe ClubType.MAJOR_CLUB
 
                         verify(exactly = 1) { mockProjectRepository.existsByProjectName(createRequest.name) }
                         verify(exactly = 1) { mockClubRepository.findById(createRequest.clubId) }
@@ -150,7 +150,7 @@ class CreateProjectServiceTest :
                             id = 2L
                             name = createRequest.name
                             description = createRequest.description
-                            this.ownerClub = ownerClub
+                            this.club = ownerClub
                         }
 
                     beforeEach {
@@ -163,8 +163,8 @@ class CreateProjectServiceTest :
                         val result = createProjectService.execute(createRequest)
 
                         result.id shouldBe 2L
-                        result.club.type shouldBe ClubType.AUTONOMOUS_CLUB
-                        result.club.name shouldBe "자율동아리"
+                        result.club?.type shouldBe ClubType.AUTONOMOUS_CLUB
+                        result.club?.name shouldBe "자율동아리"
                     }
                 }
             }

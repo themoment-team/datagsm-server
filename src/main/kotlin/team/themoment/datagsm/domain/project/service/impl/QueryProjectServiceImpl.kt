@@ -33,17 +33,12 @@ class QueryProjectServiceImpl(
             totalPages = projectPage.totalPages,
             totalElements = projectPage.totalElements,
             projects =
-                projectPage.content.map { entity ->
+                projectPage.content.map { project ->
                     ProjectResDto(
-                        id = entity.id!!,
-                        name = entity.name,
-                        description = entity.description,
-                        club =
-                            ClubResDto(
-                                id = entity.ownerClub.id!!,
-                                name = entity.ownerClub.name,
-                                type = entity.ownerClub.type,
-                            ),
+                        id = project.id!!,
+                        name = project.name,
+                        description = project.description,
+                        club = project.club?.let { ClubResDto(id = it.id!!, name = it.name, type = it.type) },
                     )
                 },
         )

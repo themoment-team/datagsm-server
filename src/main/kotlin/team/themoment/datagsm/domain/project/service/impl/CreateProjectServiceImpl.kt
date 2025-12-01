@@ -37,7 +37,7 @@ class CreateProjectServiceImpl(
             ProjectJpaEntity().apply {
                 name = projectReqDto.name
                 description = projectReqDto.description
-                this.ownerClub = ownerClub
+                this.club = ownerClub
             }
         val savedProjectEntity = projectJpaRepository.save(projectEntity)
 

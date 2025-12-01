@@ -11,5 +11,5 @@ data class ProjectResDto(
     @param:Schema(description = "프로젝트 설명", example = "학교 데이터를 제공하는 API 서비스")
     val description: String,
     @param:Schema(description = "프로젝트 소유 동아리 정보")
-    val club: ClubResDto,
+    val club: ClubResDto?,
 )

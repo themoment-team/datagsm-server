@@ -44,7 +44,7 @@ class DeleteProjectServiceTest :
                             this.id = projectId
                             name = "DataGSM 프로젝트"
                             description = "학교 데이터를 제공하는 API 서비스"
-                            this.ownerClub = ownerClub
+                            this.club = ownerClub
                         }
 
                     beforeEach {
@@ -95,7 +95,7 @@ class DeleteProjectServiceTest :
                             this.id = projectId
                             name = "자율동아리 프로젝트"
                             description = "자율 프로젝트"
-                            ownerClub = autonomousClub
+                            club = autonomousClub
                         }
 
                     beforeEach {
@@ -126,7 +126,7 @@ class DeleteProjectServiceTest :
                             this.id = projectId
                             name = "취업 포트폴리오"
                             description = "취업 준비 프로젝트"
-                            ownerClub = jobClub
+                            club = jobClub
                         }
 
                     beforeEach {

@@ -40,7 +40,7 @@ class QueryProjectServiceTest :
                         id = 1L
                         name = "DataGSM 프로젝트"
                         description = "학교 데이터를 제공하는 API 서비스"
-                        ownerClub = testClub
+                        club = testClub
                     }
 
                 context("존재하는 프로젝트 ID로 검색할 때") {
@@ -73,9 +73,9 @@ class QueryProjectServiceTest :
                         project.id shouldBe 1L
                         project.name shouldBe "DataGSM 프로젝트"
                         project.description shouldBe "학교 데이터를 제공하는 API 서비스"
-                        project.club.id shouldBe 1L
-                        project.club.name shouldBe "SW개발동아리"
-                        project.club.type shouldBe ClubType.MAJOR_CLUB
+                        project.club?.id shouldBe 1L
+                        project.club?.name shouldBe "SW개발동아리"
+                        project.club?.type shouldBe ClubType.MAJOR_CLUB
 
                         verify(exactly = 1) {
                             mockProjectRepository.searchProjectWithPaging(
@@ -138,8 +138,8 @@ class QueryProjectServiceTest :
                             )
 
                         result.totalElements shouldBe 1L
-                        result.projects[0].club.id shouldBe 1L
-                        result.projects[0].club.name shouldBe "SW개발동아리"
+                        result.projects[0].club?.id shouldBe 1L
+                        result.projects[0].club?.name shouldBe "SW개발동아리"
                     }
                 }
 
@@ -167,7 +167,7 @@ class QueryProjectServiceTest :
 
                         result.totalElements shouldBe 1L
                         result.projects[0].name shouldBe "DataGSM 프로젝트"
-                        result.projects[0].club.id shouldBe 1L
+                        result.projects[0].club?.id shouldBe 1L
                     }
                 }
 
@@ -212,7 +212,7 @@ class QueryProjectServiceTest :
                             id = 2L
                             name = "모바일앱 프로젝트"
                             description = "학생 편의 모바일 앱"
-                            ownerClub = club2
+                            club = club2
                         }
 
                     beforeEach {
@@ -266,7 +266,7 @@ class QueryProjectServiceTest :
                             id = 3L
                             name = "취업 포트폴리오"
                             description = "취업 준비 프로젝트"
-                            ownerClub = jobClub
+                            club = jobClub
                         }
 
                     beforeEach {
@@ -291,8 +291,8 @@ class QueryProjectServiceTest :
                             )
 
                         result.totalElements shouldBe 1L
-                        result.projects[0].club.type shouldBe ClubType.JOB_CLUB
-                        result.projects[0].club.name shouldBe "취업동아리"
+                        result.projects[0].club?.type shouldBe ClubType.JOB_CLUB
+                        result.projects[0].club?.name shouldBe "취업동아리"
                     }
                 }
             }

@@ -35,7 +35,7 @@ class ModifyProjectServiceImpl(
 
         project.description = reqDto.description
 
-        if (reqDto.clubId != project.ownerClub.id) {
+        if (reqDto.clubId != project.club?.id) {
             val ownerClub =
                 clubJpaRepository
                     .findById(reqDto.clubId)
@@ -45,19 +45,14 @@ class ModifyProjectServiceImpl(
                             HttpStatus.NOT_FOUND,
                         )
                     }
-            project.ownerClub = ownerClub
+            project.club = ownerClub
         }
 
         return ProjectResDto(
             id = project.id!!,
             name = project.name,
             description = project.description,
-            club =
-                ClubResDto(
-                    id = project.ownerClub.id!!,
-                    name = project.ownerClub.name,
-                    type = project.ownerClub.type,
-                ),
+            club = project.club?.let { ClubResDto(id = it.id!!, name = it.name, type = it.type) },
         )
     }
 }

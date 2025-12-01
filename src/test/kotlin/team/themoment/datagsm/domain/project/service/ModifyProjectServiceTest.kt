@@ -49,7 +49,7 @@ class ModifyProjectServiceTest :
                             this.id = projectId
                             name = "기존프로젝트"
                             description = "기존 설명"
-                            this.ownerClub = ownerClub
+                            this.club = ownerClub
                         }
                 }
 
@@ -105,7 +105,7 @@ class ModifyProjectServiceTest :
 
                         result.name shouldBe "기존프로젝트"
                         result.description shouldBe "새로운 설명입니다"
-                        result.club.id shouldBe 1L
+                        result.club?.id shouldBe 1L
 
                         verify(exactly = 1) { mockProjectRepository.findById(projectId) }
                         verify(exactly = 0) {
@@ -140,9 +140,9 @@ class ModifyProjectServiceTest :
                     it("프로젝트 소유 동아리가 변경되어야 한다") {
                         val result = modifyProjectService.execute(projectId, updateRequest)
 
-                        result.club.id shouldBe 2L
-                        result.club.name shouldBe "새동아리"
-                        result.club.type shouldBe ClubType.JOB_CLUB
+                        result.club?.id shouldBe 2L
+                        result.club?.name shouldBe "새동아리"
+                        result.club?.type shouldBe ClubType.JOB_CLUB
 
                         verify(exactly = 1) { mockProjectRepository.findById(projectId) }
                         verify(exactly = 1) { mockClubRepository.findById(2L) }
@@ -180,9 +180,9 @@ class ModifyProjectServiceTest :
 
                         result.name shouldBe "완전새로운프로젝트"
                         result.description shouldBe "완전 새로운 설명"
-                        result.club.id shouldBe 3L
-                        result.club.name shouldBe "완전새로운동아리"
-                        result.club.type shouldBe ClubType.AUTONOMOUS_CLUB
+                        result.club?.id shouldBe 3L
+                        result.club?.name shouldBe "완전새로운동아리"
+                        result.club?.type shouldBe ClubType.AUTONOMOUS_CLUB
 
                         verify(exactly = 1) {
                             mockProjectRepository.existsByProjectNameAndProjectIdNot(
