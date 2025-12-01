@@ -17,16 +17,16 @@ import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
 class ProjectJpaEntity {
     @field:Id
     @field:GeneratedValue(strategy = GenerationType.IDENTITY)
-    @field:Column(name = "project_id")
-    var projectId: Long? = null
+    @field:Column(name = "id")
+    var id: Long? = null
 
-    @field:Column(name = "project_name", nullable = false, length = 100)
-    lateinit var projectName: String
+    @field:Column(name = "name", nullable = false, length = 100)
+    lateinit var name: String
 
-    @field:Column(name = "project_discription", nullable = false, length = 500, columnDefinition = "TEXT")
-    lateinit var projectDescription: String
+    @field:Column(name = "description", nullable = false, length = 500, columnDefinition = "TEXT")
+    lateinit var description: String
 
     @field:ManyToOne(optional = false)
-    @field:JoinColumn(name = "project_owner_club_id", nullable = false, referencedColumnName = "club_id")
-    lateinit var projectOwnerClub: ClubJpaEntity
+    @field:JoinColumn(name = "owner_club_id", nullable = false, referencedColumnName = "club_id")
+    lateinit var ownerClub: ClubJpaEntity
 }

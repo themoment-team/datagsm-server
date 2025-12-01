@@ -23,8 +23,8 @@ class QueryProjectServiceImpl(
     ): ProjectListResDto {
         val projectPage =
             projectJpaRepository.searchProjectWithPaging(
-                projectId = projectId,
-                projectName = projectName,
+                id = projectId,
+                name = projectName,
                 clubId = clubId,
                 pageable = PageRequest.of(page, size),
             )
@@ -35,14 +35,14 @@ class QueryProjectServiceImpl(
             projects =
                 projectPage.content.map { entity ->
                     ProjectResDto(
-                        projectId = entity.projectId!!,
-                        projectName = entity.projectName,
-                        projectDescription = entity.projectDescription,
+                        projectId = entity.id!!,
+                        projectName = entity.name,
+                        projectDescription = entity.description,
                         projectOwnerClub =
                             ClubResDto(
-                                clubId = entity.projectOwnerClub.id!!,
-                                clubName = entity.projectOwnerClub.name,
-                                clubType = entity.projectOwnerClub.type,
+                                clubId = entity.ownerClub.id!!,
+                                clubName = entity.ownerClub.name,
+                                clubType = entity.ownerClub.type,
                             ),
                     )
                 },

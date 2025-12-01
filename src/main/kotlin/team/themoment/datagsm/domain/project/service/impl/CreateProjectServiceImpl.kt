@@ -35,16 +35,16 @@ class CreateProjectServiceImpl(
 
         val projectEntity =
             ProjectJpaEntity().apply {
-                projectName = projectReqDto.projectName
-                projectDescription = projectReqDto.projectDescription
-                projectOwnerClub = ownerClub
+                name = projectReqDto.projectName
+                description = projectReqDto.projectDescription
+                this.ownerClub = ownerClub
             }
         val savedProjectEntity = projectJpaRepository.save(projectEntity)
 
         return ProjectResDto(
-            projectId = savedProjectEntity.projectId!!,
-            projectName = savedProjectEntity.projectName,
-            projectDescription = savedProjectEntity.projectDescription,
+            projectId = savedProjectEntity.id!!,
+            projectName = savedProjectEntity.name,
+            projectDescription = savedProjectEntity.description,
             projectOwnerClub =
                 ClubResDto(
                     clubId = ownerClub.id!!,

@@ -41,10 +41,10 @@ class DeleteProjectServiceTest :
 
                     val existingProject =
                         ProjectJpaEntity().apply {
-                            this.projectId = projectId
-                            projectName = "DataGSM 프로젝트"
-                            projectDescription = "학교 데이터를 제공하는 API 서비스"
-                            projectOwnerClub = ownerClub
+                            this.id = projectId
+                            name = "DataGSM 프로젝트"
+                            description = "학교 데이터를 제공하는 API 서비스"
+                            this.ownerClub = ownerClub
                         }
 
                     beforeEach {
@@ -92,10 +92,10 @@ class DeleteProjectServiceTest :
 
                     val autonomousProject =
                         ProjectJpaEntity().apply {
-                            this.projectId = projectId
-                            projectName = "자율동아리 프로젝트"
-                            projectDescription = "자율 프로젝트"
-                            projectOwnerClub = autonomousClub
+                            this.id = projectId
+                            name = "자율동아리 프로젝트"
+                            description = "자율 프로젝트"
+                            ownerClub = autonomousClub
                         }
 
                     beforeEach {
@@ -123,10 +123,10 @@ class DeleteProjectServiceTest :
 
                     val jobProject =
                         ProjectJpaEntity().apply {
-                            this.projectId = projectId
-                            projectName = "취업 포트폴리오"
-                            projectDescription = "취업 준비 프로젝트"
-                            projectOwnerClub = jobClub
+                            this.id = projectId
+                            name = "취업 포트폴리오"
+                            description = "취업 준비 프로젝트"
+                            ownerClub = jobClub
                         }
 
                     beforeEach {

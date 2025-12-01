@@ -46,10 +46,10 @@ class ModifyProjectServiceTest :
 
                     existingProject =
                         ProjectJpaEntity().apply {
-                            this.projectId = projectId
-                            projectName = "기존프로젝트"
-                            projectDescription = "기존 설명"
-                            projectOwnerClub = ownerClub
+                            this.id = projectId
+                            name = "기존프로젝트"
+                            description = "기존 설명"
+                            this.ownerClub = ownerClub
                         }
                 }
 

@@ -26,16 +26,16 @@ class ModifyProjectServiceImpl(
                 .findById(projectId)
                 .orElseThrow { ExpectedException("프로젝트를 찾을 수 없습니다. projectId: $projectId", HttpStatus.NOT_FOUND) }
 
-        if (reqDto.projectName != project.projectName) {
+        if (reqDto.projectName != project.name) {
             if (projectJpaRepository.existsByProjectNameAndProjectIdNot(reqDto.projectName, projectId)) {
                 throw ExpectedException("이미 존재하는 프로젝트 이름입니다: ${reqDto.projectName}", HttpStatus.CONFLICT)
             }
-            project.projectName = reqDto.projectName
+            project.name = reqDto.projectName
         }
 
-        project.projectDescription = reqDto.projectDescription
+        project.description = reqDto.projectDescription
 
-        if (reqDto.projectOwnerClubId != project.projectOwnerClub.id) {
+        if (reqDto.projectOwnerClubId != project.ownerClub.id) {
             val ownerClub =
                 clubJpaRepository
                     .findById(reqDto.projectOwnerClubId)
@@ -45,18 +45,18 @@ class ModifyProjectServiceImpl(
                             HttpStatus.NOT_FOUND,
                         )
                     }
-            project.projectOwnerClub = ownerClub
+            project.ownerClub = ownerClub
         }
 
         return ProjectResDto(
-            projectId = project.projectId!!,
-            projectName = project.projectName,
-            projectDescription = project.projectDescription,
+            projectId = project.id!!,
+            projectName = project.name,
+            projectDescription = project.description,
             projectOwnerClub =
                 ClubResDto(
-                    clubId = project.projectOwnerClub.id!!,
-                    clubName = project.projectOwnerClub.name,
-                    clubType = project.projectOwnerClub.type,
+                    clubId = project.ownerClub.id!!,
+                    clubName = project.ownerClub.name,
+                    clubType = project.ownerClub.type,
                 ),
         )
     }

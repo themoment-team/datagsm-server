@@ -49,10 +49,10 @@ class CreateProjectServiceTest :
 
                     val savedProject =
                         ProjectJpaEntity().apply {
-                            projectId = 1L
-                            projectName = createRequest.projectName
-                            projectDescription = createRequest.projectDescription
-                            projectOwnerClub = ownerClub
+                            id = 1L
+                            name = createRequest.projectName
+                            description = createRequest.projectDescription
+                            this.ownerClub = ownerClub
                         }
 
                     beforeEach {
@@ -147,10 +147,10 @@ class CreateProjectServiceTest :
 
                     val savedProject =
                         ProjectJpaEntity().apply {
-                            projectId = 2L
-                            projectName = createRequest.projectName
-                            projectDescription = createRequest.projectDescription
-                            projectOwnerClub = ownerClub
+                            id = 2L
+                            name = createRequest.projectName
+                            description = createRequest.projectDescription
+                            this.ownerClub = ownerClub
                         }
 
                     beforeEach {
