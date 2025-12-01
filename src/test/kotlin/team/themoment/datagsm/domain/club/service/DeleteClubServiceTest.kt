@@ -36,9 +36,9 @@ class DeleteClubServiceTest :
                     beforeEach {
                         existing =
                             ClubJpaEntity().apply {
-                                this.clubId = clubId
-                                clubName = "삭제대상"
-                                clubType = ClubType.JOB_CLUB
+                                this.id = clubId
+                                name = "삭제대상"
+                                type = ClubType.JOB_CLUB
                             }
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
                         every { mockClubRepository.delete(existing) } just runs

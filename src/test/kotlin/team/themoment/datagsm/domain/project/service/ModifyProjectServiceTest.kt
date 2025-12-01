@@ -39,9 +39,9 @@ class ModifyProjectServiceTest :
                 beforeEach {
                     ownerClub =
                         ClubJpaEntity().apply {
-                            clubId = 1L
-                            clubName = "기존동아리"
-                            clubType = ClubType.MAJOR_CLUB
+                            id = 1L
+                            name = "기존동아리"
+                            type = ClubType.MAJOR_CLUB
                         }
 
                     existingProject =
@@ -120,9 +120,9 @@ class ModifyProjectServiceTest :
                 context("프로젝트의 소유 동아리를 변경할 때") {
                     val newClub =
                         ClubJpaEntity().apply {
-                            clubId = 2L
-                            clubName = "새동아리"
-                            clubType = ClubType.JOB_CLUB
+                            id = 2L
+                            name = "새동아리"
+                            type = ClubType.JOB_CLUB
                         }
 
                     val updateRequest =
@@ -152,9 +152,9 @@ class ModifyProjectServiceTest :
                 context("프로젝트의 모든 정보를 변경할 때") {
                     val newClub =
                         ClubJpaEntity().apply {
-                            clubId = 3L
-                            clubName = "완전새로운동아리"
-                            clubType = ClubType.AUTONOMOUS_CLUB
+                            id = 3L
+                            name = "완전새로운동아리"
+                            type = ClubType.AUTONOMOUS_CLUB
                         }
 
                     val updateRequest =

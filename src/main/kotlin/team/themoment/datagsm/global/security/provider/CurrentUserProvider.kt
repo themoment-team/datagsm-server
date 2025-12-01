@@ -28,7 +28,7 @@ class CurrentUserProvider(
 
     fun getCurrentStudent(): StudentJpaEntity {
         val account = getCurrentAccount()
-        return account.accountStudent
+        return account.student
             ?: throw ExpectedException("학생 정보가 없습니다.", HttpStatus.BAD_REQUEST)
     }
 }

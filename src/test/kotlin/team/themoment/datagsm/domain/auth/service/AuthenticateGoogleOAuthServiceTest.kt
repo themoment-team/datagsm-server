@@ -116,7 +116,7 @@ class AuthenticateGoogleOAuthServiceTest :
 
                     val newAccount =
                         AccountJpaEntity.create(email).apply {
-                            accountId = 1L
+                            id = 1L
                         }
 
                     beforeEach {
@@ -167,7 +167,7 @@ class AuthenticateGoogleOAuthServiceTest :
 
                     val existingAccount =
                         AccountJpaEntity.create(email).apply {
-                            accountId = 1L
+                            id = 1L
                         }
 
                     beforeEach {
@@ -223,8 +223,8 @@ class AuthenticateGoogleOAuthServiceTest :
 
                     val accountWithStudent =
                         AccountJpaEntity.create(email).apply {
-                            accountId = 1L
-                            accountStudent = student
+                            id = 1L
+                            this.student = student
                         }
 
                     beforeEach {
@@ -272,7 +272,7 @@ class AuthenticateGoogleOAuthServiceTest :
 
                     val existingAccount =
                         AccountJpaEntity.create(email).apply {
-                            accountId = 1L
+                            id = 1L
                         }
 
                     beforeEach {

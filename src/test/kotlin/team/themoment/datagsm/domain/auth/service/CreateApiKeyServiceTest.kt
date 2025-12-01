@@ -42,8 +42,8 @@ class CreateApiKeyServiceTest :
 
                 val mockAccount =
                     AccountJpaEntity().apply {
-                        accountId = 1L
-                        accountEmail = "test@gsm.hs.kr"
+                        id = 1L
+                        email = "test@gsm.hs.kr"
                     }
 
                 beforeEach {
@@ -56,7 +56,7 @@ class CreateApiKeyServiceTest :
                         every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.empty()
                         every { mockApiKeyRepository.save(any()) } answers {
                             val entity = firstArg<ApiKey>()
-                            entity.apply { apiKeyId = 1L }
+                            entity.apply { id = 1L }
                         }
                     }
 
@@ -77,9 +77,9 @@ class CreateApiKeyServiceTest :
                     val oldExpiresAt = LocalDateTime.now().plusDays(10)
                     val existingApiKey =
                         ApiKey().apply {
-                            apiKeyId = 1L
-                            apiKeyValue = oldApiKeyValue
-                            apiKeyAccount = mockAccount
+                            id = 1L
+                            apiKey = oldApiKeyValue
+                            account = mockAccount
                             createdAt = LocalDateTime.now().minusDays(20)
                             updatedAt = LocalDateTime.now().minusDays(20)
                             expiresAt = oldExpiresAt
@@ -112,7 +112,7 @@ class CreateApiKeyServiceTest :
                         every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.empty()
                         every { mockApiKeyRepository.save(any()) } answers {
                             val entity = firstArg<ApiKey>()
-                            entity.apply { apiKeyId = 1L }
+                            entity.apply { id = 1L }
                         }
                     }
 
@@ -137,7 +137,7 @@ class CreateApiKeyServiceTest :
                         every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.empty()
                         every { mockApiKeyRepository.save(any()) } answers {
                             savedApiKey = firstArg<ApiKey>()
-                            savedApiKey.apply { apiKeyId = 1L }
+                            savedApiKey.apply { id = 1L }
                         }
                     }
 

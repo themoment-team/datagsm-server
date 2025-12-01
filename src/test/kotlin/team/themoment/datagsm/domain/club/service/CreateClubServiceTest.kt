@@ -60,7 +60,7 @@ class CreateClubServiceTest :
                         every { mockClubRepository.existsByClubName(req.clubName) } returns false
                         every { mockClubRepository.save(any()) } answers {
                             val entity = firstArg<ClubJpaEntity>()
-                            entity.apply { this.clubId = 10L }
+                            entity.apply { this.id = 10L }
                         }
                     }
 

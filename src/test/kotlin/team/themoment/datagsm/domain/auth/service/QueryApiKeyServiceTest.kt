@@ -38,8 +38,8 @@ class QueryApiKeyServiceTest :
 
                 val mockAccount =
                     AccountJpaEntity().apply {
-                        accountId = 1L
-                        accountEmail = "test@gsm.hs.kr"
+                        id = 1L
+                        email = "test@gsm.hs.kr"
                     }
 
                 beforeEach {
@@ -51,9 +51,9 @@ class QueryApiKeyServiceTest :
                     val expiresAt = LocalDateTime.now().plusDays(30)
                     val apiKey =
                         ApiKey().apply {
-                            apiKeyId = 1L
-                            this.apiKeyValue = apiKeyValue
-                            apiKeyAccount = mockAccount
+                            id = 1L
+                            this.apiKey = apiKeyValue
+                            account = mockAccount
                             createdAt = LocalDateTime.now()
                             updatedAt = LocalDateTime.now()
                             this.expiresAt = expiresAt

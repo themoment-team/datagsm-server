@@ -47,9 +47,9 @@ class CreateProjectServiceImpl(
             projectDescription = savedProjectEntity.projectDescription,
             projectOwnerClub =
                 ClubResDto(
-                    clubId = ownerClub.clubId!!,
-                    clubName = ownerClub.clubName,
-                    clubType = ownerClub.clubType,
+                    clubId = ownerClub.id!!,
+                    clubName = ownerClub.name,
+                    clubType = ownerClub.type,
                 ),
         )
     }

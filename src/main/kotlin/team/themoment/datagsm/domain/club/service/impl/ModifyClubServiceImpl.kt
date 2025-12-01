@@ -23,19 +23,19 @@ class ModifyClubServiceImpl(
                 .findById(clubId)
                 .orElseThrow { ExpectedException("동아리를 찾을 수 없습니다. clubId: $clubId", HttpStatus.NOT_FOUND) }
 
-        if (reqDto.clubName != club.clubName) {
+        if (reqDto.clubName != club.name) {
             if (clubJpaRepository.existsByClubNameAndClubIdNot(reqDto.clubName, clubId)) {
                 throw ExpectedException("이미 존재하는 동아리 이름입니다: ${reqDto.clubName}", HttpStatus.CONFLICT)
             }
-            club.clubName = reqDto.clubName
+            club.name = reqDto.clubName
         }
 
-        club.clubType = reqDto.clubType
+        club.type = reqDto.clubType
 
         return ClubResDto(
-            clubId = club.clubId!!,
-            clubName = club.clubName,
-            clubType = club.clubType,
+            clubId = club.id!!,
+            clubName = club.name,
+            clubType = club.type,
         )
     }
 }

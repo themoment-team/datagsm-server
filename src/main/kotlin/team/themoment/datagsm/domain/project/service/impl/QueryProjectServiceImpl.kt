@@ -40,9 +40,9 @@ class QueryProjectServiceImpl(
                         projectDescription = entity.projectDescription,
                         projectOwnerClub =
                             ClubResDto(
-                                clubId = entity.projectOwnerClub.clubId!!,
-                                clubName = entity.projectOwnerClub.clubName,
-                                clubType = entity.projectOwnerClub.clubType,
+                                clubId = entity.projectOwnerClub.id!!,
+                                clubName = entity.projectOwnerClub.name,
+                                clubType = entity.projectOwnerClub.type,
                             ),
                     )
                 },

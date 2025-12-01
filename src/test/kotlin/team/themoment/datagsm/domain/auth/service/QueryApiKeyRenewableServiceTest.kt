@@ -41,8 +41,8 @@ class QueryApiKeyRenewableServiceTest :
 
                 val mockAccount =
                     AccountJpaEntity().apply {
-                        accountId = 1L
-                        accountEmail = "test@gsm.hs.kr"
+                        id = 1L
+                        email = "test@gsm.hs.kr"
                     }
 
                 beforeEach {
@@ -74,9 +74,9 @@ class QueryApiKeyRenewableServiceTest :
                     val expiresAt = now.plusDays(10)
                     val apiKey =
                         ApiKey().apply {
-                            apiKeyId = 1L
-                            apiKeyValue = UUID.randomUUID()
-                            apiKeyAccount = mockAccount
+                            id = 1L
+                            apiKey = UUID.randomUUID()
+                            account = mockAccount
                             createdAt = now.minusDays(20)
                             updatedAt = now.minusDays(20)
                             this.expiresAt = expiresAt
@@ -101,9 +101,9 @@ class QueryApiKeyRenewableServiceTest :
                     val expiresAt = now.plusDays(20)
                     val apiKey =
                         ApiKey().apply {
-                            apiKeyId = 1L
-                            apiKeyValue = UUID.randomUUID()
-                            apiKeyAccount = mockAccount
+                            id = 1L
+                            apiKey = UUID.randomUUID()
+                            account = mockAccount
                             createdAt = now.minusDays(10)
                             updatedAt = now.minusDays(10)
                             this.expiresAt = expiresAt
@@ -128,9 +128,9 @@ class QueryApiKeyRenewableServiceTest :
                     val expiresAt = now.minusDays(5)
                     val apiKey =
                         ApiKey().apply {
-                            apiKeyId = 1L
-                            apiKeyValue = UUID.randomUUID()
-                            apiKeyAccount = mockAccount
+                            id = 1L
+                            apiKey = UUID.randomUUID()
+                            account = mockAccount
                             createdAt = now.minusDays(35)
                             updatedAt = now.minusDays(35)
                             this.expiresAt = expiresAt
@@ -155,9 +155,9 @@ class QueryApiKeyRenewableServiceTest :
                     val expiresAt = now.minusDays(20)
                     val apiKey =
                         ApiKey().apply {
-                            apiKeyId = 1L
-                            apiKeyValue = UUID.randomUUID()
-                            apiKeyAccount = mockAccount
+                            id = 1L
+                            apiKey = UUID.randomUUID()
+                            account = mockAccount
                             createdAt = now.minusDays(50)
                             updatedAt = now.minusDays(50)
                             this.expiresAt = expiresAt

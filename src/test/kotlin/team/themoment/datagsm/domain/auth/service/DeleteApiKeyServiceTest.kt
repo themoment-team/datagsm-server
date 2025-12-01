@@ -27,8 +27,8 @@ class DeleteApiKeyServiceTest :
 
                 val mockAccount =
                     AccountJpaEntity().apply {
-                        accountId = 1L
-                        accountEmail = "test@gsm.hs.kr"
+                        id = 1L
+                        email = "test@gsm.hs.kr"
                     }
 
                 beforeEach {

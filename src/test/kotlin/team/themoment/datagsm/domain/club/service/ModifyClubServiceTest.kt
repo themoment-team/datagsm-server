@@ -33,9 +33,9 @@ class ModifyClubServiceTest :
                 beforeEach {
                     existing =
                         ClubJpaEntity().apply {
-                            this.clubId = clubId
-                            clubName = "기존동아리"
-                            clubType = ClubType.MAJOR_CLUB
+                            this.id = clubId
+                            name = "기존동아리"
+                            type = ClubType.MAJOR_CLUB
                         }
                 }
 

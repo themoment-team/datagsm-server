@@ -17,13 +17,13 @@ import team.themoment.datagsm.domain.club.entity.constant.ClubType
 class ClubJpaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "club_id")
-    var clubId: Long? = null
+    @Column(name = "id")
+    var id: Long? = null
 
-    @Column(name = "club_name", nullable = false, unique = true, length = 50)
-    lateinit var clubName: String
+    @Column(name = "name", nullable = false, unique = true, length = 50)
+    lateinit var name: String
 
-    @Column(name = "club_type", nullable = false)
+    @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
-    lateinit var clubType: ClubType
+    lateinit var type: ClubType
 }

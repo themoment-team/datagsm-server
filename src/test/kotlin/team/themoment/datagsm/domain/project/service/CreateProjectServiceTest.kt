@@ -42,9 +42,9 @@ class CreateProjectServiceTest :
 
                     val ownerClub =
                         ClubJpaEntity().apply {
-                            clubId = 1L
-                            clubName = "SW개발동아리"
-                            clubType = ClubType.MAJOR_CLUB
+                            id = 1L
+                            name = "SW개발동아리"
+                            type = ClubType.MAJOR_CLUB
                         }
 
                     val savedProject =
@@ -140,9 +140,9 @@ class CreateProjectServiceTest :
 
                     val ownerClub =
                         ClubJpaEntity().apply {
-                            clubId = 2L
-                            clubName = "자율동아리"
-                            clubType = ClubType.AUTONOMOUS_CLUB
+                            id = 2L
+                            name = "자율동아리"
+                            type = ClubType.AUTONOMOUS_CLUB
                         }
 
                     val savedProject =

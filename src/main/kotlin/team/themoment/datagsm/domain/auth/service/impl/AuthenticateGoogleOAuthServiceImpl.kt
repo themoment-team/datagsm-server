@@ -47,11 +47,11 @@ class AuthenticateGoogleOAuthServiceImpl(
                 .orElseGet {
                     val newAccount = AccountJpaEntity.create(userInfo.email)
                     val student = studentJpaRepository.findByStudentEmail(userInfo.email).orElse(null)
-                    newAccount.accountStudent = student
+                    newAccount.student = student
                     accountJpaRepository.save(newAccount)
                 }
 
-        val accessToken = jwtProvider.generateAccessToken(userInfo.email, account.accountRole)
+        val accessToken = jwtProvider.generateAccessToken(userInfo.email, account.role)
         val refreshToken = jwtProvider.generateRefreshToken(userInfo.email)
 
         refreshTokenRedisRepository.deleteByEmail(userInfo.email)

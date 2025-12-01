@@ -35,7 +35,7 @@ class ModifyProjectServiceImpl(
 
         project.projectDescription = reqDto.projectDescription
 
-        if (reqDto.projectOwnerClubId != project.projectOwnerClub.clubId) {
+        if (reqDto.projectOwnerClubId != project.projectOwnerClub.id) {
             val ownerClub =
                 clubJpaRepository
                     .findById(reqDto.projectOwnerClubId)
@@ -54,9 +54,9 @@ class ModifyProjectServiceImpl(
             projectDescription = project.projectDescription,
             projectOwnerClub =
                 ClubResDto(
-                    clubId = project.projectOwnerClub.clubId!!,
-                    clubName = project.projectOwnerClub.clubName,
-                    clubType = project.projectOwnerClub.clubType,
+                    clubId = project.projectOwnerClub.id!!,
+                    clubName = project.projectOwnerClub.name,
+                    clubType = project.projectOwnerClub.type,
                 ),
         )
     }

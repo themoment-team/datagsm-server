@@ -22,15 +22,15 @@ class CreateClubServiceImpl(
 
         val clubEntity =
             ClubJpaEntity().apply {
-                clubName = clubReqDto.clubName
-                clubType = clubReqDto.clubType
+                name = clubReqDto.clubName
+                type = clubReqDto.clubType
             }
         val savedClubEntity = clubJpaRepository.save(clubEntity)
 
         return ClubResDto(
-            clubId = savedClubEntity.clubId!!,
-            clubName = savedClubEntity.clubName,
-            clubType = savedClubEntity.clubType,
+            clubId = savedClubEntity.id!!,
+            clubName = savedClubEntity.name,
+            clubType = savedClubEntity.type,
         )
     }
 }

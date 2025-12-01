@@ -23,32 +23,32 @@ import java.time.LocalDateTime
 class AccountJpaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "account_id")
-    var accountId: Long? = null
+    @Column(name = "id")
+    var id: Long? = null
 
-    @Column(name = "account_email", nullable = false, unique = true)
-    lateinit var accountEmail: String
+    @Column(name = "email", nullable = false, unique = true)
+    lateinit var email: String
 
-    @Column(name = "account_role", nullable = false)
+    @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
-    var accountRole: AccountRole = AccountRole.USER
+    var role: AccountRole = AccountRole.USER
 
     @OneToOne
-    @JoinColumn(name = "account_student_id", nullable = true, referencedColumnName = "student_id")
-    var accountStudent: StudentJpaEntity? = null
+    @JoinColumn(name = "student_id", nullable = true, referencedColumnName = "student_id")
+    var student: StudentJpaEntity? = null
 
     @CreationTimestamp
-    @Column(name = "account_created_at", nullable = false, updatable = false)
-    var accountCreatedAt: LocalDateTime? = null
+    @Column(name = "created_at", nullable = false, updatable = false)
+    var createdAt: LocalDateTime? = null
 
     @UpdateTimestamp
-    @Column(name = "account_updated_at", nullable = false)
-    var accountUpdatedAt: LocalDateTime? = null
+    @Column(name = "updated_at", nullable = false)
+    var updatedAt: LocalDateTime? = null
 
     companion object {
         fun create(email: String): AccountJpaEntity =
             AccountJpaEntity().apply {
-                this.accountEmail = email
+                this.email = email
             }
     }
 }

@@ -30,9 +30,9 @@ class QueryProjectServiceTest :
 
                 val testClub =
                     ClubJpaEntity().apply {
-                        clubId = 1L
-                        clubName = "SW개발동아리"
-                        clubType = ClubType.MAJOR_CLUB
+                        id = 1L
+                        name = "SW개발동아리"
+                        type = ClubType.MAJOR_CLUB
                     }
 
                 val testProject =
@@ -202,9 +202,9 @@ class QueryProjectServiceTest :
                 context("여러 프로젝트를 페이징하여 검색할 때") {
                     val club2 =
                         ClubJpaEntity().apply {
-                            clubId = 2L
-                            clubName = "자율동아리"
-                            clubType = ClubType.AUTONOMOUS_CLUB
+                            id = 2L
+                            name = "자율동아리"
+                            type = ClubType.AUTONOMOUS_CLUB
                         }
 
                     val project2 =
@@ -256,9 +256,9 @@ class QueryProjectServiceTest :
                 context("다양한 동아리 타입의 프로젝트를 검색할 때") {
                     val jobClub =
                         ClubJpaEntity().apply {
-                            clubId = 3L
-                            clubName = "취업동아리"
-                            clubType = ClubType.JOB_CLUB
+                            id = 3L
+                            name = "취업동아리"
+                            type = ClubType.JOB_CLUB
                         }
 
                     val jobProject =
