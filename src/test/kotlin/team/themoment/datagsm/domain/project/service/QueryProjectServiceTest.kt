@@ -70,12 +70,12 @@ class QueryProjectServiceTest :
                         result.projects.size shouldBe 1
 
                         val project = result.projects[0]
-                        project.projectId shouldBe 1L
-                        project.projectName shouldBe "DataGSM 프로젝트"
-                        project.projectDescription shouldBe "학교 데이터를 제공하는 API 서비스"
-                        project.projectOwnerClub.clubId shouldBe 1L
-                        project.projectOwnerClub.clubName shouldBe "SW개발동아리"
-                        project.projectOwnerClub.clubType shouldBe ClubType.MAJOR_CLUB
+                        project.id shouldBe 1L
+                        project.name shouldBe "DataGSM 프로젝트"
+                        project.description shouldBe "학교 데이터를 제공하는 API 서비스"
+                        project.club.id shouldBe 1L
+                        project.club.name shouldBe "SW개발동아리"
+                        project.club.type shouldBe ClubType.MAJOR_CLUB
 
                         verify(exactly = 1) {
                             mockProjectRepository.searchProjectWithPaging(
@@ -111,7 +111,7 @@ class QueryProjectServiceTest :
                             )
 
                         result.totalElements shouldBe 1L
-                        result.projects[0].projectName shouldBe "DataGSM 프로젝트"
+                        result.projects[0].name shouldBe "DataGSM 프로젝트"
                     }
                 }
 
@@ -138,8 +138,8 @@ class QueryProjectServiceTest :
                             )
 
                         result.totalElements shouldBe 1L
-                        result.projects[0].projectOwnerClub.clubId shouldBe 1L
-                        result.projects[0].projectOwnerClub.clubName shouldBe "SW개발동아리"
+                        result.projects[0].club.id shouldBe 1L
+                        result.projects[0].club.name shouldBe "SW개발동아리"
                     }
                 }
 
@@ -166,8 +166,8 @@ class QueryProjectServiceTest :
                             )
 
                         result.totalElements shouldBe 1L
-                        result.projects[0].projectName shouldBe "DataGSM 프로젝트"
-                        result.projects[0].projectOwnerClub.clubId shouldBe 1L
+                        result.projects[0].name shouldBe "DataGSM 프로젝트"
+                        result.projects[0].club.id shouldBe 1L
                     }
                 }
 
@@ -239,8 +239,8 @@ class QueryProjectServiceTest :
                         result.totalElements shouldBe 2L
                         result.totalPages shouldBe 1
                         result.projects.size shouldBe 2
-                        result.projects[0].projectName shouldBe "DataGSM 프로젝트"
-                        result.projects[1].projectName shouldBe "모바일앱 프로젝트"
+                        result.projects[0].name shouldBe "DataGSM 프로젝트"
+                        result.projects[1].name shouldBe "모바일앱 프로젝트"
 
                         verify(exactly = 1) {
                             mockProjectRepository.searchProjectWithPaging(
@@ -291,8 +291,8 @@ class QueryProjectServiceTest :
                             )
 
                         result.totalElements shouldBe 1L
-                        result.projects[0].projectOwnerClub.clubType shouldBe ClubType.JOB_CLUB
-                        result.projects[0].projectOwnerClub.clubName shouldBe "취업동아리"
+                        result.projects[0].club.type shouldBe ClubType.JOB_CLUB
+                        result.projects[0].club.name shouldBe "취업동아리"
                     }
                 }
             }

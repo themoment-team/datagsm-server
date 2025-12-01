@@ -7,7 +7,7 @@ import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 
 data class StudentResDto(
     @param:Schema(description = "학생 ID", example = "1")
-    val studentId: Long,
+    val id: Long,
     @param:Schema(description = "이름", example = "홍길동")
     val name: String,
     @param:Schema(description = "성별", example = "MALE")

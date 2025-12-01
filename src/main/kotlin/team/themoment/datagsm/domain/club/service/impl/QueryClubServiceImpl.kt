@@ -35,9 +35,9 @@ class QueryClubServiceImpl(
             clubs =
                 clubPage.content.map { entity ->
                     ClubResDto(
-                        clubId = entity.id!!,
-                        clubName = entity.name,
-                        clubType = entity.type,
+                        id = entity.id!!,
+                        name = entity.name,
+                        type = entity.type,
                     )
                 },
         )

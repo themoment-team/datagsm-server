@@ -42,13 +42,13 @@ class ModifyClubServiceTest :
                 context("이름을 다른 값으로 변경할 때") {
                     val req =
                         ClubReqDto(
-                            clubName = "새이름",
-                            clubType = ClubType.JOB_CLUB,
+                            name = "새이름",
+                            type = ClubType.JOB_CLUB,
                         )
 
                     beforeEach {
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
-                        every { mockClubRepository.existsByClubNameAndClubIdNot(req.clubName, clubId) } returns false
+                        every { mockClubRepository.existsByClubNameAndClubIdNot(req.name, clubId) } returns false
                         every { mockClubRepository.save(any()) } answers {
                             val e = firstArg<ClubJpaEntity>()
                             e
@@ -58,19 +58,19 @@ class ModifyClubServiceTest :
                     it("업데이트된 정보가 반환되어야 한다") {
                         val res = modifyClubService.execute(clubId, req)
 
-                        res.clubName shouldBe req.clubName
-                        res.clubType shouldBe req.clubType
+                        res.name shouldBe req.name
+                        res.type shouldBe req.type
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
-                        verify(exactly = 1) { mockClubRepository.existsByClubNameAndClubIdNot(req.clubName, clubId) }
+                        verify(exactly = 1) { mockClubRepository.existsByClubNameAndClubIdNot(req.name, clubId) }
                     }
                 }
 
                 context("이름을 기존과 동일하게 두고 설명/타입만 변경할 때") {
                     val req =
                         ClubReqDto(
-                            clubName = "기존동아리",
-                            clubType = ClubType.AUTONOMOUS_CLUB,
+                            name = "기존동아리",
+                            type = ClubType.AUTONOMOUS_CLUB,
                         )
 
                     beforeEach {
@@ -80,8 +80,8 @@ class ModifyClubServiceTest :
                     it("중복 이름 검사 없이 저장되어야 한다") {
                         val res = modifyClubService.execute(clubId, req)
 
-                        res.clubName shouldBe req.clubName
-                        res.clubType shouldBe req.clubType
+                        res.name shouldBe req.name
+                        res.type shouldBe req.type
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
                         verify(exactly = 0) { mockClubRepository.existsByClubNameAndClubIdNot(any(), any()) }
@@ -91,13 +91,13 @@ class ModifyClubServiceTest :
                 context("중복된 이름으로 변경 시도할 때") {
                     val req =
                         ClubReqDto(
-                            clubName = "기존있는이름",
-                            clubType = ClubType.MAJOR_CLUB,
+                            name = "기존있는이름",
+                            type = ClubType.MAJOR_CLUB,
                         )
 
                     beforeEach {
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
-                        every { mockClubRepository.existsByClubNameAndClubIdNot(req.clubName, clubId) } returns true
+                        every { mockClubRepository.existsByClubNameAndClubIdNot(req.name, clubId) } returns true
                     }
 
                     it("ExpectedException이 발생해야 한다") {
@@ -105,10 +105,10 @@ class ModifyClubServiceTest :
                             shouldThrow<ExpectedException> {
                                 modifyClubService.execute(clubId, req)
                             }
-                        ex.message shouldBe "이미 존재하는 동아리 이름입니다: ${req.clubName}"
+                        ex.message shouldBe "이미 존재하는 동아리 이름입니다: ${req.name}"
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
-                        verify(exactly = 1) { mockClubRepository.existsByClubNameAndClubIdNot(req.clubName, clubId) }
+                        verify(exactly = 1) { mockClubRepository.existsByClubNameAndClubIdNot(req.name, clubId) }
                         verify(exactly = 0) { mockClubRepository.save(any()) }
                     }
                 }
@@ -116,8 +116,8 @@ class ModifyClubServiceTest :
                 context("존재하지 않는 동아리 ID로 수정할 때") {
                     val req =
                         ClubReqDto(
-                            clubName = "아무이름",
-                            clubType = ClubType.MAJOR_CLUB,
+                            name = "아무이름",
+                            type = ClubType.MAJOR_CLUB,
                         )
 
                     beforeEach {

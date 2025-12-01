@@ -5,9 +5,9 @@ import team.themoment.datagsm.domain.club.entity.constant.ClubType
 
 data class ClubResDto(
     @param:Schema(description = "동아리 ID", example = "1")
-    val clubId: Long,
+    val id: Long,
     @param:Schema(description = "동아리 이름", example = "SW개발동아리")
-    val clubName: String,
+    val name: String,
     @param:Schema(description = "동아리 종류", example = "MAJOR")
-    val clubType: ClubType,
+    val type: ClubType,
 )

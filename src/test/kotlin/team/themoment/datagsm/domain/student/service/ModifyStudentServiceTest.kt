@@ -71,7 +71,7 @@ class ModifyStudentServiceTest :
                         existingStudent.name = updateRequest.name!!
                         val result = modifyStudentService.execute(studentId, updateRequest)
 
-                        result.studentId shouldBe studentId
+                        result.id shouldBe studentId
                         result.name shouldBe "수정된이름"
 
                         verify(exactly = 1) { mockStudentRepository.findById(studentId) }

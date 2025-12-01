@@ -85,7 +85,7 @@ class QueryStudentServiceTest :
                         result.students.size shouldBe 1
 
                         val student = result.students[0]
-                        student.studentId shouldBe 1L
+                        student.id shouldBe 1L
                         student.name shouldBe "홍길동"
                         student.sex shouldBe Sex.MAN
                         student.email shouldBe "hong@gsm.hs.kr"

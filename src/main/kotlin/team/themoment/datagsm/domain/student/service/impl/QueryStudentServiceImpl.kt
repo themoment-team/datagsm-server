@@ -50,7 +50,7 @@ class QueryStudentServiceImpl(
             students =
                 studentPage.content.map { entity ->
                     StudentResDto(
-                        studentId = entity.id!!,
+                        id = entity.id!!,
                         name = entity.name,
                         sex = entity.sex,
                         email = entity.email,

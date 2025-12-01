@@ -45,7 +45,7 @@ class CreateStudentServiceImpl(
         val savedStudent = studentJpaRepository.save(studentEntity)
 
         return StudentResDto(
-            studentId = savedStudent.id!!,
+            id = savedStudent.id!!,
             name = savedStudent.name,
             sex = savedStudent.sex,
             email = savedStudent.email,

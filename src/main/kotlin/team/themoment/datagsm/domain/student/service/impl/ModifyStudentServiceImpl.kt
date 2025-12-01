@@ -60,7 +60,7 @@ class ModifyStudentServiceImpl(
             student.dormitoryRoomNumber = DormitoryRoomNumber(it)
         }
         return StudentResDto(
-            studentId = student.id!!,
+            id = student.id!!,
             name = student.name,
             sex = student.sex,
             email = student.email,

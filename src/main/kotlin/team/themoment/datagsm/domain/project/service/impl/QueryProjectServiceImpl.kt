@@ -35,14 +35,14 @@ class QueryProjectServiceImpl(
             projects =
                 projectPage.content.map { entity ->
                     ProjectResDto(
-                        projectId = entity.id!!,
-                        projectName = entity.name,
-                        projectDescription = entity.description,
-                        projectOwnerClub =
+                        id = entity.id!!,
+                        name = entity.name,
+                        description = entity.description,
+                        club =
                             ClubResDto(
-                                clubId = entity.ownerClub.id!!,
-                                clubName = entity.ownerClub.name,
-                                clubType = entity.ownerClub.type,
+                                id = entity.ownerClub.id!!,
+                                name = entity.ownerClub.name,
+                                type = entity.ownerClub.type,
                             ),
                     )
                 },
