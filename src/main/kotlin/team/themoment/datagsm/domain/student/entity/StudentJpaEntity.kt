@@ -25,45 +25,46 @@ import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 class StudentJpaEntity {
     @field:Id
     @field:GeneratedValue(strategy = GenerationType.IDENTITY)
-    @field:Column(name = "student_id")
-    var studentId: Long? = null
+    @field:Column(name = "id")
+    var id: Long? = null
 
-    @field:Column(name = "student_name", nullable = false, length = 10)
-    lateinit var studentName: String
+    @field:Column(name = "name", nullable = false, length = 10)
+    lateinit var name: String
 
     @field:Embedded
+    @field:Column(name = "student_number", nullable = false, unique = true)
     lateinit var studentNumber: StudentNumber
 
-    @field:Column(name = "student_email", nullable = false, unique = true, length = 25)
-    lateinit var studentEmail: String
+    @field:Column(name = "email", nullable = false, unique = true, length = 25)
+    lateinit var email: String
 
-    @field:Column(name = "student_major", nullable = false)
+    @field:Column(name = "major", nullable = false)
     @field:Enumerated(EnumType.STRING)
-    lateinit var studentMajor: Major
+    lateinit var major: Major
 
-    @field:JoinColumn(name = "student_major_club_id", nullable = true, referencedColumnName = "club_id")
+    @field:JoinColumn(name = "major_club_id", nullable = true, referencedColumnName = "club_id")
     @field:ManyToOne(optional = true)
-    lateinit var studentMajorClub: ClubJpaEntity
+    lateinit var majorClub: ClubJpaEntity
 
     @field:ManyToOne(optional = true)
-    @field:JoinColumn(name = "student_job_club_id", nullable = true, referencedColumnName = "club_id")
-    lateinit var studentJobClub: ClubJpaEntity
+    @field:JoinColumn(name = "job_club_id", nullable = true, referencedColumnName = "club_id")
+    lateinit var jobClub: ClubJpaEntity
 
-    @field:JoinColumn(name = "student_autonomous_club_id", nullable = true, referencedColumnName = "club_id")
+    @field:JoinColumn(name = "autonomous_club_id", nullable = true, referencedColumnName = "club_id")
     @field:ManyToOne(optional = true)
-    lateinit var studentAutonomousClub: ClubJpaEntity
+    lateinit var autonomousClub: ClubJpaEntity
 
     @field:Embedded
-    lateinit var studentDormitoryRoomNumber: DormitoryRoomNumber
+    lateinit var dormitoryRoomNumber: DormitoryRoomNumber
 
-    @field:Column(name = "student_role", nullable = false)
+    @field:Column(name = "role", nullable = false)
     @field:Enumerated(EnumType.STRING)
-    var studentRole: StudentRole = StudentRole.GENERAL_STUDENT
+    var role: StudentRole = StudentRole.GENERAL_STUDENT
 
-    @field:Column(name = "student_is_leave_school", nullable = false)
-    var studentIsLeaveSchool: Boolean = false
+    @field:Column(name = "is_leave_school", nullable = false)
+    var isLeaveSchool: Boolean = false
 
-    @field:Column(name = "student_sex", nullable = false)
+    @field:Column(name = "sex", nullable = false)
     @field:Enumerated(EnumType.STRING)
-    lateinit var studentSex: Sex
+    lateinit var sex: Sex
 }

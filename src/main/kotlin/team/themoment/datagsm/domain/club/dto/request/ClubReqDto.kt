@@ -9,8 +9,8 @@ data class ClubReqDto(
     @field:NotBlank
     @field:Size(max = 30)
     @param:Schema(description = "동아리 이름", example = "SW개발동아리", maxLength = 30)
-    val clubName: String,
+    val name: String,
     @field:NotBlank
     @param:Schema(description = "동아리 종류", example = "MAJOR")
-    val clubType: ClubType,
+    val type: ClubType,
 )

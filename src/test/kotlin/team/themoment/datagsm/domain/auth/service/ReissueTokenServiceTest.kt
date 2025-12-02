@@ -161,7 +161,7 @@ class ReissueTokenServiceTest :
 
                     val account =
                         AccountJpaEntity.create(email).apply {
-                            accountId = 1L
+                            id = 1L
                         }
 
                     beforeEach {
@@ -203,15 +203,15 @@ class ReissueTokenServiceTest :
 
                     val student =
                         StudentJpaEntity().apply {
-                            studentId = 1L
-                            studentEmail = email
-                            studentRole = StudentRole.STUDENT_COUNCIL
+                            id = 1L
+                            this.email = email
+                            role = StudentRole.STUDENT_COUNCIL
                         }
 
                     val account =
                         AccountJpaEntity.create(email).apply {
-                            accountId = 1L
-                            accountStudent = student
+                            id = 1L
+                            this.student = student
                         }
 
                     beforeEach {

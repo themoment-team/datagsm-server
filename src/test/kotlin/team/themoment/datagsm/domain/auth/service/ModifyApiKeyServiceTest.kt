@@ -42,8 +42,8 @@ class ModifyApiKeyServiceTest :
 
                 val mockAccount =
                     AccountJpaEntity().apply {
-                        accountId = 1L
-                        accountEmail = "test@gsm.hs.kr"
+                        id = 1L
+                        email = "test@gsm.hs.kr"
                     }
 
                 beforeEach {
@@ -78,9 +78,9 @@ class ModifyApiKeyServiceTest :
                     val expiresAt = now.plusDays(20)
                     val apiKey =
                         ApiKey().apply {
-                            apiKeyId = 1L
-                            apiKeyValue = UUID.randomUUID()
-                            apiKeyAccount = mockAccount
+                            id = 1L
+                            value = UUID.randomUUID()
+                            account = mockAccount
                             createdAt = now.minusDays(10)
                             updatedAt = now.minusDays(10)
                             this.expiresAt = expiresAt
@@ -110,9 +110,9 @@ class ModifyApiKeyServiceTest :
                     val expiresAt = now.minusDays(20)
                     val apiKey =
                         ApiKey().apply {
-                            apiKeyId = 1L
-                            apiKeyValue = UUID.randomUUID()
-                            apiKeyAccount = mockAccount
+                            id = 1L
+                            value = UUID.randomUUID()
+                            account = mockAccount
                             createdAt = now.minusDays(50)
                             updatedAt = now.minusDays(50)
                             this.expiresAt = expiresAt
@@ -144,9 +144,9 @@ class ModifyApiKeyServiceTest :
                     val oldApiKeyValue = UUID.randomUUID()
                     val apiKey =
                         ApiKey().apply {
-                            apiKeyId = 1L
-                            apiKeyValue = oldApiKeyValue
-                            apiKeyAccount = mockAccount
+                            id = 1L
+                            value = oldApiKeyValue
+                            account = mockAccount
                             createdAt = now.minusDays(20)
                             updatedAt = now.minusDays(20)
                             this.expiresAt = expiresAt
@@ -175,9 +175,9 @@ class ModifyApiKeyServiceTest :
                     val oldApiKeyValue = UUID.randomUUID()
                     val apiKey =
                         ApiKey().apply {
-                            apiKeyId = 1L
-                            apiKeyValue = oldApiKeyValue
-                            apiKeyAccount = mockAccount
+                            id = 1L
+                            value = oldApiKeyValue
+                            account = mockAccount
                             createdAt = now.minusDays(35)
                             updatedAt = now.minusDays(35)
                             this.expiresAt = expiresAt
@@ -192,7 +192,7 @@ class ModifyApiKeyServiceTest :
                         val result = modifyApiKeyService.execute()
 
                         result.apiKey shouldBe oldApiKeyValue
-                        apiKey.apiKeyValue shouldBe oldApiKeyValue
+                        apiKey.value shouldBe oldApiKeyValue
                         apiKey.expiresAt shouldNotBe expiresAt
 
                         verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
@@ -206,9 +206,9 @@ class ModifyApiKeyServiceTest :
                     val expiresAt = now.plusDays(15)
                     val apiKey =
                         ApiKey().apply {
-                            apiKeyId = 1L
-                            apiKeyValue = UUID.randomUUID()
-                            apiKeyAccount = mockAccount
+                            id = 1L
+                            value = UUID.randomUUID()
+                            account = mockAccount
                             createdAt = now.minusDays(15)
                             updatedAt = now.minusDays(15)
                             this.expiresAt = expiresAt
@@ -234,9 +234,9 @@ class ModifyApiKeyServiceTest :
                     val expiresAt = now.minusDays(15)
                     val apiKey =
                         ApiKey().apply {
-                            apiKeyId = 1L
-                            apiKeyValue = UUID.randomUUID()
-                            apiKeyAccount = mockAccount
+                            id = 1L
+                            value = UUID.randomUUID()
+                            account = mockAccount
                             createdAt = now.minusDays(45)
                             updatedAt = now.minusDays(45)
                             this.expiresAt = expiresAt

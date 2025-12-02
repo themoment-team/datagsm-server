@@ -16,21 +16,21 @@ class CreateClubServiceImpl(
     private final val clubJpaRepository: ClubJpaRepository,
 ) : CreateClubService {
     override fun execute(clubReqDto: ClubReqDto): ClubResDto {
-        if (clubJpaRepository.existsByClubName(clubReqDto.clubName)) {
-            throw ExpectedException("이미 존재하는 동아리 이름입니다: ${clubReqDto.clubName}", HttpStatus.CONFLICT)
+        if (clubJpaRepository.existsByClubName(clubReqDto.name)) {
+            throw ExpectedException("이미 존재하는 동아리 이름입니다: ${clubReqDto.name}", HttpStatus.CONFLICT)
         }
 
         val clubEntity =
             ClubJpaEntity().apply {
-                clubName = clubReqDto.clubName
-                clubType = clubReqDto.clubType
+                name = clubReqDto.name
+                type = clubReqDto.type
             }
         val savedClubEntity = clubJpaRepository.save(clubEntity)
 
         return ClubResDto(
-            clubId = savedClubEntity.clubId!!,
-            clubName = savedClubEntity.clubName,
-            clubType = savedClubEntity.clubType,
+            id = savedClubEntity.id!!,
+            name = savedClubEntity.name,
+            type = savedClubEntity.type,
         )
     }
 }

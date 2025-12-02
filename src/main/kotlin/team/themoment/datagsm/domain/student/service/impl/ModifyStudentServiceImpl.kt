@@ -3,7 +3,7 @@ package team.themoment.datagsm.domain.student.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.domain.student.dto.request.StudentUpdateReqDto
+import team.themoment.datagsm.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
 import team.themoment.datagsm.domain.student.entity.constant.Major
@@ -19,23 +19,23 @@ class ModifyStudentServiceImpl(
 ) : ModifyStudentService {
     override fun execute(
         studentId: Long,
-        reqDto: StudentUpdateReqDto,
+        reqDto: UpdateStudentReqDto,
     ): StudentResDto {
         val student =
             studentJpaRepository
                 .findById(studentId)
                 .orElseThrow { ExpectedException("학생을 찾을 수 없습니다. studentId: $studentId", HttpStatus.NOT_FOUND) }
         reqDto.email?.let { email ->
-            if (studentJpaRepository.existsByStudentEmailAndNotStudentId(email, studentId)) {
+            if (studentJpaRepository.existsByStudentEmailAndNotId(email, studentId)) {
                 throw ExpectedException("이미 존재하는 이메일입니다: $email", HttpStatus.CONFLICT)
             }
-            student.studentEmail = email
+            student.email = email
         }
         if (reqDto.grade != null || reqDto.classNum != null || reqDto.number != null) {
             val newGrade = reqDto.grade ?: student.studentNumber.studentGrade
             val newClassNum = reqDto.classNum ?: student.studentNumber.studentClass
             val newNumber = reqDto.number ?: student.studentNumber.studentNumber
-            if (studentJpaRepository.existsByStudentNumberAndNotStudentId(
+            if (studentJpaRepository.existsByStudentNumberAndNotId(
                     newGrade,
                     newClassNum,
                     newNumber,
@@ -49,30 +49,30 @@ class ModifyStudentServiceImpl(
             }
             student.studentNumber = StudentNumber(newGrade, newClassNum, newNumber)
             if (reqDto.classNum != null) {
-                student.studentMajor = Major.fromClassNum(newClassNum)
+                student.major = Major.fromClassNum(newClassNum)
                     ?: throw ExpectedException("유효하지 않은 학급입니다: $newClassNum", HttpStatus.BAD_REQUEST)
             }
         }
-        reqDto.name?.let { student.studentName = it }
-        reqDto.sex?.let { student.studentSex = it }
-        reqDto.role?.let { student.studentRole = it }
+        reqDto.name?.let { student.name = it }
+        reqDto.sex?.let { student.sex = it }
+        reqDto.role?.let { student.role = it }
         reqDto.dormitoryRoomNumber?.let {
-            student.studentDormitoryRoomNumber = DormitoryRoomNumber(it)
+            student.dormitoryRoomNumber = DormitoryRoomNumber(it)
         }
         return StudentResDto(
-            studentId = student.studentId!!,
-            name = student.studentName,
-            sex = student.studentSex,
-            email = student.studentEmail,
+            id = student.id!!,
+            name = student.name,
+            sex = student.sex,
+            email = student.email,
             grade = student.studentNumber.studentGrade,
             classNum = student.studentNumber.studentClass,
             number = student.studentNumber.studentNumber,
             studentNumber = student.studentNumber.fullStudentNumber,
-            major = student.studentMajor,
-            role = student.studentRole,
-            dormitoryFloor = student.studentDormitoryRoomNumber.dormitoryRoomFloor,
-            dormitoryRoom = student.studentDormitoryRoomNumber.dormitoryRoomNumber,
-            isLeaveSchool = student.studentIsLeaveSchool,
+            major = student.major,
+            role = student.role,
+            dormitoryFloor = student.dormitoryRoomNumber.dormitoryRoomFloor,
+            dormitoryRoom = student.dormitoryRoomNumber.dormitoryRoomNumber,
+            isLeaveSchool = student.isLeaveSchool,
         )
     }
 }

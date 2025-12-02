@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.domain.student.dto.request.StudentCreateReqDto
-import team.themoment.datagsm.domain.student.dto.request.StudentUpdateReqDto
+import team.themoment.datagsm.domain.student.dto.request.CreateStudentReqDto
+import team.themoment.datagsm.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.domain.student.dto.response.StudentListResDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.domain.student.entity.constant.Sex
@@ -80,7 +80,7 @@ class StudentController(
     )
     @PostMapping
     fun createStudent(
-        @RequestBody @Valid reqDto: StudentCreateReqDto,
+        @RequestBody @Valid reqDto: CreateStudentReqDto,
     ): StudentResDto = createStudentService.execute(reqDto)
 
     @Operation(summary = "학생 정보 수정", description = "기존 학생의 정보를 수정합니다.")
@@ -94,6 +94,6 @@ class StudentController(
     @PatchMapping("/{studentId}")
     fun updateStudent(
         @Parameter(description = "학생 ID") @PathVariable studentId: Long,
-        @RequestBody @Valid reqDto: StudentUpdateReqDto,
+        @RequestBody @Valid reqDto: UpdateStudentReqDto,
     ): StudentResDto = modifyStudentService.execute(studentId, reqDto)
 }

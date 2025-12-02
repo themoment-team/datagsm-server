@@ -8,5 +8,5 @@ import java.util.Optional
 interface StudentJpaRepository :
     JpaRepository<StudentJpaEntity, Long>,
     StudentJpaCustomRepository {
-    fun findByStudentEmail(email: String): Optional<StudentJpaEntity>
+    fun findByEmail(email: String): Optional<StudentJpaEntity>
 }

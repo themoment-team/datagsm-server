@@ -16,14 +16,14 @@ class ClubJpaCustomRepositoryImpl(
     private val jpaQueryFactory: JPAQueryFactory,
 ) : ClubJpaCustomRepository {
     override fun searchClubWithPaging(
-        clubId: Long?,
-        clubName: String?,
-        clubType: ClubType?,
+        id: Long?,
+        name: String?,
+        type: ClubType?,
         pageable: Pageable,
     ): Page<ClubJpaEntity> {
-        var searchResult = searchClubWithStartsWith(clubId, clubName, clubType, pageable)
+        var searchResult = searchClubWithStartsWith(id, name, type, pageable)
         if (searchResult.content.isEmpty()) {
-            searchResult = searchClubWithContains(clubId, clubName, clubType, pageable)
+            searchResult = searchClubWithContains(id, name, type, pageable)
         }
         return searchResult
     }
@@ -42,9 +42,9 @@ class ClubJpaCustomRepositoryImpl(
                     countExpression.`as`("count"),
                 ).from(clubJpaEntity)
                 .where(
-                    clubId?.let { clubJpaEntity.clubId.eq(it) },
-                    clubName?.let { clubJpaEntity.clubName.startsWith(it) },
-                    clubType?.let { clubJpaEntity.clubType.eq(it) },
+                    clubId?.let { clubJpaEntity.id.eq(it) },
+                    clubName?.let { clubJpaEntity.name.startsWith(it) },
+                    clubType?.let { clubJpaEntity.type.eq(it) },
                 ).offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
@@ -57,9 +57,9 @@ class ClubJpaCustomRepositoryImpl(
     }
 
     private fun searchClubWithContains(
-        clubId: Long?,
-        clubName: String?,
-        clubType: ClubType?,
+        id: Long?,
+        name: String?,
+        type: ClubType?,
         pageable: Pageable,
     ): Page<ClubJpaEntity> {
         val countExpression = Expressions.numberTemplate(Long::class.javaObjectType, "COUNT(*) OVER()")
@@ -70,9 +70,9 @@ class ClubJpaCustomRepositoryImpl(
                     countExpression.`as`("count"),
                 ).from(clubJpaEntity)
                 .where(
-                    clubId?.let { clubJpaEntity.clubId.eq(it) },
-                    clubName?.let { clubJpaEntity.clubName.contains(it) },
-                    clubType?.let { clubJpaEntity.clubType.eq(it) },
+                    id?.let { clubJpaEntity.id.eq(it) },
+                    name?.let { clubJpaEntity.name.contains(it) },
+                    type?.let { clubJpaEntity.type.eq(it) },
                 ).offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
