@@ -3,6 +3,8 @@ package team.themoment.datagsm.domain.student.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.domain.club.dto.response.ClubResDto
+import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.student.dto.request.CreateStudentReqDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
@@ -17,6 +19,7 @@ import team.themoment.datagsm.global.exception.error.ExpectedException
 @Transactional
 class CreateStudentServiceImpl(
     private final val studentJpaRepository: StudentJpaRepository,
+    private final val clubJpaRepository: ClubJpaRepository,
 ) : CreateStudentService {
     override fun execute(reqDto: CreateStudentReqDto): StudentResDto {
         if (studentJpaRepository.existsByEmail(reqDto.email)) {
@@ -40,6 +43,24 @@ class CreateStudentServiceImpl(
                     ?: throw ExpectedException("유효하지 않은 학급입니다: ${reqDto.classNum}", HttpStatus.BAD_REQUEST)
                 role = reqDto.role
                 dormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
+                majorClub =
+                    reqDto.majorClubId?.let {
+                        clubJpaRepository.findById(it).orElseThrow {
+                            ExpectedException("전공 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
+                        }
+                    }
+                jobClub =
+                    reqDto.jobClubId?.let {
+                        clubJpaRepository.findById(it).orElseThrow {
+                            ExpectedException("취업 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
+                        }
+                    }
+                autonomousClub =
+                    reqDto.autonomousClubId?.let {
+                        clubJpaRepository.findById(it).orElseThrow {
+                            ExpectedException("자율 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
+                        }
+                    }
             }
 
         val savedStudent = studentJpaRepository.save(studentEntity)
@@ -58,6 +79,9 @@ class CreateStudentServiceImpl(
             dormitoryFloor = savedStudent.dormitoryRoomNumber.dormitoryRoomFloor,
             dormitoryRoom = savedStudent.dormitoryRoomNumber.dormitoryRoomNumber,
             isLeaveSchool = savedStudent.isLeaveSchool,
+            majorClub = savedStudent.majorClub?.let { ClubResDto(id = it.id!!, name = it.name, type = it.type) },
+            jobClub = savedStudent.jobClub?.let { ClubResDto(id = it.id!!, name = it.name, type = it.type) },
+            autonomousClub = savedStudent.autonomousClub?.let { ClubResDto(id = it.id!!, name = it.name, type = it.type) },
         )
     }
 }

@@ -3,6 +3,8 @@ package team.themoment.datagsm.domain.student.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.domain.club.dto.response.ClubResDto
+import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
@@ -16,6 +18,7 @@ import team.themoment.datagsm.global.exception.error.ExpectedException
 @Transactional
 class ModifyStudentServiceImpl(
     private final val studentJpaRepository: StudentJpaRepository,
+    private final val clubJpaRepository: ClubJpaRepository,
 ) : ModifyStudentService {
     override fun execute(
         studentId: Long,
@@ -59,6 +62,24 @@ class ModifyStudentServiceImpl(
         reqDto.dormitoryRoomNumber?.let {
             student.dormitoryRoomNumber = DormitoryRoomNumber(it)
         }
+        reqDto.majorClubId?.let { clubId ->
+            student.majorClub =
+                clubJpaRepository.findById(clubId).orElseThrow {
+                    ExpectedException("전공 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
+                }
+        }
+        reqDto.jobClubId?.let { clubId ->
+            student.jobClub =
+                clubJpaRepository.findById(clubId).orElseThrow {
+                    ExpectedException("취업 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
+                }
+        }
+        reqDto.autonomousClubId?.let { clubId ->
+            student.autonomousClub =
+                clubJpaRepository.findById(clubId).orElseThrow {
+                    ExpectedException("자율 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
+                }
+        }
         return StudentResDto(
             id = student.id!!,
             name = student.name,
@@ -73,6 +94,9 @@ class ModifyStudentServiceImpl(
             dormitoryFloor = student.dormitoryRoomNumber.dormitoryRoomFloor,
             dormitoryRoom = student.dormitoryRoomNumber.dormitoryRoomNumber,
             isLeaveSchool = student.isLeaveSchool,
+            majorClub = student.majorClub?.let { ClubResDto(id = it.id!!, name = it.name, type = it.type) },
+            jobClub = student.jobClub?.let { ClubResDto(id = it.id!!, name = it.name, type = it.type) },
+            autonomousClub = student.autonomousClub?.let { ClubResDto(id = it.id!!, name = it.name, type = it.type) },
         )
     }
 }

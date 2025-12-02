@@ -44,15 +44,15 @@ class StudentJpaEntity {
 
     @field:JoinColumn(name = "major_club_id", nullable = true, referencedColumnName = "club_id")
     @field:ManyToOne(optional = true)
-    lateinit var majorClub: ClubJpaEntity
+    var majorClub: ClubJpaEntity? = null
 
     @field:ManyToOne(optional = true)
     @field:JoinColumn(name = "job_club_id", nullable = true, referencedColumnName = "club_id")
-    lateinit var jobClub: ClubJpaEntity
+    var jobClub: ClubJpaEntity? = null
 
     @field:JoinColumn(name = "autonomous_club_id", nullable = true, referencedColumnName = "club_id")
     @field:ManyToOne(optional = true)
-    lateinit var autonomousClub: ClubJpaEntity
+    var autonomousClub: ClubJpaEntity? = null
 
     @field:Embedded
     lateinit var dormitoryRoomNumber: DormitoryRoomNumber
