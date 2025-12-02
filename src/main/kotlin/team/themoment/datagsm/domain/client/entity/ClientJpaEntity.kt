@@ -26,7 +26,7 @@ class ClientJpaEntity {
 
     lateinit var clientName: String
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "owner_account_id", nullable = false)
     var owner: AccountJpaEntity? = null
 }
