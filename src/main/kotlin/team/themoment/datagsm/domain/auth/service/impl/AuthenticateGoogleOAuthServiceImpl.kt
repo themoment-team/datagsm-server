@@ -43,7 +43,7 @@ class AuthenticateGoogleOAuthServiceImpl(
 
         val account =
             accountJpaRepository
-                .findByAccountEmail(userInfo.email)
+                .findByEmail(userInfo.email)
                 .orElseGet {
                     val newAccount = AccountJpaEntity.create(userInfo.email)
                     val student = studentJpaRepository.findByEmail(userInfo.email).orElse(null)

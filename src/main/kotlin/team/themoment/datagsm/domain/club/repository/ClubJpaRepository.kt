@@ -7,9 +7,9 @@ import team.themoment.datagsm.domain.club.repository.custom.ClubJpaCustomReposit
 interface ClubJpaRepository :
     JpaRepository<ClubJpaEntity, Long>,
     ClubJpaCustomRepository {
-    fun existsByClubName(clubName: String): Boolean
+    fun existsByName(clubName: String): Boolean
 
-    fun existsByClubNameAndClubIdNot(
+    fun existsByNameAndIdNot(
         clubName: String,
         clubId: Long,
     ): Boolean

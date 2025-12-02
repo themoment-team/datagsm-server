@@ -60,7 +60,7 @@ class QueryApiKeyServiceTest :
                         }
 
                     beforeEach {
-                        every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.of(apiKey)
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                     }
 
                     it("API 키 정보를 반환해야 한다") {
@@ -70,13 +70,13 @@ class QueryApiKeyServiceTest :
                         result.expiresAt shouldBe expiresAt
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
-                        verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
+                        verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
                     }
                 }
 
                 context("API 키가 존재하지 않을 때") {
                     beforeEach {
-                        every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.empty()
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.empty()
                     }
 
                     it("404 ExpectedException이 발생해야 한다") {
@@ -89,7 +89,7 @@ class QueryApiKeyServiceTest :
                         exception.message shouldBe "API 키를 찾을 수 없습니다."
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
-                        verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
+                        verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
                     }
                 }
             }

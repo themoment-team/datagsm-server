@@ -42,7 +42,7 @@ class ReissueTokenServiceImpl(
 
         val account =
             accountJpaRepository
-                .findByAccountEmail(email)
+                .findByEmail(email)
                 .orElseThrow {
                     ExpectedException("계정을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
                 }

@@ -53,7 +53,7 @@ class CreateApiKeyServiceTest :
 
                 context("기존 API 키가 없을 때") {
                     beforeEach {
-                        every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.empty()
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.empty()
                         every { mockApiKeyRepository.save(any()) } answers {
                             val entity = firstArg<ApiKey>()
                             entity.apply { id = 1L }
@@ -67,7 +67,7 @@ class CreateApiKeyServiceTest :
                         result.expiresAt shouldNotBe null
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
-                        verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
+                        verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
                         verify(exactly = 1) { mockApiKeyRepository.save(any()) }
                     }
                 }
@@ -86,7 +86,7 @@ class CreateApiKeyServiceTest :
                         }
 
                     beforeEach {
-                        every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns
                             Optional.of(existingApiKey)
                     }
 
@@ -100,7 +100,7 @@ class CreateApiKeyServiceTest :
                         exception.message shouldBe "이미 API 키가 존재합니다."
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
-                        verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
+                        verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
                         verify(exactly = 0) { mockApiKeyRepository.save(any()) }
                     }
                 }
@@ -109,7 +109,7 @@ class CreateApiKeyServiceTest :
                     val beforeExecution = LocalDateTime.now()
 
                     beforeEach {
-                        every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.empty()
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.empty()
                         every { mockApiKeyRepository.save(any()) } answers {
                             val entity = firstArg<ApiKey>()
                             entity.apply { id = 1L }
@@ -134,7 +134,7 @@ class CreateApiKeyServiceTest :
                     lateinit var savedApiKey: ApiKey
 
                     beforeEach {
-                        every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.empty()
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.empty()
                         every { mockApiKeyRepository.save(any()) } answers {
                             savedApiKey = firstArg<ApiKey>()
                             savedApiKey.apply { id = 1L }

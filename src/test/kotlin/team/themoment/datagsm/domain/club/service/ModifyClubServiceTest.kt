@@ -48,7 +48,7 @@ class ModifyClubServiceTest :
 
                     beforeEach {
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
-                        every { mockClubRepository.existsByClubNameAndClubIdNot(req.name, clubId) } returns false
+                        every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockClubRepository.save(any()) } answers {
                             val e = firstArg<ClubJpaEntity>()
                             e
@@ -62,7 +62,7 @@ class ModifyClubServiceTest :
                         res.type shouldBe req.type
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
-                        verify(exactly = 1) { mockClubRepository.existsByClubNameAndClubIdNot(req.name, clubId) }
+                        verify(exactly = 1) { mockClubRepository.existsByNameAndIdNot(req.name, clubId) }
                     }
                 }
 
@@ -84,7 +84,7 @@ class ModifyClubServiceTest :
                         res.type shouldBe req.type
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
-                        verify(exactly = 0) { mockClubRepository.existsByClubNameAndClubIdNot(any(), any()) }
+                        verify(exactly = 0) { mockClubRepository.existsByNameAndIdNot(any(), any()) }
                     }
                 }
 
@@ -97,7 +97,7 @@ class ModifyClubServiceTest :
 
                     beforeEach {
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
-                        every { mockClubRepository.existsByClubNameAndClubIdNot(req.name, clubId) } returns true
+                        every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns true
                     }
 
                     it("ExpectedException이 발생해야 한다") {
@@ -108,7 +108,7 @@ class ModifyClubServiceTest :
                         ex.message shouldBe "이미 존재하는 동아리 이름입니다: ${req.name}"
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
-                        verify(exactly = 1) { mockClubRepository.existsByClubNameAndClubIdNot(req.name, clubId) }
+                        verify(exactly = 1) { mockClubRepository.existsByNameAndIdNot(req.name, clubId) }
                         verify(exactly = 0) { mockClubRepository.save(any()) }
                     }
                 }
