@@ -42,15 +42,15 @@ class StudentJpaEntity {
     @field:Enumerated(EnumType.STRING)
     lateinit var major: Major
 
-    @field:JoinColumn(name = "major_club_id", nullable = true, referencedColumnName = "club_id")
+    @field:JoinColumn(name = "major_club_id", nullable = true, referencedColumnName = "id")
     @field:ManyToOne(optional = true)
     var majorClub: ClubJpaEntity? = null
 
     @field:ManyToOne(optional = true)
-    @field:JoinColumn(name = "job_club_id", nullable = true, referencedColumnName = "club_id")
+    @field:JoinColumn(name = "job_club_id", nullable = true, referencedColumnName = "id")
     var jobClub: ClubJpaEntity? = null
 
-    @field:JoinColumn(name = "autonomous_club_id", nullable = true, referencedColumnName = "club_id")
+    @field:JoinColumn(name = "autonomous_club_id", nullable = true, referencedColumnName = "id")
     @field:ManyToOne(optional = true)
     var autonomousClub: ClubJpaEntity? = null
 

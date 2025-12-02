@@ -34,7 +34,7 @@ class AccountJpaEntity {
     var role: AccountRole = AccountRole.USER
 
     @OneToOne
-    @JoinColumn(name = "student_id", nullable = true, referencedColumnName = "student_id")
+    @JoinColumn(name = "student_id", nullable = true, referencedColumnName = "id")
     var student: StudentJpaEntity? = null
 
     @CreationTimestamp
