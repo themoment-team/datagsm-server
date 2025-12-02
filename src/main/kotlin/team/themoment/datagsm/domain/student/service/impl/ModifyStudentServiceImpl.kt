@@ -62,23 +62,21 @@ class ModifyStudentServiceImpl(
         reqDto.dormitoryRoomNumber?.let {
             student.dormitoryRoomNumber = DormitoryRoomNumber(it)
         }
+        val clubIds = listOfNotNull(reqDto.majorClubId, reqDto.jobClubId, reqDto.autonomousClubId)
+        val clubs =
+            if (clubIds.isNotEmpty()) {
+                clubJpaRepository.findAllById(clubIds).associateBy { it.id }
+            } else {
+                emptyMap()
+            }
         reqDto.majorClubId?.let { clubId ->
-            student.majorClub =
-                clubJpaRepository.findById(clubId).orElseThrow {
-                    ExpectedException("전공 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
-                }
+            student.majorClub = clubs[clubId] ?: throw ExpectedException("전공 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
         }
         reqDto.jobClubId?.let { clubId ->
-            student.jobClub =
-                clubJpaRepository.findById(clubId).orElseThrow {
-                    ExpectedException("취업 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
-                }
+            student.jobClub = clubs[clubId] ?: throw ExpectedException("취업 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
         }
         reqDto.autonomousClubId?.let { clubId ->
-            student.autonomousClub =
-                clubJpaRepository.findById(clubId).orElseThrow {
-                    ExpectedException("자율 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
-                }
+            student.autonomousClub = clubs[clubId] ?: throw ExpectedException("자율 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
         }
         return StudentResDto(
             id = student.id!!,
