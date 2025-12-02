@@ -6,7 +6,6 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
-import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.global.common.converter.StringListConverter
@@ -27,6 +26,6 @@ class ClientJpaEntity {
     lateinit var clientName: String
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "owner_account_id", nullable = false)
-    var owner: AccountJpaEntity? = null
+    @JoinColumn(name = "account_id", nullable = false)
+    var account: AccountJpaEntity? = null
 }
