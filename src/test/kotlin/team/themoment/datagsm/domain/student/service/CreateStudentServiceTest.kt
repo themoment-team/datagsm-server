@@ -7,6 +7,9 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.domain.club.entity.constant.ClubType
+import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.student.dto.request.CreateStudentReqDto
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
@@ -22,8 +25,9 @@ class CreateStudentServiceTest :
     DescribeSpec({
 
         val mockStudentRepository = mockk<StudentJpaRepository>()
+        val mockClubRepository = mockk<ClubJpaRepository>()
 
-        val createStudentService = CreateStudentServiceImpl(mockStudentRepository)
+        val createStudentService = CreateStudentServiceImpl(mockStudentRepository, mockClubRepository)
 
         afterEach {
             clearAllMocks()
@@ -399,6 +403,204 @@ class CreateStudentServiceTest :
                         result.major shouldBe Major.AI
                         result.classNum shouldBe 4
                         result.name shouldBe "4반학생"
+                    }
+                }
+
+                context("유효한 클럽 ID들과 함께 학생 생성 요청할 때") {
+                    val majorClub =
+                        ClubJpaEntity().apply {
+                            id = 1L
+                            name = "SW개발동아리"
+                            type = ClubType.MAJOR_CLUB
+                        }
+                    val jobClub =
+                        ClubJpaEntity().apply {
+                            id = 2L
+                            name = "취업동아리"
+                            type = ClubType.JOB_CLUB
+                        }
+                    val autonomousClub =
+                        ClubJpaEntity().apply {
+                            id = 3L
+                            name = "자율동아리"
+                            type = ClubType.AUTONOMOUS_CLUB
+                        }
+
+                    val createRequest =
+                        CreateStudentReqDto(
+                            name = "동아리학생",
+                            sex = Sex.WOMAN,
+                            email = "club@gsm.hs.kr",
+                            grade = 2,
+                            classNum = 1,
+                            number = 10,
+                            role = StudentRole.GENERAL_STUDENT,
+                            dormitoryRoomNumber = 210,
+                            majorClubId = 1L,
+                            jobClubId = 2L,
+                            autonomousClubId = 3L,
+                        )
+
+                    val savedStudent =
+                        StudentJpaEntity().apply {
+                            id = 1L
+                            name = createRequest.name
+                            sex = createRequest.sex
+                            email = createRequest.email
+                            studentNumber =
+                                StudentNumber(createRequest.grade, createRequest.classNum, createRequest.number)
+                            major = Major.SW_DEVELOPMENT
+                            role = createRequest.role
+                            dormitoryRoomNumber = DormitoryRoomNumber(createRequest.dormitoryRoomNumber)
+                            isLeaveSchool = false
+                            this.majorClub = majorClub
+                            this.jobClub = jobClub
+                            this.autonomousClub = autonomousClub
+                        }
+
+                    beforeEach {
+                        every { mockStudentRepository.existsByEmail(createRequest.email) } returns false
+                        every {
+                            mockStudentRepository.existsByStudentNumber(
+                                createRequest.grade,
+                                createRequest.classNum,
+                                createRequest.number,
+                            )
+                        } returns false
+                        every {
+                            mockClubRepository.findAllById(listOf(1L, 2L, 3L))
+                        } returns listOf(majorClub, jobClub, autonomousClub)
+                        every { mockStudentRepository.save(any()) } returns savedStudent
+                    }
+
+                    it("클럽 정보와 함께 학생이 생성되어야 한다") {
+                        val result = createStudentService.execute(createRequest)
+
+                        result.name shouldBe "동아리학생"
+                        result.majorClub?.id shouldBe 1L
+                        result.majorClub?.name shouldBe "SW개발동아리"
+                        result.jobClub?.id shouldBe 2L
+                        result.jobClub?.name shouldBe "취업동아리"
+                        result.autonomousClub?.id shouldBe 3L
+                        result.autonomousClub?.name shouldBe "자율동아리"
+
+                        verify(exactly = 1) {
+                            mockClubRepository.findAllById(listOf(1L, 2L, 3L))
+                        }
+                    }
+                }
+
+                context("존재하지 않는 전공 동아리 ID로 생성 요청할 때") {
+                    val createRequest =
+                        CreateStudentReqDto(
+                            name = "학생",
+                            sex = Sex.MAN,
+                            email = "test@gsm.hs.kr",
+                            grade = 1,
+                            classNum = 1,
+                            number = 1,
+                            role = StudentRole.GENERAL_STUDENT,
+                            dormitoryRoomNumber = 201,
+                            majorClubId = 999L,
+                        )
+
+                    beforeEach {
+                        every { mockStudentRepository.existsByEmail(createRequest.email) } returns false
+                        every {
+                            mockStudentRepository.existsByStudentNumber(
+                                createRequest.grade,
+                                createRequest.classNum,
+                                createRequest.number,
+                            )
+                        } returns false
+                        every { mockClubRepository.findAllById(listOf(999L)) } returns emptyList()
+                    }
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                createStudentService.execute(createRequest)
+                            }
+
+                        exception.message shouldBe "전공 동아리를 찾을 수 없습니다."
+
+                        verify(exactly = 1) { mockClubRepository.findAllById(listOf(999L)) }
+                    }
+                }
+
+                context("존재하지 않는 취업 동아리 ID로 생성 요청할 때") {
+                    val createRequest =
+                        CreateStudentReqDto(
+                            name = "학생",
+                            sex = Sex.MAN,
+                            email = "test@gsm.hs.kr",
+                            grade = 1,
+                            classNum = 1,
+                            number = 2,
+                            role = StudentRole.GENERAL_STUDENT,
+                            dormitoryRoomNumber = 202,
+                            jobClubId = 999L,
+                        )
+
+                    beforeEach {
+                        every { mockStudentRepository.existsByEmail(createRequest.email) } returns false
+                        every {
+                            mockStudentRepository.existsByStudentNumber(
+                                createRequest.grade,
+                                createRequest.classNum,
+                                createRequest.number,
+                            )
+                        } returns false
+                        every { mockClubRepository.findAllById(listOf(999L)) } returns emptyList()
+                    }
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                createStudentService.execute(createRequest)
+                            }
+
+                        exception.message shouldBe "취업 동아리를 찾을 수 없습니다."
+
+                        verify(exactly = 1) { mockClubRepository.findAllById(listOf(999L)) }
+                    }
+                }
+
+                context("존재하지 않는 자율 동아리 ID로 생성 요청할 때") {
+                    val createRequest =
+                        CreateStudentReqDto(
+                            name = "학생",
+                            sex = Sex.WOMAN,
+                            email = "test@gsm.hs.kr",
+                            grade = 1,
+                            classNum = 1,
+                            number = 3,
+                            role = StudentRole.GENERAL_STUDENT,
+                            dormitoryRoomNumber = 203,
+                            autonomousClubId = 999L,
+                        )
+
+                    beforeEach {
+                        every { mockStudentRepository.existsByEmail(createRequest.email) } returns false
+                        every {
+                            mockStudentRepository.existsByStudentNumber(
+                                createRequest.grade,
+                                createRequest.classNum,
+                                createRequest.number,
+                            )
+                        } returns false
+                        every { mockClubRepository.findAllById(listOf(999L)) } returns emptyList()
+                    }
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                createStudentService.execute(createRequest)
+                            }
+
+                        exception.message shouldBe "자율 동아리를 찾을 수 없습니다."
+
+                        verify(exactly = 1) { mockClubRepository.findAllById(listOf(999L)) }
                     }
                 }
             }

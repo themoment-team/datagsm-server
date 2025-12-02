@@ -6,6 +6,9 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.domain.club.entity.constant.ClubType
+import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
@@ -22,11 +25,13 @@ class ModifyStudentServiceTest :
     DescribeSpec({
 
         lateinit var mockStudentRepository: StudentJpaRepository
+        lateinit var mockClubRepository: ClubJpaRepository
         lateinit var modifyStudentService: ModifyStudentService
 
         beforeEach {
             mockStudentRepository = mockk<StudentJpaRepository>()
-            modifyStudentService = ModifyStudentServiceImpl(mockStudentRepository)
+            mockClubRepository = mockk<ClubJpaRepository>()
+            modifyStudentService = ModifyStudentServiceImpl(mockStudentRepository, mockClubRepository)
         }
 
         describe("ModifyStudentService 클래스의") {
@@ -470,6 +475,144 @@ class ModifyStudentServiceTest :
                                 studentId,
                             )
                         }
+                    }
+                }
+
+                context("유효한 클럽 ID로 동아리를 변경할 때") {
+                    val majorClub =
+                        ClubJpaEntity().apply {
+                            id = 10L
+                            name = "새로운전공동아리"
+                            type = ClubType.MAJOR_CLUB
+                        }
+                    val jobClub =
+                        ClubJpaEntity().apply {
+                            id = 20L
+                            name = "새로운취업동아리"
+                            type = ClubType.JOB_CLUB
+                        }
+
+                    val updateRequest =
+                        UpdateStudentReqDto(
+                            name = null,
+                            sex = null,
+                            email = null,
+                            grade = null,
+                            classNum = null,
+                            number = null,
+                            role = null,
+                            dormitoryRoomNumber = null,
+                            majorClubId = 10L,
+                            jobClubId = 20L,
+                        )
+
+                    beforeEach {
+                        every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
+                        every { mockClubRepository.findAllById(listOf(10L, 20L)) } returns listOf(majorClub, jobClub)
+                    }
+
+                    it("클럽 정보가 성공적으로 변경되어야 한다") {
+                        val result = modifyStudentService.execute(studentId, updateRequest)
+
+                        result.majorClub?.id shouldBe 10L
+                        result.majorClub?.name shouldBe "새로운전공동아리"
+                        result.jobClub?.id shouldBe 20L
+                        result.jobClub?.name shouldBe "새로운취업동아리"
+
+                        verify(exactly = 1) { mockClubRepository.findAllById(listOf(10L, 20L)) }
+                    }
+                }
+
+                context("존재하지 않는 전공 동아리 ID로 변경 시도할 때") {
+                    val updateRequest =
+                        UpdateStudentReqDto(
+                            name = null,
+                            sex = null,
+                            email = null,
+                            grade = null,
+                            classNum = null,
+                            number = null,
+                            role = null,
+                            dormitoryRoomNumber = null,
+                            majorClubId = 999L,
+                        )
+
+                    beforeEach {
+                        every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
+                        every { mockClubRepository.findAllById(listOf(999L)) } returns emptyList()
+                    }
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                modifyStudentService.execute(studentId, updateRequest)
+                            }
+
+                        exception.message shouldBe "전공 동아리를 찾을 수 없습니다."
+
+                        verify(exactly = 1) { mockClubRepository.findAllById(listOf(999L)) }
+                    }
+                }
+
+                context("존재하지 않는 취업 동아리 ID로 변경 시도할 때") {
+                    val updateRequest =
+                        UpdateStudentReqDto(
+                            name = null,
+                            sex = null,
+                            email = null,
+                            grade = null,
+                            classNum = null,
+                            number = null,
+                            role = null,
+                            dormitoryRoomNumber = null,
+                            jobClubId = 999L,
+                        )
+
+                    beforeEach {
+                        every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
+                        every { mockClubRepository.findAllById(listOf(999L)) } returns emptyList()
+                    }
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                modifyStudentService.execute(studentId, updateRequest)
+                            }
+
+                        exception.message shouldBe "취업 동아리를 찾을 수 없습니다."
+
+                        verify(exactly = 1) { mockClubRepository.findAllById(listOf(999L)) }
+                    }
+                }
+
+                context("존재하지 않는 자율 동아리 ID로 변경 시도할 때") {
+                    val updateRequest =
+                        UpdateStudentReqDto(
+                            name = null,
+                            sex = null,
+                            email = null,
+                            grade = null,
+                            classNum = null,
+                            number = null,
+                            role = null,
+                            dormitoryRoomNumber = null,
+                            autonomousClubId = 999L,
+                        )
+
+                    beforeEach {
+                        every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
+                        every { mockClubRepository.findAllById(listOf(999L)) } returns emptyList()
+                    }
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                modifyStudentService.execute(studentId, updateRequest)
+                            }
+
+                        exception.message shouldBe "자율 동아리를 찾을 수 없습니다."
+
+                        verify(exactly = 1) { mockClubRepository.findAllById(listOf(999L)) }
                     }
                 }
             }
