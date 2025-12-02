@@ -8,7 +8,7 @@ import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 
 interface StudentJpaCustomRepository {
     fun searchStudentsWithPaging(
-        studentId: Long?,
+        id: Long?,
         name: String?,
         email: String?,
         grade: Int?,
@@ -21,7 +21,7 @@ interface StudentJpaCustomRepository {
         pageable: Pageable,
     ): Page<StudentJpaEntity>
 
-    fun existsByStudentEmail(email: String): Boolean
+    fun existsByEmail(email: String): Boolean
 
     fun existsByStudentNumber(
         grade: Int,
@@ -29,15 +29,15 @@ interface StudentJpaCustomRepository {
         number: Int,
     ): Boolean
 
-    fun existsByStudentEmailAndNotStudentId(
+    fun existsByStudentEmailAndNotId(
         email: String,
-        studentId: Long,
+        id: Long,
     ): Boolean
 
-    fun existsByStudentNumberAndNotStudentId(
+    fun existsByStudentNumberAndNotId(
         grade: Int,
         classNum: Int,
         number: Int,
-        studentId: Long,
+        id: Long,
     ): Boolean
 }

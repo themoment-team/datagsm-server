@@ -29,12 +29,12 @@ class CreateClubServiceTest :
                 context("중복된 동아리 이름으로 생성할 때") {
                     val req =
                         ClubReqDto(
-                            clubName = "동아리A",
-                            clubType = ClubType.MAJOR_CLUB,
+                            name = "동아리A",
+                            type = ClubType.MAJOR_CLUB,
                         )
 
                     beforeEach {
-                        every { mockClubRepository.existsByClubName(req.clubName) } returns true
+                        every { mockClubRepository.existsByClubName(req.name) } returns true
                     }
 
                     it("ExpectedException이 발생해야 한다") {
@@ -42,9 +42,9 @@ class CreateClubServiceTest :
                             shouldThrow<ExpectedException> {
                                 createClubService.execute(req)
                             }
-                        ex.message shouldBe "이미 존재하는 동아리 이름입니다: ${req.clubName}"
+                        ex.message shouldBe "이미 존재하는 동아리 이름입니다: ${req.name}"
 
-                        verify(exactly = 1) { mockClubRepository.existsByClubName(req.clubName) }
+                        verify(exactly = 1) { mockClubRepository.existsByClubName(req.name) }
                         verify(exactly = 0) { mockClubRepository.save(any()) }
                     }
                 }
@@ -52,25 +52,25 @@ class CreateClubServiceTest :
                 context("정상적으로 동아리를 생성할 때") {
                     val req =
                         ClubReqDto(
-                            clubName = "동아리B",
-                            clubType = ClubType.AUTONOMOUS_CLUB,
+                            name = "동아리B",
+                            type = ClubType.AUTONOMOUS_CLUB,
                         )
 
                     beforeEach {
-                        every { mockClubRepository.existsByClubName(req.clubName) } returns false
+                        every { mockClubRepository.existsByClubName(req.name) } returns false
                         every { mockClubRepository.save(any()) } answers {
                             val entity = firstArg<ClubJpaEntity>()
-                            entity.apply { this.clubId = 10L }
+                            entity.apply { this.id = 10L }
                         }
                     }
 
                     it("생성된 동아리 정보를 반환해야 한다") {
                         val res = createClubService.execute(req)
 
-                        res.clubName shouldBe req.clubName
-                        res.clubType shouldBe req.clubType
+                        res.name shouldBe req.name
+                        res.type shouldBe req.type
 
-                        verify(exactly = 1) { mockClubRepository.existsByClubName(req.clubName) }
+                        verify(exactly = 1) { mockClubRepository.existsByClubName(req.name) }
                         verify(exactly = 1) { mockClubRepository.save(any()) }
                     }
                 }

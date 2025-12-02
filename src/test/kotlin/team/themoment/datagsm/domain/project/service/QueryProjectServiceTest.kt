@@ -30,25 +30,25 @@ class QueryProjectServiceTest :
 
                 val testClub =
                     ClubJpaEntity().apply {
-                        clubId = 1L
-                        clubName = "SW개발동아리"
-                        clubType = ClubType.MAJOR_CLUB
+                        id = 1L
+                        name = "SW개발동아리"
+                        type = ClubType.MAJOR_CLUB
                     }
 
                 val testProject =
                     ProjectJpaEntity().apply {
-                        projectId = 1L
-                        projectName = "DataGSM 프로젝트"
-                        projectDescription = "학교 데이터를 제공하는 API 서비스"
-                        projectOwnerClub = testClub
+                        id = 1L
+                        name = "DataGSM 프로젝트"
+                        description = "학교 데이터를 제공하는 API 서비스"
+                        club = testClub
                     }
 
                 context("존재하는 프로젝트 ID로 검색할 때") {
                     beforeEach {
                         every {
                             mockProjectRepository.searchProjectWithPaging(
-                                projectId = 1L,
-                                projectName = null,
+                                id = 1L,
+                                name = null,
                                 clubId = null,
                                 pageable = PageRequest.of(0, 20),
                             )
@@ -70,17 +70,17 @@ class QueryProjectServiceTest :
                         result.projects.size shouldBe 1
 
                         val project = result.projects[0]
-                        project.projectId shouldBe 1L
-                        project.projectName shouldBe "DataGSM 프로젝트"
-                        project.projectDescription shouldBe "학교 데이터를 제공하는 API 서비스"
-                        project.projectOwnerClub.clubId shouldBe 1L
-                        project.projectOwnerClub.clubName shouldBe "SW개발동아리"
-                        project.projectOwnerClub.clubType shouldBe ClubType.MAJOR_CLUB
+                        project.id shouldBe 1L
+                        project.name shouldBe "DataGSM 프로젝트"
+                        project.description shouldBe "학교 데이터를 제공하는 API 서비스"
+                        project.club?.id shouldBe 1L
+                        project.club?.name shouldBe "SW개발동아리"
+                        project.club?.type shouldBe ClubType.MAJOR_CLUB
 
                         verify(exactly = 1) {
                             mockProjectRepository.searchProjectWithPaging(
-                                projectId = 1L,
-                                projectName = null,
+                                id = 1L,
+                                name = null,
                                 clubId = null,
                                 pageable = PageRequest.of(0, 20),
                             )
@@ -92,8 +92,8 @@ class QueryProjectServiceTest :
                     beforeEach {
                         every {
                             mockProjectRepository.searchProjectWithPaging(
-                                projectId = null,
-                                projectName = "DataGSM",
+                                id = null,
+                                name = "DataGSM",
                                 clubId = null,
                                 pageable = PageRequest.of(0, 20),
                             )
@@ -111,7 +111,7 @@ class QueryProjectServiceTest :
                             )
 
                         result.totalElements shouldBe 1L
-                        result.projects[0].projectName shouldBe "DataGSM 프로젝트"
+                        result.projects[0].name shouldBe "DataGSM 프로젝트"
                     }
                 }
 
@@ -119,8 +119,8 @@ class QueryProjectServiceTest :
                     beforeEach {
                         every {
                             mockProjectRepository.searchProjectWithPaging(
-                                projectId = null,
-                                projectName = null,
+                                id = null,
+                                name = null,
                                 clubId = 1L,
                                 pageable = PageRequest.of(0, 20),
                             )
@@ -138,8 +138,8 @@ class QueryProjectServiceTest :
                             )
 
                         result.totalElements shouldBe 1L
-                        result.projects[0].projectOwnerClub.clubId shouldBe 1L
-                        result.projects[0].projectOwnerClub.clubName shouldBe "SW개발동아리"
+                        result.projects[0].club?.id shouldBe 1L
+                        result.projects[0].club?.name shouldBe "SW개발동아리"
                     }
                 }
 
@@ -147,8 +147,8 @@ class QueryProjectServiceTest :
                     beforeEach {
                         every {
                             mockProjectRepository.searchProjectWithPaging(
-                                projectId = null,
-                                projectName = "DataGSM",
+                                id = null,
+                                name = "DataGSM",
                                 clubId = 1L,
                                 pageable = PageRequest.of(0, 20),
                             )
@@ -166,8 +166,8 @@ class QueryProjectServiceTest :
                             )
 
                         result.totalElements shouldBe 1L
-                        result.projects[0].projectName shouldBe "DataGSM 프로젝트"
-                        result.projects[0].projectOwnerClub.clubId shouldBe 1L
+                        result.projects[0].name shouldBe "DataGSM 프로젝트"
+                        result.projects[0].club?.id shouldBe 1L
                     }
                 }
 
@@ -175,8 +175,8 @@ class QueryProjectServiceTest :
                     beforeEach {
                         every {
                             mockProjectRepository.searchProjectWithPaging(
-                                projectId = 999L,
-                                projectName = null,
+                                id = 999L,
+                                name = null,
                                 clubId = null,
                                 pageable = PageRequest.of(0, 20),
                             )
@@ -202,24 +202,24 @@ class QueryProjectServiceTest :
                 context("여러 프로젝트를 페이징하여 검색할 때") {
                     val club2 =
                         ClubJpaEntity().apply {
-                            clubId = 2L
-                            clubName = "자율동아리"
-                            clubType = ClubType.AUTONOMOUS_CLUB
+                            id = 2L
+                            name = "자율동아리"
+                            type = ClubType.AUTONOMOUS_CLUB
                         }
 
                     val project2 =
                         ProjectJpaEntity().apply {
-                            projectId = 2L
-                            projectName = "모바일앱 프로젝트"
-                            projectDescription = "학생 편의 모바일 앱"
-                            projectOwnerClub = club2
+                            id = 2L
+                            name = "모바일앱 프로젝트"
+                            description = "학생 편의 모바일 앱"
+                            club = club2
                         }
 
                     beforeEach {
                         every {
                             mockProjectRepository.searchProjectWithPaging(
-                                projectId = null,
-                                projectName = null,
+                                id = null,
+                                name = null,
                                 clubId = null,
                                 pageable = PageRequest.of(0, 10),
                             )
@@ -239,13 +239,13 @@ class QueryProjectServiceTest :
                         result.totalElements shouldBe 2L
                         result.totalPages shouldBe 1
                         result.projects.size shouldBe 2
-                        result.projects[0].projectName shouldBe "DataGSM 프로젝트"
-                        result.projects[1].projectName shouldBe "모바일앱 프로젝트"
+                        result.projects[0].name shouldBe "DataGSM 프로젝트"
+                        result.projects[1].name shouldBe "모바일앱 프로젝트"
 
                         verify(exactly = 1) {
                             mockProjectRepository.searchProjectWithPaging(
-                                projectId = null,
-                                projectName = null,
+                                id = null,
+                                name = null,
                                 clubId = null,
                                 pageable = PageRequest.of(0, 10),
                             )
@@ -256,24 +256,24 @@ class QueryProjectServiceTest :
                 context("다양한 동아리 타입의 프로젝트를 검색할 때") {
                     val jobClub =
                         ClubJpaEntity().apply {
-                            clubId = 3L
-                            clubName = "취업동아리"
-                            clubType = ClubType.JOB_CLUB
+                            id = 3L
+                            name = "취업동아리"
+                            type = ClubType.JOB_CLUB
                         }
 
                     val jobProject =
                         ProjectJpaEntity().apply {
-                            projectId = 3L
-                            projectName = "취업 포트폴리오"
-                            projectDescription = "취업 준비 프로젝트"
-                            projectOwnerClub = jobClub
+                            id = 3L
+                            name = "취업 포트폴리오"
+                            description = "취업 준비 프로젝트"
+                            club = jobClub
                         }
 
                     beforeEach {
                         every {
                             mockProjectRepository.searchProjectWithPaging(
-                                projectId = null,
-                                projectName = null,
+                                id = null,
+                                name = null,
                                 clubId = 3L,
                                 pageable = PageRequest.of(0, 20),
                             )
@@ -291,8 +291,8 @@ class QueryProjectServiceTest :
                             )
 
                         result.totalElements shouldBe 1L
-                        result.projects[0].projectOwnerClub.clubType shouldBe ClubType.JOB_CLUB
-                        result.projects[0].projectOwnerClub.clubName shouldBe "취업동아리"
+                        result.projects[0].club?.type shouldBe ClubType.JOB_CLUB
+                        result.projects[0].club?.name shouldBe "취업동아리"
                     }
                 }
             }

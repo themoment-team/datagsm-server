@@ -33,22 +33,22 @@ class QueryStudentServiceTest :
 
                 val testStudent =
                     StudentJpaEntity().apply {
-                        studentId = 1L
-                        studentName = "홍길동"
-                        studentSex = Sex.MAN
-                        studentEmail = "hong@gsm.hs.kr"
+                        id = 1L
+                        name = "홍길동"
+                        sex = Sex.MAN
+                        email = "hong@gsm.hs.kr"
                         studentNumber = StudentNumber(1, 1, 1)
-                        studentMajor = Major.SW_DEVELOPMENT
-                        studentRole = StudentRole.GENERAL_STUDENT
-                        studentDormitoryRoomNumber = DormitoryRoomNumber(101)
-                        studentIsLeaveSchool = false
+                        major = Major.SW_DEVELOPMENT
+                        role = StudentRole.GENERAL_STUDENT
+                        dormitoryRoomNumber = DormitoryRoomNumber(101)
+                        isLeaveSchool = false
                     }
 
                 context("존재하는 학생 ID로 검색할 때") {
                     beforeEach {
                         every {
                             mockStudentRepository.searchStudentsWithPaging(
-                                studentId = 1L,
+                                id = 1L,
                                 name = null,
                                 email = null,
                                 grade = null,
@@ -85,7 +85,7 @@ class QueryStudentServiceTest :
                         result.students.size shouldBe 1
 
                         val student = result.students[0]
-                        student.studentId shouldBe 1L
+                        student.id shouldBe 1L
                         student.name shouldBe "홍길동"
                         student.sex shouldBe Sex.MAN
                         student.email shouldBe "hong@gsm.hs.kr"
@@ -101,7 +101,7 @@ class QueryStudentServiceTest :
 
                         verify(exactly = 1) {
                             mockStudentRepository.searchStudentsWithPaging(
-                                studentId = 1L,
+                                id = 1L,
                                 name = null,
                                 email = null,
                                 grade = null,
@@ -121,7 +121,7 @@ class QueryStudentServiceTest :
                     beforeEach {
                         every {
                             mockStudentRepository.searchStudentsWithPaging(
-                                studentId = null,
+                                id = null,
                                 name = "홍길동",
                                 email = null,
                                 grade = null,
@@ -163,7 +163,7 @@ class QueryStudentServiceTest :
                     beforeEach {
                         every {
                             mockStudentRepository.searchStudentsWithPaging(
-                                studentId = 999L,
+                                id = 999L,
                                 name = null,
                                 email = null,
                                 grade = null,
@@ -205,15 +205,15 @@ class QueryStudentServiceTest :
                     val students =
                         (1..50).map { index ->
                             StudentJpaEntity().apply {
-                                studentId = index.toLong()
-                                studentName = "학생$index"
-                                studentSex = if (index % 2 == 0) Sex.WOMAN else Sex.MAN
-                                studentEmail = "student$index@gsm.hs.kr"
+                                id = index.toLong()
+                                name = "학생$index"
+                                sex = if (index % 2 == 0) Sex.WOMAN else Sex.MAN
+                                email = "student$index@gsm.hs.kr"
                                 studentNumber = StudentNumber(1, 1, index)
-                                studentMajor = Major.SW_DEVELOPMENT
-                                studentRole = StudentRole.GENERAL_STUDENT
-                                studentDormitoryRoomNumber = DormitoryRoomNumber(100 + index)
-                                studentIsLeaveSchool = false
+                                major = Major.SW_DEVELOPMENT
+                                role = StudentRole.GENERAL_STUDENT
+                                dormitoryRoomNumber = DormitoryRoomNumber(100 + index)
+                                isLeaveSchool = false
                             }
                         }
 
@@ -221,7 +221,7 @@ class QueryStudentServiceTest :
                         val firstPageStudents = students.take(20)
                         every {
                             mockStudentRepository.searchStudentsWithPaging(
-                                studentId = null,
+                                id = null,
                                 name = null,
                                 email = null,
                                 grade = null,

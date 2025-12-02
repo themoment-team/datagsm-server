@@ -15,21 +15,21 @@ class ProjectJpaCustomRepositoryImpl(
     private val jpaQueryFactory: JPAQueryFactory,
 ) : ProjectJpaCustomRepository {
     override fun searchProjectWithPaging(
-        projectId: Long?,
-        projectName: String?,
+        id: Long?,
+        name: String?,
         clubId: Long?,
         pageable: Pageable,
     ): Page<ProjectJpaEntity> {
-        var searchResult = executeSearch(projectId, projectName, clubId, pageable, projectJpaEntity.projectName::startsWith)
-        if (searchResult.content.isEmpty() && projectName != null) {
-            searchResult = executeSearch(projectId, projectName, clubId, pageable, projectJpaEntity.projectName::contains)
+        var searchResult = executeSearch(id, name, clubId, pageable, projectJpaEntity.name::startsWith)
+        if (searchResult.content.isEmpty() && name != null) {
+            searchResult = executeSearch(id, name, clubId, pageable, projectJpaEntity.name::contains)
         }
         return searchResult
     }
 
     private fun executeSearch(
-        projectId: Long?,
-        projectName: String?,
+        id: Long?,
+        name: String?,
         clubId: Long?,
         pageable: Pageable,
         nameMatcher: (String) -> BooleanExpression,
@@ -38,12 +38,12 @@ class ProjectJpaCustomRepositoryImpl(
             jpaQueryFactory
                 .select(projectJpaEntity)
                 .from(projectJpaEntity)
-                .leftJoin(projectJpaEntity.projectOwnerClub)
+                .leftJoin(projectJpaEntity.club)
                 .fetchJoin()
                 .where(
-                    projectId?.let { projectJpaEntity.projectId.eq(it) },
-                    projectName?.let { nameMatcher(it) },
-                    clubId?.let { projectJpaEntity.projectOwnerClub.clubId.eq(it) },
+                    id?.let { projectJpaEntity.id.eq(it) },
+                    name?.let { nameMatcher(it) },
+                    clubId?.let { projectJpaEntity.club.id.eq(it) },
                 ).offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
@@ -53,9 +53,9 @@ class ProjectJpaCustomRepositoryImpl(
                 .select(projectJpaEntity.count())
                 .from(projectJpaEntity)
                 .where(
-                    projectId?.let { projectJpaEntity.projectId.eq(it) },
-                    projectName?.let { nameMatcher(it) },
-                    clubId?.let { projectJpaEntity.projectOwnerClub.clubId.eq(it) },
+                    id?.let { projectJpaEntity.id.eq(it) },
+                    name?.let { nameMatcher(it) },
+                    clubId?.let { projectJpaEntity.club.id.eq(it) },
                 )
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }

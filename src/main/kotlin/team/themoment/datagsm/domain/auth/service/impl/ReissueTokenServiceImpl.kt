@@ -47,7 +47,7 @@ class ReissueTokenServiceImpl(
                     ExpectedException("계정을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
                 }
 
-        val newAccessToken = jwtProvider.generateAccessToken(email, account.accountRole)
+        val newAccessToken = jwtProvider.generateAccessToken(email, account.role)
         val newRefreshToken = jwtProvider.generateRefreshToken(email)
 
         refreshTokenRedisRepository.deleteByEmail(email)

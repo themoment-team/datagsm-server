@@ -3,7 +3,7 @@ package team.themoment.datagsm.domain.student.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.domain.student.dto.request.StudentCreateReqDto
+import team.themoment.datagsm.domain.student.dto.request.CreateStudentReqDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
@@ -18,8 +18,8 @@ import team.themoment.datagsm.global.exception.error.ExpectedException
 class CreateStudentServiceImpl(
     private final val studentJpaRepository: StudentJpaRepository,
 ) : CreateStudentService {
-    override fun execute(reqDto: StudentCreateReqDto): StudentResDto {
-        if (studentJpaRepository.existsByStudentEmail(reqDto.email)) {
+    override fun execute(reqDto: CreateStudentReqDto): StudentResDto {
+        if (studentJpaRepository.existsByEmail(reqDto.email)) {
             throw ExpectedException("이미 존재하는 이메일입니다: ${reqDto.email}", HttpStatus.CONFLICT)
         }
 
@@ -32,32 +32,32 @@ class CreateStudentServiceImpl(
 
         val studentEntity =
             StudentJpaEntity().apply {
-                studentName = reqDto.name
-                studentSex = reqDto.sex
-                studentEmail = reqDto.email
+                name = reqDto.name
+                sex = reqDto.sex
+                email = reqDto.email
                 studentNumber = StudentNumber(reqDto.grade, reqDto.classNum, reqDto.number)
-                studentMajor = Major.fromClassNum(reqDto.classNum)
+                major = Major.fromClassNum(reqDto.classNum)
                     ?: throw ExpectedException("유효하지 않은 학급입니다: ${reqDto.classNum}", HttpStatus.BAD_REQUEST)
-                studentRole = reqDto.role
-                studentDormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
+                role = reqDto.role
+                dormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
             }
 
         val savedStudent = studentJpaRepository.save(studentEntity)
 
         return StudentResDto(
-            studentId = savedStudent.studentId!!,
-            name = savedStudent.studentName,
-            sex = savedStudent.studentSex,
-            email = savedStudent.studentEmail,
+            id = savedStudent.id!!,
+            name = savedStudent.name,
+            sex = savedStudent.sex,
+            email = savedStudent.email,
             grade = savedStudent.studentNumber.studentGrade,
             classNum = savedStudent.studentNumber.studentClass,
             number = savedStudent.studentNumber.studentNumber,
             studentNumber = savedStudent.studentNumber.fullStudentNumber,
-            major = savedStudent.studentMajor,
-            role = savedStudent.studentRole,
-            dormitoryFloor = savedStudent.studentDormitoryRoomNumber.dormitoryRoomFloor,
-            dormitoryRoom = savedStudent.studentDormitoryRoomNumber.dormitoryRoomNumber,
-            isLeaveSchool = savedStudent.studentIsLeaveSchool,
+            major = savedStudent.major,
+            role = savedStudent.role,
+            dormitoryFloor = savedStudent.dormitoryRoomNumber.dormitoryRoomFloor,
+            dormitoryRoom = savedStudent.dormitoryRoomNumber.dormitoryRoomNumber,
+            isLeaveSchool = savedStudent.isLeaveSchool,
         )
     }
 }

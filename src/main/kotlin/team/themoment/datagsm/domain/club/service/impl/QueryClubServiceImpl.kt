@@ -23,9 +23,9 @@ class QueryClubServiceImpl(
     ): ClubListResDto {
         val clubPage =
             clubJpaRepository.searchClubWithPaging(
-                clubId = clubId,
-                clubName = clubName,
-                clubType = clubType,
+                id = clubId,
+                name = clubName,
+                type = clubType,
                 pageable = PageRequest.of(page, size),
             )
 
@@ -35,9 +35,9 @@ class QueryClubServiceImpl(
             clubs =
                 clubPage.content.map { entity ->
                     ClubResDto(
-                        clubId = entity.clubId!!,
-                        clubName = entity.clubName,
-                        clubType = entity.clubType,
+                        id = entity.id!!,
+                        name = entity.name,
+                        type = entity.type,
                     )
                 },
         )

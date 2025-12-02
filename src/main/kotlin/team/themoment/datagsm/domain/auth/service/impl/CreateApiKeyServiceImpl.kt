@@ -31,7 +31,7 @@ class CreateApiKeyServiceImpl(
 
         val apiKey =
             ApiKey().apply {
-                apiKeyAccount = account
+                this.account = account
                 createdAt = now
                 updatedAt = now
                 this.expiresAt = expiresAt
@@ -39,6 +39,6 @@ class CreateApiKeyServiceImpl(
 
         val savedApiKey = apiKeyJpaRepository.save(apiKey)
 
-        return ApiKeyResDto(apiKey = savedApiKey.apiKeyValue, expiresAt = savedApiKey.expiresAt)
+        return ApiKeyResDto(apiKey = savedApiKey.value, expiresAt = savedApiKey.expiresAt)
     }
 }

@@ -6,8 +6,8 @@ import team.themoment.datagsm.domain.project.entity.ProjectJpaEntity
 
 interface ProjectJpaCustomRepository {
     fun searchProjectWithPaging(
-        projectId: Long?,
-        projectName: String?,
+        id: Long?,
+        name: String?,
         clubId: Long?,
         pageable: Pageable,
     ): Page<ProjectJpaEntity>

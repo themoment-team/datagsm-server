@@ -39,33 +39,33 @@ class ModifyProjectServiceTest :
                 beforeEach {
                     ownerClub =
                         ClubJpaEntity().apply {
-                            clubId = 1L
-                            clubName = "기존동아리"
-                            clubType = ClubType.MAJOR_CLUB
+                            id = 1L
+                            name = "기존동아리"
+                            type = ClubType.MAJOR_CLUB
                         }
 
                     existingProject =
                         ProjectJpaEntity().apply {
-                            this.projectId = projectId
-                            projectName = "기존프로젝트"
-                            projectDescription = "기존 설명"
-                            projectOwnerClub = ownerClub
+                            this.id = projectId
+                            name = "기존프로젝트"
+                            description = "기존 설명"
+                            this.club = ownerClub
                         }
                 }
 
                 context("존재하는 프로젝트의 이름을 수정할 때") {
                     val updateRequest =
                         ProjectReqDto(
-                            projectName = "수정된프로젝트",
-                            projectDescription = "기존 설명",
-                            projectOwnerClubId = 1L,
+                            name = "수정된프로젝트",
+                            description = "기존 설명",
+                            clubId = 1L,
                         )
 
                     beforeEach {
                         every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
                         every {
                             mockProjectRepository.existsByProjectNameAndProjectIdNot(
-                                updateRequest.projectName,
+                                updateRequest.name,
                                 projectId,
                             )
                         } returns false
@@ -74,14 +74,14 @@ class ModifyProjectServiceTest :
                     it("프로젝트 이름이 성공적으로 업데이트되어야 한다") {
                         val result = modifyProjectService.execute(projectId, updateRequest)
 
-                        result.projectId shouldBe projectId
-                        result.projectName shouldBe "수정된프로젝트"
-                        result.projectDescription shouldBe "기존 설명"
+                        result.id shouldBe projectId
+                        result.name shouldBe "수정된프로젝트"
+                        result.description shouldBe "기존 설명"
 
                         verify(exactly = 1) { mockProjectRepository.findById(projectId) }
                         verify(exactly = 1) {
                             mockProjectRepository.existsByProjectNameAndProjectIdNot(
-                                updateRequest.projectName,
+                                updateRequest.name,
                                 projectId,
                             )
                         }
@@ -91,9 +91,9 @@ class ModifyProjectServiceTest :
                 context("프로젝트의 설명만 변경할 때") {
                     val updateRequest =
                         ProjectReqDto(
-                            projectName = "기존프로젝트",
-                            projectDescription = "새로운 설명입니다",
-                            projectOwnerClubId = 1L,
+                            name = "기존프로젝트",
+                            description = "새로운 설명입니다",
+                            clubId = 1L,
                         )
 
                     beforeEach {
@@ -103,9 +103,9 @@ class ModifyProjectServiceTest :
                     it("프로젝트 설명만 변경되어야 한다") {
                         val result = modifyProjectService.execute(projectId, updateRequest)
 
-                        result.projectName shouldBe "기존프로젝트"
-                        result.projectDescription shouldBe "새로운 설명입니다"
-                        result.projectOwnerClub.clubId shouldBe 1L
+                        result.name shouldBe "기존프로젝트"
+                        result.description shouldBe "새로운 설명입니다"
+                        result.club?.id shouldBe 1L
 
                         verify(exactly = 1) { mockProjectRepository.findById(projectId) }
                         verify(exactly = 0) {
@@ -120,16 +120,16 @@ class ModifyProjectServiceTest :
                 context("프로젝트의 소유 동아리를 변경할 때") {
                     val newClub =
                         ClubJpaEntity().apply {
-                            clubId = 2L
-                            clubName = "새동아리"
-                            clubType = ClubType.JOB_CLUB
+                            id = 2L
+                            name = "새동아리"
+                            type = ClubType.JOB_CLUB
                         }
 
                     val updateRequest =
                         ProjectReqDto(
-                            projectName = "기존프로젝트",
-                            projectDescription = "기존 설명",
-                            projectOwnerClubId = 2L,
+                            name = "기존프로젝트",
+                            description = "기존 설명",
+                            clubId = 2L,
                         )
 
                     beforeEach {
@@ -140,9 +140,9 @@ class ModifyProjectServiceTest :
                     it("프로젝트 소유 동아리가 변경되어야 한다") {
                         val result = modifyProjectService.execute(projectId, updateRequest)
 
-                        result.projectOwnerClub.clubId shouldBe 2L
-                        result.projectOwnerClub.clubName shouldBe "새동아리"
-                        result.projectOwnerClub.clubType shouldBe ClubType.JOB_CLUB
+                        result.club?.id shouldBe 2L
+                        result.club?.name shouldBe "새동아리"
+                        result.club?.type shouldBe ClubType.JOB_CLUB
 
                         verify(exactly = 1) { mockProjectRepository.findById(projectId) }
                         verify(exactly = 1) { mockClubRepository.findById(2L) }
@@ -152,23 +152,23 @@ class ModifyProjectServiceTest :
                 context("프로젝트의 모든 정보를 변경할 때") {
                     val newClub =
                         ClubJpaEntity().apply {
-                            clubId = 3L
-                            clubName = "완전새로운동아리"
-                            clubType = ClubType.AUTONOMOUS_CLUB
+                            id = 3L
+                            name = "완전새로운동아리"
+                            type = ClubType.AUTONOMOUS_CLUB
                         }
 
                     val updateRequest =
                         ProjectReqDto(
-                            projectName = "완전새로운프로젝트",
-                            projectDescription = "완전 새로운 설명",
-                            projectOwnerClubId = 3L,
+                            name = "완전새로운프로젝트",
+                            description = "완전 새로운 설명",
+                            clubId = 3L,
                         )
 
                     beforeEach {
                         every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
                         every {
                             mockProjectRepository.existsByProjectNameAndProjectIdNot(
-                                updateRequest.projectName,
+                                updateRequest.name,
                                 projectId,
                             )
                         } returns false
@@ -178,15 +178,15 @@ class ModifyProjectServiceTest :
                     it("프로젝트의 모든 정보가 변경되어야 한다") {
                         val result = modifyProjectService.execute(projectId, updateRequest)
 
-                        result.projectName shouldBe "완전새로운프로젝트"
-                        result.projectDescription shouldBe "완전 새로운 설명"
-                        result.projectOwnerClub.clubId shouldBe 3L
-                        result.projectOwnerClub.clubName shouldBe "완전새로운동아리"
-                        result.projectOwnerClub.clubType shouldBe ClubType.AUTONOMOUS_CLUB
+                        result.name shouldBe "완전새로운프로젝트"
+                        result.description shouldBe "완전 새로운 설명"
+                        result.club?.id shouldBe 3L
+                        result.club?.name shouldBe "완전새로운동아리"
+                        result.club?.type shouldBe ClubType.AUTONOMOUS_CLUB
 
                         verify(exactly = 1) {
                             mockProjectRepository.existsByProjectNameAndProjectIdNot(
-                                updateRequest.projectName,
+                                updateRequest.name,
                                 projectId,
                             )
                         }
@@ -197,9 +197,9 @@ class ModifyProjectServiceTest :
                 context("존재하지 않는 프로젝트를 수정하려고 할 때") {
                     val updateRequest =
                         ProjectReqDto(
-                            projectName = "수정프로젝트",
-                            projectDescription = "설명",
-                            projectOwnerClubId = 1L,
+                            name = "수정프로젝트",
+                            description = "설명",
+                            clubId = 1L,
                         )
 
                     beforeEach {
@@ -222,16 +222,16 @@ class ModifyProjectServiceTest :
                 context("이미 존재하는 프로젝트 이름으로 변경을 시도할 때") {
                     val updateRequest =
                         ProjectReqDto(
-                            projectName = "중복프로젝트",
-                            projectDescription = "기존 설명",
-                            projectOwnerClubId = 1L,
+                            name = "중복프로젝트",
+                            description = "기존 설명",
+                            clubId = 1L,
                         )
 
                     beforeEach {
                         every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
                         every {
                             mockProjectRepository.existsByProjectNameAndProjectIdNot(
-                                updateRequest.projectName,
+                                updateRequest.name,
                                 projectId,
                             )
                         } returns true
@@ -243,11 +243,11 @@ class ModifyProjectServiceTest :
                                 modifyProjectService.execute(projectId, updateRequest)
                             }
 
-                        exception.message shouldBe "이미 존재하는 프로젝트 이름입니다: ${updateRequest.projectName}"
+                        exception.message shouldBe "이미 존재하는 프로젝트 이름입니다: ${updateRequest.name}"
 
                         verify(exactly = 1) {
                             mockProjectRepository.existsByProjectNameAndProjectIdNot(
-                                updateRequest.projectName,
+                                updateRequest.name,
                                 projectId,
                             )
                         }
@@ -257,9 +257,9 @@ class ModifyProjectServiceTest :
                 context("존재하지 않는 동아리로 변경을 시도할 때") {
                     val updateRequest =
                         ProjectReqDto(
-                            projectName = "기존프로젝트",
-                            projectDescription = "기존 설명",
-                            projectOwnerClubId = 999L,
+                            name = "기존프로젝트",
+                            description = "기존 설명",
+                            clubId = 999L,
                         )
 
                     beforeEach {

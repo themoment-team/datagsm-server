@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import team.themoment.datagsm.domain.student.dto.request.StudentUpdateReqDto
+import team.themoment.datagsm.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
 import team.themoment.datagsm.domain.student.entity.constant.Major
@@ -38,21 +38,21 @@ class ModifyStudentServiceTest :
                 beforeEach {
                     existingStudent =
                         StudentJpaEntity().apply {
-                            this.studentId = studentId
-                            studentName = "기존학생"
-                            studentSex = Sex.MAN
-                            studentEmail = "existing@gsm.hs.kr"
+                            this.id = studentId
+                            name = "기존학생"
+                            sex = Sex.MAN
+                            email = "existing@gsm.hs.kr"
                             studentNumber = StudentNumber(2, 1, 5)
-                            studentMajor = Major.SW_DEVELOPMENT
-                            studentRole = StudentRole.GENERAL_STUDENT
-                            studentDormitoryRoomNumber = DormitoryRoomNumber(201)
-                            studentIsLeaveSchool = false
+                            major = Major.SW_DEVELOPMENT
+                            role = StudentRole.GENERAL_STUDENT
+                            dormitoryRoomNumber = DormitoryRoomNumber(201)
+                            isLeaveSchool = false
                         }
                 }
 
                 context("존재하는 학생의 이름을 수정할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = "수정된이름",
                             sex = null,
                             email = null,
@@ -68,10 +68,10 @@ class ModifyStudentServiceTest :
                     }
 
                     it("학생 이름이 성공적으로 업데이트되어야 한다") {
-                        existingStudent.studentName = updateRequest.name!!
+                        existingStudent.name = updateRequest.name!!
                         val result = modifyStudentService.execute(studentId, updateRequest)
 
-                        result.studentId shouldBe studentId
+                        result.id shouldBe studentId
                         result.name shouldBe "수정된이름"
 
                         verify(exactly = 1) { mockStudentRepository.findById(studentId) }
@@ -80,7 +80,7 @@ class ModifyStudentServiceTest :
 
                 context("학생의 학년만 변경할 때 (반은 변경하지 않음)") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = null,
                             sex = null,
                             email = null,
@@ -94,7 +94,7 @@ class ModifyStudentServiceTest :
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
                         every {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 3,
                                 1,
                                 5,
@@ -112,7 +112,7 @@ class ModifyStudentServiceTest :
                         result.studentNumber shouldBe 3105
 
                         verify(exactly = 1) {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 3,
                                 1,
                                 5,
@@ -124,7 +124,7 @@ class ModifyStudentServiceTest :
 
                 context("학생의 반만 변경할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = null,
                             sex = null,
                             email = null,
@@ -138,7 +138,7 @@ class ModifyStudentServiceTest :
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
                         every {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 2,
                                 3,
                                 5,
@@ -159,7 +159,7 @@ class ModifyStudentServiceTest :
 
                 context("학생의 학년과 반을 동시에 변경할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = null,
                             sex = null,
                             email = null,
@@ -173,7 +173,7 @@ class ModifyStudentServiceTest :
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
                         every {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 1,
                                 4,
                                 5,
@@ -194,7 +194,7 @@ class ModifyStudentServiceTest :
 
                 context("이미 존재하는 이메일로 변경을 시도할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = null,
                             sex = null,
                             email = "duplicate@gsm.hs.kr",
@@ -208,7 +208,7 @@ class ModifyStudentServiceTest :
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
                         every {
-                            mockStudentRepository.existsByStudentEmailAndNotStudentId(
+                            mockStudentRepository.existsByStudentEmailAndNotId(
                                 updateRequest.email!!,
                                 studentId,
                             )
@@ -225,7 +225,7 @@ class ModifyStudentServiceTest :
 
                         verify(exactly = 1) { mockStudentRepository.findById(studentId) }
                         verify(exactly = 1) {
-                            mockStudentRepository.existsByStudentEmailAndNotStudentId(
+                            mockStudentRepository.existsByStudentEmailAndNotId(
                                 updateRequest.email!!,
                                 studentId,
                             )
@@ -236,7 +236,7 @@ class ModifyStudentServiceTest :
 
                 context("이미 존재하는 학번으로 변경을 시도할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = null,
                             sex = null,
                             email = null,
@@ -250,7 +250,7 @@ class ModifyStudentServiceTest :
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
                         every {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 2,
                                 2,
                                 10,
@@ -268,7 +268,7 @@ class ModifyStudentServiceTest :
                         exception.message shouldBe "이미 존재하는 학번입니다: 2학년 2반 10번"
 
                         verify(exactly = 1) {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 2,
                                 2,
                                 10,
@@ -281,7 +281,7 @@ class ModifyStudentServiceTest :
 
                 context("존재하지 않는 학생 ID로 수정을 시도할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = "수정이름",
                             sex = null,
                             email = null,
@@ -311,7 +311,7 @@ class ModifyStudentServiceTest :
 
                 context("유효하지 않은 학급으로 반을 변경할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = null,
                             sex = null,
                             email = null,
@@ -325,7 +325,7 @@ class ModifyStudentServiceTest :
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
                         every {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 2,
                                 5,
                                 5,
@@ -344,7 +344,7 @@ class ModifyStudentServiceTest :
 
                         verify(exactly = 1) { mockStudentRepository.findById(studentId) }
                         verify(exactly = 1) {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 2,
                                 5,
                                 5,
@@ -357,7 +357,7 @@ class ModifyStudentServiceTest :
 
                 context("기숙사 방 번호를 변경할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = null,
                             sex = null,
                             email = null,
@@ -384,7 +384,7 @@ class ModifyStudentServiceTest :
 
                 context("학생의 성별과 역할을 동시에 변경할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = null,
                             sex = Sex.WOMAN,
                             email = null,
@@ -411,7 +411,7 @@ class ModifyStudentServiceTest :
 
                 context("모든 필드를 한번에 수정할 때") {
                     val updateRequest =
-                        StudentUpdateReqDto(
+                        UpdateStudentReqDto(
                             name = "완전수정학생",
                             sex = Sex.WOMAN,
                             email = "updated@gsm.hs.kr",
@@ -425,13 +425,13 @@ class ModifyStudentServiceTest :
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
                         every {
-                            mockStudentRepository.existsByStudentEmailAndNotStudentId(
+                            mockStudentRepository.existsByStudentEmailAndNotId(
                                 updateRequest.email!!,
                                 studentId,
                             )
                         } returns false
                         every {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 4,
                                 2,
                                 8,
@@ -457,13 +457,13 @@ class ModifyStudentServiceTest :
 
                         verify(exactly = 1) { mockStudentRepository.findById(studentId) }
                         verify(exactly = 1) {
-                            mockStudentRepository.existsByStudentEmailAndNotStudentId(
+                            mockStudentRepository.existsByStudentEmailAndNotId(
                                 updateRequest.email!!,
                                 studentId,
                             )
                         }
                         verify(exactly = 1) {
-                            mockStudentRepository.existsByStudentNumberAndNotStudentId(
+                            mockStudentRepository.existsByStudentNumberAndNotId(
                                 4,
                                 2,
                                 8,

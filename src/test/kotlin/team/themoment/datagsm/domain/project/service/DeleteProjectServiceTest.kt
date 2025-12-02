@@ -34,17 +34,17 @@ class DeleteProjectServiceTest :
 
                     val ownerClub =
                         ClubJpaEntity().apply {
-                            clubId = 1L
-                            clubName = "SW개발동아리"
-                            clubType = ClubType.MAJOR_CLUB
+                            id = 1L
+                            name = "SW개발동아리"
+                            type = ClubType.MAJOR_CLUB
                         }
 
                     val existingProject =
                         ProjectJpaEntity().apply {
-                            this.projectId = projectId
-                            projectName = "DataGSM 프로젝트"
-                            projectDescription = "학교 데이터를 제공하는 API 서비스"
-                            projectOwnerClub = ownerClub
+                            this.id = projectId
+                            name = "DataGSM 프로젝트"
+                            description = "학교 데이터를 제공하는 API 서비스"
+                            this.club = ownerClub
                         }
 
                     beforeEach {
@@ -85,17 +85,17 @@ class DeleteProjectServiceTest :
 
                     val autonomousClub =
                         ClubJpaEntity().apply {
-                            clubId = 2L
-                            clubName = "자율동아리"
-                            clubType = ClubType.AUTONOMOUS_CLUB
+                            id = 2L
+                            name = "자율동아리"
+                            type = ClubType.AUTONOMOUS_CLUB
                         }
 
                     val autonomousProject =
                         ProjectJpaEntity().apply {
-                            this.projectId = projectId
-                            projectName = "자율동아리 프로젝트"
-                            projectDescription = "자율 프로젝트"
-                            projectOwnerClub = autonomousClub
+                            this.id = projectId
+                            name = "자율동아리 프로젝트"
+                            description = "자율 프로젝트"
+                            club = autonomousClub
                         }
 
                     beforeEach {
@@ -116,17 +116,17 @@ class DeleteProjectServiceTest :
 
                     val jobClub =
                         ClubJpaEntity().apply {
-                            clubId = 3L
-                            clubName = "취업동아리"
-                            clubType = ClubType.JOB_CLUB
+                            id = 3L
+                            name = "취업동아리"
+                            type = ClubType.JOB_CLUB
                         }
 
                     val jobProject =
                         ProjectJpaEntity().apply {
-                            this.projectId = projectId
-                            projectName = "취업 포트폴리오"
-                            projectDescription = "취업 준비 프로젝트"
-                            projectOwnerClub = jobClub
+                            this.id = projectId
+                            name = "취업 포트폴리오"
+                            description = "취업 준비 프로젝트"
+                            club = jobClub
                         }
 
                     beforeEach {

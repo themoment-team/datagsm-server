@@ -19,11 +19,11 @@ import java.util.UUID
 class ApiKey {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "api_key_id")
-    var apiKeyId: Long? = null
+    @Column(name = "id")
+    var id: Long? = null
 
-    @Column(name = "api_key_value", nullable = false, unique = true)
-    var apiKeyValue: UUID = UUID.randomUUID()
+    @Column(name = "value", nullable = false, unique = true)
+    var value: UUID = UUID.randomUUID()
 
     @Column(name = "created_at", nullable = false)
     var createdAt: LocalDateTime = LocalDateTime.now()
@@ -35,8 +35,8 @@ class ApiKey {
     var expiresAt: LocalDateTime = LocalDateTime.now()
 
     @OneToOne
-    @JoinColumn(name = "api_key_account_id", nullable = false, referencedColumnName = "account_id")
-    var apiKeyAccount: AccountJpaEntity? = null
+    @JoinColumn(name = "account_id", nullable = false, referencedColumnName = "account_id")
+    var account: AccountJpaEntity? = null
 
     fun isExpired(): Boolean = LocalDateTime.now().isAfter(expiresAt)
 

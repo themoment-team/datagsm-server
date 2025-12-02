@@ -19,37 +19,37 @@ class CreateProjectServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
 ) : CreateProjectService {
     override fun execute(projectReqDto: ProjectReqDto): ProjectResDto {
-        if (projectJpaRepository.existsByProjectName(projectReqDto.projectName)) {
-            throw ExpectedException("이미 존재하는 프로젝트 이름입니다: ${projectReqDto.projectName}", HttpStatus.CONFLICT)
+        if (projectJpaRepository.existsByProjectName(projectReqDto.name)) {
+            throw ExpectedException("이미 존재하는 프로젝트 이름입니다: ${projectReqDto.name}", HttpStatus.CONFLICT)
         }
 
         val ownerClub =
             clubJpaRepository
-                .findById(projectReqDto.projectOwnerClubId)
+                .findById(projectReqDto.clubId)
                 .orElseThrow {
                     ExpectedException(
-                        "동아리를 찾을 수 없습니다. clubId: ${projectReqDto.projectOwnerClubId}",
+                        "동아리를 찾을 수 없습니다. clubId: ${projectReqDto.clubId}",
                         HttpStatus.NOT_FOUND,
                     )
                 }
 
         val projectEntity =
             ProjectJpaEntity().apply {
-                projectName = projectReqDto.projectName
-                projectDescription = projectReqDto.projectDescription
-                projectOwnerClub = ownerClub
+                name = projectReqDto.name
+                description = projectReqDto.description
+                this.club = ownerClub
             }
         val savedProjectEntity = projectJpaRepository.save(projectEntity)
 
         return ProjectResDto(
-            projectId = savedProjectEntity.projectId!!,
-            projectName = savedProjectEntity.projectName,
-            projectDescription = savedProjectEntity.projectDescription,
-            projectOwnerClub =
+            id = savedProjectEntity.id!!,
+            name = savedProjectEntity.name,
+            description = savedProjectEntity.description,
+            club =
                 ClubResDto(
-                    clubId = ownerClub.clubId!!,
-                    clubName = ownerClub.clubName,
-                    clubType = ownerClub.clubType,
+                    id = ownerClub.id!!,
+                    name = ownerClub.name,
+                    type = ownerClub.type,
                 ),
         )
     }

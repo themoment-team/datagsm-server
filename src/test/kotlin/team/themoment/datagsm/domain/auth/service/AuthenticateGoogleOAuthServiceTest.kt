@@ -116,7 +116,7 @@ class AuthenticateGoogleOAuthServiceTest :
 
                     val newAccount =
                         AccountJpaEntity.create(email).apply {
-                            accountId = 1L
+                            id = 1L
                         }
 
                     beforeEach {
@@ -125,7 +125,7 @@ class AuthenticateGoogleOAuthServiceTest :
                         every { mockGoogleOAuth2Client.exchangeCodeForToken(any()) } returns tokenResponse
                         every { mockGoogleUserInfoClient.getUserInfo("Bearer $accessToken") } returns userInfo
                         every { mockAccountRepository.findByAccountEmail(email) } returns Optional.empty()
-                        every { mockStudentRepository.findByStudentEmail(email) } returns Optional.empty()
+                        every { mockStudentRepository.findByEmail(email) } returns Optional.empty()
                         every { mockAccountRepository.save(any()) } returns newAccount
                         every { mockJwtProvider.generateAccessToken(email, AccountRole.USER) } returns
                             jwtAccessToken
@@ -167,7 +167,7 @@ class AuthenticateGoogleOAuthServiceTest :
 
                     val existingAccount =
                         AccountJpaEntity.create(email).apply {
-                            accountId = 1L
+                            id = 1L
                         }
 
                     beforeEach {
@@ -216,15 +216,15 @@ class AuthenticateGoogleOAuthServiceTest :
 
                     val student =
                         StudentJpaEntity().apply {
-                            studentId = 1L
-                            studentEmail = email
-                            studentRole = StudentRole.STUDENT_COUNCIL
+                            id = 1L
+                            this.email = email
+                            role = StudentRole.STUDENT_COUNCIL
                         }
 
                     val accountWithStudent =
                         AccountJpaEntity.create(email).apply {
-                            accountId = 1L
-                            accountStudent = student
+                            id = 1L
+                            this.student = student
                         }
 
                     beforeEach {
@@ -272,7 +272,7 @@ class AuthenticateGoogleOAuthServiceTest :
 
                     val existingAccount =
                         AccountJpaEntity.create(email).apply {
-                            accountId = 1L
+                            id = 1L
                         }
 
                     beforeEach {

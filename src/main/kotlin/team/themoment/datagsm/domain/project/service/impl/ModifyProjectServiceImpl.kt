@@ -26,38 +26,33 @@ class ModifyProjectServiceImpl(
                 .findById(projectId)
                 .orElseThrow { ExpectedException("프로젝트를 찾을 수 없습니다. projectId: $projectId", HttpStatus.NOT_FOUND) }
 
-        if (reqDto.projectName != project.projectName) {
-            if (projectJpaRepository.existsByProjectNameAndProjectIdNot(reqDto.projectName, projectId)) {
-                throw ExpectedException("이미 존재하는 프로젝트 이름입니다: ${reqDto.projectName}", HttpStatus.CONFLICT)
+        if (reqDto.name != project.name) {
+            if (projectJpaRepository.existsByProjectNameAndProjectIdNot(reqDto.name, projectId)) {
+                throw ExpectedException("이미 존재하는 프로젝트 이름입니다: ${reqDto.name}", HttpStatus.CONFLICT)
             }
-            project.projectName = reqDto.projectName
+            project.name = reqDto.name
         }
 
-        project.projectDescription = reqDto.projectDescription
+        project.description = reqDto.description
 
-        if (reqDto.projectOwnerClubId != project.projectOwnerClub.clubId) {
+        if (reqDto.clubId != project.club?.id) {
             val ownerClub =
                 clubJpaRepository
-                    .findById(reqDto.projectOwnerClubId)
+                    .findById(reqDto.clubId)
                     .orElseThrow {
                         ExpectedException(
-                            "동아리를 찾을 수 없습니다. clubId: ${reqDto.projectOwnerClubId}",
+                            "동아리를 찾을 수 없습니다. clubId: ${reqDto.clubId}",
                             HttpStatus.NOT_FOUND,
                         )
                     }
-            project.projectOwnerClub = ownerClub
+            project.club = ownerClub
         }
 
         return ProjectResDto(
-            projectId = project.projectId!!,
-            projectName = project.projectName,
-            projectDescription = project.projectDescription,
-            projectOwnerClub =
-                ClubResDto(
-                    clubId = project.projectOwnerClub.clubId!!,
-                    clubName = project.projectOwnerClub.clubName,
-                    clubType = project.projectOwnerClub.clubType,
-                ),
+            id = project.id!!,
+            name = project.name,
+            description = project.description,
+            club = project.club?.let { ClubResDto(id = it.id!!, name = it.name, type = it.type) },
         )
     }
 }
