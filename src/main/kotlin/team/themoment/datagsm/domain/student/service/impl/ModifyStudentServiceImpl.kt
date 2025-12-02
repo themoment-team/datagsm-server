@@ -28,40 +28,31 @@ class ModifyStudentServiceImpl(
             studentJpaRepository
                 .findById(studentId)
                 .orElseThrow { ExpectedException("학생을 찾을 수 없습니다. studentId: $studentId", HttpStatus.NOT_FOUND) }
-        reqDto.email?.let { email ->
-            if (studentJpaRepository.existsByStudentEmailAndNotId(email, studentId)) {
-                throw ExpectedException("이미 존재하는 이메일입니다: $email", HttpStatus.CONFLICT)
-            }
-            student.email = email
+        if (studentJpaRepository.existsByStudentEmailAndNotId(reqDto.email, studentId)) {
+            throw ExpectedException("이미 존재하는 이메일입니다: ${reqDto.email}", HttpStatus.CONFLICT)
         }
-        if (reqDto.grade != null || reqDto.classNum != null || reqDto.number != null) {
-            val newGrade = reqDto.grade ?: student.studentNumber.studentGrade
-            val newClassNum = reqDto.classNum ?: student.studentNumber.studentClass
-            val newNumber = reqDto.number ?: student.studentNumber.studentNumber
-            if (studentJpaRepository.existsByStudentNumberAndNotId(
-                    newGrade,
-                    newClassNum,
-                    newNumber,
-                    studentId,
-                )
-            ) {
-                throw ExpectedException(
-                    "이미 존재하는 학번입니다: ${newGrade}학년 ${newClassNum}반 ${newNumber}번",
-                    HttpStatus.CONFLICT,
-                )
-            }
-            student.studentNumber = StudentNumber(newGrade, newClassNum, newNumber)
-            if (reqDto.classNum != null) {
-                student.major = Major.fromClassNum(newClassNum)
-                    ?: throw ExpectedException("유효하지 않은 학급입니다: $newClassNum", HttpStatus.BAD_REQUEST)
-            }
+        if (studentJpaRepository.existsByStudentNumberAndNotId(
+                reqDto.grade,
+                reqDto.classNum,
+                reqDto.number,
+                studentId,
+            )
+        ) {
+            throw ExpectedException(
+                "이미 존재하는 학번입니다: ${reqDto.grade}학년 ${reqDto.classNum}반 ${reqDto.number}번",
+                HttpStatus.CONFLICT,
+            )
         }
-        reqDto.name?.let { student.name = it }
-        reqDto.sex?.let { student.sex = it }
-        reqDto.role?.let { student.role = it }
-        reqDto.dormitoryRoomNumber?.let {
-            student.dormitoryRoomNumber = DormitoryRoomNumber(it)
-        }
+        val major =
+            Major.fromClassNum(reqDto.classNum)
+                ?: throw ExpectedException("유효하지 않은 학급입니다: ${reqDto.classNum}", HttpStatus.BAD_REQUEST)
+        student.name = reqDto.name
+        student.sex = reqDto.sex
+        student.email = reqDto.email
+        student.studentNumber = StudentNumber(reqDto.grade, reqDto.classNum, reqDto.number)
+        student.major = major
+        student.role = reqDto.role
+        student.dormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
         val clubIds = listOfNotNull(reqDto.majorClubId, reqDto.jobClubId, reqDto.autonomousClubId)
         val clubs =
             if (clubIds.isNotEmpty()) {
@@ -69,15 +60,18 @@ class ModifyStudentServiceImpl(
             } else {
                 emptyMap()
             }
-        reqDto.majorClubId?.let { clubId ->
-            student.majorClub = clubs[clubId] ?: throw ExpectedException("전공 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
-        }
-        reqDto.jobClubId?.let { clubId ->
-            student.jobClub = clubs[clubId] ?: throw ExpectedException("취업 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
-        }
-        reqDto.autonomousClubId?.let { clubId ->
-            student.autonomousClub = clubs[clubId] ?: throw ExpectedException("자율 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
-        }
+        student.majorClub =
+            reqDto.majorClubId?.let { clubId ->
+                clubs[clubId] ?: throw ExpectedException("전공 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
+            }
+        student.jobClub =
+            reqDto.jobClubId?.let { clubId ->
+                clubs[clubId] ?: throw ExpectedException("취업 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
+            }
+        student.autonomousClub =
+            reqDto.autonomousClubId?.let { clubId ->
+                clubs[clubId] ?: throw ExpectedException("자율 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
+            }
         return StudentResDto(
             id = student.id!!,
             name = student.name,
