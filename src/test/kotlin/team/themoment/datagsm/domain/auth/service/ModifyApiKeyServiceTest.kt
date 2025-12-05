@@ -54,7 +54,7 @@ class ModifyApiKeyServiceTest :
 
                 context("API 키를 찾을 수 없을 때") {
                     beforeEach {
-                        every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.empty()
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.empty()
                     }
 
                     it("ExpectedException이 발생해야 한다") {
@@ -67,7 +67,7 @@ class ModifyApiKeyServiceTest :
                         exception.message shouldBe "API 키를 찾을 수 없습니다."
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
-                        verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
+                        verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
                         verify(exactly = 0) { mockApiKeyRepository.save(any()) }
                         verify(exactly = 0) { mockApiKeyRepository.delete(any()) }
                     }
@@ -87,7 +87,7 @@ class ModifyApiKeyServiceTest :
                         }
 
                     beforeEach {
-                        every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.of(apiKey)
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                     }
 
                     it("ExpectedException이 발생해야 한다") {
@@ -99,7 +99,7 @@ class ModifyApiKeyServiceTest :
                         exception.statusCode.value() shouldBe 400
                         exception.message shouldBe "API 키 갱신 기간이 아닙니다. 만료 15일 전부터 만료 15일 후까지만 갱신 가능합니다."
 
-                        verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
+                        verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
                         verify(exactly = 0) { mockApiKeyRepository.save(any()) }
                         verify(exactly = 0) { mockApiKeyRepository.delete(any()) }
                     }
@@ -119,7 +119,7 @@ class ModifyApiKeyServiceTest :
                         }
 
                     beforeEach {
-                        every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.of(apiKey)
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                         every { mockApiKeyRepository.delete(apiKey) } returns Unit
                     }
 
@@ -132,7 +132,7 @@ class ModifyApiKeyServiceTest :
                         exception.statusCode.value() shouldBe 410
                         exception.message shouldBe "API 키 갱신 기간이 지났습니다. 해당 API 키는 삭제되었습니다."
 
-                        verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
+                        verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
                         verify(exactly = 1) { mockApiKeyRepository.delete(apiKey) }
                         verify(exactly = 0) { mockApiKeyRepository.save(any()) }
                     }
@@ -153,7 +153,7 @@ class ModifyApiKeyServiceTest :
                         }
 
                     beforeEach {
-                        every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.of(apiKey)
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                         every { mockApiKeyRepository.save(apiKey) } returns apiKey
                     }
 
@@ -163,7 +163,7 @@ class ModifyApiKeyServiceTest :
                         result.apiKey shouldBe oldApiKeyValue
                         result.expiresAt shouldNotBe null
 
-                        verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
+                        verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
                         verify(exactly = 1) { mockApiKeyRepository.save(apiKey) }
                         verify(exactly = 0) { mockApiKeyRepository.delete(any()) }
                     }
@@ -184,7 +184,7 @@ class ModifyApiKeyServiceTest :
                         }
 
                     beforeEach {
-                        every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.of(apiKey)
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                         every { mockApiKeyRepository.save(apiKey) } returns apiKey
                     }
 
@@ -195,7 +195,7 @@ class ModifyApiKeyServiceTest :
                         apiKey.value shouldBe oldApiKeyValue
                         apiKey.expiresAt shouldNotBe expiresAt
 
-                        verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
+                        verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
                         verify(exactly = 1) { mockApiKeyRepository.save(apiKey) }
                         verify(exactly = 0) { mockApiKeyRepository.delete(any()) }
                     }
@@ -215,7 +215,7 @@ class ModifyApiKeyServiceTest :
                         }
 
                     beforeEach {
-                        every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.of(apiKey)
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                         every { mockApiKeyRepository.save(apiKey) } returns apiKey
                     }
 
@@ -243,7 +243,7 @@ class ModifyApiKeyServiceTest :
                         }
 
                     beforeEach {
-                        every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.of(apiKey)
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                         every { mockApiKeyRepository.delete(apiKey) } returns Unit
                     }
 

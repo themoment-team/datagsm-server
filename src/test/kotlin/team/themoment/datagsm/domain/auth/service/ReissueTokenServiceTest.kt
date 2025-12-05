@@ -118,7 +118,7 @@ class ReissueTokenServiceTest :
                         exception.statusCode.value() shouldBe 401
 
                         verify(exactly = 1) { mockRefreshTokenRepository.deleteByEmail(email) }
-                        verify(exactly = 0) { mockAccountRepository.findByAccountEmail(any()) }
+                        verify(exactly = 0) { mockAccountRepository.findByEmail(any()) }
                     }
                 }
 
@@ -134,7 +134,7 @@ class ReissueTokenServiceTest :
                         every { mockJwtProvider.validateToken(refreshToken) } returns true
                         every { mockJwtProvider.getEmailFromToken(refreshToken) } returns email
                         every { mockRefreshTokenRepository.findByEmail(email) } returns Optional.of(storedToken)
-                        every { mockAccountRepository.findByAccountEmail(email) } returns Optional.empty()
+                        every { mockAccountRepository.findByEmail(email) } returns Optional.empty()
                     }
 
                     it("ExpectedException이 발생해야 한다") {
@@ -146,7 +146,7 @@ class ReissueTokenServiceTest :
                         exception.message shouldBe "계정을 찾을 수 없습니다."
                         exception.statusCode.value() shouldBe 404
 
-                        verify(exactly = 1) { mockAccountRepository.findByAccountEmail(email) }
+                        verify(exactly = 1) { mockAccountRepository.findByEmail(email) }
                         verify(exactly = 0) { mockJwtProvider.generateAccessToken(any(), any()) }
                     }
                 }
@@ -168,7 +168,7 @@ class ReissueTokenServiceTest :
                         every { mockJwtProvider.validateToken(refreshToken) } returns true
                         every { mockJwtProvider.getEmailFromToken(refreshToken) } returns email
                         every { mockRefreshTokenRepository.findByEmail(email) } returns Optional.of(storedToken)
-                        every { mockAccountRepository.findByAccountEmail(email) } returns Optional.of(account)
+                        every { mockAccountRepository.findByEmail(email) } returns Optional.of(account)
                         every { mockJwtProvider.generateAccessToken(email, AccountRole.USER) } returns
                             newAccessToken
                         every { mockJwtProvider.generateRefreshToken(email) } returns newRefreshToken
@@ -185,7 +185,7 @@ class ReissueTokenServiceTest :
                         verify(exactly = 1) { mockJwtProvider.validateToken(refreshToken) }
                         verify(exactly = 1) { mockJwtProvider.getEmailFromToken(refreshToken) }
                         verify(exactly = 1) { mockRefreshTokenRepository.findByEmail(email) }
-                        verify(exactly = 1) { mockAccountRepository.findByAccountEmail(email) }
+                        verify(exactly = 1) { mockAccountRepository.findByEmail(email) }
                         verify(exactly = 1) { mockJwtProvider.generateAccessToken(email, AccountRole.USER) }
                         verify(exactly = 1) { mockJwtProvider.generateRefreshToken(email) }
                         verify(exactly = 1) { mockRefreshTokenRepository.deleteByEmail(email) }
@@ -218,7 +218,7 @@ class ReissueTokenServiceTest :
                         every { mockJwtProvider.validateToken(refreshToken) } returns true
                         every { mockJwtProvider.getEmailFromToken(refreshToken) } returns email
                         every { mockRefreshTokenRepository.findByEmail(email) } returns Optional.of(storedToken)
-                        every { mockAccountRepository.findByAccountEmail(email) } returns Optional.of(account)
+                        every { mockAccountRepository.findByEmail(email) } returns Optional.of(account)
                         every { mockJwtProvider.generateAccessToken(email, AccountRole.USER) } returns
                             newAccessToken
                         every { mockJwtProvider.generateRefreshToken(email) } returns newRefreshToken

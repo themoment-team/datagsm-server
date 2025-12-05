@@ -42,7 +42,7 @@ class ApiKeyAuthenticationFilter(
             val apiKeyValue = UUID.fromString(apiKeyHeader)
             val apiKey =
                 apiKeyJpaRepository
-                    .findByApiKeyValue(apiKeyValue)
+                    .findByValue(apiKeyValue)
                     .orElse(null)
 
             if (apiKey == null) {

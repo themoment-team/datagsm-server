@@ -52,7 +52,7 @@ class QueryApiKeyRenewableServiceTest :
 
                 context("API 키가 존재하지 않을 때") {
                     beforeEach {
-                        every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.empty()
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.empty()
                     }
 
                     it("404 상태코드와 함께 ExpectedException를 던져야 한다") {
@@ -65,7 +65,7 @@ class QueryApiKeyRenewableServiceTest :
                         exception.message shouldBe "API 키를 찾을 수 없습니다."
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
-                        verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
+                        verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
                     }
                 }
 
@@ -83,7 +83,7 @@ class QueryApiKeyRenewableServiceTest :
                         }
 
                     beforeEach {
-                        every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.of(apiKey)
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                     }
 
                     it("renewable이 true를 반환해야 한다") {
@@ -92,7 +92,7 @@ class QueryApiKeyRenewableServiceTest :
                         result.renewable shouldBe true
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
-                        verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
+                        verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
                     }
                 }
 
@@ -110,7 +110,7 @@ class QueryApiKeyRenewableServiceTest :
                         }
 
                     beforeEach {
-                        every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.of(apiKey)
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                     }
 
                     it("renewable이 false를 반환해야 한다") {
@@ -119,7 +119,7 @@ class QueryApiKeyRenewableServiceTest :
                         result.renewable shouldBe false
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
-                        verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
+                        verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
                     }
                 }
 
@@ -137,7 +137,7 @@ class QueryApiKeyRenewableServiceTest :
                         }
 
                     beforeEach {
-                        every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.of(apiKey)
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                     }
 
                     it("renewable이 true를 반환해야 한다") {
@@ -146,7 +146,7 @@ class QueryApiKeyRenewableServiceTest :
                         result.renewable shouldBe true
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
-                        verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
+                        verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
                     }
                 }
 
@@ -164,7 +164,7 @@ class QueryApiKeyRenewableServiceTest :
                         }
 
                     beforeEach {
-                        every { mockApiKeyRepository.findByApiKeyAccount(mockAccount) } returns Optional.of(apiKey)
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                     }
 
                     it("renewable이 false를 반환해야 한다") {
@@ -173,7 +173,7 @@ class QueryApiKeyRenewableServiceTest :
                         result.renewable shouldBe false
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
-                        verify(exactly = 1) { mockApiKeyRepository.findByApiKeyAccount(mockAccount) }
+                        verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
                     }
                 }
             }

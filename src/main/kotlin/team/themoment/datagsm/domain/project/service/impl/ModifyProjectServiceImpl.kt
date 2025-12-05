@@ -27,7 +27,7 @@ class ModifyProjectServiceImpl(
                 .orElseThrow { ExpectedException("프로젝트를 찾을 수 없습니다. projectId: $projectId", HttpStatus.NOT_FOUND) }
 
         if (reqDto.name != project.name) {
-            if (projectJpaRepository.existsByProjectNameAndProjectIdNot(reqDto.name, projectId)) {
+            if (projectJpaRepository.existsByNameAndIdNot(reqDto.name, projectId)) {
                 throw ExpectedException("이미 존재하는 프로젝트 이름입니다: ${reqDto.name}", HttpStatus.CONFLICT)
             }
             project.name = reqDto.name

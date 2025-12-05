@@ -34,7 +34,7 @@ class CreateClubServiceTest :
                         )
 
                     beforeEach {
-                        every { mockClubRepository.existsByClubName(req.name) } returns true
+                        every { mockClubRepository.existsByName(req.name) } returns true
                     }
 
                     it("ExpectedException이 발생해야 한다") {
@@ -44,7 +44,7 @@ class CreateClubServiceTest :
                             }
                         ex.message shouldBe "이미 존재하는 동아리 이름입니다: ${req.name}"
 
-                        verify(exactly = 1) { mockClubRepository.existsByClubName(req.name) }
+                        verify(exactly = 1) { mockClubRepository.existsByName(req.name) }
                         verify(exactly = 0) { mockClubRepository.save(any()) }
                     }
                 }
@@ -57,7 +57,7 @@ class CreateClubServiceTest :
                         )
 
                     beforeEach {
-                        every { mockClubRepository.existsByClubName(req.name) } returns false
+                        every { mockClubRepository.existsByName(req.name) } returns false
                         every { mockClubRepository.save(any()) } answers {
                             val entity = firstArg<ClubJpaEntity>()
                             entity.apply { this.id = 10L }
@@ -70,7 +70,7 @@ class CreateClubServiceTest :
                         res.name shouldBe req.name
                         res.type shouldBe req.type
 
-                        verify(exactly = 1) { mockClubRepository.existsByClubName(req.name) }
+                        verify(exactly = 1) { mockClubRepository.existsByName(req.name) }
                         verify(exactly = 1) { mockClubRepository.save(any()) }
                     }
                 }

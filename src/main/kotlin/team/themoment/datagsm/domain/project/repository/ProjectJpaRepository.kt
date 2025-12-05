@@ -7,9 +7,9 @@ import team.themoment.datagsm.domain.project.repository.custom.ProjectJpaCustomR
 interface ProjectJpaRepository :
     JpaRepository<ProjectJpaEntity, Long>,
     ProjectJpaCustomRepository {
-    fun existsByProjectName(projectName: String): Boolean
+    fun existsByName(projectName: String): Boolean
 
-    fun existsByProjectNameAndProjectIdNot(
+    fun existsByNameAndIdNot(
         projectName: String,
         projectId: Long,
     ): Boolean

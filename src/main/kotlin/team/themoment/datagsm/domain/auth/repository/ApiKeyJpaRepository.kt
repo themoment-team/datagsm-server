@@ -10,11 +10,11 @@ import java.util.UUID
 
 @Repository
 interface ApiKeyJpaRepository : JpaRepository<ApiKey, Long> {
-    fun findByApiKeyAccount(account: AccountJpaEntity): Optional<ApiKey>
+    fun findByAccount(account: AccountJpaEntity): Optional<ApiKey>
 
-    fun findByApiKeyValue(apiKeyValue: UUID): Optional<ApiKey>
+    fun findByValue(apiKeyValue: UUID): Optional<ApiKey>
 
-    fun deleteByApiKeyAccount(account: AccountJpaEntity)
+    fun deleteByAccount(account: AccountJpaEntity)
 
     fun findAllByExpiresAtLessThanEqual(dateTime: LocalDateTime): List<ApiKey>
 }

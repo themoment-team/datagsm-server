@@ -56,7 +56,7 @@ class CreateProjectServiceTest :
                         }
 
                     beforeEach {
-                        every { mockProjectRepository.existsByProjectName(createRequest.name) } returns false
+                        every { mockProjectRepository.existsByName(createRequest.name) } returns false
                         every { mockClubRepository.findById(createRequest.clubId) } returns Optional.of(ownerClub)
                         every { mockProjectRepository.save(any()) } returns savedProject
                     }
@@ -71,7 +71,7 @@ class CreateProjectServiceTest :
                         result.club?.name shouldBe "SW개발동아리"
                         result.club?.type shouldBe ClubType.MAJOR_CLUB
 
-                        verify(exactly = 1) { mockProjectRepository.existsByProjectName(createRequest.name) }
+                        verify(exactly = 1) { mockProjectRepository.existsByName(createRequest.name) }
                         verify(exactly = 1) { mockClubRepository.findById(createRequest.clubId) }
                         verify(exactly = 1) { mockProjectRepository.save(any()) }
                     }
@@ -86,7 +86,7 @@ class CreateProjectServiceTest :
                         )
 
                     beforeEach {
-                        every { mockProjectRepository.existsByProjectName(createRequest.name) } returns true
+                        every { mockProjectRepository.existsByName(createRequest.name) } returns true
                     }
 
                     it("ExpectedException이 발생해야 한다") {
@@ -97,7 +97,7 @@ class CreateProjectServiceTest :
 
                         exception.message shouldBe "이미 존재하는 프로젝트 이름입니다: ${createRequest.name}"
 
-                        verify(exactly = 1) { mockProjectRepository.existsByProjectName(createRequest.name) }
+                        verify(exactly = 1) { mockProjectRepository.existsByName(createRequest.name) }
                         verify(exactly = 0) { mockClubRepository.findById(any()) }
                         verify(exactly = 0) { mockProjectRepository.save(any()) }
                     }
@@ -112,7 +112,7 @@ class CreateProjectServiceTest :
                         )
 
                     beforeEach {
-                        every { mockProjectRepository.existsByProjectName(createRequest.name) } returns false
+                        every { mockProjectRepository.existsByName(createRequest.name) } returns false
                         every { mockClubRepository.findById(createRequest.clubId) } returns Optional.empty()
                     }
 
@@ -124,7 +124,7 @@ class CreateProjectServiceTest :
 
                         exception.message shouldBe "동아리를 찾을 수 없습니다. clubId: ${createRequest.clubId}"
 
-                        verify(exactly = 1) { mockProjectRepository.existsByProjectName(createRequest.name) }
+                        verify(exactly = 1) { mockProjectRepository.existsByName(createRequest.name) }
                         verify(exactly = 1) { mockClubRepository.findById(createRequest.clubId) }
                         verify(exactly = 0) { mockProjectRepository.save(any()) }
                     }
@@ -154,7 +154,7 @@ class CreateProjectServiceTest :
                         }
 
                     beforeEach {
-                        every { mockProjectRepository.existsByProjectName(createRequest.name) } returns false
+                        every { mockProjectRepository.existsByName(createRequest.name) } returns false
                         every { mockClubRepository.findById(createRequest.clubId) } returns Optional.of(ownerClub)
                         every { mockProjectRepository.save(any()) } returns savedProject
                     }

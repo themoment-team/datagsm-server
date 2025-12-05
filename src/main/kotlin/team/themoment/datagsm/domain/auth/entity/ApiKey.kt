@@ -35,7 +35,7 @@ class ApiKey {
     var expiresAt: LocalDateTime = LocalDateTime.now()
 
     @OneToOne
-    @JoinColumn(name = "account_id", nullable = false, referencedColumnName = "account_id")
+    @JoinColumn(name = "account_id", nullable = false, referencedColumnName = "id")
     var account: AccountJpaEntity? = null
 
     fun isExpired(): Boolean = LocalDateTime.now().isAfter(expiresAt)

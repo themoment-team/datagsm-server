@@ -16,7 +16,7 @@ class CreateClubServiceImpl(
     private final val clubJpaRepository: ClubJpaRepository,
 ) : CreateClubService {
     override fun execute(clubReqDto: ClubReqDto): ClubResDto {
-        if (clubJpaRepository.existsByClubName(clubReqDto.name)) {
+        if (clubJpaRepository.existsByName(clubReqDto.name)) {
             throw ExpectedException("이미 존재하는 동아리 이름입니다: ${clubReqDto.name}", HttpStatus.CONFLICT)
         }
 
