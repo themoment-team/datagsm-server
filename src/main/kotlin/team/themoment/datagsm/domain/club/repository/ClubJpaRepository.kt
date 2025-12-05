@@ -2,6 +2,7 @@ package team.themoment.datagsm.domain.club.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
 import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.domain.club.repository.custom.ClubJpaCustomRepository
 
 interface ClubJpaRepository :
@@ -13,4 +14,6 @@ interface ClubJpaRepository :
         clubName: String,
         clubId: Long,
     ): Boolean
+
+    fun findAllByNameInAndType(clubs: List<String>, clubType: ClubType): List<ClubJpaEntity>
 }
