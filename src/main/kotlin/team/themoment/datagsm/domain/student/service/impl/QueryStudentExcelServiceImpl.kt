@@ -2,6 +2,8 @@ package team.themoment.datagsm.domain.student.service.impl
 
 import jakarta.transaction.Transactional
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
+import org.apache.poi.ss.usermodel.DataFormatter
+import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -26,6 +28,8 @@ class QueryStudentExcelServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
 ) : QueryStudentExcelService {
+    private val dataFormatter = DataFormatter()
+
     override fun queryStudentData(file: MultipartFile) {
         val excelData: List<ExcelColumnDto> = queryExcelData(file).flatMap { it.excelRows }
         val studentNumbers = excelData.map { it.number }.distinct()
@@ -66,15 +70,15 @@ class QueryStudentExcelServiceImpl(
                 }
                 // 엑셀에서 존재하지 않는 동아리면 동아리 수정이 안되도록 하였습니다.
                 // 이와 관련해서도 추가적인 리뷰 부탁드립니다.
-                dto.majorClub?.let { clubName ->
+                this.majorClub = dto.majorClub?.let { clubName ->
                     existingMajorClubs[clubName]
                         ?: throw ExpectedException("존재하지 않는 전공동아리입니다.", HttpStatus.BAD_REQUEST)
                 }
-                dto.jobClub?.let { clubName ->
+                this.jobClub = dto.jobClub?.let { clubName ->
                     existingJobClubs[clubName]
                         ?: throw ExpectedException("존재하지 않는 취업동아리입니다.", HttpStatus.BAD_REQUEST)
                 }
-                dto.autonomousClub?.let { clubName ->
+                this.autonomousClub = dto.autonomousClub?.let { clubName ->
                     existingAutonomousClubs[clubName]
                         ?: throw ExpectedException("존재하지 않는 창체동아리입니다.", HttpStatus.BAD_REQUEST)
                 }
@@ -98,15 +102,15 @@ class QueryStudentExcelServiceImpl(
                 }
                 // 엑셀에서 존재하지 않는 동아리면 동아리 수정이 안되도록 하였습니다.
                 // 이와 관련해서도 추가적인 리뷰 부탁드립니다.
-                dto.majorClub?.let { clubName ->
+                this.majorClub = dto.majorClub?.let { clubName ->
                     existingMajorClubs[clubName]
                         ?: throw ExpectedException("존재하지 않는 전공동아리입니다.", HttpStatus.BAD_REQUEST)
                 }
-                dto.jobClub?.let { clubName ->
+                this.jobClub = dto.jobClub?.let { clubName ->
                     existingJobClubs[clubName]
                         ?: throw ExpectedException("존재하지 않는 취업동아리입니다.", HttpStatus.BAD_REQUEST)
                 }
-                dto.autonomousClub?.let { clubName ->
+                this.autonomousClub = dto.autonomousClub?.let { clubName ->
                     existingAutonomousClubs[clubName]
                         ?: throw ExpectedException("존재하지 않는 창체동아리입니다.", HttpStatus.BAD_REQUEST)
                 }
@@ -152,30 +156,35 @@ class QueryStudentExcelServiceImpl(
                 val excelRowDto = ExcelRowDto(
                     sheet.drop(1).map { row ->
                         ExcelColumnDto(
-                            name = row.getCell(0)?.stringCellValue?.trim()
-                                ?: throw ExpectedException("학생 이름이 비어있습니다.", HttpStatus.BAD_REQUEST),
-                            number = checkStudentNumber(row.getCell(1)?.numericCellValue?.toInt()),
-                            email = row.getCell(2)?.stringCellValue?.trim()
-                                ?: throw ExpectedException("이메일이 비어있습니다.", HttpStatus.BAD_REQUEST),
-                            major = row.getCell(3)?.stringCellValue?.trim()
-                                ?.takeIf { listOf("SW개발과", "스마트IoT과", "인공지능과").contains(it) }
-                                ?: throw ExpectedException("학과 형식이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
-                            majorClub = row.getCell(4)?.stringCellValue?.trim(),
-                            jobClub = row.getCell(5)?.stringCellValue?.trim(),
-                            autonomousClub = row.getCell(6)?.stringCellValue?.trim(),
-                            dormitoryRoomNumber = row.getCell(7)?.numericCellValue?.toInt(),
-                            role = row.getCell(8)?.stringCellValue?.trim()
-                                ?.takeIf { listOf("일반인", "기숙사자치위원회", "학생회").contains(it) }
-                                ?: throw ExpectedException("소속이 비어있습니다.", HttpStatus.BAD_REQUEST),
-                            isLeaveSchool = when (row.getCell(9)?.stringCellValue?.trim()?.uppercase()) {
-                                null -> throw ExpectedException("자퇴 여부는 필수입니다.", HttpStatus.BAD_REQUEST)
+                            name = getRequiredString(row, 0, "학생 이름"),
+                            number = checkStudentNumber(getRequiredInt(row, 1, "학번")),
+                            email = getRequiredString(row, 2, "이메일"),
+                            major = getRequiredString(row, 3, "학과")
+                                .takeIf { listOf("SW개발과", "스마트IoT과", "인공지능과").contains(it) }
+                                ?: throw ExpectedException(
+                                    "${row.rowNum + 1}행: 학과는 'SW개발과', '스마트IoT과', '인공지능과'여야 합니다.",
+                                    HttpStatus.BAD_REQUEST),
+                            majorClub = getOptionalString(row, 4),
+                            jobClub = getOptionalString(row, 5),
+                            autonomousClub = getOptionalString(row, 6),
+                            dormitoryRoomNumber = getOptionalInt(row, 7),
+                            role = getRequiredString(row, 8, "소속")
+                                .takeIf { listOf("일반인", "기숙사자치위원회", "학생회").contains(it) }
+                                ?: throw ExpectedException(
+                                    "${row.rowNum + 1}행: 소속은 '일반인', '기숙사자치위원회', '학생회'여야 합니다.",
+                                    HttpStatus.BAD_REQUEST),
+                            isLeaveSchool = when (getRequiredString(row, 9, "자퇴 여부").uppercase()) {
                                 "O" -> true
                                 "X" -> false
-                                else -> throw ExpectedException("자퇴 여부는 O 또는 X를 사용해야 합니다.", HttpStatus.BAD_REQUEST)
+                                else -> throw ExpectedException(
+                                    "${row.rowNum + 1}행: 자퇴 여부는 O 또는 X여야 합니다.",
+                                    HttpStatus.BAD_REQUEST)
                             },
-                            sex = row.getCell(10)?.stringCellValue?.trim()
-                                ?.takeIf { listOf("남자", "여자").contains(it) }
-                                ?: throw ExpectedException("성별이 비어있습니다.", HttpStatus.BAD_REQUEST),
+                            sex = getRequiredString(row, 10, "성별")
+                                .takeIf { listOf("남자", "여자").contains(it) }
+                                ?: throw ExpectedException(
+                                    "${row.rowNum + 1}행: 성별은 '남자' 또는 '여자'여야 합니다.",
+                                    HttpStatus.BAD_REQUEST),
                         )
                     }
                 )
@@ -185,6 +194,38 @@ class QueryStudentExcelServiceImpl(
         } finally {
             workbook.close()
         }
+    }
+
+    private fun getCellValue(row: Row, columnIndex: Int): String {
+        val cell = row.getCell(columnIndex) ?: return ""
+        return dataFormatter.formatCellValue(cell).trim()
+    }
+
+    private fun getRequiredString(row: Row, columnIndex: Int, fieldName: String): String {
+        return getCellValue(row, columnIndex)
+            .takeIf { it.isNotBlank() }
+            ?: throw ExpectedException(
+                "${row.rowNum + 1}행 ${fieldName}이(가) 비어있습니다.",
+                HttpStatus.BAD_REQUEST
+            )
+    }
+
+    private fun getOptionalString(row: Row, columnIndex: Int): String? {
+        return getCellValue(row, columnIndex)
+            .takeIf { it.isNotBlank() }
+    }
+
+    private fun getRequiredInt(row: Row, columnIndex: Int, fieldName: String): Int {
+        return getCellValue(row, columnIndex).toIntOrNull()
+            ?: throw ExpectedException(
+                "${row.rowNum + 1}행 ${fieldName}이(가) 비어있습니다.",
+                HttpStatus.BAD_REQUEST
+            )
+    }
+
+    private fun getOptionalInt(row: Row, columnIndex: Int): Int? {
+        return getCellValue(row, columnIndex)
+            .toIntOrNull()
     }
 
     fun checkStudentNumber(studentNumber: Int?): Int {
