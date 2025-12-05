@@ -59,8 +59,8 @@ object Dependencies {
     const val AWS_SDK_BOM = "software.amazon.awssdk:bom:${AWS_SDK_VERSION}"
 
     // Excel
-    const val POI = "org.apache.poi:poi:5.3.0"
-    const val OOXML = "org.apache.poi:poi-ooxml:5.3.0"
+    const val POI = "org.apache.poi:poi:5.5.1"
+    const val OOXML = "org.apache.poi:poi-ooxml:5.5.1"
 
     // Testing
     const val SPRING_TEST = "org.springframework.boot:spring-boot-starter-test"
