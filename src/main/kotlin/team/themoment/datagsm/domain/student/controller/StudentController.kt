@@ -112,8 +112,6 @@ class StudentController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "생성 성공"),
-            ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
-            ApiResponse(responseCode = "404", description = "학생을 찾을 수 없음", content = [Content()]),
         ],
     )
     @GetMapping("/excel/download")
@@ -132,7 +130,13 @@ class StudentController(
             .body(excelData)
     }
 
-    @Operation(summary = "학생 생성", description = "새로운 학생 정보를 생성합니다.")
+    @Operation(summary = "학생 정보 엑셀 업로드", description = "학생 정보가 담긴 엑셀을 받아 수정 또는 저장을 진행합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "업로드 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청 (잘못된 셀 값)", content = [Content()]),
+        ],
+    )
     @PostMapping("/excel/upload")
     fun uploadStudentExcel(
         @RequestParam("file") file: MultipartFile,
