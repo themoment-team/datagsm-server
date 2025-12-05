@@ -142,6 +142,16 @@ class QueryStudentExcelServiceImpl(
         }
 
         try {
+            if(
+                workbook.numberOfSheets != 3 ||
+                !workbook.getSheetAt(0).sheetName.equals("1학년") ||
+                !workbook.getSheetAt(1).sheetName.equals("2학년") ||
+                !workbook.getSheetAt(2).sheetName.equals("3학년")
+            ) {
+                throw ExpectedException(
+                    "시트는 1학년, 2학년, 3학년으로 구성되어 있어야 합니다.",
+                    HttpStatus.BAD_REQUEST)
+            }
             val data = mutableListOf<ExcelRowDto>()
             for (i: Int in 0..2) {
                 val sheet = workbook.getSheetAt(i)
