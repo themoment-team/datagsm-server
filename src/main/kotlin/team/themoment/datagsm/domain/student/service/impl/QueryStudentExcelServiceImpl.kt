@@ -35,9 +35,9 @@ class QueryStudentExcelServiceImpl(
                 .findAllByStudentNumberIn(studentNumbers)
                 .associateBy { it.studentNumber.fullStudentNumber }
 
-        val majorClubs = excelData.mapNotNull { it.majorClub }.distinct();
-        val jobClubs = excelData.mapNotNull { it.jobClub }.distinct();
-        val autonomousClubs = excelData.mapNotNull { it.autonomousClub }.distinct();
+        val majorClubs = excelData.mapNotNull { it.majorClub }.distinct()
+        val jobClubs = excelData.mapNotNull { it.jobClub }.distinct()
+        val autonomousClubs = excelData.mapNotNull { it.autonomousClub }.distinct()
 
         val existingMajorClubs =
             if(majorClubs.isEmpty()) emptyMap()
