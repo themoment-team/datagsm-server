@@ -152,28 +152,28 @@ class QueryStudentExcelServiceImpl(
                 val excelRowDto = ExcelRowDto(
                     sheet.drop(1).map { row ->
                         ExcelColumnDto(
-                            name = row.getCell(1)?.stringCellValue?.trim()
+                            name = row.getCell(0)?.stringCellValue?.trim()
                                 ?: throw ExpectedException("학생 이름이 비어있습니다.", HttpStatus.BAD_REQUEST),
-                            number = checkStudentNumber(row.getCell(0)?.numericCellValue?.toInt()),
-                            email = row.getCell(3)?.stringCellValue?.trim()
+                            number = checkStudentNumber(row.getCell(1)?.numericCellValue?.toInt()),
+                            email = row.getCell(2)?.stringCellValue?.trim()
                                 ?: throw ExpectedException("이메일이 비어있습니다.", HttpStatus.BAD_REQUEST),
-                            major = row.getCell(4)?.stringCellValue?.trim()
+                            major = row.getCell(3)?.stringCellValue?.trim()
                                 ?.takeIf { listOf("SW개발과", "스마트IoT과", "인공지능과").contains(it) }
                                 ?: throw ExpectedException("학과 형식이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
-                            majorClub = row.getCell(5)?.stringCellValue?.trim(),
-                            jobClub = row.getCell(6)?.stringCellValue?.trim(),
-                            autonomousClub = row.getCell(7)?.stringCellValue?.trim(),
-                            dormitoryRoomNumber = row.getCell(9)?.numericCellValue?.toInt(),
+                            majorClub = row.getCell(4)?.stringCellValue?.trim(),
+                            jobClub = row.getCell(5)?.stringCellValue?.trim(),
+                            autonomousClub = row.getCell(6)?.stringCellValue?.trim(),
+                            dormitoryRoomNumber = row.getCell(7)?.numericCellValue?.toInt(),
                             role = row.getCell(8)?.stringCellValue?.trim()
                                 ?.takeIf { listOf("일반인", "기숙사자치위원회", "학생회").contains(it) }
                                 ?: throw ExpectedException("소속이 비어있습니다.", HttpStatus.BAD_REQUEST),
-                            isLeaveSchool = when (row.getCell(10)?.stringCellValue?.trim()?.uppercase()) {
+                            isLeaveSchool = when (row.getCell(9)?.stringCellValue?.trim()?.uppercase()) {
                                 null -> throw ExpectedException("자퇴 여부는 필수입니다.", HttpStatus.BAD_REQUEST)
                                 "O" -> true
                                 "X" -> false
                                 else -> throw ExpectedException("자퇴 여부는 O 또는 X를 사용해야 합니다.", HttpStatus.BAD_REQUEST)
                             },
-                            sex = row.getCell(2)?.stringCellValue?.trim()
+                            sex = row.getCell(10)?.stringCellValue?.trim()
                                 ?.takeIf { listOf("남자", "여자").contains(it) }
                                 ?: throw ExpectedException("성별이 비어있습니다.", HttpStatus.BAD_REQUEST),
                         )
