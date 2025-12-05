@@ -67,19 +67,16 @@ class QueryStudentExcelServiceImpl(
                 // 엑셀에서 존재하지 않는 동아리면 동아리 수정이 안되도록 하였습니다.
                 // 이와 관련해서도 추가적인 리뷰 부탁드립니다.
                 dto.majorClub?.let { clubName ->
-                    existingMajorClubs[clubName]?.also { club ->
-                        this.majorClub = club
-                    }
+                    existingMajorClubs[clubName]
+                        ?: throw ExpectedException("존재하지 않는 전공동아리입니다.", HttpStatus.BAD_REQUEST)
                 }
                 dto.jobClub?.let { clubName ->
-                    existingJobClubs[clubName]?.also { club ->
-                        this.jobClub = club
-                    }
+                    existingJobClubs[clubName]
+                        ?: throw ExpectedException("존재하지 않는 취업동아리입니다.", HttpStatus.BAD_REQUEST)
                 }
                 dto.autonomousClub?.let { clubName ->
-                    existingAutonomousClubs[clubName]?.also { club ->
-                        this.autonomousClub = club
-                    }
+                    existingAutonomousClubs[clubName]
+                        ?: throw ExpectedException("존재하지 않는 창체동아리입니다.", HttpStatus.BAD_REQUEST)
                 }
                 this.dormitoryRoomNumber = getDormitoryEmbedded(dto.dormitoryRoomNumber)
                 this.role = when (dto.role) {
@@ -102,19 +99,16 @@ class QueryStudentExcelServiceImpl(
                 // 엑셀에서 존재하지 않는 동아리면 동아리 수정이 안되도록 하였습니다.
                 // 이와 관련해서도 추가적인 리뷰 부탁드립니다.
                 dto.majorClub?.let { clubName ->
-                    existingMajorClubs[clubName]?.also { club ->
-                        this.majorClub = club
-                    }
+                    existingMajorClubs[clubName]
+                        ?: throw ExpectedException("존재하지 않는 전공동아리입니다.", HttpStatus.BAD_REQUEST)
                 }
                 dto.jobClub?.let { clubName ->
-                    existingJobClubs[clubName]?.also { club ->
-                        this.jobClub = club
-                    }
+                    existingJobClubs[clubName]
+                        ?: throw ExpectedException("존재하지 않는 취업동아리입니다.", HttpStatus.BAD_REQUEST)
                 }
                 dto.autonomousClub?.let { clubName ->
-                    existingAutonomousClubs[clubName]?.also { club ->
-                        this.autonomousClub = club
-                    }
+                    existingAutonomousClubs[clubName]
+                        ?: throw ExpectedException("존재하지 않는 창체동아리입니다.", HttpStatus.BAD_REQUEST)
                 }
                 this.dormitoryRoomNumber = getDormitoryEmbedded(dto.dormitoryRoomNumber)
                 this.role = when (dto.role) {
