@@ -4,14 +4,13 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
-import team.themoment.datagsm.domain.student.entity.constant.StudentNumber
 import team.themoment.datagsm.domain.student.repository.custom.StudentJpaCustomRepository
 import java.util.Optional
 
 interface StudentJpaRepository :
     JpaRepository<StudentJpaEntity, Long>,
     StudentJpaCustomRepository {
-    fun findByStudentEmail(email: String): Optional<StudentJpaEntity>
+    fun findByEmail(email: String): Optional<StudentJpaEntity>
 
     @Query(
         """
