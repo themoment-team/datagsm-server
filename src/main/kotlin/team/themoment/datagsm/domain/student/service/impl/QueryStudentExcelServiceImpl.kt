@@ -33,9 +33,9 @@ class QueryStudentExcelServiceImpl(
     override fun queryStudentData(file: MultipartFile) {
         val excelData: List<ExcelColumnDto> = queryExcelData(file).flatMap { it.excelRows }
         val studentNumbers = excelData.map { it.number }.distinct()
+        if(studentNumbers.isEmpty()) return
         val existingStudents =
-            if (studentNumbers.isEmpty()) emptyMap()
-            else studentJpaRepository
+            studentJpaRepository
                 .findAllByStudentNumberIn(studentNumbers)
                 .associateBy { it.studentNumber.fullStudentNumber }
 
