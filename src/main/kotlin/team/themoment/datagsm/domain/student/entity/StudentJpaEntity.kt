@@ -55,7 +55,7 @@ class StudentJpaEntity {
     var autonomousClub: ClubJpaEntity? = null
 
     @field:Embedded
-    lateinit var dormitoryRoomNumber: DormitoryRoomNumber
+    var dormitoryRoomNumber: DormitoryRoomNumber? = null
 
     @field:Column(name = "role", nullable = false)
     @field:Enumerated(EnumType.STRING)
