@@ -11,6 +11,7 @@ enum class AccountRole : GrantedAuthority {
     ROOT,
     ADMIN,
     USER,
+    API_KEY_USER,
     ;
 
     /**
