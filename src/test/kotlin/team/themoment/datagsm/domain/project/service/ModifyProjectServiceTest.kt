@@ -69,6 +69,7 @@ class ModifyProjectServiceTest :
                                 projectId,
                             )
                         } returns false
+                        every { mockClubRepository.findById(1L) } returns Optional.of(ownerClub)
                     }
 
                     it("프로젝트 이름이 성공적으로 업데이트되어야 한다") {
@@ -85,6 +86,7 @@ class ModifyProjectServiceTest :
                                 projectId,
                             )
                         }
+                        verify(exactly = 1) { mockClubRepository.findById(1L) }
                     }
                 }
 
