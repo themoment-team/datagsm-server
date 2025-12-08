@@ -61,63 +61,33 @@ class ModifyStudentExcelServiceImpl(
 
         val studentsToSave = excelData.map { dto ->
             val studentClass: Int = (dto.number % 1000) / 100
-            existingStudents[dto.number]?.apply {
-                this.name = dto.name
-                this.studentNumber = getStudentNumberEmbedded(dto.number)
-                this.email = dto.email
-                this.major = requireNotNull(Major.fromClassNum(studentClass)) {
+            (existingStudents[dto.number] ?: StudentJpaEntity()).also { student ->
+                student.name = dto.name
+                student.studentNumber = getStudentNumberEmbedded(dto.number)
+                student.email = dto.email
+                student.major = requireNotNull(Major.fromClassNum(studentClass)) {
                     ExpectedException("학번의 반 정보가 올바르지 않습니다.", HttpStatus.BAD_REQUEST)
                 }
-                this.majorClub = dto.majorClub?.let { clubName ->
+                student.majorClub = dto.majorClub?.let { clubName ->
                     existingMajorClubs[clubName]
                         ?: throw ExpectedException("존재하지 않는 전공동아리입니다.", HttpStatus.BAD_REQUEST)
                 }
-                this.jobClub = dto.jobClub?.let { clubName ->
+                student.jobClub = dto.jobClub?.let { clubName ->
                     existingJobClubs[clubName]
                         ?: throw ExpectedException("존재하지 않는 취업동아리입니다.", HttpStatus.BAD_REQUEST)
                 }
-                this.autonomousClub = dto.autonomousClub?.let { clubName ->
+                student.autonomousClub = dto.autonomousClub?.let { clubName ->
                     existingAutonomousClubs[clubName]
                         ?: throw ExpectedException("존재하지 않는 창체동아리입니다.", HttpStatus.BAD_REQUEST)
                 }
-                this.dormitoryRoomNumber = getDormitoryEmbedded(dto.dormitoryRoomNumber)
-                this.role = when (dto.role) {
+                student.dormitoryRoomNumber = getDormitoryEmbedded(dto.dormitoryRoomNumber)
+                student.role = when (dto.role) {
                     "일반인" -> StudentRole.GENERAL_STUDENT
                     "기숙사자치위원회" -> StudentRole.DORMITORY_MANAGER
                     else -> StudentRole.STUDENT_COUNCIL
                 }
-                this.isLeaveSchool = dto.isLeaveSchool
-                this.sex = when (dto.sex) {
-                    "남자" -> Sex.MAN
-                    else -> Sex.WOMAN
-                }
-            } ?: StudentJpaEntity().apply {
-                this.name = dto.name
-                this.studentNumber = getStudentNumberEmbedded(dto.number)
-                this.email = dto.email
-                this.major = requireNotNull(Major.fromClassNum(studentClass)) {
-                    ExpectedException("학번의 반 정보가 올바르지 않습니다.", HttpStatus.BAD_REQUEST)
-                }
-                this.majorClub = dto.majorClub?.let { clubName ->
-                    existingMajorClubs[clubName]
-                        ?: throw ExpectedException("존재하지 않는 전공동아리입니다.", HttpStatus.BAD_REQUEST)
-                }
-                this.jobClub = dto.jobClub?.let { clubName ->
-                    existingJobClubs[clubName]
-                        ?: throw ExpectedException("존재하지 않는 취업동아리입니다.", HttpStatus.BAD_REQUEST)
-                }
-                this.autonomousClub = dto.autonomousClub?.let { clubName ->
-                    existingAutonomousClubs[clubName]
-                        ?: throw ExpectedException("존재하지 않는 창체동아리입니다.", HttpStatus.BAD_REQUEST)
-                }
-                this.dormitoryRoomNumber = getDormitoryEmbedded(dto.dormitoryRoomNumber)
-                this.role = when (dto.role) {
-                    "일반인" -> StudentRole.GENERAL_STUDENT
-                    "기숙사자치위원회" -> StudentRole.DORMITORY_MANAGER
-                    else -> StudentRole.STUDENT_COUNCIL
-                }
-                this.isLeaveSchool = dto.isLeaveSchool
-                this.sex = when (dto.sex) {
+                student.isLeaveSchool = dto.isLeaveSchool
+                student.sex = when (dto.sex) {
                     "남자" -> Sex.MAN
                     else -> Sex.WOMAN
                 }
