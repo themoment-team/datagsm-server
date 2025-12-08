@@ -19,15 +19,15 @@ import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.entity.constant.StudentNumber
 import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.domain.student.service.QueryStudentExcelService
+import team.themoment.datagsm.domain.student.service.ModifyStudentExcelService
 import team.themoment.datagsm.global.exception.error.ExpectedException
 
 @Service
 @Transactional
-class QueryStudentExcelServiceImpl(
+class ModifyStudentExcelServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
-) : QueryStudentExcelService {
+) : ModifyStudentExcelService {
     private val dataFormatter = DataFormatter()
 
     override fun queryStudentData(file: MultipartFile) {

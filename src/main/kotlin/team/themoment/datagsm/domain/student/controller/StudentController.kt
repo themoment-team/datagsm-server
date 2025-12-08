@@ -29,7 +29,7 @@ import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.domain.student.service.CreateStudentExcelService
 import team.themoment.datagsm.domain.student.service.CreateStudentService
 import team.themoment.datagsm.domain.student.service.ModifyStudentService
-import team.themoment.datagsm.domain.student.service.QueryStudentExcelService
+import team.themoment.datagsm.domain.student.service.ModifyStudentExcelService
 import team.themoment.datagsm.domain.student.service.QueryStudentService
 import java.nio.charset.StandardCharsets
 
@@ -41,7 +41,7 @@ class StudentController(
     private final val createStudentService: CreateStudentService,
     private final val modifyStudentService: ModifyStudentService,
     private final val createStudentExcelService: CreateStudentExcelService,
-    private final val queryStudentExcelService: QueryStudentExcelService,
+    private final val modifyStudentExcelService: ModifyStudentExcelService,
 ) {
     @Operation(summary = "학생 정보 조회", description = "필터 조건에 맞는 학생 정보를 조회합니다.")
     @ApiResponses(
@@ -140,7 +140,7 @@ class StudentController(
     fun uploadStudentExcel(
         @RequestParam("file") file: MultipartFile,
     ): ResponseEntity<Void> {
-        queryStudentExcelService.queryStudentData(file)
+        modifyStudentExcelService.queryStudentData(file)
         return ResponseEntity.ok().build()
     }
 }
