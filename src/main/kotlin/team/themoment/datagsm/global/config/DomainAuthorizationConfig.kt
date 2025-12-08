@@ -20,8 +20,10 @@ class DomainAuthorizationConfig {
                 AccountRole.ADMIN.authority,
                 AccountRole.ROOT.authority,
             ).requestMatchers("/v1/students/**", "/v1/clubs/**", "/v1/projects/**")
-            .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
-            .requestMatchers("/v1/auth/api-key/**")
+            .hasAnyAuthority(
+                AccountRole.ADMIN.authority,
+                AccountRole.ROOT.authority,
+            ).requestMatchers("/v1/auth/api-key/**")
             .authenticated()
             .anyRequest()
             .authenticated()
