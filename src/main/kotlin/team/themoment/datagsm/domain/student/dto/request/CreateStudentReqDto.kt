@@ -42,7 +42,7 @@ data class CreateStudentReqDto(
     @field:Min(value = 201)
     @field:Max(value = 518)
     @param:Schema(description = "기숙사 호실 (201-518)", example = "301", minimum = "201", maximum = "518")
-    val dormitoryRoomNumber: Int,
+    val dormitoryRoomNumber: Int?,
     @param:Schema(description = "전공 동아리 ID", example = "1")
     val majorClubId: Long? = null,
     @param:Schema(description = "취업 동아리 ID", example = "2")
