@@ -60,7 +60,7 @@ object Dependencies {
 
     // Excel
     const val POI = "org.apache.poi:poi:5.5.1"
-    const val OOXML = "org.apache.poi:poi-ooxml:5.5.1"
+    const val POI_OOXML = "org.apache.poi:poi-ooxml:5.5.1"
 
     // Testing
     const val SPRING_TEST = "org.springframework.boot:spring-boot-starter-test"

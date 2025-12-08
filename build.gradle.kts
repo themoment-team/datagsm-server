@@ -17,6 +17,7 @@ import dependency.Dependencies.MOCKK
 import dependency.Dependencies.MYSQL_CONNECTOR
 import dependency.Dependencies.PEANUT_BUTTER
 import dependency.Dependencies.POI
+import dependency.Dependencies.POI_OOXML
 import dependency.Dependencies.QUERY_DSL
 import dependency.Dependencies.QUERY_DSL_PROCESSOR
 import dependency.Dependencies.SPRING_CLOUD_BOM
@@ -32,7 +33,6 @@ import dependency.Dependencies.SPRING_VALIDATION
 import dependency.Dependencies.SPRING_WEB
 import dependency.Dependencies.SPRINT_MAIL
 import dependency.Dependencies.SWAGGER_UI
-import dependency.Dependencies.OOXML
 
 plugins {
     id(plugin.Plugins.SPRING_BOOT) version plugin.PluginVersions.SPRING_BOOT_VERSION
@@ -107,7 +107,7 @@ dependencies {
 
     // Excel
     implementation(POI)
-    implementation(OOXML)
+    implementation(POI_OOXML)
 
     // Testing
     testImplementation(SPRING_TEST)
