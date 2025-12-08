@@ -14,12 +14,12 @@ interface StudentJpaRepository :
 
     @Query(
         """
-    select t from StudentJpaEntity t
-    left join fetch t.majorClub
-    left join fetch t.jobClub
-    left join fetch t.autonomousClub
-    where t.studentNumber.studentGrade = :grade
-    order by (
+    SELECT t FROM StudentJpaEntity t
+    LEFT JOIN FETCH t.majorClub
+    LEFT JOIN FETCH t.jobClub
+    LEFT JOIN FETCH t.autonomousClub
+    WHERE t.studentNumber.studentGrade = :grade
+    ORDER BY (
         t.studentNumber.studentGrade * 1000 +
         t.studentNumber.studentClass * 100 +
         t.studentNumber.studentNumber
