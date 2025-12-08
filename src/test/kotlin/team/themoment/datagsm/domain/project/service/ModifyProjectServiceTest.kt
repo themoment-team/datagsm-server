@@ -98,6 +98,13 @@ class ModifyProjectServiceTest :
 
                     beforeEach {
                         every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
+                        every {
+                            mockProjectRepository.existsByNameAndIdNot(
+                                updateRequest.name,
+                                projectId,
+                            )
+                        } returns false
+                        every { mockClubRepository.findById(1L) } returns Optional.of(ownerClub)
                     }
 
                     it("프로젝트 설명만 변경되어야 한다") {
@@ -108,12 +115,13 @@ class ModifyProjectServiceTest :
                         result.club?.id shouldBe 1L
 
                         verify(exactly = 1) { mockProjectRepository.findById(projectId) }
-                        verify(exactly = 0) {
+                        verify(exactly = 1) {
                             mockProjectRepository.existsByNameAndIdNot(
-                                any(),
-                                any(),
+                                updateRequest.name,
+                                projectId,
                             )
                         }
+                        verify(exactly = 1) { mockClubRepository.findById(1L) }
                     }
                 }
 
@@ -134,6 +142,12 @@ class ModifyProjectServiceTest :
 
                     beforeEach {
                         every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
+                        every {
+                            mockProjectRepository.existsByNameAndIdNot(
+                                updateRequest.name,
+                                projectId,
+                            )
+                        } returns false
                         every { mockClubRepository.findById(2L) } returns Optional.of(newClub)
                     }
 
@@ -145,6 +159,12 @@ class ModifyProjectServiceTest :
                         result.club?.type shouldBe ClubType.JOB_CLUB
 
                         verify(exactly = 1) { mockProjectRepository.findById(projectId) }
+                        verify(exactly = 1) {
+                            mockProjectRepository.existsByNameAndIdNot(
+                                updateRequest.name,
+                                projectId,
+                            )
+                        }
                         verify(exactly = 1) { mockClubRepository.findById(2L) }
                     }
                 }
@@ -264,6 +284,12 @@ class ModifyProjectServiceTest :
 
                     beforeEach {
                         every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
+                        every {
+                            mockProjectRepository.existsByNameAndIdNot(
+                                updateRequest.name,
+                                projectId,
+                            )
+                        } returns false
                         every { mockClubRepository.findById(999L) } returns Optional.empty()
                     }
 
@@ -275,6 +301,12 @@ class ModifyProjectServiceTest :
 
                         exception.message shouldBe "동아리를 찾을 수 없습니다. clubId: 999"
 
+                        verify(exactly = 1) {
+                            mockProjectRepository.existsByNameAndIdNot(
+                                updateRequest.name,
+                                projectId,
+                            )
+                        }
                         verify(exactly = 1) { mockClubRepository.findById(999L) }
                     }
                 }
