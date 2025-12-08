@@ -68,8 +68,6 @@ class ModifyStudentExcelServiceImpl(
                 this.major = requireNotNull(Major.fromClassNum(studentClass)) {
                     ExpectedException("학번의 반 정보가 올바르지 않습니다.", HttpStatus.BAD_REQUEST)
                 }
-                // 엑셀에서 존재하지 않는 동아리면 동아리 수정이 안되도록 하였습니다.
-                // 이와 관련해서도 추가적인 리뷰 부탁드립니다.
                 this.majorClub = dto.majorClub?.let { clubName ->
                     existingMajorClubs[clubName]
                         ?: throw ExpectedException("존재하지 않는 전공동아리입니다.", HttpStatus.BAD_REQUEST)
@@ -100,8 +98,6 @@ class ModifyStudentExcelServiceImpl(
                 this.major = requireNotNull(Major.fromClassNum(studentClass)) {
                     ExpectedException("학번의 반 정보가 올바르지 않습니다.", HttpStatus.BAD_REQUEST)
                 }
-                // 엑셀에서 존재하지 않는 동아리면 동아리 수정이 안되도록 하였습니다.
-                // 이와 관련해서도 추가적인 리뷰 부탁드립니다.
                 this.majorClub = dto.majorClub?.let { clubName ->
                     existingMajorClubs[clubName]
                         ?: throw ExpectedException("존재하지 않는 전공동아리입니다.", HttpStatus.BAD_REQUEST)
