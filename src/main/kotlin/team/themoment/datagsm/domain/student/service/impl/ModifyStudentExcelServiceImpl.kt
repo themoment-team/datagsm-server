@@ -30,7 +30,7 @@ class ModifyStudentExcelServiceImpl(
 ) : ModifyStudentExcelService {
     private val dataFormatter = DataFormatter()
 
-    override fun queryStudentData(file: MultipartFile) {
+    override fun modifyStudentData(file: MultipartFile) {
         val excelData: List<ExcelColumnDto> = queryExcelData(file).flatMap { it.excelRows }
         val studentNumbers = excelData.map { it.number }.distinct()
         if(studentNumbers.isEmpty()) return
@@ -60,14 +60,11 @@ class ModifyStudentExcelServiceImpl(
             .associateBy { it.name }
 
         val studentsToSave = excelData.map { dto ->
-            val studentClass: Int = (dto.number % 1000) / 100
             (existingStudents[dto.number] ?: StudentJpaEntity()).also { student ->
                 student.name = dto.name
                 student.studentNumber = getStudentNumberEmbedded(dto.number)
                 student.email = dto.email
-                student.major = requireNotNull(Major.fromClassNum(studentClass)) {
-                    ExpectedException("학번의 반 정보가 올바르지 않습니다.", HttpStatus.BAD_REQUEST)
-                }
+                student.major = dto.major
                 student.majorClub = dto.majorClub?.let { clubName ->
                     existingMajorClubs[clubName]
                         ?: throw ExpectedException("존재하지 않는 전공동아리입니다.", HttpStatus.BAD_REQUEST)
@@ -81,16 +78,9 @@ class ModifyStudentExcelServiceImpl(
                         ?: throw ExpectedException("존재하지 않는 창체동아리입니다.", HttpStatus.BAD_REQUEST)
                 }
                 student.dormitoryRoomNumber = getDormitoryEmbedded(dto.dormitoryRoomNumber)
-                student.role = when (dto.role) {
-                    "일반인" -> StudentRole.GENERAL_STUDENT
-                    "기숙사자치위원회" -> StudentRole.DORMITORY_MANAGER
-                    else -> StudentRole.STUDENT_COUNCIL
-                }
+                student.role = dto.role
                 student.isLeaveSchool = dto.isLeaveSchool
-                student.sex = when (dto.sex) {
-                    "남자" -> Sex.MAN
-                    else -> Sex.WOMAN
-                }
+                student.sex = dto.sex
             }
         }
         studentJpaRepository.saveAll(studentsToSave)
@@ -125,8 +115,7 @@ class ModifyStudentExcelServiceImpl(
                             name = getRequiredString(row, 0, "학생 이름"),
                             number = checkStudentNumber(getRequiredInt(row, 1, "학번")),
                             email = getRequiredString(row, 2, "이메일"),
-                            major = getRequiredString(row, 3, "학과")
-                                .takeIf { listOf("SW개발과", "스마트IoT과", "인공지능과").contains(it) }
+                            major = Major.fromMajor(getRequiredString(row, 3, "학과"))
                                 ?: throw ExpectedException(
                                     "${row.rowNum + 1}행: 학과는 'SW개발과', '스마트IoT과', '인공지능과'여야 합니다.",
                                     HttpStatus.BAD_REQUEST),
@@ -134,8 +123,7 @@ class ModifyStudentExcelServiceImpl(
                             jobClub = getOptionalString(row, 5),
                             autonomousClub = getOptionalString(row, 6),
                             dormitoryRoomNumber = getOptionalInt(row, 7),
-                            role = getRequiredString(row, 8, "소속")
-                                .takeIf { listOf("일반인", "기숙사자치위원회", "학생회").contains(it) }
+                            role = StudentRole.fromRole(getRequiredString(row, 8, "소속"))
                                 ?: throw ExpectedException(
                                     "${row.rowNum + 1}행: 소속은 '일반인', '기숙사자치위원회', '학생회'여야 합니다.",
                                     HttpStatus.BAD_REQUEST),
@@ -146,8 +134,7 @@ class ModifyStudentExcelServiceImpl(
                                     "${row.rowNum + 1}행: 자퇴 여부는 O 또는 X여야 합니다.",
                                     HttpStatus.BAD_REQUEST)
                             },
-                            sex = getRequiredString(row, 10, "성별")
-                                .takeIf { listOf("남자", "여자").contains(it) }
+                            sex = Sex.fromSex(getRequiredString(row, 10, "성별"))
                                 ?: throw ExpectedException(
                                     "${row.rowNum + 1}행: 성별은 '남자' 또는 '여자'여야 합니다.",
                                     HttpStatus.BAD_REQUEST),

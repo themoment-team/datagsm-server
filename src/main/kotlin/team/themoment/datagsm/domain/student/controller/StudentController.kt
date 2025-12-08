@@ -140,7 +140,7 @@ class StudentController(
     fun uploadStudentExcel(
         @RequestParam("file") file: MultipartFile,
     ): ResponseEntity<Void> {
-        modifyStudentExcelService.queryStudentData(file)
+        modifyStudentExcelService.modifyStudentData(file)
         return ResponseEntity.ok().build()
     }
 }

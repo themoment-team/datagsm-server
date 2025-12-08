@@ -42,14 +42,14 @@ class CreateStudentExcelServiceImpl(
                 row.createCell(0).setCellValue(columnDto.name)
                 row.createCell(1).setCellValue(columnDto.number.toString())
                 row.createCell(2).setCellValue(columnDto.email)
-                row.createCell(3).setCellValue(columnDto.major)
+                row.createCell(3).setCellValue(columnDto.major.value)
                 row.createCell(4).setCellValue(columnDto.majorClub ?: "")
                 row.createCell(5).setCellValue(columnDto.jobClub ?: "")
                 row.createCell(6).setCellValue(columnDto.autonomousClub ?: "")
                 row.createCell(7).setCellValue(columnDto.dormitoryRoomNumber?.toString() ?: "")
-                row.createCell(8).setCellValue(columnDto.role)
+                row.createCell(8).setCellValue(columnDto.role.value)
                 row.createCell(9).setCellValue(if(columnDto.isLeaveSchool) "O" else "X")
-                row.createCell(10).setCellValue(columnDto.sex)
+                row.createCell(10).setCellValue(columnDto.sex.value)
             }
         }
 
@@ -70,25 +70,14 @@ class CreateStudentExcelServiceImpl(
                         name = student.name,
                         number = student.studentNumber.fullStudentNumber,
                         email = student.email,
-                        major = when(student.major) {
-                            Major.SW_DEVELOPMENT -> "SW개발과"
-                            Major.SMART_IOT -> "스마트IoT과"
-                            Major.AI -> "인공지능과"
-                        },
+                        major = student.major,
                         majorClub = student.majorClub?.name ,
                         jobClub = student.jobClub?.name,
                         autonomousClub = student.autonomousClub?.name,
                         dormitoryRoomNumber = student.dormitoryRoomNumber.dormitoryRoomNumber,
-                        role = when(student.role) {
-                            StudentRole.GENERAL_STUDENT -> "일반인"
-                            StudentRole.DORMITORY_MANAGER -> "기숙사자치위원회"
-                            else -> "학생회"
-                        },
+                        role = student.role,
                         isLeaveSchool = student.isLeaveSchool,
-                        sex = when(student.sex) {
-                            Sex.MAN -> "남자"
-                            Sex.WOMAN -> "여자"
-                        },
+                        sex = student.sex,
                     )
                 }
             )

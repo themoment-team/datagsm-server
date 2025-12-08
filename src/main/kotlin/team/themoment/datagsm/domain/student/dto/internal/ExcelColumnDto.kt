@@ -6,6 +6,9 @@ import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
+import team.themoment.datagsm.domain.student.entity.constant.Major
+import team.themoment.datagsm.domain.student.entity.constant.Sex
+import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 
 data class ExcelColumnDto(
     @field:NotBlank
@@ -24,7 +27,7 @@ data class ExcelColumnDto(
     @field:Size(max = 50)
     @field:NotBlank
     @param:Schema(description = "학과", example = "SW개발과", maxLength = 50)
-    val major: String,
+    val major: Major,
     @field:Size(max = 50)
     @param:Schema(description = "전공동아리", example = "더모먼트", maxLength = 50)
     val majorClub: String?,
@@ -41,11 +44,11 @@ data class ExcelColumnDto(
     @field:Size(max = 50)
     @field:NotBlank
     @param:Schema(description = "소속", example = "학생회", maxLength = 50)
-    val role: String,
+    val role: StudentRole,
     @param:Schema(description = "자퇴 여부", example = "true")
     val isLeaveSchool: Boolean,
     @field:Size(max = 50)
     @field:NotBlank
     @param:Schema(description = "성별", example = "남", maxLength = 50)
-    val sex: String,
+    val sex: Sex,
 )
