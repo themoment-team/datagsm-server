@@ -17,18 +17,9 @@ class JwtAuthenticationFilter(
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
         val requestPath = request.requestURI
-
-        val isPublicPath =
-            AuthenticationPathConfig.PUBLIC_PATHS.any { path ->
-                pathMatcher.match(path, requestPath)
-            }
-
-        val isApiKeyPath =
-            AuthenticationPathConfig.API_KEY_PATHS.any { path ->
-                pathMatcher.match(path, requestPath)
-            }
-
-        return isPublicPath || isApiKeyPath
+        return AuthenticationPathConfig.PUBLIC_PATHS.any { path ->
+            pathMatcher.match(path, requestPath)
+        }
     }
 
     override fun doFilterInternal(
@@ -38,11 +29,9 @@ class JwtAuthenticationFilter(
     ) {
         val bearerToken = request.getHeader("Authorization")
         val token = jwtProvider.extractToken(bearerToken)
-
         if (token != null && jwtProvider.validateToken(token)) {
             val email = jwtProvider.getEmailFromToken(token)
             val role = jwtProvider.getRoleFromToken(token)
-
             val authentication =
                 UsernamePasswordAuthenticationToken(
                     email,
