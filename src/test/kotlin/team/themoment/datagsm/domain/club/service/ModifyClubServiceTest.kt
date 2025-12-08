@@ -75,16 +75,17 @@ class ModifyClubServiceTest :
 
                     beforeEach {
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
+                        every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                     }
 
-                    it("중복 이름 검사 없이 저장되어야 한다") {
+                    it("중복 이름 검사를 수행하고 저장되어야 한다") {
                         val res = modifyClubService.execute(clubId, req)
 
                         res.name shouldBe req.name
                         res.type shouldBe req.type
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
-                        verify(exactly = 0) { mockClubRepository.existsByNameAndIdNot(any(), any()) }
+                        verify(exactly = 1) { mockClubRepository.existsByNameAndIdNot(req.name, clubId) }
                     }
                 }
 
