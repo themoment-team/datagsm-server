@@ -9,9 +9,9 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -62,7 +62,7 @@ class ProjectController(
         @RequestBody @Valid projectReqDto: ProjectReqDto,
     ): ProjectResDto = createProjectService.execute(projectReqDto)
 
-    @Operation(summary = "프로젝트 정보 수정", description = "기존 프로젝트의 정보를 수정합니다.")
+    @Operation(summary = "프로젝트 정보 수정", description = "기존 프로젝트의 정보를 전체 교체합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "수정 성공"),
@@ -71,7 +71,7 @@ class ProjectController(
             ApiResponse(responseCode = "409", description = "이미 존재하는 프로젝트 이름", content = [Content()]),
         ],
     )
-    @PatchMapping("/{projectId}")
+    @PutMapping("/{projectId}")
     fun updateProject(
         @Parameter(description = "프로젝트 ID") @PathVariable projectId: Long,
         @RequestBody @Valid projectReqDto: ProjectReqDto,
