@@ -1,6 +1,7 @@
 package team.themoment.datagsm.domain.student.dto.response
 
 import io.swagger.v3.oas.annotations.media.Schema
+import team.themoment.datagsm.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.domain.student.entity.constant.Major
 import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.entity.constant.StudentRole
@@ -32,4 +33,10 @@ data class StudentResDto(
     val dormitoryRoom: Int?,
     @param:Schema(description = "자퇴 여부", example = "false")
     val isLeaveSchool: Boolean,
+    @param:Schema(description = "전공 동아리")
+    val majorClub: ClubResDto?,
+    @param:Schema(description = "취업 동아리")
+    val jobClub: ClubResDto?,
+    @param:Schema(description = "자율 동아리")
+    val autonomousClub: ClubResDto?,
 )

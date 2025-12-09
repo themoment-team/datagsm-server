@@ -20,7 +20,7 @@ class QueryApiKeyServiceImpl(
 
         val apiKey =
             apiKeyJpaRepository
-                .findByApiKeyAccount(account)
+                .findByAccount(account)
                 .orElseThrow {
                     ExpectedException("API 키를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
                 }

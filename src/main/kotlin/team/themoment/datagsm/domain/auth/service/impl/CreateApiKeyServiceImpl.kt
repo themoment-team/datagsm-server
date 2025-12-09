@@ -22,7 +22,7 @@ class CreateApiKeyServiceImpl(
     override fun execute(): ApiKeyResDto {
         val account = currentUserProvider.getCurrentAccount()
 
-        if (apiKeyJpaRepository.findByApiKeyAccount(account).isPresent) {
+        if (apiKeyJpaRepository.findByAccount(account).isPresent) {
             throw ExpectedException("이미 API 키가 존재합니다.", HttpStatus.CONFLICT)
         }
 

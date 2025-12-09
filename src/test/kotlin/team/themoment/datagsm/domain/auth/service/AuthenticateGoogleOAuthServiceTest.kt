@@ -124,7 +124,7 @@ class AuthenticateGoogleOAuthServiceTest :
                             clientRegistration
                         every { mockGoogleOAuth2Client.exchangeCodeForToken(any()) } returns tokenResponse
                         every { mockGoogleUserInfoClient.getUserInfo("Bearer $accessToken") } returns userInfo
-                        every { mockAccountRepository.findByAccountEmail(email) } returns Optional.empty()
+                        every { mockAccountRepository.findByEmail(email) } returns Optional.empty()
                         every { mockStudentRepository.findByEmail(email) } returns Optional.empty()
                         every { mockAccountRepository.save(any()) } returns newAccount
                         every { mockJwtProvider.generateAccessToken(email, AccountRole.USER) } returns
@@ -175,7 +175,7 @@ class AuthenticateGoogleOAuthServiceTest :
                             clientRegistration
                         every { mockGoogleOAuth2Client.exchangeCodeForToken(any()) } returns tokenResponse
                         every { mockGoogleUserInfoClient.getUserInfo("Bearer $accessToken") } returns userInfo
-                        every { mockAccountRepository.findByAccountEmail(email) } returns
+                        every { mockAccountRepository.findByEmail(email) } returns
                             Optional.of(existingAccount)
                         every { mockJwtProvider.generateAccessToken(email, AccountRole.USER) } returns
                             jwtAccessToken
@@ -232,7 +232,7 @@ class AuthenticateGoogleOAuthServiceTest :
                             clientRegistration
                         every { mockGoogleOAuth2Client.exchangeCodeForToken(any()) } returns tokenResponse
                         every { mockGoogleUserInfoClient.getUserInfo("Bearer $accessToken") } returns userInfo
-                        every { mockAccountRepository.findByAccountEmail(email) } returns
+                        every { mockAccountRepository.findByEmail(email) } returns
                             Optional.of(accountWithStudent)
                         every { mockJwtProvider.generateAccessToken(email, AccountRole.USER) } returns
                             jwtAccessToken
@@ -280,7 +280,7 @@ class AuthenticateGoogleOAuthServiceTest :
                             clientRegistration
                         every { mockGoogleOAuth2Client.exchangeCodeForToken(any()) } returns tokenResponse
                         every { mockGoogleUserInfoClient.getUserInfo("Bearer $accessToken") } returns userInfo
-                        every { mockAccountRepository.findByAccountEmail(email) } returns
+                        every { mockAccountRepository.findByEmail(email) } returns
                             Optional.of(existingAccount)
                         every { mockJwtProvider.generateAccessToken(email, AccountRole.USER) } returns
                             jwtAccessToken

@@ -27,6 +27,6 @@ class ProjectJpaEntity {
     lateinit var description: String
 
     @field:ManyToOne(optional = true)
-    @field:JoinColumn(name = "club_id", nullable = true, referencedColumnName = "club_id")
+    @field:JoinColumn(name = "club_id", nullable = true, referencedColumnName = "id")
     var club: ClubJpaEntity? = null
 }

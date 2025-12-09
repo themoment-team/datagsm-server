@@ -3,6 +3,7 @@ package team.themoment.datagsm.domain.student.service.impl
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.domain.student.dto.response.StudentListResDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.domain.student.entity.constant.Sex
@@ -60,9 +61,12 @@ class QueryStudentServiceImpl(
                         studentNumber = entity.studentNumber.fullStudentNumber,
                         major = entity.major,
                         role = entity.role,
-                        dormitoryFloor = entity.dormitoryRoomNumber.dormitoryRoomFloor,
-                        dormitoryRoom = entity.dormitoryRoomNumber.dormitoryRoomNumber,
+                        dormitoryFloor = entity.dormitoryRoomNumber?.dormitoryRoomFloor,
+                        dormitoryRoom = entity.dormitoryRoomNumber?.dormitoryRoomNumber,
                         isLeaveSchool = entity.isLeaveSchool,
+                        majorClub = entity.majorClub?.let { ClubResDto(id = it.id!!, name = it.name, type = it.type) },
+                        jobClub = entity.jobClub?.let { ClubResDto(id = it.id!!, name = it.name, type = it.type) },
+                        autonomousClub = entity.autonomousClub?.let { ClubResDto(id = it.id!!, name = it.name, type = it.type) },
                     )
                 },
         )
