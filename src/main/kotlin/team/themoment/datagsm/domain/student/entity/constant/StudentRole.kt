@@ -15,11 +15,6 @@ enum class StudentRole(val value: String) {
 
     companion object {
         fun fromRole(role: String): StudentRole? =
-            when (role) {
-                "학생회" -> STUDENT_COUNCIL
-                "기숙사자치위원회" -> DORMITORY_MANAGER
-                "일반학생" -> GENERAL_STUDENT
-                else -> null
-            }
+            entries.find { it.value == role }
     }
 }

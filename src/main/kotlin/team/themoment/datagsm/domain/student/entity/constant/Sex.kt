@@ -6,10 +6,6 @@ enum class Sex(val value: String) {
 
     companion object {
         fun fromSex(sex: String): Sex? =
-            when (sex) {
-                "남자" -> MAN
-                "여자" -> WOMAN
-                else -> null
-            }
+            entries.find { it.value == sex }
     }
 }

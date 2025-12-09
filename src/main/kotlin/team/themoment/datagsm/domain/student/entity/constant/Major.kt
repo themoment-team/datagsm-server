@@ -15,11 +15,6 @@ enum class Major(val value: String) {
             }
 
         fun fromMajor(major: String): Major? =
-            when (major) {
-                "SW개발과" -> SW_DEVELOPMENT
-                "스마트IoT과" -> SMART_IOT
-                "인공지능과" -> AI
-                else -> null
-            }
+            entries.find { it.value == major }
     }
 }
