@@ -125,7 +125,7 @@ class ModifyStudentExcelServiceImpl(
                             dormitoryRoomNumber = getOptionalInt(row, 7),
                             role = StudentRole.fromRole(getRequiredString(row, 8, "소속"))
                                 ?: throw ExpectedException(
-                                    "${row.rowNum + 1}행: 소속은 '일반인', '기숙사자치위원회', '학생회'여야 합니다.",
+                                    "${row.rowNum + 1}행: 소속은 '일반학생', '기숙사자치위원회', '학생회'여야 합니다.",
                                     HttpStatus.BAD_REQUEST),
                             isLeaveSchool = when (getRequiredString(row, 9, "자퇴 여부").uppercase()) {
                                 "O" -> true
