@@ -1,7 +1,10 @@
 package team.themoment.datagsm.domain.auth.entity
 
+import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
+import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -37,6 +40,17 @@ class ApiKey {
     @OneToOne
     @JoinColumn(name = "account_id", nullable = false, referencedColumnName = "id")
     var account: AccountJpaEntity? = null
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+        name = "tb_api_key_scope",
+        joinColumns = [JoinColumn(name = "api_key_id")],
+    )
+    @Column(name = "scope")
+    var scopes: MutableSet<String> = mutableSetOf()
+
+    @Column(name = "description", length = 500)
+    var description: String? = null
 
     fun isExpired(): Boolean = LocalDateTime.now().isAfter(expiresAt)
 
