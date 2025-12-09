@@ -24,6 +24,7 @@ import team.themoment.datagsm.domain.club.service.CreateClubService
 import team.themoment.datagsm.domain.club.service.DeleteClubService
 import team.themoment.datagsm.domain.club.service.ModifyClubService
 import team.themoment.datagsm.domain.club.service.QueryClubService
+import team.themoment.datagsm.global.security.annotation.RequireScope
 
 @Tag(name = "Club", description = "동아리 관련 API")
 @RestController
@@ -40,6 +41,7 @@ class ClubController(
             ApiResponse(responseCode = "200", description = "조회 성공"),
         ],
     )
+    @RequireScope("club:read")
     @GetMapping
     fun getClubInfo(
         @Parameter(description = "동아리 ID") @RequestParam(required = false) clubId: Long?,
@@ -57,6 +59,7 @@ class ClubController(
             ApiResponse(responseCode = "409", description = "이미 존재하는 동아리", content = [Content()]),
         ],
     )
+    @RequireScope("club:write")
     @PostMapping
     fun createClub(
         @RequestBody @Valid clubReqDto: ClubReqDto,
@@ -70,6 +73,7 @@ class ClubController(
             ApiResponse(responseCode = "404", description = "동아리를 찾을 수 없음", content = [Content()]),
         ],
     )
+    @RequireScope("club:write")
     @PutMapping("/{clubId}")
     fun updateClub(
         @Parameter(description = "동아리 ID") @PathVariable clubId: Long,
@@ -83,6 +87,7 @@ class ClubController(
             ApiResponse(responseCode = "404", description = "동아리를 찾을 수 없음", content = [Content()]),
         ],
     )
+    @RequireScope("club:write")
     @DeleteMapping("/{clubId}")
     fun deleteClub(
         @Parameter(description = "동아리 ID") @PathVariable clubId: Long,

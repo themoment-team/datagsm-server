@@ -32,6 +32,7 @@ import team.themoment.datagsm.domain.student.service.ModifyStudentService
 import team.themoment.datagsm.domain.student.service.ModifyStudentExcelService
 import team.themoment.datagsm.domain.student.service.QueryStudentService
 import java.nio.charset.StandardCharsets
+import team.themoment.datagsm.global.security.annotation.RequireScope
 
 @Tag(name = "Student", description = "학생 관련 API")
 @RestController
@@ -49,6 +50,7 @@ class StudentController(
             ApiResponse(responseCode = "200", description = "조회 성공"),
         ],
     )
+    @RequireScope("student:read")
     @GetMapping
     fun getStudentInfo(
         @Parameter(description = "학생 ID") @RequestParam(required = false) studentId: Long?,
@@ -88,12 +90,13 @@ class StudentController(
             ApiResponse(responseCode = "409", description = "이미 존재하는 학생", content = [Content()]),
         ],
     )
+    @RequireScope("student:write")
     @PostMapping
     fun createStudent(
         @RequestBody @Valid reqDto: CreateStudentReqDto,
     ): StudentResDto = createStudentService.execute(reqDto)
 
-    @Operation(summary = "학생 정보 수정", description = "기존 학생의 정보를 수정합니다.")
+    @Operation(summary = "학생 정보 수정", description = "기존 학생의 정보를 전체 교체합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "수정 성공"),
@@ -101,7 +104,8 @@ class StudentController(
             ApiResponse(responseCode = "404", description = "학생을 찾을 수 없음", content = [Content()]),
         ],
     )
-    @PatchMapping("/{studentId}")
+    @RequireScope("student:write")
+    @PutMapping("/{studentId}")
     fun updateStudent(
         @Parameter(description = "학생 ID") @PathVariable studentId: Long,
         @RequestBody @Valid reqDto: UpdateStudentReqDto,
