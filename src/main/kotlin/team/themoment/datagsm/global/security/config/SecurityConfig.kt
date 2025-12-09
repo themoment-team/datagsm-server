@@ -3,6 +3,7 @@ package team.themoment.datagsm.global.security.config
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer
@@ -22,6 +23,7 @@ import team.themoment.datagsm.global.security.jwt.filter.JwtAuthenticationFilter
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 class SecurityConfig(
     private val domainAuthorizationConfig: DomainAuthorizationConfig,
     @param:Qualifier("configure") private val corsConfigurationSource: CorsConfigurationSource,
