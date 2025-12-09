@@ -17,6 +17,18 @@ import java.io.ByteArrayOutputStream
 class CreateStudentExcelServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
 ) : CreateStudentExcelService {
+    private val NAME_COL_IDX = 0
+    private val STUDENT_NUMBER_COL_IDX = 1
+    private val EMAIL_COL_IDX = 2
+    private val MAJOR_COL_IDX = 3
+    private val MAJOR_CLUB_COL_IDX = 4
+    private val JOB_CLUB_COL_IDX = 5
+    private val AUTONOMOUS_COL_IDX = 6
+    private val DOROMITORY_ROOM_NUMBER_COL_IDX = 7
+    private val STUDENT_ROLE_COL_IDX = 8
+    private val IS_SCHOOL_LEAVE_COL_IDX = 9
+    private val SEX_COL_IDX = 10
+
     override fun createExcel(): ByteArray {
         val data: List<ExcelRowDto> = getStudentData()
         val workbook = XSSFWorkbook()
@@ -25,32 +37,32 @@ class CreateStudentExcelServiceImpl(
             val sheet = workbook.createSheet("${idx + 1}학년")
 
             val headerRow = sheet.createRow(0)
-            headerRow.createCell(0).setCellValue("학생명")
-            headerRow.createCell(1).setCellValue("학번")
-            headerRow.createCell(2).setCellValue("이메일")
-            headerRow.createCell(3).setCellValue("학과")
-            headerRow.createCell(4).setCellValue("전공동아리")
-            headerRow.createCell(5).setCellValue("취업동아리")
-            headerRow.createCell(6).setCellValue("창체동아리")
-            headerRow.createCell(7).setCellValue("호실")
-            headerRow.createCell(8).setCellValue("소속")
-            headerRow.createCell(9).setCellValue("자퇴 여부")
-            headerRow.createCell(10).setCellValue("성별")
+            headerRow.createCell(NAME_COL_IDX).setCellValue("학생명")
+            headerRow.createCell(STUDENT_NUMBER_COL_IDX).setCellValue("학번")
+            headerRow.createCell(EMAIL_COL_IDX).setCellValue("이메일")
+            headerRow.createCell(MAJOR_COL_IDX).setCellValue("학과")
+            headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("전공동아리")
+            headerRow.createCell(JOB_CLUB_COL_IDX).setCellValue("취업동아리")
+            headerRow.createCell(AUTONOMOUS_COL_IDX).setCellValue("창체동아리")
+            headerRow.createCell(DOROMITORY_ROOM_NUMBER_COL_IDX).setCellValue("호실")
+            headerRow.createCell(STUDENT_ROLE_COL_IDX).setCellValue("소속")
+            headerRow.createCell(IS_SCHOOL_LEAVE_COL_IDX).setCellValue("자퇴 여부")
+            headerRow.createCell(SEX_COL_IDX).setCellValue("성별")
 
             excelRowDto.excelRows.forEachIndexed { rowIndex, columnDto ->
                 val row = sheet.createRow(rowIndex + 1)
 
-                row.createCell(0).setCellValue(columnDto.name)
-                row.createCell(1).setCellValue(columnDto.number.toString())
-                row.createCell(2).setCellValue(columnDto.email)
-                row.createCell(3).setCellValue(columnDto.major.value)
-                row.createCell(4).setCellValue(columnDto.majorClub ?: "")
-                row.createCell(5).setCellValue(columnDto.jobClub ?: "")
-                row.createCell(6).setCellValue(columnDto.autonomousClub ?: "")
-                row.createCell(7).setCellValue(columnDto.dormitoryRoomNumber?.toString() ?: "")
-                row.createCell(8).setCellValue(columnDto.role.value)
-                row.createCell(9).setCellValue(if(columnDto.isLeaveSchool) "O" else "X")
-                row.createCell(10).setCellValue(columnDto.sex.value)
+                row.createCell(NAME_COL_IDX).setCellValue(columnDto.name)
+                row.createCell(STUDENT_NUMBER_COL_IDX).setCellValue(columnDto.number.toString())
+                row.createCell(EMAIL_COL_IDX).setCellValue(columnDto.email)
+                row.createCell(MAJOR_COL_IDX).setCellValue(columnDto.major.value)
+                row.createCell(MAJOR_CLUB_COL_IDX).setCellValue(columnDto.majorClub ?: "")
+                row.createCell(JOB_CLUB_COL_IDX).setCellValue(columnDto.jobClub ?: "")
+                row.createCell(AUTONOMOUS_COL_IDX).setCellValue(columnDto.autonomousClub ?: "")
+                row.createCell(DOROMITORY_ROOM_NUMBER_COL_IDX).setCellValue(columnDto.dormitoryRoomNumber?.toString() ?: "")
+                row.createCell(STUDENT_ROLE_COL_IDX).setCellValue(columnDto.role.value)
+                row.createCell(IS_SCHOOL_LEAVE_COL_IDX).setCellValue(if(columnDto.isLeaveSchool) "O" else "X")
+                row.createCell(SEX_COL_IDX).setCellValue(columnDto.sex.value)
             }
         }
 
