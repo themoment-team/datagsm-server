@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import team.themoment.datagsm.domain.auth.dto.request.CreateApiKeyReqDto
+import team.themoment.datagsm.domain.auth.dto.request.ModifyApiKeyReqDto
 import team.themoment.datagsm.domain.auth.dto.request.OAuthCodeReqDto
 import team.themoment.datagsm.domain.auth.dto.request.RefreshTokenReqDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyRenewableResDto
@@ -66,28 +68,32 @@ class AuthController(
         @RequestBody @Valid reqDto: RefreshTokenReqDto,
     ): TokenResDto = reissueTokenService.execute(reqDto.refreshToken)
 
-    @Operation(summary = "API 키 생성", description = "새로운 API 키를 생성합니다.")
+    @Operation(summary = "API 키 생성", description = "새로운 API 키를 생성합니다. scope를 지정하여 세부 권한을 설정할 수 있습니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "API 키 생성 성공"),
-            ApiResponse(responseCode = "400", description = "학생 정보 없음", content = [Content()]),
+            ApiResponse(responseCode = "400", description = "학생 정보 없음 / 유효하지 않은 scope", content = [Content()]),
             ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
             ApiResponse(responseCode = "409", description = "이미 API 키가 존재함", content = [Content()]),
         ],
     )
     @PostMapping("/api-key")
-    fun createApiKey(): ApiKeyResDto = createApiKeyService.execute()
+    fun createApiKey(
+        @RequestBody @Valid reqDto: CreateApiKeyReqDto,
+    ): ApiKeyResDto = createApiKeyService.execute(reqDto)
 
-    @Operation(summary = "API 키 갱신", description = "기존 API 키를 갱신합니다. 만료 15일 전부터 만료 15일 후까지만 갱신 가능합니다.")
+    @Operation(summary = "API 키 갱신", description = "기존 API 키를 갱신합니다. 만료 15일 전부터 만료 15일 후까지만 갱신 가능하며, scope도 변경할 수 있습니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "API 키 갱신 성공"),
-            ApiResponse(responseCode = "400", description = "갱신 기간이 아님 / 학생 정보 없음", content = [Content()]),
+            ApiResponse(responseCode = "400", description = "갱신 기간이 아님 / 학생 정보 없음 / 유효하지 않은 scope", content = [Content()]),
             ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
         ],
     )
     @PutMapping("/api-key")
-    fun modifyApiKey(): ApiKeyResDto = modifyApiKeyService.execute()
+    fun modifyApiKey(
+        @RequestBody @Valid reqDto: ModifyApiKeyReqDto,
+    ): ApiKeyResDto = modifyApiKeyService.execute(reqDto)
 
     @Operation(summary = "API 키 삭제", description = "기존 API 키를 삭제합니다.")
     @ApiResponses(
