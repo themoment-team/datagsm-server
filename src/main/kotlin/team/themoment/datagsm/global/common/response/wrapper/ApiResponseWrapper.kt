@@ -4,6 +4,7 @@ import org.springframework.core.MethodParameter
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageConverter
 import org.springframework.http.server.ServerHttpRequest
 import org.springframework.http.server.ServerHttpResponse
@@ -28,7 +29,14 @@ class ApiResponseWrapper : ResponseBodyAdvice<Any> {
     override fun supports(
         returnType: MethodParameter,
         converterType: Class<out HttpMessageConverter<*>>,
-    ): Boolean = true
+    ): Boolean {
+        val returnClass = returnType.parameterType
+
+        if(returnClass == ByteArray::class.java) return false
+        if(returnClass == ResponseEntity::class.java) return false
+
+        return true
+    }
 
     override fun beforeBodyWrite(
         body: Any?,

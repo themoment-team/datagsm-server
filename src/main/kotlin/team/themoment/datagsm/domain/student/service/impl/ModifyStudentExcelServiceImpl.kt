@@ -20,6 +20,7 @@ import team.themoment.datagsm.domain.student.entity.constant.StudentNumber
 import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.domain.student.service.ModifyStudentExcelService
+import team.themoment.datagsm.global.common.response.dto.response.CommonApiResponse
 import team.themoment.datagsm.global.exception.error.ExpectedException
 
 @Service
@@ -30,10 +31,11 @@ class ModifyStudentExcelServiceImpl(
 ) : ModifyStudentExcelService {
     private val dataFormatter = DataFormatter()
 
-    override fun modifyStudentData(file: MultipartFile) {
+    override fun modifyStudentData(file: MultipartFile): CommonApiResponse<Nothing> {
         val excelData: List<ExcelColumnDto> = queryExcelData(file).flatMap { it.excelRows }
         val studentNumbers = excelData.map { it.number }.distinct()
-        if(studentNumbers.isEmpty()) return
+        if(studentNumbers.isEmpty()) throw ExpectedException("엑셀 내 모든 학번이 비어있습니다.",
+            HttpStatus.BAD_REQUEST)
         val existingStudents =
             studentJpaRepository
                 .findAllByStudentNumberIn(studentNumbers)
@@ -84,6 +86,7 @@ class ModifyStudentExcelServiceImpl(
             }
         }
         studentJpaRepository.saveAll(studentsToSave)
+        return CommonApiResponse.success("엑셀 업로드 성공")
     }
 
     override fun queryExcelData(file: MultipartFile): List<ExcelRowDto> {

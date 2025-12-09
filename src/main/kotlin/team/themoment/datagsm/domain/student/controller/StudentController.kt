@@ -139,8 +139,5 @@ class StudentController(
     @PostMapping("/excel/upload")
     fun uploadStudentExcel(
         @RequestParam("file") file: MultipartFile,
-    ): ResponseEntity<Void> {
-        modifyStudentExcelService.modifyStudentData(file)
-        return ResponseEntity.ok().build()
-    }
+    ) = modifyStudentExcelService.modifyStudentData(file)
 }
