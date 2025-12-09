@@ -5,9 +5,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.student.dto.internal.ExcelColumnDto
 import team.themoment.datagsm.domain.student.dto.internal.ExcelRowDto
-import team.themoment.datagsm.domain.student.entity.constant.Major
-import team.themoment.datagsm.domain.student.entity.constant.Sex
-import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.domain.student.service.CreateStudentExcelService
 import java.io.ByteArrayOutputStream
