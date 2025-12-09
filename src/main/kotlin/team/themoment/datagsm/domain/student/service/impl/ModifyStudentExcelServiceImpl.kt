@@ -181,14 +181,14 @@ class ModifyStudentExcelServiceImpl(
             .toIntOrNull()
     }
 
-    fun checkStudentNumber(studentNumber: Int?): Int {
+    private fun checkStudentNumber(studentNumber: Int?): Int {
         studentNumber ?: throw ExpectedException("학번이 비어있습니다.", HttpStatus.BAD_REQUEST)
         if (studentNumber !in 1101..3418) throw ExpectedException("학번이 올바르지 않습니다.", HttpStatus.BAD_REQUEST)
         if (studentNumber / 100 % 10 !in 1..4) throw ExpectedException("반은 1~4반이여야 합니다.", HttpStatus.BAD_REQUEST)
         return studentNumber
     }
 
-    fun getStudentNumberEmbedded(number: Int): StudentNumber {
+    private fun getStudentNumberEmbedded(number: Int): StudentNumber {
         return StudentNumber(
             number / 1000,
             number / 100 % 10,
@@ -196,7 +196,7 @@ class ModifyStudentExcelServiceImpl(
         )
     }
 
-    fun getDormitoryEmbedded(room: Int?): DormitoryRoomNumber {
+    private fun getDormitoryEmbedded(room: Int?): DormitoryRoomNumber {
         return DormitoryRoomNumber(room)
     }
 }
