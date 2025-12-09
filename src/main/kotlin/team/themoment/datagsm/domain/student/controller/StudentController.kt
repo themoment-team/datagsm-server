@@ -24,6 +24,7 @@ import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.domain.student.service.CreateStudentService
 import team.themoment.datagsm.domain.student.service.ModifyStudentService
 import team.themoment.datagsm.domain.student.service.QueryStudentService
+import team.themoment.datagsm.global.security.annotation.RequireScope
 
 @Tag(name = "Student", description = "학생 관련 API")
 @RestController
@@ -39,6 +40,7 @@ class StudentController(
             ApiResponse(responseCode = "200", description = "조회 성공"),
         ],
     )
+    @RequireScope("student:read")
     @GetMapping
     fun getStudentInfo(
         @Parameter(description = "학생 ID") @RequestParam(required = false) studentId: Long?,
@@ -78,6 +80,7 @@ class StudentController(
             ApiResponse(responseCode = "409", description = "이미 존재하는 학생", content = [Content()]),
         ],
     )
+    @RequireScope("student:write")
     @PostMapping
     fun createStudent(
         @RequestBody @Valid reqDto: CreateStudentReqDto,
@@ -91,6 +94,7 @@ class StudentController(
             ApiResponse(responseCode = "404", description = "학생을 찾을 수 없음", content = [Content()]),
         ],
     )
+    @RequireScope("student:write")
     @PutMapping("/{studentId}")
     fun updateStudent(
         @Parameter(description = "학생 ID") @PathVariable studentId: Long,
