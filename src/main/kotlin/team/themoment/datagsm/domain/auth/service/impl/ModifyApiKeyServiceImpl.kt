@@ -3,7 +3,9 @@ package team.themoment.datagsm.domain.auth.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.domain.auth.dto.request.ModifyApiKeyReqDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
+import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.ModifyApiKeyService
 import team.themoment.datagsm.global.exception.error.ExpectedException
@@ -18,7 +20,7 @@ class ModifyApiKeyServiceImpl(
     private val apiKeyEnvironment: ApiKeyEnvironment,
 ) : ModifyApiKeyService {
     @Transactional
-    override fun execute(): ApiKeyResDto {
+    override fun execute(reqDto: ModifyApiKeyReqDto): ApiKeyResDto {
         val account = currentUserProvider.getCurrentAccount()
 
         val apiKey =
@@ -43,16 +45,33 @@ class ModifyApiKeyServiceImpl(
             )
         }
 
+        // Scope 유효성 검증
+        val validScopes = ApiScope.getAllScopes()
+        val invalidScopes = reqDto.scopes.filter { it !in validScopes }
+        if (invalidScopes.isNotEmpty()) {
+            throw ExpectedException(
+                "유효하지 않은 scope입니다: ${invalidScopes.joinToString(", ")}",
+                HttpStatus.BAD_REQUEST,
+            )
+        }
+
         val now = LocalDateTime.now()
         val expiresAt = now.plusDays(apiKeyEnvironment.expirationDays)
 
         apiKey.apply {
             updatedAt = now
             this.expiresAt = expiresAt
+            this.scopes = reqDto.scopes.toMutableSet()
+            this.description = reqDto.description
         }
 
         val savedApiKey = apiKeyJpaRepository.save(apiKey)
 
-        return ApiKeyResDto(apiKey = savedApiKey.value, expiresAt = savedApiKey.expiresAt)
+        return ApiKeyResDto(
+            apiKey = savedApiKey.value,
+            expiresAt = savedApiKey.expiresAt,
+            scopes = savedApiKey.scopes,
+            description = savedApiKey.description,
+        )
     }
 }
