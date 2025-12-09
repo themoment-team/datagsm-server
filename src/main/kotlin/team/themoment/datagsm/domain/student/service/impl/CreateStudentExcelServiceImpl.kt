@@ -84,7 +84,7 @@ class CreateStudentExcelServiceImpl(
                         majorClub = student.majorClub?.name ,
                         jobClub = student.jobClub?.name,
                         autonomousClub = student.autonomousClub?.name,
-                        dormitoryRoomNumber = student.dormitoryRoomNumber.dormitoryRoomNumber,
+                        dormitoryRoomNumber = student.dormitoryRoomNumber?.dormitoryRoomNumber,
                         role = student.role,
                         isLeaveSchool = student.isLeaveSchool,
                         sex = student.sex,
