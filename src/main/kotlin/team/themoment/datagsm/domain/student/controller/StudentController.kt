@@ -115,7 +115,7 @@ class StudentController(
     )
     @GetMapping("/excel/download")
     fun downloadStudentExcel(): ResponseEntity<ByteArray> {
-        val excelData = createStudentExcelService.createExcel(createStudentExcelService.getStudentData())
+        val excelData = createStudentExcelService.createExcel()
 
         val headers = HttpHeaders().apply {
             contentType = MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")

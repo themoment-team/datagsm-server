@@ -17,7 +17,8 @@ import java.io.ByteArrayOutputStream
 class CreateStudentExcelServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
 ) : CreateStudentExcelService {
-    override fun createExcel(data: List<ExcelRowDto>): ByteArray {
+    override fun createExcel(): ByteArray {
+        val data: List<ExcelRowDto> = getStudentData()
         val workbook = XSSFWorkbook()
 
         data.forEachIndexed { idx, excelRowDto ->
