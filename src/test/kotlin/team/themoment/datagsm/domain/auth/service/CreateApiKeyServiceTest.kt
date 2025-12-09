@@ -9,6 +9,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.domain.auth.dto.request.CreateApiKeyReqDto
 import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.impl.CreateApiKeyServiceImpl
@@ -52,6 +53,12 @@ class CreateApiKeyServiceTest :
                 }
 
                 context("기존 API 키가 없을 때") {
+                    val reqDto =
+                        CreateApiKeyReqDto(
+                            scopes = setOf("student:read", "club:read"),
+                            description = "테스트용 API 키",
+                        )
+
                     beforeEach {
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.empty()
                         every { mockApiKeyRepository.save(any()) } answers {
@@ -61,10 +68,12 @@ class CreateApiKeyServiceTest :
                     }
 
                     it("새로운 API 키를 생성하고 반환해야 한다") {
-                        val result = createApiKeyService.execute()
+                        val result = createApiKeyService.execute(reqDto)
 
                         result.apiKey shouldNotBe null
                         result.expiresAt shouldNotBe null
+                        result.scopes shouldBe reqDto.scopes
+                        result.description shouldBe reqDto.description
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
                         verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
@@ -73,6 +82,11 @@ class CreateApiKeyServiceTest :
                 }
 
                 context("기존 API 키가 있을 때") {
+                    val reqDto =
+                        CreateApiKeyReqDto(
+                            scopes = setOf("student:read"),
+                            description = "테스트용",
+                        )
                     val oldApiKeyValue = UUID.randomUUID()
                     val oldExpiresAt = LocalDateTime.now().plusDays(10)
                     val existingApiKey =
@@ -93,7 +107,7 @@ class CreateApiKeyServiceTest :
                     it("409 CONFLICT 예외가 발생해야 한다") {
                         val exception =
                             shouldThrow<ExpectedException> {
-                                createApiKeyService.execute()
+                                createApiKeyService.execute(reqDto)
                             }
 
                         exception.statusCode.value() shouldBe 409
@@ -106,6 +120,11 @@ class CreateApiKeyServiceTest :
                 }
 
                 context("새로운 API 키 생성 시 만료일자가 설정될 때") {
+                    val reqDto =
+                        CreateApiKeyReqDto(
+                            scopes = setOf("student:read"),
+                            description = null,
+                        )
                     val beforeExecution = LocalDateTime.now()
 
                     beforeEach {
@@ -117,7 +136,7 @@ class CreateApiKeyServiceTest :
                     }
 
                     it("만료일자가 30일 후로 설정되어야 한다") {
-                        val result = createApiKeyService.execute()
+                        val result = createApiKeyService.execute(reqDto)
 
                         val afterExecution = LocalDateTime.now()
                         val expectedMinExpiresAt = beforeExecution.plusDays(30)
@@ -131,6 +150,11 @@ class CreateApiKeyServiceTest :
                 }
 
                 context("API 키 생성 시 생성일자가 현재 시각으로 설정될 때") {
+                    val reqDto =
+                        CreateApiKeyReqDto(
+                            scopes = setOf("student:read"),
+                            description = "테스트",
+                        )
                     lateinit var savedApiKey: ApiKey
 
                     beforeEach {
@@ -143,7 +167,7 @@ class CreateApiKeyServiceTest :
 
                     it("생성일자가 현재 시각으로 설정되어야 한다") {
                         val beforeExecution = LocalDateTime.now()
-                        createApiKeyService.execute()
+                        createApiKeyService.execute(reqDto)
                         val afterExecution = LocalDateTime.now()
 
                         savedApiKey.createdAt.isAfter(beforeExecution.minusSeconds(1)) shouldBe true
