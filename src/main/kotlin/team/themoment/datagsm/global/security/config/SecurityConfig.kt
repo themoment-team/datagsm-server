@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configurers.FormLoginC
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfigurationSource
@@ -49,4 +50,7 @@ class SecurityConfig(
 
         return http.build()
     }
+
+    @Bean
+    fun annotationTemplateExpressionDefaults() = AnnotationTemplateExpressionDefaults()
 }
