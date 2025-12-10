@@ -6,16 +6,17 @@ import team.themoment.datagsm.global.security.validator.ScopeValidator
 
 @Component("scopeChecker")
 class ScopeChecker {
+    private fun extractScopes(authentication: Authentication): Set<String> =
+        authentication.authorities
+            .filter { it.authority.startsWith("SCOPE_") }
+            .map { it.authority.removePrefix("SCOPE_") }
+            .toSet()
+
     fun hasScope(
         authentication: Authentication,
         requiredScope: String,
     ): Boolean {
-        val userScopes =
-            authentication.authorities
-                .filter { it.authority.startsWith("SCOPE_") }
-                .map { it.authority.removePrefix("SCOPE_") }
-                .toSet()
-
+        val userScopes = extractScopes(authentication)
         return ScopeValidator.hasScope(userScopes, requiredScope)
     }
 
@@ -23,12 +24,7 @@ class ScopeChecker {
         authentication: Authentication,
         requiredScopes: Set<String>,
     ): Boolean {
-        val userScopes =
-            authentication.authorities
-                .filter { it.authority.startsWith("SCOPE_") }
-                .map { it.authority.removePrefix("SCOPE_") }
-                .toSet()
-
+        val userScopes = extractScopes(authentication)
         return ScopeValidator.hasAnyScope(userScopes, requiredScopes)
     }
 
@@ -36,12 +32,7 @@ class ScopeChecker {
         authentication: Authentication,
         requiredScopes: Set<String>,
     ): Boolean {
-        val userScopes =
-            authentication.authorities
-                .filter { it.authority.startsWith("SCOPE_") }
-                .map { it.authority.removePrefix("SCOPE_") }
-                .toSet()
-
+        val userScopes = extractScopes(authentication)
         return ScopeValidator.hasAllScopes(userScopes, requiredScopes)
     }
 }
