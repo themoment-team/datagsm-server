@@ -6,5 +6,6 @@ import team.themoment.datagsm.global.common.response.dto.response.CommonApiRespo
 
 interface ModifyStudentExcelService {
     fun modifyStudentData(file: MultipartFile): CommonApiResponse<Nothing>
+
     fun queryExcelData(file: MultipartFile): List<ExcelRowDto>
 }

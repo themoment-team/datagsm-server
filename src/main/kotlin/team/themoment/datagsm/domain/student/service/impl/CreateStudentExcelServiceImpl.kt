@@ -14,17 +14,19 @@ import java.io.ByteArrayOutputStream
 class CreateStudentExcelServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
 ) : CreateStudentExcelService {
-    private val NAME_COL_IDX = 0
-    private val STUDENT_NUMBER_COL_IDX = 1
-    private val EMAIL_COL_IDX = 2
-    private val MAJOR_COL_IDX = 3
-    private val MAJOR_CLUB_COL_IDX = 4
-    private val JOB_CLUB_COL_IDX = 5
-    private val AUTONOMOUS_COL_IDX = 6
-    private val DOROMITORY_ROOM_NUMBER_COL_IDX = 7
-    private val STUDENT_ROLE_COL_IDX = 8
-    private val IS_SCHOOL_LEAVE_COL_IDX = 9
-    private val SEX_COL_IDX = 10
+    companion object {
+        private const val NAME_COL_IDX = 0
+        private const val STUDENT_NUMBER_COL_IDX = 1
+        private const val EMAIL_COL_IDX = 2
+        private const val MAJOR_COL_IDX = 3
+        private const val MAJOR_CLUB_COL_IDX = 4
+        private const val JOB_CLUB_COL_IDX = 5
+        private const val AUTONOMOUS_COL_IDX = 6
+        private const val DOROMITORY_ROOM_NUMBER_COL_IDX = 7
+        private const val STUDENT_ROLE_COL_IDX = 8
+        private const val IS_SCHOOL_LEAVE_COL_IDX = 9
+        private const val SEX_COL_IDX = 10
+    }
 
     override fun createExcel(): ByteArray {
         val data: List<ExcelRowDto> = getStudentData()
@@ -58,7 +60,7 @@ class CreateStudentExcelServiceImpl(
                 row.createCell(AUTONOMOUS_COL_IDX).setCellValue(columnDto.autonomousClub ?: "")
                 row.createCell(DOROMITORY_ROOM_NUMBER_COL_IDX).setCellValue(columnDto.dormitoryRoomNumber?.toString() ?: "")
                 row.createCell(STUDENT_ROLE_COL_IDX).setCellValue(columnDto.role.value)
-                row.createCell(IS_SCHOOL_LEAVE_COL_IDX).setCellValue(if(columnDto.isLeaveSchool) "O" else "X")
+                row.createCell(IS_SCHOOL_LEAVE_COL_IDX).setCellValue(if (columnDto.isLeaveSchool) "O" else "X")
                 row.createCell(SEX_COL_IDX).setCellValue(columnDto.sex.value)
             }
         }
@@ -74,23 +76,25 @@ class CreateStudentExcelServiceImpl(
         val data = mutableListOf<ExcelRowDto>()
         for (i: Int in 1..3) {
             val list = studentJpaRepository.findStudentsByGrade(i)
-            val excelRowDto = ExcelRowDto(
-                excelRows = list.map { student ->
-                    ExcelColumnDto(
-                        name = student.name,
-                        number = student.studentNumber.fullStudentNumber,
-                        email = student.email,
-                        major = student.major,
-                        majorClub = student.majorClub?.name ,
-                        jobClub = student.jobClub?.name,
-                        autonomousClub = student.autonomousClub?.name,
-                        dormitoryRoomNumber = student.dormitoryRoomNumber?.dormitoryRoomNumber,
-                        role = student.role,
-                        isLeaveSchool = student.isLeaveSchool,
-                        sex = student.sex,
-                    )
-                }
-            )
+            val excelRowDto =
+                ExcelRowDto(
+                    excelRows =
+                        list.map { student ->
+                            ExcelColumnDto(
+                                name = student.name,
+                                number = student.studentNumber.fullStudentNumber,
+                                email = student.email,
+                                major = student.major,
+                                majorClub = student.majorClub?.name,
+                                jobClub = student.jobClub?.name,
+                                autonomousClub = student.autonomousClub?.name,
+                                dormitoryRoomNumber = student.dormitoryRoomNumber?.dormitoryRoomNumber,
+                                role = student.role,
+                                isLeaveSchool = student.isLeaveSchool,
+                                sex = student.sex,
+                            )
+                        },
+                )
             data.add(excelRowDto)
         }
         return data.toList()

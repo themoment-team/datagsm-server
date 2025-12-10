@@ -24,10 +24,9 @@ interface StudentJpaRepository :
         t.studentNumber.studentClass * 100 +
         t.studentNumber.studentNumber
     ) ASC
-"""
+""",
     )
     fun findStudentsByGrade(grade: Int): List<StudentJpaEntity>
-
 
     @Query(
         """
@@ -35,7 +34,7 @@ interface StudentJpaRepository :
         WHERE (s.studentNumber.studentGrade * 1000 +
         s.studentNumber.studentClass * 100 +
         s.studentNumber.studentNumber) IN :studentNumbers
-    """
+    """,
     )
     fun findAllByStudentNumberIn(
         @Param("studentNumbers") studentNumbers: List<Int>,

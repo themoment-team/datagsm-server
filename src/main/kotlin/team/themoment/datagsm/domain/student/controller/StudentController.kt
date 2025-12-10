@@ -12,9 +12,9 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -28,11 +28,11 @@ import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.domain.student.service.CreateStudentExcelService
 import team.themoment.datagsm.domain.student.service.CreateStudentService
-import team.themoment.datagsm.domain.student.service.ModifyStudentService
 import team.themoment.datagsm.domain.student.service.ModifyStudentExcelService
+import team.themoment.datagsm.domain.student.service.ModifyStudentService
 import team.themoment.datagsm.domain.student.service.QueryStudentService
-import java.nio.charset.StandardCharsets
 import team.themoment.datagsm.global.security.annotation.RequireScope
+import java.nio.charset.StandardCharsets
 
 @Tag(name = "Student", description = "학생 관련 API")
 @RestController
@@ -121,14 +121,18 @@ class StudentController(
     fun downloadStudentExcel(): ResponseEntity<ByteArray> {
         val excelData = createStudentExcelService.createExcel()
 
-        val headers = HttpHeaders().apply {
-            contentType = MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-            contentDisposition = ContentDisposition.builder("attachment")
-                .filename("학생정보.xlsx", StandardCharsets.UTF_8)
-                .build()
-        }
+        val headers =
+            HttpHeaders().apply {
+                contentType = MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                contentDisposition =
+                    ContentDisposition
+                        .builder("attachment")
+                        .filename("학생정보.xlsx", StandardCharsets.UTF_8)
+                        .build()
+            }
 
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .headers(headers)
             .body(excelData)
     }
