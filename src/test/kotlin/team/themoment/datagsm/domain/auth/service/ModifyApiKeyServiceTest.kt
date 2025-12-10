@@ -9,6 +9,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.domain.auth.dto.request.ModifyApiKeyReqDto
 import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.impl.ModifyApiKeyServiceImpl
@@ -53,6 +54,12 @@ class ModifyApiKeyServiceTest :
                 }
 
                 context("API 키를 찾을 수 없을 때") {
+                    val reqDto =
+                        ModifyApiKeyReqDto(
+                            scopes = setOf("student:read"),
+                            description = "테스트",
+                        )
+
                     beforeEach {
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.empty()
                     }
@@ -60,7 +67,7 @@ class ModifyApiKeyServiceTest :
                     it("ExpectedException이 발생해야 한다") {
                         val exception =
                             shouldThrow<ExpectedException> {
-                                modifyApiKeyService.execute()
+                                modifyApiKeyService.execute(reqDto)
                             }
 
                         exception.statusCode.value() shouldBe 404
@@ -74,6 +81,11 @@ class ModifyApiKeyServiceTest :
                 }
 
                 context("갱신 기간 이전일 때") {
+                    val reqDto =
+                        ModifyApiKeyReqDto(
+                            scopes = setOf("student:write"),
+                            description = "갱신 테스트",
+                        )
                     val now = LocalDateTime.now()
                     val expiresAt = now.plusDays(20)
                     val apiKey =
@@ -93,7 +105,7 @@ class ModifyApiKeyServiceTest :
                     it("ExpectedException이 발생해야 한다") {
                         val exception =
                             shouldThrow<ExpectedException> {
-                                modifyApiKeyService.execute()
+                                modifyApiKeyService.execute(reqDto)
                             }
 
                         exception.statusCode.value() shouldBe 400
@@ -106,6 +118,11 @@ class ModifyApiKeyServiceTest :
                 }
 
                 context("갱신 기간이 지났을 때") {
+                    val reqDto =
+                        ModifyApiKeyReqDto(
+                            scopes = setOf("club:read"),
+                            description = null,
+                        )
                     val now = LocalDateTime.now()
                     val expiresAt = now.minusDays(20)
                     val apiKey =
@@ -126,7 +143,7 @@ class ModifyApiKeyServiceTest :
                     it("API 키가 삭제되고 410 GONE 예외가 발생해야 한다") {
                         val exception =
                             shouldThrow<ExpectedException> {
-                                modifyApiKeyService.execute()
+                                modifyApiKeyService.execute(reqDto)
                             }
 
                         exception.statusCode.value() shouldBe 410
@@ -139,6 +156,11 @@ class ModifyApiKeyServiceTest :
                 }
 
                 context("정상적으로 갱신할 때 (만료 15일 전)") {
+                    val reqDto =
+                        ModifyApiKeyReqDto(
+                            scopes = setOf("student:read", "club:write"),
+                            description = "갱신된 API 키",
+                        )
                     val now = LocalDateTime.now()
                     val expiresAt = now.plusDays(10)
                     val oldApiKeyValue = UUID.randomUUID()
@@ -157,11 +179,13 @@ class ModifyApiKeyServiceTest :
                         every { mockApiKeyRepository.save(apiKey) } returns apiKey
                     }
 
-                    it("기존 API 키를 유지하고 만료일자만 갱신해야 한다") {
-                        val result = modifyApiKeyService.execute()
+                    it("기존 API 키를 유지하고 만료일자 및 scope를 갱신해야 한다") {
+                        val result = modifyApiKeyService.execute(reqDto)
 
                         result.apiKey shouldBe oldApiKeyValue
                         result.expiresAt shouldNotBe null
+                        result.scopes shouldBe reqDto.scopes
+                        result.description shouldBe reqDto.description
 
                         verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
                         verify(exactly = 1) { mockApiKeyRepository.save(apiKey) }
@@ -170,6 +194,11 @@ class ModifyApiKeyServiceTest :
                 }
 
                 context("정상적으로 갱신할 때 (만료 후 5일)") {
+                    val reqDto =
+                        ModifyApiKeyReqDto(
+                            scopes = setOf("project:*"),
+                            description = "만료 후 갱신",
+                        )
                     val now = LocalDateTime.now()
                     val expiresAt = now.minusDays(5)
                     val oldApiKeyValue = UUID.randomUUID()
@@ -188,8 +217,8 @@ class ModifyApiKeyServiceTest :
                         every { mockApiKeyRepository.save(apiKey) } returns apiKey
                     }
 
-                    it("기존 API 키를 유지하고 만료일자만 갱신해야 한다") {
-                        val result = modifyApiKeyService.execute()
+                    it("기존 API 키를 유지하고 만료일자 및 scope를 갱신해야 한다") {
+                        val result = modifyApiKeyService.execute(reqDto)
 
                         result.apiKey shouldBe oldApiKeyValue
                         apiKey.value shouldBe oldApiKeyValue
@@ -202,6 +231,11 @@ class ModifyApiKeyServiceTest :
                 }
 
                 context("갱신 기간 경계값 테스트 - 정확히 만료 15일 전") {
+                    val reqDto =
+                        ModifyApiKeyReqDto(
+                            scopes = setOf("student:*"),
+                            description = "경계값 테스트",
+                        )
                     val now = LocalDateTime.now()
                     val expiresAt = now.plusDays(15)
                     val apiKey =
@@ -220,7 +254,7 @@ class ModifyApiKeyServiceTest :
                     }
 
                     it("갱신이 가능해야 한다") {
-                        val result = modifyApiKeyService.execute()
+                        val result = modifyApiKeyService.execute(reqDto)
 
                         result.apiKey shouldNotBe null
 
@@ -230,6 +264,11 @@ class ModifyApiKeyServiceTest :
                 }
 
                 context("갱신 기간 경계값 테스트 - 정확히 만료 15일 후") {
+                    val reqDto =
+                        ModifyApiKeyReqDto(
+                            scopes = setOf("club:*"),
+                            description = "경계값 테스트2",
+                        )
                     val now = LocalDateTime.now()
                     val expiresAt = now.minusDays(15)
                     val apiKey =
@@ -250,7 +289,7 @@ class ModifyApiKeyServiceTest :
                     it("갱신 기간이 지나 삭제되어야 한다") {
                         val exception =
                             shouldThrow<ExpectedException> {
-                                modifyApiKeyService.execute()
+                                modifyApiKeyService.execute(reqDto)
                             }
 
                         exception.statusCode.value() shouldBe 410

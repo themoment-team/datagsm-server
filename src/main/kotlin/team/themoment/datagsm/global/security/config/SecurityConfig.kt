@@ -3,6 +3,7 @@ package team.themoment.datagsm.global.security.config
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.configurers.FormLoginC
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfigurationSource
@@ -22,6 +24,7 @@ import team.themoment.datagsm.global.security.jwt.filter.JwtAuthenticationFilter
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 class SecurityConfig(
     private val domainAuthorizationConfig: DomainAuthorizationConfig,
     @param:Qualifier("configure") private val corsConfigurationSource: CorsConfigurationSource,
@@ -47,4 +50,7 @@ class SecurityConfig(
 
         return http.build()
     }
+
+    @Bean
+    fun annotationTemplateExpressionDefaults() = AnnotationTemplateExpressionDefaults()
 }

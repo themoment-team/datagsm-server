@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 import team.themoment.datagsm.domain.account.entity.constant.AccountRole
@@ -41,7 +42,14 @@ class ApiKeyAuthenticationFilter(
             val account = apiKey.account
             val email = account?.email ?: ""
             val role = account?.role
-            val authorities = listOfNotNull(role, AccountRole.API_KEY_USER)
+
+            // Scope를 GrantedAuthority로 변환
+            val scopeAuthorities =
+                apiKey.scopes.map {
+                    SimpleGrantedAuthority("SCOPE_$it")
+                }
+
+            val authorities = listOfNotNull(role, AccountRole.API_KEY_USER) + scopeAuthorities
             val authentication =
                 UsernamePasswordAuthenticationToken(
                     email,

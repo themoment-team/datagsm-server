@@ -15,5 +15,8 @@ interface ClubJpaRepository :
         clubId: Long,
     ): Boolean
 
-    fun findAllByNameInAndType(clubs: List<String>, clubType: ClubType): List<ClubJpaEntity>
+    fun findAllByNameInAndType(
+        clubs: List<String>,
+        clubType: ClubType,
+    ): List<ClubJpaEntity>
 }
