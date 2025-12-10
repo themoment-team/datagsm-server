@@ -21,6 +21,8 @@ class ApiResponseWrapper : ResponseBodyAdvice<Any> {
                 "/v3/api-docs/**",
                 "/v3/api-docs",
                 "/swagger-ui/**",
+
+                "/v1/students/excel/download",
             )
     }
 
@@ -29,14 +31,7 @@ class ApiResponseWrapper : ResponseBodyAdvice<Any> {
     override fun supports(
         returnType: MethodParameter,
         converterType: Class<out HttpMessageConverter<*>>,
-    ): Boolean {
-        val returnClass = returnType.parameterType
-
-        if(returnClass == ByteArray::class.java) return false
-        if(returnClass == ResponseEntity::class.java) return false
-
-        return true
-    }
+    ): Boolean = true
 
     override fun beforeBodyWrite(
         body: Any?,
