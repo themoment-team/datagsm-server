@@ -49,7 +49,7 @@ class QueryApiKeyServiceTest :
                 context("API 키가 존재할 때") {
                     val apiKeyValue = UUID.randomUUID()
                     val expiresAt = LocalDateTime.now().plusDays(30)
-                    val testScopes = mutableSetOf("student:read", "club:write")
+                    val testScopes = setOf("student:read", "club:write")
                     val testDescription = "테스트용 API 키"
                     val apiKey =
                         ApiKey().apply {
@@ -59,7 +59,7 @@ class QueryApiKeyServiceTest :
                             createdAt = LocalDateTime.now()
                             updatedAt = LocalDateTime.now()
                             this.expiresAt = expiresAt
-                            this.scopes = testScopes
+                            updateScopes(testScopes)
                             this.description = testDescription
                         }
 

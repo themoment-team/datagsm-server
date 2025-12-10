@@ -61,7 +61,7 @@ class ModifyApiKeyServiceImpl(
         apiKey.apply {
             updatedAt = now
             this.expiresAt = expiresAt
-            this.scopes = reqDto.scopes.toMutableSet()
+            updateScopes(reqDto.scopes)
             this.description = reqDto.description
         }
 
