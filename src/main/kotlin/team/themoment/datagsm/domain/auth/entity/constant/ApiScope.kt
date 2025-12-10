@@ -21,8 +21,10 @@ enum class ApiScope(
     ;
 
     companion object {
+        private val ALL_SCOPES by lazy { entries.map { it.scope }.toSet() }
+
         fun fromString(scope: String): ApiScope? = entries.find { it.scope == scope }
 
-        fun getAllScopes(): Set<String> = entries.map { it.scope }.toSet()
+        fun getAllScopes(): Set<String> = ALL_SCOPES
     }
 }
