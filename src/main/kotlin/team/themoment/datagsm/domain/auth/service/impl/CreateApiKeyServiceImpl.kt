@@ -28,7 +28,6 @@ class CreateApiKeyServiceImpl(
             throw ExpectedException("이미 API 키가 존재합니다.", HttpStatus.CONFLICT)
         }
 
-        // Scope 유효성 검증
         val validScopes = ApiScope.getAllScopes()
         val invalidScopes = reqDto.scopes.filter { it !in validScopes }
         if (invalidScopes.isNotEmpty()) {
@@ -47,7 +46,7 @@ class CreateApiKeyServiceImpl(
                 createdAt = now
                 updatedAt = now
                 this.expiresAt = expiresAt
-                this.scopes = reqDto.scopes.toMutableSet()
+                updateScopes(reqDto.scopes)
                 this.description = reqDto.description
             }
 

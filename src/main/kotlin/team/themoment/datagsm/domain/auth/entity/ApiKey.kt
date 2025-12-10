@@ -47,10 +47,18 @@ class ApiKey {
         joinColumns = [JoinColumn(name = "api_key_id")],
     )
     @Column(name = "scope")
-    var scopes: MutableSet<String> = mutableSetOf()
+    private val _scopes: MutableSet<String> = mutableSetOf()
+
+    val scopes: Set<String>
+        get() = _scopes.toSet()
 
     @Column(name = "description", length = 500)
     var description: String? = null
+
+    fun updateScopes(newScopes: Set<String>) {
+        _scopes.clear()
+        _scopes.addAll(newScopes)
+    }
 
     fun isExpired(): Boolean = LocalDateTime.now().isAfter(expiresAt)
 
