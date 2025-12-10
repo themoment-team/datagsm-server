@@ -4,7 +4,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
-@PreAuthorize("@scopeChecker.hasScope(authentication, #scope)")
+@PreAuthorize("@scopeChecker.hasScope(authentication, {scope})")
 annotation class RequireScope(
     val scope: String,
 )
