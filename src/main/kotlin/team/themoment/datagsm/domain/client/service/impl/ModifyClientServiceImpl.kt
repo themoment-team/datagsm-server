@@ -2,6 +2,7 @@ package team.themoment.datagsm.domain.client.service.impl
 
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.client.dto.req.ModifyClientReqDto
 import team.themoment.datagsm.domain.client.dto.res.ClientResDto
@@ -12,6 +13,7 @@ import team.themoment.datagsm.global.security.checker.ScopeChecker
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 
 @Service
+@Transactional
 class ModifyClientServiceImpl(
     val clientJpaRepository: ClientJpaRepository,
     val currentUserProvider: CurrentUserProvider,
