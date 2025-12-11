@@ -1,5 +1,7 @@
 package team.themoment.datagsm.global.security.validator
 
+import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
+
 object ScopeValidator {
     /**
      * 요청된 scope를 가지고 있는지 확인 (계층적 체크)
@@ -16,10 +18,9 @@ object ScopeValidator {
         userScopes: Set<String>,
         requiredScope: String,
     ): Boolean {
-        // 정확한 scope가 있는지 확인
-        if (requiredScope in userScopes) return true
+        if (ApiScope.ALL_SCOPE in userScopes) return true
 
-        // 와일드카드 체크: student:read 요청 시 student:* 확인
+        if (requiredScope in userScopes) return true
         val resource = requiredScope.substringBefore(':')
         return "$resource:*" in userScopes
     }

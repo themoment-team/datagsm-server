@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 import team.themoment.datagsm.domain.account.entity.constant.AccountRole
+import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import java.util.UUID
 
@@ -43,10 +44,11 @@ class ApiKeyAuthenticationFilter(
             val email = account?.email ?: ""
             val role = account?.role
 
-            // Scope를 GrantedAuthority로 변환
             val scopeAuthorities =
-                apiKey.scopes.map {
-                    SimpleGrantedAuthority("SCOPE_$it")
+                if (role == AccountRole.ADMIN || role == AccountRole.ROOT) {
+                    listOf(SimpleGrantedAuthority("SCOPE_${ApiScope.ALL_SCOPE}"))
+                } else {
+                    apiKey.scopes.map { SimpleGrantedAuthority("SCOPE_$it") }
                 }
 
             val authorities = listOfNotNull(role, AccountRole.API_KEY_USER) + scopeAuthorities

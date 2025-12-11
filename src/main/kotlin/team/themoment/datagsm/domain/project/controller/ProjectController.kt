@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.domain.project.dto.response.ProjectListResDto
 import team.themoment.datagsm.domain.project.dto.response.ProjectResDto
@@ -40,7 +41,7 @@ class ProjectController(
             ApiResponse(responseCode = "200", description = "조회 성공"),
         ],
     )
-    @RequireScope("project:read")
+    @RequireScope(ApiScope.PROJECT_READ)
     @GetMapping
     fun getProjectInfo(
         @Parameter(description = "프로젝트 ID") @RequestParam(required = false) projectId: Long?,
@@ -59,7 +60,7 @@ class ProjectController(
             ApiResponse(responseCode = "409", description = "이미 존재하는 프로젝트", content = [Content()]),
         ],
     )
-    @RequireScope("project:write")
+    @RequireScope(ApiScope.PROJECT_WRITE)
     @PostMapping
     fun createProject(
         @RequestBody @Valid projectReqDto: ProjectReqDto,
@@ -74,7 +75,7 @@ class ProjectController(
             ApiResponse(responseCode = "409", description = "이미 존재하는 프로젝트 이름", content = [Content()]),
         ],
     )
-    @RequireScope("project:write")
+    @RequireScope(ApiScope.PROJECT_WRITE)
     @PutMapping("/{projectId}")
     fun updateProject(
         @Parameter(description = "프로젝트 ID") @PathVariable projectId: Long,
@@ -88,7 +89,7 @@ class ProjectController(
             ApiResponse(responseCode = "404", description = "프로젝트를 찾을 수 없음", content = [Content()]),
         ],
     )
-    @RequireScope("project:write")
+    @RequireScope(ApiScope.PROJECT_WRITE)
     @DeleteMapping("/{projectId}")
     fun deleteProject(
         @Parameter(description = "프로젝트 ID") @PathVariable projectId: Long,

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.student.dto.request.CreateStudentReqDto
 import team.themoment.datagsm.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.domain.student.dto.response.StudentListResDto
@@ -50,7 +51,7 @@ class StudentController(
             ApiResponse(responseCode = "200", description = "조회 성공"),
         ],
     )
-    @RequireScope("student:read")
+    @RequireScope(ApiScope.STUDENT_READ)
     @GetMapping
     fun getStudentInfo(
         @Parameter(description = "학생 ID") @RequestParam(required = false) studentId: Long?,
@@ -90,7 +91,7 @@ class StudentController(
             ApiResponse(responseCode = "409", description = "이미 존재하는 학생", content = [Content()]),
         ],
     )
-    @RequireScope("student:write")
+    @RequireScope(ApiScope.STUDENT_WRITE)
     @PostMapping
     fun createStudent(
         @RequestBody @Valid reqDto: CreateStudentReqDto,
@@ -104,7 +105,7 @@ class StudentController(
             ApiResponse(responseCode = "404", description = "학생을 찾을 수 없음", content = [Content()]),
         ],
     )
-    @RequireScope("student:write")
+    @RequireScope(ApiScope.STUDENT_WRITE)
     @PutMapping("/{studentId}")
     fun updateStudent(
         @Parameter(description = "학생 ID") @PathVariable studentId: Long,
@@ -117,6 +118,7 @@ class StudentController(
             ApiResponse(responseCode = "200", description = "생성 성공"),
         ],
     )
+    @RequireScope(ApiScope.ADMIN_EXCEL)
     @GetMapping("/excel/download")
     fun downloadStudentExcel(): ResponseEntity<ByteArray> {
         val excelData = createStudentExcelService.createExcel()
@@ -144,6 +146,7 @@ class StudentController(
             ApiResponse(responseCode = "400", description = "잘못된 요청 (잘못된 셀 값)", content = [Content()]),
         ],
     )
+    @RequireScope(ApiScope.ADMIN_EXCEL)
     @PostMapping("/excel/upload")
     fun uploadStudentExcel(
         @RequestParam("file") file: MultipartFile,

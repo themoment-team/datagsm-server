@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.core.env.Environment
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.security.authorization.AuthorizationDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -55,6 +56,13 @@ class GlobalExceptionHandler(
         logger.warn("field validation failed : {}", ex.message)
         logger.trace("field validation failed : ", ex)
         return CommonApiResponse.error("field validation failed : ${ex.message}", HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException::class)
+    fun authorizationDeniedException(ex: AuthorizationDeniedException): CommonApiResponse<Nothing> {
+        logger.warn("Authorization Denied : {}", ex.message)
+        logger.trace("Authorization Denied Details : ", ex)
+        return CommonApiResponse.error("접근 권한이 부족합니다", HttpStatus.FORBIDDEN)
     }
 
     @ExceptionHandler(IllegalStateException::class)
