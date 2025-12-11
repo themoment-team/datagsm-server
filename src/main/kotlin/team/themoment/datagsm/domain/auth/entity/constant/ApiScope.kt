@@ -28,6 +28,8 @@ enum class ApiScope(
     ;
 
     companion object {
+        const val ALL_SCOPE = "*:*"
+
         private val ALL_SCOPES by lazy { entries.map { it.scope }.toSet() }
 
         fun fromString(scope: String): ApiScope? = entries.find { it.scope == scope }
