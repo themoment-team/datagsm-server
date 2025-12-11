@@ -2,7 +2,6 @@ package team.themoment.datagsm.domain.client.entity
 
 import jakarta.persistence.Convert
 import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
@@ -14,16 +13,13 @@ import team.themoment.datagsm.global.common.converter.StringListConverter
 @Entity
 class ClientJpaEntity {
     @Id
-    @GeneratedValue
-    var id: Long? = null
-
-    lateinit var clientId: String
-    lateinit var clientSecret: String
+    lateinit var id: String
+    lateinit var secret: String
 
     @Convert(converter = StringListConverter::class)
     lateinit var redirectUrl: List<String>
 
-    lateinit var clientName: String
+    lateinit var name: String
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "account_id", nullable = false)

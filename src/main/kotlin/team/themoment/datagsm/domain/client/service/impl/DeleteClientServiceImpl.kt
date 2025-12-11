@@ -1,0 +1,34 @@
+package team.themoment.datagsm.domain.client.service.impl
+
+import org.springframework.http.HttpStatus
+import org.springframework.stereotype.Service
+import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
+import team.themoment.datagsm.domain.client.dto.req.DeleteClientReqDto
+import team.themoment.datagsm.domain.client.repository.ClientJpaRepository
+import team.themoment.datagsm.domain.client.service.DeleteClientService
+import team.themoment.datagsm.global.exception.error.ExpectedException
+import team.themoment.datagsm.global.security.checker.ScopeChecker
+import team.themoment.datagsm.global.security.provider.CurrentUserProvider
+
+@Service
+class DeleteClientServiceImpl(
+    val clientJpaRepository: ClientJpaRepository,
+    val currentUserProvider: CurrentUserProvider,
+    val scopeChecker: ScopeChecker,
+) : DeleteClientService {
+    override fun execute(reqDto: DeleteClientReqDto) {
+        val client =
+            clientJpaRepository
+                .findById(reqDto.id)
+                .orElseThrow { ExpectedException("Id에 해당하는 Client를 찾지 못했습니다.", HttpStatus.NOT_FOUND) }
+        val currentAccount = currentUserProvider.getCurrentAccount()
+        if (
+            client.account != currentAccount &&
+            !scopeChecker.hasScope(currentUserProvider.getAuthentication(), ApiScope.CLIENT_MANAGE.scope)
+        ) {
+            throw ExpectedException("Client 삭제 권한이 없습니다.", HttpStatus.FORBIDDEN)
+        }
+
+        clientJpaRepository.delete(client)
+    }
+}

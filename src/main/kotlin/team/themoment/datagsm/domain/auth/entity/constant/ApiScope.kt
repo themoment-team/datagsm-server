@@ -25,6 +25,9 @@ enum class ApiScope(
     PROJECT_ALL("project:*", "프로젝트 정보 모든 권한"),
     PROJECT_READ("project:read", "프로젝트 정보 조회"),
     PROJECT_WRITE("project:write", "프로젝트 정보 생성/수정/삭제"),
+
+    // Client scopes
+    CLIENT_MANAGE("client:manage", "클라이언트 관리 (생성/조회/수정/삭제)"),
     ;
 
     companion object {
