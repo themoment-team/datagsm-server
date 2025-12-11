@@ -83,7 +83,7 @@ class ModifyApiKeyServiceTest :
                 context("갱신 기간 이전일 때") {
                     val reqDto =
                         ModifyApiKeyReqDto(
-                            scopes = setOf("student:write"),
+                            scopes = setOf("student:read"),
                             description = "갱신 테스트",
                         )
                     val now = LocalDateTime.now()
@@ -158,7 +158,7 @@ class ModifyApiKeyServiceTest :
                 context("정상적으로 갱신할 때 (만료 15일 전)") {
                     val reqDto =
                         ModifyApiKeyReqDto(
-                            scopes = setOf("student:read", "club:write"),
+                            scopes = setOf("student:read", "club:read"),
                             description = "갱신된 API 키",
                         )
                     val now = LocalDateTime.now()
@@ -196,7 +196,7 @@ class ModifyApiKeyServiceTest :
                 context("정상적으로 갱신할 때 (만료 후 5일)") {
                     val reqDto =
                         ModifyApiKeyReqDto(
-                            scopes = setOf("project:*"),
+                            scopes = setOf("project:read"),
                             description = "만료 후 갱신",
                         )
                     val now = LocalDateTime.now()
@@ -233,7 +233,7 @@ class ModifyApiKeyServiceTest :
                 context("갱신 기간 경계값 테스트 - 정확히 만료 15일 전") {
                     val reqDto =
                         ModifyApiKeyReqDto(
-                            scopes = setOf("student:*"),
+                            scopes = setOf("student:read"),
                             description = "경계값 테스트",
                         )
                     val now = LocalDateTime.now()
@@ -266,7 +266,7 @@ class ModifyApiKeyServiceTest :
                 context("갱신 기간 경계값 테스트 - 정확히 만료 15일 후") {
                     val reqDto =
                         ModifyApiKeyReqDto(
-                            scopes = setOf("club:*"),
+                            scopes = setOf("club:read"),
                             description = "경계값 테스트2",
                         )
                     val now = LocalDateTime.now()
