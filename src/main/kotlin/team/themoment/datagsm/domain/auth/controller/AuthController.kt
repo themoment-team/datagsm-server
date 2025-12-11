@@ -28,6 +28,7 @@ import team.themoment.datagsm.domain.auth.service.QueryApiKeyRenewableService
 import team.themoment.datagsm.domain.auth.service.QueryApiKeyService
 import team.themoment.datagsm.domain.auth.service.ReissueTokenService
 import team.themoment.datagsm.global.common.response.dto.response.CommonApiResponse
+import team.themoment.datagsm.global.security.annotation.RequireScope
 
 @Tag(name = "Auth", description = "인증 관련 API")
 @RestController
@@ -77,6 +78,7 @@ class AuthController(
             ApiResponse(responseCode = "409", description = "이미 API 키가 존재함", content = [Content()]),
         ],
     )
+    @RequireScope("auth:manage")
     @PostMapping("/api-key")
     fun createApiKey(
         @RequestBody @Valid reqDto: CreateApiKeyReqDto,
@@ -90,6 +92,7 @@ class AuthController(
             ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
         ],
     )
+    @RequireScope("auth:manage")
     @PutMapping("/api-key")
     fun modifyApiKey(
         @RequestBody @Valid reqDto: ModifyApiKeyReqDto,
@@ -103,6 +106,7 @@ class AuthController(
             ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
         ],
     )
+    @RequireScope("auth:manage")
     @DeleteMapping("/api-key")
     fun deleteApiKey(): CommonApiResponse<Nothing> {
         deleteApiKeyService.execute()
@@ -117,6 +121,7 @@ class AuthController(
             ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
         ],
     )
+    @RequireScope("auth:manage")
     @GetMapping("/api-key")
     fun getApiKey(): ApiKeyResDto = queryApiKeyService.execute()
 
@@ -128,6 +133,7 @@ class AuthController(
             ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
         ],
     )
+    @RequireScope("auth:manage")
     @GetMapping("/api-key/renewable")
     fun checkApiKeyRenewable(): ApiKeyRenewableResDto = queryApiKeyRenewableService.execute()
 }
