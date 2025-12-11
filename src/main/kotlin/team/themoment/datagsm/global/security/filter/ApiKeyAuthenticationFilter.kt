@@ -43,10 +43,11 @@ class ApiKeyAuthenticationFilter(
             val email = account?.email ?: ""
             val role = account?.role
 
-            // Scope를 GrantedAuthority로 변환
             val scopeAuthorities =
-                apiKey.scopes.map {
-                    SimpleGrantedAuthority("SCOPE_$it")
+                if (role == AccountRole.ADMIN || role == AccountRole.ROOT) {
+                    listOf(SimpleGrantedAuthority("SCOPE_*:*"))
+                } else {
+                    apiKey.scopes.map { SimpleGrantedAuthority("SCOPE_$it") }
                 }
 
             val authorities = listOfNotNull(role, AccountRole.API_KEY_USER) + scopeAuthorities
