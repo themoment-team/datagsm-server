@@ -19,10 +19,13 @@ class ModifyClientServiceImpl(
     val currentUserProvider: CurrentUserProvider,
     val scopeChecker: ScopeChecker,
 ) : ModifyClientService {
-    override fun execute(reqDto: ModifyClientReqDto): ClientResDto {
+    override fun execute(
+        clientId: String,
+        reqDto: ModifyClientReqDto,
+    ): ClientResDto {
         val client =
             clientJpaRepository
-                .findById(reqDto.id)
+                .findById(clientId)
                 .orElseThrow { ExpectedException("Id에 해당하는 Client를 찾지 못했습니다.", HttpStatus.NOT_FOUND) }
         val currentAccount = currentUserProvider.getCurrentAccount()
         if (

@@ -4,7 +4,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
-import team.themoment.datagsm.domain.client.dto.req.DeleteClientReqDto
 import team.themoment.datagsm.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.domain.client.service.DeleteClientService
 import team.themoment.datagsm.global.exception.error.ExpectedException
@@ -18,10 +17,10 @@ class DeleteClientServiceImpl(
     val currentUserProvider: CurrentUserProvider,
     val scopeChecker: ScopeChecker,
 ) : DeleteClientService {
-    override fun execute(reqDto: DeleteClientReqDto) {
+    override fun execute(clientId: String) {
         val client =
             clientJpaRepository
-                .findById(reqDto.id)
+                .findById(clientId)
                 .orElseThrow { ExpectedException("Id에 해당하는 Client를 찾지 못했습니다.", HttpStatus.NOT_FOUND) }
         val currentAccount = currentUserProvider.getCurrentAccount()
         if (

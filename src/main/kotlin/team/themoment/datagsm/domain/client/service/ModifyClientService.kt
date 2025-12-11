@@ -4,5 +4,8 @@ import team.themoment.datagsm.domain.client.dto.req.ModifyClientReqDto
 import team.themoment.datagsm.domain.client.dto.res.ClientResDto
 
 interface ModifyClientService {
-    fun execute(reqDto: ModifyClientReqDto): ClientResDto
+    fun execute(
+        clientId: String,
+        reqDto: ModifyClientReqDto,
+    ): ClientResDto
 }

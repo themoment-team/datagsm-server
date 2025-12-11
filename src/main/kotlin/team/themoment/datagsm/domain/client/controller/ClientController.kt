@@ -10,6 +10,7 @@ import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.client.dto.req.CreateClientReqDto
-import team.themoment.datagsm.domain.client.dto.req.DeleteClientReqDto
 import team.themoment.datagsm.domain.client.dto.req.ModifyClientReqDto
 import team.themoment.datagsm.domain.client.dto.res.ClientListResDto
 import team.themoment.datagsm.domain.client.service.CreateClientService
@@ -88,10 +88,11 @@ class ClientController(
             ApiResponse(responseCode = "404", description = "클라이언트를 찾을 수 없음", content = [Content()]),
         ],
     )
-    @PatchMapping
+    @PatchMapping("/{clientId}")
     fun modifyClient(
+        @PathVariable clientId: String,
         @RequestBody @Valid reqDto: ModifyClientReqDto,
-    ) = modifyClientService.execute(reqDto)
+    ) = modifyClientService.execute(clientId, reqDto)
 
     @Operation(summary = "클라이언트 삭제", description = "기존 클라이언트를 삭제합니다.")
     @ApiResponses(
@@ -102,11 +103,11 @@ class ClientController(
             ApiResponse(responseCode = "404", description = "클라이언트를 찾을 수 없음", content = [Content()]),
         ],
     )
-    @DeleteMapping
+    @DeleteMapping("/{clientId}")
     fun deleteClient(
-        @RequestBody @Valid reqDto: DeleteClientReqDto,
+        @PathVariable clientId: String,
     ): CommonApiResponse<Nothing> {
-        deleteClientService.execute(reqDto)
+        deleteClientService.execute(clientId)
         return CommonApiResponse.success("Client를 성공적으로 삭제했습니다.")
     }
 }
