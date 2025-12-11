@@ -1,6 +1,7 @@
 package dependency
 
 import dependency.DependencyVersions.AWS_SDK_VERSION
+import dependency.DependencyVersions.BUCKET4J_VERSION
 import dependency.DependencyVersions.JJWT_VERSION
 import dependency.DependencyVersions.KOTEST_VERSION
 import dependency.DependencyVersions.KOTLIN_COROUTINES_VERSION
@@ -53,6 +54,10 @@ object Dependencies {
 
     // Logging
     const val LOGBACK_AWS_APPENDER = "ca.pjer:logback-awslogs-appender:${LOGBACK_AWS_APPENDER_VERSION}"
+
+    // Rate Limiting
+    const val BUCKET4J_CORE = "com.bucket4j:bucket4j-core:${BUCKET4J_VERSION}"
+    const val BUCKET4J_REDIS = "com.bucket4j:bucket4j-redis:${BUCKET4J_VERSION}"
 
     // BOM
     const val SPRING_CLOUD_BOM = "org.springframework.cloud:spring-cloud-dependencies:${SPRING_CLOUD_VERSION}"

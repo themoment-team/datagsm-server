@@ -18,4 +18,6 @@ object DependencyVersions {
     const val PEANUT_BUTTER_VERSION = "1.4.1"
 
     const val KOTLIN_COROUTINES_VERSION = "1.10.2"
+
+    const val BUCKET4J_VERSION = "8.9.0"
 }

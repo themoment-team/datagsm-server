@@ -1,4 +1,6 @@
 import dependency.Dependencies.AWS_SDK_BOM
+import dependency.Dependencies.BUCKET4J_CORE
+import dependency.Dependencies.BUCKET4J_REDIS
 import dependency.Dependencies.JACKSON_KOTLIN
 import dependency.Dependencies.JAKARTA_PERSISTENCE_API
 import dependency.Dependencies.JAKARTA_TRANSACTION_API
@@ -104,6 +106,10 @@ dependencies {
 
     // Logging
     implementation(LOGBACK_AWS_APPENDER)
+
+    // Rate Limiting
+    implementation(BUCKET4J_CORE)
+    implementation(BUCKET4J_REDIS)
 
     // Excel
     implementation(POI)
