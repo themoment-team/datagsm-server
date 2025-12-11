@@ -48,7 +48,6 @@ class ModifyAdminApiKeyServiceImpl(
             )
         }
 
-        // Admin은 모든 scope 사용 가능
         val validScopes = ApiScope.getAllScopes()
         val invalidScopes = reqDto.scopes.filter { it !in validScopes }
         if (invalidScopes.isNotEmpty()) {
