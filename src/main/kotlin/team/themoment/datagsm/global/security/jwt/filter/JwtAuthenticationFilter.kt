@@ -35,10 +35,14 @@ class JwtAuthenticationFilter(
             val email = jwtProvider.getEmailFromToken(token)
             val role = jwtProvider.getRoleFromToken(token)
             val authorities =
-                if (role == AccountRole.ADMIN || role == AccountRole.ROOT) {
-                    listOf(role, SimpleGrantedAuthority("SCOPE_*:*"))
-                } else {
-                    listOf(role)
+                when (role) {
+                    AccountRole.ADMIN, AccountRole.ROOT -> {
+                        listOf(role, SimpleGrantedAuthority("SCOPE_*:*"))
+                    }
+                    AccountRole.USER -> {
+                        listOf(role, SimpleGrantedAuthority("SCOPE_auth:manage"))
+                    }
+                    else -> listOf(role)
                 }
             val authentication =
                 UsernamePasswordAuthenticationToken(
