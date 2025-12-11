@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.student.dto.request.CreateStudentReqDto
 import team.themoment.datagsm.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.domain.student.dto.response.StudentListResDto
@@ -32,7 +33,6 @@ import team.themoment.datagsm.domain.student.service.ModifyStudentExcelService
 import team.themoment.datagsm.domain.student.service.ModifyStudentService
 import team.themoment.datagsm.domain.student.service.QueryStudentService
 import team.themoment.datagsm.global.security.annotation.RequireScope
-import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import java.nio.charset.StandardCharsets
 
 @Tag(name = "Student", description = "학생 관련 API")

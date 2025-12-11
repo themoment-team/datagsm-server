@@ -46,10 +46,13 @@ class SecurityConfig(
             ).addFilterBefore(JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter::class.java)
             .authorizeHttpRequests {
                 it
-                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/v1/health")
-                    .permitAll()
-                    .requestMatchers("/v1/auth/google", "/v1/auth/refresh")
-                    .permitAll()
+                    .requestMatchers(
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**",
+                        "/v1/health",
+                        "/v1/auth/google",
+                        "/v1/auth/refresh",
+                    ).permitAll()
                     .anyRequest()
                     .authenticated()
             }
