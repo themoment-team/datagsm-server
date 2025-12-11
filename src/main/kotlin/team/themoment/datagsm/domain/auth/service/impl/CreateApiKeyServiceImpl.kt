@@ -1,6 +1,7 @@
 package team.themoment.datagsm.domain.auth.service.impl
 
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.auth.dto.request.CreateApiKeyReqDto
@@ -10,6 +11,7 @@ import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.CreateApiKeyService
 import team.themoment.datagsm.global.exception.error.ExpectedException
+import team.themoment.datagsm.global.security.checker.ScopeChecker
 import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
@@ -19,6 +21,7 @@ class CreateApiKeyServiceImpl(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
     private val apiKeyEnvironment: ApiKeyEnvironment,
+    private val scopeChecker: ScopeChecker,
 ) : CreateApiKeyService {
     @Transactional
     override fun execute(reqDto: CreateApiKeyReqDto): ApiKeyResDto {
@@ -28,17 +31,29 @@ class CreateApiKeyServiceImpl(
             throw ExpectedException("이미 API 키가 존재합니다.", HttpStatus.CONFLICT)
         }
 
-        val validScopes = ApiScope.getAllScopes()
+        val authentication = SecurityContextHolder.getContext().authentication
+        val isAdmin =
+            scopeChecker.hasScope(
+                authentication,
+                ApiScope.ADMIN_APIKEY.scope,
+            )
+
+        val validScopes = if (isAdmin) ApiScope.getAllScopes() else ApiScope.READ_ONLY_SCOPES
         val invalidScopes = reqDto.scopes.filter { it !in validScopes }
         if (invalidScopes.isNotEmpty()) {
             throw ExpectedException(
-                "유효하지 않은 scope입니다: ${invalidScopes.joinToString(", ")}",
+                if (isAdmin) {
+                    "유효하지 않은 scope입니다: ${invalidScopes.joinToString(", ")}"
+                } else {
+                    "일반 사용자는 READ scope만 사용 가능합니다. 사용 불가능한 scope: ${invalidScopes.joinToString(", ")}"
+                },
                 HttpStatus.BAD_REQUEST,
             )
         }
 
         val now = LocalDateTime.now()
-        val expiresAt = now.plusDays(apiKeyEnvironment.expirationDays)
+        val expirationDays = if (isAdmin) apiKeyEnvironment.adminExpirationDays else apiKeyEnvironment.expirationDays
+        val expiresAt = now.plusDays(expirationDays)
 
         val apiKey =
             ApiKey().apply {

@@ -6,4 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 data class ApiKeyEnvironment(
     val expirationDays: Long,
     val renewalPeriodDays: Long,
+    val adminExpirationDays: Long,
+    val adminRenewalPeriodDays: Long,
 )

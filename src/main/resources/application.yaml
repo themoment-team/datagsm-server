@@ -51,6 +51,8 @@ spring:
     api-key:
       expiration-days: 30
       renewal-period-days: 15
+      admin-expiration-days: 365
+      admin-renewal-period-days: 30
   jpa:
     hibernate:
       ddl-auto: update

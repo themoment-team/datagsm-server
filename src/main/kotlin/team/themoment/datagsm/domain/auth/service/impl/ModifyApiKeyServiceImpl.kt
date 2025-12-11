@@ -1,6 +1,7 @@
 package team.themoment.datagsm.domain.auth.service.impl
 
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.auth.dto.request.ModifyApiKeyReqDto
@@ -9,6 +10,7 @@ import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.ModifyApiKeyService
 import team.themoment.datagsm.global.exception.error.ExpectedException
+import team.themoment.datagsm.global.security.checker.ScopeChecker
 import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
@@ -18,6 +20,7 @@ class ModifyApiKeyServiceImpl(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
     private val apiKeyEnvironment: ApiKeyEnvironment,
+    private val scopeChecker: ScopeChecker,
 ) : ModifyApiKeyService {
     @Transactional
     override fun execute(reqDto: ModifyApiKeyReqDto): ApiKeyResDto {
@@ -30,8 +33,17 @@ class ModifyApiKeyServiceImpl(
                     ExpectedException("API 키를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
                 }
 
-        if (!apiKey.canBeRenewed(apiKeyEnvironment.renewalPeriodDays)) {
-            val renewalEndDate = apiKey.expiresAt.plusDays(apiKeyEnvironment.renewalPeriodDays)
+        val authentication = SecurityContextHolder.getContext().authentication
+        val isAdmin =
+            scopeChecker.hasScope(
+                authentication,
+                ApiScope.ADMIN_APIKEY.scope,
+            )
+
+        val renewalPeriodDays = if (isAdmin) apiKeyEnvironment.adminRenewalPeriodDays else apiKeyEnvironment.renewalPeriodDays
+
+        if (!apiKey.canBeRenewed(renewalPeriodDays)) {
+            val renewalEndDate = apiKey.expiresAt.plusDays(renewalPeriodDays)
             if (!LocalDateTime.now().isBefore(renewalEndDate)) {
                 apiKeyJpaRepository.delete(apiKey)
                 throw ExpectedException(
@@ -40,23 +52,27 @@ class ModifyApiKeyServiceImpl(
                 )
             }
             throw ExpectedException(
-                "API 키 갱신 기간이 아닙니다. 만료 ${apiKeyEnvironment.renewalPeriodDays}일 전부터 만료 ${apiKeyEnvironment.renewalPeriodDays}일 후까지만 갱신 가능합니다.",
+                "API 키 갱신 기간이 아닙니다. 만료 ${renewalPeriodDays}일 전부터 만료 ${renewalPeriodDays}일 후까지만 갱신 가능합니다.",
                 HttpStatus.BAD_REQUEST,
             )
         }
 
-        // Scope 유효성 검증
-        val validScopes = ApiScope.getAllScopes()
+        val validScopes = if (isAdmin) ApiScope.getAllScopes() else ApiScope.READ_ONLY_SCOPES
         val invalidScopes = reqDto.scopes.filter { it !in validScopes }
         if (invalidScopes.isNotEmpty()) {
             throw ExpectedException(
-                "유효하지 않은 scope입니다: ${invalidScopes.joinToString(", ")}",
+                if (isAdmin) {
+                    "유효하지 않은 scope입니다: ${invalidScopes.joinToString(", ")}"
+                } else {
+                    "일반 사용자는 READ scope만 사용 가능합니다. 사용 불가능한 scope: ${invalidScopes.joinToString(", ")}"
+                },
                 HttpStatus.BAD_REQUEST,
             )
         }
 
         val now = LocalDateTime.now()
-        val expiresAt = now.plusDays(apiKeyEnvironment.expirationDays)
+        val expirationDays = if (isAdmin) apiKeyEnvironment.adminExpirationDays else apiKeyEnvironment.expirationDays
+        val expiresAt = now.plusDays(expirationDays)
 
         apiKey.apply {
             updatedAt = now
