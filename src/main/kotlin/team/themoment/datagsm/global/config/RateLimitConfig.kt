@@ -14,21 +14,22 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import java.time.Duration
 
 @Configuration
-class RateLimitConfig(
-    private val lettuceConnectionFactory: LettuceConnectionFactory,
-) {
-    @Bean
-    fun proxyManager(): ProxyManager<String> {
+class RateLimitConfig {
+    @Bean(destroyMethod = "shutdown")
+    fun redisClient(lettuceConnectionFactory: LettuceConnectionFactory): RedisClient {
         val redisUri = "redis://${lettuceConnectionFactory.hostName}:${lettuceConnectionFactory.port}"
-        val redisClient = RedisClient.create(redisUri)
+        return RedisClient.create(redisUri)
+    }
 
-        val connection: StatefulRedisConnection<String, ByteArray> =
-            redisClient.connect(RedisCodec.of(StringCodec.UTF8, ByteArrayCodec.INSTANCE))
+    @Bean(destroyMethod = "close")
+    fun rateLimitConnection(redisClient: RedisClient): StatefulRedisConnection<String, ByteArray> =
+        redisClient.connect(RedisCodec.of(StringCodec.UTF8, ByteArrayCodec.INSTANCE))
 
-        return LettuceBasedProxyManager
+    @Bean
+    fun proxyManager(connection: StatefulRedisConnection<String, ByteArray>): ProxyManager<String> =
+        LettuceBasedProxyManager
             .builderFor(connection)
             .withExpirationStrategy(
                 ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofSeconds(60)),
             ).build()
-    }
 }
