@@ -8,6 +8,6 @@ data class ClubResDto(
     val id: Long,
     @param:Schema(description = "동아리 이름", example = "SW개발동아리")
     val name: String,
-    @param:Schema(description = "동아리 종류", example = "MAJOR")
+    @param:Schema(description = "동아리 종류", example = "MAJOR_CLUB")
     val type: ClubType,
 )
