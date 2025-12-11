@@ -49,6 +49,8 @@ class QueryApiKeyServiceTest :
                 context("API 키가 존재할 때") {
                     val apiKeyValue = UUID.randomUUID()
                     val expiresAt = LocalDateTime.now().plusDays(30)
+                    val testScopes = setOf("student:read", "club:write")
+                    val testDescription = "테스트용 API 키"
                     val apiKey =
                         ApiKey().apply {
                             id = 1L
@@ -57,6 +59,8 @@ class QueryApiKeyServiceTest :
                             createdAt = LocalDateTime.now()
                             updatedAt = LocalDateTime.now()
                             this.expiresAt = expiresAt
+                            updateScopes(testScopes)
+                            this.description = testDescription
                         }
 
                     beforeEach {
@@ -68,6 +72,8 @@ class QueryApiKeyServiceTest :
 
                         result.apiKey shouldBe apiKeyValue
                         result.expiresAt shouldBe expiresAt
+                        result.scopes shouldBe testScopes
+                        result.description shouldBe testDescription
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
                         verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }

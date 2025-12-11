@@ -25,6 +25,11 @@ class QueryApiKeyServiceImpl(
                     ExpectedException("API 키를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
                 }
 
-        return ApiKeyResDto(apiKey = apiKey.value, expiresAt = apiKey.expiresAt)
+        return ApiKeyResDto(
+            apiKey = apiKey.value,
+            expiresAt = apiKey.expiresAt,
+            scopes = apiKey.scopes,
+            description = apiKey.description,
+        )
     }
 }

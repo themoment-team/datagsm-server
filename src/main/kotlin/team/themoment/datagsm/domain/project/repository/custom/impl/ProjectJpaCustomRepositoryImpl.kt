@@ -1,6 +1,5 @@
 package team.themoment.datagsm.domain.project.repository.custom.impl
 
-import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -20,19 +19,19 @@ class ProjectJpaCustomRepositoryImpl(
         clubId: Long?,
         pageable: Pageable,
     ): Page<ProjectJpaEntity> {
-        var searchResult = executeSearch(id, name, clubId, pageable, projectJpaEntity.name::startsWith)
+        var searchResult = searchProjectWithCondition(id, name, clubId, pageable, useStartsWith = true)
         if (searchResult.content.isEmpty() && name != null) {
-            searchResult = executeSearch(id, name, clubId, pageable, projectJpaEntity.name::contains)
+            searchResult = searchProjectWithCondition(id, name, clubId, pageable, useStartsWith = false)
         }
         return searchResult
     }
 
-    private fun executeSearch(
-        id: Long?,
-        name: String?,
+    private fun searchProjectWithCondition(
+        projectId: Long?,
+        projectName: String?,
         clubId: Long?,
         pageable: Pageable,
-        nameMatcher: (String) -> BooleanExpression,
+        useStartsWith: Boolean,
     ): Page<ProjectJpaEntity> {
         val content =
             jpaQueryFactory
@@ -41,8 +40,10 @@ class ProjectJpaCustomRepositoryImpl(
                 .leftJoin(projectJpaEntity.club)
                 .fetchJoin()
                 .where(
-                    id?.let { projectJpaEntity.id.eq(it) },
-                    name?.let { nameMatcher(it) },
+                    projectId?.let { projectJpaEntity.id.eq(it) },
+                    projectName?.let {
+                        if (useStartsWith) projectJpaEntity.name.startsWith(it) else projectJpaEntity.name.contains(it)
+                    },
                     clubId?.let { projectJpaEntity.club.id.eq(it) },
                 ).offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
@@ -53,8 +54,10 @@ class ProjectJpaCustomRepositoryImpl(
                 .select(projectJpaEntity.count())
                 .from(projectJpaEntity)
                 .where(
-                    id?.let { projectJpaEntity.id.eq(it) },
-                    name?.let { nameMatcher(it) },
+                    projectId?.let { projectJpaEntity.id.eq(it) },
+                    projectName?.let {
+                        if (useStartsWith) projectJpaEntity.name.startsWith(it) else projectJpaEntity.name.contains(it)
+                    },
                     clubId?.let { projectJpaEntity.club.id.eq(it) },
                 )
 
