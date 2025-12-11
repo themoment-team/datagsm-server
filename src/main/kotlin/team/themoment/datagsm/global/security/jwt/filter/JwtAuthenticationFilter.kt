@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
 import team.themoment.datagsm.domain.account.entity.constant.AccountRole
+import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.global.security.config.AuthenticationPathConfig
 import team.themoment.datagsm.global.security.jwt.JwtProvider
 
@@ -37,10 +38,10 @@ class JwtAuthenticationFilter(
             val authorities =
                 when (role) {
                     AccountRole.ADMIN, AccountRole.ROOT -> {
-                        listOf(role, SimpleGrantedAuthority("SCOPE_*:*"))
+                        listOf(role, SimpleGrantedAuthority("SCOPE_${ApiScope.ALL_SCOPE}"))
                     }
                     AccountRole.USER -> {
-                        listOf(role, SimpleGrantedAuthority("SCOPE_auth:manage"))
+                        listOf(role, SimpleGrantedAuthority("SCOPE_${ApiScope.AUTH_MANAGE.scope}"))
                     }
                     else -> listOf(role)
                 }
