@@ -39,12 +39,10 @@ class ApiKeyAuthenticationFilter(
                 return
             }
             val account = apiKey.account
-            val email = account?.email ?: ""
-            val role = account?.role
-            val authorities = listOfNotNull(role, AccountRole.API_KEY_USER)
+            val authorities = listOfNotNull(account.role, AccountRole.API_KEY_USER)
             val authentication =
                 UsernamePasswordAuthenticationToken(
-                    email,
+                    account.email,
                     null,
                     authorities,
                 )
