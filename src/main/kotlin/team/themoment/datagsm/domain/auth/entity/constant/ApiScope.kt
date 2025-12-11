@@ -33,11 +33,12 @@ enum class ApiScope(
 
         private val ALL_SCOPES by lazy { entries.map { it.scope }.toSet() }
 
-        val READ_ONLY_SCOPES = setOf(
-            STUDENT_READ.scope,
-            CLUB_READ.scope,
-            PROJECT_READ.scope,
-        )
+        val READ_ONLY_SCOPES =
+            setOf(
+                STUDENT_READ.scope,
+                CLUB_READ.scope,
+                PROJECT_READ.scope,
+            )
 
         fun fromString(scope: String): ApiScope? = entries.find { it.scope == scope }
 

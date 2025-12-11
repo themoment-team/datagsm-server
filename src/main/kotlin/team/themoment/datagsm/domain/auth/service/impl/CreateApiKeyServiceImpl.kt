@@ -28,7 +28,6 @@ class CreateApiKeyServiceImpl(
             throw ExpectedException("이미 API 키가 존재합니다.", HttpStatus.CONFLICT)
         }
 
-        // 일반 사용자는 READ scope만 사용 가능
         val invalidScopes = reqDto.scopes.filter { it !in ApiScope.READ_ONLY_SCOPES }
         if (invalidScopes.isNotEmpty()) {
             throw ExpectedException(

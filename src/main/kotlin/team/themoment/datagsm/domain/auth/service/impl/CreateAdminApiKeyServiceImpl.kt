@@ -19,7 +19,7 @@ class CreateAdminApiKeyServiceImpl(
     private val currentUserProvider: CurrentUserProvider,
 ) : CreateAdminApiKeyService {
     companion object {
-        private const val ADMIN_API_KEY_EXPIRATION_DAYS = 365L // 1년
+        private const val ADMIN_API_KEY_EXPIRATION_DAYS = 365L
     }
 
     @Transactional
@@ -30,7 +30,6 @@ class CreateAdminApiKeyServiceImpl(
             throw ExpectedException("이미 API 키가 존재합니다.", HttpStatus.CONFLICT)
         }
 
-        // Admin은 모든 scope 사용 가능
         val validScopes = ApiScope.getAllScopes()
         val invalidScopes = reqDto.scopes.filter { it !in validScopes }
         if (invalidScopes.isNotEmpty()) {

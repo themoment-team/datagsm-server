@@ -18,8 +18,8 @@ class ModifyAdminApiKeyServiceImpl(
     private val currentUserProvider: CurrentUserProvider,
 ) : ModifyAdminApiKeyService {
     companion object {
-        private const val ADMIN_API_KEY_EXPIRATION_DAYS = 365L // 1년
-        private const val ADMIN_RENEWAL_PERIOD_DAYS = 30L // 30일
+        private const val ADMIN_API_KEY_EXPIRATION_DAYS = 365L
+        private const val ADMIN_RENEWAL_PERIOD_DAYS = 30L
     }
 
     @Transactional
