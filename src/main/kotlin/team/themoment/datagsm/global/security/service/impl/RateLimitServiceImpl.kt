@@ -5,17 +5,17 @@ import io.github.bucket4j.BucketConfiguration
 import io.github.bucket4j.distributed.proxy.ProxyManager
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.domain.auth.entity.ApiKey
-import team.themoment.datagsm.global.security.data.RateLimitEnvironment
+import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.global.security.service.RateLimitService
 import java.time.Duration
 
 @Service
 class RateLimitServiceImpl(
     private val proxyManager: ProxyManager<String>,
-    private val rateLimitEnvironment: RateLimitEnvironment,
+    private val apiKeyEnvironment: ApiKeyEnvironment,
 ) : RateLimitService {
     override fun tryConsume(apiKey: ApiKey): Boolean {
-        if (!rateLimitEnvironment.enabled) return true
+        if (!apiKeyEnvironment.rateLimit.enabled) return true
 
         val bucket = getBucket(apiKey)
         return bucket.tryConsume(1)

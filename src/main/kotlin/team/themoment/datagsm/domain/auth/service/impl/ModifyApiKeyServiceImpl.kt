@@ -12,7 +12,6 @@ import team.themoment.datagsm.domain.auth.service.ModifyApiKeyService
 import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.checker.ScopeChecker
 import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
-import team.themoment.datagsm.global.security.data.RateLimitEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
 
@@ -21,7 +20,6 @@ class ModifyApiKeyServiceImpl(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
     private val apiKeyEnvironment: ApiKeyEnvironment,
-    private val rateLimitEnvironment: RateLimitEnvironment,
     private val scopeChecker: ScopeChecker,
 ) : ModifyApiKeyService {
     @Transactional

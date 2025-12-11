@@ -13,7 +13,6 @@ import team.themoment.datagsm.domain.auth.service.CreateApiKeyService
 import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.checker.ScopeChecker
 import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
-import team.themoment.datagsm.global.security.data.RateLimitEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
 
@@ -22,7 +21,6 @@ class CreateApiKeyServiceImpl(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
     private val apiKeyEnvironment: ApiKeyEnvironment,
-    private val rateLimitEnvironment: RateLimitEnvironment,
     private val scopeChecker: ScopeChecker,
 ) : CreateApiKeyService {
     @Transactional
@@ -57,9 +55,9 @@ class CreateApiKeyServiceImpl(
         val expirationDays = if (isAdmin) apiKeyEnvironment.adminExpirationDays else apiKeyEnvironment.expirationDays
         val expiresAt = now.plusDays(expirationDays)
 
-        val rateLimitCapacity = reqDto.rateLimitCapacity ?: rateLimitEnvironment.defaultCapacity
-        val rateLimitRefillTokens = rateLimitEnvironment.defaultRefillTokens
-        val rateLimitRefillDurationSeconds = rateLimitEnvironment.defaultRefillDurationSeconds
+        val rateLimitCapacity = reqDto.rateLimitCapacity ?: apiKeyEnvironment.rateLimit.defaultCapacity
+        val rateLimitRefillTokens = apiKeyEnvironment.rateLimit.defaultRefillTokens
+        val rateLimitRefillDurationSeconds = apiKeyEnvironment.rateLimit.defaultRefillDurationSeconds
 
         val apiKey =
             ApiKey().apply {
