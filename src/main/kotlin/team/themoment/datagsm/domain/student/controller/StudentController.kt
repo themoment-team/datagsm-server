@@ -87,7 +87,7 @@ class StudentController(
         value = [
             ApiResponse(responseCode = "200", description = "생성 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
-            ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "동아리를 찾을 수 없음", content = [Content()]),
             ApiResponse(responseCode = "409", description = "이미 존재하는 학생", content = [Content()]),
         ],
     )
