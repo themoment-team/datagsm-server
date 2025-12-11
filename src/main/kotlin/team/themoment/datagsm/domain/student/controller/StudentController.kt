@@ -118,7 +118,7 @@ class StudentController(
             ApiResponse(responseCode = "200", description = "생성 성공"),
         ],
     )
-    @RequireScope(ApiScope.STUDENT_READ)
+    @RequireScope(ApiScope.ADMIN_EXCEL)
     @GetMapping("/excel/download")
     fun downloadStudentExcel(): ResponseEntity<ByteArray> {
         val excelData = createStudentExcelService.createExcel()
@@ -146,7 +146,7 @@ class StudentController(
             ApiResponse(responseCode = "400", description = "잘못된 요청 (잘못된 셀 값)", content = [Content()]),
         ],
     )
-    @RequireScope(ApiScope.STUDENT_WRITE)
+    @RequireScope(ApiScope.ADMIN_EXCEL)
     @PostMapping("/excel/upload")
     fun uploadStudentExcel(
         @RequestParam("file") file: MultipartFile,
