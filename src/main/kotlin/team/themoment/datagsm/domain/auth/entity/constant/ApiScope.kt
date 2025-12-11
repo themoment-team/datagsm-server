@@ -9,6 +9,7 @@ enum class ApiScope(
 
     // Admin scopes
     ADMIN_ALL("admin:*", "관리자 모든 권한"),
+    ADMIN_APIKEY("admin:apikey", "Admin API 키 생성/갱신"),
     ADMIN_EXCEL("admin:excel", "Excel 파일 업로드/다운로드"),
 
     // Student scopes

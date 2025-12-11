@@ -151,7 +151,7 @@ class AuthController(
             ApiResponse(responseCode = "409", description = "이미 API 키가 존재함", content = [Content()]),
         ],
     )
-    @RequireScope(ApiScope.ADMIN_ALL)
+    @RequireScope(ApiScope.ADMIN_APIKEY)
     @PostMapping("/api-key/admin")
     fun createAdminApiKey(
         @RequestBody @Valid reqDto: CreateApiKeyReqDto,
@@ -165,7 +165,7 @@ class AuthController(
             ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
         ],
     )
-    @RequireScope(ApiScope.ADMIN_ALL)
+    @RequireScope(ApiScope.ADMIN_APIKEY)
     @PutMapping("/api-key/admin")
     fun modifyAdminApiKey(
         @RequestBody @Valid reqDto: ModifyApiKeyReqDto,
