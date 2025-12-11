@@ -28,7 +28,7 @@ class RateLimitServiceImpl(
 
     override fun getSecondsUntilRefill(apiKey: ApiKey): Long {
         val bucket = getBucket(apiKey)
-        val probe = bucket.tryConsumeAndReturnRemaining(0)
+        val probe = bucket.estimateAbilityToConsume(1)
         return if (probe.isConsumed) 0 else probe.nanosToWaitForRefill / 1_000_000_000
     }
 
