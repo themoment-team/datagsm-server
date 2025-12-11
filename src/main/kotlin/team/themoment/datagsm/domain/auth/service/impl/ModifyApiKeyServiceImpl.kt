@@ -12,6 +12,7 @@ import team.themoment.datagsm.domain.auth.service.ModifyApiKeyService
 import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.checker.ScopeChecker
 import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
+import team.themoment.datagsm.global.security.data.RateLimitEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
 
@@ -20,6 +21,7 @@ class ModifyApiKeyServiceImpl(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
     private val apiKeyEnvironment: ApiKeyEnvironment,
+    private val rateLimitEnvironment: RateLimitEnvironment,
     private val scopeChecker: ScopeChecker,
 ) : ModifyApiKeyService {
     @Transactional
@@ -74,11 +76,14 @@ class ModifyApiKeyServiceImpl(
         val expirationDays = if (isAdmin) apiKeyEnvironment.adminExpirationDays else apiKeyEnvironment.expirationDays
         val expiresAt = now.plusDays(expirationDays)
 
+        val rateLimitCapacity = reqDto.rateLimitCapacity ?: apiKey.rateLimitCapacity
+
         apiKey.apply {
             updatedAt = now
             this.expiresAt = expiresAt
             updateScopes(reqDto.scopes)
             this.description = reqDto.description
+            this.rateLimitCapacity = rateLimitCapacity
         }
 
         val savedApiKey = apiKeyJpaRepository.save(apiKey)
@@ -88,6 +93,7 @@ class ModifyApiKeyServiceImpl(
             expiresAt = savedApiKey.expiresAt,
             scopes = savedApiKey.scopes,
             description = savedApiKey.description,
+            rateLimitCapacity = savedApiKey.rateLimitCapacity,
         )
     }
 }
