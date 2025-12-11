@@ -4,9 +4,11 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
+import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.global.security.config.AuthenticationPathConfig
 import team.themoment.datagsm.global.security.jwt.JwtProvider
 
@@ -32,11 +34,17 @@ class JwtAuthenticationFilter(
         if (token != null && jwtProvider.validateToken(token)) {
             val email = jwtProvider.getEmailFromToken(token)
             val role = jwtProvider.getRoleFromToken(token)
+            val authorities =
+                if (role == AccountRole.ADMIN || role == AccountRole.ROOT) {
+                    listOf(role, SimpleGrantedAuthority("SCOPE_*:*"))
+                } else {
+                    listOf(role)
+                }
             val authentication =
                 UsernamePasswordAuthenticationToken(
                     email,
                     null,
-                    listOf(role),
+                    authorities,
                 )
 
             SecurityContextHolder.getContext().authentication = authentication
