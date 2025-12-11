@@ -23,7 +23,8 @@ class RateLimitConfig(
         val connection: StatefulRedisConnection<String, ByteArray> =
             redisClient.connect(RedisCodec.of(StringCodec.UTF8, ByteArrayCodec.INSTANCE))
 
-        return LettuceBasedProxyManager.builderFor(connection)
+        return LettuceBasedProxyManager
+            .builderFor(connection)
             .build()
     }
 }
