@@ -12,51 +12,47 @@ import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.auth.dto.request.CreateApiKeyReqDto
 import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
-import team.themoment.datagsm.domain.auth.service.impl.CreateApiKeyServiceImpl
+import team.themoment.datagsm.domain.auth.service.impl.CreateAdminApiKeyServiceImpl
 import team.themoment.datagsm.global.exception.error.ExpectedException
-import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
 import java.util.Optional
 import java.util.UUID
 
-class CreateApiKeyServiceTest :
+class CreateAdminApiKeyServiceTest :
     DescribeSpec({
 
         val mockApiKeyRepository = mockk<ApiKeyJpaRepository>()
         val mockCurrentUserProvider = mockk<CurrentUserProvider>()
-        val mockApiKeyEnvironment = mockk<ApiKeyEnvironment>()
 
-        val createApiKeyService =
-            CreateApiKeyServiceImpl(
+        val createAdminApiKeyService =
+            CreateAdminApiKeyServiceImpl(
                 mockApiKeyRepository,
                 mockCurrentUserProvider,
-                mockApiKeyEnvironment,
             )
 
         afterEach {
             clearAllMocks()
         }
 
-        describe("CreateApiKeyService 클래스의") {
+        describe("CreateAdminApiKeyService 클래스의") {
             describe("execute 메서드는") {
 
                 val mockAccount =
                     AccountJpaEntity().apply {
                         id = 1L
-                        email = "test@gsm.hs.kr"
+                        email = "admin@gsm.hs.kr"
                     }
 
                 beforeEach {
                     every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
-                    every { mockApiKeyEnvironment.expirationDays } returns 30L
                 }
 
                 context("기존 API 키가 없을 때") {
                     val reqDto =
                         CreateApiKeyReqDto(
-                            scopes = setOf("student:read", "club:read"),
-                            description = "테스트용 API 키",
+                            scopes = setOf("student:read", "club:read", "student:write"),
+                            description = "관리자용 API 키",
                         )
 
                     beforeEach {
@@ -67,8 +63,8 @@ class CreateApiKeyServiceTest :
                         }
                     }
 
-                    it("새로운 API 키를 생성하고 반환해야 한다") {
-                        val result = createApiKeyService.execute(reqDto)
+                    it("새로운 Admin API 키를 생성하고 반환해야 한다") {
+                        val result = createAdminApiKeyService.execute(reqDto)
 
                         result.apiKey shouldNotBe null
                         result.expiresAt shouldNotBe null
@@ -84,18 +80,18 @@ class CreateApiKeyServiceTest :
                 context("기존 API 키가 있을 때") {
                     val reqDto =
                         CreateApiKeyReqDto(
-                            scopes = setOf("student:read"),
-                            description = "테스트용",
+                            scopes = setOf("student:*"),
+                            description = "관리자용",
                         )
                     val oldApiKeyValue = UUID.randomUUID()
-                    val oldExpiresAt = LocalDateTime.now().plusDays(10)
+                    val oldExpiresAt = LocalDateTime.now().plusDays(100)
                     val existingApiKey =
                         ApiKey().apply {
                             id = 1L
                             value = oldApiKeyValue
                             account = mockAccount
-                            createdAt = LocalDateTime.now().minusDays(20)
-                            updatedAt = LocalDateTime.now().minusDays(20)
+                            createdAt = LocalDateTime.now().minusDays(265)
+                            updatedAt = LocalDateTime.now().minusDays(265)
                             expiresAt = oldExpiresAt
                         }
 
@@ -107,7 +103,7 @@ class CreateApiKeyServiceTest :
                     it("409 CONFLICT 예외가 발생해야 한다") {
                         val exception =
                             shouldThrow<ExpectedException> {
-                                createApiKeyService.execute(reqDto)
+                                createAdminApiKeyService.execute(reqDto)
                             }
 
                         exception.statusCode.value() shouldBe 409
@@ -119,7 +115,65 @@ class CreateApiKeyServiceTest :
                     }
                 }
 
-                context("새로운 API 키 생성 시 만료일자가 설정될 때") {
+                context("Admin이 모든 scope를 요청할 때") {
+                    val reqDto =
+                        CreateApiKeyReqDto(
+                            scopes =
+                                setOf(
+                                    "student:read",
+                                    "student:write",
+                                    "club:read",
+                                    "club:write",
+                                    "project:read",
+                                    "project:write",
+                                ),
+                            description = "모든 권한 API 키",
+                        )
+
+                    beforeEach {
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.empty()
+                        every { mockApiKeyRepository.save(any()) } answers {
+                            val entity = firstArg<ApiKey>()
+                            entity.apply { id = 1L }
+                        }
+                    }
+
+                    it("API 키가 생성되어야 한다") {
+                        val result = createAdminApiKeyService.execute(reqDto)
+
+                        result.apiKey shouldNotBe null
+                        result.scopes shouldBe reqDto.scopes
+
+                        verify(exactly = 1) { mockApiKeyRepository.save(any()) }
+                    }
+                }
+
+                context("Admin이 와일드카드 scope를 요청할 때") {
+                    val reqDto =
+                        CreateApiKeyReqDto(
+                            scopes = setOf("admin:*"),
+                            description = "관리자 와일드카드 API 키",
+                        )
+
+                    beforeEach {
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.empty()
+                        every { mockApiKeyRepository.save(any()) } answers {
+                            val entity = firstArg<ApiKey>()
+                            entity.apply { id = 1L }
+                        }
+                    }
+
+                    it("API 키가 생성되어야 한다") {
+                        val result = createAdminApiKeyService.execute(reqDto)
+
+                        result.apiKey shouldNotBe null
+                        result.scopes shouldBe reqDto.scopes
+
+                        verify(exactly = 1) { mockApiKeyRepository.save(any()) }
+                    }
+                }
+
+                context("Admin API 키 생성 시 만료일자가 365일 후로 설정될 때") {
                     val reqDto =
                         CreateApiKeyReqDto(
                             scopes = setOf("student:read"),
@@ -135,12 +189,12 @@ class CreateApiKeyServiceTest :
                         }
                     }
 
-                    it("만료일자가 30일 후로 설정되어야 한다") {
-                        val result = createApiKeyService.execute(reqDto)
+                    it("만료일자가 365일 후로 설정되어야 한다") {
+                        val result = createAdminApiKeyService.execute(reqDto)
 
                         val afterExecution = LocalDateTime.now()
-                        val expectedMinExpiresAt = beforeExecution.plusDays(30)
-                        val expectedMaxExpiresAt = afterExecution.plusDays(30)
+                        val expectedMinExpiresAt = beforeExecution.plusDays(365)
+                        val expectedMaxExpiresAt = afterExecution.plusDays(365)
 
                         result.expiresAt.isAfter(expectedMinExpiresAt.minusSeconds(1)) shouldBe true
                         result.expiresAt.isBefore(expectedMaxExpiresAt.plusSeconds(1)) shouldBe true
@@ -149,36 +203,10 @@ class CreateApiKeyServiceTest :
                     }
                 }
 
-                context("API 키 생성 시 생성일자가 현재 시각으로 설정될 때") {
+                context("유효하지 않은 scope를 요청할 때") {
                     val reqDto =
                         CreateApiKeyReqDto(
-                            scopes = setOf("student:read"),
-                            description = "테스트",
-                        )
-                    lateinit var savedApiKey: ApiKey
-
-                    beforeEach {
-                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.empty()
-                        every { mockApiKeyRepository.save(any()) } answers {
-                            savedApiKey = firstArg<ApiKey>()
-                            savedApiKey.apply { id = 1L }
-                        }
-                    }
-
-                    it("생성일자가 현재 시각으로 설정되어야 한다") {
-                        val beforeExecution = LocalDateTime.now()
-                        createApiKeyService.execute(reqDto)
-                        val afterExecution = LocalDateTime.now()
-
-                        savedApiKey.createdAt.isAfter(beforeExecution.minusSeconds(1)) shouldBe true
-                        savedApiKey.createdAt.isBefore(afterExecution.plusSeconds(1)) shouldBe true
-                    }
-                }
-
-                context("일반 사용자가 WRITE scope를 요청할 때") {
-                    val reqDto =
-                        CreateApiKeyReqDto(
-                            scopes = setOf("student:write"),
+                            scopes = setOf("invalid:scope"),
                             description = "테스트",
                         )
 
@@ -189,61 +217,11 @@ class CreateApiKeyServiceTest :
                     it("400 BAD_REQUEST 예외가 발생해야 한다") {
                         val exception =
                             shouldThrow<ExpectedException> {
-                                createApiKeyService.execute(reqDto)
+                                createAdminApiKeyService.execute(reqDto)
                             }
 
                         exception.statusCode.value() shouldBe 400
-                        exception.message shouldBe "일반 사용자는 READ scope만 사용 가능합니다. 사용 불가능한 scope: student:write"
-
-                        verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
-                        verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
-                        verify(exactly = 0) { mockApiKeyRepository.save(any()) }
-                    }
-                }
-
-                context("일반 사용자가 와일드카드 scope를 요청할 때") {
-                    val reqDto =
-                        CreateApiKeyReqDto(
-                            scopes = setOf("student:*"),
-                            description = "테스트",
-                        )
-
-                    beforeEach {
-                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.empty()
-                    }
-
-                    it("400 BAD_REQUEST 예외가 발생해야 한다") {
-                        val exception =
-                            shouldThrow<ExpectedException> {
-                                createApiKeyService.execute(reqDto)
-                            }
-
-                        exception.statusCode.value() shouldBe 400
-                        exception.message shouldBe "일반 사용자는 READ scope만 사용 가능합니다. 사용 불가능한 scope: student:*"
-
-                        verify(exactly = 0) { mockApiKeyRepository.save(any()) }
-                    }
-                }
-
-                context("일반 사용자가 READ와 WRITE scope를 함께 요청할 때") {
-                    val reqDto =
-                        CreateApiKeyReqDto(
-                            scopes = setOf("student:read", "club:write"),
-                            description = "테스트",
-                        )
-
-                    beforeEach {
-                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.empty()
-                    }
-
-                    it("400 BAD_REQUEST 예외가 발생해야 한다") {
-                        val exception =
-                            shouldThrow<ExpectedException> {
-                                createApiKeyService.execute(reqDto)
-                            }
-
-                        exception.statusCode.value() shouldBe 400
-                        exception.message shouldBe "일반 사용자는 READ scope만 사용 가능합니다. 사용 불가능한 scope: club:write"
+                        exception.message shouldBe "유효하지 않은 scope입니다: invalid:scope"
 
                         verify(exactly = 0) { mockApiKeyRepository.save(any()) }
                     }
