@@ -16,10 +16,9 @@ object ScopeValidator {
         userScopes: Set<String>,
         requiredScope: String,
     ): Boolean {
-        // 정확한 scope가 있는지 확인
-        if (requiredScope in userScopes) return true
+        if ("*:*" in userScopes) return true
 
-        // 와일드카드 체크: student:read 요청 시 student:* 확인
+        if (requiredScope in userScopes) return true
         val resource = requiredScope.substringBefore(':')
         return "$resource:*" in userScopes
     }
