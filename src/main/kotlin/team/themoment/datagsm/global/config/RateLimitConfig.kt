@@ -1,5 +1,6 @@
 package team.themoment.datagsm.global.config
 
+import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy
 import io.github.bucket4j.distributed.proxy.ProxyManager
 import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager
 import io.lettuce.core.RedisClient
@@ -10,6 +11,7 @@ import io.lettuce.core.codec.StringCodec
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
+import java.time.Duration
 
 @Configuration
 class RateLimitConfig(
@@ -25,6 +27,8 @@ class RateLimitConfig(
 
         return LettuceBasedProxyManager
             .builderFor(connection)
-            .build()
+            .withExpirationStrategy(
+                ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofSeconds(60)),
+            ).build()
     }
 }
