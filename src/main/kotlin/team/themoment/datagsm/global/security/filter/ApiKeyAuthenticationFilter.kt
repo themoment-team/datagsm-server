@@ -5,9 +5,11 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 import team.themoment.datagsm.domain.account.entity.constant.AccountRole
+import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import java.util.UUID
 
@@ -41,7 +43,15 @@ class ApiKeyAuthenticationFilter(
             val account = apiKey.account
             val email = account?.email ?: ""
             val role = account?.role
-            val authorities = listOfNotNull(role, AccountRole.API_KEY_USER)
+
+            val scopeAuthorities =
+                if (role == AccountRole.ADMIN || role == AccountRole.ROOT) {
+                    listOf(SimpleGrantedAuthority("SCOPE_${ApiScope.ALL_SCOPE}"))
+                } else {
+                    apiKey.scopes.map { SimpleGrantedAuthority("SCOPE_$it") }
+                }
+
+            val authorities = listOfNotNull(role, AccountRole.API_KEY_USER) + scopeAuthorities
             val authentication =
                 UsernamePasswordAuthenticationToken(
                     email,

@@ -23,7 +23,7 @@ data class StudentResDto(
     val number: Int,
     @param:Schema(description = "학번", example = "1101")
     val studentNumber: Int,
-    @param:Schema(description = "전공", example = "SW")
+    @param:Schema(description = "전공", example = "SW_DEVELOPMENT", allowableValues = ["SW_DEVELOPMENT", "SMART_IOT", "AI"])
     val major: Major,
     @param:Schema(description = "역할", example = "GENERAL_STUDENT")
     val role: StudentRole,

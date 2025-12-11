@@ -20,6 +20,7 @@ class ApiResponseWrapper : ResponseBodyAdvice<Any> {
                 "/v3/api-docs/**",
                 "/v3/api-docs",
                 "/swagger-ui/**",
+                "/v1/students/excel/download",
             )
     }
 
