@@ -14,6 +14,7 @@ import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.impl.ModifyAdminApiKeyServiceImpl
 import team.themoment.datagsm.global.exception.error.ExpectedException
+import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
 import java.util.Optional
@@ -24,11 +25,13 @@ class ModifyAdminApiKeyServiceTest :
 
         val mockApiKeyRepository = mockk<ApiKeyJpaRepository>()
         val mockCurrentUserProvider = mockk<CurrentUserProvider>()
+        val mockApiKeyEnvironment = mockk<ApiKeyEnvironment>()
 
         val modifyAdminApiKeyService =
             ModifyAdminApiKeyServiceImpl(
                 mockApiKeyRepository,
                 mockCurrentUserProvider,
+                mockApiKeyEnvironment,
             )
 
         afterEach {
@@ -94,6 +97,7 @@ class ModifyAdminApiKeyServiceTest :
                         }
 
                     beforeEach {
+                        every { mockApiKeyEnvironment.adminRenewalPeriodDays } returns 30L
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                     }
 
@@ -131,6 +135,7 @@ class ModifyAdminApiKeyServiceTest :
                         }
 
                     beforeEach {
+                        every { mockApiKeyEnvironment.adminRenewalPeriodDays } returns 30L
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                         every { mockApiKeyRepository.delete(apiKey) } returns Unit
                     }
@@ -170,6 +175,8 @@ class ModifyAdminApiKeyServiceTest :
                         }
 
                     beforeEach {
+                        every { mockApiKeyEnvironment.adminRenewalPeriodDays } returns 30L
+                        every { mockApiKeyEnvironment.adminExpirationDays } returns 365L
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                         every { mockApiKeyRepository.save(apiKey) } returns apiKey
                     }
@@ -208,6 +215,8 @@ class ModifyAdminApiKeyServiceTest :
                         }
 
                     beforeEach {
+                        every { mockApiKeyEnvironment.adminRenewalPeriodDays } returns 30L
+                        every { mockApiKeyEnvironment.adminExpirationDays } returns 365L
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                         every { mockApiKeyRepository.save(apiKey) } returns apiKey
                     }
@@ -244,6 +253,8 @@ class ModifyAdminApiKeyServiceTest :
                         }
 
                     beforeEach {
+                        every { mockApiKeyEnvironment.adminRenewalPeriodDays } returns 30L
+                        every { mockApiKeyEnvironment.adminExpirationDays } returns 365L
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                         every { mockApiKeyRepository.save(apiKey) } returns apiKey
                     }
@@ -277,6 +288,7 @@ class ModifyAdminApiKeyServiceTest :
                         }
 
                     beforeEach {
+                        every { mockApiKeyEnvironment.adminRenewalPeriodDays } returns 30L
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                         every { mockApiKeyRepository.delete(apiKey) } returns Unit
                     }
@@ -321,6 +333,8 @@ class ModifyAdminApiKeyServiceTest :
                         }
 
                     beforeEach {
+                        every { mockApiKeyEnvironment.adminRenewalPeriodDays } returns 30L
+                        every { mockApiKeyEnvironment.adminExpirationDays } returns 365L
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                         every { mockApiKeyRepository.save(apiKey) } returns apiKey
                     }
@@ -353,6 +367,7 @@ class ModifyAdminApiKeyServiceTest :
                         }
 
                     beforeEach {
+                        every { mockApiKeyEnvironment.adminRenewalPeriodDays } returns 30L
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                     }
 

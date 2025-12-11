@@ -10,6 +10,7 @@ import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.CreateAdminApiKeyService
 import team.themoment.datagsm.global.exception.error.ExpectedException
+import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
 
@@ -17,10 +18,8 @@ import java.time.LocalDateTime
 class CreateAdminApiKeyServiceImpl(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
+    private val apiKeyEnvironment: ApiKeyEnvironment,
 ) : CreateAdminApiKeyService {
-    companion object {
-        private const val ADMIN_API_KEY_EXPIRATION_DAYS = 365L
-    }
 
     @Transactional
     override fun execute(reqDto: CreateApiKeyReqDto): ApiKeyResDto {
@@ -40,7 +39,7 @@ class CreateAdminApiKeyServiceImpl(
         }
 
         val now = LocalDateTime.now()
-        val expiresAt = now.plusDays(ADMIN_API_KEY_EXPIRATION_DAYS)
+        val expiresAt = now.plusDays(apiKeyEnvironment.adminExpirationDays)
 
         val apiKey =
             ApiKey().apply {

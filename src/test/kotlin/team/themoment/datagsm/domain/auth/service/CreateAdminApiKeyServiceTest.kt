@@ -14,6 +14,7 @@ import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.impl.CreateAdminApiKeyServiceImpl
 import team.themoment.datagsm.global.exception.error.ExpectedException
+import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
 import java.util.Optional
@@ -24,11 +25,13 @@ class CreateAdminApiKeyServiceTest :
 
         val mockApiKeyRepository = mockk<ApiKeyJpaRepository>()
         val mockCurrentUserProvider = mockk<CurrentUserProvider>()
+        val mockApiKeyEnvironment = mockk<ApiKeyEnvironment>()
 
         val createAdminApiKeyService =
             CreateAdminApiKeyServiceImpl(
                 mockApiKeyRepository,
                 mockCurrentUserProvider,
+                mockApiKeyEnvironment,
             )
 
         afterEach {
@@ -56,6 +59,7 @@ class CreateAdminApiKeyServiceTest :
                         )
 
                     beforeEach {
+                        every { mockApiKeyEnvironment.adminExpirationDays } returns 365L
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.empty()
                         every { mockApiKeyRepository.save(any()) } answers {
                             val entity = firstArg<ApiKey>()
@@ -131,6 +135,7 @@ class CreateAdminApiKeyServiceTest :
                         )
 
                     beforeEach {
+                        every { mockApiKeyEnvironment.adminExpirationDays } returns 365L
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.empty()
                         every { mockApiKeyRepository.save(any()) } answers {
                             val entity = firstArg<ApiKey>()
@@ -156,6 +161,7 @@ class CreateAdminApiKeyServiceTest :
                         )
 
                     beforeEach {
+                        every { mockApiKeyEnvironment.adminExpirationDays } returns 365L
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.empty()
                         every { mockApiKeyRepository.save(any()) } answers {
                             val entity = firstArg<ApiKey>()
@@ -182,6 +188,7 @@ class CreateAdminApiKeyServiceTest :
                     val beforeExecution = LocalDateTime.now()
 
                     beforeEach {
+                        every { mockApiKeyEnvironment.adminExpirationDays } returns 365L
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.empty()
                         every { mockApiKeyRepository.save(any()) } answers {
                             val entity = firstArg<ApiKey>()

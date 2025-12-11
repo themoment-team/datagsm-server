@@ -9,6 +9,7 @@ import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.ModifyAdminApiKeyService
 import team.themoment.datagsm.global.exception.error.ExpectedException
+import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
 
@@ -16,11 +17,8 @@ import java.time.LocalDateTime
 class ModifyAdminApiKeyServiceImpl(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
+    private val apiKeyEnvironment: ApiKeyEnvironment,
 ) : ModifyAdminApiKeyService {
-    companion object {
-        private const val ADMIN_API_KEY_EXPIRATION_DAYS = 365L
-        private const val ADMIN_RENEWAL_PERIOD_DAYS = 30L
-    }
 
     @Transactional
     override fun execute(reqDto: ModifyApiKeyReqDto): ApiKeyResDto {
@@ -33,8 +31,8 @@ class ModifyAdminApiKeyServiceImpl(
                     ExpectedException("API 키를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
                 }
 
-        if (!apiKey.canBeRenewed(ADMIN_RENEWAL_PERIOD_DAYS)) {
-            val renewalEndDate = apiKey.expiresAt.plusDays(ADMIN_RENEWAL_PERIOD_DAYS)
+        if (!apiKey.canBeRenewed(apiKeyEnvironment.adminRenewalPeriodDays)) {
+            val renewalEndDate = apiKey.expiresAt.plusDays(apiKeyEnvironment.adminRenewalPeriodDays)
             if (!LocalDateTime.now().isBefore(renewalEndDate)) {
                 apiKeyJpaRepository.delete(apiKey)
                 throw ExpectedException(
@@ -43,7 +41,7 @@ class ModifyAdminApiKeyServiceImpl(
                 )
             }
             throw ExpectedException(
-                "API 키 갱신 기간이 아닙니다. 만료 ${ADMIN_RENEWAL_PERIOD_DAYS}일 전부터 만료 ${ADMIN_RENEWAL_PERIOD_DAYS}일 후까지만 갱신 가능합니다.",
+                "API 키 갱신 기간이 아닙니다. 만료 ${apiKeyEnvironment.adminRenewalPeriodDays}일 전부터 만료 ${apiKeyEnvironment.adminRenewalPeriodDays}일 후까지만 갱신 가능합니다.",
                 HttpStatus.BAD_REQUEST,
             )
         }
@@ -58,7 +56,7 @@ class ModifyAdminApiKeyServiceImpl(
         }
 
         val now = LocalDateTime.now()
-        val expiresAt = now.plusDays(ADMIN_API_KEY_EXPIRATION_DAYS)
+        val expiresAt = now.plusDays(apiKeyEnvironment.adminExpirationDays)
 
         apiKey.apply {
             updatedAt = now
