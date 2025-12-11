@@ -41,20 +41,18 @@ class ApiKeyAuthenticationFilter(
                 return
             }
             val account = apiKey.account
-            val email = account?.email ?: ""
-            val role = account?.role
 
             val scopeAuthorities =
-                if (role == AccountRole.ADMIN || role == AccountRole.ROOT) {
+                if (account.role in setOf(AccountRole.ADMIN, AccountRole.ROOT)) {
                     listOf(SimpleGrantedAuthority("SCOPE_${ApiScope.ALL_SCOPE}"))
                 } else {
                     apiKey.scopes.map { SimpleGrantedAuthority("SCOPE_$it") }
                 }
 
-            val authorities = listOfNotNull(role, AccountRole.API_KEY_USER) + scopeAuthorities
+            val authorities = listOfNotNull(account.role, AccountRole.API_KEY_USER) + scopeAuthorities
             val authentication =
                 UsernamePasswordAuthenticationToken(
-                    email,
+                    account.email,
                     null,
                     authorities,
                 )

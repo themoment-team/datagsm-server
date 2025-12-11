@@ -39,7 +39,7 @@ class ApiKey {
 
     @OneToOne
     @JoinColumn(name = "account_id", nullable = false, referencedColumnName = "id")
-    var account: AccountJpaEntity? = null
+    lateinit var account: AccountJpaEntity
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
