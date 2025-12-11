@@ -4,6 +4,9 @@ enum class ApiScope(
     val scope: String,
     val description: String,
 ) {
+    // Auth scopes
+    AUTH_MANAGE("auth:manage", "API 키 관리 (생성/조회/수정/삭제)"),
+
     // Student scopes
     STUDENT_ALL("student:*", "학생 정보 모든 권한"),
     STUDENT_READ("student:read", "학생 정보 조회"),
