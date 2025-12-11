@@ -20,7 +20,6 @@ class CreateAdminApiKeyServiceImpl(
     private val currentUserProvider: CurrentUserProvider,
     private val apiKeyEnvironment: ApiKeyEnvironment,
 ) : CreateAdminApiKeyService {
-
     @Transactional
     override fun execute(reqDto: CreateApiKeyReqDto): ApiKeyResDto {
         val account = currentUserProvider.getCurrentAccount()

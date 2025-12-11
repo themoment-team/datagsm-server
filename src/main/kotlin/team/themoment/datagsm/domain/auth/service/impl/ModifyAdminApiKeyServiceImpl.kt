@@ -19,7 +19,6 @@ class ModifyAdminApiKeyServiceImpl(
     private val currentUserProvider: CurrentUserProvider,
     private val apiKeyEnvironment: ApiKeyEnvironment,
 ) : ModifyAdminApiKeyService {
-
     @Transactional
     override fun execute(reqDto: ModifyApiKeyReqDto): ApiKeyResDto {
         val account = currentUserProvider.getCurrentAccount()
