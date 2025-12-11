@@ -21,7 +21,7 @@ class ClubJpaCustomRepositoryImpl(
         pageable: Pageable,
     ): Page<ClubJpaEntity> {
         var searchResult = searchClubWithCondition(id, name, type, pageable, useStartsWith = true)
-        if (searchResult.content.isEmpty()) {
+        if (searchResult.content.isEmpty() && name != null) {
             searchResult = searchClubWithCondition(id, name, type, pageable, useStartsWith = false)
         }
         return searchResult

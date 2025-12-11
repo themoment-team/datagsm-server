@@ -20,7 +20,7 @@ class ProjectJpaCustomRepositoryImpl(
         pageable: Pageable,
     ): Page<ProjectJpaEntity> {
         var searchResult = searchProjectWithCondition(id, name, clubId, pageable, useStartsWith = true)
-        if (searchResult.content.isEmpty()) {
+        if (searchResult.content.isEmpty() && name != null) {
             searchResult = searchProjectWithCondition(id, name, clubId, pageable, useStartsWith = false)
         }
         return searchResult
