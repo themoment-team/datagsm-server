@@ -20,6 +20,7 @@ import team.themoment.datagsm.domain.auth.dto.request.RefreshTokenReqDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyRenewableResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
+import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
 import team.themoment.datagsm.domain.auth.service.CreateApiKeyService
 import team.themoment.datagsm.domain.auth.service.DeleteApiKeyService
@@ -78,7 +79,7 @@ class AuthController(
             ApiResponse(responseCode = "409", description = "이미 API 키가 존재함", content = [Content()]),
         ],
     )
-    @RequireScope("auth:manage")
+    @RequireScope(ApiScope.AUTH_MANAGE)
     @PostMapping("/api-key")
     fun createApiKey(
         @RequestBody @Valid reqDto: CreateApiKeyReqDto,
@@ -92,7 +93,7 @@ class AuthController(
             ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
         ],
     )
-    @RequireScope("auth:manage")
+    @RequireScope(ApiScope.AUTH_MANAGE)
     @PutMapping("/api-key")
     fun modifyApiKey(
         @RequestBody @Valid reqDto: ModifyApiKeyReqDto,
@@ -106,7 +107,7 @@ class AuthController(
             ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
         ],
     )
-    @RequireScope("auth:manage")
+    @RequireScope(ApiScope.AUTH_MANAGE)
     @DeleteMapping("/api-key")
     fun deleteApiKey(): CommonApiResponse<Nothing> {
         deleteApiKeyService.execute()
@@ -121,7 +122,7 @@ class AuthController(
             ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
         ],
     )
-    @RequireScope("auth:manage")
+    @RequireScope(ApiScope.AUTH_MANAGE)
     @GetMapping("/api-key")
     fun getApiKey(): ApiKeyResDto = queryApiKeyService.execute()
 
@@ -133,7 +134,7 @@ class AuthController(
             ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
         ],
     )
-    @RequireScope("auth:manage")
+    @RequireScope(ApiScope.AUTH_MANAGE)
     @GetMapping("/api-key/renewable")
     fun checkApiKeyRenewable(): ApiKeyRenewableResDto = queryApiKeyRenewableService.execute()
 }
