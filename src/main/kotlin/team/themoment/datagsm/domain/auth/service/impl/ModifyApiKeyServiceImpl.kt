@@ -45,12 +45,11 @@ class ModifyApiKeyServiceImpl(
             )
         }
 
-        // Scope 유효성 검증
-        val validScopes = ApiScope.getAllScopes()
-        val invalidScopes = reqDto.scopes.filter { it !in validScopes }
+        // 일반 사용자는 READ scope만 사용 가능
+        val invalidScopes = reqDto.scopes.filter { it !in ApiScope.READ_ONLY_SCOPES }
         if (invalidScopes.isNotEmpty()) {
             throw ExpectedException(
-                "유효하지 않은 scope입니다: ${invalidScopes.joinToString(", ")}",
+                "일반 사용자는 READ scope만 사용 가능합니다. 사용 불가능한 scope: ${invalidScopes.joinToString(", ")}",
                 HttpStatus.BAD_REQUEST,
             )
         }
