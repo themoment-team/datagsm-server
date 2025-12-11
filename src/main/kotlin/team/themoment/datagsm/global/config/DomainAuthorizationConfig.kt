@@ -13,10 +13,8 @@ class DomainAuthorizationConfig {
             .permitAll()
             .requestMatchers("/v1/auth/google", "/v1/auth/refresh")
             .permitAll()
-            .requestMatchers("/v1/auth/api-key/**")
+            .requestMatchers("/v1/auth/**")
             .hasAnyAuthority(AccountRole.ROOT.authority, AccountRole.ADMIN.authority, AccountRole.USER.authority)
-            .requestMatchers("/v1/club/**", "/v1/project/**", "/v1/students/**")
-            .hasAnyAuthority(AccountRole.ROOT.authority, AccountRole.ADMIN.authority, AccountRole.API_KEY_USER.authority)
             .anyRequest()
             .authenticated()
     }
