@@ -43,7 +43,7 @@ class ApiKeyAuthenticationFilter(
             val account = apiKey.account
 
             val scopeAuthorities =
-                if (account.role == AccountRole.ADMIN || account.role == AccountRole.ROOT) {
+                if (account.role in setOf(AccountRole.ADMIN, AccountRole.ROOT)) {
                     listOf(SimpleGrantedAuthority("SCOPE_${ApiScope.ALL_SCOPE}"))
                 } else {
                     apiKey.scopes.map { SimpleGrantedAuthority("SCOPE_$it") }
