@@ -22,8 +22,10 @@ import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
+import team.themoment.datagsm.domain.auth.service.CreateAdminApiKeyService
 import team.themoment.datagsm.domain.auth.service.CreateApiKeyService
 import team.themoment.datagsm.domain.auth.service.DeleteApiKeyService
+import team.themoment.datagsm.domain.auth.service.ModifyAdminApiKeyService
 import team.themoment.datagsm.domain.auth.service.ModifyApiKeyService
 import team.themoment.datagsm.domain.auth.service.QueryApiKeyRenewableService
 import team.themoment.datagsm.domain.auth.service.QueryApiKeyService
@@ -37,8 +39,10 @@ import team.themoment.datagsm.global.security.annotation.RequireScope
 class AuthController(
     private val authenticateGoogleOAuthService: AuthenticateGoogleOAuthService,
     private val createApiKeyService: CreateApiKeyService,
+    private val createAdminApiKeyService: CreateAdminApiKeyService,
     private val deleteApiKeyService: DeleteApiKeyService,
     private val modifyApiKeyService: ModifyApiKeyService,
+    private val modifyAdminApiKeyService: ModifyAdminApiKeyService,
     private val queryApiKeyService: QueryApiKeyService,
     private val queryApiKeyRenewableService: QueryApiKeyRenewableService,
     private val reissueTokenService: ReissueTokenService,
@@ -137,4 +141,33 @@ class AuthController(
     @RequireScope(ApiScope.AUTH_MANAGE)
     @GetMapping("/api-key/renewable")
     fun checkApiKeyRenewable(): ApiKeyRenewableResDto = queryApiKeyRenewableService.execute()
+
+    @Operation(summary = "Admin API 키 생성", description = "관리자용 API 키를 생성합니다. 모든 scope 사용 가능하며 만료 기간이 1년입니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "API 키 생성 성공"),
+            ApiResponse(responseCode = "400", description = "학생 정보 없음 / 유효하지 않은 scope", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "409", description = "이미 API 키가 존재함", content = [Content()]),
+        ],
+    )
+    @RequireScope(ApiScope.ADMIN_ALL)
+    @PostMapping("/api-key/admin")
+    fun createAdminApiKey(
+        @RequestBody @Valid reqDto: CreateApiKeyReqDto,
+    ): ApiKeyResDto = createAdminApiKeyService.execute(reqDto)
+
+    @Operation(summary = "Admin API 키 갱신", description = "관리자용 API 키를 갱신합니다. 모든 scope 사용 가능하며 만료 기간이 1년입니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "API 키 갱신 성공"),
+            ApiResponse(responseCode = "400", description = "갱신 기간이 아님 / 학생 정보 없음 / 유효하지 않은 scope", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
+        ],
+    )
+    @RequireScope(ApiScope.ADMIN_ALL)
+    @PutMapping("/api-key/admin")
+    fun modifyAdminApiKey(
+        @RequestBody @Valid reqDto: ModifyApiKeyReqDto,
+    ): ApiKeyResDto = modifyAdminApiKeyService.execute(reqDto)
 }
