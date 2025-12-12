@@ -18,4 +18,7 @@ object DependencyVersions {
     const val PEANUT_BUTTER_VERSION = "1.4.1"
 
     const val KOTLIN_COROUTINES_VERSION = "1.10.2"
+
+    const val POI_VERSION = "5.5.1"
+    const val POI_OOXML_VERSION = "5.5.1"
 }

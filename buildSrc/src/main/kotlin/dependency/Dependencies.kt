@@ -10,6 +10,8 @@ import dependency.DependencyVersions.PEANUT_BUTTER_VERSION
 import dependency.DependencyVersions.QUERY_DSL_VERSION
 import dependency.DependencyVersions.SPRING_CLOUD_VERSION
 import dependency.DependencyVersions.SWAGGER_VERSION
+import dependency.DependencyVersions.POI_VERSION
+import dependency.DependencyVersions.POI_OOXML_VERSION
 
 object Dependencies {
     // Spring Starters
@@ -59,8 +61,8 @@ object Dependencies {
     const val AWS_SDK_BOM = "software.amazon.awssdk:bom:${AWS_SDK_VERSION}"
 
     // Excel
-    const val POI = "org.apache.poi:poi:5.5.1"
-    const val POI_OOXML = "org.apache.poi:poi-ooxml:5.5.1"
+    const val POI = "org.apache.poi:poi:${POI_VERSION}"
+    const val POI_OOXML = "org.apache.poi:poi-ooxml:${POI_OOXML_VERSION}"
 
     // Testing
     const val SPRING_TEST = "org.springframework.boot:spring-boot-starter-test"
