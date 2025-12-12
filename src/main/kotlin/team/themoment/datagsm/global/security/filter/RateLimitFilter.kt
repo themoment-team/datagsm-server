@@ -74,8 +74,14 @@ class RateLimitFilter(
             }
             response.setHeader("X-RateLimit-Limit", apiKey.rateLimitCapacity.toString())
             response.setHeader("X-RateLimit-Remaining", rateLimitService.getRemainingTokens(apiKey).toString())
+        } catch (e: IllegalArgumentException) {
+            logger.warn("Malformed API key provided: {}", apiKeyHeader)
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), "잘못된 형식의 API Key입니다.")
+            return
         } catch (e: Exception) {
-            logger.error("Rate limit filter error", e)
+            logger.error("Unexpected error in RateLimitFilter", e)
+            response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "요청 처리 중 오류가 발생했습니다.")
+            return
         }
         filterChain.doFilter(request, response)
     }
