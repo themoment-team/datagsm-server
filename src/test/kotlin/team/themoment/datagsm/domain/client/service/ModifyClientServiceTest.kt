@@ -67,7 +67,6 @@ class ModifyClientServiceTest :
                 context("소유자가 클라이언트 이름을 수정할 때") {
                     val updateRequest =
                         ModifyClientReqDto(
-                            id = clientId,
                             name = "수정된 클라이언트",
                             redirectUri = null,
                         )
@@ -78,7 +77,7 @@ class ModifyClientServiceTest :
                     }
 
                     it("클라이언트 이름이 성공적으로 수정되어야 한다") {
-                        val result = modifyClientService.execute(updateRequest)
+                        val result = modifyClientService.execute(clientId, updateRequest)
 
                         result.id shouldBe clientId
                         result.name shouldBe "수정된 클라이언트"
@@ -92,7 +91,6 @@ class ModifyClientServiceTest :
                 context("소유자가 redirect URL을 수정할 때") {
                     val updateRequest =
                         ModifyClientReqDto(
-                            id = clientId,
                             name = null,
                             redirectUri = listOf("https://new-url.com", "https://another-url.com"),
                         )
@@ -103,7 +101,7 @@ class ModifyClientServiceTest :
                     }
 
                     it("redirect URL이 성공적으로 수정되어야 한다") {
-                        val result = modifyClientService.execute(updateRequest)
+                        val result = modifyClientService.execute(clientId, updateRequest)
 
                         result.name shouldBe "기존 클라이언트"
                         result.redirectUrl shouldBe listOf("https://new-url.com", "https://another-url.com")
@@ -113,7 +111,6 @@ class ModifyClientServiceTest :
                 context("소유자가 이름과 redirect URL을 모두 수정할 때") {
                     val updateRequest =
                         ModifyClientReqDto(
-                            id = clientId,
                             name = "전체 수정 클라이언트",
                             redirectUri = listOf("https://updated.com"),
                         )
@@ -124,7 +121,7 @@ class ModifyClientServiceTest :
                     }
 
                     it("모든 정보가 성공적으로 수정되어야 한다") {
-                        val result = modifyClientService.execute(updateRequest)
+                        val result = modifyClientService.execute(clientId, updateRequest)
 
                         result.id shouldBe clientId
                         result.name shouldBe "전체 수정 클라이언트"
@@ -133,20 +130,20 @@ class ModifyClientServiceTest :
                 }
 
                 context("존재하지 않는 클라이언트 ID로 수정을 시도할 때") {
+                    val nonExistingId = "non-existing-id"
                     val updateRequest =
                         ModifyClientReqDto(
-                            id = "non-existing-id",
                             name = "수정 시도",
                         )
 
                     beforeEach {
-                        every { mockClientRepository.findById("non-existing-id") } returns Optional.empty()
+                        every { mockClientRepository.findById(nonExistingId) } returns Optional.empty()
                     }
 
                     it("ExpectedException이 발생해야 한다") {
                         val exception =
                             shouldThrow<ExpectedException> {
-                                modifyClientService.execute(updateRequest)
+                                modifyClientService.execute(nonExistingId, updateRequest)
                             }
 
                         exception.message shouldBe "Id에 해당하는 Client를 찾지 못했습니다."
@@ -163,7 +160,6 @@ class ModifyClientServiceTest :
 
                     val updateRequest =
                         ModifyClientReqDto(
-                            id = clientId,
                             name = "무단 수정 시도",
                         )
 
@@ -181,7 +177,7 @@ class ModifyClientServiceTest :
                     it("ExpectedException이 발생해야 한다") {
                         val exception =
                             shouldThrow<ExpectedException> {
-                                modifyClientService.execute(updateRequest)
+                                modifyClientService.execute(clientId, updateRequest)
                             }
 
                         exception.message shouldBe "Client 변경 권한이 없습니다."
@@ -201,7 +197,6 @@ class ModifyClientServiceTest :
 
                     val updateRequest =
                         ModifyClientReqDto(
-                            id = clientId,
                             name = "관리자 수정",
                         )
 
@@ -217,7 +212,7 @@ class ModifyClientServiceTest :
                     }
 
                     it("클라이언트가 성공적으로 수정되어야 한다") {
-                        val result = modifyClientService.execute(updateRequest)
+                        val result = modifyClientService.execute(clientId, updateRequest)
 
                         result.name shouldBe "관리자 수정"
 

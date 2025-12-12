@@ -10,7 +10,6 @@ import org.springframework.security.core.Authentication
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
-import team.themoment.datagsm.domain.client.dto.req.DeleteClientReqDto
 import team.themoment.datagsm.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.domain.client.service.impl.DeleteClientServiceImpl
@@ -65,7 +64,6 @@ class DeleteClientServiceTest :
                 }
 
                 context("소유자가 자신의 클라이언트를 삭제할 때") {
-                    val deleteRequest = DeleteClientReqDto(id = clientId)
 
                     beforeEach {
                         every { mockClientRepository.findById(clientId) } returns Optional.of(existingClient)
@@ -74,7 +72,7 @@ class DeleteClientServiceTest :
                     }
 
                     it("클라이언트가 성공적으로 삭제되어야 한다") {
-                        deleteClientService.execute(deleteRequest)
+                        deleteClientService.execute(clientId)
 
                         verify(exactly = 1) { mockClientRepository.findById(clientId) }
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
@@ -83,16 +81,17 @@ class DeleteClientServiceTest :
                 }
 
                 context("존재하지 않는 클라이언트 ID로 삭제를 시도할 때") {
-                    val deleteRequest = DeleteClientReqDto(id = "non-existing-id")
+
+                    val nonExistingId = "non-existing-id"
 
                     beforeEach {
-                        every { mockClientRepository.findById("non-existing-id") } returns Optional.empty()
+                        every { mockClientRepository.findById(nonExistingId) } returns Optional.empty()
                     }
 
                     it("ExpectedException이 발생해야 한다") {
                         val exception =
                             shouldThrow<ExpectedException> {
-                                deleteClientService.execute(deleteRequest)
+                                deleteClientService.execute(nonExistingId)
                             }
 
                         exception.message shouldBe "Id에 해당하는 Client를 찾지 못했습니다."
@@ -110,7 +109,6 @@ class DeleteClientServiceTest :
                             role = AccountRole.USER
                         }
 
-                    val deleteRequest = DeleteClientReqDto(id = clientId)
                     val mockAuthentication = mockk<Authentication>()
 
                     beforeEach {
@@ -125,7 +123,7 @@ class DeleteClientServiceTest :
                     it("ExpectedException이 발생해야 한다") {
                         val exception =
                             shouldThrow<ExpectedException> {
-                                deleteClientService.execute(deleteRequest)
+                                deleteClientService.execute(clientId)
                             }
 
                         exception.message shouldBe "Client 삭제 권한이 없습니다."
@@ -144,7 +142,6 @@ class DeleteClientServiceTest :
                             role = AccountRole.ADMIN
                         }
 
-                    val deleteRequest = DeleteClientReqDto(id = clientId)
                     val mockAuthentication = mockk<Authentication>()
 
                     beforeEach {
@@ -158,46 +155,10 @@ class DeleteClientServiceTest :
                     }
 
                     it("클라이언트가 성공적으로 삭제되어야 한다") {
-                        deleteClientService.execute(deleteRequest)
+                        deleteClientService.execute(clientId)
 
                         verify(exactly = 1) { mockScopeChecker.hasScope(mockAuthentication, ApiScope.CLIENT_MANAGE.scope) }
                         verify(exactly = 1) { mockClientRepository.delete(existingClient) }
-                    }
-                }
-
-                context("여러 개의 클라이언트를 순차적으로 삭제할 때") {
-                    it("각각의 클라이언트가 성공적으로 삭제되어야 한다") {
-                        val client1 =
-                            ClientJpaEntity().apply {
-                                id = "client-1"
-                                secret = "secret-1"
-                                name = "클라이언트1"
-                                account = ownerAccount
-                                redirectUrl = emptyList()
-                            }
-
-                        val client2 =
-                            ClientJpaEntity().apply {
-                                id = "client-2"
-                                secret = "secret-2"
-                                name = "클라이언트2"
-                                account = ownerAccount
-                                redirectUrl = emptyList()
-                            }
-
-                        val deleteRequest1 = DeleteClientReqDto(id = "client-1")
-                        val deleteRequest2 = DeleteClientReqDto(id = "client-2")
-
-                        every { mockClientRepository.findById("client-1") } returns Optional.of(client1)
-                        every { mockClientRepository.findById("client-2") } returns Optional.of(client2)
-                        every { mockCurrentUserProvider.getCurrentAccount() } returns ownerAccount
-                        every { mockClientRepository.delete(any()) } returns Unit
-
-                        deleteClientService.execute(deleteRequest1)
-                        deleteClientService.execute(deleteRequest2)
-
-                        verify(exactly = 1) { mockClientRepository.delete(client1) }
-                        verify(exactly = 1) { mockClientRepository.delete(client2) }
                     }
                 }
             }
