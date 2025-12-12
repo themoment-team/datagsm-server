@@ -62,6 +62,9 @@ class CreateApiKeyServiceTest :
                     every { mockSecurityContext.authentication } returns mockAuthentication
                     every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                     every { mockApiKeyEnvironment.expirationDays } returns 30L
+                    every { mockApiKeyEnvironment.rateLimit.defaultCapacity } returns 100L
+                    every { mockApiKeyEnvironment.rateLimit.defaultRefillTokens } returns 100L
+                    every { mockApiKeyEnvironment.rateLimit.defaultRefillDurationSeconds } returns 60L
                     every { mockScopeChecker.hasScope(mockAuthentication, "admin:apikey") } returns false
                 }
 
