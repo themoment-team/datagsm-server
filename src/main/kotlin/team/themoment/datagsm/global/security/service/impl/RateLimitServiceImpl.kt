@@ -6,6 +6,7 @@ import io.github.bucket4j.distributed.proxy.ProxyManager
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
+import team.themoment.datagsm.global.security.dto.RateLimitConsumeResult
 import team.themoment.datagsm.global.security.service.RateLimitService
 import java.time.Duration
 
@@ -30,6 +31,24 @@ class RateLimitServiceImpl(
         val bucket = getBucket(apiKey)
         val probe = bucket.estimateAbilityToConsume(1)
         return if (probe.canBeConsumed()) 0 else probe.nanosToWaitForRefill / 1_000_000_000
+    }
+
+    override fun tryConsumeAndReturnRemaining(apiKey: ApiKey): RateLimitConsumeResult {
+        if (!apiKeyEnvironment.rateLimit.enabled) {
+            return RateLimitConsumeResult(
+                consumed = true,
+                remainingTokens = apiKey.rateLimitCapacity,
+                nanosToWaitForRefill = 0,
+            )
+        }
+
+        val bucket = getBucket(apiKey)
+        val probe = bucket.tryConsumeAndReturnRemaining(1)
+        return RateLimitConsumeResult(
+            consumed = probe.isConsumed,
+            remainingTokens = probe.remainingTokens,
+            nanosToWaitForRefill = probe.nanosToWaitForRefill,
+        )
     }
 
     private fun getBucket(apiKey: ApiKey) =
