@@ -22,6 +22,7 @@ import dependency.Dependencies.POI
 import dependency.Dependencies.POI_OOXML
 import dependency.Dependencies.QUERY_DSL
 import dependency.Dependencies.QUERY_DSL_PROCESSOR
+import dependency.Dependencies.SPRING_AOP
 import dependency.Dependencies.SPRING_CLOUD_BOM
 import dependency.Dependencies.SPRING_DATA_JPA
 import dependency.Dependencies.SPRING_DATA_REDIS
@@ -72,6 +73,7 @@ dependencies {
     implementation(SPRING_OAUTH2_CLIENT)
     implementation(SPRINT_MAIL)
     implementation(SPRING_OPENFEIGN)
+    implementation(SPRING_AOP)
 
     // JWT
     implementation(JJWT)
