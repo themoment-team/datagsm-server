@@ -9,13 +9,11 @@ import org.springframework.http.MediaType
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 import team.themoment.datagsm.domain.account.entity.constant.AccountRole
-import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
+import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.global.common.response.dto.response.CommonApiResponse
 import team.themoment.datagsm.global.security.service.RateLimitService
-import java.util.UUID
 
 class RateLimitFilter(
-    private val apiKeyJpaRepository: ApiKeyJpaRepository,
     private val rateLimitService: RateLimitService,
     private val objectMapper: ObjectMapper,
 ) : OncePerRequestFilter() {
@@ -31,18 +29,12 @@ class RateLimitFilter(
             filterChain.doFilter(request, response)
             return
         }
-        val apiKeyHeader = request.getHeader("X-API-KEY")
-        if (apiKeyHeader.isNullOrBlank()) {
+        val apiKey = authentication.details as? ApiKey
+        if (apiKey == null) {
             filterChain.doFilter(request, response)
             return
         }
         try {
-            val apiKeyValue = UUID.fromString(apiKeyHeader)
-            val apiKey = apiKeyJpaRepository.findByValue(apiKeyValue).orElse(null)
-            if (apiKey == null) {
-                filterChain.doFilter(request, response)
-                return
-            }
             if (apiKey.account.role in setOf(AccountRole.ADMIN, AccountRole.ROOT)) {
                 filterChain.doFilter(request, response)
                 return
@@ -74,10 +66,6 @@ class RateLimitFilter(
             }
             response.setHeader("X-RateLimit-Limit", apiKey.rateLimitCapacity.toString())
             response.setHeader("X-RateLimit-Remaining", rateLimitService.getRemainingTokens(apiKey).toString())
-        } catch (e: IllegalArgumentException) {
-            logger.warn("Malformed API key provided: {}", apiKeyHeader)
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "잘못된 형식의 API Key입니다.")
-            return
         } catch (e: Exception) {
             logger.error("Unexpected error in RateLimitFilter", e)
             response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "요청 처리 중 오류가 발생했습니다.")

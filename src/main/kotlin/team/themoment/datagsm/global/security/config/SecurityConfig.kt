@@ -49,7 +49,7 @@ class SecurityConfig(
                 ApiKeyAuthenticationFilter(apiKeyJpaRepository),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).addFilterBefore(
-                RateLimitFilter(apiKeyJpaRepository, rateLimitService, objectMapper),
+                RateLimitFilter(rateLimitService, objectMapper),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).addFilterBefore(
                 JwtAuthenticationFilter(jwtProvider),
