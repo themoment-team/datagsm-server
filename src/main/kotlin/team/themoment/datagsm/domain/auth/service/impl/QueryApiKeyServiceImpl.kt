@@ -30,7 +30,6 @@ class QueryApiKeyServiceImpl(
             expiresAt = apiKey.expiresAt,
             scopes = apiKey.scopes,
             description = apiKey.description,
-            rateLimitCapacity = apiKey.rateLimitCapacity,
         )
     }
 }

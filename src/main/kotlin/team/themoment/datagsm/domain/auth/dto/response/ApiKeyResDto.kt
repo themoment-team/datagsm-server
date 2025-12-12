@@ -13,6 +13,4 @@ data class ApiKeyResDto(
     val scopes: Set<String>,
     @param:Schema(description = "API 키 설명", example = "프론트엔드 개발용 API 키")
     val description: String? = null,
-    @param:Schema(description = "분당 요청 제한", example = "100")
-    val rateLimitCapacity: Long,
 )

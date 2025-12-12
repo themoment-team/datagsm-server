@@ -79,7 +79,6 @@ class CreateApiKeyServiceImpl(
             expiresAt = savedApiKey.expiresAt,
             scopes = savedApiKey.scopes,
             description = savedApiKey.description,
-            rateLimitCapacity = savedApiKey.rateLimitCapacity,
         )
     }
 }
