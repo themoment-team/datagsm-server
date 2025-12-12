@@ -34,43 +34,37 @@ class RateLimitFilter(
             filterChain.doFilter(request, response)
             return
         }
-        try {
-            if (apiKey.account.role in setOf(AccountRole.ADMIN, AccountRole.ROOT)) {
-                filterChain.doFilter(request, response)
-                return
-            }
-            val hasAdminScope =
-                apiKey.scopes.any { scope ->
-                    scope.startsWith("admin:")
-                }
-            if (hasAdminScope) {
-                filterChain.doFilter(request, response)
-                return
-            }
-            val allowed = rateLimitService.tryConsume(apiKey)
-            if (!allowed) {
-                val remainingTokens = rateLimitService.getRemainingTokens(apiKey)
-                val secondsUntilRefill = rateLimitService.getSecondsUntilRefill(apiKey)
-                response.status = HttpStatus.TOO_MANY_REQUESTS.value()
-                response.contentType = MediaType.APPLICATION_JSON_VALUE
-                response.setHeader("X-RateLimit-Limit", apiKey.rateLimitCapacity.toString())
-                response.setHeader("X-RateLimit-Remaining", remainingTokens.toString())
-                response.setHeader("Retry-After", secondsUntilRefill.toString())
-                val errorResponse =
-                    CommonApiResponse.error(
-                        "API 요청 제한을 초과했습니다. ${secondsUntilRefill}초 후에 다시 시도해주세요.",
-                        HttpStatus.TOO_MANY_REQUESTS,
-                    )
-                response.writer.write(objectMapper.writeValueAsString(errorResponse))
-                return
-            }
-            response.setHeader("X-RateLimit-Limit", apiKey.rateLimitCapacity.toString())
-            response.setHeader("X-RateLimit-Remaining", rateLimitService.getRemainingTokens(apiKey).toString())
-        } catch (e: Exception) {
-            logger.error("Unexpected error in RateLimitFilter", e)
-            response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "요청 처리 중 오류가 발생했습니다.")
+        if (apiKey.account.role in setOf(AccountRole.ADMIN, AccountRole.ROOT)) {
+            filterChain.doFilter(request, response)
             return
         }
+        val hasAdminScope =
+            apiKey.scopes.any { scope ->
+                scope.startsWith("admin:")
+            }
+        if (hasAdminScope) {
+            filterChain.doFilter(request, response)
+            return
+        }
+        val allowed = rateLimitService.tryConsume(apiKey)
+        if (!allowed) {
+            val remainingTokens = rateLimitService.getRemainingTokens(apiKey)
+            val secondsUntilRefill = rateLimitService.getSecondsUntilRefill(apiKey)
+            response.status = HttpStatus.TOO_MANY_REQUESTS.value()
+            response.contentType = MediaType.APPLICATION_JSON_VALUE
+            response.setHeader("X-RateLimit-Limit", apiKey.rateLimitCapacity.toString())
+            response.setHeader("X-RateLimit-Remaining", remainingTokens.toString())
+            response.setHeader("Retry-After", secondsUntilRefill.toString())
+            val errorResponse =
+                CommonApiResponse.error(
+                    "API 요청 제한을 초과했습니다. ${secondsUntilRefill}초 후에 다시 시도해주세요.",
+                    HttpStatus.TOO_MANY_REQUESTS,
+                )
+            response.writer.write(objectMapper.writeValueAsString(errorResponse))
+            return
+        }
+        response.setHeader("X-RateLimit-Limit", apiKey.rateLimitCapacity.toString())
+        response.setHeader("X-RateLimit-Remaining", rateLimitService.getRemainingTokens(apiKey).toString())
         filterChain.doFilter(request, response)
     }
 }
