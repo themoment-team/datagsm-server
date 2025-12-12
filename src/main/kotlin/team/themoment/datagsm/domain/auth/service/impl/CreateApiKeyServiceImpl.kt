@@ -55,7 +55,7 @@ class CreateApiKeyServiceImpl(
         val expirationDays = if (isAdmin) apiKeyEnvironment.adminExpirationDays else apiKeyEnvironment.expirationDays
         val expiresAt = now.plusDays(expirationDays)
 
-        val rateLimitCapacity = reqDto.rateLimitCapacity ?: apiKeyEnvironment.rateLimit.defaultCapacity
+        val rateLimitCapacity = apiKeyEnvironment.rateLimit.defaultCapacity
         val rateLimitRefillTokens = apiKeyEnvironment.rateLimit.defaultRefillTokens
         val rateLimitRefillDurationSeconds = apiKeyEnvironment.rateLimit.defaultRefillDurationSeconds
 

@@ -74,14 +74,11 @@ class ModifyApiKeyServiceImpl(
         val expirationDays = if (isAdmin) apiKeyEnvironment.adminExpirationDays else apiKeyEnvironment.expirationDays
         val expiresAt = now.plusDays(expirationDays)
 
-        val rateLimitCapacity = reqDto.rateLimitCapacity ?: apiKey.rateLimitCapacity
-
         apiKey.apply {
             updatedAt = now
             this.expiresAt = expiresAt
             updateScopes(reqDto.scopes)
             this.description = reqDto.description
-            this.rateLimitCapacity = rateLimitCapacity
         }
 
         val savedApiKey = apiKeyJpaRepository.save(apiKey)
