@@ -19,5 +19,5 @@ object DependencyVersions {
 
     const val KOTLIN_COROUTINES_VERSION = "1.10.2"
 
-    const val BUCKET4J_VERSION = "8.10.1"
+    const val BUCKET4J_VERSION = "8.15.0"
 }
