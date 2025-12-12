@@ -51,10 +51,7 @@ class RateLimitFilter(
         filterChain.doFilter(request, response)
     }
 
-    private fun isExcludedFromRateLimit(apiKey: ApiKey): Boolean {
-        if (apiKey.account.role in setOf(AccountRole.ADMIN, AccountRole.ROOT)) {
-            return true
-        }
-        return apiKey.scopes.any { it.startsWith("admin:") }
-    }
+    private fun isExcludedFromRateLimit(apiKey: ApiKey): Boolean =
+        apiKey.account.role in setOf(AccountRole.ADMIN, AccountRole.ROOT) ||
+            apiKey.scopes.any { it.startsWith("admin:") }
 }
