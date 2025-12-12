@@ -43,6 +43,6 @@ class RateLimitConfig {
         Bucket4jLettuce
             .casBasedBuilder(connection)
             .expirationAfterWrite(
-                ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofSeconds(60)),
+                ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(Duration.ofDays(1)),
             ).build()
 }
