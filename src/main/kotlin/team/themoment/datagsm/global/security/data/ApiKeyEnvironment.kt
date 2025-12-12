@@ -8,4 +8,12 @@ data class ApiKeyEnvironment(
     val renewalPeriodDays: Long,
     val adminExpirationDays: Long,
     val adminRenewalPeriodDays: Long,
-)
+    val rateLimit: RateLimit,
+) {
+    data class RateLimit(
+        val enabled: Boolean = true,
+        val defaultCapacity: Long = 100,
+        val defaultRefillTokens: Long = 100,
+        val defaultRefillDurationSeconds: Long = 60,
+    )
+}

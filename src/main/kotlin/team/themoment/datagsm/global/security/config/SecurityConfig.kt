@@ -1,5 +1,6 @@
 package team.themoment.datagsm.global.security.config
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -17,9 +18,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfigurationSource
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.global.security.filter.ApiKeyAuthenticationFilter
+import team.themoment.datagsm.global.security.filter.RateLimitFilter
 import team.themoment.datagsm.global.security.handler.CustomAuthenticationEntryPoint
 import team.themoment.datagsm.global.security.jwt.JwtProvider
 import team.themoment.datagsm.global.security.jwt.filter.JwtAuthenticationFilter
+import team.themoment.datagsm.global.security.service.RateLimitService
 
 @Configuration
 @EnableWebSecurity
@@ -29,6 +32,8 @@ class SecurityConfig(
     private val jwtProvider: JwtProvider,
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
     private val customAuthenticationEntryPoint: CustomAuthenticationEntryPoint,
+    private val rateLimitService: RateLimitService,
+    private val objectMapper: ObjectMapper,
 ) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -43,8 +48,13 @@ class SecurityConfig(
             .addFilterBefore(
                 ApiKeyAuthenticationFilter(apiKeyJpaRepository),
                 UsernamePasswordAuthenticationFilter::class.java,
-            ).addFilterBefore(JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter::class.java)
-            .authorizeHttpRequests {
+            ).addFilterBefore(
+                RateLimitFilter(rateLimitService, objectMapper),
+                UsernamePasswordAuthenticationFilter::class.java,
+            ).addFilterBefore(
+                JwtAuthenticationFilter(jwtProvider),
+                UsernamePasswordAuthenticationFilter::class.java,
+            ).authorizeHttpRequests {
                 it
                     .requestMatchers(*AuthenticationPathConfig.PUBLIC_PATHS.toTypedArray())
                     .permitAll()

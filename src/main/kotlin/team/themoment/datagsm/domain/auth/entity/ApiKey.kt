@@ -55,6 +55,15 @@ class ApiKey {
     @Column(name = "description", length = 500)
     var description: String? = null
 
+    @Column(name = "rate_limit_capacity", nullable = false)
+    var rateLimitCapacity: Long = 100
+
+    @Column(name = "rate_limit_refill_tokens", nullable = false)
+    var rateLimitRefillTokens: Long = 100
+
+    @Column(name = "rate_limit_refill_duration_seconds", nullable = false)
+    var rateLimitRefillDurationSeconds: Long = 60
+
     fun updateScopes(newScopes: Set<String>) {
         _scopes.clear()
         _scopes.addAll(newScopes)

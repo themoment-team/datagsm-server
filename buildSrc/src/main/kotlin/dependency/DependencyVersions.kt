@@ -19,5 +19,7 @@ object DependencyVersions {
 
     const val KOTLIN_COROUTINES_VERSION = "1.10.2"
 
+    const val BUCKET4J_VERSION = "8.15.0"
+  
     const val POI_VERSION = "5.5.1"
 }

@@ -30,6 +30,11 @@ class JwtAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain,
     ) {
+        val existingAuth = SecurityContextHolder.getContext().authentication
+        if (existingAuth != null && existingAuth.isAuthenticated) {
+            filterChain.doFilter(request, response)
+            return
+        }
         val bearerToken = request.getHeader("Authorization")
         val token = jwtProvider.extractToken(bearerToken)
         if (token != null && jwtProvider.validateToken(token)) {
@@ -40,10 +45,14 @@ class JwtAuthenticationFilter(
                     AccountRole.ADMIN, AccountRole.ROOT -> {
                         listOf(role, SimpleGrantedAuthority("SCOPE_${ApiScope.ALL_SCOPE}"))
                     }
+
                     AccountRole.USER -> {
                         listOf(role, SimpleGrantedAuthority("SCOPE_${ApiScope.AUTH_MANAGE.scope}"))
                     }
-                    else -> listOf(role)
+
+                    else -> {
+                        listOf(role)
+                    }
                 }
             val authentication =
                 UsernamePasswordAuthenticationToken(

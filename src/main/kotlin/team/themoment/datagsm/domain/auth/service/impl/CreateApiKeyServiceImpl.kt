@@ -55,6 +55,10 @@ class CreateApiKeyServiceImpl(
         val expirationDays = if (isAdmin) apiKeyEnvironment.adminExpirationDays else apiKeyEnvironment.expirationDays
         val expiresAt = now.plusDays(expirationDays)
 
+        val rateLimitCapacity = apiKeyEnvironment.rateLimit.defaultCapacity
+        val rateLimitRefillTokens = apiKeyEnvironment.rateLimit.defaultRefillTokens
+        val rateLimitRefillDurationSeconds = apiKeyEnvironment.rateLimit.defaultRefillDurationSeconds
+
         val apiKey =
             ApiKey().apply {
                 this.account = account
@@ -63,6 +67,9 @@ class CreateApiKeyServiceImpl(
                 this.expiresAt = expiresAt
                 updateScopes(reqDto.scopes)
                 this.description = reqDto.description
+                this.rateLimitCapacity = rateLimitCapacity
+                this.rateLimitRefillTokens = rateLimitRefillTokens
+                this.rateLimitRefillDurationSeconds = rateLimitRefillDurationSeconds
             }
 
         val savedApiKey = apiKeyJpaRepository.save(apiKey)

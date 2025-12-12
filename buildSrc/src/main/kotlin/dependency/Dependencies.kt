@@ -1,6 +1,7 @@
 package dependency
 
 import dependency.DependencyVersions.AWS_SDK_VERSION
+import dependency.DependencyVersions.BUCKET4J_VERSION
 import dependency.DependencyVersions.JJWT_VERSION
 import dependency.DependencyVersions.KOTEST_VERSION
 import dependency.DependencyVersions.KOTLIN_COROUTINES_VERSION
@@ -20,6 +21,7 @@ object Dependencies {
     const val SPRING_OAUTH2_CLIENT = "org.springframework.boot:spring-boot-starter-oauth2-client"
     const val SPRINT_MAIL = "org.springframework.boot:spring-boot-starter-mail"
     const val SPRING_OPENFEIGN = "org.springframework.cloud:spring-cloud-starter-openfeign"
+    const val SPRING_AOP = "org.springframework.boot:spring-boot-starter-aop"
 
     // JWT
     const val JJWT = "io.jsonwebtoken:jjwt-api:${JJWT_VERSION}"
@@ -54,6 +56,10 @@ object Dependencies {
 
     // Logging
     const val LOGBACK_AWS_APPENDER = "ca.pjer:logback-awslogs-appender:${LOGBACK_AWS_APPENDER_VERSION}"
+
+    // Rate Limiting
+    const val BUCKET4J_CORE = "com.bucket4j:bucket4j_jdk17-core:${BUCKET4J_VERSION}"
+    const val BUCKET4J_REDIS = "com.bucket4j:bucket4j_jdk17-lettuce:${BUCKET4J_VERSION}"
 
     // BOM
     const val SPRING_CLOUD_BOM = "org.springframework.cloud:spring-cloud-dependencies:${SPRING_CLOUD_VERSION}"

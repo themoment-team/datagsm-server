@@ -53,6 +53,11 @@ spring:
       renewal-period-days: 15
       admin-expiration-days: 365
       admin-renewal-period-days: 30
+      rate-limit:
+        enabled: true
+        default-capacity: 100
+        default-refill-tokens: 100
+        default-refill-duration-seconds: 60
   jpa:
     hibernate:
       ddl-auto: update

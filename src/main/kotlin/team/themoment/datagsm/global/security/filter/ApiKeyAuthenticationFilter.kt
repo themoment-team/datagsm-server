@@ -56,6 +56,7 @@ class ApiKeyAuthenticationFilter(
                     null,
                     authorities,
                 )
+            authentication.details = apiKey
             SecurityContextHolder.getContext().authentication = authentication
         } catch (e: IllegalArgumentException) {
             response.sendError(HttpStatus.UNAUTHORIZED.value(), "잘못된 형식의 API Key입니다.")

@@ -1,4 +1,6 @@
 import dependency.Dependencies.AWS_SDK_BOM
+import dependency.Dependencies.BUCKET4J_CORE
+import dependency.Dependencies.BUCKET4J_REDIS
 import dependency.Dependencies.JACKSON_KOTLIN
 import dependency.Dependencies.JAKARTA_PERSISTENCE_API
 import dependency.Dependencies.JAKARTA_TRANSACTION_API
@@ -20,6 +22,7 @@ import dependency.Dependencies.POI
 import dependency.Dependencies.POI_OOXML
 import dependency.Dependencies.QUERY_DSL
 import dependency.Dependencies.QUERY_DSL_PROCESSOR
+import dependency.Dependencies.SPRING_AOP
 import dependency.Dependencies.SPRING_CLOUD_BOM
 import dependency.Dependencies.SPRING_DATA_JPA
 import dependency.Dependencies.SPRING_DATA_REDIS
@@ -70,6 +73,7 @@ dependencies {
     implementation(SPRING_OAUTH2_CLIENT)
     implementation(SPRINT_MAIL)
     implementation(SPRING_OPENFEIGN)
+    implementation(SPRING_AOP)
 
     // JWT
     implementation(JJWT)
@@ -104,6 +108,10 @@ dependencies {
 
     // Logging
     implementation(LOGBACK_AWS_APPENDER)
+
+    // Rate Limiting
+    implementation(BUCKET4J_CORE)
+    implementation(BUCKET4J_REDIS)
 
     // Excel
     implementation(POI)
