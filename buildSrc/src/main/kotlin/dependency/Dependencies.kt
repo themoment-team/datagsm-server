@@ -11,7 +11,6 @@ import dependency.DependencyVersions.QUERY_DSL_VERSION
 import dependency.DependencyVersions.SPRING_CLOUD_VERSION
 import dependency.DependencyVersions.SWAGGER_VERSION
 import dependency.DependencyVersions.POI_VERSION
-import dependency.DependencyVersions.POI_OOXML_VERSION
 
 object Dependencies {
     // Spring Starters
@@ -62,7 +61,7 @@ object Dependencies {
 
     // Excel
     const val POI = "org.apache.poi:poi:${POI_VERSION}"
-    const val POI_OOXML = "org.apache.poi:poi-ooxml:${POI_OOXML_VERSION}"
+    const val POI_OOXML = "org.apache.poi:poi-ooxml:${POI_VERSION}"
 
     // Testing
     const val SPRING_TEST = "org.springframework.boot:spring-boot-starter-test"
