@@ -30,7 +30,7 @@ import team.themoment.datagsm.global.security.annotation.RequireScope
 
 @Tag(name = "Client", description = "OAuth 클라이언트 관련 API")
 @RestController
-@RequestMapping("/v1/client")
+@RequestMapping("/v1/clients")
 class ClientController(
     private val createClientService: CreateClientService,
     private val modifyClientService: ModifyClientService,
