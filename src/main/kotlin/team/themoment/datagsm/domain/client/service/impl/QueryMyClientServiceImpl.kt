@@ -9,7 +9,7 @@ import team.themoment.datagsm.domain.client.service.QueryMyClientService
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 class QueryMyClientServiceImpl(
     val clientJpaRepository: ClientJpaRepository,
     val currentUserProvider: CurrentUserProvider,
