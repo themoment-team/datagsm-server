@@ -20,6 +20,12 @@ import team.themoment.datagsm.global.exception.error.ExpectedException
 class ModifyClubExcelServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
 ) : ModifyClubExcelService {
+    companion object {
+        private const val MAJOR_CLUB_COL_IDX = 0
+        private const val JOB_CLUB_COL_IDX = 1
+        private const val AUTONOMOUS_CLUB_COL_IDX = 2
+    }
+
     override fun modifyClubData(file: MultipartFile): CommonApiResponse<Nothing> {
         val excelData: List<ExcelRowDto> = queryExcelData(file)
         val clubNames = excelData.flatMap { row ->
@@ -56,23 +62,28 @@ class ModifyClubExcelServiceImpl(
             }
 
         val sheet = workbook.getSheetAt(0)
-
+        val headerRow = sheet?.getRow(0)
+        val headerColumns = listOf(
+            headerRow?.getCell(MAJOR_CLUB_COL_IDX)?.stringCellValue ?: "",
+            headerRow?.getCell(JOB_CLUB_COL_IDX)?.stringCellValue ?: "",
+            headerRow?.getCell(AUTONOMOUS_CLUB_COL_IDX)?.stringCellValue ?: "",
+        )
+        val expectedHeaders = listOf("전공동아리", "취업동아리", "창체동아리")
         try {
             if (
-                !(sheet?.getRow(0)?.getCell(0)?.stringCellValue?.equals("전공동아리") ?: true) ||
-                !(sheet?.getRow(0)?.getCell(1)?.stringCellValue?.equals("직업동아리") ?: true) ||
-                !(sheet?.getRow(0)?.getCell(2)?.stringCellValue?.equals("창체동아리") ?: true)
+                sheet?.getRow(0) == null ||
+                headerColumns != expectedHeaders
             ) {
                 throw ExpectedException(
-                    "헤더 행의 열은 순서대로 전공동아리, 직업동아리, 창체동아리여야 합니다.",
+                    "헤더 행의 열은 순서대로 전공동아리, 취업동아리, 창체동아리여야 합니다.",
                     HttpStatus.BAD_REQUEST,
                 )
             }
             val data = mutableListOf<ExcelRowDto>()
             val clubTypes = listOf(ClubType.MAJOR_CLUB, ClubType.JOB_CLUB, ClubType.AUTONOMOUS_CLUB)
-            for(columnIndex in 0..2) {
+            for (columnIndex in 0..2) {
                 val clubNames = mutableListOf<String>()
-                for(rowIndex in 1..sheet.lastRowNum) {
+                for (rowIndex in 1..sheet.lastRowNum) {
                     val cellValue = sheet.getRow(rowIndex)?.getCell(columnIndex)
                         ?.toString()
                         ?.trim()
