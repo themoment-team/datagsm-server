@@ -23,5 +23,5 @@ class ClientJpaEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "account_id", nullable = false)
-    var account: AccountJpaEntity? = null
+    lateinit var account: AccountJpaEntity
 }
