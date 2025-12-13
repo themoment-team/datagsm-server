@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
-import team.themoment.datagsm.domain.client.dto.req.ModifyClientReqDto
-import team.themoment.datagsm.domain.client.dto.res.ClientResDto
+import team.themoment.datagsm.domain.client.dto.request.ModifyClientReqDto
+import team.themoment.datagsm.domain.client.dto.response.ClientResDto
 import team.themoment.datagsm.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.domain.client.service.ModifyClientService
 import team.themoment.datagsm.global.exception.error.ExpectedException

@@ -1,4 +1,4 @@
-package team.themoment.datagsm.domain.client.dto.req
+package team.themoment.datagsm.domain.client.dto.request
 
 data class ModifyClientReqDto(
     val name: String? = null,

@@ -3,8 +3,8 @@ package team.themoment.datagsm.domain.client.service.impl
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.domain.client.dto.req.CreateClientReqDto
-import team.themoment.datagsm.domain.client.dto.res.CreateClientResDto
+import team.themoment.datagsm.domain.client.dto.request.CreateClientReqDto
+import team.themoment.datagsm.domain.client.dto.response.CreateClientResDto
 import team.themoment.datagsm.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.domain.client.service.CreateClientService

@@ -1,7 +1,7 @@
 package team.themoment.datagsm.domain.client.service
 
-import team.themoment.datagsm.domain.client.dto.req.ModifyClientReqDto
-import team.themoment.datagsm.domain.client.dto.res.ClientResDto
+import team.themoment.datagsm.domain.client.dto.request.ModifyClientReqDto
+import team.themoment.datagsm.domain.client.dto.response.ClientResDto
 
 interface ModifyClientService {
     fun execute(

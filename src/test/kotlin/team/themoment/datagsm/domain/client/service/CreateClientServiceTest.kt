@@ -10,7 +10,7 @@ import io.mockk.verify
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.account.entity.constant.AccountRole
-import team.themoment.datagsm.domain.client.dto.req.CreateClientReqDto
+import team.themoment.datagsm.domain.client.dto.request.CreateClientReqDto
 import team.themoment.datagsm.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.domain.client.service.impl.CreateClientServiceImpl

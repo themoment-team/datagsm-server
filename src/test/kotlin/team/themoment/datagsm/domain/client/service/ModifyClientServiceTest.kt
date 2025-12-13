@@ -10,7 +10,7 @@ import org.springframework.security.core.Authentication
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
-import team.themoment.datagsm.domain.client.dto.req.ModifyClientReqDto
+import team.themoment.datagsm.domain.client.dto.request.ModifyClientReqDto
 import team.themoment.datagsm.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.domain.client.service.impl.ModifyClientServiceImpl

@@ -1,4 +1,4 @@
-package team.themoment.datagsm.domain.client.dto.res
+package team.themoment.datagsm.domain.client.dto.response
 
 data class ClientResDto(
     val id: String,
