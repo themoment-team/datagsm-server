@@ -14,6 +14,12 @@ import team.themoment.datagsm.global.common.converter.StringListConverter
 class ClientJpaEntity {
     @Id
     lateinit var id: String
+
+    /**
+     * PasswordEncoder로 암호화된 UUID 문자열 값
+     * @see team.themoment.datagsm.domain.client.service.impl.CreateClientServiceImpl
+     * @see team.themoment.datagsm.global.security.config.PasswordEncoderConfig
+     */
     lateinit var secret: String
 
     @Convert(converter = StringListConverter::class)
