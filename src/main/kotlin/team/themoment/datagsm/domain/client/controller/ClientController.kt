@@ -42,8 +42,7 @@ class ClientController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
-            ApiResponse(responseCode = "401", description = "인증되지 않은 요청"),
-
+            ApiResponse(responseCode = "401", description = "인증되지 않은 요청", content = [Content()]),
         ],
     )
     @GetMapping
@@ -53,8 +52,8 @@ class ClientController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
-            ApiResponse(responseCode = "401", description = "인증되지 않은 요청"),
-            ApiResponse(responseCode = "403", description = "권한이 없는 요청"),
+            ApiResponse(responseCode = "401", description = "인증되지 않은 요청", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "권한이 없는 요청", content = [Content()]),
         ],
     )
     @RequireScope(ApiScope.CLIENT_MANAGE)
@@ -70,7 +69,7 @@ class ClientController(
         value = [
             ApiResponse(responseCode = "200", description = "생성 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
-            ApiResponse(responseCode = "401", description = "인증되지 않은 요청"),
+            ApiResponse(responseCode = "401", description = "인증되지 않은 요청", content = [Content()]),
         ],
     )
     @PostMapping
@@ -83,8 +82,8 @@ class ClientController(
         value = [
             ApiResponse(responseCode = "200", description = "수정 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
-            ApiResponse(responseCode = "401", description = "인증되지 않은 요청"),
-            ApiResponse(responseCode = "403", description = "권한이 없는 요청"),
+            ApiResponse(responseCode = "401", description = "인증되지 않은 요청", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "권한이 없는 요청", content = [Content()]),
             ApiResponse(responseCode = "404", description = "클라이언트를 찾을 수 없음", content = [Content()]),
         ],
     )
@@ -98,8 +97,8 @@ class ClientController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "삭제 성공"),
-            ApiResponse(responseCode = "401", description = "인증되지 않은 요청"),
-            ApiResponse(responseCode = "403", description = "권한이 없는 요청"),
+            ApiResponse(responseCode = "401", description = "인증되지 않은 요청", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "권한이 없는 요청", content = [Content()]),
             ApiResponse(responseCode = "404", description = "클라이언트를 찾을 수 없음", content = [Content()]),
         ],
     )
