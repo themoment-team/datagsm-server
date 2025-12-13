@@ -63,16 +63,10 @@ class CreateClubExcelServiceImpl(
         }
     }
 
-    override fun getClubData(): List<ExcelRowDto> {
-        val clubTypes = listOf(ClubType.MAJOR_CLUB, ClubType.JOB_CLUB, ClubType.AUTONOMOUS_CLUB)
-        val data = mutableListOf<ExcelRowDto>()
-        for (i: Int in 0..2) {
-            val list = clubJpaRepository.findByType(clubTypes[i])
-            val clubNames =
-                list.map { it.name }
-            data.add(ExcelRowDto(clubName = clubNames, clubType = clubTypes[i]))
+    override fun getClubData(): List<ExcelRowDto> =
+        ClubType.entries.map { clubType ->
+            val clubNames = clubJpaRepository.findByType(clubType).map { it.name }
+            ExcelRowDto(clubName = clubNames, clubType = clubType)
         }
-        return data.toList()
-    }
 }
 
