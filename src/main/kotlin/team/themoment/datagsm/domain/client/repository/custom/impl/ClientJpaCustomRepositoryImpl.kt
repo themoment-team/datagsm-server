@@ -1,6 +1,5 @@
 package team.themoment.datagsm.domain.client.repository.custom.impl
 
-import com.querydsl.core.types.dsl.Expressions
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -18,23 +17,23 @@ class ClientJpaCustomRepositoryImpl(
         name: String?,
         pageable: Pageable,
     ): Page<ClientJpaEntity> {
-        val countExpression = Expressions.numberTemplate(Long::class.javaObjectType, "COUNT(*) OVER()")
-        val queryResult =
+        val content =
             jpaQueryFactory
-                .select(
-                    clientJpaEntity,
-                    countExpression.`as`("count"),
-                ).from(clientJpaEntity)
+                .selectFrom(clientJpaEntity)
                 .where(
                     name?.let { clientJpaEntity.name.startsWith(it) },
                 ).offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
-        if (queryResult.isEmpty()) {
-            return PageableExecutionUtils.getPage(emptyList(), pageable) { 0L }
-        }
-        val clients = queryResult.map { it.get(clientJpaEntity) }
-        val count = queryResult.first().get(countExpression)!!
-        return PageableExecutionUtils.getPage(clients, pageable) { count }
+
+        val countQuery =
+            jpaQueryFactory
+                .select(clientJpaEntity.count())
+                .from(clientJpaEntity)
+                .where(
+                    name?.let { clientJpaEntity.name.startsWith(it) },
+                )
+
+        return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
     }
 }
