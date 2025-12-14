@@ -20,7 +20,7 @@ class CreateClubExcelServiceImpl(
         private const val AUTONOMOUS_CLUB_COL_IDX = 2
     }
 
-    override fun createExcel(): ByteArray {
+    override fun execute(): ByteArray {
         val data: List<ExcelRowDto> = getClubData()
         val workbook = XSSFWorkbook()
 

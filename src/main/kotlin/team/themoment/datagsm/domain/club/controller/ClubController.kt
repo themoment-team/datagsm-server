@@ -113,7 +113,7 @@ class ClubController(
     @RequireScope(ApiScope.ADMIN_EXCEL)
     @GetMapping("/excel/download")
     fun downloadClubExcel(): ResponseEntity<ByteArray> {
-        val excelData = createClubExcelService.createExcel()
+        val excelData = createClubExcelService.execute()
 
         val headers =
             HttpHeaders().apply {
@@ -142,5 +142,5 @@ class ClubController(
     @PostMapping("/excel/upload")
     fun uploadClubExcel(
         @RequestParam("file") file: MultipartFile,
-    ) = modifyClubExcelService.modifyClubData(file)
+    ) = modifyClubExcelService.execute(file)
 }

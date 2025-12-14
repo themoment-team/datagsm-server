@@ -26,7 +26,7 @@ class ModifyClubExcelServiceImpl(
         private const val AUTONOMOUS_CLUB_COL_IDX = 2
     }
 
-    override fun modifyClubData(file: MultipartFile): CommonApiResponse<Nothing> {
+    override fun execute(file: MultipartFile): CommonApiResponse<Nothing> {
         val excelData: List<ExcelRowDto> = queryExcelData(file)
         val clubNames = excelData.flatMap { row ->
             row.clubName.map { name ->

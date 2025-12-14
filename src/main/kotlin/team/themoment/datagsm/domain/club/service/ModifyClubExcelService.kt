@@ -5,7 +5,7 @@ import team.themoment.datagsm.domain.club.dto.internal.ExcelRowDto
 import team.themoment.datagsm.global.common.response.dto.response.CommonApiResponse
 
 interface ModifyClubExcelService {
-    fun modifyClubData(file: MultipartFile): CommonApiResponse<Nothing>
+    fun execute(file: MultipartFile): CommonApiResponse<Nothing>
 
     fun queryExcelData(file: MultipartFile): List<ExcelRowDto>
 }
