@@ -7,9 +7,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import org.springframework.http.ContentDisposition
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -33,7 +30,6 @@ import team.themoment.datagsm.domain.club.service.ModifyClubExcelService
 import team.themoment.datagsm.domain.club.service.ModifyClubService
 import team.themoment.datagsm.domain.club.service.QueryClubService
 import team.themoment.datagsm.global.security.annotation.RequireScope
-import java.nio.charset.StandardCharsets
 
 @Tag(name = "Club", description = "동아리 관련 API")
 @RestController
