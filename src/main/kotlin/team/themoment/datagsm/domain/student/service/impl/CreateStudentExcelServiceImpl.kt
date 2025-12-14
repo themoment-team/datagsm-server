@@ -82,8 +82,8 @@ class CreateStudentExcelServiceImpl(
             outputStream.toByteArray()
         }
 
-        val fileName = "학생_현황_" + LocalDate.now(ZoneId.of("Asia/Seoul"))
-            .format(DATE_FORMATTER) + ".xlsx"
+        val fileName = "학생_현황_${LocalDate.now(ZoneId.of("Asia/Seoul"))
+            .format(DATE_FORMATTER)}.xlsx"
 
         val headers =
             HttpHeaders().apply {
