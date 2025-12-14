@@ -40,23 +40,19 @@ class CreateClubExcelServiceImpl(
         headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("창체동아리")
 
         val maxRows = data.maxOf { it.clubName.size }
+        val clubDataMap = data.associateBy { it.clubType }
+        val clubTypeColumnMap = mapOf(
+            ClubType.MAJOR_CLUB to MAJOR_CLUB_COL_IDX,
+            ClubType.JOB_CLUB to JOB_CLUB_COL_IDX,
+            ClubType.AUTONOMOUS_CLUB to AUTONOMOUS_CLUB_COL_IDX,
+        )
 
-        for (rowIdx in 0 until maxRows) {
-            val dataRow = sheet.createRow(rowIdx + 1)
-
-            if (rowIdx < data[0].clubName.size) {
-                dataRow.createCell(MAJOR_CLUB_COL_IDX)
-                    .setCellValue(data[0].clubName[rowIdx])
-            }
-
-            if (rowIdx < data[1].clubName.size) {
-                dataRow.createCell(JOB_CLUB_COL_IDX)
-                    .setCellValue(data[1].clubName[rowIdx])
-            }
-
-            if (rowIdx < data[2].clubName.size) {
-                dataRow.createCell(AUTONOMOUS_CLUB_COL_IDX)
-                    .setCellValue(data[2].clubName[rowIdx])
+        for(rowIdx in 0 until maxRows) {
+            val dataRow = sheet.getRow(rowIdx + 1)
+            clubTypeColumnMap.forEach { (clubType, colIdx) ->
+                clubDataMap[clubType]?.clubName?.getOrNull(rowIdx)?.let { clubName ->
+                    dataRow.createCell(colIdx).setCellValue(clubName)
+                }
             }
         }
 
