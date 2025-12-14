@@ -31,59 +31,61 @@ class CreateClubExcelServiceImpl(
     override fun execute(): ResponseEntity<ByteArray> {
         val data: List<ExcelRowDto> = getClubData()
         val workbook = XSSFWorkbook()
+        try {
+            val sheet = workbook.createSheet("동아리")
+            val headerRow = sheet.createRow(0)
 
-        val sheet = workbook.createSheet("동아리")
-        val headerRow = sheet.createRow(0)
+            headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue(ClubType.MAJOR_CLUB.value)
+            headerRow.createCell(JOB_CLUB_COL_IDX).setCellValue(ClubType.JOB_CLUB.value)
+            headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue(ClubType.AUTONOMOUS_CLUB.value)
 
-        headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue(ClubType.MAJOR_CLUB.value)
-        headerRow.createCell(JOB_CLUB_COL_IDX).setCellValue(ClubType.JOB_CLUB.value)
-        headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue(ClubType.AUTONOMOUS_CLUB.value)
+            val maxRows = data.maxOf { it.clubName.size }
+            val clubDataMap = data.associateBy { it.clubType }
+            val clubTypeColumnMap = mapOf(
+                ClubType.MAJOR_CLUB to MAJOR_CLUB_COL_IDX,
+                ClubType.JOB_CLUB to JOB_CLUB_COL_IDX,
+                ClubType.AUTONOMOUS_CLUB to AUTONOMOUS_CLUB_COL_IDX,
+            )
 
-        val maxRows = data.maxOf { it.clubName.size }
-        val clubDataMap = data.associateBy { it.clubType }
-        val clubTypeColumnMap = mapOf(
-            ClubType.MAJOR_CLUB to MAJOR_CLUB_COL_IDX,
-            ClubType.JOB_CLUB to JOB_CLUB_COL_IDX,
-            ClubType.AUTONOMOUS_CLUB to AUTONOMOUS_CLUB_COL_IDX,
-        )
-
-        for(rowIdx in 0 until maxRows) {
-            val dataRow = sheet.getRow(rowIdx + 1)
-            clubTypeColumnMap.forEach { (clubType, colIdx) ->
-                clubDataMap[clubType]?.clubName?.getOrNull(rowIdx)?.let { clubName ->
-                    dataRow.createCell(colIdx).setCellValue(clubName)
+            for(rowIdx in 0 until maxRows) {
+                val dataRow = sheet.getRow(rowIdx + 1)
+                clubTypeColumnMap.forEach { (clubType, colIdx) ->
+                    clubDataMap[clubType]?.clubName?.getOrNull(rowIdx)?.let { clubName ->
+                        dataRow.createCell(colIdx).setCellValue(clubName)
+                    }
                 }
             }
-        }
 
-        sheet.autoSizeColumn(MAJOR_CLUB_COL_IDX)
-        sheet.autoSizeColumn(JOB_CLUB_COL_IDX)
-        sheet.autoSizeColumn(AUTONOMOUS_CLUB_COL_IDX)
+            sheet.autoSizeColumn(MAJOR_CLUB_COL_IDX)
+            sheet.autoSizeColumn(JOB_CLUB_COL_IDX)
+            sheet.autoSizeColumn(AUTONOMOUS_CLUB_COL_IDX)
 
-        val byteArrayFile = ByteArrayOutputStream().use { outputStream ->
-            workbook.write(outputStream)
-            workbook.close()
-            outputStream.toByteArray()
-        }
-
-        val fileName = "동아리_현황_" + LocalDate.now(ZoneId.of("Asia/Seoul"))
-            .format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".xlsx"
-
-        val headers =
-            HttpHeaders().apply {
-                contentType =
-                    MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                contentDisposition =
-                    ContentDisposition
-                        .builder("attachment")
-                        .filename(fileName, StandardCharsets.UTF_8)
-                        .build()
+            val byteArrayFile = ByteArrayOutputStream().use { outputStream ->
+                workbook.write(outputStream)
+                outputStream.toByteArray()
             }
 
-        return ResponseEntity
-            .ok()
-            .headers(headers)
-            .body(byteArrayFile)
+            val fileName = "동아리_현황_" + LocalDate.now(ZoneId.of("Asia/Seoul"))
+                .format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".xlsx"
+
+            val headers =
+                HttpHeaders().apply {
+                    contentType =
+                        MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    contentDisposition =
+                        ContentDisposition
+                            .builder("attachment")
+                            .filename(fileName, StandardCharsets.UTF_8)
+                            .build()
+                }
+
+            return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(byteArrayFile)
+        } finally {
+            workbook.close()
+        }
     }
 
     private fun getClubData(): List<ExcelRowDto> =
