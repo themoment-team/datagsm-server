@@ -1,0 +1,15 @@
+package team.themoment.datagsm.domain.auth.dto.response
+
+import io.swagger.v3.oas.annotations.media.Schema
+import java.time.LocalDateTime
+
+data class MaskedApiKeyResDto(
+    @param:Schema(description = "마스킹된 API 키", example = "550e8400-****-****-****-********4000")
+    val apiKey: String,
+    @param:Schema(description = "API 키 만료일시", example = "2024-12-31T23:59:59")
+    val expiresAt: LocalDateTime,
+    @param:Schema(description = "API 키 권한 스코프 목록", example = "[\"student:read\", \"club:*\"]")
+    val scopes: Set<String>,
+    @param:Schema(description = "API 키 설명", example = "프론트엔드 개발용 API 키")
+    val description: String? = null,
+)
