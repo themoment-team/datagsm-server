@@ -90,7 +90,7 @@ class CreateClubExcelServiceImpl(
             .body(byteArrayFile)
     }
 
-    override fun getClubData(): List<ExcelRowDto> =
+    private fun getClubData(): List<ExcelRowDto> =
         ClubType.entries.map { clubType ->
             val clubNames = clubJpaRepository.findByType(clubType).map { it.name }
             ExcelRowDto(clubName = clubNames, clubType = clubType)

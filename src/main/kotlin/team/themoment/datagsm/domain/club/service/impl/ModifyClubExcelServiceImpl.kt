@@ -51,7 +51,7 @@ class ModifyClubExcelServiceImpl(
         return CommonApiResponse.success("엑셀 업로드 성공")
     }
 
-    override fun queryExcelData(file: MultipartFile): List<ExcelRowDto> {
+    private fun queryExcelData(file: MultipartFile): List<ExcelRowDto> {
         val workbook =
             file.inputStream.use { inputStream ->
                 when (file.originalFilename?.substringAfterLast(".")) {
