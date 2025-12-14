@@ -66,7 +66,8 @@ class CreateStudentExcelServiceImpl(
                 row.createCell(MAJOR_CLUB_COL_IDX).setCellValue(columnDto.majorClub ?: "")
                 row.createCell(JOB_CLUB_COL_IDX).setCellValue(columnDto.jobClub ?: "")
                 row.createCell(AUTONOMOUS_COL_IDX).setCellValue(columnDto.autonomousClub ?: "")
-                row.createCell(DOROMITORY_ROOM_NUMBER_COL_IDX).setCellValue(columnDto.dormitoryRoomNumber?.toString() ?: "")
+                row.createCell(DOROMITORY_ROOM_NUMBER_COL_IDX)
+                    .setCellValue(columnDto.dormitoryRoomNumber?.toString() ?: "")
                 row.createCell(STUDENT_ROLE_COL_IDX).setCellValue(columnDto.role.value)
                 row.createCell(IS_SCHOOL_LEAVE_COL_IDX).setCellValue(if (columnDto.isLeaveSchool) "O" else "X")
                 row.createCell(SEX_COL_IDX).setCellValue(columnDto.sex.value)
@@ -84,7 +85,8 @@ class CreateStudentExcelServiceImpl(
 
         val headers =
             HttpHeaders().apply {
-                contentType = MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                contentType =
+                    MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
                 contentDisposition =
                     ContentDisposition
                         .builder("attachment")
@@ -98,7 +100,7 @@ class CreateStudentExcelServiceImpl(
             .body(byteArrayFile)
     }
 
-    override fun getStudentData(): List<ExcelRowDto> {
+    private fun getStudentData(): List<ExcelRowDto> {
         val data = mutableListOf<ExcelRowDto>()
         for (i: Int in 1..3) {
             val list = studentJpaRepository.findStudentsByGrade(i)
