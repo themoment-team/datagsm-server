@@ -79,22 +79,15 @@ class ModifyClubExcelServiceImpl(
                     HttpStatus.BAD_REQUEST,
                 )
             }
-            val data = mutableListOf<ExcelRowDto>()
-            val clubTypes = listOf(ClubType.MAJOR_CLUB, ClubType.JOB_CLUB, ClubType.AUTONOMOUS_CLUB)
-            for (columnIndex in 0..2) {
-                val clubNames = mutableListOf<String>()
-                for (rowIndex in 1..sheet.lastRowNum) {
-                    val cellValue = sheet.getRow(rowIndex)?.getCell(columnIndex)
-                        ?.toString()
-                        ?.trim()
-                        ?.takeIf { it.isNotBlank() }
-                        ?: continue
-
-                    clubNames.add(cellValue)
+            val headerToClubType = ClubType.entries.associateBy { it.value }
+            val data = headerColumns.mapIndexed { colIdx, header ->
+                val clubType = headerToClubType[header]!!
+                val clubNames = (1..sheet.lastRowNum).mapNotNull { rowIdx ->
+                    sheet.getRow(rowIdx)?.getCell(colIdx)?.toString()?.trim()?.takeIf { it.isNotBlank() }
                 }
-                data.add(ExcelRowDto(clubName = clubNames, clubType = clubTypes[columnIndex]))
+                ExcelRowDto(clubName = clubNames, clubType = clubType)
             }
-            return data.toList()
+            return data
         } finally {
             workbook.close()
         }
