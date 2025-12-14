@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.entity.constant.StudentRole
@@ -14,7 +15,7 @@ data class CreateStudentReqDto(
     @field:NotBlank
     @param:Schema(description = "이름", example = "홍길동", maxLength = 30)
     val name: String,
-    @field:NotBlank
+    @field:NotNull
     @param:Schema(description = "성별", example = "WOMAN")
     val sex: Sex,
     @param:Size(max = 50)
@@ -24,17 +25,17 @@ data class CreateStudentReqDto(
     val email: String,
     @field:Min(value = 1)
     @field:Max(value = 3)
-    @field:NotBlank
+    @field:NotNull
     @param:Schema(description = "학년 (1-3)", example = "1", minimum = "1", maximum = "3")
     val grade: Int,
     @field:Min(value = 1)
     @field:Max(value = 4)
-    @field:NotBlank
+    @field:NotNull
     @param:Schema(description = "반 (1-4)", example = "1", minimum = "1", maximum = "4")
     val classNum: Int,
     @field:Min(value = 1)
     @field:Max(value = 18)
-    @field:NotBlank
+    @field:NotNull
     @param:Schema(description = "번호 (1-18)", example = "1", minimum = "1", maximum = "18")
     val number: Int,
     @param:Schema(description = "역할", example = "GENERAL_STUDENT")
