@@ -50,12 +50,6 @@ class SearchApiKeyServiceImpl(
 
     private fun maskApiKey(uuid: UUID): String {
         val uuidString = uuid.toString()
-        val parts = uuidString.split("-")
-        if (parts.size != 5) return uuidString
-
-        val firstPart = parts[0]
-        val lastPart = parts[4]
-        val maskedLastPart = "********${lastPart.takeLast(4)}"
-        return "$firstPart-****-****-****-$maskedLastPart"
+        return "${uuidString.take(8)}-****-****-****-********${uuidString.takeLast(4)}"
     }
 }
