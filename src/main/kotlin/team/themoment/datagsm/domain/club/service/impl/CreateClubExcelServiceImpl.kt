@@ -1,6 +1,10 @@
 package team.themoment.datagsm.domain.club.service.impl
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import org.springframework.http.ContentDisposition
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.club.dto.internal.ExcelRowDto
@@ -8,6 +12,10 @@ import team.themoment.datagsm.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.club.service.CreateClubExcelService
 import java.io.ByteArrayOutputStream
+import java.nio.charset.StandardCharsets
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Service
 @Transactional(readOnly = true)
@@ -20,7 +28,7 @@ class CreateClubExcelServiceImpl(
         private const val AUTONOMOUS_CLUB_COL_IDX = 2
     }
 
-    override fun execute(): ByteArray {
+    override fun execute(): ResponseEntity<ByteArray> {
         val data: List<ExcelRowDto> = getClubData()
         val workbook = XSSFWorkbook()
 
@@ -33,20 +41,20 @@ class CreateClubExcelServiceImpl(
 
         val maxRows = data.maxOf { it.clubName.size }
 
-        for(rowIdx in 0 until maxRows) {
+        for (rowIdx in 0 until maxRows) {
             val dataRow = sheet.createRow(rowIdx + 1)
 
-            if(rowIdx < data[0].clubName.size) {
+            if (rowIdx < data[0].clubName.size) {
                 dataRow.createCell(MAJOR_CLUB_COL_IDX)
                     .setCellValue(data[0].clubName[rowIdx])
             }
 
-            if(rowIdx < data[1].clubName.size) {
+            if (rowIdx < data[1].clubName.size) {
                 dataRow.createCell(JOB_CLUB_COL_IDX)
                     .setCellValue(data[1].clubName[rowIdx])
             }
 
-            if(rowIdx < data[2].clubName.size) {
+            if (rowIdx < data[2].clubName.size) {
                 dataRow.createCell(AUTONOMOUS_CLUB_COL_IDX)
                     .setCellValue(data[2].clubName[rowIdx])
             }
@@ -56,11 +64,30 @@ class CreateClubExcelServiceImpl(
         sheet.autoSizeColumn(JOB_CLUB_COL_IDX)
         sheet.autoSizeColumn(AUTONOMOUS_CLUB_COL_IDX)
 
-        return ByteArrayOutputStream().use { outputStream ->
+        val byteArrayFile = ByteArrayOutputStream().use { outputStream ->
             workbook.write(outputStream)
             workbook.close()
             outputStream.toByteArray()
         }
+
+        val fileName = "동아리_현황_" + LocalDate.now(ZoneId.of("Asia/Seoul"))
+            .format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".xlsx"
+
+        val headers =
+            HttpHeaders().apply {
+                contentType =
+                    MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                contentDisposition =
+                    ContentDisposition
+                        .builder("attachment")
+                        .filename(fileName, StandardCharsets.UTF_8)
+                        .build()
+            }
+
+        return ResponseEntity
+            .ok()
+            .headers(headers)
+            .body(byteArrayFile)
     }
 
     override fun getClubData(): List<ExcelRowDto> =

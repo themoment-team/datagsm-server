@@ -112,24 +112,7 @@ class ClubController(
     )
     @RequireScope(ApiScope.ADMIN_EXCEL)
     @GetMapping("/excel/download")
-    fun downloadClubExcel(): ResponseEntity<ByteArray> {
-        val excelData = createClubExcelService.execute()
-
-        val headers =
-            HttpHeaders().apply {
-                contentType = MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                contentDisposition =
-                    ContentDisposition
-                        .builder("attachment")
-                        .filename("동아리.xlsx", StandardCharsets.UTF_8)
-                        .build()
-            }
-
-        return ResponseEntity
-            .ok()
-            .headers(headers)
-            .body(excelData)
-    }
+    fun downloadClubExcel(): ResponseEntity<ByteArray> = createClubExcelService.execute()
 
     @Operation(summary = "동아리 엑셀 업로드", description = "동아리 이름이 담긴 엑셀을 받아 저장을 진행합니다.")
     @ApiResponses(
