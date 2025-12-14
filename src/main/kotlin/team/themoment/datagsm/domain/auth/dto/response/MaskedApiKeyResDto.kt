@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
 
 data class MaskedApiKeyResDto(
-    @param:Schema(description = "마스킹된 API 키", example = "550e8400-****-****-****-********4000")
+    @param:Schema(description = "마스킹된 API 키", example = "550e8400-****-****-****-********0000")
     val apiKey: String,
     @param:Schema(description = "API 키 만료일시", example = "2024-12-31T23:59:59")
     val expiresAt: LocalDateTime,
