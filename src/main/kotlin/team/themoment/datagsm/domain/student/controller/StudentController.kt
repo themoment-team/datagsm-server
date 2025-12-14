@@ -7,9 +7,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import org.springframework.http.ContentDisposition
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -33,7 +30,6 @@ import team.themoment.datagsm.domain.student.service.ModifyStudentExcelService
 import team.themoment.datagsm.domain.student.service.ModifyStudentService
 import team.themoment.datagsm.domain.student.service.QueryStudentService
 import team.themoment.datagsm.global.security.annotation.RequireScope
-import java.nio.charset.StandardCharsets
 
 @Tag(name = "Student", description = "학생 관련 API")
 @RestController
