@@ -1,6 +1,10 @@
 package team.themoment.datagsm.domain.student.service.impl
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import org.springframework.http.ContentDisposition
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.student.dto.internal.ExcelColumnDto
@@ -8,6 +12,10 @@ import team.themoment.datagsm.domain.student.dto.internal.ExcelRowDto
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.domain.student.service.CreateStudentExcelService
 import java.io.ByteArrayOutputStream
+import java.nio.charset.StandardCharsets
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Service
 @Transactional(readOnly = true)
@@ -28,7 +36,7 @@ class CreateStudentExcelServiceImpl(
         private const val SEX_COL_IDX = 10
     }
 
-    override fun execute(): ByteArray {
+    override fun execute(): ResponseEntity<ByteArray> {
         val data: List<ExcelRowDto> = getStudentData()
         val workbook = XSSFWorkbook()
 
@@ -65,11 +73,29 @@ class CreateStudentExcelServiceImpl(
             }
         }
 
-        return ByteArrayOutputStream().use { outputStream ->
+        val byteArrayFile = ByteArrayOutputStream().use { outputStream ->
             workbook.write(outputStream)
             workbook.close()
             outputStream.toByteArray()
         }
+
+        val fileName = "학생_현황_" + LocalDate.now(ZoneId.of("Asia/Seoul"))
+            .format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".xlsx"
+
+        val headers =
+            HttpHeaders().apply {
+                contentType = MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                contentDisposition =
+                    ContentDisposition
+                        .builder("attachment")
+                        .filename(fileName, StandardCharsets.UTF_8)
+                        .build()
+            }
+
+        return ResponseEntity
+            .ok()
+            .headers(headers)
+            .body(byteArrayFile)
     }
 
     override fun getStudentData(): List<ExcelRowDto> {

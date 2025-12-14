@@ -120,24 +120,7 @@ class StudentController(
     )
     @RequireScope(ApiScope.ADMIN_EXCEL)
     @GetMapping("/excel/download")
-    fun downloadStudentExcel(): ResponseEntity<ByteArray> {
-        val excelData = createStudentExcelService.execute()
-
-        val headers =
-            HttpHeaders().apply {
-                contentType = MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                contentDisposition =
-                    ContentDisposition
-                        .builder("attachment")
-                        .filename("학생정보.xlsx", StandardCharsets.UTF_8)
-                        .build()
-            }
-
-        return ResponseEntity
-            .ok()
-            .headers(headers)
-            .body(excelData)
-    }
+    fun downloadStudentExcel(): ResponseEntity<ByteArray> = createStudentExcelService.execute()
 
     @Operation(summary = "학생 정보 엑셀 업로드", description = "학생 정보가 담긴 엑셀을 받아 수정 또는 저장을 진행합니다.")
     @ApiResponses(
