@@ -34,6 +34,8 @@ class CreateStudentExcelServiceImpl(
         private const val STUDENT_ROLE_COL_IDX = 8
         private const val IS_SCHOOL_LEAVE_COL_IDX = 9
         private const val SEX_COL_IDX = 10
+
+        private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     }
 
     override fun execute(): ResponseEntity<ByteArray> {
@@ -81,7 +83,7 @@ class CreateStudentExcelServiceImpl(
         }
 
         val fileName = "학생_현황_" + LocalDate.now(ZoneId.of("Asia/Seoul"))
-            .format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".xlsx"
+            .format(DATE_FORMATTER) + ".xlsx"
 
         val headers =
             HttpHeaders().apply {
