@@ -26,6 +26,8 @@ class CreateClubExcelServiceImpl(
         private const val MAJOR_CLUB_COL_IDX = 0
         private const val JOB_CLUB_COL_IDX = 1
         private const val AUTONOMOUS_CLUB_COL_IDX = 2
+
+        private val DATA_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     }
 
     override fun execute(): ResponseEntity<ByteArray> {
@@ -65,8 +67,8 @@ class CreateClubExcelServiceImpl(
                 outputStream.toByteArray()
             }
 
-            val fileName = "동아리_현황_" + LocalDate.now(ZoneId.of("Asia/Seoul"))
-                .format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".xlsx"
+            val fileName = "동아리_현황_${LocalDate.now(ZoneId.of("Asia/Seoul"))
+                .format(DATA_FORMATTER)}.xlsx"
 
             val headers =
                 HttpHeaders().apply {
