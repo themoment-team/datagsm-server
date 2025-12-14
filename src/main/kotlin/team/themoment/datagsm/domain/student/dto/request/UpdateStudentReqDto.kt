@@ -14,7 +14,6 @@ data class UpdateStudentReqDto(
     @field:NotBlank
     @param:Schema(description = "이름", example = "홍길동", maxLength = 30)
     val name: String,
-    @field:NotBlank
     @param:Schema(description = "성별", example = "WOMAN")
     val sex: Sex,
     @field:Size(max = 50)
@@ -24,20 +23,16 @@ data class UpdateStudentReqDto(
     val email: String,
     @field:Min(value = 1)
     @field:Max(value = 3)
-    @field:NotBlank
     @param:Schema(description = "학년 (1-3)", example = "1", minimum = "1", maximum = "3")
     val grade: Int,
     @field:Min(value = 1)
     @field:Max(value = 4)
-    @field:NotBlank
     @param:Schema(description = "반 (1-4)", example = "1", minimum = "1", maximum = "4")
     val classNum: Int,
     @field:Min(value = 1)
     @field:Max(value = 18)
-    @field:NotBlank
     @param:Schema(description = "번호 (1-18)", example = "1", minimum = "1", maximum = "18")
     val number: Int,
-    @field:NotBlank
     @param:Schema(description = "역할", example = "GENERAL_STUDENT")
     val role: StudentRole,
     @field:Min(value = 201)
