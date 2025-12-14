@@ -30,7 +30,8 @@ class ApiKeyJpaCustomRepositoryImpl(
         val content =
             jpaQueryFactory
                 .selectFrom(apiKey)
-                .leftJoin(apiKey.account).fetchJoin()
+                .leftJoin(apiKey.account)
+                .fetchJoin()
                 .where(
                     id?.let { apiKey.id.eq(it) },
                     accountId?.let { apiKey.account.id.eq(it) },
