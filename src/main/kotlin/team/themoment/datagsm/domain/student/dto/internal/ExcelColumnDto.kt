@@ -24,9 +24,7 @@ data class ExcelColumnDto(
     @field:Email
     @param:Schema(description = "이메일", example = "student@gsm.hs.kr", maxLength = 50)
     val email: String,
-    @field:Size(max = 50)
-    @field:NotBlank
-    @param:Schema(description = "학과", example = "SW개발과", maxLength = 50)
+    @param:Schema(description = "학과", example = "SW개발과")
     val major: Major,
     @field:Size(max = 50)
     @param:Schema(description = "전공동아리", example = "더모먼트", maxLength = 50)
@@ -41,14 +39,10 @@ data class ExcelColumnDto(
     @field:Max(518)
     @param:Schema(description = "기숙사 번호", example = "201", minimum = "201", maximum = "518")
     val dormitoryRoomNumber: Int?,
-    @field:Size(max = 50)
-    @field:NotBlank
-    @param:Schema(description = "소속", example = "학생회", maxLength = 50)
+    @param:Schema(description = "소속", example = "학생회")
     val role: StudentRole,
     @param:Schema(description = "자퇴 여부", example = "true")
     val isLeaveSchool: Boolean,
-    @field:Size(max = 50)
-    @field:NotBlank
-    @param:Schema(description = "성별", example = "남", maxLength = 50)
+    @param:Schema(description = "성별", example = "남")
     val sex: Sex,
 )

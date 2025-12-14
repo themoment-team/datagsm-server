@@ -19,4 +19,7 @@ interface ClubJpaRepository :
         clubs: List<String>,
         clubType: ClubType,
     ): List<ClubJpaEntity>
+
+    fun findByType(type: ClubType): List<ClubJpaEntity>
+    fun findAllByNameIn(names: List<String>): List<ClubJpaEntity>
 }
