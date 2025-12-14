@@ -28,7 +28,7 @@ class CreateStudentExcelServiceImpl(
         private const val SEX_COL_IDX = 10
     }
 
-    override fun createExcel(): ByteArray {
+    override fun execute(): ByteArray {
         val data: List<ExcelRowDto> = getStudentData()
         val workbook = XSSFWorkbook()
 

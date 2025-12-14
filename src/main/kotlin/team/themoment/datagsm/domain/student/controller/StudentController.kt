@@ -121,7 +121,7 @@ class StudentController(
     @RequireScope(ApiScope.ADMIN_EXCEL)
     @GetMapping("/excel/download")
     fun downloadStudentExcel(): ResponseEntity<ByteArray> {
-        val excelData = createStudentExcelService.createExcel()
+        val excelData = createStudentExcelService.execute()
 
         val headers =
             HttpHeaders().apply {
@@ -150,5 +150,5 @@ class StudentController(
     @PostMapping("/excel/upload")
     fun uploadStudentExcel(
         @RequestParam("file") file: MultipartFile,
-    ) = modifyStudentExcelService.modifyStudentData(file)
+    ) = modifyStudentExcelService.execute(file)
 }

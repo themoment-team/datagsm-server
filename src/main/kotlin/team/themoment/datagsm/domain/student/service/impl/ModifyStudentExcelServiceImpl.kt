@@ -31,7 +31,7 @@ class ModifyStudentExcelServiceImpl(
 ) : ModifyStudentExcelService {
     private val dataFormatter = DataFormatter()
 
-    override fun modifyStudentData(file: MultipartFile): CommonApiResponse<Nothing> {
+    override fun execute(file: MultipartFile): CommonApiResponse<Nothing> {
         val excelData: List<ExcelColumnDto> = queryExcelData(file).flatMap { it.excelRows }
         val studentNumbers = excelData.map { it.number }.distinct()
         if (studentNumbers.isEmpty()) {
