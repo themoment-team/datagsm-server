@@ -35,9 +35,9 @@ class CreateClubExcelServiceImpl(
         val sheet = workbook.createSheet("동아리")
         val headerRow = sheet.createRow(0)
 
-        headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("전공동아리")
-        headerRow.createCell(JOB_CLUB_COL_IDX).setCellValue("취업동아리")
-        headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("창체동아리")
+        headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue(ClubType.MAJOR_CLUB.value)
+        headerRow.createCell(JOB_CLUB_COL_IDX).setCellValue(ClubType.JOB_CLUB.value)
+        headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue(ClubType.AUTONOMOUS_CLUB.value)
 
         val maxRows = data.maxOf { it.clubName.size }
         val clubDataMap = data.associateBy { it.clubType }
