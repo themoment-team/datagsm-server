@@ -68,7 +68,8 @@ class CreateStudentExcelServiceImpl(
                 row.createCell(MAJOR_CLUB_COL_IDX).setCellValue(columnDto.majorClub ?: "")
                 row.createCell(JOB_CLUB_COL_IDX).setCellValue(columnDto.jobClub ?: "")
                 row.createCell(AUTONOMOUS_COL_IDX).setCellValue(columnDto.autonomousClub ?: "")
-                row.createCell(DOROMITORY_ROOM_NUMBER_COL_IDX)
+                row
+                    .createCell(DOROMITORY_ROOM_NUMBER_COL_IDX)
                     .setCellValue(columnDto.dormitoryRoomNumber?.toString() ?: "")
                 row.createCell(STUDENT_ROLE_COL_IDX).setCellValue(columnDto.role.value)
                 row.createCell(IS_SCHOOL_LEAVE_COL_IDX).setCellValue(if (columnDto.isLeaveSchool) "O" else "X")
@@ -76,11 +77,12 @@ class CreateStudentExcelServiceImpl(
             }
         }
 
-        val byteArrayFile = ByteArrayOutputStream().use { outputStream ->
-            workbook.write(outputStream)
-            workbook.close()
-            outputStream.toByteArray()
-        }
+        val byteArrayFile =
+            ByteArrayOutputStream().use { outputStream ->
+                workbook.write(outputStream)
+                workbook.close()
+                outputStream.toByteArray()
+            }
 
         val fileName = "학생_현황_${LocalDate.now(ZoneId.of("Asia/Seoul"))
             .format(DATE_FORMATTER)}.xlsx"
