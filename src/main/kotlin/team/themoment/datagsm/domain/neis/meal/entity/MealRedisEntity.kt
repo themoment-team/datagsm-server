@@ -10,12 +10,17 @@ import java.util.concurrent.TimeUnit
 @RedisHash(value = "Meal")
 data class MealRedisEntity(
     @Id
-    val mealId: String,
-    val mealType: MealType,
-    val mealAllergyInfo: String,
-    val mealDate: LocalDate,
-    val mealMenu: String,
-    val mealCalories: Double,
-    @TimeToLive(unit = TimeUnit.DAYS)
-    val mealTtl: Long = 30,
+    val id: String,
+    val schoolCode: String,
+    val schoolName: String,
+    val officeCode: String,
+    val officeName: String,
+    val date: LocalDate,
+    val type: MealType,
+    val menu: List<String>,
+    val allergyInfo: List<String>,
+    val calories: String?,
+    val originInfo: String?,
+    val nutritionInfo: String?,
+    val serveCount: Int?,
 )

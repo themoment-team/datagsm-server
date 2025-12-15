@@ -6,14 +6,20 @@ import org.springframework.data.redis.core.TimeToLive
 import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 
-@RedisHash(value = "schedule", timeToLive = 2592000) // 30일
+@RedisHash(value = "schedule", timeToLive = 2592000)
 data class ScheduleRedisEntity(
     @Id
-    val scheduleId: String,
-    val scheduleGrade: Int,
-    val scheduleClassNumber: Int,
-    val scheduleDate: LocalDate,
-    val scheduleContent: String,
-    @TimeToLive(unit = TimeUnit.DAYS)
-    val scheduleTtl: Long = 7,
+    val Id: String,
+    val schoolCode: String,
+    val schoolName: String,
+    val officeCode: String,
+    val officeName: String,
+    val date: LocalDate,
+    val academicYear: String,
+    val eventName: String,
+    val eventContent: String?,
+    val dayCategory: String?,
+    val schoolCourseType: String?,
+    val dayNightType: String?,
+    val targetGrades: List<Int>,
 )
