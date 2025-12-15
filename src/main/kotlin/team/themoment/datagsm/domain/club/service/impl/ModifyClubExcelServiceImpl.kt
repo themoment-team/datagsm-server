@@ -38,6 +38,13 @@ class ModifyClubExcelServiceImpl(
                 }
             }
 
+        if (clubNames.isEmpty()) {
+            throw ExpectedException(
+                "엑셀 내 모든 동아리명이 비어있습니다.",
+                HttpStatus.BAD_REQUEST,
+            )
+        }
+
         val duplicates = clubNames.groupingBy { it.clubName }.eachCount()
             .filter { it.value > 1 }.keys
 
