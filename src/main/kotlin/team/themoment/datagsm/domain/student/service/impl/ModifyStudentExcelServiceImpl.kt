@@ -35,6 +35,13 @@ class ModifyStudentExcelServiceImpl(
         val excelData: List<ExcelColumnDto> = queryExcelData(file).flatMap { it.excelRows }
         val studentNumbers = excelData.map { it.number }
 
+        if (studentNumbers.isEmpty()) {
+            throw ExpectedException(
+                "엑셀 내 모든 학번이 비어있습니다.",
+                HttpStatus.BAD_REQUEST,
+            )
+        }
+
         val duplicates = studentNumbers.groupingBy { it }.eachCount()
             .filter { it.value > 1 }.keys
         if (duplicates.isNotEmpty()) {
@@ -43,12 +50,7 @@ class ModifyStudentExcelServiceImpl(
                 HttpStatus.BAD_REQUEST
             )
         }
-        if (studentNumbers.isEmpty()) {
-            throw ExpectedException(
-                "엑셀 내 모든 학번이 비어있습니다.",
-                HttpStatus.BAD_REQUEST,
-            )
-        }
+
         val existingStudents =
             studentJpaRepository
                 .findAllByStudentNumberIn(studentNumbers)
