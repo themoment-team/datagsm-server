@@ -1,13 +1,13 @@
 package team.themoment.datagsm.domain.neis.meal.service.impl
 
 import org.springframework.stereotype.Service
-import team.themoment.datagsm.global.thirdparty.feign.neis.dto.MealServiceDietInfo
 import team.themoment.datagsm.domain.neis.meal.entity.MealRedisEntity
 import team.themoment.datagsm.domain.neis.meal.entity.constant.MealType
 import team.themoment.datagsm.domain.neis.meal.repository.MealRedisRepository
 import team.themoment.datagsm.domain.neis.meal.service.SyncMealService
 import team.themoment.datagsm.global.config.neis.NeisEnvironment
 import team.themoment.datagsm.global.thirdparty.feign.neis.NeisApiClient
+import team.themoment.datagsm.global.thirdparty.feign.neis.dto.MealServiceDietInfo
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 

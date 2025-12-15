@@ -1,7 +1,6 @@
 package team.themoment.datagsm.domain.neis.meal.dto.response
 
 import io.swagger.v3.oas.annotations.media.Schema
-import team.themoment.datagsm.domain.neis.meal.entity.MealRedisEntity
 import team.themoment.datagsm.domain.neis.meal.entity.constant.MealType
 import java.time.LocalDate
 

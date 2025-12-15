@@ -12,11 +12,9 @@ data class MealQueryReqDto(
     @Parameter(description = "급식 날짜 (YYYY-MM-DD 형식)", example = "2025-12-15")
     @Schema(description = "급식 날짜", example = "2025-12-15")
     val date: LocalDate? = null,
-
     @Parameter(description = "급식 시작 날짜 (YYYY-MM-DD 형식)", example = "2025-12-01")
     @Schema(description = "급식 시작 날짜", example = "2025-12-01")
     val fromDate: LocalDate? = null,
-
     @Parameter(description = "급식 종료 날짜 (YYYY-MM-DD 형식)", example = "2025-12-31")
     @Schema(description = "급식 종료 날짜", example = "2025-12-31")
     val toDate: LocalDate? = null,

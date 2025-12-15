@@ -3,17 +3,16 @@ package team.themoment.datagsm.global.thirdparty.feign.neis
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
+import team.themoment.datagsm.global.thirdparty.feign.config.FeignConfig
 import team.themoment.datagsm.global.thirdparty.feign.neis.dto.NeisMealApiResponse
 import team.themoment.datagsm.global.thirdparty.feign.neis.dto.NeisScheduleApiResponse
-import team.themoment.datagsm.global.thirdparty.feign.config.FeignConfig
 
 @FeignClient(
     name = "neis-api-client",
     url = "https://open.neis.go.kr/hub",
-    configuration = [FeignConfig::class]
+    configuration = [FeignConfig::class],
 )
 interface NeisApiClient {
-
     /**
      * 급식 식단 정보 조회
      *

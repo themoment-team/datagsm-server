@@ -1,7 +1,6 @@
 package team.themoment.datagsm.domain.neis.schedule.dto.response
 
 import io.swagger.v3.oas.annotations.media.Schema
-import team.themoment.datagsm.domain.neis.schedule.entity.ScheduleRedisEntity
 import java.time.LocalDate
 
 @Schema(description = "학사일정 정보 응답")
