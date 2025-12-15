@@ -4,12 +4,15 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.auth.entity.ApiKey
+import team.themoment.datagsm.domain.auth.repository.custom.ApiKeyJpaCustomRepository
 import java.time.LocalDateTime
 import java.util.Optional
 import java.util.UUID
 
 @Repository
-interface ApiKeyJpaRepository : JpaRepository<ApiKey, Long> {
+interface ApiKeyJpaRepository :
+    JpaRepository<ApiKey, Long>,
+    ApiKeyJpaCustomRepository {
     fun findByAccount(account: AccountJpaEntity): Optional<ApiKey>
 
     fun findByValue(apiKeyValue: UUID): Optional<ApiKey>
