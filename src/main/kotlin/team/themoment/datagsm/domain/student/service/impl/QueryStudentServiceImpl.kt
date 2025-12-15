@@ -26,7 +26,7 @@ class QueryStudentServiceImpl(
         sex: Sex?,
         role: StudentRole?,
         dormitoryRoom: Int?,
-        isLeaveSchool: Boolean,
+        isLeaveSchool: Boolean?,
         page: Int,
         size: Int,
     ): StudentListResDto {

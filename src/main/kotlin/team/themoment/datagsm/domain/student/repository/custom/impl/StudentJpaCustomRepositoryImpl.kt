@@ -25,7 +25,7 @@ class StudentJpaCustomRepositoryImpl(
         sex: Sex?,
         role: StudentRole?,
         dormitoryRoom: Int?,
-        isLeaveSchool: Boolean,
+        isLeaveSchool: Boolean?,
         pageable: Pageable,
     ): Page<StudentJpaEntity> {
         val content =
@@ -41,7 +41,7 @@ class StudentJpaCustomRepositoryImpl(
                     sex?.let { studentJpaEntity.sex.eq(it) },
                     role?.let { studentJpaEntity.role.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
-                    studentJpaEntity.isLeaveSchool.eq(isLeaveSchool),
+                    isLeaveSchool?.let { studentJpaEntity.isLeaveSchool.eq(it) },
                 ).offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
@@ -60,7 +60,7 @@ class StudentJpaCustomRepositoryImpl(
                     sex?.let { studentJpaEntity.sex.eq(it) },
                     role?.let { studentJpaEntity.role.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
-                    studentJpaEntity.isLeaveSchool.eq(isLeaveSchool),
+                    isLeaveSchool?.let { studentJpaEntity.isLeaveSchool.eq(it) },
                 )
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }

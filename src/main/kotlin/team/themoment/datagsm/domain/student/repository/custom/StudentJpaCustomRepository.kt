@@ -17,7 +17,7 @@ interface StudentJpaCustomRepository {
         sex: Sex?,
         role: StudentRole?,
         dormitoryRoom: Int?,
-        isLeaveSchool: Boolean,
+        isLeaveSchool: Boolean?,
         pageable: Pageable,
     ): Page<StudentJpaEntity>
 
