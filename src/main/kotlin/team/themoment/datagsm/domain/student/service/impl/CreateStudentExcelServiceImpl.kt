@@ -78,10 +78,13 @@ class CreateStudentExcelServiceImpl(
         }
 
         val byteArrayFile =
-            ByteArrayOutputStream().use { outputStream ->
-                workbook.write(outputStream)
+            try {
+                ByteArrayOutputStream().use { outputStream ->
+                    workbook.write(outputStream)
+                    outputStream.toByteArray()
+                }
+            } finally {
                 workbook.close()
-                outputStream.toByteArray()
             }
 
         val fileName = "학생_현황_${LocalDate.now(ZoneId.of("Asia/Seoul"))
