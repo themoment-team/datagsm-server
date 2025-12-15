@@ -21,5 +21,6 @@ interface ClubJpaRepository :
     ): List<ClubJpaEntity>
 
     fun findByType(type: ClubType): List<ClubJpaEntity>
+
     fun findAllByNameIn(names: List<String>): List<ClubJpaEntity>
 }

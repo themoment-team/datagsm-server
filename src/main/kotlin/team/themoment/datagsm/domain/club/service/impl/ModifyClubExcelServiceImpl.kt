@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.domain.club.dto.internal.ClubInfoDto
-import team.themoment.datagsm.domain.club.entity.constant.ClubType
-import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.club.dto.internal.ExcelRowDto
 import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.domain.club.entity.constant.ClubType
+import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.club.service.ModifyClubExcelService
 import team.themoment.datagsm.global.common.response.dto.response.CommonApiResponse
 import team.themoment.datagsm.global.exception.error.ExpectedException
@@ -28,16 +28,18 @@ class ModifyClubExcelServiceImpl(
 
     override fun execute(file: MultipartFile): CommonApiResponse<Nothing> {
         val excelData: List<ExcelRowDto> = queryExcelData(file)
-        val clubNames = excelData.flatMap { row ->
-            row.clubName.map { name ->
-                ClubInfoDto(
-                    clubName = name,
-                    clubType = row.clubType
-                )
+        val clubNames =
+            excelData.flatMap { row ->
+                row.clubName.map { name ->
+                    ClubInfoDto(
+                        clubName = name,
+                        clubType = row.clubType,
+                    )
+                }
             }
-        }
         val existingClubs =
-            clubJpaRepository.findAllByNameIn(clubNames.map { it.clubName })
+            clubJpaRepository
+                .findAllByNameIn(clubNames.map { it.clubName })
                 .associateBy { it.name }
 
         val clubsToSave =
@@ -63,11 +65,12 @@ class ModifyClubExcelServiceImpl(
 
         val sheet = workbook.getSheetAt(0)
         val headerRow = sheet?.getRow(0)
-        val headerColumns = listOf(
-            headerRow?.getCell(MAJOR_CLUB_COL_IDX)?.stringCellValue ?: "",
-            headerRow?.getCell(JOB_CLUB_COL_IDX)?.stringCellValue ?: "",
-            headerRow?.getCell(AUTONOMOUS_CLUB_COL_IDX)?.stringCellValue ?: "",
-        )
+        val headerColumns =
+            listOf(
+                headerRow?.getCell(MAJOR_CLUB_COL_IDX)?.stringCellValue ?: "",
+                headerRow?.getCell(JOB_CLUB_COL_IDX)?.stringCellValue ?: "",
+                headerRow?.getCell(AUTONOMOUS_CLUB_COL_IDX)?.stringCellValue ?: "",
+            )
         val expectedHeaders = listOf("전공동아리", "취업동아리", "창체동아리")
         try {
             if (
@@ -80,13 +83,20 @@ class ModifyClubExcelServiceImpl(
                 )
             }
             val headerToClubType = ClubType.entries.associateBy { it.value }
-            val data = headerColumns.mapIndexed { colIdx, header ->
-                val clubType = headerToClubType[header]!!
-                val clubNames = (1..sheet.lastRowNum).mapNotNull { rowIdx ->
-                    sheet.getRow(rowIdx)?.getCell(colIdx)?.toString()?.trim()?.takeIf { it.isNotBlank() }
+            val data =
+                headerColumns.mapIndexed { colIdx, header ->
+                    val clubType = headerToClubType[header]!!
+                    val clubNames =
+                        (1..sheet.lastRowNum).mapNotNull { rowIdx ->
+                            sheet
+                                .getRow(rowIdx)
+                                ?.getCell(colIdx)
+                                ?.toString()
+                                ?.trim()
+                                ?.takeIf { it.isNotBlank() }
+                        }
+                    ExcelRowDto(clubName = clubNames, clubType = clubType)
                 }
-                ExcelRowDto(clubName = clubNames, clubType = clubType)
-            }
             return data
         } finally {
             workbook.close()
