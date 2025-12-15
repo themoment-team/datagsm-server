@@ -1,6 +1,10 @@
 package team.themoment.datagsm.domain.student.service.impl
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import org.springframework.http.ContentDisposition
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.student.dto.internal.ExcelColumnDto
@@ -8,6 +12,10 @@ import team.themoment.datagsm.domain.student.dto.internal.ExcelRowDto
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.domain.student.service.CreateStudentExcelService
 import java.io.ByteArrayOutputStream
+import java.nio.charset.StandardCharsets
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Service
 @Transactional(readOnly = true)
@@ -26,9 +34,11 @@ class CreateStudentExcelServiceImpl(
         private const val STUDENT_ROLE_COL_IDX = 8
         private const val IS_SCHOOL_LEAVE_COL_IDX = 9
         private const val SEX_COL_IDX = 10
+
+        private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     }
 
-    override fun createExcel(): ByteArray {
+    override fun execute(): ResponseEntity<ByteArray> {
         val data: List<ExcelRowDto> = getStudentData()
         val workbook = XSSFWorkbook()
 
@@ -58,21 +68,41 @@ class CreateStudentExcelServiceImpl(
                 row.createCell(MAJOR_CLUB_COL_IDX).setCellValue(columnDto.majorClub ?: "")
                 row.createCell(JOB_CLUB_COL_IDX).setCellValue(columnDto.jobClub ?: "")
                 row.createCell(AUTONOMOUS_COL_IDX).setCellValue(columnDto.autonomousClub ?: "")
-                row.createCell(DOROMITORY_ROOM_NUMBER_COL_IDX).setCellValue(columnDto.dormitoryRoomNumber?.toString() ?: "")
+                row.createCell(DOROMITORY_ROOM_NUMBER_COL_IDX)
+                    .setCellValue(columnDto.dormitoryRoomNumber?.toString() ?: "")
                 row.createCell(STUDENT_ROLE_COL_IDX).setCellValue(columnDto.role.value)
                 row.createCell(IS_SCHOOL_LEAVE_COL_IDX).setCellValue(if (columnDto.isLeaveSchool) "O" else "X")
                 row.createCell(SEX_COL_IDX).setCellValue(columnDto.sex.value)
             }
         }
 
-        return ByteArrayOutputStream().use { outputStream ->
+        val byteArrayFile = ByteArrayOutputStream().use { outputStream ->
             workbook.write(outputStream)
             workbook.close()
             outputStream.toByteArray()
         }
+
+        val fileName = "학생_현황_${LocalDate.now(ZoneId.of("Asia/Seoul"))
+            .format(DATE_FORMATTER)}.xlsx"
+
+        val headers =
+            HttpHeaders().apply {
+                contentType =
+                    MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                contentDisposition =
+                    ContentDisposition
+                        .builder("attachment")
+                        .filename(fileName, StandardCharsets.UTF_8)
+                        .build()
+            }
+
+        return ResponseEntity
+            .ok()
+            .headers(headers)
+            .body(byteArrayFile)
     }
 
-    override fun getStudentData(): List<ExcelRowDto> {
+    private fun getStudentData(): List<ExcelRowDto> {
         val data = mutableListOf<ExcelRowDto>()
         for (i: Int in 1..3) {
             val list = studentJpaRepository.findStudentsByGrade(i)
