@@ -127,7 +127,7 @@ class AuthController(
             ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
         ],
     )
-    @RequireScope(ApiScope.ADMIN_APIKEY)
+    @RequireScope(ApiScope.AUTH_MANAGE)
     @GetMapping("/api-key")
     fun getApiKey(): ApiKeyResDto = queryApiKeyService.execute()
 
@@ -137,7 +137,7 @@ class AuthController(
             ApiResponse(responseCode = "200", description = "검색 성공"),
         ],
     )
-    @RequireScope(ApiScope.AUTH_MANAGE)
+    @RequireScope(ApiScope.ADMIN_APIKEY)
     @GetMapping("/api-keys/search")
     fun searchApiKeys(
         @Parameter(description = "API 키 ID") @RequestParam(required = false) id: Long?,
