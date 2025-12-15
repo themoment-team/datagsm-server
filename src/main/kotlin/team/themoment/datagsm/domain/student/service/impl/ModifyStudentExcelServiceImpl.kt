@@ -33,7 +33,16 @@ class ModifyStudentExcelServiceImpl(
 
     override fun modifyStudentData(file: MultipartFile): CommonApiResponse<Nothing> {
         val excelData: List<ExcelColumnDto> = queryExcelData(file).flatMap { it.excelRows }
-        val studentNumbers = excelData.map { it.number }.distinct()
+        val studentNumbers = excelData.map { it.number }
+
+        val duplicates = studentNumbers.groupingBy { it }.eachCount()
+            .filter { it.value > 1 }.keys
+        if (duplicates.isNotEmpty()) {
+            throw ExpectedException(
+                "엑셀 파일에 다음 학번이 중복으로 존재합니다: $duplicates",
+                HttpStatus.BAD_REQUEST
+            )
+        }
         if (studentNumbers.isEmpty()) {
             throw ExpectedException(
                 "엑셀 내 모든 학번이 비어있습니다.",
