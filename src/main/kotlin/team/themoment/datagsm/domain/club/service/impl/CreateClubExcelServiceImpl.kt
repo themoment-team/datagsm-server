@@ -43,13 +43,14 @@ class CreateClubExcelServiceImpl(
 
             val maxRows = data.maxOf { it.clubName.size }
             val clubDataMap = data.associateBy { it.clubType }
-            val clubTypeColumnMap = mapOf(
-                ClubType.MAJOR_CLUB to MAJOR_CLUB_COL_IDX,
-                ClubType.JOB_CLUB to JOB_CLUB_COL_IDX,
-                ClubType.AUTONOMOUS_CLUB to AUTONOMOUS_CLUB_COL_IDX,
-            )
+            val clubTypeColumnMap =
+                mapOf(
+                    ClubType.MAJOR_CLUB to MAJOR_CLUB_COL_IDX,
+                    ClubType.JOB_CLUB to JOB_CLUB_COL_IDX,
+                    ClubType.AUTONOMOUS_CLUB to AUTONOMOUS_CLUB_COL_IDX,
+                )
 
-            for(rowIdx in 0 until maxRows) {
+            for (rowIdx in 0 until maxRows) {
                 val dataRow = sheet.getRow(rowIdx + 1)
                 clubTypeColumnMap.forEach { (clubType, colIdx) ->
                     clubDataMap[clubType]?.clubName?.getOrNull(rowIdx)?.let { clubName ->
@@ -62,10 +63,11 @@ class CreateClubExcelServiceImpl(
             sheet.autoSizeColumn(JOB_CLUB_COL_IDX)
             sheet.autoSizeColumn(AUTONOMOUS_CLUB_COL_IDX)
 
-            val byteArrayFile = ByteArrayOutputStream().use { outputStream ->
-                workbook.write(outputStream)
-                outputStream.toByteArray()
-            }
+            val byteArrayFile =
+                ByteArrayOutputStream().use { outputStream ->
+                    workbook.write(outputStream)
+                    outputStream.toByteArray()
+                }
 
             val fileName = "동아리_현황_${LocalDate.now(ZoneId.of("Asia/Seoul"))
                 .format(DATE_FORMATTER)}.xlsx"
@@ -96,4 +98,3 @@ class CreateClubExcelServiceImpl(
             ExcelRowDto(clubName = clubNames, clubType = clubType)
         }
 }
-

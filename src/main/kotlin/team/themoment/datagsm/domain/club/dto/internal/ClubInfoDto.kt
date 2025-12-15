@@ -8,7 +8,6 @@ data class ClubInfoDto(
     @field:NotBlank
     @param:Schema(description = "동아리명", example = "더모먼트", maxLength = 50)
     val clubName: String,
-
     @field:NotBlank
     @param:Schema(description = "동아리 종류", example = "전공동아리")
     val clubType: ClubType,
