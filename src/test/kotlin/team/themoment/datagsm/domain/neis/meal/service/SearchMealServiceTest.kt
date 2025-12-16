@@ -74,7 +74,7 @@ class SearchMealServiceTest :
                         result[1].mealId shouldBe "7380292_20251216_2"
                         result[1].mealType shouldBe MealType.LUNCH
 
-                        verify(exactly = 1) { mockMealRepository.findAll() }
+                        verify(exactly = 1) { mockMealRepository.findByDate(targetDate) }
                     }
                 }
 
@@ -131,7 +131,7 @@ class SearchMealServiceTest :
                         )
 
                     beforeEach {
-                        every { mockMealRepository.findAll() } returns listOf(meal1, meal2, meal3)
+                        every { mockMealRepository.findByDateBetween(fromDate, toDate) } returns listOf(meal1, meal2)
                     }
 
                     it("날짜 범위 내의 급식 정보만 반환해야 한다") {
@@ -141,21 +141,23 @@ class SearchMealServiceTest :
                         result[0].mealDate shouldBe LocalDate.of(2025, 12, 16)
                         result[1].mealDate shouldBe LocalDate.of(2025, 12, 17)
 
-                        verify(exactly = 1) { mockMealRepository.findAll() }
+                        verify(exactly = 1) { mockMealRepository.findByDateBetween(fromDate, toDate) }
                     }
                 }
 
                 context("검색 결과가 없을 때") {
+                    val searchDate = LocalDate.now()
+
                     beforeEach {
-                        every { mockMealRepository.findAll() } returns emptyList()
+                        every { mockMealRepository.findByDate(searchDate) } returns emptyList()
                     }
 
                     it("빈 목록을 반환해야 한다") {
-                        val result = searchMealService.execute(date = LocalDate.now(), fromDate = null, toDate = null)
+                        val result = searchMealService.execute(date = searchDate, fromDate = null, toDate = null)
 
                         result.size shouldBe 0
 
-                        verify(exactly = 1) { mockMealRepository.findAll() }
+                        verify(exactly = 1) { mockMealRepository.findByDate(searchDate) }
                     }
                 }
 

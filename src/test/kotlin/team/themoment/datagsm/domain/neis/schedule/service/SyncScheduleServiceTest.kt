@@ -103,6 +103,8 @@ class SyncScheduleServiceTest :
                         every {
                             mockNeisApiClient.getSchoolSchedule(
                                 key = "test-api-key",
+                                pIndex = any(),
+                                pSize = any(),
                                 atptOfcdcScCode = "F10",
                                 sdSchulCode = "7380292",
                                 aa_ymd = null,
@@ -121,9 +123,11 @@ class SyncScheduleServiceTest :
                     it("NEIS API를 호출하고 데이터를 Redis에 저장해야 한다") {
                         syncScheduleService.execute(fromDate, toDate)
 
-                        verify(exactly = 1) {
+                        verify(atLeast = 1) {
                             mockNeisApiClient.getSchoolSchedule(
                                 key = "test-api-key",
+                                pIndex = any(),
+                                pSize = any(),
                                 atptOfcdcScCode = "F10",
                                 sdSchulCode = "7380292",
                                 aa_ymd = null,
@@ -154,6 +158,8 @@ class SyncScheduleServiceTest :
                         every {
                             mockNeisApiClient.getSchoolSchedule(
                                 key = any(),
+                                pIndex = any(),
+                                pSize = any(),
                                 atptOfcdcScCode = any(),
                                 sdSchulCode = any(),
                                 aa_ymd = any(),
@@ -200,6 +206,8 @@ class SyncScheduleServiceTest :
                         every {
                             mockNeisApiClient.getSchoolSchedule(
                                 key = any(),
+                                pIndex = any(),
+                                pSize = any(),
                                 atptOfcdcScCode = any(),
                                 sdSchulCode = any(),
                                 aa_ymd = any(),

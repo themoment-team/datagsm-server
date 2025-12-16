@@ -44,7 +44,7 @@ class SearchScheduleServiceTest :
                         )
 
                     beforeEach {
-                        every { mockScheduleRepository.findAll() } returns listOf(schedule)
+                        every { mockScheduleRepository.findByDate(targetDate) } returns listOf(schedule)
                     }
 
                     it("해당 날짜의 학사일정 정보를 반환해야 한다") {
@@ -56,7 +56,7 @@ class SearchScheduleServiceTest :
                         result[0].eventName shouldBe "2학기 2차 지필평가"
                         result[0].targetGrades shouldBe listOf(1, 2, 3)
 
-                        verify(exactly = 1) { mockScheduleRepository.findAll() }
+                        verify(exactly = 1) { mockScheduleRepository.findByDate(targetDate) }
                     }
                 }
 
@@ -113,7 +113,7 @@ class SearchScheduleServiceTest :
                         )
 
                     beforeEach {
-                        every { mockScheduleRepository.findAll() } returns listOf(schedule1, schedule2, schedule3)
+                        every { mockScheduleRepository.findByDateBetween(fromDate, toDate) } returns listOf(schedule1, schedule2)
                     }
 
                     it("날짜 범위 내의 학사일정 정보만 반환해야 한다") {
@@ -123,21 +123,23 @@ class SearchScheduleServiceTest :
                         result[0].scheduleDate shouldBe LocalDate.of(2025, 12, 16)
                         result[1].scheduleDate shouldBe LocalDate.of(2025, 12, 17)
 
-                        verify(exactly = 1) { mockScheduleRepository.findAll() }
+                        verify(exactly = 1) { mockScheduleRepository.findByDateBetween(fromDate, toDate) }
                     }
                 }
 
                 context("검색 결과가 없을 때") {
+                    val searchDate = LocalDate.now()
+
                     beforeEach {
-                        every { mockScheduleRepository.findAll() } returns emptyList()
+                        every { mockScheduleRepository.findByDate(searchDate) } returns emptyList()
                     }
 
                     it("빈 목록을 반환해야 한다") {
-                        val result = searchScheduleService.execute(date = LocalDate.now(), fromDate = null, toDate = null)
+                        val result = searchScheduleService.execute(date = searchDate, fromDate = null, toDate = null)
 
                         result.size shouldBe 0
 
-                        verify(exactly = 1) { mockScheduleRepository.findAll() }
+                        verify(exactly = 1) { mockScheduleRepository.findByDate(searchDate) }
                     }
                 }
 
