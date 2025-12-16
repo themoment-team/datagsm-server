@@ -134,8 +134,8 @@ class SyncScheduleServiceTest :
                             )
                         }
 
-                        verify(exactly = 2) { mockScheduleRepository.saveAll(any<Iterable<ScheduleRedisEntity>>()) }
                         verify(exactly = 1) { mockScheduleRepository.deleteAll() }
+                        verify(exactly = 1) { mockScheduleRepository.saveAll(any<Iterable<ScheduleRedisEntity>>()) }
                     }
                 }
 
@@ -171,11 +171,11 @@ class SyncScheduleServiceTest :
                         every { mockScheduleRepository.deleteAll() } returns Unit
                     }
 
-                    it("빈 목록을 저장해야 한다") {
+                    it("기존 데이터를 유지해야 한다") {
                         syncScheduleService.execute(fromDate, toDate)
 
-                        verify(exactly = 2) { mockScheduleRepository.saveAll(any<Iterable<ScheduleRedisEntity>>()) }
-                        verify(exactly = 1) { mockScheduleRepository.deleteAll() }
+                        verify(exactly = 0) { mockScheduleRepository.deleteAll() }
+                        verify(exactly = 0) { mockScheduleRepository.saveAll(any<Iterable<ScheduleRedisEntity>>()) }
                     }
                 }
 
@@ -217,11 +217,11 @@ class SyncScheduleServiceTest :
                         every { mockScheduleRepository.deleteAll() } returns Unit
                     }
 
-                    it("빈 목록을 저장해야 한다") {
+                    it("기존 데이터를 유지해야 한다") {
                         syncScheduleService.execute(fromDate, toDate)
 
-                        verify(exactly = 2) { mockScheduleRepository.saveAll(any<Iterable<ScheduleRedisEntity>>()) }
-                        verify(exactly = 1) { mockScheduleRepository.deleteAll() }
+                        verify(exactly = 0) { mockScheduleRepository.deleteAll() }
+                        verify(exactly = 0) { mockScheduleRepository.saveAll(any<Iterable<ScheduleRedisEntity>>()) }
                     }
                 }
             }

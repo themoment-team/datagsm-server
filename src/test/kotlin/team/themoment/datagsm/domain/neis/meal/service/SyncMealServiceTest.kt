@@ -126,8 +126,8 @@ class SyncMealServiceTest :
                             )
                         }
 
-                        verify(exactly = 2) { mockMealRepository.saveAll(any<Iterable<MealRedisEntity>>()) }
                         verify(exactly = 1) { mockMealRepository.deleteAll() }
+                        verify(exactly = 1) { mockMealRepository.saveAll(any<Iterable<MealRedisEntity>>()) }
                     }
                 }
 
@@ -163,11 +163,11 @@ class SyncMealServiceTest :
                         every { mockMealRepository.deleteAll() } returns Unit
                     }
 
-                    it("빈 목록을 저장해야 한다") {
+                    it("기존 데이터를 유지해야 한다") {
                         syncMealService.execute(fromDate, toDate)
 
-                        verify(exactly = 2) { mockMealRepository.saveAll(any<Iterable<MealRedisEntity>>()) }
-                        verify(exactly = 1) { mockMealRepository.deleteAll() }
+                        verify(exactly = 0) { mockMealRepository.deleteAll() }
+                        verify(exactly = 0) { mockMealRepository.saveAll(any<Iterable<MealRedisEntity>>()) }
                     }
                 }
             }
