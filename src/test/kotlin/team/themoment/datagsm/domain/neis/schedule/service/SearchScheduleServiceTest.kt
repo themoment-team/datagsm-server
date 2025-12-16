@@ -28,7 +28,7 @@ class SearchScheduleServiceTest :
                     val targetDate = LocalDate.of(2025, 12, 16)
                     val schedule =
                         ScheduleRedisEntity(
-                            Id = "7380292_20251216",
+                            id = "7380292_20251216",
                             schoolCode = "7380292",
                             schoolName = "광주소프트웨어마이스터고등학교",
                             officeCode = "F10",
@@ -65,7 +65,7 @@ class SearchScheduleServiceTest :
                     val toDate = LocalDate.of(2025, 12, 17)
                     val schedule1 =
                         ScheduleRedisEntity(
-                            Id = "7380292_20251216",
+                            id = "7380292_20251216",
                             schoolCode = "7380292",
                             schoolName = "광주소프트웨어마이스터고등학교",
                             officeCode = "F10",
@@ -81,7 +81,7 @@ class SearchScheduleServiceTest :
                         )
                     val schedule2 =
                         ScheduleRedisEntity(
-                            Id = "7380292_20251217",
+                            id = "7380292_20251217",
                             schoolCode = "7380292",
                             schoolName = "광주소프트웨어마이스터고등학교",
                             officeCode = "F10",
@@ -97,7 +97,7 @@ class SearchScheduleServiceTest :
                         )
                     val schedule3 =
                         ScheduleRedisEntity(
-                            Id = "7380292_20251218",
+                            id = "7380292_20251218",
                             schoolCode = "7380292",
                             schoolName = "광주소프트웨어마이스터고등학교",
                             officeCode = "F10",
@@ -144,7 +144,7 @@ class SearchScheduleServiceTest :
                 context("파라미터가 모두 null일 때") {
                     val schedule =
                         ScheduleRedisEntity(
-                            Id = "7380292_20251216",
+                            id = "7380292_20251216",
                             schoolCode = "7380292",
                             schoolName = "광주소프트웨어마이스터고등학교",
                             officeCode = "F10",

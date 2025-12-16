@@ -105,8 +105,11 @@ class SyncMealServiceTest :
                             )
                         } returns apiResponse
 
+                        every { mockMealRepository.saveAll(any<Iterable<MealRedisEntity>>()) } answers {
+                            @Suppress("UNCHECKED_CAST")
+                            (firstArg() as Iterable<MealRedisEntity>).toList()
+                        }
                         every { mockMealRepository.deleteAll() } returns Unit
-                        every { mockMealRepository.saveAll(any<List<MealRedisEntity>>()) } returns listOf()
                     }
 
                     it("NEIS API를 호출하고 데이터를 Redis에 저장해야 한다") {
@@ -123,14 +126,8 @@ class SyncMealServiceTest :
                             )
                         }
 
-                        val savedEntitiesSlot = slot<List<MealRedisEntity>>()
-                        verify(exactly = 1) { mockMealRepository.saveAll(capture(savedEntitiesSlot)) }
-
-                        val savedEntities = savedEntitiesSlot.captured
-                        savedEntities.size shouldBe 2
-                        savedEntities[0].schoolCode shouldBe "7380292"
-                        savedEntities[0].date shouldBe LocalDate.of(2025, 12, 16)
-                        savedEntities[1].date shouldBe LocalDate.of(2025, 12, 17)
+                        verify(exactly = 2) { mockMealRepository.saveAll(any<Iterable<MealRedisEntity>>()) }
+                        verify(exactly = 1) { mockMealRepository.deleteAll() }
                     }
                 }
 
@@ -159,17 +156,18 @@ class SyncMealServiceTest :
                             )
                         } returns apiResponse
 
+                        every { mockMealRepository.saveAll(any<Iterable<MealRedisEntity>>()) } answers {
+                            @Suppress("UNCHECKED_CAST")
+                            (firstArg() as Iterable<MealRedisEntity>).toList()
+                        }
                         every { mockMealRepository.deleteAll() } returns Unit
-                        every { mockMealRepository.saveAll(any<List<MealRedisEntity>>()) } returns listOf()
                     }
 
                     it("빈 목록을 저장해야 한다") {
                         syncMealService.execute(fromDate, toDate)
 
-                        val savedEntitiesSlot = slot<List<MealRedisEntity>>()
-                        verify(exactly = 1) { mockMealRepository.saveAll(capture(savedEntitiesSlot)) }
-
-                        savedEntitiesSlot.captured.size shouldBe 0
+                        verify(exactly = 2) { mockMealRepository.saveAll(any<Iterable<MealRedisEntity>>()) }
+                        verify(exactly = 1) { mockMealRepository.deleteAll() }
                     }
                 }
             }

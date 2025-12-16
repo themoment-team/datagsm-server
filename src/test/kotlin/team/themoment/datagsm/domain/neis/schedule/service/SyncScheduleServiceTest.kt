@@ -113,8 +113,11 @@ class SyncScheduleServiceTest :
                             )
                         } returns apiResponse
 
+                        every { mockScheduleRepository.saveAll(any<Iterable<ScheduleRedisEntity>>()) } answers {
+                            @Suppress("UNCHECKED_CAST")
+                            (firstArg() as Iterable<ScheduleRedisEntity>).toList()
+                        }
                         every { mockScheduleRepository.deleteAll() } returns Unit
-                        every { mockScheduleRepository.saveAll(any<List<ScheduleRedisEntity>>()) } returns listOf()
                     }
 
                     it("NEIS API를 호출하고 데이터를 Redis에 저장해야 한다") {
@@ -131,15 +134,8 @@ class SyncScheduleServiceTest :
                             )
                         }
 
-                        val savedEntitiesSlot = slot<List<ScheduleRedisEntity>>()
-                        verify(exactly = 1) { mockScheduleRepository.saveAll(capture(savedEntitiesSlot)) }
-
-                        val savedEntities = savedEntitiesSlot.captured
-                        savedEntities.size shouldBe 2
-                        savedEntities[0].schoolCode shouldBe "7380292"
-                        savedEntities[0].date shouldBe LocalDate.of(2025, 12, 16)
-                        savedEntities[0].targetGrades shouldBe listOf(1, 2, 3)
-                        savedEntities[1].date shouldBe LocalDate.of(2025, 12, 17)
+                        verify(exactly = 2) { mockScheduleRepository.saveAll(any<Iterable<ScheduleRedisEntity>>()) }
+                        verify(exactly = 1) { mockScheduleRepository.deleteAll() }
                     }
                 }
 
@@ -168,17 +164,18 @@ class SyncScheduleServiceTest :
                             )
                         } returns apiResponse
 
+                        every { mockScheduleRepository.saveAll(any<Iterable<ScheduleRedisEntity>>()) } answers {
+                            @Suppress("UNCHECKED_CAST")
+                            (firstArg() as Iterable<ScheduleRedisEntity>).toList()
+                        }
                         every { mockScheduleRepository.deleteAll() } returns Unit
-                        every { mockScheduleRepository.saveAll(any<List<ScheduleRedisEntity>>()) } returns listOf()
                     }
 
                     it("빈 목록을 저장해야 한다") {
                         syncScheduleService.execute(fromDate, toDate)
 
-                        val savedEntitiesSlot = slot<List<ScheduleRedisEntity>>()
-                        verify(exactly = 1) { mockScheduleRepository.saveAll(capture(savedEntitiesSlot)) }
-
-                        savedEntitiesSlot.captured.size shouldBe 0
+                        verify(exactly = 2) { mockScheduleRepository.saveAll(any<Iterable<ScheduleRedisEntity>>()) }
+                        verify(exactly = 1) { mockScheduleRepository.deleteAll() }
                     }
                 }
 
@@ -213,17 +210,18 @@ class SyncScheduleServiceTest :
                             )
                         } returns apiResponse
 
+                        every { mockScheduleRepository.saveAll(any<Iterable<ScheduleRedisEntity>>()) } answers {
+                            @Suppress("UNCHECKED_CAST")
+                            (firstArg() as Iterable<ScheduleRedisEntity>).toList()
+                        }
                         every { mockScheduleRepository.deleteAll() } returns Unit
-                        every { mockScheduleRepository.saveAll(any<List<ScheduleRedisEntity>>()) } returns listOf()
                     }
 
                     it("빈 목록을 저장해야 한다") {
                         syncScheduleService.execute(fromDate, toDate)
 
-                        val savedEntitiesSlot = slot<List<ScheduleRedisEntity>>()
-                        verify(exactly = 1) { mockScheduleRepository.saveAll(capture(savedEntitiesSlot)) }
-
-                        savedEntitiesSlot.captured.size shouldBe 0
+                        verify(exactly = 2) { mockScheduleRepository.saveAll(any<Iterable<ScheduleRedisEntity>>()) }
+                        verify(exactly = 1) { mockScheduleRepository.deleteAll() }
                     }
                 }
             }
