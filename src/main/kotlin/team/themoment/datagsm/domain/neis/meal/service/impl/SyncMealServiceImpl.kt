@@ -29,25 +29,38 @@ class SyncMealServiceImpl(
     ) {
         val mlsvFromYmd = fromDate.format(DATE_FORMATTER)
         val mlsvToYmd = toDate.format(DATE_FORMATTER)
-        val apiResponse =
-            neisApiClient.getMealServiceDietInfo(
-                key = neisEnvironment.key,
-                atptOfcdcScCode = neisEnvironment.officeCode,
-                sdSchulCode = neisEnvironment.schoolCode,
-                mlsvYmd = null,
-                mlsvFromYmd = mlsvFromYmd,
-                mlsvToYmd = mlsvToYmd,
-            )
-        val newMealEntities =
-            apiResponse.mealServiceDietInfo
-                ?.find { it.row != null }
-                ?.row
-                ?.map { convertToEntity(it) }
-                ?: emptyList()
 
-        if (newMealEntities.isNotEmpty()) {
+        val allMealEntities = mutableListOf<MealRedisEntity>()
+        var pageIndex = 1
+        val pageSize = 1000
+
+        do {
+            val apiResponse =
+                neisApiClient.getMealServiceDietInfo(
+                    key = neisEnvironment.key,
+                    pIndex = pageIndex,
+                    pSize = pageSize,
+                    atptOfcdcScCode = neisEnvironment.officeCode,
+                    sdSchulCode = neisEnvironment.schoolCode,
+                    mlsvYmd = null,
+                    mlsvFromYmd = mlsvFromYmd,
+                    mlsvToYmd = mlsvToYmd,
+                )
+
+            val meals =
+                apiResponse.mealServiceDietInfo
+                    ?.find { it.row != null }
+                    ?.row
+                    ?.map { convertToEntity(it) }
+                    ?: emptyList()
+
+            allMealEntities.addAll(meals)
+            pageIndex++
+        } while (meals.size == pageSize)
+
+        if (allMealEntities.isNotEmpty()) {
             mealRedisRepository.deleteAll()
-            mealRedisRepository.saveAll(newMealEntities)
+            mealRedisRepository.saveAll(allMealEntities)
         }
     }
 
@@ -86,10 +99,23 @@ class SyncMealServiceImpl(
 
     private fun convertMealType(mealTypeCode: String): MealType =
         when (mealTypeCode) {
-            "1" -> MealType.BREAKFAST
-            "2" -> MealType.LUNCH
-            "3" -> MealType.DINNER
-            else -> MealType.LUNCH
+            "1" -> {
+                MealType.BREAKFAST
+            }
+
+            "2" -> {
+                MealType.LUNCH
+            }
+
+            "3" -> {
+                MealType.DINNER
+            }
+
+            else -> {
+                throw IllegalArgumentException(
+                    "Unknown meal type code: $mealTypeCode. Expected values are 1 (BREAKFAST), 2 (LUNCH), or 3 (DINNER)",
+                )
+            }
         }
 
     private fun extractAllergyInfo(dishName: String?): List<String> {
