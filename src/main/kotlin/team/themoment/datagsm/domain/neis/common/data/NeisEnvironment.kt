@@ -1,4 +1,4 @@
-package team.themoment.datagsm.global.config.neis
+package team.themoment.datagsm.domain.neis.common.data
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
