@@ -1,11 +1,9 @@
 package team.themoment.datagsm.domain.neis.meal.service
 
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.slot
 import io.mockk.verify
 import team.themoment.datagsm.domain.neis.meal.entity.MealRedisEntity
 import team.themoment.datagsm.domain.neis.meal.repository.MealRedisRepository
