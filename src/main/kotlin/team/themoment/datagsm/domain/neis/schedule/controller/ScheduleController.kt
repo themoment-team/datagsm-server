@@ -33,16 +33,11 @@ class ScheduleController(
             ApiResponse(
                 responseCode = "200",
                 description = "조회 성공",
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        array = ArraySchema(schema = Schema(implementation = ScheduleResDto::class)),
-                    ),
-                ],
             ),
             ApiResponse(
                 responseCode = "400",
                 description = "잘못된 요청 파라미터",
+                content = [Content()],
             ),
         ],
     )
