@@ -39,9 +39,10 @@ class SyncScheduleServiceImpl(
                 ?.map { convertToEntity(it) }
                 ?: emptyList()
 
-        val savedEntities = scheduleRedisRepository.saveAll(newScheduleEntities).toList()
-        scheduleRedisRepository.deleteAll()
-        scheduleRedisRepository.saveAll(savedEntities)
+        if (newScheduleEntities.isNotEmpty()) {
+            scheduleRedisRepository.deleteAll()
+            scheduleRedisRepository.saveAll(newScheduleEntities)
+        }
     }
 
     private fun convertToEntity(dto: SchoolScheduleInfo): ScheduleRedisEntity {
