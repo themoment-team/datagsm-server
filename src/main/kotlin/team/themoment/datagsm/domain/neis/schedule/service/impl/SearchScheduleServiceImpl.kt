@@ -25,21 +25,21 @@ class SearchScheduleServiceImpl(
             }
 
         return schedules.map { schedule ->
-                ScheduleResDto(
-                    scheduleId = schedule.id,
-                    schoolCode = schedule.schoolCode,
-                    schoolName = schedule.schoolName,
-                    officeCode = schedule.officeCode,
-                    officeName = schedule.officeName,
-                    scheduleDate = schedule.date,
-                    academicYear = schedule.academicYear,
-                    eventName = schedule.eventName,
-                    eventContent = schedule.eventContent,
-                    dayCategory = schedule.dayCategory,
-                    schoolCourseType = schedule.schoolCourseType,
-                    dayNightType = schedule.dayNightType,
-                    targetGrades = schedule.targetGrades,
-                )
-            }
+            ScheduleResDto(
+                scheduleId = schedule.id,
+                schoolCode = schedule.schoolCode,
+                schoolName = schedule.schoolName,
+                officeCode = schedule.officeCode,
+                officeName = schedule.officeName,
+                scheduleDate = schedule.date,
+                academicYear = schedule.academicYear,
+                eventName = schedule.eventName,
+                eventContent = schedule.eventContent,
+                dayCategory = schedule.dayCategory,
+                schoolCourseType = schedule.schoolCourseType,
+                dayNightType = schedule.dayNightType,
+                targetGrades = schedule.targetGrades,
+            )
+        }
     }
 }

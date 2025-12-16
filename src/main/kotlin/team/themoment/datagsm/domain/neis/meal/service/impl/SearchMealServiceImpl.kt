@@ -25,21 +25,21 @@ class SearchMealServiceImpl(
             }
 
         return meals.map { meal ->
-                MealResDto(
-                    mealId = meal.id,
-                    schoolCode = meal.schoolCode,
-                    schoolName = meal.schoolName,
-                    officeCode = meal.officeCode,
-                    officeName = meal.officeName,
-                    mealDate = meal.date,
-                    mealType = meal.type,
-                    mealMenu = meal.menu,
-                    mealAllergyInfo = meal.allergyInfo,
-                    mealCalories = meal.calories,
-                    originInfo = meal.originInfo,
-                    nutritionInfo = meal.nutritionInfo,
-                    mealServeCount = meal.serveCount,
-                )
-            }
+            MealResDto(
+                mealId = meal.id,
+                schoolCode = meal.schoolCode,
+                schoolName = meal.schoolName,
+                officeCode = meal.officeCode,
+                officeName = meal.officeName,
+                mealDate = meal.date,
+                mealType = meal.type,
+                mealMenu = meal.menu,
+                mealAllergyInfo = meal.allergyInfo,
+                mealCalories = meal.calories,
+                originInfo = meal.originInfo,
+                nutritionInfo = meal.nutritionInfo,
+                mealServeCount = meal.serveCount,
+            )
+        }
     }
 }
