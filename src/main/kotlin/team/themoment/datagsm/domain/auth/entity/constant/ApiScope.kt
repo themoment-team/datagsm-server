@@ -26,6 +26,10 @@ enum class ApiScope(
     PROJECT_ALL("project:*", "프로젝트 정보 모든 권한"),
     PROJECT_READ("project:read", "프로젝트 정보 조회"),
     PROJECT_WRITE("project:write", "프로젝트 정보 생성/수정/삭제"),
+
+    // NEIS scopes
+    NEIS_ALL("neis:*", "NEIS 정보 모든 권한"),
+    NEIS_READ("neis:read", "NEIS 정보 조회 (학사일정/급식)"),
     ;
 
     companion object {
@@ -38,6 +42,7 @@ enum class ApiScope(
                 STUDENT_READ.scope,
                 CLUB_READ.scope,
                 PROJECT_READ.scope,
+                NEIS_READ.scope,
             )
 
         fun fromString(scope: String): ApiScope? = entries.find { it.scope == scope }
