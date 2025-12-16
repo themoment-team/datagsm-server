@@ -29,25 +29,37 @@ class SyncScheduleServiceImpl(
         val aaFromYmd = fromDate.format(DATE_FORMATTER)
         val aaToYmd = toDate.format(DATE_FORMATTER)
 
-        val apiResponse =
-            neisApiClient.getSchoolSchedule(
-                key = neisEnvironment.key,
-                atptOfcdcScCode = neisEnvironment.officeCode,
-                sdSchulCode = neisEnvironment.schoolCode,
-                aa_ymd = null,
-                aa_from_ymd = aaFromYmd,
-                aa_to_ymd = aaToYmd,
-            )
-        val newScheduleEntities =
-            apiResponse.schoolSchedule
-                ?.find { it.row != null }
-                ?.row
-                ?.map { convertToEntity(it) }
-                ?: emptyList()
+        val allScheduleEntities = mutableListOf<ScheduleRedisEntity>()
+        var pageIndex = 1
+        val pageSize = 1000
 
-        if (newScheduleEntities.isNotEmpty()) {
+        do {
+            val apiResponse =
+                neisApiClient.getSchoolSchedule(
+                    key = neisEnvironment.key,
+                    pIndex = pageIndex,
+                    pSize = pageSize,
+                    atptOfcdcScCode = neisEnvironment.officeCode,
+                    sdSchulCode = neisEnvironment.schoolCode,
+                    aa_ymd = null,
+                    aa_from_ymd = aaFromYmd,
+                    aa_to_ymd = aaToYmd,
+                )
+
+            val schedules =
+                apiResponse.schoolSchedule
+                    ?.find { it.row != null }
+                    ?.row
+                    ?.map { convertToEntity(it) }
+                    ?: emptyList()
+
+            allScheduleEntities.addAll(schedules)
+            pageIndex++
+        } while (schedules.size == pageSize)
+
+        if (allScheduleEntities.isNotEmpty()) {
             scheduleRedisRepository.deleteAll()
-            scheduleRedisRepository.saveAll(newScheduleEntities)
+            scheduleRedisRepository.saveAll(allScheduleEntities)
         }
     }
 

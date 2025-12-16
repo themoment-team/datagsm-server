@@ -61,7 +61,7 @@ class SearchMealServiceTest :
                         )
 
                     beforeEach {
-                        every { mockMealRepository.findAll() } returns listOf(meal1, meal2)
+                        every { mockMealRepository.findByDate(targetDate) } returns listOf(meal1, meal2)
                     }
 
                     it("해당 날짜의 모든 급식 정보를 반환해야 한다") {

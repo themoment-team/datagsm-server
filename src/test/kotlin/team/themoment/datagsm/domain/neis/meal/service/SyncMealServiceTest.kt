@@ -95,6 +95,8 @@ class SyncMealServiceTest :
                         every {
                             mockNeisApiClient.getMealServiceDietInfo(
                                 key = "test-api-key",
+                                pIndex = any(),
+                                pSize = any(),
                                 atptOfcdcScCode = "F10",
                                 sdSchulCode = "7380292",
                                 mlsvYmd = null,
@@ -113,9 +115,11 @@ class SyncMealServiceTest :
                     it("NEIS API를 호출하고 데이터를 Redis에 저장해야 한다") {
                         syncMealService.execute(fromDate, toDate)
 
-                        verify(exactly = 1) {
+                        verify(atLeast = 1) {
                             mockNeisApiClient.getMealServiceDietInfo(
                                 key = "test-api-key",
+                                pIndex = any(),
+                                pSize = any(),
                                 atptOfcdcScCode = "F10",
                                 sdSchulCode = "7380292",
                                 mlsvYmd = null,
@@ -146,6 +150,8 @@ class SyncMealServiceTest :
                         every {
                             mockNeisApiClient.getMealServiceDietInfo(
                                 key = any(),
+                                pIndex = any(),
+                                pSize = any(),
                                 atptOfcdcScCode = any(),
                                 sdSchulCode = any(),
                                 mlsvYmd = any(),
