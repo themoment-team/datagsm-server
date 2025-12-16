@@ -39,8 +39,9 @@ class SyncMealServiceImpl(
                 ?.map { convertToEntity(it) }
                 ?: emptyList()
 
+        val savedEntities = mealRedisRepository.saveAll(newMealEntities).toList()
         mealRedisRepository.deleteAll()
-        mealRedisRepository.saveAll(newMealEntities)
+        mealRedisRepository.saveAll(savedEntities)
     }
 
     private fun convertToEntity(dto: MealServiceDietInfo): MealRedisEntity {
