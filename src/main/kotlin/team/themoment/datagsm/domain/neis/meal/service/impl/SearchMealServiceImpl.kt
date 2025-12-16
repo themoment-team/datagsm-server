@@ -15,18 +15,16 @@ class SearchMealServiceImpl(
         fromDate: LocalDate?,
         toDate: LocalDate?,
     ): List<MealResDto> {
-        val meals = mealRedisRepository.findAll()
+        val meals =
+            when {
+                date != null -> mealRedisRepository.findByDate(date)
+                fromDate != null && toDate != null -> mealRedisRepository.findByDateBetween(fromDate, toDate)
+                fromDate != null -> mealRedisRepository.findByDateGreaterThanEqual(fromDate)
+                toDate != null -> mealRedisRepository.findByDateLessThanEqual(toDate)
+                else -> mealRedisRepository.findAll().toList()
+            }
 
-        return meals
-            .filter { meal ->
-                when {
-                    date != null -> meal.date == date
-                    fromDate != null && toDate != null -> meal.date in fromDate..toDate
-                    fromDate != null -> meal.date >= fromDate
-                    toDate != null -> meal.date <= toDate
-                    else -> true
-                }
-            }.map { meal ->
+        return meals.map { meal ->
                 MealResDto(
                     mealId = meal.id,
                     schoolCode = meal.schoolCode,

@@ -15,18 +15,16 @@ class SearchScheduleServiceImpl(
         fromDate: LocalDate?,
         toDate: LocalDate?,
     ): List<ScheduleResDto> {
-        val schedules = scheduleRedisRepository.findAll()
+        val schedules =
+            when {
+                date != null -> scheduleRedisRepository.findByDate(date)
+                fromDate != null && toDate != null -> scheduleRedisRepository.findByDateBetween(fromDate, toDate)
+                fromDate != null -> scheduleRedisRepository.findByDateGreaterThanEqual(fromDate)
+                toDate != null -> scheduleRedisRepository.findByDateLessThanEqual(toDate)
+                else -> scheduleRedisRepository.findAll().toList()
+            }
 
-        return schedules
-            .filter { schedule ->
-                when {
-                    date != null -> schedule.date == date
-                    fromDate != null && toDate != null -> schedule.date in fromDate..toDate
-                    fromDate != null -> schedule.date >= fromDate
-                    toDate != null -> schedule.date <= toDate
-                    else -> true
-                }
-            }.map { schedule ->
+        return schedules.map { schedule ->
                 ScheduleResDto(
                     scheduleId = schedule.id,
                     schoolCode = schedule.schoolCode,
