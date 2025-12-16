@@ -28,7 +28,7 @@ class SearchScheduleServiceImpl(
                 }
             }.map { schedule ->
                 ScheduleResDto(
-                    scheduleId = schedule.Id,
+                    scheduleId = schedule.id,
                     schoolCode = schedule.schoolCode,
                     schoolName = schedule.schoolName,
                     officeCode = schedule.officeCode,
