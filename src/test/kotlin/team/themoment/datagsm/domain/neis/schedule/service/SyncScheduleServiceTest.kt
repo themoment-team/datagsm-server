@@ -5,10 +5,10 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import team.themoment.datagsm.domain.neis.common.data.NeisEnvironment
 import team.themoment.datagsm.domain.neis.schedule.entity.ScheduleRedisEntity
 import team.themoment.datagsm.domain.neis.schedule.repository.ScheduleRedisRepository
 import team.themoment.datagsm.domain.neis.schedule.service.impl.SyncScheduleServiceImpl
-import team.themoment.datagsm.global.config.neis.NeisEnvironment
 import team.themoment.datagsm.global.thirdparty.feign.neis.NeisApiClient
 import team.themoment.datagsm.global.thirdparty.feign.neis.dto.NeisScheduleApiResponse
 import team.themoment.datagsm.global.thirdparty.feign.neis.dto.SchoolScheduleInfo

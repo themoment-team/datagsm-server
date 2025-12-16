@@ -1,11 +1,13 @@
 package team.themoment.datagsm.domain.neis.meal.service.impl
 
+import org.springframework.retry.annotation.Backoff
+import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Service
+import team.themoment.datagsm.domain.neis.common.data.NeisEnvironment
 import team.themoment.datagsm.domain.neis.meal.entity.MealRedisEntity
 import team.themoment.datagsm.domain.neis.meal.entity.constant.MealType
 import team.themoment.datagsm.domain.neis.meal.repository.MealRedisRepository
 import team.themoment.datagsm.domain.neis.meal.service.SyncMealService
-import team.themoment.datagsm.global.config.neis.NeisEnvironment
 import team.themoment.datagsm.global.thirdparty.feign.neis.NeisApiClient
 import team.themoment.datagsm.global.thirdparty.feign.neis.dto.MealServiceDietInfo
 import java.time.LocalDate
@@ -17,6 +19,10 @@ class SyncMealServiceImpl(
     private val mealRedisRepository: MealRedisRepository,
     private val neisEnvironment: NeisEnvironment,
 ) : SyncMealService {
+    @Retryable(
+        maxAttempts = 3,
+        backoff = Backoff(delay = 5000, multiplier = 2.0),
+    )
     override fun execute(
         fromDate: LocalDate,
         toDate: LocalDate,

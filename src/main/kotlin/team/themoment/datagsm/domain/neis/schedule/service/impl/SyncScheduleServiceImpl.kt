@@ -1,10 +1,12 @@
 package team.themoment.datagsm.domain.neis.schedule.service.impl
 
+import org.springframework.retry.annotation.Backoff
+import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Service
+import team.themoment.datagsm.domain.neis.common.data.NeisEnvironment
 import team.themoment.datagsm.domain.neis.schedule.entity.ScheduleRedisEntity
 import team.themoment.datagsm.domain.neis.schedule.repository.ScheduleRedisRepository
 import team.themoment.datagsm.domain.neis.schedule.service.SyncScheduleService
-import team.themoment.datagsm.global.config.neis.NeisEnvironment
 import team.themoment.datagsm.global.thirdparty.feign.neis.NeisApiClient
 import team.themoment.datagsm.global.thirdparty.feign.neis.dto.SchoolScheduleInfo
 import java.time.LocalDate
@@ -16,6 +18,10 @@ class SyncScheduleServiceImpl(
     private val scheduleRedisRepository: ScheduleRedisRepository,
     private val neisEnvironment: NeisEnvironment,
 ) : SyncScheduleService {
+    @Retryable(
+        maxAttempts = 3,
+        backoff = Backoff(delay = 5000, multiplier = 2.0),
+    )
     override fun execute(
         fromDate: LocalDate,
         toDate: LocalDate,
