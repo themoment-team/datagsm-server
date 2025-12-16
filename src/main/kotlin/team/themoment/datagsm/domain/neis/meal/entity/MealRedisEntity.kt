@@ -16,7 +16,7 @@ data class MealRedisEntity(
     val date: LocalDate,
     val type: MealType,
     val menu: List<String>,
-    val allergyInfo: List<String>,
+    val allergyInfo: List<String>?,
     val calories: String?,
     val originInfo: String?,
     val nutritionInfo: String?,

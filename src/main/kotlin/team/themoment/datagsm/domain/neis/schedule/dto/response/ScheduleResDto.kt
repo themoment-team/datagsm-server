@@ -1,5 +1,6 @@
 package team.themoment.datagsm.domain.neis.schedule.dto.response
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDate
 
@@ -16,6 +17,7 @@ data class ScheduleResDto(
     @param:Schema(description = "시도교육청명", example = "광주광역시교육청")
     val officeName: String,
     @param:Schema(description = "학사일정 날짜", example = "2025-12-15")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     val scheduleDate: LocalDate,
     @param:Schema(description = "학년도", example = "2025")
     val academicYear: String,

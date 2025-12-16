@@ -1,5 +1,6 @@
 package team.themoment.datagsm.domain.neis.meal.dto.response
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import io.swagger.v3.oas.annotations.media.Schema
 import team.themoment.datagsm.domain.neis.meal.entity.constant.MealType
 import java.time.LocalDate
@@ -17,13 +18,14 @@ data class MealResDto(
     @param:Schema(description = "시도교육청명", example = "광주광역시교육청")
     val officeName: String,
     @param:Schema(description = "급식 날짜", example = "2025-12-15")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     val mealDate: LocalDate,
     @param:Schema(description = "급식 타입 (BREAKFAST, LUNCH, DINNER)", example = "LUNCH")
     val mealType: MealType,
     @param:Schema(description = "급식 메뉴 목록", example = "[\"쌀밥\", \"김치찌개\", \"돈까스\", \"배추김치\"]")
     val mealMenu: List<String>,
     @param:Schema(description = "알레르기 정보 목록", example = "[\"1\", \"2\", \"5\", \"6\"]")
-    val mealAllergyInfo: List<String>,
+    val mealAllergyInfo: List<String>?,
     @param:Schema(description = "칼로리 정보", example = "650.8 Kcal")
     val mealCalories: String?,
     @param:Schema(description = "원산지 정보", example = "쌀:국내산 돼지고기:국내산 배추김치:국내산")

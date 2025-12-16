@@ -23,7 +23,6 @@ class SyncMealServiceImpl(
     ) {
         val mlsvFromYmd = fromDate.format(DATE_FORMATTER)
         val mlsvToYmd = toDate.format(DATE_FORMATTER)
-
         val apiResponse =
             neisApiClient.getMealServiceDietInfo(
                 key = neisEnvironment.key,
@@ -33,14 +32,12 @@ class SyncMealServiceImpl(
                 mlsvFromYmd = mlsvFromYmd,
                 mlsvToYmd = mlsvToYmd,
             )
-
         val mealEntities =
             apiResponse.mealServiceDietInfo
-                ?.firstOrNull()
+                ?.find { it.row != null }
                 ?.row
                 ?.map { convertToEntity(it) }
                 ?: emptyList()
-
         mealRedisRepository.saveAll(mealEntities)
     }
 
