@@ -1,6 +1,7 @@
 package team.themoment.datagsm.domain.auth.controller
 
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.domain.auth.dto.request.CreateApiKeyReqDto
 import team.themoment.datagsm.domain.auth.dto.request.ModifyApiKeyReqDto
@@ -19,6 +21,7 @@ import team.themoment.datagsm.domain.auth.dto.request.OAuthCodeReqDto
 import team.themoment.datagsm.domain.auth.dto.request.RefreshTokenReqDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyRenewableResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
+import team.themoment.datagsm.domain.auth.dto.response.ApiKeySearchResDto
 import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
@@ -28,6 +31,7 @@ import team.themoment.datagsm.domain.auth.service.ModifyApiKeyService
 import team.themoment.datagsm.domain.auth.service.QueryApiKeyRenewableService
 import team.themoment.datagsm.domain.auth.service.QueryApiKeyService
 import team.themoment.datagsm.domain.auth.service.ReissueTokenService
+import team.themoment.datagsm.domain.auth.service.SearchApiKeyService
 import team.themoment.datagsm.global.common.response.dto.response.CommonApiResponse
 import team.themoment.datagsm.global.security.annotation.RequireScope
 
@@ -42,6 +46,7 @@ class AuthController(
     private val queryApiKeyService: QueryApiKeyService,
     private val queryApiKeyRenewableService: QueryApiKeyRenewableService,
     private val reissueTokenService: ReissueTokenService,
+    private val searchApiKeyService: SearchApiKeyService,
 ) {
     @Operation(summary = "Google OAuth 인증", description = "Google OAuth 인증 코드로 토큰을 발급받습니다.")
     @ApiResponses(
@@ -125,6 +130,33 @@ class AuthController(
     @RequireScope(ApiScope.AUTH_MANAGE)
     @GetMapping("/api-key")
     fun getApiKey(): ApiKeyResDto = queryApiKeyService.execute()
+
+    @Operation(summary = "API 키 검색", description = "필터 조건에 맞는 API 키를 검색합니다. API 키는 마스킹되어 반환됩니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "검색 성공"),
+        ],
+    )
+    @RequireScope(ApiScope.ADMIN_APIKEY)
+    @GetMapping("/api-keys/search")
+    fun searchApiKeys(
+        @Parameter(description = "API 키 ID") @RequestParam(required = false) id: Long?,
+        @Parameter(description = "계정 ID") @RequestParam(required = false) accountId: Long?,
+        @Parameter(description = "권한 스코프") @RequestParam(required = false) scope: String?,
+        @Parameter(description = "만료 여부") @RequestParam(required = false) isExpired: Boolean?,
+        @Parameter(description = "갱신 가능 여부") @RequestParam(required = false) isRenewable: Boolean?,
+        @Parameter(description = "페이지 번호") @RequestParam(required = false, defaultValue = "0") page: Int,
+        @Parameter(description = "페이지 크기") @RequestParam(required = false, defaultValue = "100") size: Int,
+    ): ApiKeySearchResDto =
+        searchApiKeyService.execute(
+            id,
+            accountId,
+            scope,
+            isExpired,
+            isRenewable,
+            page,
+            size,
+        )
 
     @Operation(summary = "API 키 갱신 가능 여부 조회", description = "현재 API 키가 갱신 가능한지 확인합니다.")
     @ApiResponses(

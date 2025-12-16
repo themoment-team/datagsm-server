@@ -31,7 +31,7 @@ class ModifyStudentExcelServiceImpl(
 ) : ModifyStudentExcelService {
     private val dataFormatter = DataFormatter()
 
-    override fun modifyStudentData(file: MultipartFile): CommonApiResponse<Nothing> {
+    override fun execute(file: MultipartFile): CommonApiResponse<Nothing> {
         val excelData: List<ExcelColumnDto> = queryExcelData(file).flatMap { it.excelRows }
         val studentNumbers = excelData.map { it.number }.distinct()
         if (studentNumbers.isEmpty()) {
@@ -106,7 +106,7 @@ class ModifyStudentExcelServiceImpl(
         return CommonApiResponse.success("엑셀 업로드 성공")
     }
 
-    override fun queryExcelData(file: MultipartFile): List<ExcelRowDto> {
+    private fun queryExcelData(file: MultipartFile): List<ExcelRowDto> {
         val workbook =
             file.inputStream.use { inputStream ->
                 when (file.originalFilename?.substringAfterLast(".")) {

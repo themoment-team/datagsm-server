@@ -7,9 +7,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import org.springframework.http.ContentDisposition
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -33,7 +30,6 @@ import team.themoment.datagsm.domain.student.service.ModifyStudentExcelService
 import team.themoment.datagsm.domain.student.service.ModifyStudentService
 import team.themoment.datagsm.domain.student.service.QueryStudentService
 import team.themoment.datagsm.global.security.annotation.RequireScope
-import java.nio.charset.StandardCharsets
 
 @Tag(name = "Student", description = "학생 관련 API")
 @RestController
@@ -63,7 +59,7 @@ class StudentController(
         @Parameter(description = "성별") @RequestParam(required = false) sex: Sex?,
         @Parameter(description = "역할") @RequestParam(required = false) role: StudentRole?,
         @Parameter(description = "기숙사 호실") @RequestParam(required = false) dormitoryRoom: Int?,
-        @Parameter(description = "자퇴 여부") @RequestParam(required = false, defaultValue = "false") isLeaveSchool: Boolean,
+        @Parameter(description = "자퇴 여부") @RequestParam(required = false) isLeaveSchool: Boolean?,
         @Parameter(description = "페이지 번호") @RequestParam(required = false, defaultValue = "0") page: Int,
         @Parameter(description = "페이지 크기") @RequestParam(required = false, defaultValue = "300") size: Int,
     ): StudentListResDto =
@@ -120,24 +116,7 @@ class StudentController(
     )
     @RequireScope(ApiScope.ADMIN_EXCEL)
     @GetMapping("/excel/download")
-    fun downloadStudentExcel(): ResponseEntity<ByteArray> {
-        val excelData = createStudentExcelService.createExcel()
-
-        val headers =
-            HttpHeaders().apply {
-                contentType = MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                contentDisposition =
-                    ContentDisposition
-                        .builder("attachment")
-                        .filename("학생정보.xlsx", StandardCharsets.UTF_8)
-                        .build()
-            }
-
-        return ResponseEntity
-            .ok()
-            .headers(headers)
-            .body(excelData)
-    }
+    fun downloadStudentExcel(): ResponseEntity<ByteArray> = createStudentExcelService.execute()
 
     @Operation(summary = "학생 정보 엑셀 업로드", description = "학생 정보가 담긴 엑셀을 받아 수정 또는 저장을 진행합니다.")
     @ApiResponses(
@@ -150,5 +129,5 @@ class StudentController(
     @PostMapping("/excel/upload")
     fun uploadStudentExcel(
         @RequestParam("file") file: MultipartFile,
-    ) = modifyStudentExcelService.modifyStudentData(file)
+    ) = modifyStudentExcelService.execute(file)
 }
