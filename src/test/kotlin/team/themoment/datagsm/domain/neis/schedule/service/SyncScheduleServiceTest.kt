@@ -113,6 +113,7 @@ class SyncScheduleServiceTest :
                             )
                         } returns apiResponse
 
+                        every { mockScheduleRepository.deleteAll() } returns Unit
                         every { mockScheduleRepository.saveAll(any<List<ScheduleRedisEntity>>()) } returns listOf()
                     }
 
@@ -167,6 +168,7 @@ class SyncScheduleServiceTest :
                             )
                         } returns apiResponse
 
+                        every { mockScheduleRepository.deleteAll() } returns Unit
                         every { mockScheduleRepository.saveAll(any<List<ScheduleRedisEntity>>()) } returns listOf()
                     }
 
@@ -211,6 +213,7 @@ class SyncScheduleServiceTest :
                             )
                         } returns apiResponse
 
+                        every { mockScheduleRepository.deleteAll() } returns Unit
                         every { mockScheduleRepository.saveAll(any<List<ScheduleRedisEntity>>()) } returns listOf()
                     }
 

@@ -32,13 +32,15 @@ class SyncScheduleServiceImpl(
                 aa_from_ymd = aaFromYmd,
                 aa_to_ymd = aaToYmd,
             )
-        val scheduleEntities =
+        val newScheduleEntities =
             apiResponse.schoolSchedule
                 ?.find { it.row != null }
                 ?.row
                 ?.map { convertToEntity(it) }
                 ?: emptyList()
-        scheduleRedisRepository.saveAll(scheduleEntities)
+
+        scheduleRedisRepository.deleteAll()
+        scheduleRedisRepository.saveAll(newScheduleEntities)
     }
 
     private fun convertToEntity(dto: SchoolScheduleInfo): ScheduleRedisEntity {

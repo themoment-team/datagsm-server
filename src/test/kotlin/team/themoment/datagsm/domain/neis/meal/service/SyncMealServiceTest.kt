@@ -105,6 +105,7 @@ class SyncMealServiceTest :
                             )
                         } returns apiResponse
 
+                        every { mockMealRepository.deleteAll() } returns Unit
                         every { mockMealRepository.saveAll(any<List<MealRedisEntity>>()) } returns listOf()
                     }
 
@@ -158,6 +159,7 @@ class SyncMealServiceTest :
                             )
                         } returns apiResponse
 
+                        every { mockMealRepository.deleteAll() } returns Unit
                         every { mockMealRepository.saveAll(any<List<MealRedisEntity>>()) } returns listOf()
                     }
 

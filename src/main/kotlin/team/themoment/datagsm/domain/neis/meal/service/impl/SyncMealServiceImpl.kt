@@ -32,13 +32,15 @@ class SyncMealServiceImpl(
                 mlsvFromYmd = mlsvFromYmd,
                 mlsvToYmd = mlsvToYmd,
             )
-        val mealEntities =
+        val newMealEntities =
             apiResponse.mealServiceDietInfo
                 ?.find { it.row != null }
                 ?.row
                 ?.map { convertToEntity(it) }
                 ?: emptyList()
-        mealRedisRepository.saveAll(mealEntities)
+
+        mealRedisRepository.deleteAll()
+        mealRedisRepository.saveAll(newMealEntities)
     }
 
     private fun convertToEntity(dto: MealServiceDietInfo): MealRedisEntity {

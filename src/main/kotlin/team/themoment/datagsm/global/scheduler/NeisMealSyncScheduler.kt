@@ -10,19 +10,31 @@ import java.time.LocalDate
 class NeisMealSyncScheduler(
     private val syncMealService: SyncMealService,
 ) {
-    @Scheduled(cron = "0 0 2 * * MON")
+    @Scheduled(cron = "0 0 2 * * *")
     fun syncMealData() {
         val today = LocalDate.now()
-        val nextMonth = today.plusMonths(1)
+        val nextYear = today.plusYears(1)
 
-        try {
-            syncMealService.execute(
-                fromDate = today,
-                toDate = nextMonth,
-            )
-            logger().info("Successfully synced meal data from $today to $nextMonth")
-        } catch (e: Exception) {
-            logger().error("Failed to sync meal data", e)
+        var retryCount = 0
+        val maxRetries = 3
+
+        while (retryCount < maxRetries) {
+            try {
+                syncMealService.execute(
+                    fromDate = today,
+                    toDate = nextYear,
+                )
+                logger().info("Successfully synced meal data from $today to $nextYear")
+                return
+            } catch (e: Exception) {
+                retryCount++
+                logger().error("Failed to sync meal data (attempt $retryCount/$maxRetries)", e)
+                if (retryCount < maxRetries) {
+                    Thread.sleep(5000L * retryCount)
+                }
+            }
         }
+
+        logger().error("Failed to sync meal data after $maxRetries attempts. Keeping existing data.")
     }
 }
