@@ -5,7 +5,7 @@ import org.springframework.data.redis.core.RedisHash
 import team.themoment.datagsm.domain.neis.meal.entity.constant.MealType
 import java.time.LocalDate
 
-@RedisHash(value = "Meal")
+@RedisHash(value = "meal", timeToLive = 2592000)
 data class MealRedisEntity(
     @Id
     val id: String,

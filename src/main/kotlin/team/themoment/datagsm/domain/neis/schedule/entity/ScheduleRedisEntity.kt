@@ -7,7 +7,7 @@ import java.time.LocalDate
 @RedisHash(value = "schedule", timeToLive = 2592000)
 data class ScheduleRedisEntity(
     @Id
-    val Id: String,
+    val id: String,
     val schoolCode: String,
     val schoolName: String,
     val officeCode: String,
