@@ -8,10 +8,10 @@ import dependency.DependencyVersions.KOTLIN_COROUTINES_VERSION
 import dependency.DependencyVersions.LOGBACK_AWS_APPENDER_VERSION
 import dependency.DependencyVersions.MOCKK_VERSION
 import dependency.DependencyVersions.PEANUT_BUTTER_VERSION
+import dependency.DependencyVersions.POI_VERSION
 import dependency.DependencyVersions.QUERY_DSL_VERSION
 import dependency.DependencyVersions.SPRING_CLOUD_VERSION
 import dependency.DependencyVersions.SWAGGER_VERSION
-import dependency.DependencyVersions.POI_VERSION
 
 object Dependencies {
     // Spring Starters
@@ -22,6 +22,7 @@ object Dependencies {
     const val SPRINT_MAIL = "org.springframework.boot:spring-boot-starter-mail"
     const val SPRING_OPENFEIGN = "org.springframework.cloud:spring-cloud-starter-openfeign"
     const val SPRING_AOP = "org.springframework.boot:spring-boot-starter-aop"
+    const val SPRING_RETRY = "org.springframework.retry:spring-retry"
 
     // JWT
     const val JJWT = "io.jsonwebtoken:jjwt-api:${JJWT_VERSION}"

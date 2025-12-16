@@ -29,6 +29,7 @@ import dependency.Dependencies.SPRING_DATA_REDIS
 import dependency.Dependencies.SPRING_DOCKER_SUPPORT
 import dependency.Dependencies.SPRING_OAUTH2_CLIENT
 import dependency.Dependencies.SPRING_OPENFEIGN
+import dependency.Dependencies.SPRING_RETRY
 import dependency.Dependencies.SPRING_SECURITY
 import dependency.Dependencies.SPRING_SECURITY_TEST
 import dependency.Dependencies.SPRING_TEST
@@ -74,6 +75,7 @@ dependencies {
     implementation(SPRINT_MAIL)
     implementation(SPRING_OPENFEIGN)
     implementation(SPRING_AOP)
+    implementation(SPRING_RETRY)
 
     // JWT
     implementation(JJWT)
