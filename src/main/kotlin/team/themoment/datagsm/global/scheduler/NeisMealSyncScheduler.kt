@@ -4,6 +4,7 @@ import com.github.snowykte0426.peanut.butter.logging.logger
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.domain.neis.meal.service.SyncMealService
+import team.themoment.datagsm.global.common.retry.RetryExecutor
 import java.time.LocalDate
 
 @Component
@@ -15,26 +16,16 @@ class NeisMealSyncScheduler(
         val today = LocalDate.now()
         val nextYear = today.plusYears(1)
 
-        var retryCount = 0
-        val maxRetries = 3
-
-        while (retryCount < maxRetries) {
-            try {
+        try {
+            RetryExecutor.executeWithRetry {
                 syncMealService.execute(
                     fromDate = today,
                     toDate = nextYear,
                 )
                 logger().info("Successfully synced meal data from $today to $nextYear")
-                return
-            } catch (e: Exception) {
-                retryCount++
-                logger().error("Failed to sync meal data (attempt $retryCount/$maxRetries)", e)
-                if (retryCount < maxRetries) {
-                    Thread.sleep(5000L * retryCount)
-                }
             }
+        } catch (e: Exception) {
+            logger().error("Failed to sync meal data after all retry attempts. Keeping existing data.", e)
         }
-
-        logger().error("Failed to sync meal data after $maxRetries attempts. Keeping existing data.")
     }
 }
