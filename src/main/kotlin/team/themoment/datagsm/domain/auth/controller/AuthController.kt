@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.domain.auth.dto.request.CreateApiKeyReqDto
 import team.themoment.datagsm.domain.auth.dto.request.ModifyApiKeyReqDto
 import team.themoment.datagsm.domain.auth.dto.request.OAuthCodeReqDto
@@ -22,6 +23,7 @@ import team.themoment.datagsm.domain.auth.dto.request.RefreshTokenReqDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyRenewableResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeySearchResDto
+import team.themoment.datagsm.domain.auth.dto.response.ApiScopeResDto
 import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
@@ -30,6 +32,7 @@ import team.themoment.datagsm.domain.auth.service.DeleteApiKeyService
 import team.themoment.datagsm.domain.auth.service.ModifyApiKeyService
 import team.themoment.datagsm.domain.auth.service.QueryApiKeyRenewableService
 import team.themoment.datagsm.domain.auth.service.QueryApiKeyService
+import team.themoment.datagsm.domain.auth.service.QueryApiScopeService
 import team.themoment.datagsm.domain.auth.service.ReissueTokenService
 import team.themoment.datagsm.domain.auth.service.SearchApiKeyService
 import team.themoment.datagsm.global.common.response.dto.response.CommonApiResponse
@@ -45,6 +48,7 @@ class AuthController(
     private val modifyApiKeyService: ModifyApiKeyService,
     private val queryApiKeyService: QueryApiKeyService,
     private val queryApiKeyRenewableService: QueryApiKeyRenewableService,
+    private val queryApiScopeService: QueryApiScopeService,
     private val reissueTokenService: ReissueTokenService,
     private val searchApiKeyService: SearchApiKeyService,
 ) {
@@ -169,4 +173,18 @@ class AuthController(
     @RequireScope(ApiScope.AUTH_MANAGE)
     @GetMapping("/api-key/renewable")
     fun checkApiKeyRenewable(): ApiKeyRenewableResDto = queryApiKeyRenewableService.execute()
+
+    @Operation(summary = "역할별 사용 가능한 API Scope 조회", description = "USER 또는 ADMIN 역할에서 사용 가능한 API Scope 목록을 조회합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "조회 성공"),
+        ],
+    )
+    @GetMapping("/scopes")
+    @RequireScope(ApiScope.AUTH_MANAGE)
+    fun getApiScopes(
+        @Parameter(description = "계정 역할 (USER 또는 ADMIN)", required = true)
+        @RequestParam
+        role: AccountRole,
+    ): List<ApiScopeResDto> = queryApiScopeService.execute(role)
 }
