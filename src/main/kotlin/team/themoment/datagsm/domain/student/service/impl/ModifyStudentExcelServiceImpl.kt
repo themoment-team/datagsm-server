@@ -42,12 +42,16 @@ class ModifyStudentExcelServiceImpl(
             )
         }
 
-        val duplicates = studentNumbers.groupingBy { it }.eachCount()
-            .filter { it.value > 1 }.keys
+        val duplicates =
+            studentNumbers
+                .groupingBy { it }
+                .eachCount()
+                .filter { it.value > 1 }
+                .keys
         if (duplicates.isNotEmpty()) {
             throw ExpectedException(
                 "엑셀 파일에 다음 학번이 중복으로 존재합니다: $duplicates",
-                HttpStatus.BAD_REQUEST
+                HttpStatus.BAD_REQUEST,
             )
         }
 
