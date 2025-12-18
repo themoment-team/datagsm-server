@@ -24,9 +24,11 @@ class QueryApiScopeGroupServiceImpl : QueryApiScopeGroupService {
                 scope.scope.substringBefore(':')
             }
         return grouped.map { (category, scopes) ->
-            val allScope = scopes.find { it.scope == "$category:*" }
+            val allScope =
+                scopes.find { it.scope == "$category:*" }
+                    ?: throw IllegalStateException("Category '$category' is missing a wildcard scope ('$category:*').")
             ApiScopeGroupResDto(
-                title = allScope?.scope!!,
+                title = allScope.scope,
                 description = allScope.description,
                 scopes =
                     scopes
