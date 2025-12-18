@@ -5,10 +5,10 @@ import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.domain.auth.dto.response.ApiScopeGroupResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiScopeResDto
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
-import team.themoment.datagsm.domain.auth.service.QueryApiScopeService
+import team.themoment.datagsm.domain.auth.service.QueryApiScopeGroupService
 
 @Service
-class QueryApiScopeServiceImpl : QueryApiScopeService {
+class QueryApiScopeGroupServiceImpl : QueryApiScopeGroupService {
     override fun execute(role: AccountRole): List<ApiScopeGroupResDto> {
         val filteredScopes =
             ApiScope.entries
@@ -26,8 +26,8 @@ class QueryApiScopeServiceImpl : QueryApiScopeService {
         return grouped.map { (category, scopes) ->
             val allScope = scopes.find { it.scope == "$category:*" }
             ApiScopeGroupResDto(
-                title = allScope?.scope ?: "$category:*",
-                description = allScope?.description ?: "$category 모든 권한",
+                title = allScope?.scope!!,
+                description = allScope.description,
                 scopes =
                     scopes
                         .filter { !it.scope.endsWith(":*") }

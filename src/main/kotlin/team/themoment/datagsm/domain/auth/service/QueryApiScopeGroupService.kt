@@ -1,7 +1,8 @@
 package team.themoment.datagsm.domain.auth.service
 
-import team.themoment.datagsm.domain.auth.dto.response.ApiScopeResDto
+import team.themoment.datagsm.domain.account.entity.constant.AccountRole
+import team.themoment.datagsm.domain.auth.dto.response.ApiScopeGroupResDto
 
 interface QueryApiScopeGroupService {
-    fun execute(scopeName: String): ApiScopeResDto
+    fun execute(role: AccountRole): List<ApiScopeGroupResDto>
 }

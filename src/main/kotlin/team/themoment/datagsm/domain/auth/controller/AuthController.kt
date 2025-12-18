@@ -33,8 +33,8 @@ import team.themoment.datagsm.domain.auth.service.DeleteApiKeyService
 import team.themoment.datagsm.domain.auth.service.ModifyApiKeyService
 import team.themoment.datagsm.domain.auth.service.QueryApiKeyRenewableService
 import team.themoment.datagsm.domain.auth.service.QueryApiKeyService
+import team.themoment.datagsm.domain.auth.service.QueryApiScopeByScopeNameService
 import team.themoment.datagsm.domain.auth.service.QueryApiScopeGroupService
-import team.themoment.datagsm.domain.auth.service.QueryApiScopeService
 import team.themoment.datagsm.domain.auth.service.ReissueTokenService
 import team.themoment.datagsm.domain.auth.service.SearchApiKeyService
 import team.themoment.datagsm.global.common.response.dto.response.CommonApiResponse
@@ -50,8 +50,8 @@ class AuthController(
     private val modifyApiKeyService: ModifyApiKeyService,
     private val queryApiKeyService: QueryApiKeyService,
     private val queryApiKeyRenewableService: QueryApiKeyRenewableService,
+    private val queryApiScopeByScopeNameService: QueryApiScopeByScopeNameService,
     private val queryApiScopeGroupService: QueryApiScopeGroupService,
-    private val queryApiScopeService: QueryApiScopeService,
     private val reissueTokenService: ReissueTokenService,
     private val searchApiKeyService: SearchApiKeyService,
 ) {
@@ -189,7 +189,7 @@ class AuthController(
         @Parameter(description = "계정 역할 (USER 또는 ADMIN)", required = true)
         @RequestParam
         role: AccountRole,
-    ): List<ApiScopeGroupResDto> = queryApiScopeService.execute(role)
+    ): List<ApiScopeGroupResDto> = queryApiScopeGroupService.execute(role)
 
     @Operation(summary = "API Scope 단건 조회", description = "특정 API Scope의 상세 정보를 조회합니다.")
     @ApiResponses(
@@ -204,5 +204,5 @@ class AuthController(
         @Parameter(description = "조회할 스코프 이름", example = "student:read", required = true)
         @org.springframework.web.bind.annotation.PathVariable
         scopeName: String,
-    ): ApiScopeResDto = queryApiScopeGroupService.execute(scopeName)
+    ): ApiScopeResDto = queryApiScopeByScopeNameService.execute(scopeName)
 }
