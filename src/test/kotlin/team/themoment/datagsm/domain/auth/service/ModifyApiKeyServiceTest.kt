@@ -345,7 +345,6 @@ class ModifyApiKeyServiceTest :
                     beforeEach {
                         every { mockScopeChecker.hasScope(mockAuthentication, "admin:apikey") } returns true
                         every { mockApiKeyEnvironment.adminExpirationDays } returns 365L
-                        every { mockApiKeyEnvironment.adminRenewalPeriodDays } returns 30L
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                         every { mockApiKeyRepository.save(apiKey) } returns apiKey
                     }
@@ -389,7 +388,6 @@ class ModifyApiKeyServiceTest :
 
                     beforeEach {
                         every { mockScopeChecker.hasScope(mockAuthentication, "admin:apikey") } returns true
-                        every { mockApiKeyEnvironment.adminRenewalPeriodDays } returns 30L
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                     }
 
