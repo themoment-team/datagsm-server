@@ -70,4 +70,10 @@ class ApiKey {
     }
 
     fun isExpired(): Boolean = LocalDateTime.now().isAfter(expiresAt)
+
+    fun canBeRenewed(renewalPeriodDays: Long): Boolean {
+        val now = LocalDateTime.now()
+        val renewalEndDate = expiresAt.plusDays(renewalPeriodDays)
+        return now.isBefore(renewalEndDate)
+    }
 }
