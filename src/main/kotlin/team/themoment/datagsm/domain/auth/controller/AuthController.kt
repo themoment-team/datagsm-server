@@ -24,7 +24,7 @@ import team.themoment.datagsm.domain.auth.dto.request.RefreshTokenReqDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyRenewableResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeySearchResDto
-import team.themoment.datagsm.domain.auth.dto.response.ApiScopeGroupResDto
+import team.themoment.datagsm.domain.auth.dto.response.ApiScopeGroupListResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiScopeResDto
 import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
@@ -190,7 +190,7 @@ class AuthController(
         @Parameter(description = "계정 역할 (USER 또는 ADMIN)", required = true)
         @RequestParam
         role: AccountRole,
-    ): List<ApiScopeGroupResDto> = queryApiScopeGroupService.execute(role)
+    ): ApiScopeGroupListResDto = queryApiScopeGroupService.execute(role)
 
     @Operation(summary = "API Scope 단건 조회", description = "특정 API Scope의 상세 정보를 조회합니다.")
     @ApiResponses(
