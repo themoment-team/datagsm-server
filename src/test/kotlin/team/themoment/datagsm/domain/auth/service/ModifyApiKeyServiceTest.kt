@@ -148,6 +148,7 @@ class ModifyApiKeyServiceTest :
                             createdAt = now.minusDays(20)
                             updatedAt = now.minusDays(20)
                             this.expiresAt = expiresAt
+                            updateScopes(setOf("student:read", "club:read"))
                         }
 
                     beforeEach {
@@ -186,6 +187,7 @@ class ModifyApiKeyServiceTest :
                             createdAt = now.minusDays(35)
                             updatedAt = now.minusDays(35)
                             this.expiresAt = expiresAt
+                            updateScopes(setOf("project:read"))
                         }
 
                     beforeEach {
@@ -258,6 +260,7 @@ class ModifyApiKeyServiceTest :
                             createdAt = now.minusDays(20)
                             updatedAt = now.minusDays(20)
                             this.expiresAt = expiresAt
+                            updateScopes(setOf("student:read"))
                         }
 
                     beforeEach {
@@ -271,7 +274,7 @@ class ModifyApiKeyServiceTest :
                             }
 
                         exception.statusCode.value() shouldBe 400
-                        exception.message shouldBe "일반 사용자는 READ scope만 사용 가능합니다. 사용 불가능한 scope: student:write"
+                        exception.message shouldBe "요청한 권한 범위가 유효하지 않습니다."
 
                         verify(exactly = 0) { mockApiKeyRepository.save(any()) }
                         verify(exactly = 0) { mockApiKeyRepository.delete(any()) }
@@ -294,6 +297,7 @@ class ModifyApiKeyServiceTest :
                             createdAt = now.minusDays(20)
                             updatedAt = now.minusDays(20)
                             this.expiresAt = expiresAt
+                            updateScopes(setOf("project:read"))
                         }
 
                     beforeEach {
@@ -307,7 +311,7 @@ class ModifyApiKeyServiceTest :
                             }
 
                         exception.statusCode.value() shouldBe 400
-                        exception.message shouldBe "일반 사용자는 READ scope만 사용 가능합니다. 사용 불가능한 scope: project:*"
+                        exception.message shouldBe "요청한 권한 범위가 유효하지 않습니다."
 
                         verify(exactly = 0) { mockApiKeyRepository.save(any()) }
                         verify(exactly = 0) { mockApiKeyRepository.delete(any()) }
@@ -340,6 +344,17 @@ class ModifyApiKeyServiceTest :
                             createdAt = now.minusDays(345)
                             updatedAt = now.minusDays(345)
                             this.expiresAt = expiresAt
+                            updateScopes(
+                                setOf(
+                                    "student:read",
+                                    "student:write",
+                                    "club:read",
+                                    "club:write",
+                                    "project:read",
+                                    "project:write",
+                                    "admin:excel",
+                                ),
+                            )
                         }
 
                     beforeEach {
@@ -384,6 +399,7 @@ class ModifyApiKeyServiceTest :
                             createdAt = now.minusDays(355)
                             updatedAt = now.minusDays(355)
                             this.expiresAt = expiresAt
+                            updateScopes(setOf("student:read"))
                         }
 
                     beforeEach {
@@ -398,7 +414,7 @@ class ModifyApiKeyServiceTest :
                             }
 
                         exception.statusCode.value() shouldBe 400
-                        exception.message shouldBe "유효하지 않은 scope입니다: invalid:scope"
+                        exception.message shouldBe "요청한 권한 범위가 유효하지 않습니다."
 
                         verify(exactly = 0) { mockApiKeyRepository.save(any()) }
                         verify(exactly = 0) { mockApiKeyRepository.delete(any()) }
