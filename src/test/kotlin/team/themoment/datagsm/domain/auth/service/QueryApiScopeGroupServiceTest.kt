@@ -20,13 +20,21 @@ class QueryApiScopeGroupServiceTest :
                     it("USER가 사용 가능한 스코프만 카테고리별로 그룹핑하여 반환한다") {
                         val result = queryApiScopeGroupService.execute(AccountRole.USER)
 
-                        result.data shouldHaveSize 4 // student, club, project, neis
+                        result.data shouldHaveSize 4
 
                         val studentGroup = result.data.find { it.title == "student:*" }
                         studentGroup shouldNotBe null
-                        studentGroup!!.description shouldBe "학생 정보 모든 권한"
+                        studentGroup!!.description shouldBe "student 모든 권한"
                         studentGroup.scopes shouldHaveSize 1
                         studentGroup.scopes[0].scope shouldBe "student:read"
+                    }
+
+                    it("와일드카드 스코프는 scopes 리스트에 포함되지 않는다") {
+                        val result = queryApiScopeGroupService.execute(AccountRole.USER)
+
+                        result.data.forEach { group ->
+                            group.scopes.none { it.scope.endsWith(":*") } shouldBe true
+                        }
                     }
 
                     it("auth:manage 스코프는 포함되지 않는다") {
@@ -45,7 +53,8 @@ class QueryApiScopeGroupServiceTest :
 
                         val adminGroup = result.data.find { it.title == "admin:*" }
                         adminGroup shouldNotBe null
-                        adminGroup!!.scopes shouldHaveSize 2 // admin:apikey, admin:excel
+                        adminGroup!!.description shouldBe "admin 모든 권한"
+                        adminGroup.scopes shouldHaveSize 2
                     }
 
                     it("student 그룹에는 read와 write 스코프가 포함된다") {
@@ -57,7 +66,7 @@ class QueryApiScopeGroupServiceTest :
                         studentGroup.scopes.map { it.scope } shouldContainAll listOf("student:read", "student:write")
                     }
 
-                    it("각 카테고리의 *:* 스코프는 scopes 리스트에서 제외된다") {
+                    it("와일드카드 스코프는 scopes 리스트에서 제외된다") {
                         val result = queryApiScopeGroupService.execute(AccountRole.ADMIN)
 
                         result.data.forEach { group ->

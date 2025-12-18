@@ -26,12 +26,9 @@ class QueryApiScopeGroupServiceImpl : QueryApiScopeGroupService {
         return ApiScopeGroupListResDto(
             data =
                 grouped.map { (category, scopes) ->
-                    val allScope =
-                        scopes.find { it.scope == "$category:*" }
-                            ?: throw IllegalStateException("Category '$category' is missing a wildcard scope ('$category:*').")
                     ApiScopeGroupListResDto.ApiScopeGroupResDto(
-                        title = allScope.scope,
-                        description = allScope.description,
+                        title = "$category:*",
+                        description = "$category 모든 권한",
                         scopes =
                             scopes
                                 .filter { !it.scope.endsWith(":*") }
