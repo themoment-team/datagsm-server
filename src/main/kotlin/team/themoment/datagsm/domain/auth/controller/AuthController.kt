@@ -23,7 +23,7 @@ import team.themoment.datagsm.domain.auth.dto.request.RefreshTokenReqDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyRenewableResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeySearchResDto
-import team.themoment.datagsm.domain.auth.dto.response.ApiScopeResDto
+import team.themoment.datagsm.domain.auth.dto.response.ApiScopeGroupResDto
 import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
@@ -174,7 +174,7 @@ class AuthController(
     @GetMapping("/api-key/renewable")
     fun checkApiKeyRenewable(): ApiKeyRenewableResDto = queryApiKeyRenewableService.execute()
 
-    @Operation(summary = "역할별 사용 가능한 API Scope 조회", description = "USER 또는 ADMIN 역할에서 사용 가능한 API Scope 목록을 조회합니다.")
+    @Operation(summary = "역할별 사용 가능한 API Scope 조회", description = "USER 또는 ADMIN 역할에서 사용 가능한 API Scope 목록을 카테고리별로 그룹핑하여 조회합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
@@ -186,5 +186,5 @@ class AuthController(
         @Parameter(description = "계정 역할 (USER 또는 ADMIN)", required = true)
         @RequestParam
         role: AccountRole,
-    ): List<ApiScopeResDto> = queryApiScopeService.execute(role)
+    ): List<ApiScopeGroupResDto> = queryApiScopeService.execute(role)
 }
