@@ -65,7 +65,7 @@ class ModifyApiKeyServiceImpl(
         val now = LocalDateTime.now()
         val expirationDays = if (isAdmin) apiKeyEnvironment.adminExpirationDays else apiKeyEnvironment.expirationDays
         val expiresAt = now.plusDays(expirationDays)
-        val isScopeChanged = apiKey.scopes != reqDto.scopes.toSet()
+        val isScopeChanged = apiKey.scopes != reqDto.scopes
         val oldValue = apiKey.value
         apiKey.apply {
             updatedAt = now
