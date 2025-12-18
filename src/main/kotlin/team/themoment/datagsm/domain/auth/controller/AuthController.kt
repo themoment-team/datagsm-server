@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -202,7 +203,7 @@ class AuthController(
     @RequireScope(ApiScope.AUTH_MANAGE)
     fun getApiScope(
         @Parameter(description = "조회할 스코프 이름", example = "student:read", required = true)
-        @org.springframework.web.bind.annotation.PathVariable
+        @PathVariable
         scopeName: String,
     ): ApiScopeResDto = queryApiScopeByScopeNameService.execute(scopeName)
 }
