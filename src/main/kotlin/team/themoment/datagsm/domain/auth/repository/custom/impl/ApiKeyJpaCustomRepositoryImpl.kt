@@ -41,17 +41,9 @@ class ApiKeyJpaCustomRepositoryImpl(
                     },
                     isRenewable?.let {
                         if (it) {
-                            apiKey.expiresAt
-                                .between(
-                                    now.minusDays(renewalPeriodDays),
-                                    now.plusDays(renewalPeriodDays),
-                                )
+                            apiKey.expiresAt.after(now.minusDays(renewalPeriodDays))
                         } else {
-                            apiKey.expiresAt
-                                .notBetween(
-                                    now.minusDays(renewalPeriodDays),
-                                    now.plusDays(renewalPeriodDays),
-                                )
+                            apiKey.expiresAt.before(now.minusDays(renewalPeriodDays))
                         }
                     },
                 ).offset(pageable.offset)
@@ -71,17 +63,9 @@ class ApiKeyJpaCustomRepositoryImpl(
                     },
                     isRenewable?.let {
                         if (it) {
-                            apiKey.expiresAt
-                                .between(
-                                    now.minusDays(renewalPeriodDays),
-                                    now.plusDays(renewalPeriodDays),
-                                )
+                            apiKey.expiresAt.after(now.minusDays(renewalPeriodDays))
                         } else {
-                            apiKey.expiresAt
-                                .notBetween(
-                                    now.minusDays(renewalPeriodDays),
-                                    now.plusDays(renewalPeriodDays),
-                                )
+                            apiKey.expiresAt.before(now.minusDays(renewalPeriodDays))
                         }
                     },
                 )
