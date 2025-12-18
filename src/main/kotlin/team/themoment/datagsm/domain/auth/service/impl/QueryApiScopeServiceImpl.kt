@@ -19,19 +19,15 @@ class QueryApiScopeServiceImpl : QueryApiScopeService {
                         else -> false
                     }
                 }
-
-        // 카테고리별로 그룹핑
         val grouped =
             filteredScopes.groupBy { scope ->
                 scope.scope.substringBefore(':')
             }
-
         return grouped.map { (category, scopes) ->
             val allScope = scopes.find { it.scope == "$category:*" }
-
             ApiScopeGroupResDto(
                 title = allScope?.scope ?: "$category:*",
-                description = allScope?.description ?: "${category} 모든 권한",
+                description = allScope?.description ?: "$category 모든 권한",
                 scopes =
                     scopes
                         .filter { !it.scope.endsWith(":*") }

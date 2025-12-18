@@ -24,6 +24,7 @@ import team.themoment.datagsm.domain.auth.dto.response.ApiKeyRenewableResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeySearchResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiScopeGroupResDto
+import team.themoment.datagsm.domain.auth.dto.response.ApiScopeResDto
 import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
@@ -32,6 +33,7 @@ import team.themoment.datagsm.domain.auth.service.DeleteApiKeyService
 import team.themoment.datagsm.domain.auth.service.ModifyApiKeyService
 import team.themoment.datagsm.domain.auth.service.QueryApiKeyRenewableService
 import team.themoment.datagsm.domain.auth.service.QueryApiKeyService
+import team.themoment.datagsm.domain.auth.service.QueryApiScopeGroupService
 import team.themoment.datagsm.domain.auth.service.QueryApiScopeService
 import team.themoment.datagsm.domain.auth.service.ReissueTokenService
 import team.themoment.datagsm.domain.auth.service.SearchApiKeyService
@@ -48,6 +50,7 @@ class AuthController(
     private val modifyApiKeyService: ModifyApiKeyService,
     private val queryApiKeyService: QueryApiKeyService,
     private val queryApiKeyRenewableService: QueryApiKeyRenewableService,
+    private val queryApiScopeGroupService: QueryApiScopeGroupService,
     private val queryApiScopeService: QueryApiScopeService,
     private val reissueTokenService: ReissueTokenService,
     private val searchApiKeyService: SearchApiKeyService,
@@ -187,4 +190,19 @@ class AuthController(
         @RequestParam
         role: AccountRole,
     ): List<ApiScopeGroupResDto> = queryApiScopeService.execute(role)
+
+    @Operation(summary = "API Scope 단건 조회", description = "특정 API Scope의 상세 정보를 조회합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "조회 성공"),
+            ApiResponse(responseCode = "404", description = "존재하지 않는 스코프", content = [Content()]),
+        ],
+    )
+    @GetMapping("/scopes/{scopeName}")
+    @RequireScope(ApiScope.AUTH_MANAGE)
+    fun getApiScope(
+        @Parameter(description = "조회할 스코프 이름", example = "student:read", required = true)
+        @org.springframework.web.bind.annotation.PathVariable
+        scopeName: String,
+    ): ApiScopeResDto = queryApiScopeGroupService.execute(scopeName)
 }
