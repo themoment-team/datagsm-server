@@ -35,6 +35,15 @@ class ModifyApiKeyServiceImpl(
                     ExpectedException("API 키를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
                 }
 
+        val renewalPeriodDays = apiKeyEnvironment.renewalPeriodDays
+        if (!apiKey.canBeRenewed(renewalPeriodDays)) {
+            apiKeyJpaRepository.delete(apiKey)
+            throw ExpectedException(
+                "API 키 갱신 기간이 지났습니다. 해당 API 키는 삭제되었습니다.",
+                HttpStatus.GONE,
+            )
+        }
+
         val authentication = SecurityContextHolder.getContext().authentication
         val isAdmin =
             scopeChecker.hasScope(
