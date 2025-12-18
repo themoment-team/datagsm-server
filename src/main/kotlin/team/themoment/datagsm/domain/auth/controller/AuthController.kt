@@ -21,7 +21,6 @@ import team.themoment.datagsm.domain.auth.dto.request.CreateApiKeyReqDto
 import team.themoment.datagsm.domain.auth.dto.request.ModifyApiKeyReqDto
 import team.themoment.datagsm.domain.auth.dto.request.OAuthCodeReqDto
 import team.themoment.datagsm.domain.auth.dto.request.RefreshTokenReqDto
-import team.themoment.datagsm.domain.auth.dto.response.ApiKeyRenewableResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeySearchResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiScopeGroupListResDto
@@ -32,7 +31,6 @@ import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
 import team.themoment.datagsm.domain.auth.service.CreateApiKeyService
 import team.themoment.datagsm.domain.auth.service.DeleteApiKeyService
 import team.themoment.datagsm.domain.auth.service.ModifyApiKeyService
-import team.themoment.datagsm.domain.auth.service.QueryApiKeyRenewableService
 import team.themoment.datagsm.domain.auth.service.QueryApiKeyService
 import team.themoment.datagsm.domain.auth.service.QueryApiScopeByScopeNameService
 import team.themoment.datagsm.domain.auth.service.QueryApiScopeGroupService
@@ -50,7 +48,6 @@ class AuthController(
     private val deleteApiKeyService: DeleteApiKeyService,
     private val modifyApiKeyService: ModifyApiKeyService,
     private val queryApiKeyService: QueryApiKeyService,
-    private val queryApiKeyRenewableService: QueryApiKeyRenewableService,
     private val queryApiScopeByScopeNameService: QueryApiScopeByScopeNameService,
     private val queryApiScopeGroupService: QueryApiScopeGroupService,
     private val reissueTokenService: ReissueTokenService,
@@ -165,18 +162,6 @@ class AuthController(
             page,
             size,
         )
-
-    @Operation(summary = "API 키 갱신 가능 여부 조회", description = "현재 API 키가 갱신 가능한지 확인합니다.")
-    @ApiResponses(
-        value = [
-            ApiResponse(responseCode = "200", description = "조회 성공"),
-            ApiResponse(responseCode = "400", description = "학생 정보 없음", content = [Content()]),
-            ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
-        ],
-    )
-    @RequireScope(ApiScope.AUTH_MANAGE)
-    @GetMapping("/api-key/renewable")
-    fun checkApiKeyRenewable(): ApiKeyRenewableResDto = queryApiKeyRenewableService.execute()
 
     @Operation(summary = "역할별 사용 가능한 API Scope 조회", description = "USER 또는 ADMIN 역할에서 사용 가능한 API Scope 목록을 카테고리별로 그룹핑하여 조회합니다.")
     @ApiResponses(
