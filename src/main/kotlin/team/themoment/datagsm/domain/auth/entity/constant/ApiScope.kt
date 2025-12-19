@@ -70,15 +70,13 @@ enum class ApiScope(
         fun getScopesByRole(role: AccountRole): List<ApiScope> =
             entries.filter { scope ->
                 when (role) {
-                    AccountRole.ADMIN -> scope.accountRole == AccountRole.USER || scope.accountRole == AccountRole.ADMIN
+                    AccountRole.ADMIN -> scope.accountRole in setOf(AccountRole.USER, AccountRole.ADMIN)
                     AccountRole.USER -> scope.accountRole == AccountRole.USER
                     else -> false
                 }
             }
 
         fun groupByCategory(scopes: List<ApiScope>): Map<String, List<ApiScope>> =
-            scopes
-                .filter { it.accountRole != null }
-                .groupBy { it.categoryDisplayName }
+            scopes.groupBy { it.categoryDisplayName }
     }
 }
