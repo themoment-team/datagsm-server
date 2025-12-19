@@ -28,14 +28,14 @@ class QueryApiScopeGroupServiceTest :
                         studentGroup.scopes[0].scope shouldBe "student:read"
                     }
 
-                    it("와일드카드 스코프는 scopes 리스트에 포함된다") {
+                    it("USER는 와일드카드 스코프를 갖지 않는다") {
                         val result = queryApiScopeGroupService.execute(AccountRole.USER)
 
                         val hasWildcardScope =
                             result.data.any { group ->
                                 group.scopes.any { it.scope.endsWith(":*") }
                             }
-                        hasWildcardScope shouldBe false // USER는 와일드카드 스코프가 없음
+                        hasWildcardScope shouldBe false
                     }
 
                     it("auth:manage 스코프는 포함되지 않는다") {
