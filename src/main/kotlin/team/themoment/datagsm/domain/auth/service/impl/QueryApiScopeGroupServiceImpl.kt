@@ -5,7 +5,6 @@ import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.domain.auth.dto.response.ApiScopeGroupListResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiScopeResDto
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
-import team.themoment.datagsm.domain.auth.entity.constant.ApiScopeCategory
 import team.themoment.datagsm.domain.auth.service.QueryApiScopeGroupService
 
 @Service
@@ -14,7 +13,7 @@ class QueryApiScopeGroupServiceImpl : QueryApiScopeGroupService {
         val filteredScopes =
             ApiScope.entries
                 .filter { scope ->
-                    scope.category != null &&
+                    scope.categoryName != null &&
                         when (role) {
                             AccountRole.ADMIN -> scope.accountRole == AccountRole.USER || scope.accountRole == AccountRole.ADMIN
                             AccountRole.USER -> scope.accountRole == AccountRole.USER
@@ -22,13 +21,13 @@ class QueryApiScopeGroupServiceImpl : QueryApiScopeGroupService {
                         }
                 }
 
-        val grouped = filteredScopes.groupBy { it.category!! }
+        val grouped = filteredScopes.groupBy { it.categoryName!! }
 
         return ApiScopeGroupListResDto(
             data =
-                grouped.map { (category, scopes) ->
+                grouped.map { (categoryName, scopes) ->
                     ApiScopeGroupListResDto.ApiScopeGroupResDto(
-                        title = category.displayName,
+                        title = categoryName,
                         scopes = scopes.map { ApiScopeResDto(it.scope, it.description) },
                     )
                 },
