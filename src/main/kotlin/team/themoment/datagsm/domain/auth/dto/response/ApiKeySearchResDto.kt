@@ -8,5 +8,5 @@ data class ApiKeySearchResDto(
     @param:Schema(description = "전체 API 키 수", example = "20")
     val totalElements: Long,
     @param:Schema(description = "API 키 목록")
-    val apiKeys: List<MaskedApiKeyResDto>,
+    val apiKeys: List<ApiKeyResDto>,
 )

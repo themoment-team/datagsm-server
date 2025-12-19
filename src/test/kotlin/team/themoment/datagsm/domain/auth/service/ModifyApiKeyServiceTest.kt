@@ -159,7 +159,7 @@ class ModifyApiKeyServiceTest :
                     it("기존 API 키를 유지하고 만료일자 및 scope를 갱신해야 한다") {
                         val result = modifyApiKeyService.execute(reqDto)
 
-                        result.apiKey shouldBe oldApiKeyValue
+                        result.apiKey shouldBe oldApiKeyValue.toString()
                         result.expiresAt shouldNotBe null
                         result.scopes shouldBe reqDto.scopes
                         result.description shouldBe reqDto.description
@@ -198,7 +198,7 @@ class ModifyApiKeyServiceTest :
                     it("기존 API 키를 유지하고 만료일자 및 scope를 갱신해야 한다") {
                         val result = modifyApiKeyService.execute(reqDto)
 
-                        result.apiKey shouldBe oldApiKeyValue
+                        result.apiKey shouldBe oldApiKeyValue.toString()
                         apiKey.value shouldBe oldApiKeyValue
                         apiKey.expiresAt shouldNotBe expiresAt
 
@@ -369,7 +369,7 @@ class ModifyApiKeyServiceTest :
                         val result = modifyApiKeyService.execute(reqDto)
                         val afterExecution = LocalDateTime.now()
 
-                        result.apiKey shouldBe oldApiKeyValue
+                        result.apiKey shouldBe oldApiKeyValue.toString()
                         result.scopes shouldBe reqDto.scopes
                         result.description shouldBe reqDto.description
 

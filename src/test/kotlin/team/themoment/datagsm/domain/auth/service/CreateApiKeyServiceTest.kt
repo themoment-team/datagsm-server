@@ -87,6 +87,8 @@ class CreateApiKeyServiceTest :
                         val result = createApiKeyService.execute(reqDto)
 
                         result.apiKey shouldNotBe null
+                        result.apiKey.isNotEmpty() shouldBe true
+                        UUID.fromString(result.apiKey) shouldNotBe null // UUID 형식 검증
                         result.expiresAt shouldNotBe null
                         result.scopes shouldBe reqDto.scopes
                         result.description shouldBe reqDto.description
@@ -297,6 +299,8 @@ class CreateApiKeyServiceTest :
                         val afterExecution = LocalDateTime.now()
 
                         result.apiKey shouldNotBe null
+                        result.apiKey.isNotEmpty() shouldBe true
+                        UUID.fromString(result.apiKey) shouldNotBe null // UUID 형식 검증
                         result.scopes shouldBe reqDto.scopes
                         result.description shouldBe reqDto.description
 

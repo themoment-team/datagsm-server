@@ -25,7 +25,6 @@ import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeySearchResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiScopeGroupListResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiScopeResDto
-import team.themoment.datagsm.domain.auth.dto.response.MaskedApiKeyResDto
 import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
@@ -135,7 +134,7 @@ class AuthController(
     )
     @RequireScope(ApiScope.AUTH_MANAGE)
     @GetMapping("/api-key")
-    fun getApiKey(): MaskedApiKeyResDto = queryApiKeyService.execute()
+    fun getApiKey(): ApiKeyResDto = queryApiKeyService.execute()
 
     @Operation(summary = "API 키 검색", description = "필터 조건에 맞는 API 키를 검색합니다. API 키는 마스킹되어 반환됩니다.")
     @ApiResponses(

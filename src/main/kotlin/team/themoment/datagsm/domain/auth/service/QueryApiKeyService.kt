@@ -1,7 +1,7 @@
 package team.themoment.datagsm.domain.auth.service
 
-import team.themoment.datagsm.domain.auth.dto.response.MaskedApiKeyResDto
+import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 
 interface QueryApiKeyService {
-    fun execute(): MaskedApiKeyResDto
+    fun execute(): ApiKeyResDto
 }
