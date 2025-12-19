@@ -25,6 +25,7 @@ import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeySearchResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiScopeGroupListResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiScopeResDto
+import team.themoment.datagsm.domain.auth.dto.response.MaskedApiKeyResDto
 import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
@@ -124,7 +125,7 @@ class AuthController(
         return CommonApiResponse.success("API 키가 삭제되었습니다.")
     }
 
-    @Operation(summary = "API 키 조회", description = "현재 로그인한 사용자의 API 키를 조회합니다.")
+    @Operation(summary = "API 키 조회", description = "현재 로그인한 사용자의 API 키를 조회합니다. API 키는 마스킹되어 반환됩니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "API 키 조회 성공"),
@@ -134,7 +135,7 @@ class AuthController(
     )
     @RequireScope(ApiScope.AUTH_MANAGE)
     @GetMapping("/api-key")
-    fun getApiKey(): ApiKeyResDto = queryApiKeyService.execute()
+    fun getApiKey(): MaskedApiKeyResDto = queryApiKeyService.execute()
 
     @Operation(summary = "API 키 검색", description = "필터 조건에 맞는 API 키를 검색합니다. API 키는 마스킹되어 반환됩니다.")
     @ApiResponses(
