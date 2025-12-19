@@ -76,7 +76,6 @@ enum class ApiScope(
                 }
             }
 
-        fun groupByCategory(scopes: List<ApiScope>): Map<String, List<ApiScope>> =
-            scopes.groupBy { it.categoryDisplayName }
+        fun groupByCategory(scopes: List<ApiScope>): Map<String, List<ApiScope>> = scopes.groupBy { it.categoryDisplayName }
     }
 }
