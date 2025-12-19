@@ -20,14 +20,14 @@ class QueryApiScopeByScopeNameServiceTest :
                         val result = queryApiScopeByScopeNameService.execute("student:read")
 
                         result.scope shouldBe "student:read"
-                        result.description shouldBe "학생 정보 조회"
+                        result.description shouldBe "학생 데이터 조회"
                     }
 
                     it("와일드카드 스코프도 조회할 수 있다") {
                         val result = queryApiScopeByScopeNameService.execute("student:*")
 
                         result.scope shouldBe "student:*"
-                        result.description shouldBe "학생 정보 모든 권한"
+                        result.description shouldBe "학생 데이터 모든 권한"
                     }
 
                     it("admin 스코프도 조회할 수 있다") {
