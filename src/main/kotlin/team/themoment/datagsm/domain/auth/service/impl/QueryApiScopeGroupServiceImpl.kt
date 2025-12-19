@@ -10,29 +10,15 @@ import team.themoment.datagsm.domain.auth.service.QueryApiScopeGroupService
 @Service
 class QueryApiScopeGroupServiceImpl : QueryApiScopeGroupService {
     override fun execute(role: AccountRole): ApiScopeGroupListResDto {
-        val filteredScopes =
-            ApiScope.entries
-                .filter {
-                    when (role) {
-                        AccountRole.ADMIN -> it.accountRole == AccountRole.USER || it.accountRole == AccountRole.ADMIN
-                        AccountRole.USER -> it.accountRole == AccountRole.USER
-                        else -> false
-                    }
-                }
-        val grouped =
-            filteredScopes.groupBy { scope ->
-                scope.scope.substringBefore(':')
-            }
+        val scopesByRole = ApiScope.getScopesByRole(role)
+        val grouped = ApiScope.groupByCategory(scopesByRole)
+
         return ApiScopeGroupListResDto(
             data =
-                grouped.map { (category, scopes) ->
+                grouped.map { (categoryDisplayName, scopes) ->
                     ApiScopeGroupListResDto.ApiScopeGroupResDto(
-                        title = "$category:*",
-                        description = "$category 모든 권한",
-                        scopes =
-                            scopes
-                                .filter { !it.scope.endsWith(":*") }
-                                .map { ApiScopeResDto(it.scope, it.description) },
+                        title = categoryDisplayName,
+                        scopes = scopes.map { ApiScopeResDto(it.scope, it.description) },
                     )
                 },
         )
