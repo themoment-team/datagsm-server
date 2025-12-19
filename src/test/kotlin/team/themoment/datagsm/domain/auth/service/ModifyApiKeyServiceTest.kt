@@ -93,43 +93,6 @@ class ModifyApiKeyServiceTest :
                     }
                 }
 
-                context("갱신 기간 이전일 때") {
-                    val reqDto =
-                        ModifyApiKeyReqDto(
-                            scopes = setOf("student:read"),
-                            description = "갱신 테스트",
-                        )
-                    val now = LocalDateTime.now()
-                    val expiresAt = now.plusDays(20)
-                    val apiKey =
-                        ApiKey().apply {
-                            id = 1L
-                            value = UUID.randomUUID()
-                            account = mockAccount
-                            createdAt = now.minusDays(10)
-                            updatedAt = now.minusDays(10)
-                            this.expiresAt = expiresAt
-                        }
-
-                    beforeEach {
-                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
-                    }
-
-                    it("ExpectedException이 발생해야 한다") {
-                        val exception =
-                            shouldThrow<ExpectedException> {
-                                modifyApiKeyService.execute(reqDto)
-                            }
-
-                        exception.statusCode.value() shouldBe 400
-                        exception.message shouldBe "API 키 갱신 기간이 아닙니다. 만료 15일 전부터 만료 15일 후까지만 갱신 가능합니다."
-
-                        verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
-                        verify(exactly = 0) { mockApiKeyRepository.save(any()) }
-                        verify(exactly = 0) { mockApiKeyRepository.delete(any()) }
-                    }
-                }
-
                 context("갱신 기간이 지났을 때") {
                     val reqDto =
                         ModifyApiKeyReqDto(
@@ -185,6 +148,7 @@ class ModifyApiKeyServiceTest :
                             createdAt = now.minusDays(20)
                             updatedAt = now.minusDays(20)
                             this.expiresAt = expiresAt
+                            updateScopes(setOf("student:read", "club:read"))
                         }
 
                     beforeEach {
@@ -223,6 +187,7 @@ class ModifyApiKeyServiceTest :
                             createdAt = now.minusDays(35)
                             updatedAt = now.minusDays(35)
                             this.expiresAt = expiresAt
+                            updateScopes(setOf("project:read"))
                         }
 
                     beforeEach {
@@ -238,39 +203,6 @@ class ModifyApiKeyServiceTest :
                         apiKey.expiresAt shouldNotBe expiresAt
 
                         verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
-                        verify(exactly = 1) { mockApiKeyRepository.save(apiKey) }
-                        verify(exactly = 0) { mockApiKeyRepository.delete(any()) }
-                    }
-                }
-
-                context("갱신 기간 경계값 테스트 - 정확히 만료 15일 전") {
-                    val reqDto =
-                        ModifyApiKeyReqDto(
-                            scopes = setOf("student:read"),
-                            description = "경계값 테스트",
-                        )
-                    val now = LocalDateTime.now()
-                    val expiresAt = now.plusDays(15)
-                    val apiKey =
-                        ApiKey().apply {
-                            id = 1L
-                            value = UUID.randomUUID()
-                            account = mockAccount
-                            createdAt = now.minusDays(15)
-                            updatedAt = now.minusDays(15)
-                            this.expiresAt = expiresAt
-                        }
-
-                    beforeEach {
-                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
-                        every { mockApiKeyRepository.save(apiKey) } returns apiKey
-                    }
-
-                    it("갱신이 가능해야 한다") {
-                        val result = modifyApiKeyService.execute(reqDto)
-
-                        result.apiKey shouldNotBe null
-
                         verify(exactly = 1) { mockApiKeyRepository.save(apiKey) }
                         verify(exactly = 0) { mockApiKeyRepository.delete(any()) }
                     }
@@ -328,6 +260,7 @@ class ModifyApiKeyServiceTest :
                             createdAt = now.minusDays(20)
                             updatedAt = now.minusDays(20)
                             this.expiresAt = expiresAt
+                            updateScopes(setOf("student:read"))
                         }
 
                     beforeEach {
@@ -341,7 +274,7 @@ class ModifyApiKeyServiceTest :
                             }
 
                         exception.statusCode.value() shouldBe 400
-                        exception.message shouldBe "일반 사용자는 READ scope만 사용 가능합니다. 사용 불가능한 scope: student:write"
+                        exception.message shouldBe "요청한 권한 범위가 유효하지 않습니다."
 
                         verify(exactly = 0) { mockApiKeyRepository.save(any()) }
                         verify(exactly = 0) { mockApiKeyRepository.delete(any()) }
@@ -364,6 +297,7 @@ class ModifyApiKeyServiceTest :
                             createdAt = now.minusDays(20)
                             updatedAt = now.minusDays(20)
                             this.expiresAt = expiresAt
+                            updateScopes(setOf("project:read"))
                         }
 
                     beforeEach {
@@ -377,7 +311,7 @@ class ModifyApiKeyServiceTest :
                             }
 
                         exception.statusCode.value() shouldBe 400
-                        exception.message shouldBe "일반 사용자는 READ scope만 사용 가능합니다. 사용 불가능한 scope: project:*"
+                        exception.message shouldBe "요청한 권한 범위가 유효하지 않습니다."
 
                         verify(exactly = 0) { mockApiKeyRepository.save(any()) }
                         verify(exactly = 0) { mockApiKeyRepository.delete(any()) }
@@ -410,12 +344,22 @@ class ModifyApiKeyServiceTest :
                             createdAt = now.minusDays(345)
                             updatedAt = now.minusDays(345)
                             this.expiresAt = expiresAt
+                            updateScopes(
+                                setOf(
+                                    "student:read",
+                                    "student:write",
+                                    "club:read",
+                                    "club:write",
+                                    "project:read",
+                                    "project:write",
+                                    "admin:excel",
+                                ),
+                            )
                         }
 
                     beforeEach {
                         every { mockScopeChecker.hasScope(mockAuthentication, "admin:apikey") } returns true
                         every { mockApiKeyEnvironment.adminExpirationDays } returns 365L
-                        every { mockApiKeyEnvironment.adminRenewalPeriodDays } returns 30L
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                         every { mockApiKeyRepository.save(apiKey) } returns apiKey
                     }
@@ -439,44 +383,6 @@ class ModifyApiKeyServiceTest :
                     }
                 }
 
-                context("Admin 사용자가 갱신 기간 외에 갱신을 시도할 때 (만료 40일 전)") {
-                    val reqDto =
-                        ModifyApiKeyReqDto(
-                            scopes = setOf("student:read"),
-                            description = "테스트",
-                        )
-                    val now = LocalDateTime.now()
-                    val expiresAt = now.plusDays(40)
-                    val apiKey =
-                        ApiKey().apply {
-                            id = 1L
-                            value = UUID.randomUUID()
-                            account = mockAccount
-                            createdAt = now.minusDays(325)
-                            updatedAt = now.minusDays(325)
-                            this.expiresAt = expiresAt
-                        }
-
-                    beforeEach {
-                        every { mockScopeChecker.hasScope(mockAuthentication, "admin:apikey") } returns true
-                        every { mockApiKeyEnvironment.adminRenewalPeriodDays } returns 30L
-                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
-                    }
-
-                    it("400 BAD_REQUEST 예외가 발생해야 한다") {
-                        val exception =
-                            shouldThrow<ExpectedException> {
-                                modifyApiKeyService.execute(reqDto)
-                            }
-
-                        exception.statusCode.value() shouldBe 400
-                        exception.message shouldBe "API 키 갱신 기간이 아닙니다. 만료 30일 전부터 만료 30일 후까지만 갱신 가능합니다."
-
-                        verify(exactly = 0) { mockApiKeyRepository.save(any()) }
-                        verify(exactly = 0) { mockApiKeyRepository.delete(any()) }
-                    }
-                }
-
                 context("Admin 사용자가 유효하지 않은 scope로 갱신을 시도할 때") {
                     val reqDto =
                         ModifyApiKeyReqDto(
@@ -493,11 +399,11 @@ class ModifyApiKeyServiceTest :
                             createdAt = now.minusDays(355)
                             updatedAt = now.minusDays(355)
                             this.expiresAt = expiresAt
+                            updateScopes(setOf("student:read"))
                         }
 
                     beforeEach {
                         every { mockScopeChecker.hasScope(mockAuthentication, "admin:apikey") } returns true
-                        every { mockApiKeyEnvironment.adminRenewalPeriodDays } returns 30L
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                     }
 
@@ -508,7 +414,7 @@ class ModifyApiKeyServiceTest :
                             }
 
                         exception.statusCode.value() shouldBe 400
-                        exception.message shouldBe "유효하지 않은 scope입니다: invalid:scope"
+                        exception.message shouldBe "요청한 권한 범위가 유효하지 않습니다."
 
                         verify(exactly = 0) { mockApiKeyRepository.save(any()) }
                         verify(exactly = 0) { mockApiKeyRepository.delete(any()) }

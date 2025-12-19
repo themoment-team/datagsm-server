@@ -1,5 +1,6 @@
 package team.themoment.datagsm.global.security.jwt
 
+import com.github.snowykte0426.peanut.butter.logging.logger
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
@@ -50,9 +51,10 @@ class JwtProvider(
 
     fun validateToken(token: String): Boolean =
         try {
-            parseClaims(token)
-            true
+            val claims = parseClaims(token)
+            claims.expiration?.after(Date()) ?: false
         } catch (e: Exception) {
+            logger().error("Invalid JWT token ${e.message}")
             false
         }
 

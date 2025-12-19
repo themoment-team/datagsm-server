@@ -1,5 +1,6 @@
 package team.themoment.datagsm.domain.auth.service.impl
 
+import com.github.snowykte0426.peanut.butter.logging.logger
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
@@ -14,6 +15,7 @@ import team.themoment.datagsm.global.security.checker.ScopeChecker
 import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Service
 class ModifyApiKeyServiceImpl(
@@ -33,56 +35,57 @@ class ModifyApiKeyServiceImpl(
                     ExpectedException("API 키를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
                 }
 
+        val renewalPeriodDays = apiKeyEnvironment.renewalPeriodDays
+        if (!apiKey.canBeRenewed(renewalPeriodDays)) {
+            apiKeyJpaRepository.delete(apiKey)
+            throw ExpectedException(
+                "API 키 갱신 기간이 지났습니다. 해당 API 키는 삭제되었습니다.",
+                HttpStatus.GONE,
+            )
+        }
+
         val authentication = SecurityContextHolder.getContext().authentication
         val isAdmin =
             scopeChecker.hasScope(
                 authentication,
                 ApiScope.ADMIN_APIKEY.scope,
             )
-
-        val renewalPeriodDays = if (isAdmin) apiKeyEnvironment.adminRenewalPeriodDays else apiKeyEnvironment.renewalPeriodDays
-
-        if (!apiKey.canBeRenewed(renewalPeriodDays)) {
-            val renewalEndDate = apiKey.expiresAt.plusDays(renewalPeriodDays)
-            if (!LocalDateTime.now().isBefore(renewalEndDate)) {
-                apiKeyJpaRepository.delete(apiKey)
-                throw ExpectedException(
-                    "API 키 갱신 기간이 지났습니다. 해당 API 키는 삭제되었습니다.",
-                    HttpStatus.GONE,
-                )
-            }
-            throw ExpectedException(
-                "API 키 갱신 기간이 아닙니다. 만료 ${renewalPeriodDays}일 전부터 만료 ${renewalPeriodDays}일 후까지만 갱신 가능합니다.",
-                HttpStatus.BAD_REQUEST,
-            )
-        }
-
         val validScopes = if (isAdmin) ApiScope.getAllScopes() else ApiScope.READ_ONLY_SCOPES
         val invalidScopes = reqDto.scopes.filter { it !in validScopes }
         if (invalidScopes.isNotEmpty()) {
+            logger().warn(
+                "Invalid scopes attempted: user=${account.email}, isAdmin=$isAdmin, " +
+                    "invalidScopes=${invalidScopes.joinToString(", ")}",
+            )
             throw ExpectedException(
-                if (isAdmin) {
-                    "유효하지 않은 scope입니다: ${invalidScopes.joinToString(", ")}"
-                } else {
-                    "일반 사용자는 READ scope만 사용 가능합니다. 사용 불가능한 scope: ${invalidScopes.joinToString(", ")}"
-                },
+                "요청한 권한 범위가 유효하지 않습니다.",
                 HttpStatus.BAD_REQUEST,
             )
         }
-
         val now = LocalDateTime.now()
         val expirationDays = if (isAdmin) apiKeyEnvironment.adminExpirationDays else apiKeyEnvironment.expirationDays
         val expiresAt = now.plusDays(expirationDays)
-
+        val isScopeChanged = apiKey.scopes != reqDto.scopes
+        val oldValue = apiKey.value
         apiKey.apply {
             updatedAt = now
             this.expiresAt = expiresAt
-            updateScopes(reqDto.scopes)
             this.description = reqDto.description
+            if (isScopeChanged) {
+                value = UUID.randomUUID()
+                updateScopes(reqDto.scopes)
+                logger().info(
+                    "API Key reissued due to scope change: accountId=${account.id}, " +
+                        "oldKey=${oldValue.toString().take(8)}****, newKey=${value.toString().take(8)}****",
+                )
+            } else {
+                logger().info(
+                    "API Key renewed: accountId=${account.id}, " +
+                        "key=${value.toString().take(8)}****, expiresAt=$expiresAt",
+                )
+            }
         }
-
         val savedApiKey = apiKeyJpaRepository.save(apiKey)
-
         return ApiKeyResDto(
             apiKey = savedApiKey.value,
             expiresAt = savedApiKey.expiresAt,

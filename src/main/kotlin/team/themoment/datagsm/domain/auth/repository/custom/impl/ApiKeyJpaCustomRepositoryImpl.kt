@@ -26,6 +26,7 @@ class ApiKeyJpaCustomRepositoryImpl(
     ): Page<ApiKey> {
         val now = LocalDateTime.now()
         val renewalPeriodDays = apiKeyEnvironment.renewalPeriodDays
+        val renewalDeadline = now.minusDays(renewalPeriodDays)
 
         val content =
             jpaQueryFactory
@@ -41,17 +42,9 @@ class ApiKeyJpaCustomRepositoryImpl(
                     },
                     isRenewable?.let {
                         if (it) {
-                            apiKey.expiresAt
-                                .between(
-                                    now.minusDays(renewalPeriodDays),
-                                    now.plusDays(renewalPeriodDays),
-                                )
+                            apiKey.expiresAt.after(renewalDeadline)
                         } else {
-                            apiKey.expiresAt
-                                .notBetween(
-                                    now.minusDays(renewalPeriodDays),
-                                    now.plusDays(renewalPeriodDays),
-                                )
+                            apiKey.expiresAt.before(renewalDeadline)
                         }
                     },
                 ).offset(pageable.offset)
@@ -71,17 +64,9 @@ class ApiKeyJpaCustomRepositoryImpl(
                     },
                     isRenewable?.let {
                         if (it) {
-                            apiKey.expiresAt
-                                .between(
-                                    now.minusDays(renewalPeriodDays),
-                                    now.plusDays(renewalPeriodDays),
-                                )
+                            apiKey.expiresAt.after(renewalDeadline)
                         } else {
-                            apiKey.expiresAt
-                                .notBetween(
-                                    now.minusDays(renewalPeriodDays),
-                                    now.plusDays(renewalPeriodDays),
-                                )
+                            apiKey.expiresAt.before(renewalDeadline)
                         }
                     },
                 )
