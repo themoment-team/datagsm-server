@@ -6,38 +6,52 @@ enum class ApiScope(
     val scope: String,
     val description: String,
     val accountRole: AccountRole?,
-    val categoryName: String?,
 ) {
     // Auth scopes
-    AUTH_MANAGE("auth:manage", "API 키 관리 (생성/조회/수정/삭제)", null, null),
+    AUTH_MANAGE("auth:manage", "API 키 관리 (생성/조회/수정/삭제)", null),
 
     // Admin scopes
-    ADMIN_ALL("admin:*", "관리자 모든 권한", AccountRole.ADMIN, "관리자"),
-    ADMIN_APIKEY("admin:apikey", "Admin API 키 생성/갱신", AccountRole.ADMIN, "관리자"),
-    ADMIN_EXCEL("admin:excel", "Excel 파일 업로드/다운로드", AccountRole.ADMIN, "관리자"),
+    ADMIN_ALL("admin:*", "관리자 모든 권한", AccountRole.ADMIN),
+    ADMIN_APIKEY("admin:apikey", "Admin API 키 생성/갱신", AccountRole.ADMIN),
+    ADMIN_EXCEL("admin:excel", "Excel 파일 업로드/다운로드", AccountRole.ADMIN),
 
     // Student scopes
-    STUDENT_ALL("student:*", "학생 데이터 모든 권한", AccountRole.ADMIN, "학생"),
-    STUDENT_READ("student:read", "학생 데이터 조회", AccountRole.USER, "학생"),
-    STUDENT_WRITE("student:write", "학생 데이터 생성/수정/삭제", AccountRole.ADMIN, "학생"),
+    STUDENT_ALL("student:*", "학생 데이터 모든 권한", AccountRole.ADMIN),
+    STUDENT_READ("student:read", "학생 데이터 조회", AccountRole.USER),
+    STUDENT_WRITE("student:write", "학생 데이터 생성/수정/삭제", AccountRole.ADMIN),
 
     // Club scopes
-    CLUB_ALL("club:*", "동아리 데이터 모든 권한", AccountRole.ADMIN, "동아리"),
-    CLUB_READ("club:read", "동아리 데이터 조회", AccountRole.USER, "동아리"),
-    CLUB_WRITE("club:write", "동아리 데이터 생성/수정/삭제", AccountRole.ADMIN, "동아리"),
+    CLUB_ALL("club:*", "동아리 데이터 모든 권한", AccountRole.ADMIN),
+    CLUB_READ("club:read", "동아리 데이터 조회", AccountRole.USER),
+    CLUB_WRITE("club:write", "동아리 데이터 생성/수정/삭제", AccountRole.ADMIN),
 
     // Project scopes
-    PROJECT_ALL("project:*", "프로젝트 데이터 모든 권한", AccountRole.ADMIN, "프로젝트"),
-    PROJECT_READ("project:read", "프로젝트 데이터 조회", AccountRole.USER, "프로젝트"),
-    PROJECT_WRITE("project:write", "프로젝트 데이터 생성/수정/삭제", AccountRole.ADMIN, "프로젝트"),
+    PROJECT_ALL("project:*", "프로젝트 데이터 모든 권한", AccountRole.ADMIN),
+    PROJECT_READ("project:read", "프로젝트 데이터 조회", AccountRole.USER),
+    PROJECT_WRITE("project:write", "프로젝트 데이터 생성/수정/삭제", AccountRole.ADMIN),
 
     // NEIS scopes
-    NEIS_ALL("neis:*", "NEIS 데이터 모든 권한", AccountRole.ADMIN, "NEIS"),
-    NEIS_READ("neis:read", "NEIS 데이터 조회", AccountRole.USER, "NEIS"),
+    NEIS_ALL("neis:*", "NEIS 데이터 모든 권한", AccountRole.ADMIN),
+    NEIS_READ("neis:read", "NEIS 데이터 조회", AccountRole.USER),
     ;
+
+    val category: String
+        get() = scope.substringBefore(':')
+
+    val categoryDisplayName: String
+        get() = CATEGORY_DISPLAY_NAMES[category] ?: category
 
     companion object {
         const val ALL_SCOPE = "*:*"
+
+        private val CATEGORY_DISPLAY_NAMES =
+            mapOf(
+                "student" to "학생",
+                "club" to "동아리",
+                "project" to "프로젝트",
+                "neis" to "NEIS",
+                "admin" to "관리자",
+            )
 
         private val ALL_SCOPES by lazy { entries.map { it.scope }.toSet() }
 
@@ -52,5 +66,19 @@ enum class ApiScope(
         fun fromString(scope: String): ApiScope? = entries.find { it.scope == scope }
 
         fun getAllScopes(): Set<String> = ALL_SCOPES
+
+        fun getScopesByRole(role: AccountRole): List<ApiScope> =
+            entries.filter { scope ->
+                when (role) {
+                    AccountRole.ADMIN -> scope.accountRole == AccountRole.USER || scope.accountRole == AccountRole.ADMIN
+                    AccountRole.USER -> scope.accountRole == AccountRole.USER
+                    else -> false
+                }
+            }
+
+        fun groupByCategory(scopes: List<ApiScope>): Map<String, List<ApiScope>> =
+            scopes
+                .filter { it.accountRole != null }
+                .groupBy { it.categoryDisplayName }
     }
 }
