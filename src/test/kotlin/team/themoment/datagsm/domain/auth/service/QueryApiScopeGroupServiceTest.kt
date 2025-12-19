@@ -22,19 +22,20 @@ class QueryApiScopeGroupServiceTest :
 
                         result.data shouldHaveSize 4
 
-                        val studentGroup = result.data.find { it.title == "student:*" }
+                        val studentGroup = result.data.find { it.title == "학생" }
                         studentGroup shouldNotBe null
-                        studentGroup!!.description shouldBe "student 모든 권한"
-                        studentGroup.scopes shouldHaveSize 1
+                        studentGroup!!.scopes shouldHaveSize 1
                         studentGroup.scopes[0].scope shouldBe "student:read"
                     }
 
-                    it("와일드카드 스코프는 scopes 리스트에 포함되지 않는다") {
+                    it("와일드카드 스코프는 scopes 리스트에 포함된다") {
                         val result = queryApiScopeGroupService.execute(AccountRole.USER)
 
-                        result.data.forEach { group ->
-                            group.scopes.none { it.scope.endsWith(":*") } shouldBe true
-                        }
+                        val hasWildcardScope =
+                            result.data.any { group ->
+                                group.scopes.any { it.scope.endsWith(":*") }
+                            }
+                        hasWildcardScope shouldBe false // USER는 와일드카드 스코프가 없음
                     }
 
                     it("auth:manage 스코프는 포함되지 않는다") {
@@ -51,26 +52,31 @@ class QueryApiScopeGroupServiceTest :
 
                         result.data shouldHaveSize 5 // student, club, project, neis, admin
 
-                        val adminGroup = result.data.find { it.title == "admin:*" }
+                        val adminGroup = result.data.find { it.title == "관리자" }
                         adminGroup shouldNotBe null
-                        adminGroup!!.description shouldBe "admin 모든 권한"
-                        adminGroup.scopes shouldHaveSize 2
+                        adminGroup!!.scopes shouldHaveSize 3 // admin:*, admin:apikey, admin:excel
                     }
 
-                    it("student 그룹에는 read와 write 스코프가 포함된다") {
+                    it("student 그룹에는 와일드카드, read, write 스코프가 포함된다") {
                         val result = queryApiScopeGroupService.execute(AccountRole.ADMIN)
 
-                        val studentGroup = result.data.find { it.title == "student:*" }
+                        val studentGroup = result.data.find { it.title == "학생" }
                         studentGroup shouldNotBe null
-                        studentGroup!!.scopes shouldHaveSize 2
-                        studentGroup.scopes.map { it.scope } shouldContainAll listOf("student:read", "student:write")
+                        studentGroup!!.scopes shouldHaveSize 3 // student:*, student:read, student:write
+                        studentGroup.scopes.map { it.scope } shouldContainAll
+                            listOf(
+                                "student:*",
+                                "student:read",
+                                "student:write",
+                            )
                     }
 
-                    it("와일드카드 스코프는 scopes 리스트에서 제외된다") {
+                    it("와일드카드 스코프가 scopes 리스트에 포함된다") {
                         val result = queryApiScopeGroupService.execute(AccountRole.ADMIN)
 
                         result.data.forEach { group ->
-                            group.scopes.none { it.scope.endsWith(":*") } shouldBe true
+                            val hasWildcard = group.scopes.any { it.scope.endsWith(":*") }
+                            hasWildcard shouldBe true
                         }
                     }
                 }
