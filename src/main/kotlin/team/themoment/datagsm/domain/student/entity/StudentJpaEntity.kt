@@ -32,7 +32,6 @@ class StudentJpaEntity {
     lateinit var name: String
 
     @field:Embedded
-    @field:Column(name = "student_number", nullable = false, unique = true)
     lateinit var studentNumber: StudentNumber
 
     @field:Column(name = "email", nullable = false, unique = true, length = 25)
