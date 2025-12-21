@@ -67,10 +67,15 @@ class QueryApiKeyServiceTest :
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                     }
 
-                    it("API 키 정보를 반환해야 한다") {
+                    it("API 키 정보를 마스킹하여 반환해야 한다") {
                         val result = queryApiKeyService.execute()
 
-                        result.apiKey shouldBe apiKeyValue
+                        val maskedPattern = Regex("^[0-9a-f]{8}-\\*{4}-\\*{4}-\\*{4}-\\*{8}[0-9a-f]{4}$")
+                        result.apiKey.matches(maskedPattern) shouldBe true
+
+                        result.apiKey.take(8) shouldBe apiKeyValue.toString().take(8)
+                        result.apiKey.takeLast(4) shouldBe apiKeyValue.toString().takeLast(4)
+
                         result.expiresAt shouldBe expiresAt
                         result.scopes shouldBe testScopes
                         result.description shouldBe testDescription

@@ -75,7 +75,7 @@ class CreateApiKeyServiceImpl(
         val savedApiKey = apiKeyJpaRepository.save(apiKey)
 
         return ApiKeyResDto(
-            apiKey = savedApiKey.value,
+            apiKey = savedApiKey.value.toString(),
             expiresAt = savedApiKey.expiresAt,
             scopes = savedApiKey.scopes,
             description = savedApiKey.description,

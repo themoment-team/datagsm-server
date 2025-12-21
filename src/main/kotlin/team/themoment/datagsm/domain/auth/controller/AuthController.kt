@@ -124,7 +124,7 @@ class AuthController(
         return CommonApiResponse.success("API 키가 삭제되었습니다.")
     }
 
-    @Operation(summary = "API 키 조회", description = "현재 로그인한 사용자의 API 키를 조회합니다.")
+    @Operation(summary = "API 키 조회", description = "현재 로그인한 사용자의 API 키를 조회합니다. API 키는 마스킹되어 반환됩니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "API 키 조회 성공"),

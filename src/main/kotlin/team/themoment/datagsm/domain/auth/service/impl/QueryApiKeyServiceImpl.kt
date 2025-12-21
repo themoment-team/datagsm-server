@@ -8,6 +8,7 @@ import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.QueryApiKeyService
 import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
+import java.util.UUID
 
 @Service
 class QueryApiKeyServiceImpl(
@@ -26,10 +27,15 @@ class QueryApiKeyServiceImpl(
                 }
 
         return ApiKeyResDto(
-            apiKey = apiKey.value,
+            apiKey = maskApiKey(apiKey.value),
             expiresAt = apiKey.expiresAt,
             scopes = apiKey.scopes,
             description = apiKey.description,
         )
+    }
+
+    private fun maskApiKey(uuid: UUID): String {
+        val uuidString = uuid.toString()
+        return "${uuidString.take(8)}-****-****-****-********${uuidString.takeLast(4)}"
     }
 }

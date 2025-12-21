@@ -3,8 +3,8 @@ package team.themoment.datagsm.domain.auth.service.impl
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeySearchResDto
-import team.themoment.datagsm.domain.auth.dto.response.MaskedApiKeyResDto
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.SearchApiKeyService
 import java.util.UUID
@@ -38,7 +38,7 @@ class SearchApiKeyServiceImpl(
             totalElements = apiKeyPage.totalElements,
             apiKeys =
                 apiKeyPage.content.map { entity ->
-                    MaskedApiKeyResDto(
+                    ApiKeyResDto(
                         apiKey = maskApiKey(entity.value),
                         expiresAt = entity.expiresAt,
                         scopes = entity.scopes,
