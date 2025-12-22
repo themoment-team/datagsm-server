@@ -6,7 +6,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.student.dto.internal.ExcelColumnDto
 import team.themoment.datagsm.domain.student.dto.internal.ExcelRowDto
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
@@ -18,7 +17,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Service
-@Transactional(readOnly = true)
 class CreateStudentExcelServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
 ) : CreateStudentExcelService {
