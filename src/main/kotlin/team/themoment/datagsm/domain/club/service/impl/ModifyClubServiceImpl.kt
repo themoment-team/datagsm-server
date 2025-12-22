@@ -1,11 +1,13 @@
 package team.themoment.datagsm.domain.club.service.impl
 
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.club.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.domain.club.dto.response.ClubResDto
+import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.club.service.ModifyClubService
@@ -25,18 +27,19 @@ class ModifyClubServiceImpl(
     ): ClubResDto {
         val club =
             clubJpaRepository
-                .findById(clubId)
-                .orElseThrow { ExpectedException("동아리를 찾을 수 없습니다. clubId: $clubId", HttpStatus.NOT_FOUND) }
+                .findByIdOrNull(clubId)
+                ?: throw ExpectedException("동아리를 찾을 수 없습니다. clubId: $clubId", HttpStatus.NOT_FOUND)
         if (clubJpaRepository.existsByNameAndIdNot(reqDto.name, clubId)) {
             throw ExpectedException("이미 존재하는 동아리 이름입니다: ${reqDto.name}", HttpStatus.CONFLICT)
         }
 
         val newLeader =
             studentJpaRepository
-                .findById(reqDto.leaderId)
-                .orElseThrow {
-                    ExpectedException("부장으로 지정한 학생을 찾을 수 없습니다. studentId: ${reqDto.leaderId}", HttpStatus.NOT_FOUND)
-                }
+                .findByIdOrNull(reqDto.leaderId)
+                ?: throw ExpectedException(
+                    "부장으로 지정한 학생을 찾을 수 없습니다. studentId: ${reqDto.leaderId}",
+                    HttpStatus.NOT_FOUND,
+                )
 
         club.name = reqDto.name
         club.type = reqDto.type
@@ -73,7 +76,7 @@ class ModifyClubServiceImpl(
         )
     }
 
-    private fun getParticipantsByClubType(club: team.themoment.datagsm.domain.club.entity.ClubJpaEntity): List<StudentJpaEntity> =
+    private fun getParticipantsByClubType(club: ClubJpaEntity): List<StudentJpaEntity> =
         when (club.type) {
             ClubType.MAJOR_CLUB -> studentJpaRepository.findByMajorClub(club)
             ClubType.JOB_CLUB -> studentJpaRepository.findByJobClub(club)
