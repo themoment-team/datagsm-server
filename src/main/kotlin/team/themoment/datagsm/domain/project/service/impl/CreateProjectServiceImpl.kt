@@ -3,7 +3,7 @@ package team.themoment.datagsm.domain.project.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.domain.club.dto.response.ClubResDto
+import team.themoment.datagsm.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.domain.project.dto.response.ProjectResDto
@@ -46,7 +46,7 @@ class CreateProjectServiceImpl(
             name = savedProjectEntity.name,
             description = savedProjectEntity.description,
             club =
-                ClubResDto(
+                ClubSummaryDto(
                     id = ownerClub.id!!,
                     name = ownerClub.name,
                     type = ownerClub.type,

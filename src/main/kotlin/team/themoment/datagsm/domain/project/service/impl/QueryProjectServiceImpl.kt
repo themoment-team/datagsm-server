@@ -3,6 +3,7 @@ package team.themoment.datagsm.domain.project.service.impl
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.domain.project.dto.response.ProjectListResDto
 import team.themoment.datagsm.domain.project.dto.response.ProjectResDto
@@ -38,7 +39,7 @@ class QueryProjectServiceImpl(
                         id = project.id!!,
                         name = project.name,
                         description = project.description,
-                        club = project.club?.let { ClubResDto(id = it.id!!, name = it.name, type = it.type) },
+                        club = project.club?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
                     )
                 },
         )
