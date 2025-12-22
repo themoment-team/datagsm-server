@@ -152,13 +152,11 @@ class ModifyStudentExcelServiceImpl(
                     student.sex = dto.sex
                 }
             }
-        studentJpaRepository.saveAll(studentsToSave)
         studentJpaRepository.flush()
 
         excelData.zip(studentsToSave).forEach { (dto, student) ->
             student.email = dto.email
         }
-        studentJpaRepository.saveAll(studentsToSave)
 
         return CommonApiResponse.success("엑셀 업로드 성공")
     }
