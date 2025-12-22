@@ -1,47 +1,34 @@
 package team.themoment.datagsm.domain.auth.service.impl
 
-import com.github.snowykte0426.peanut.butter.logging.logger
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.domain.auth.dto.request.ModifyApiKeyReqDto
+import team.themoment.datagsm.domain.auth.dto.request.CreateApiKeyReqDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
+import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
-import team.themoment.datagsm.domain.auth.service.ModifyApiKeyService
+import team.themoment.datagsm.domain.auth.service.CreateCurrentAccountApiKeyService
 import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.checker.ScopeChecker
 import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
-import java.util.UUID
 
 @Service
-class ModifyApiKeyServiceImpl(
+class CreateCurrentAccountApiKeyServiceImpl(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
     private val apiKeyEnvironment: ApiKeyEnvironment,
     private val scopeChecker: ScopeChecker,
-) : ModifyApiKeyService {
+) : CreateCurrentAccountApiKeyService {
     @Transactional
-    override fun execute(reqDto: ModifyApiKeyReqDto): ApiKeyResDto {
+    override fun execute(reqDto: CreateApiKeyReqDto): ApiKeyResDto {
         val account = currentUserProvider.getCurrentAccount()
 
-        val apiKey =
-            apiKeyJpaRepository
-                .findByAccount(account)
-                .orElseThrow {
-                    ExpectedException("API 키를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
-                }
-
-        val renewalPeriodDays = apiKeyEnvironment.renewalPeriodDays
-        if (!apiKey.canBeRenewed(renewalPeriodDays)) {
-            apiKeyJpaRepository.delete(apiKey)
-            throw ExpectedException(
-                "API 키 갱신 기간이 지났습니다. 해당 API 키는 삭제되었습니다.",
-                HttpStatus.GONE,
-            )
+        if (apiKeyJpaRepository.findByAccount(account).isPresent) {
+            throw ExpectedException("이미 API 키가 존재합니다.", HttpStatus.CONFLICT)
         }
 
         val authentication = SecurityContextHolder.getContext().authentication
@@ -50,43 +37,45 @@ class ModifyApiKeyServiceImpl(
                 authentication,
                 ApiScope.ADMIN_APIKEY.scope,
             )
+
         val validScopes = if (isAdmin) ApiScope.getAllScopes() else ApiScope.READ_ONLY_SCOPES
         val invalidScopes = reqDto.scopes.filter { it !in validScopes }
         if (invalidScopes.isNotEmpty()) {
-            logger().warn(
-                "Invalid scopes attempted: user=${account.email}, isAdmin=$isAdmin, " +
-                    "invalidScopes=${invalidScopes.joinToString(", ")}",
-            )
             throw ExpectedException(
-                "요청한 권한 범위가 유효하지 않습니다.",
+                if (isAdmin) {
+                    "유효하지 않은 scope입니다: ${invalidScopes.joinToString(", ")}"
+                } else {
+                    "일반 사용자는 READ scope만 사용 가능합니다. 사용 불가능한 scope: ${invalidScopes.joinToString(", ")}"
+                },
                 HttpStatus.BAD_REQUEST,
             )
         }
+
         val now = LocalDateTime.now()
         val expirationDays = if (isAdmin) apiKeyEnvironment.adminExpirationDays else apiKeyEnvironment.expirationDays
         val expiresAt = now.plusDays(expirationDays)
-        val isScopeChanged = apiKey.scopes != reqDto.scopes
-        val oldValue = apiKey.value
-        apiKey.apply {
-            updatedAt = now
-            this.expiresAt = expiresAt
-            this.description = reqDto.description
-            if (isScopeChanged) {
-                value = UUID.randomUUID()
+
+        val rateLimitCapacity = apiKeyEnvironment.rateLimit.defaultCapacity
+        val rateLimitRefillTokens = apiKeyEnvironment.rateLimit.defaultRefillTokens
+        val rateLimitRefillDurationSeconds = apiKeyEnvironment.rateLimit.defaultRefillDurationSeconds
+
+        val apiKey =
+            ApiKey().apply {
+                this.account = account
+                createdAt = now
+                updatedAt = now
+                this.expiresAt = expiresAt
                 updateScopes(reqDto.scopes)
-                logger().info(
-                    "API Key reissued due to scope change: accountId=${account.id}, " +
-                        "oldKey=${oldValue.toString().take(8)}****, newKey=${value.toString().take(8)}****",
-                )
-            } else {
-                logger().info(
-                    "API Key renewed: accountId=${account.id}, " +
-                        "key=${value.toString().take(8)}****, expiresAt=$expiresAt",
-                )
+                this.description = reqDto.description
+                this.rateLimitCapacity = rateLimitCapacity
+                this.rateLimitRefillTokens = rateLimitRefillTokens
+                this.rateLimitRefillDurationSeconds = rateLimitRefillDurationSeconds
             }
-        }
+
         val savedApiKey = apiKeyJpaRepository.save(apiKey)
+
         return ApiKeyResDto(
+            id = savedApiKey.id!!,
             apiKey = savedApiKey.value.toString(),
             expiresAt = savedApiKey.expiresAt,
             scopes = savedApiKey.scopes,

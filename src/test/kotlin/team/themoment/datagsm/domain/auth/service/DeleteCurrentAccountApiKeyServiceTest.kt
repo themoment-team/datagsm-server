@@ -7,22 +7,22 @@ import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
-import team.themoment.datagsm.domain.auth.service.impl.DeleteApiKeyServiceImpl
+import team.themoment.datagsm.domain.auth.service.impl.DeleteCurrentAccountApiKeyServiceImpl
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 
-class DeleteApiKeyServiceTest :
+class DeleteCurrentAccountApiKeyServiceTest :
     DescribeSpec({
 
         val mockApiKeyRepository = mockk<ApiKeyJpaRepository>()
         val mockCurrentUserProvider = mockk<CurrentUserProvider>()
 
-        val deleteApiKeyService = DeleteApiKeyServiceImpl(mockApiKeyRepository, mockCurrentUserProvider)
+        val deleteApiKeyService = DeleteCurrentAccountApiKeyServiceImpl(mockApiKeyRepository, mockCurrentUserProvider)
 
         afterEach {
             clearAllMocks()
         }
 
-        describe("DeleteApiKeyService 클래스의") {
+        describe("DeleteCurrentAccountApiKeyService 클래스의") {
             describe("execute 메서드는") {
 
                 val mockAccount =

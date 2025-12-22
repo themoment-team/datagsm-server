@@ -10,21 +10,21 @@ import io.mockk.verify
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
-import team.themoment.datagsm.domain.auth.service.impl.QueryApiKeyServiceImpl
+import team.themoment.datagsm.domain.auth.service.impl.QueryCurrentAccountApiKeyServiceImpl
 import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
 import java.util.Optional
 import java.util.UUID
 
-class QueryApiKeyServiceTest :
+class QueryCurrentAccountApiKeyServiceTest :
     DescribeSpec({
 
         val mockApiKeyRepository = mockk<ApiKeyJpaRepository>()
         val mockCurrentUserProvider = mockk<CurrentUserProvider>()
 
         val queryApiKeyService =
-            QueryApiKeyServiceImpl(
+            QueryCurrentAccountApiKeyServiceImpl(
                 mockApiKeyRepository,
                 mockCurrentUserProvider,
             )
@@ -33,7 +33,7 @@ class QueryApiKeyServiceTest :
             clearAllMocks()
         }
 
-        describe("QueryApiKeyService 클래스의") {
+        describe("QueryCurrentAccountApiKeyService 클래스의") {
             describe("execute 메서드는") {
 
                 val mockAccount =
@@ -69,6 +69,8 @@ class QueryApiKeyServiceTest :
 
                     it("API 키 정보를 마스킹하여 반환해야 한다") {
                         val result = queryApiKeyService.execute()
+
+                        result.id shouldBe 1L
 
                         val maskedPattern = Regex("^[0-9a-f]{8}-\\*{4}-\\*{4}-\\*{4}-\\*{8}[0-9a-f]{4}$")
                         result.apiKey.matches(maskedPattern) shouldBe true
