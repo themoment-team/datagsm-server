@@ -1,5 +1,6 @@
 package team.themoment.datagsm.domain.auth.service.impl
 
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -14,12 +15,8 @@ class DeleteApiKeyByIdServiceImpl(
     @Transactional
     override fun execute(apiKeyId: Long) {
         val apiKey =
-            apiKeyJpaRepository
-                .findById(apiKeyId)
-                .orElseThrow {
-                    ExpectedException("API 키를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
-                }
-
+            apiKeyJpaRepository.findByIdOrNull(apiKeyId)
+                ?: throw ExpectedException("API 키를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
         apiKeyJpaRepository.delete(apiKey)
     }
 }
