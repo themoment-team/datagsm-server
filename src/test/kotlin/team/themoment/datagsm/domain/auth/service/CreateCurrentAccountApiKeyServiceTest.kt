@@ -16,7 +16,7 @@ import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.auth.dto.request.CreateApiKeyReqDto
 import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
-import team.themoment.datagsm.domain.auth.service.impl.CreateApiKeyServiceImpl
+import team.themoment.datagsm.domain.auth.service.impl.CreateCurrentAccountApiKeyServiceImpl
 import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.checker.ScopeChecker
 import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
@@ -25,7 +25,7 @@ import java.time.LocalDateTime
 import java.util.Optional
 import java.util.UUID
 
-class CreateApiKeyServiceTest :
+class CreateCurrentAccountApiKeyServiceTest :
     DescribeSpec({
 
         val mockApiKeyRepository = mockk<ApiKeyJpaRepository>()
@@ -34,7 +34,7 @@ class CreateApiKeyServiceTest :
         val mockScopeChecker = mockk<ScopeChecker>()
 
         val createApiKeyService =
-            CreateApiKeyServiceImpl(
+            CreateCurrentAccountApiKeyServiceImpl(
                 mockApiKeyRepository,
                 mockCurrentUserProvider,
                 mockApiKeyEnvironment,
@@ -45,7 +45,7 @@ class CreateApiKeyServiceTest :
             clearAllMocks()
         }
 
-        describe("CreateApiKeyService 클래스의") {
+        describe("CreateCurrentAccountApiKeyService 클래스의") {
             describe("execute 메서드는") {
 
                 val mockAccount =

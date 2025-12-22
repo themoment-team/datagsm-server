@@ -28,13 +28,13 @@ import team.themoment.datagsm.domain.auth.dto.response.ApiScopeResDto
 import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
-import team.themoment.datagsm.domain.auth.service.CreateApiKeyService
+import team.themoment.datagsm.domain.auth.service.CreateCurrentAccountApiKeyService
 import team.themoment.datagsm.domain.auth.service.DeleteApiKeyByIdService
-import team.themoment.datagsm.domain.auth.service.DeleteApiKeyService
-import team.themoment.datagsm.domain.auth.service.ModifyApiKeyService
-import team.themoment.datagsm.domain.auth.service.QueryApiKeyService
+import team.themoment.datagsm.domain.auth.service.DeleteCurrentAccountApiKeyService
+import team.themoment.datagsm.domain.auth.service.ModifyCurrentAccountApiKeyService
 import team.themoment.datagsm.domain.auth.service.QueryApiScopeByScopeNameService
 import team.themoment.datagsm.domain.auth.service.QueryApiScopeGroupService
+import team.themoment.datagsm.domain.auth.service.QueryCurrentAccountApiKeyService
 import team.themoment.datagsm.domain.auth.service.ReissueTokenService
 import team.themoment.datagsm.domain.auth.service.SearchApiKeyService
 import team.themoment.datagsm.global.common.response.dto.response.CommonApiResponse
@@ -45,11 +45,11 @@ import team.themoment.datagsm.global.security.annotation.RequireScope
 @RequestMapping("/v1/auth")
 class AuthController(
     private val authenticateGoogleOAuthService: AuthenticateGoogleOAuthService,
-    private val createApiKeyService: CreateApiKeyService,
-    private val deleteApiKeyService: DeleteApiKeyService,
+    private val createCurrentAccountApiKeyService: CreateCurrentAccountApiKeyService,
+    private val deleteCurrentAccountApiKeyService: DeleteCurrentAccountApiKeyService,
     private val deleteApiKeyByIdService: DeleteApiKeyByIdService,
-    private val modifyApiKeyService: ModifyApiKeyService,
-    private val queryApiKeyService: QueryApiKeyService,
+    private val modifyCurrentAccountApiKeyService: ModifyCurrentAccountApiKeyService,
+    private val queryCurrentAccountApiKeyService: QueryCurrentAccountApiKeyService,
     private val queryApiScopeByScopeNameService: QueryApiScopeByScopeNameService,
     private val queryApiScopeGroupService: QueryApiScopeGroupService,
     private val reissueTokenService: ReissueTokenService,
@@ -95,7 +95,7 @@ class AuthController(
     @PostMapping("/api-key")
     fun createApiKey(
         @RequestBody @Valid reqDto: CreateApiKeyReqDto,
-    ): ApiKeyResDto = createApiKeyService.execute(reqDto)
+    ): ApiKeyResDto = createCurrentAccountApiKeyService.execute(reqDto)
 
     @Operation(summary = "API 키 갱신", description = "기존 API 키를 갱신합니다. 만료 15일 전부터 만료 15일 후까지만 갱신 가능하며, scope도 변경할 수 있습니다.")
     @ApiResponses(
@@ -109,7 +109,7 @@ class AuthController(
     @PutMapping("/api-key")
     fun modifyApiKey(
         @RequestBody @Valid reqDto: ModifyApiKeyReqDto,
-    ): ApiKeyResDto = modifyApiKeyService.execute(reqDto)
+    ): ApiKeyResDto = modifyCurrentAccountApiKeyService.execute(reqDto)
 
     @Operation(summary = "API 키 삭제", description = "현재 인증된 사용자의 API 키를 삭제합니다.")
     @ApiResponses(
@@ -122,7 +122,7 @@ class AuthController(
     @RequireScope(ApiScope.AUTH_MANAGE)
     @DeleteMapping("/api-key")
     fun deleteApiKey(): CommonApiResponse<Nothing> {
-        deleteApiKeyService.execute()
+        deleteCurrentAccountApiKeyService.execute()
         return CommonApiResponse.success("API 키가 삭제되었습니다.")
     }
 
@@ -154,7 +154,7 @@ class AuthController(
     )
     @RequireScope(ApiScope.AUTH_MANAGE)
     @GetMapping("/api-key")
-    fun getApiKey(): ApiKeyResDto = queryApiKeyService.execute()
+    fun getApiKey(): ApiKeyResDto = queryCurrentAccountApiKeyService.execute()
 
     @Operation(summary = "API 키 검색", description = "필터 조건에 맞는 API 키를 검색합니다. API 키는 마스킹되어 반환됩니다.")
     @ApiResponses(

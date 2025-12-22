@@ -1,5 +1,5 @@
 package team.themoment.datagsm.domain.auth.service
 
-interface DeleteApiKeyService {
+interface DeleteCurrentAccountApiKeyService {
     fun execute()
 }

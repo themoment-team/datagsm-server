@@ -5,16 +5,16 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
-import team.themoment.datagsm.domain.auth.service.QueryApiKeyService
+import team.themoment.datagsm.domain.auth.service.QueryCurrentAccountApiKeyService
 import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.util.UUID
 
 @Service
-class QueryApiKeyServiceImpl(
+class QueryCurrentAccountApiKeyServiceImpl(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
-) : QueryApiKeyService {
+) : QueryCurrentAccountApiKeyService {
     @Transactional(readOnly = true)
     override fun execute(): ApiKeyResDto {
         val account = currentUserProvider.getCurrentAccount()

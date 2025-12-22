@@ -9,7 +9,7 @@ import team.themoment.datagsm.domain.auth.dto.request.ModifyApiKeyReqDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
-import team.themoment.datagsm.domain.auth.service.ModifyApiKeyService
+import team.themoment.datagsm.domain.auth.service.ModifyCurrentAccountApiKeyService
 import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.checker.ScopeChecker
 import team.themoment.datagsm.global.security.data.ApiKeyEnvironment
@@ -18,12 +18,12 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @Service
-class ModifyApiKeyServiceImpl(
+class ModifyCurrentAccountApiKeyServiceImpl(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
     private val apiKeyEnvironment: ApiKeyEnvironment,
     private val scopeChecker: ScopeChecker,
-) : ModifyApiKeyService {
+) : ModifyCurrentAccountApiKeyService {
     @Transactional
     override fun execute(reqDto: ModifyApiKeyReqDto): ApiKeyResDto {
         val account = currentUserProvider.getCurrentAccount()

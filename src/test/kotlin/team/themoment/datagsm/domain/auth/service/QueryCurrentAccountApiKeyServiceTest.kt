@@ -10,21 +10,21 @@ import io.mockk.verify
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
-import team.themoment.datagsm.domain.auth.service.impl.QueryApiKeyServiceImpl
+import team.themoment.datagsm.domain.auth.service.impl.QueryCurrentAccountApiKeyServiceImpl
 import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.time.LocalDateTime
 import java.util.Optional
 import java.util.UUID
 
-class QueryApiKeyServiceTest :
+class QueryCurrentAccountApiKeyServiceTest :
     DescribeSpec({
 
         val mockApiKeyRepository = mockk<ApiKeyJpaRepository>()
         val mockCurrentUserProvider = mockk<CurrentUserProvider>()
 
         val queryApiKeyService =
-            QueryApiKeyServiceImpl(
+            QueryCurrentAccountApiKeyServiceImpl(
                 mockApiKeyRepository,
                 mockCurrentUserProvider,
             )
@@ -33,7 +33,7 @@ class QueryApiKeyServiceTest :
             clearAllMocks()
         }
 
-        describe("QueryApiKeyService 클래스의") {
+        describe("QueryCurrentAccountApiKeyService 클래스의") {
             describe("execute 메서드는") {
 
                 val mockAccount =
