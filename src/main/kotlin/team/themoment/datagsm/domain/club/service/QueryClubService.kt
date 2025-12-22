@@ -10,5 +10,6 @@ interface QueryClubService {
         clubType: ClubType?,
         page: Int,
         size: Int,
+        includeLeaderInParticipants: Boolean = false,
     ): ClubListResDto
 }

@@ -56,7 +56,9 @@ class ClubController(
         @Parameter(description = "동아리 종류") @RequestParam(required = false) clubType: ClubType?,
         @Parameter(description = "페이지 번호") @RequestParam(required = false, defaultValue = "0") page: Int,
         @Parameter(description = "페이지 크기") @RequestParam(required = false, defaultValue = "100") size: Int,
-    ): ClubListResDto = queryClubService.execute(clubId, clubName, clubType, page, size)
+        @Parameter(description = "부장을 부원 목록에 포함할지 여부") @RequestParam(required = false, defaultValue = "false") includeLeaderInParticipants:
+            Boolean,
+    ): ClubListResDto = queryClubService.execute(clubId, clubName, clubType, page, size, includeLeaderInParticipants)
 
     @Operation(summary = "동아리 생성", description = "새로운 동아리를 생성합니다.")
     @ApiResponses(
