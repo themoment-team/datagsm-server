@@ -29,6 +29,7 @@ import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
 import team.themoment.datagsm.domain.auth.service.CreateApiKeyService
+import team.themoment.datagsm.domain.auth.service.DeleteApiKeyByIdService
 import team.themoment.datagsm.domain.auth.service.DeleteApiKeyService
 import team.themoment.datagsm.domain.auth.service.ModifyApiKeyService
 import team.themoment.datagsm.domain.auth.service.QueryApiKeyService
@@ -46,6 +47,7 @@ class AuthController(
     private val authenticateGoogleOAuthService: AuthenticateGoogleOAuthService,
     private val createApiKeyService: CreateApiKeyService,
     private val deleteApiKeyService: DeleteApiKeyService,
+    private val deleteApiKeyByIdService: DeleteApiKeyByIdService,
     private val modifyApiKeyService: ModifyApiKeyService,
     private val queryApiKeyService: QueryApiKeyService,
     private val queryApiScopeByScopeNameService: QueryApiScopeByScopeNameService,
@@ -109,7 +111,7 @@ class AuthController(
         @RequestBody @Valid reqDto: ModifyApiKeyReqDto,
     ): ApiKeyResDto = modifyApiKeyService.execute(reqDto)
 
-    @Operation(summary = "API 키 삭제", description = "기존 API 키를 삭제합니다.")
+    @Operation(summary = "API 키 삭제", description = "현재 인증된 사용자의 API 키를 삭제합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "API 키 삭제 성공"),
@@ -121,6 +123,24 @@ class AuthController(
     @DeleteMapping("/api-key")
     fun deleteApiKey(): CommonApiResponse<Nothing> {
         deleteApiKeyService.execute()
+        return CommonApiResponse.success("API 키가 삭제되었습니다.")
+    }
+
+    @Operation(summary = "ID로 API 키 삭제", description = "특정 ID를 가진 API 키를 삭제합니다. 관리자 전용 API입니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "API 키 삭제 성공"),
+            ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음", content = [Content()]),
+        ],
+    )
+    @RequireScope(ApiScope.ADMIN_APIKEY)
+    @DeleteMapping("/api-key/{id}")
+    fun deleteApiKeyById(
+        @Parameter(description = "삭제할 API 키 ID", required = true)
+        @PathVariable
+        id: Long,
+    ): CommonApiResponse<Nothing> {
+        deleteApiKeyByIdService.execute(id)
         return CommonApiResponse.success("API 키가 삭제되었습니다.")
     }
 
