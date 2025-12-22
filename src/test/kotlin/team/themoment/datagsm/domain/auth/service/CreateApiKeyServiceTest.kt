@@ -86,6 +86,7 @@ class CreateApiKeyServiceTest :
                     it("새로운 API 키를 생성하고 반환해야 한다") {
                         val result = createApiKeyService.execute(reqDto)
 
+                        result.id shouldBe 1L
                         result.apiKey shouldNotBe null
                         result.apiKey.isNotEmpty() shouldBe true
                         UUID.fromString(result.apiKey) shouldNotBe null // UUID 형식 검증

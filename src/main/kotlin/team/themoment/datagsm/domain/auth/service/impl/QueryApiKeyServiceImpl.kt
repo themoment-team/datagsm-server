@@ -27,6 +27,7 @@ class QueryApiKeyServiceImpl(
                 }
 
         return ApiKeyResDto(
+            id = apiKey.id!!,
             apiKey = maskApiKey(apiKey.value),
             expiresAt = apiKey.expiresAt,
             scopes = apiKey.scopes,

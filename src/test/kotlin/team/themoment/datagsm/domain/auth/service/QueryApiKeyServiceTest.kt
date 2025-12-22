@@ -70,6 +70,8 @@ class QueryApiKeyServiceTest :
                     it("API 키 정보를 마스킹하여 반환해야 한다") {
                         val result = queryApiKeyService.execute()
 
+                        result.id shouldBe 1L
+
                         val maskedPattern = Regex("^[0-9a-f]{8}-\\*{4}-\\*{4}-\\*{4}-\\*{8}[0-9a-f]{4}$")
                         result.apiKey.matches(maskedPattern) shouldBe true
 
