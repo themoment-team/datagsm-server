@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.club.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.domain.club.dto.response.ClubListResDto
 import team.themoment.datagsm.domain.club.dto.response.ClubResDto
+import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.club.service.QueryClubService
@@ -61,7 +62,7 @@ class QueryClubServiceImpl(
         )
     }
 
-    private fun getParticipantsByClubType(club: team.themoment.datagsm.domain.club.entity.ClubJpaEntity): List<StudentJpaEntity> =
+    private fun getParticipantsByClubType(club: ClubJpaEntity): List<StudentJpaEntity> =
         when (club.type) {
             ClubType.MAJOR_CLUB -> studentJpaRepository.findByMajorClub(club)
             ClubType.JOB_CLUB -> studentJpaRepository.findByJobClub(club)
