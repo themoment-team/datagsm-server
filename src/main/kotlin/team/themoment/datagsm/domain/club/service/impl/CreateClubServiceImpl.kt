@@ -1,5 +1,6 @@
 package team.themoment.datagsm.domain.club.service.impl
 
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -25,10 +26,11 @@ class CreateClubServiceImpl(
 
         val leader =
             studentJpaRepository
-                .findById(clubReqDto.leaderId)
-                .orElseThrow {
-                    ExpectedException("부장으로 지정한 학생을 찾을 수 없습니다. studentId: ${clubReqDto.leaderId}", HttpStatus.NOT_FOUND)
-                }
+                .findByIdOrNull(clubReqDto.leaderId)
+                ?: throw ExpectedException(
+                    "부장으로 지정한 학생을 찾을 수 없습니다. studentId: ${clubReqDto.leaderId}",
+                    HttpStatus.NOT_FOUND,
+                )
 
         val clubEntity =
             ClubJpaEntity().apply {
