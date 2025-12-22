@@ -73,8 +73,7 @@ class QueryClubServiceImpl(
             id = this.id!!,
             name = this.name,
             email = this.email,
-            studentNumber =
-                this.studentNumber.studentGrade * 1000 + this.studentNumber.studentClass * 100 + this.studentNumber.studentNumber,
+            studentNumber = this.studentNumber.fullStudentNumber,
             major = this.major,
             sex = this.sex,
         )

@@ -47,9 +47,7 @@ class CreateClubServiceImpl(
                     id = leader.id!!,
                     name = leader.name,
                     email = leader.email,
-                    studentNumber =
-                        leader.studentNumber.studentGrade * 1000 + leader.studentNumber.studentClass * 100 +
-                            leader.studentNumber.studentNumber,
+                    studentNumber = leader.studentNumber.fullStudentNumber,
                     major = leader.major,
                     sex = leader.sex,
                 ),
