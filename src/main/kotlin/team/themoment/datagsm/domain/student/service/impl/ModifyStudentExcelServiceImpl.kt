@@ -78,22 +78,22 @@ class ModifyStudentExcelServiceImpl(
                 .findAllStudents()
                 .associateBy { it.studentNumber.fullStudentNumber }
 
-        val inDbStudentNumbers = existingStudents.keys.toList()
-        if (inDbStudentNumbers != studentNumbers) {
-            val missingInDb = studentNumbers - inDbStudentNumbers.toSet()
-            if (missingInDb.isNotEmpty()) {
-                throw ExpectedException(
-                    "DB에 존재하지 않는 학번이 엑셀 파일에 존재합니다: $missingInDb",
-                    HttpStatus.BAD_REQUEST,
-                )
-            }
-            val extraInDb = inDbStudentNumbers - studentNumbers.toSet()
-            if (extraInDb.isNotEmpty()) {
-                throw ExpectedException(
-                    "엑셀에 존재하지 않는 학번이 데이터베이스에 존재합니다: $extraInDb",
-                    HttpStatus.BAD_REQUEST,
-                )
-            }
+        val dbStudentNumbers = existingStudents.keys
+        val excelStudentNumbers = studentNumbers.toSet()
+
+        val missingInDb = excelStudentNumbers - dbStudentNumbers
+        if (missingInDb.isNotEmpty()) {
+            throw ExpectedException(
+                "DB에 존재하지 않는 학번이 엑셀 파일에 존재합니다: $missingInDb",
+                HttpStatus.BAD_REQUEST,
+            )
+        }
+        val extraInDb = dbStudentNumbers - excelStudentNumbers
+        if (extraInDb.isNotEmpty()) {
+            throw ExpectedException(
+                "엑셀에 존재하지 않는 학번이 데이터베이스에 존재합니다: $extraInDb",
+                HttpStatus.BAD_REQUEST,
+            )
         }
 
         val majorClubs = excelData.mapNotNull { it.majorClub }.distinct()
