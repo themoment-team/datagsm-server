@@ -29,6 +29,9 @@ class AccountJpaEntity {
     @Column(name = "email", nullable = false, unique = true)
     lateinit var email: String
 
+    @Column(name = "password", nullable = true)
+    var password: String? = null
+
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     var role: AccountRole = AccountRole.USER

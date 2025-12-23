@@ -66,6 +66,17 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_USERNAME}
+    password: ${GMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 server:
   shutdown: graceful
   port: 8080
