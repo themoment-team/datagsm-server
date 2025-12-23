@@ -32,9 +32,7 @@ class QueryApiScopeGroupServiceTest :
                     }
 
                     it("와일드카드 스코프를 포함하지 않는다") {
-                        result.list.all { group ->
-                            group.scopes.none { it.scope.endsWith(":*") }
-                        } shouldBe true
+                        result.list.flatMap { it.scopes }.none { it.scope.endsWith(":*") } shouldBe true
                     }
 
                     it("auth:manage 스코프는 제외된다") {
