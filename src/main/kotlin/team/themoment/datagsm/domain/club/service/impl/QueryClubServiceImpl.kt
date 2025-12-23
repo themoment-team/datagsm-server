@@ -3,16 +3,21 @@ package team.themoment.datagsm.domain.club.service.impl
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.domain.club.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.domain.club.dto.response.ClubListResDto
 import team.themoment.datagsm.domain.club.dto.response.ClubResDto
+import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.club.service.QueryClubService
+import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 
 @Service
 @Transactional
 class QueryClubServiceImpl(
     private final val clubJpaRepository: ClubJpaRepository,
+    private final val studentJpaRepository: StudentJpaRepository,
 ) : QueryClubService {
     override fun execute(
         clubId: Long?,
@@ -20,6 +25,7 @@ class QueryClubServiceImpl(
         clubType: ClubType?,
         page: Int,
         size: Int,
+        includeLeaderInParticipants: Boolean,
     ): ClubListResDto {
         val clubPage =
             clubJpaRepository.searchClubWithPaging(
@@ -34,12 +40,42 @@ class QueryClubServiceImpl(
             totalElements = clubPage.totalElements,
             clubs =
                 clubPage.content.map { entity ->
+                    val participants = getParticipantsByClubType(entity)
+                    val leader = entity.leader.toParticipantInfoDto()
+                    val participantList =
+                        if (includeLeaderInParticipants) {
+                            participants.map { it.toParticipantInfoDto() }
+                        } else {
+                            participants
+                                .filter { it.id != entity.leader.id }
+                                .map { it.toParticipantInfoDto() }
+                        }
+
                     ClubResDto(
                         id = entity.id!!,
                         name = entity.name,
                         type = entity.type,
+                        leader = leader,
+                        participants = participantList,
                     )
                 },
         )
     }
+
+    private fun getParticipantsByClubType(club: ClubJpaEntity): List<StudentJpaEntity> =
+        when (club.type) {
+            ClubType.MAJOR_CLUB -> studentJpaRepository.findByMajorClub(club)
+            ClubType.JOB_CLUB -> studentJpaRepository.findByJobClub(club)
+            ClubType.AUTONOMOUS_CLUB -> studentJpaRepository.findByAutonomousClub(club)
+        }
+
+    private fun StudentJpaEntity.toParticipantInfoDto() =
+        ParticipantInfoDto(
+            id = this.id!!,
+            name = this.name,
+            email = this.email,
+            studentNumber = this.studentNumber.fullStudentNumber,
+            major = this.major,
+            sex = this.sex,
+        )
 }
