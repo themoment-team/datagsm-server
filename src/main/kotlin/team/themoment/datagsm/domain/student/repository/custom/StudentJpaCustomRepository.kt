@@ -40,4 +40,8 @@ interface StudentJpaCustomRepository {
         number: Int,
         id: Long,
     ): Boolean
+
+    fun findStudentsByGrade(grade: Int): List<StudentJpaEntity>
+
+    fun findAllStudents(): List<StudentJpaEntity>
 }

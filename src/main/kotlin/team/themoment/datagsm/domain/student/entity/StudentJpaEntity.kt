@@ -11,6 +11,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 import org.hibernate.annotations.DynamicUpdate
 import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
@@ -19,7 +20,15 @@ import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.entity.constant.StudentNumber
 import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 
-@Table(name = "tb_student")
+@Table(
+    name = "tb_student",
+    uniqueConstraints = [
+        UniqueConstraint(
+            name = "uk_student_number",
+            columnNames = ["student_grade", "student_class", "student_number"],
+        ),
+    ],
+)
 @Entity
 @DynamicUpdate
 class StudentJpaEntity {
@@ -32,7 +41,6 @@ class StudentJpaEntity {
     lateinit var name: String
 
     @field:Embedded
-    @field:Column(name = "student_number", nullable = false, unique = true)
     lateinit var studentNumber: StudentNumber
 
     @field:Column(name = "email", nullable = false, unique = true, length = 25)
