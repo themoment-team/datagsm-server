@@ -25,9 +25,9 @@ import team.themoment.datagsm.domain.student.entity.constant.StudentRole
     uniqueConstraints = [
         UniqueConstraint(
             name = "uk_student_number",
-            columnNames = ["student_grade", "student_class", "student_number"]
-        )
-    ]
+            columnNames = ["student_grade", "student_class", "student_number"],
+        ),
+    ],
 )
 @Entity
 @DynamicUpdate
