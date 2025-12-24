@@ -24,11 +24,6 @@ class ModifyCurrentAccountApiKeyServiceImpl(
     private val apiKeyEnvironment: ApiKeyEnvironment,
     private val scopeChecker: ScopeChecker,
 ) : ModifyCurrentAccountApiKeyService {
-    private fun maskApiKey(uuid: UUID): String {
-        val uuidString = uuid.toString()
-        return "${uuidString.take(8)}-****-****-****-********${uuidString.takeLast(4)}"
-    }
-
     @Transactional
     override fun execute(reqDto: ModifyApiKeyReqDto): ApiKeyResDto {
         val account = currentUserProvider.getCurrentAccount()
@@ -98,7 +93,7 @@ class ModifyCurrentAccountApiKeyServiceImpl(
         val savedApiKey = apiKeyJpaRepository.save(apiKey)
         return ApiKeyResDto(
             id = savedApiKey.id!!,
-            apiKey = if (isReissued) savedApiKey.value.toString() else maskApiKey(savedApiKey.value),
+            apiKey = if (isReissued) savedApiKey.value.toString() else savedApiKey.getMaskedValue(),
             expiresAt = savedApiKey.expiresAt,
             scopes = savedApiKey.scopes,
             description = savedApiKey.description,
