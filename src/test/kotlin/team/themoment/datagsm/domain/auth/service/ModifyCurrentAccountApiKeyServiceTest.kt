@@ -131,11 +131,11 @@ class ModifyCurrentAccountApiKeyServiceTest :
                     }
                 }
 
-                context("정상적으로 갱신할 때 (만료 15일 전)") {
+                context("정상적으로 갱신할 때 - scope와 description 모두 동일") {
                     val reqDto =
                         ModifyApiKeyReqDto(
                             scopes = setOf("student:read", "club:read"),
-                            description = "갱신된 API 키",
+                            description = "기존 설명",
                         )
                     val now = LocalDateTime.now()
                     val expiresAt = now.plusDays(10)
@@ -148,6 +148,7 @@ class ModifyCurrentAccountApiKeyServiceTest :
                             createdAt = now.minusDays(20)
                             updatedAt = now.minusDays(20)
                             this.expiresAt = expiresAt
+                            this.description = "기존 설명"
                             updateScopes(setOf("student:read", "club:read"))
                         }
 
@@ -156,10 +157,11 @@ class ModifyCurrentAccountApiKeyServiceTest :
                         every { mockApiKeyRepository.save(apiKey) } returns apiKey
                     }
 
-                    it("기존 API 키를 유지하고 만료일자 및 scope를 갱신해야 한다") {
+                    it("기존 API 키를 유지하고 만료일자만 갱신해야 한다") {
                         val result = modifyApiKeyService.execute(reqDto)
 
                         result.apiKey shouldBe oldApiKeyValue.toString()
+                        apiKey.value shouldBe oldApiKeyValue
                         result.expiresAt shouldNotBe null
                         result.scopes shouldBe reqDto.scopes
                         result.description shouldBe reqDto.description
@@ -170,7 +172,89 @@ class ModifyCurrentAccountApiKeyServiceTest :
                     }
                 }
 
-                context("정상적으로 갱신할 때 (만료 후 5일)") {
+                context("description만 변경할 때") {
+                    val reqDto =
+                        ModifyApiKeyReqDto(
+                            scopes = setOf("student:read", "club:read"),
+                            description = "새로운 설명",
+                        )
+                    val now = LocalDateTime.now()
+                    val expiresAt = now.plusDays(10)
+                    val oldApiKeyValue = UUID.randomUUID()
+                    val apiKey =
+                        ApiKey().apply {
+                            id = 1L
+                            value = oldApiKeyValue
+                            account = mockAccount
+                            createdAt = now.minusDays(20)
+                            updatedAt = now.minusDays(20)
+                            this.expiresAt = expiresAt
+                            this.description = "기존 설명"
+                            updateScopes(setOf("student:read", "club:read"))
+                        }
+
+                    beforeEach {
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
+                        every { mockApiKeyRepository.save(apiKey) } returns apiKey
+                    }
+
+                    it("API 키가 재발급되어야 한다") {
+                        val result = modifyApiKeyService.execute(reqDto)
+
+                        result.apiKey shouldNotBe oldApiKeyValue.toString()
+                        apiKey.value shouldNotBe oldApiKeyValue
+                        result.expiresAt shouldNotBe null
+                        result.scopes shouldBe reqDto.scopes
+                        result.description shouldBe reqDto.description
+
+                        verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
+                        verify(exactly = 1) { mockApiKeyRepository.save(apiKey) }
+                        verify(exactly = 0) { mockApiKeyRepository.delete(any()) }
+                    }
+                }
+
+                context("scope만 변경할 때") {
+                    val reqDto =
+                        ModifyApiKeyReqDto(
+                            scopes = setOf("student:read", "project:read"),
+                            description = "기존 설명",
+                        )
+                    val now = LocalDateTime.now()
+                    val expiresAt = now.plusDays(10)
+                    val oldApiKeyValue = UUID.randomUUID()
+                    val apiKey =
+                        ApiKey().apply {
+                            id = 1L
+                            value = oldApiKeyValue
+                            account = mockAccount
+                            createdAt = now.minusDays(20)
+                            updatedAt = now.minusDays(20)
+                            this.expiresAt = expiresAt
+                            this.description = "기존 설명"
+                            updateScopes(setOf("student:read", "club:read"))
+                        }
+
+                    beforeEach {
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
+                        every { mockApiKeyRepository.save(apiKey) } returns apiKey
+                    }
+
+                    it("API 키가 재발급되어야 한다") {
+                        val result = modifyApiKeyService.execute(reqDto)
+
+                        result.apiKey shouldNotBe oldApiKeyValue.toString()
+                        apiKey.value shouldNotBe oldApiKeyValue
+                        result.expiresAt shouldNotBe null
+                        result.scopes shouldBe reqDto.scopes
+                        result.description shouldBe reqDto.description
+
+                        verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
+                        verify(exactly = 1) { mockApiKeyRepository.save(apiKey) }
+                        verify(exactly = 0) { mockApiKeyRepository.delete(any()) }
+                    }
+                }
+
+                context("정상적으로 갱신할 때 (만료 후 5일, description 변경)") {
                     val reqDto =
                         ModifyApiKeyReqDto(
                             scopes = setOf("project:read"),
@@ -187,6 +271,7 @@ class ModifyCurrentAccountApiKeyServiceTest :
                             createdAt = now.minusDays(35)
                             updatedAt = now.minusDays(35)
                             this.expiresAt = expiresAt
+                            this.description = "기존 설명"
                             updateScopes(setOf("project:read"))
                         }
 
@@ -195,11 +280,11 @@ class ModifyCurrentAccountApiKeyServiceTest :
                         every { mockApiKeyRepository.save(apiKey) } returns apiKey
                     }
 
-                    it("기존 API 키를 유지하고 만료일자 및 scope를 갱신해야 한다") {
+                    it("description이 변경되어 API 키가 재발급되어야 한다") {
                         val result = modifyApiKeyService.execute(reqDto)
 
-                        result.apiKey shouldBe oldApiKeyValue.toString()
-                        apiKey.value shouldBe oldApiKeyValue
+                        result.apiKey shouldNotBe oldApiKeyValue.toString()
+                        apiKey.value shouldNotBe oldApiKeyValue
                         apiKey.expiresAt shouldNotBe expiresAt
 
                         verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
@@ -318,7 +403,7 @@ class ModifyCurrentAccountApiKeyServiceTest :
                     }
                 }
 
-                context("Admin 사용자가 모든 scope로 갱신할 때") {
+                context("Admin 사용자가 모든 scope로 갱신할 때 (description 변경)") {
                     val reqDto =
                         ModifyApiKeyReqDto(
                             scopes =
@@ -344,6 +429,7 @@ class ModifyCurrentAccountApiKeyServiceTest :
                             createdAt = now.minusDays(345)
                             updatedAt = now.minusDays(345)
                             this.expiresAt = expiresAt
+                            this.description = "기존 설명"
                             updateScopes(
                                 setOf(
                                     "student:read",
@@ -364,12 +450,13 @@ class ModifyCurrentAccountApiKeyServiceTest :
                         every { mockApiKeyRepository.save(apiKey) } returns apiKey
                     }
 
-                    it("모든 scope로 갱신하고 365일 만료기간을 설정해야 한다") {
+                    it("description이 변경되어 API 키가 재발급되어야 하고 365일 만료기간을 설정해야 한다") {
                         val beforeExecution = LocalDateTime.now()
                         val result = modifyApiKeyService.execute(reqDto)
                         val afterExecution = LocalDateTime.now()
 
-                        result.apiKey shouldBe oldApiKeyValue.toString()
+                        result.apiKey shouldNotBe oldApiKeyValue.toString()
+                        apiKey.value shouldNotBe oldApiKeyValue
                         result.scopes shouldBe reqDto.scopes
                         result.description shouldBe reqDto.description
 
