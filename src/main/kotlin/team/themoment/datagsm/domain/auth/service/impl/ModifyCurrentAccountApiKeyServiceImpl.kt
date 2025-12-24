@@ -24,6 +24,11 @@ class ModifyCurrentAccountApiKeyServiceImpl(
     private val apiKeyEnvironment: ApiKeyEnvironment,
     private val scopeChecker: ScopeChecker,
 ) : ModifyCurrentAccountApiKeyService {
+    private fun maskApiKey(uuid: UUID): String {
+        val uuidString = uuid.toString()
+        return "${uuidString.take(8)}-****-****-****-********${uuidString.takeLast(4)}"
+    }
+
     @Transactional
     override fun execute(reqDto: ModifyApiKeyReqDto): ApiKeyResDto {
         val account = currentUserProvider.getCurrentAccount()
@@ -68,11 +73,12 @@ class ModifyCurrentAccountApiKeyServiceImpl(
         val isScopeChanged = apiKey.scopes != reqDto.scopes
         val isDescriptionChanged = apiKey.description != reqDto.description
         val oldValue = apiKey.value
+        val isReissued = isScopeChanged || isDescriptionChanged
         apiKey.apply {
             updatedAt = now
             this.expiresAt = expiresAt
             this.description = reqDto.description
-            if (isScopeChanged || isDescriptionChanged) {
+            if (isReissued) {
                 value = UUID.randomUUID()
                 if (isScopeChanged) {
                     updateScopes(reqDto.scopes)
@@ -92,7 +98,7 @@ class ModifyCurrentAccountApiKeyServiceImpl(
         val savedApiKey = apiKeyJpaRepository.save(apiKey)
         return ApiKeyResDto(
             id = savedApiKey.id!!,
-            apiKey = savedApiKey.value.toString(),
+            apiKey = if (isReissued) savedApiKey.value.toString() else maskApiKey(savedApiKey.value),
             expiresAt = savedApiKey.expiresAt,
             scopes = savedApiKey.scopes,
             description = savedApiKey.description,
