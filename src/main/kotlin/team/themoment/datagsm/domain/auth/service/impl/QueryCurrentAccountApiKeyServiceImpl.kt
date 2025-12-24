@@ -27,7 +27,7 @@ class QueryCurrentAccountApiKeyServiceImpl(
 
         return ApiKeyResDto(
             id = apiKey.id!!,
-            apiKey = apiKey.getMaskedValue(),
+            apiKey = apiKey.maskedValue,
             expiresAt = apiKey.expiresAt,
             scopes = apiKey.scopes,
             description = apiKey.description,

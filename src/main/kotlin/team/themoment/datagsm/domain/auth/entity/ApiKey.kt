@@ -77,8 +77,9 @@ class ApiKey {
         return now.isBefore(renewalEndDate)
     }
 
-    fun getMaskedValue(): String {
-        val uuidString = value.toString()
-        return "${uuidString.take(8)}-****-****-****-********${uuidString.takeLast(4)}"
-    }
+    val maskedValue: String
+        get() {
+            val uuidString = value.toString()
+            return "${uuidString.take(8)}-****-****-****-********${uuidString.takeLast(4)}"
+        }
 }

@@ -93,7 +93,7 @@ class ModifyCurrentAccountApiKeyServiceImpl(
         val savedApiKey = apiKeyJpaRepository.save(apiKey)
         return ApiKeyResDto(
             id = savedApiKey.id!!,
-            apiKey = if (isReissued) savedApiKey.value.toString() else savedApiKey.getMaskedValue(),
+            apiKey = if (isReissued) savedApiKey.value.toString() else savedApiKey.maskedValue,
             expiresAt = savedApiKey.expiresAt,
             scopes = savedApiKey.scopes,
             description = savedApiKey.description,

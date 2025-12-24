@@ -39,7 +39,7 @@ class SearchApiKeyServiceImpl(
                 apiKeyPage.content.map { entity ->
                     ApiKeyResDto(
                         id = entity.id!!,
-                        apiKey = entity.getMaskedValue(),
+                        apiKey = entity.maskedValue,
                         expiresAt = entity.expiresAt,
                         scopes = entity.scopes,
                         description = entity.description,

@@ -160,7 +160,7 @@ class ModifyCurrentAccountApiKeyServiceTest :
                     it("기존 API 키를 유지하고 만료일자만 갱신하며 마스킹된 값을 반환해야 한다") {
                         val result = modifyApiKeyService.execute(reqDto)
 
-                        result.apiKey shouldBe apiKey.getMaskedValue()
+                        result.apiKey shouldBe apiKey.maskedValue
                         apiKey.value shouldBe oldApiKeyValue
                         result.expiresAt shouldNotBe null
                         result.scopes shouldBe reqDto.scopes
