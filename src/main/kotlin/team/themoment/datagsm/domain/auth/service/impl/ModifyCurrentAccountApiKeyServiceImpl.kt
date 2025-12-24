@@ -66,17 +66,21 @@ class ModifyCurrentAccountApiKeyServiceImpl(
         val expirationDays = if (isAdmin) apiKeyEnvironment.adminExpirationDays else apiKeyEnvironment.expirationDays
         val expiresAt = now.plusDays(expirationDays)
         val isScopeChanged = apiKey.scopes != reqDto.scopes
+        val isDescriptionChanged = apiKey.description != reqDto.description
         val oldValue = apiKey.value
         apiKey.apply {
             updatedAt = now
             this.expiresAt = expiresAt
             this.description = reqDto.description
-            if (isScopeChanged) {
+            if (isScopeChanged || isDescriptionChanged) {
                 value = UUID.randomUUID()
-                updateScopes(reqDto.scopes)
+                if (isScopeChanged) {
+                    updateScopes(reqDto.scopes)
+                }
                 logger().info(
-                    "API Key reissued due to scope change: accountId=${account.id}, " +
-                        "oldKey=${oldValue.toString().take(8)}****, newKey=${value.toString().take(8)}****",
+                    "API Key reissued: accountId=${account.id}, " +
+                        "oldKey=${oldValue.toString().take(8)}****, newKey=${value.toString().take(8)}****, " +
+                        "scopeChanged=$isScopeChanged, descriptionChanged=$isDescriptionChanged",
                 )
             } else {
                 logger().info(
