@@ -14,7 +14,7 @@ class QueryApiScopeGroupServiceImpl : QueryApiScopeGroupService {
         val grouped = ApiScope.groupByCategory(scopesByRole)
 
         return ApiScopeGroupListResDto(
-            data =
+            list =
                 grouped.map { (categoryDisplayName, scopes) ->
                     ApiScopeGroupListResDto.ApiScopeGroupResDto(
                         title = categoryDisplayName,

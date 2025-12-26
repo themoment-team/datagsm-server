@@ -3,7 +3,7 @@ package team.themoment.datagsm.domain.auth.dto.response
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class ApiScopeGroupListResDto(
-    val data: List<ApiScopeGroupResDto>,
+    val list: List<ApiScopeGroupResDto>,
 ) {
     data class ApiScopeGroupResDto(
         @param:Schema(description = "카테고리 이름", example = "학생")
