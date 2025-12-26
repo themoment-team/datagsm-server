@@ -76,4 +76,10 @@ class ApiKey {
         val renewalEndDate = expiresAt.plusDays(renewalPeriodDays)
         return now.isBefore(renewalEndDate)
     }
+
+    val maskedValue: String
+        get() {
+            val uuidString = value.toString()
+            return "${uuidString.take(8)}-****-****-****-********${uuidString.takeLast(4)}"
+        }
 }

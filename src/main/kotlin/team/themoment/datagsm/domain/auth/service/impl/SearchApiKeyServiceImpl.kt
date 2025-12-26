@@ -7,7 +7,6 @@ import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeySearchResDto
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.domain.auth.service.SearchApiKeyService
-import java.util.UUID
 
 @Service
 @Transactional(readOnly = true)
@@ -40,17 +39,12 @@ class SearchApiKeyServiceImpl(
                 apiKeyPage.content.map { entity ->
                     ApiKeyResDto(
                         id = entity.id!!,
-                        apiKey = maskApiKey(entity.value),
+                        apiKey = entity.maskedValue,
                         expiresAt = entity.expiresAt,
                         scopes = entity.scopes,
                         description = entity.description,
                     )
                 },
         )
-    }
-
-    private fun maskApiKey(uuid: UUID): String {
-        val uuidString = uuid.toString()
-        return "${uuidString.take(8)}-****-****-****-********${uuidString.takeLast(4)}"
     }
 }

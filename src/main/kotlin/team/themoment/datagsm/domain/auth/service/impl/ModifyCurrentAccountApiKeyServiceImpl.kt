@@ -68,11 +68,12 @@ class ModifyCurrentAccountApiKeyServiceImpl(
         val isScopeChanged = apiKey.scopes != reqDto.scopes
         val isDescriptionChanged = apiKey.description != reqDto.description
         val oldValue = apiKey.value
+        val isReissued = isScopeChanged || isDescriptionChanged
         apiKey.apply {
             updatedAt = now
             this.expiresAt = expiresAt
             this.description = reqDto.description
-            if (isScopeChanged || isDescriptionChanged) {
+            if (isReissued) {
                 value = UUID.randomUUID()
                 if (isScopeChanged) {
                     updateScopes(reqDto.scopes)
@@ -92,7 +93,7 @@ class ModifyCurrentAccountApiKeyServiceImpl(
         val savedApiKey = apiKeyJpaRepository.save(apiKey)
         return ApiKeyResDto(
             id = savedApiKey.id!!,
-            apiKey = savedApiKey.value.toString(),
+            apiKey = if (isReissued) savedApiKey.value.toString() else savedApiKey.maskedValue,
             expiresAt = savedApiKey.expiresAt,
             scopes = savedApiKey.scopes,
             description = savedApiKey.description,

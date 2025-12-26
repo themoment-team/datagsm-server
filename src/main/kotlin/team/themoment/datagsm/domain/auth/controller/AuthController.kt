@@ -97,7 +97,7 @@ class AuthController(
         @RequestBody @Valid reqDto: CreateApiKeyReqDto,
     ): ApiKeyResDto = createCurrentAccountApiKeyService.execute(reqDto)
 
-    @Operation(summary = "API 키 갱신", description = "기존 API 키를 갱신합니다. 만료 15일 전부터 만료 15일 후까지만 갱신 가능하며, scope도 변경할 수 있습니다.")
+    @Operation(summary = "API 키 갱신", description = "기존 API 키를 갱신합니다. 권한범위도 변경할 수 있으며 변경 시 새로 API 키가 발급됩니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "API 키 갱신 성공"),
