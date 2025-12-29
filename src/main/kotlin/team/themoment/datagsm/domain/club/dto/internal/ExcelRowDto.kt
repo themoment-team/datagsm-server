@@ -9,6 +9,9 @@ data class ExcelRowDto(
     @field:NotEmpty
     @param:Schema(description = "동아리명 목록", example = "더모먼트")
     val clubName: List<String>,
+    @field:NotEmpty
+    @param:Schema(description = "동아리 리더 목록", example = "2404 김태은")
+    val clubLeader: List<String>,
     @field:NotBlank
     @param:Schema(description = "동아리 종류", example = "전공동아리")
     val clubType: ClubType,

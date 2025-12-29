@@ -11,4 +11,6 @@ data class ClubInfoDto(
     @field:NotBlank
     @param:Schema(description = "동아리 종류", example = "전공동아리")
     val clubType: ClubType,
+    @param:Schema(description = "동아리 부장 정보", example = "2404 김태은")
+    val leaderInfo: String? = null,
 )
