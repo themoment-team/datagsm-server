@@ -86,7 +86,7 @@ class ModifyClubExcelServiceImpl(
     private fun parseAndFindLeader(leaderInfo: String?): StudentJpaEntity {
         if (leaderInfo.isNullOrBlank()) {
             throw ExpectedException(
-                "동아리 리더 정보가 비어있습니다.",
+                "동아리 부장 정보가 비어있습니다.",
                 HttpStatus.BAD_REQUEST,
             )
         }
@@ -94,7 +94,7 @@ class ModifyClubExcelServiceImpl(
         val parts = leaderInfo.trim().split(" ")
         if (parts.size != 2) {
             throw ExpectedException(
-                "동아리 리더 정보 형식이 올바르지 않습니다. (형식: '학번 이름', 예: '2404 김태은')",
+                "동아리 부장 정보 형식이 올바르지 않습니다. (형식: '학번 이름', 예: '2404 김태은')",
                 HttpStatus.BAD_REQUEST,
             )
         }
@@ -151,11 +151,11 @@ class ModifyClubExcelServiceImpl(
         val expectedHeaders =
             listOf(
                 "전공동아리",
-                "전공동아리 리더",
+                "전공동아리 부장",
                 "취업동아리",
-                "취업동아리 리더",
+                "취업동아리 부장",
                 "창체동아리",
-                "창체동아리 리더",
+                "창체동아리 부장",
             )
         try {
             if (
@@ -163,7 +163,7 @@ class ModifyClubExcelServiceImpl(
                 headerColumns != expectedHeaders
             ) {
                 throw ExpectedException(
-                    "헤더 행의 열은 순서대로 전공동아리, 전공동아리 리더, 취업동아리, 취업동아리 리더, 창체동아리, 창체동아리 리더여야 합니다.",
+                    "헤더 행의 열은 순서대로 전공동아리, 전공동아리 부장, 취업동아리, 취업동아리 부장, 창체동아리, 창체동아리 부장여야 합니다.",
                     HttpStatus.BAD_REQUEST,
                 )
             }
