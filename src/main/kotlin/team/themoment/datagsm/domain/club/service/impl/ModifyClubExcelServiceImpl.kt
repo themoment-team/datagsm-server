@@ -119,12 +119,10 @@ class ModifyClubExcelServiceImpl(
                 classNum,
                 number,
                 studentName,
-            ).orElseThrow {
-                ExpectedException(
-                    "학번 $studentNumberStr 이름 $studentName 에 해당하는 학생을 찾을 수 없습니다.",
-                    HttpStatus.NOT_FOUND,
-                )
-            }
+            ) ?: throw ExpectedException(
+            "학번 $studentNumberStr 이름 $studentName 에 해당하는 학생을 찾을 수 없습니다.",
+            HttpStatus.NOT_FOUND,
+        )
     }
 
     private fun queryExcelData(file: MultipartFile): List<ExcelRowDto> {
@@ -175,24 +173,24 @@ class ModifyClubExcelServiceImpl(
                         val clubType = headerToClubType[header]!!
                         val clubNameColIdx = idx * 2
                         val clubLeaderColIdx = idx * 2 + 1
-                        val clubNames =
+                        val clubAndLeaderPairs =
                             (1..sheet.lastRowNum).mapNotNull { rowIdx ->
-                                sheet
-                                    .getRow(rowIdx)
-                                    ?.getCell(clubNameColIdx)
-                                    ?.toString()
-                                    ?.trim()
-                                    ?.takeIf { it.isNotBlank() }
+                                val row = sheet.getRow(rowIdx)
+                                val clubName =
+                                    row
+                                        ?.getCell(clubNameColIdx)
+                                        ?.toString()
+                                        ?.trim()
+                                        ?.takeIf { it.isNotBlank() }
+
+                                clubName?.let {
+                                    val clubLeader =
+                                        row?.getCell(clubLeaderColIdx)?.toString()?.trim() ?: ""
+                                    it to clubLeader
+                                }
                             }
-                        val clubLeaders =
-                            (1..sheet.lastRowNum).mapNotNull { rowIdx ->
-                                sheet
-                                    .getRow(rowIdx)
-                                    ?.getCell(clubLeaderColIdx)
-                                    ?.toString()
-                                    ?.trim()
-                                    ?.takeIf { it.isNotBlank() }
-                            }
+                        val clubNames = clubAndLeaderPairs.map { it.first }
+                        val clubLeaders = clubAndLeaderPairs.map { it.second }
                         ExcelRowDto(clubName = clubNames, clubLeader = clubLeaders, clubType = clubType)
                     }
             return data

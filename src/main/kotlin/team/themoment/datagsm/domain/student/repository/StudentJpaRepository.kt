@@ -22,5 +22,5 @@ interface StudentJpaRepository :
         classNum: Int,
         number: Int,
         name: String,
-    ): Optional<StudentJpaEntity>
+    ): StudentJpaEntity?
 }
