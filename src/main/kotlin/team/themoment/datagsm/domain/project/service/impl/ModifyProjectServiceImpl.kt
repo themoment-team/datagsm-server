@@ -9,6 +9,8 @@ import team.themoment.datagsm.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.domain.project.service.ModifyProjectService
+import team.themoment.datagsm.domain.student.dto.internal.ParticipantInfoDto
+import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.global.exception.error.ExpectedException
 
 @Service
@@ -16,6 +18,7 @@ import team.themoment.datagsm.global.exception.error.ExpectedException
 class ModifyProjectServiceImpl(
     private val projectJpaRepository: ProjectJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
+    private val studentJpaRepository: StudentJpaRepository,
 ) : ModifyProjectService {
     override fun execute(
         projectId: Long,
@@ -38,14 +41,42 @@ class ModifyProjectServiceImpl(
                     )
                 }
 
+        val newParticipants =
+            if (reqDto.participantIds.isNotEmpty()) {
+                studentJpaRepository.findAllById(reqDto.participantIds).toMutableSet()
+            } else {
+                mutableSetOf()
+            }
+
+        if (newParticipants.size != reqDto.participantIds.size) {
+            throw ExpectedException(
+                "일부 학생을 찾을 수 없습니다. 요청한 학생 수: ${reqDto.participantIds.size}, 찾은 학생 수: ${newParticipants.size}",
+                HttpStatus.NOT_FOUND,
+            )
+        }
+
         project.name = reqDto.name
         project.description = reqDto.description
         project.club = ownerClub
+        project.participants.clear()
+        project.participants.addAll(newParticipants)
+
         return ProjectResDto(
             id = project.id!!,
             name = project.name,
             description = project.description,
             club = project.club?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
+            participants =
+                project.participants.map { student ->
+                    ParticipantInfoDto(
+                        id = student.id!!,
+                        name = student.name,
+                        email = student.email,
+                        studentNumber = student.studentNumber.fullStudentNumber,
+                        major = student.major,
+                        sex = student.sex,
+                    )
+                },
         )
     }
 }
