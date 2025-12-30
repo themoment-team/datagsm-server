@@ -35,9 +35,11 @@ class ProjectJpaCustomRepositoryImpl(
     ): Page<ProjectJpaEntity> {
         val content =
             jpaQueryFactory
-                .select(projectJpaEntity)
+                .select(projectJpaEntity).distinct()
                 .from(projectJpaEntity)
                 .leftJoin(projectJpaEntity.club)
+                .fetchJoin()
+                .leftJoin(projectJpaEntity.participants)
                 .fetchJoin()
                 .where(
                     projectId?.let { projectJpaEntity.id.eq(it) },
