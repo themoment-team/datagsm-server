@@ -38,17 +38,19 @@ class CreateProjectServiceImpl(
 
         val participants =
             if (projectReqDto.participantIds.isNotEmpty()) {
-                studentJpaRepository.findAllById(projectReqDto.participantIds).toMutableSet()
+                val foundStudents = studentJpaRepository.findAllById(projectReqDto.participantIds).toMutableSet()
+                val foundIds = foundStudents.map { it.id }.toSet()
+                val notFoundIds = projectReqDto.participantIds.filterNot { it in foundIds }
+                if (notFoundIds.isNotEmpty()) {
+                    throw ExpectedException(
+                        "${notFoundIds.joinToString(", ")} 에 대응하는 학생 데이터를 찾을 수 없습니다.",
+                        HttpStatus.NOT_FOUND,
+                    )
+                }
+                foundStudents
             } else {
                 mutableSetOf()
             }
-
-        if (participants.size != projectReqDto.participantIds.size) {
-            throw ExpectedException(
-                "일부 학생을 찾을 수 없습니다. 요청한 학생 수: ${projectReqDto.participantIds.size}, 찾은 학생 수: ${participants.size}",
-                HttpStatus.NOT_FOUND,
-            )
-        }
 
         val projectEntity =
             ProjectJpaEntity().apply {

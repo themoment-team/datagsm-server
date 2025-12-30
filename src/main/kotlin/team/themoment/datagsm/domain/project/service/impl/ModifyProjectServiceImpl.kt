@@ -43,23 +43,25 @@ class ModifyProjectServiceImpl(
 
         val newParticipants =
             if (reqDto.participantIds.isNotEmpty()) {
-                studentJpaRepository.findAllById(reqDto.participantIds).toMutableSet()
+                val foundStudents = studentJpaRepository.findAllById(reqDto.participantIds).toMutableSet()
+                val foundIds = foundStudents.map { it.id }.toSet()
+                val notFoundIds = reqDto.participantIds.filterNot { it in foundIds }
+
+                if (notFoundIds.isNotEmpty()) {
+                    throw ExpectedException(
+                        "존재하지 않는 학생 ID: ${notFoundIds.joinToString(", ")}",
+                        HttpStatus.NOT_FOUND,
+                    )
+                }
+                foundStudents
             } else {
                 mutableSetOf()
             }
 
-        if (newParticipants.size != reqDto.participantIds.size) {
-            throw ExpectedException(
-                "일부 학생을 찾을 수 없습니다. 요청한 학생 수: ${reqDto.participantIds.size}, 찾은 학생 수: ${newParticipants.size}",
-                HttpStatus.NOT_FOUND,
-            )
-        }
-
         project.name = reqDto.name
         project.description = reqDto.description
         project.club = ownerClub
-        project.participants.clear()
-        project.participants.addAll(newParticipants)
+        project.participants = newParticipants
 
         return ProjectResDto(
             id = project.id!!,
