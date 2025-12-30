@@ -23,10 +23,13 @@ class ModifyProjectServiceTest :
         lateinit var mockClubRepository: ClubJpaRepository
         lateinit var modifyProjectService: ModifyProjectService
 
+        lateinit var mockStudentRepository: team.themoment.datagsm.domain.student.repository.StudentJpaRepository
+
         beforeEach {
             mockProjectRepository = mockk<ProjectJpaRepository>()
             mockClubRepository = mockk<ClubJpaRepository>()
-            modifyProjectService = ModifyProjectServiceImpl(mockProjectRepository, mockClubRepository)
+            mockStudentRepository = mockk<team.themoment.datagsm.domain.student.repository.StudentJpaRepository>()
+            modifyProjectService = ModifyProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository)
         }
 
         describe("ModifyProjectService 클래스의") {
@@ -78,6 +81,7 @@ class ModifyProjectServiceTest :
                         result.id shouldBe projectId
                         result.name shouldBe "수정된프로젝트"
                         result.description shouldBe "기존 설명"
+                        result.participants shouldBe emptyList()
 
                         verify(exactly = 1) { mockProjectRepository.findById(projectId) }
                         verify(exactly = 1) {

@@ -76,6 +76,7 @@ class QueryProjectServiceTest :
                         project.club?.id shouldBe 1L
                         project.club?.name shouldBe "SW개발동아리"
                         project.club?.type shouldBe ClubType.MAJOR_CLUB
+                        project.participants shouldBe emptyList()
 
                         verify(exactly = 1) {
                             mockProjectRepository.searchProjectWithPaging(
