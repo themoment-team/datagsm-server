@@ -1,8 +1,8 @@
 package team.themoment.datagsm.domain.club.dto.response
 
 import io.swagger.v3.oas.annotations.media.Schema
-import team.themoment.datagsm.domain.club.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
+import team.themoment.datagsm.domain.student.dto.internal.ParticipantInfoDto
 
 data class ClubResDto(
     @param:Schema(description = "동아리 ID", example = "1")

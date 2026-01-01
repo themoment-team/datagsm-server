@@ -1,4 +1,4 @@
-package team.themoment.datagsm.domain.club.dto.internal
+package team.themoment.datagsm.domain.student.dto.internal
 
 import io.swagger.v3.oas.annotations.media.Schema
 import team.themoment.datagsm.domain.student.entity.constant.Major

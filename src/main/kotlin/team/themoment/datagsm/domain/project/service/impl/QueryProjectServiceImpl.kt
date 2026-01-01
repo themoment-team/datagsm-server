@@ -8,6 +8,7 @@ import team.themoment.datagsm.domain.project.dto.response.ProjectListResDto
 import team.themoment.datagsm.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.domain.project.service.QueryProjectService
+import team.themoment.datagsm.domain.student.dto.internal.ParticipantInfoDto
 
 @Service
 @Transactional(readOnly = true)
@@ -39,6 +40,17 @@ class QueryProjectServiceImpl(
                         name = project.name,
                         description = project.description,
                         club = project.club?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
+                        participants =
+                            project.participants.map { student ->
+                                ParticipantInfoDto(
+                                    id = student.id!!,
+                                    name = student.name,
+                                    email = student.email,
+                                    studentNumber = student.studentNumber.fullStudentNumber,
+                                    major = student.major,
+                                    sex = student.sex,
+                                )
+                            },
                     )
                 },
         )

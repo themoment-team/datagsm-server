@@ -10,6 +10,8 @@ import team.themoment.datagsm.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.domain.project.service.CreateProjectService
+import team.themoment.datagsm.domain.student.dto.internal.ParticipantInfoDto
+import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.global.exception.error.ExpectedException
 
 @Service
@@ -17,6 +19,7 @@ import team.themoment.datagsm.global.exception.error.ExpectedException
 class CreateProjectServiceImpl(
     private val projectJpaRepository: ProjectJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
+    private val studentJpaRepository: StudentJpaRepository,
 ) : CreateProjectService {
     override fun execute(projectReqDto: ProjectReqDto): ProjectResDto {
         if (projectJpaRepository.existsByName(projectReqDto.name)) {
@@ -33,11 +36,28 @@ class CreateProjectServiceImpl(
                     )
                 }
 
+        val participants =
+            if (projectReqDto.participantIds.isNotEmpty()) {
+                val foundStudents = studentJpaRepository.findAllById(projectReqDto.participantIds).toMutableSet()
+                val foundIds = foundStudents.map { it.id }.toSet()
+                val notFoundIds = projectReqDto.participantIds.filterNot { it in foundIds }
+                if (notFoundIds.isNotEmpty()) {
+                    throw ExpectedException(
+                        "${notFoundIds.joinToString(", ")} 에 대응하는 학생 데이터를 찾을 수 없습니다.",
+                        HttpStatus.NOT_FOUND,
+                    )
+                }
+                foundStudents
+            } else {
+                mutableSetOf()
+            }
+
         val projectEntity =
             ProjectJpaEntity().apply {
                 name = projectReqDto.name
                 description = projectReqDto.description
                 this.club = ownerClub
+                this.participants = participants
             }
         val savedProjectEntity = projectJpaRepository.save(projectEntity)
 
@@ -51,6 +71,17 @@ class CreateProjectServiceImpl(
                     name = ownerClub.name,
                     type = ownerClub.type,
                 ),
+            participants =
+                savedProjectEntity.participants.map { student ->
+                    ParticipantInfoDto(
+                        id = student.id!!,
+                        name = student.name,
+                        email = student.email,
+                        studentNumber = student.studentNumber.fullStudentNumber,
+                        major = student.major,
+                        sex = student.sex,
+                    )
+                },
         )
     }
 }
