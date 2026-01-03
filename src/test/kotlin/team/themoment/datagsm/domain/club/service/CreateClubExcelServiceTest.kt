@@ -114,13 +114,11 @@ class CreateClubExcelServiceTest :
                         verify(exactly = 1) { mockClubRepository.findByType(ClubType.JOB_CLUB) }
                         verify(exactly = 1) { mockClubRepository.findByType(ClubType.AUTONOMOUS_CLUB) }
 
-                        // Excel 내용 검증
                         val workbook = XSSFWorkbook(ByteArrayInputStream(result.body))
                         val sheet = workbook.getSheetAt(0)
 
                         sheet.sheetName shouldBe "동아리"
 
-                        // 헤더 검증
                         val headerRow = sheet.getRow(0)
                         headerRow.getCell(0).stringCellValue shouldBe "전공동아리"
                         headerRow.getCell(1).stringCellValue shouldBe "전공동아리 부장"
@@ -129,7 +127,6 @@ class CreateClubExcelServiceTest :
                         headerRow.getCell(4).stringCellValue shouldBe "창체동아리"
                         headerRow.getCell(5).stringCellValue shouldBe "창체동아리 부장"
 
-                        // 데이터 검증
                         val dataRow = sheet.getRow(1)
                         dataRow.getCell(0).stringCellValue shouldBe "SW개발동아리"
                         dataRow.getCell(1).stringCellValue shouldBe "2404 김철수"
@@ -157,8 +154,6 @@ class CreateClubExcelServiceTest :
 
                         val workbook = XSSFWorkbook(ByteArrayInputStream(result.body))
                         val sheet = workbook.getSheetAt(0)
-
-                        // 헤더만 존재해야 함
                         sheet.lastRowNum shouldBe 0
 
                         workbook.close()
@@ -196,20 +191,14 @@ class CreateClubExcelServiceTest :
 
                     it("모든 동아리가 포함된 Excel 파일을 생성해야 한다") {
                         val result = createClubExcelService.execute()
-
                         result.statusCode shouldBe HttpStatus.OK
-
                         val workbook = XSSFWorkbook(ByteArrayInputStream(result.body))
                         val sheet = workbook.getSheetAt(0)
-
-                        // 헤더 + 5개 동아리
                         sheet.lastRowNum shouldBe 5
-
-                        // 각 동아리 확인
                         for (i in 1..5) {
                             val row = sheet.getRow(i)
                             row.getCell(0).stringCellValue shouldBe "전공동아리$i"
-                            row.getCell(1).stringCellValue shouldBe "210$i 학생$i"
+                            row.getCell(1).stringCellValue shouldBe "21${String.format("%02d", i)} 학생$i"
                         }
 
                         workbook.close()
@@ -267,25 +256,16 @@ class CreateClubExcelServiceTest :
 
                     it("가장 많은 동아리 개수만큼 행을 생성해야 한다") {
                         val result = createClubExcelService.execute()
-
                         result.statusCode shouldBe HttpStatus.OK
-
                         val workbook = XSSFWorkbook(ByteArrayInputStream(result.body))
                         val sheet = workbook.getSheetAt(0)
-
-                        // 헤더 + 3개 행 (취업동아리가 3개로 가장 많음)
                         sheet.lastRowNum shouldBe 3
-
-                        // 첫 번째 행: 전공동아리1, 취업동아리1
                         val row1 = sheet.getRow(1)
                         row1.getCell(0).stringCellValue shouldBe "전공동아리1"
                         row1.getCell(2).stringCellValue shouldBe "취업동아리1"
-
-                        // 두 번째 행: 전공동아리는 없고, 취업동아리2만
                         val row2 = sheet.getRow(2)
                         row2.getCell(0) shouldBe null
                         row2.getCell(2).stringCellValue shouldBe "취업동아리2"
-
                         workbook.close()
                     }
                 }
