@@ -4,7 +4,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -148,7 +147,7 @@ class ModifyStudentExcelServiceTest :
                         val result = modifyStudentExcelService.execute(file)
 
                         result.message shouldBe "엑셀 업로드 성공"
-                        result.status shouldBe HttpStatus.OK.value()
+                        result.code shouldBe HttpStatus.OK.value()
 
                         existingStudent.name shouldBe "홍길동"
                         existingStudent.email shouldBe "hong@gsm.hs.kr"

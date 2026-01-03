@@ -4,7 +4,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -141,7 +140,7 @@ class ModifyClubExcelServiceTest :
                         val result = modifyClubExcelService.execute(file)
 
                         result.message shouldBe "엑셀 업로드 성공"
-                        result.status shouldBe HttpStatus.OK.value()
+                        result.code shouldBe HttpStatus.OK.value()
 
                         val clubsSlot = slot<List<ClubJpaEntity>>()
                         verify(exactly = 1) { mockClubRepository.saveAll(capture(clubsSlot)) }
