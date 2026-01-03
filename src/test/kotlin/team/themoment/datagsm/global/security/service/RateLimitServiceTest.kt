@@ -120,7 +120,6 @@ class RateLimitServiceTest :
                         val rateLimitService = RateLimitServiceImpl(mockProxyManager, apiKeyEnvironment)
                         val result = rateLimitService.getSecondsUntilRefill(testApiKey)
 
-                        // relaxed mock이므로 기본값 0 반환
                         result shouldBe 0L
                     }
                 }

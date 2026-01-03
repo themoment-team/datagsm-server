@@ -38,7 +38,6 @@ class ModifyStudentExcelServiceTest :
         fun createValidExcelFile(): ByteArray {
             val workbook = XSSFWorkbook()
 
-            // 1학년 시트
             val sheet1 = workbook.createSheet("1학년")
             val header1 = sheet1.createRow(0)
             header1.createCell(0).setCellValue("학생명")
@@ -66,14 +65,12 @@ class ModifyStudentExcelServiceTest :
             data1.createCell(9).setCellValue("X")
             data1.createCell(10).setCellValue("남자")
 
-            // 2학년 시트 (빈 시트)
             val sheet2 = workbook.createSheet("2학년")
             val header2 = sheet2.createRow(0)
             for (i in 0..10) {
                 header2.createCell(i).setCellValue(header1.getCell(i).stringCellValue)
             }
 
-            // 3학년 시트 (빈 시트)
             val sheet3 = workbook.createSheet("3학년")
             val header3 = sheet3.createRow(0)
             for (i in 0..10) {
