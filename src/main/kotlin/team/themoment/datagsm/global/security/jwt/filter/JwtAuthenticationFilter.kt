@@ -3,18 +3,20 @@ package team.themoment.datagsm.global.security.jwt.filter
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
 import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
+import team.themoment.datagsm.global.security.authentication.CustomAuthenticationToken
+import team.themoment.datagsm.global.security.authentication.principal.PrincipalProvider
 import team.themoment.datagsm.global.security.config.AuthenticationPathConfig
 import team.themoment.datagsm.global.security.jwt.JwtProvider
 
 class JwtAuthenticationFilter(
     private val jwtProvider: JwtProvider,
+    private val principalProvider: PrincipalProvider
 ) : OncePerRequestFilter() {
     private val pathMatcher = AntPathMatcher()
 
@@ -38,7 +40,6 @@ class JwtAuthenticationFilter(
         val bearerToken = request.getHeader("Authorization")
         val token = jwtProvider.extractToken(bearerToken)
         if (token != null && jwtProvider.validateToken(token)) {
-            val email = jwtProvider.getEmailFromToken(token)
             val role = jwtProvider.getRoleFromToken(token)
             val authorities =
                 when (role) {
@@ -54,12 +55,10 @@ class JwtAuthenticationFilter(
                         listOf(role)
                     }
                 }
-            val authentication =
-                UsernamePasswordAuthenticationToken(
-                    email,
-                    null,
-                    authorities,
-                )
+            val authentication = CustomAuthenticationToken(
+                principal = principalProvider.provideFromJwt(token),
+                authorities = authorities,
+            )
 
             SecurityContextHolder.getContext().authentication = authentication
         }
