@@ -36,30 +36,30 @@ class ModifyClubExcelServiceTest :
             modifyClubExcelService = ModifyClubExcelServiceImpl(mockClubRepository, mockStudentRepository)
         }
 
-        fun createValidExcelFile(): ByteArray {
-            val workbook = XSSFWorkbook()
-            val sheet = workbook.createSheet("동아리")
-            val headerRow = sheet.createRow(0)
-            headerRow.createCell(0).setCellValue("전공동아리")
-            headerRow.createCell(1).setCellValue("전공동아리 부장")
-            headerRow.createCell(2).setCellValue("취업동아리")
-            headerRow.createCell(3).setCellValue("취업동아리 부장")
-            headerRow.createCell(4).setCellValue("창체동아리")
-            headerRow.createCell(5).setCellValue("창체동아리 부장")
+        fun createValidExcelFile(): ByteArray =
+            ByteArrayOutputStream().use { output ->
+                XSSFWorkbook().use { workbook ->
+                    val sheet = workbook.createSheet("동아리")
+                    val headerRow = sheet.createRow(0)
+                    headerRow.createCell(0).setCellValue("전공동아리")
+                    headerRow.createCell(1).setCellValue("전공동아리 부장")
+                    headerRow.createCell(2).setCellValue("취업동아리")
+                    headerRow.createCell(3).setCellValue("취업동아리 부장")
+                    headerRow.createCell(4).setCellValue("창체동아리")
+                    headerRow.createCell(5).setCellValue("창체동아리 부장")
 
-            val dataRow = sheet.createRow(1)
-            dataRow.createCell(0).setCellValue("SW개발동아리")
-            dataRow.createCell(1).setCellValue("2404 김철수")
-            dataRow.createCell(2).setCellValue("취업동아리A")
-            dataRow.createCell(3).setCellValue("2305 이영희")
-            dataRow.createCell(4).setCellValue("창체동아리B")
-            dataRow.createCell(5).setCellValue("1210 박민수")
+                    val dataRow = sheet.createRow(1)
+                    dataRow.createCell(0).setCellValue("SW개발동아리")
+                    dataRow.createCell(1).setCellValue("2404 김철수")
+                    dataRow.createCell(2).setCellValue("취업동아리A")
+                    dataRow.createCell(3).setCellValue("2305 이영희")
+                    dataRow.createCell(4).setCellValue("창체동아리B")
+                    dataRow.createCell(5).setCellValue("1210 박민수")
 
-            val output = ByteArrayOutputStream()
-            workbook.write(output)
-            workbook.close()
-            return output.toByteArray()
-        }
+                    workbook.write(output)
+                }
+                output.toByteArray()
+            }
 
         describe("ModifyClubExcelService 클래스의") {
             describe("execute 메서드는") {
@@ -174,34 +174,37 @@ class ModifyClubExcelServiceTest :
                 }
 
                 context("중복된 동아리명이 존재할 때") {
-                    val workbook = XSSFWorkbook()
-                    val sheet = workbook.createSheet("동아리")
-                    val headerRow = sheet.createRow(0)
-                    headerRow.createCell(0).setCellValue("전공동아리")
-                    headerRow.createCell(1).setCellValue("전공동아리 부장")
-                    headerRow.createCell(2).setCellValue("취업동아리")
-                    headerRow.createCell(3).setCellValue("취업동아리 부장")
-                    headerRow.createCell(4).setCellValue("창체동아리")
-                    headerRow.createCell(5).setCellValue("창체동아리 부장")
+                    val excelBytes =
+                        ByteArrayOutputStream().use { output ->
+                            XSSFWorkbook().use { workbook ->
+                                val sheet = workbook.createSheet("동아리")
+                                val headerRow = sheet.createRow(0)
+                                headerRow.createCell(0).setCellValue("전공동아리")
+                                headerRow.createCell(1).setCellValue("전공동아리 부장")
+                                headerRow.createCell(2).setCellValue("취업동아리")
+                                headerRow.createCell(3).setCellValue("취업동아리 부장")
+                                headerRow.createCell(4).setCellValue("창체동아리")
+                                headerRow.createCell(5).setCellValue("창체동아리 부장")
 
-                    val row1 = sheet.createRow(1)
-                    row1.createCell(0).setCellValue("중복동아리")
-                    row1.createCell(1).setCellValue("2404 김철수")
+                                val row1 = sheet.createRow(1)
+                                row1.createCell(0).setCellValue("중복동아리")
+                                row1.createCell(1).setCellValue("2404 김철수")
 
-                    val row2 = sheet.createRow(2)
-                    row2.createCell(2).setCellValue("중복동아리")
-                    row2.createCell(3).setCellValue("2305 이영희")
+                                val row2 = sheet.createRow(2)
+                                row2.createCell(2).setCellValue("중복동아리")
+                                row2.createCell(3).setCellValue("2305 이영희")
 
-                    val output = ByteArrayOutputStream()
-                    workbook.write(output)
-                    workbook.close()
+                                workbook.write(output)
+                            }
+                            output.toByteArray()
+                        }
 
                     val file =
                         MockMultipartFile(
                             "file",
                             "clubs.xlsx",
                             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            output.toByteArray(),
+                            excelBytes,
                         )
 
                     it("ExpectedException이 발생해야 한다") {
@@ -216,30 +219,33 @@ class ModifyClubExcelServiceTest :
                 }
 
                 context("모든 동아리명이 비어있을 때") {
-                    val workbook = XSSFWorkbook()
-                    val sheet = workbook.createSheet("동아리")
-                    val headerRow = sheet.createRow(0)
-                    headerRow.createCell(0).setCellValue("전공동아리")
-                    headerRow.createCell(1).setCellValue("전공동아리 부장")
-                    headerRow.createCell(2).setCellValue("취업동아리")
-                    headerRow.createCell(3).setCellValue("취업동아리 부장")
-                    headerRow.createCell(4).setCellValue("창체동아리")
-                    headerRow.createCell(5).setCellValue("창체동아리 부장")
+                    val excelBytes =
+                        ByteArrayOutputStream().use { output ->
+                            XSSFWorkbook().use { workbook ->
+                                val sheet = workbook.createSheet("동아리")
+                                val headerRow = sheet.createRow(0)
+                                headerRow.createCell(0).setCellValue("전공동아리")
+                                headerRow.createCell(1).setCellValue("전공동아리 부장")
+                                headerRow.createCell(2).setCellValue("취업동아리")
+                                headerRow.createCell(3).setCellValue("취업동아리 부장")
+                                headerRow.createCell(4).setCellValue("창체동아리")
+                                headerRow.createCell(5).setCellValue("창체동아리 부장")
 
-                    val row1 = sheet.createRow(1)
-                    row1.createCell(0).setCellValue("")
-                    row1.createCell(1).setCellValue("")
+                                val row1 = sheet.createRow(1)
+                                row1.createCell(0).setCellValue("")
+                                row1.createCell(1).setCellValue("")
 
-                    val output = ByteArrayOutputStream()
-                    workbook.write(output)
-                    workbook.close()
+                                workbook.write(output)
+                            }
+                            output.toByteArray()
+                        }
 
                     val file =
                         MockMultipartFile(
                             "file",
                             "clubs.xlsx",
                             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            output.toByteArray(),
+                            excelBytes,
                         )
 
                     it("ExpectedException이 발생해야 한다") {
@@ -254,26 +260,29 @@ class ModifyClubExcelServiceTest :
                 }
 
                 context("잘못된 헤더 형식일 때") {
-                    val workbook = XSSFWorkbook()
-                    val sheet = workbook.createSheet("동아리")
-                    val headerRow = sheet.createRow(0)
-                    headerRow.createCell(0).setCellValue("잘못된헤더")
-                    headerRow.createCell(1).setCellValue("전공동아리 부장")
-                    headerRow.createCell(2).setCellValue("취업동아리")
-                    headerRow.createCell(3).setCellValue("취업동아리 부장")
-                    headerRow.createCell(4).setCellValue("창체동아리")
-                    headerRow.createCell(5).setCellValue("창체동아리 부장")
+                    val excelBytes =
+                        ByteArrayOutputStream().use { output ->
+                            XSSFWorkbook().use { workbook ->
+                                val sheet = workbook.createSheet("동아리")
+                                val headerRow = sheet.createRow(0)
+                                headerRow.createCell(0).setCellValue("잘못된헤더")
+                                headerRow.createCell(1).setCellValue("전공동아리 부장")
+                                headerRow.createCell(2).setCellValue("취업동아리")
+                                headerRow.createCell(3).setCellValue("취업동아리 부장")
+                                headerRow.createCell(4).setCellValue("창체동아리")
+                                headerRow.createCell(5).setCellValue("창체동아리 부장")
 
-                    val output = ByteArrayOutputStream()
-                    workbook.write(output)
-                    workbook.close()
+                                workbook.write(output)
+                            }
+                            output.toByteArray()
+                        }
 
                     val file =
                         MockMultipartFile(
                             "file",
                             "clubs.xlsx",
                             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            output.toByteArray(),
+                            excelBytes,
                         )
 
                     it("ExpectedException이 발생해야 한다") {
@@ -288,30 +297,33 @@ class ModifyClubExcelServiceTest :
                 }
 
                 context("부장 정보가 비어있을 때") {
-                    val workbook = XSSFWorkbook()
-                    val sheet = workbook.createSheet("동아리")
-                    val headerRow = sheet.createRow(0)
-                    headerRow.createCell(0).setCellValue("전공동아리")
-                    headerRow.createCell(1).setCellValue("전공동아리 부장")
-                    headerRow.createCell(2).setCellValue("취업동아리")
-                    headerRow.createCell(3).setCellValue("취업동아리 부장")
-                    headerRow.createCell(4).setCellValue("창체동아리")
-                    headerRow.createCell(5).setCellValue("창체동아리 부장")
+                    val excelBytes =
+                        ByteArrayOutputStream().use { output ->
+                            XSSFWorkbook().use { workbook ->
+                                val sheet = workbook.createSheet("동아리")
+                                val headerRow = sheet.createRow(0)
+                                headerRow.createCell(0).setCellValue("전공동아리")
+                                headerRow.createCell(1).setCellValue("전공동아리 부장")
+                                headerRow.createCell(2).setCellValue("취업동아리")
+                                headerRow.createCell(3).setCellValue("취업동아리 부장")
+                                headerRow.createCell(4).setCellValue("창체동아리")
+                                headerRow.createCell(5).setCellValue("창체동아리 부장")
 
-                    val row1 = sheet.createRow(1)
-                    row1.createCell(0).setCellValue("SW개발동아리")
-                    row1.createCell(1).setCellValue("")
+                                val row1 = sheet.createRow(1)
+                                row1.createCell(0).setCellValue("SW개발동아리")
+                                row1.createCell(1).setCellValue("")
 
-                    val output = ByteArrayOutputStream()
-                    workbook.write(output)
-                    workbook.close()
+                                workbook.write(output)
+                            }
+                            output.toByteArray()
+                        }
 
                     val file =
                         MockMultipartFile(
                             "file",
                             "clubs.xlsx",
                             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            output.toByteArray(),
+                            excelBytes,
                         )
 
                     beforeEach {
@@ -330,30 +342,33 @@ class ModifyClubExcelServiceTest :
                 }
 
                 context("부장 정보 형식이 올바르지 않을 때 (스페이스 누락)") {
-                    val workbook = XSSFWorkbook()
-                    val sheet = workbook.createSheet("동아리")
-                    val headerRow = sheet.createRow(0)
-                    headerRow.createCell(0).setCellValue("전공동아리")
-                    headerRow.createCell(1).setCellValue("전공동아리 부장")
-                    headerRow.createCell(2).setCellValue("취업동아리")
-                    headerRow.createCell(3).setCellValue("취업동아리 부장")
-                    headerRow.createCell(4).setCellValue("창체동아리")
-                    headerRow.createCell(5).setCellValue("창체동아리 부장")
+                    val excelBytes =
+                        ByteArrayOutputStream().use { output ->
+                            XSSFWorkbook().use { workbook ->
+                                val sheet = workbook.createSheet("동아리")
+                                val headerRow = sheet.createRow(0)
+                                headerRow.createCell(0).setCellValue("전공동아리")
+                                headerRow.createCell(1).setCellValue("전공동아리 부장")
+                                headerRow.createCell(2).setCellValue("취업동아리")
+                                headerRow.createCell(3).setCellValue("취업동아리 부장")
+                                headerRow.createCell(4).setCellValue("창체동아리")
+                                headerRow.createCell(5).setCellValue("창체동아리 부장")
 
-                    val row1 = sheet.createRow(1)
-                    row1.createCell(0).setCellValue("SW개발동아리")
-                    row1.createCell(1).setCellValue("2404김철수")
+                                val row1 = sheet.createRow(1)
+                                row1.createCell(0).setCellValue("SW개발동아리")
+                                row1.createCell(1).setCellValue("2404김철수")
 
-                    val output = ByteArrayOutputStream()
-                    workbook.write(output)
-                    workbook.close()
+                                workbook.write(output)
+                            }
+                            output.toByteArray()
+                        }
 
                     val file =
                         MockMultipartFile(
                             "file",
                             "clubs.xlsx",
                             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            output.toByteArray(),
+                            excelBytes,
                         )
 
                     beforeEach {
@@ -372,30 +387,33 @@ class ModifyClubExcelServiceTest :
                 }
 
                 context("학번이 4자리가 아닐 때") {
-                    val workbook = XSSFWorkbook()
-                    val sheet = workbook.createSheet("동아리")
-                    val headerRow = sheet.createRow(0)
-                    headerRow.createCell(0).setCellValue("전공동아리")
-                    headerRow.createCell(1).setCellValue("전공동아리 부장")
-                    headerRow.createCell(2).setCellValue("취업동아리")
-                    headerRow.createCell(3).setCellValue("취업동아리 부장")
-                    headerRow.createCell(4).setCellValue("창체동아리")
-                    headerRow.createCell(5).setCellValue("창체동아리 부장")
+                    val excelBytes =
+                        ByteArrayOutputStream().use { output ->
+                            XSSFWorkbook().use { workbook ->
+                                val sheet = workbook.createSheet("동아리")
+                                val headerRow = sheet.createRow(0)
+                                headerRow.createCell(0).setCellValue("전공동아리")
+                                headerRow.createCell(1).setCellValue("전공동아리 부장")
+                                headerRow.createCell(2).setCellValue("취업동아리")
+                                headerRow.createCell(3).setCellValue("취업동아리 부장")
+                                headerRow.createCell(4).setCellValue("창체동아리")
+                                headerRow.createCell(5).setCellValue("창체동아리 부장")
 
-                    val row1 = sheet.createRow(1)
-                    row1.createCell(0).setCellValue("SW개발동아리")
-                    row1.createCell(1).setCellValue("240 김철수")
+                                val row1 = sheet.createRow(1)
+                                row1.createCell(0).setCellValue("SW개발동아리")
+                                row1.createCell(1).setCellValue("240 김철수")
 
-                    val output = ByteArrayOutputStream()
-                    workbook.write(output)
-                    workbook.close()
+                                workbook.write(output)
+                            }
+                            output.toByteArray()
+                        }
 
                     val file =
                         MockMultipartFile(
                             "file",
                             "clubs.xlsx",
                             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            output.toByteArray(),
+                            excelBytes,
                         )
 
                     beforeEach {
