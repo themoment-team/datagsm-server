@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.domain.auth.dto.request.CreateApiKeyReqDto
+import team.themoment.datagsm.domain.auth.dto.request.LoginReqDto
 import team.themoment.datagsm.domain.auth.dto.request.ModifyApiKeyReqDto
 import team.themoment.datagsm.domain.auth.dto.request.RefreshTokenReqDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyRenewableResDto
@@ -25,6 +26,7 @@ import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.service.CreateApiKeyService
 import team.themoment.datagsm.domain.auth.service.DeleteApiKeyService
+import team.themoment.datagsm.domain.auth.service.LoginService
 import team.themoment.datagsm.domain.auth.service.ModifyApiKeyService
 import team.themoment.datagsm.domain.auth.service.QueryApiKeyRenewableService
 import team.themoment.datagsm.domain.auth.service.QueryApiKeyService
@@ -44,7 +46,22 @@ class AuthController(
     private val queryApiKeyRenewableService: QueryApiKeyRenewableService,
     private val reissueTokenService: ReissueTokenService,
     private val searchApiKeyService: SearchApiKeyService,
+    private val loginService: LoginService,
 ) {
+    @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인하여 JWT 토큰을 발급받습니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "로그인 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "비밀번호 불일치", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
+        ],
+    )
+    @PostMapping("/login")
+    fun login(
+        @RequestBody @Valid reqDto: LoginReqDto,
+    ): TokenResDto = loginService.execute(reqDto)
+
     @Operation(summary = "토큰 재발급", description = "Refresh Token으로 Access Token을 재발급받습니다.")
     @ApiResponses(
         value = [

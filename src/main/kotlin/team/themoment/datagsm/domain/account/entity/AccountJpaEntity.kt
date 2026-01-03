@@ -29,8 +29,8 @@ class AccountJpaEntity {
     @Column(name = "email", nullable = false, unique = true)
     lateinit var email: String
 
-    @Column(name = "password", nullable = true)
-    var password: String? = null
+    @Column(name = "password", nullable = false)
+    lateinit var password: String
 
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
