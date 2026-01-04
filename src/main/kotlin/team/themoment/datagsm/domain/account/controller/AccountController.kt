@@ -23,9 +23,10 @@ import team.themoment.datagsm.global.common.response.dto.response.CommonApiRespo
 @RestController
 @RequestMapping("/v1/account")
 class AccountController(
-    val sendEmailService: SendEmailService,
-    val checkEmailService: CheckEmailService,
-    val createAccountService: CreateAccountService,
+    private val sendEmailService: SendEmailService,
+    private val checkEmailService: CheckEmailService,
+    private val createAccountService: CreateAccountService,
+    private val getMyInfoService: GetMyInfoService,
 ) {
     @Operation(summary = "인증 메일 전송", description = "이메일 인증을 위한 코드를 전송합니다.")
     @ApiResponses(
