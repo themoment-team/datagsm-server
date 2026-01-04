@@ -36,13 +36,13 @@ class ModifyClientServiceImpl(
         }
         client.apply {
             name = reqDto.name ?: name
-            redirectUrl = reqDto.redirectUri ?: redirectUrl
+            redirectUrls = reqDto.redirectUrls ?: redirectUrls
         }
 
         return ClientResDto(
             id = client.id,
             name = client.name,
-            redirectUrl = client.redirectUrl,
+            redirectUrl = client.redirectUrls,
         )
     }
 }

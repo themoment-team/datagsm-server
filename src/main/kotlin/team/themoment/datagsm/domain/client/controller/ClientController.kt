@@ -22,6 +22,7 @@ import team.themoment.datagsm.domain.client.dto.request.ModifyClientReqDto
 import team.themoment.datagsm.domain.client.dto.response.ClientListResDto
 import team.themoment.datagsm.domain.client.service.CreateClientService
 import team.themoment.datagsm.domain.client.service.DeleteClientService
+import team.themoment.datagsm.domain.client.service.GetAvailableOauthScopesService
 import team.themoment.datagsm.domain.client.service.ModifyClientService
 import team.themoment.datagsm.domain.client.service.QueryMyClientService
 import team.themoment.datagsm.domain.client.service.SearchClientService
@@ -37,6 +38,7 @@ class ClientController(
     private val deleteClientService: DeleteClientService,
     private val queryMyClientService: QueryMyClientService,
     private val searchClientService: SearchClientService,
+    private val getAvailableOauthScopesService: GetAvailableOauthScopesService,
 ) {
     @Operation(summary = "내 클라이언트 조회", description = "내가 등록한 클라이언트를 조회합니다.")
     @ApiResponses(
@@ -109,4 +111,7 @@ class ClientController(
         deleteClientService.execute(clientId)
         return CommonApiResponse.success("Client를 성공적으로 삭제했습니다.")
     }
+
+    @GetMapping("/available-scopes")
+    fun getAvailableScopes(): Set<String> = getAvailableOauthScopesService.execute()
 }

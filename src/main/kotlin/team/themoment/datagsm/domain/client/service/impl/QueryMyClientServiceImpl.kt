@@ -23,7 +23,7 @@ class QueryMyClientServiceImpl(
                 ClientResDto(
                     id = client.id,
                     name = client.name,
-                    redirectUrl = client.redirectUrl,
+                    redirectUrl = client.redirectUrls,
                 )
             }
         return ClientListResDto(

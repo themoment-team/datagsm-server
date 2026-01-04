@@ -8,8 +8,8 @@ data class ModifyClientReqDto(
     @param:Schema(description = "클라이언트 이름 (수정할 경우에만 포함)", example = "Updated Client Name", maxLength = 100)
     val name: String? = null,
     @param:Schema(
-        description = "리다이렉트 URI 목록 (수정할 경우에만 포함)",
+        description = "리다이렉트 URL 목록 (수정할 경우에만 포함)",
         example = "[\"https://example.com/callback\", \"https://app.example.com/oauth/callback\"]",
     )
-    val redirectUri: List<String>? = null,
+    val redirectUrls: Set<String>? = null,
 )

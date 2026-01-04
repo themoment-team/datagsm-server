@@ -9,4 +9,7 @@ data class CreateClientReqDto(
     @field:Size(max = 100)
     @param:Schema(description = "클라이언트 이름", example = "My OAuth Client", maxLength = 100)
     val name: String,
+    @field:Size(min = 1)
+    @param:Schema(description = "Oauth Client에서 요청할 권한 목록", example = "[\"self:read\"]")
+    val scopes: Set<String>,
 )

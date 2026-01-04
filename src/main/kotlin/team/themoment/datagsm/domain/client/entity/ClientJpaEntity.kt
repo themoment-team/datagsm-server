@@ -1,5 +1,6 @@
 package team.themoment.datagsm.domain.client.entity
 
+import jakarta.persistence.Column
 import jakarta.persistence.Convert
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
@@ -7,7 +8,8 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
-import team.themoment.datagsm.global.common.converter.StringListConverter
+import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
+import team.themoment.datagsm.global.common.converter.StringSetConverter
 
 @Table(name = "tb_client")
 @Entity
@@ -22,8 +24,13 @@ class ClientJpaEntity {
      */
     lateinit var secret: String
 
-    @Convert(converter = StringListConverter::class)
-    lateinit var redirectUrl: List<String>
+    @Convert(converter = StringSetConverter::class)
+    @Column(columnDefinition = "text")
+    lateinit var redirectUrls: Set<String>
+
+    @Convert(converter = StringSetConverter::class)
+    @Column(columnDefinition = "text")
+    lateinit var scopes: Set<ApiScope>
 
     lateinit var name: String
 

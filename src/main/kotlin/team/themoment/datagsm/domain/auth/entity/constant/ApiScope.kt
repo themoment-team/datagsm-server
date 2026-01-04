@@ -12,6 +12,9 @@ enum class ApiScope(
     ADMIN_APIKEY("admin:apikey", "Admin API 키 생성/갱신"),
     ADMIN_EXCEL("admin:excel", "Excel 파일 업로드/다운로드"),
 
+    // Self scopes
+    SELF_READ("self:read", "내 정보 조회"),
+
     // Student scopes
     STUDENT_ALL("student:*", "학생 정보 모든 권한"),
     STUDENT_READ("student:read", "학생 정보 조회"),

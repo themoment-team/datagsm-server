@@ -8,5 +8,5 @@ data class ClientResDto(
     @param:Schema(description = "클라이언트 이름", example = "My OAuth Client")
     val name: String,
     @param:Schema(description = "리다이렉트 URL 목록", example = "[\"https://example.com/callback\"]")
-    val redirectUrl: List<String>,
+    val redirectUrl: Set<String>,
 )

@@ -49,7 +49,7 @@ class IssueOauthCodeServiceImpl(
         redirectUrl: String,
         client: ClientJpaEntity,
     ) {
-        if (!client.redirectUrl.contains(redirectUrl)) {
+        if (!client.redirectUrls.contains(redirectUrl)) {
             throw ExpectedException("등록되지 않은 Redirect URL 입니다.", HttpStatus.BAD_REQUEST)
         }
     }

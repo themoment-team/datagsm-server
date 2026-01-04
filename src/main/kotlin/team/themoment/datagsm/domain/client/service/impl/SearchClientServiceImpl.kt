@@ -32,7 +32,7 @@ class SearchClientServiceImpl(
                     ClientResDto(
                         id = entity.id,
                         name = entity.name,
-                        redirectUrl = entity.redirectUrl,
+                        redirectUrl = entity.redirectUrls,
                     )
                 },
         )
