@@ -65,7 +65,7 @@ class IssueOauthCodeServiceTest :
                     ClientJpaEntity().apply {
                         id = testClientId
                         secret = "encodedSecret"
-                        redirectUrl = listOf(testRedirectUrl)
+                        redirectUrls = setOf(testRedirectUrl)
                         name = "Test Client"
                     }
 
@@ -222,4 +222,3 @@ class IssueOauthCodeServiceTest :
             }
         }
     })
-

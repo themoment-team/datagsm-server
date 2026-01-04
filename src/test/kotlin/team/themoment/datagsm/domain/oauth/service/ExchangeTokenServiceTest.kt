@@ -75,7 +75,7 @@ class ExchangeTokenServiceTest :
                     ClientJpaEntity().apply {
                         id = testClientId
                         secret = "encodedSecret"
-                        redirectUrl = listOf("https://example.com/callback")
+                        redirectUrls = setOf("https://example.com/callback")
                         name = "Test Client"
                     }
 
@@ -262,4 +262,3 @@ class ExchangeTokenServiceTest :
             }
         }
     })
-
