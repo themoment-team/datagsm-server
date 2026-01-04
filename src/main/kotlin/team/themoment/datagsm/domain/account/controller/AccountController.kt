@@ -14,10 +14,14 @@ import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.domain.account.dto.request.CreateAccountReqDto
 import team.themoment.datagsm.domain.account.dto.request.EmailCodeReqDto
 import team.themoment.datagsm.domain.account.dto.request.SendEmailReqDto
+import team.themoment.datagsm.domain.account.dto.response.GetMyInfoResDto
 import team.themoment.datagsm.domain.account.service.CheckEmailService
 import team.themoment.datagsm.domain.account.service.CreateAccountService
+import team.themoment.datagsm.domain.account.service.GetMyInfoService
 import team.themoment.datagsm.domain.account.service.SendEmailService
+import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.global.common.response.dto.response.CommonApiResponse
+import team.themoment.datagsm.global.security.annotation.RequireScope
 
 @Tag(name = "Account", description = "계정 관련 API")
 @RestController
@@ -75,4 +79,17 @@ class AccountController(
         createAccountService.execute(reqDto)
         return CommonApiResponse.success("회원가입이 완료되었습니다.")
     }
+
+    @Operation(summary = "내 정보 조회", description = "현재 로그인한 사용자의 계정 및 학생 정보를 조회합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "내 정보 조회 성공"),
+            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "API Key 인증으로는 접근 불가", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
+        ],
+    )
+    @GetMapping("/my")
+    @RequireScope(ApiScope.SELF_READ)
+    fun getMyInfo(): GetMyInfoResDto = getMyInfoService.execute()
 }
