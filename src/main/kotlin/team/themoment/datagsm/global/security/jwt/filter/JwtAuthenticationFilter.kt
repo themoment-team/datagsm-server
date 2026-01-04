@@ -16,7 +16,7 @@ import team.themoment.datagsm.global.security.jwt.JwtProvider
 
 class JwtAuthenticationFilter(
     private val jwtProvider: JwtProvider,
-    private val principalProvider: PrincipalProvider
+    private val principalProvider: PrincipalProvider,
 ) : OncePerRequestFilter() {
     private val pathMatcher = AntPathMatcher()
 
@@ -55,10 +55,11 @@ class JwtAuthenticationFilter(
                         listOf(role)
                     }
                 }
-            val authentication = CustomAuthenticationToken(
-                principal = principalProvider.provideFromJwt(token),
-                authorities = authorities,
-            )
+            val authentication =
+                CustomAuthenticationToken(
+                    principal = principalProvider.provideFromJwt(token),
+                    authorities = authorities,
+                )
 
             SecurityContextHolder.getContext().authentication = authentication
         }

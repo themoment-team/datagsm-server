@@ -8,6 +8,9 @@ object AuthenticationPathConfig {
         listOf(
             "/v1/auth/google",
             "/v1/auth/refresh",
+            "/v1/oauth/code",
+            "/v1/oauth/token",
+            "/v1/oauth/refresh",
             "/v1/health",
             "/swagger-ui/**",
             "/v3/api-docs/**",

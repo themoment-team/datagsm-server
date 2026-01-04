@@ -9,9 +9,6 @@ class CustomPrincipal(
     val type: AuthType,
     val clientId: String?,
     val apiKey: ApiKey?,
-): AuthenticatedPrincipal {
-
-    override fun getName(): String {
-        return email
-    }
+) : AuthenticatedPrincipal {
+    override fun getName(): String = email
 }

@@ -9,7 +9,7 @@ import team.themoment.datagsm.global.security.jwt.JwtProvider
 class PrincipalProvider(
     val jwtProvider: JwtProvider,
 ) {
-    fun provideFromJwt(validToken: String): CustomPrincipal{
+    fun provideFromJwt(validToken: String): CustomPrincipal {
         val email = jwtProvider.getEmailFromToken(validToken)
         return CustomPrincipal(
             email = email,
@@ -18,12 +18,12 @@ class PrincipalProvider(
             apiKey = null,
         )
     }
-    fun provideFromApiKey(validApiKey: ApiKey): CustomPrincipal {
-        return CustomPrincipal(
+
+    fun provideFromApiKey(validApiKey: ApiKey): CustomPrincipal =
+        CustomPrincipal(
             email = validApiKey.account.email,
             type = AuthType.API_KEY,
             clientId = null,
             apiKey = validApiKey,
         )
-    }
 }

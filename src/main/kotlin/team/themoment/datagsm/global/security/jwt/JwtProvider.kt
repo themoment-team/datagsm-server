@@ -5,7 +5,6 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
-import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.authentication.type.AuthType
@@ -54,7 +53,8 @@ class JwtProvider(
     }
 
     fun generateOauthAccessToken(
-        account: AccountJpaEntity,
+        email: String,
+        role: AccountRole,
         clientId: String,
     ): String {
         val now = Date()
@@ -62,8 +62,8 @@ class JwtProvider(
 
         return Jwts
             .builder()
-            .subject(account.email)
-            .claim("role", account.role.name)
+            .subject(email)
+            .claim("role", role.name)
             .claim("type", AuthType.OAUTH_JWT.name)
             .claim("clientId", clientId)
             .issuedAt(now)
@@ -101,20 +101,20 @@ class JwtProvider(
     fun getEmailFromToken(token: String): String = parseClaims(token).subject
 
     fun getRoleFromToken(token: String): AccountRole {
-        val roleName = parseClaims(token)["role"] as? String
-            ?: throw ExpectedException("토큰에 역할 정보가 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
+        val roleName =
+            parseClaims(token)["role"] as? String
+                ?: throw ExpectedException("토큰에 역할 정보가 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
         return AccountRole.valueOf(roleName)
     }
 
     fun getAuthTypeFromToken(token: String): AuthType {
-        val typeName = parseClaims(token)["type"] as? String
-            ?: throw ExpectedException("토큰에 인증 타입이 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
+        val typeName =
+            parseClaims(token)["type"] as? String
+                ?: throw ExpectedException("토큰에 인증 타입이 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
         return AuthType.valueOf(typeName)
     }
 
-    fun getClientIdFromToken(token: String): String? {
-        return parseClaims(token)["clientId"] as? String
-    }
+    fun getClientIdFromToken(token: String): String? = parseClaims(token)["clientId"] as? String
 
     fun extractToken(bearerToken: String?): String? =
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {

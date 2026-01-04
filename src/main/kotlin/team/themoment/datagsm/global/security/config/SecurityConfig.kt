@@ -17,6 +17,7 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfigurationSource
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
+import team.themoment.datagsm.global.security.authentication.principal.PrincipalProvider
 import team.themoment.datagsm.global.security.filter.ApiKeyAuthenticationFilter
 import team.themoment.datagsm.global.security.filter.RateLimitFilter
 import team.themoment.datagsm.global.security.handler.CustomAuthenticationEntryPoint
@@ -31,6 +32,7 @@ class SecurityConfig(
     @param:Qualifier("configure") private val corsConfigurationSource: CorsConfigurationSource,
     private val jwtProvider: JwtProvider,
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
+    private val principalProvider: PrincipalProvider,
     private val customAuthenticationEntryPoint: CustomAuthenticationEntryPoint,
     private val rateLimitService: RateLimitService,
     private val objectMapper: ObjectMapper,
@@ -46,13 +48,13 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .exceptionHandling { it.authenticationEntryPoint(customAuthenticationEntryPoint) }
             .addFilterBefore(
-                ApiKeyAuthenticationFilter(apiKeyJpaRepository),
+                ApiKeyAuthenticationFilter(apiKeyJpaRepository, principalProvider),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).addFilterBefore(
                 RateLimitFilter(rateLimitService, objectMapper),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).addFilterBefore(
-                JwtAuthenticationFilter(jwtProvider),
+                JwtAuthenticationFilter(jwtProvider, principalProvider),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).authorizeHttpRequests {
                 it

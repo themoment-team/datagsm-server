@@ -16,7 +16,7 @@ import java.util.UUID
 
 class ApiKeyAuthenticationFilter(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
-    private val principalProvider: PrincipalProvider
+    private val principalProvider: PrincipalProvider,
 ) : OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -52,10 +52,11 @@ class ApiKeyAuthenticationFilter(
                 }
 
             val authorities = listOfNotNull(account.role, AccountRole.API_KEY_USER) + scopeAuthorities
-            val authentication = CustomAuthenticationToken(
-                principal = principalProvider.provideFromApiKey(apiKey),
-                authorities = authorities,
-            )
+            val authentication =
+                CustomAuthenticationToken(
+                    principal = principalProvider.provideFromApiKey(apiKey),
+                    authorities = authorities,
+                )
             SecurityContextHolder.getContext().authentication = authentication
         } catch (e: IllegalArgumentException) {
             response.sendError(HttpStatus.UNAUTHORIZED.value(), "잘못된 형식의 API Key입니다.")
