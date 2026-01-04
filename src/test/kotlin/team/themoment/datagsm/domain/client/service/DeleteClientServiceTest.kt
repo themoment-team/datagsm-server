@@ -14,6 +14,7 @@ import team.themoment.datagsm.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.domain.client.service.impl.DeleteClientServiceImpl
 import team.themoment.datagsm.global.exception.error.ExpectedException
+import team.themoment.datagsm.global.security.authentication.CustomAuthenticationToken
 import team.themoment.datagsm.global.security.checker.ScopeChecker
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.util.Optional
@@ -59,7 +60,7 @@ class DeleteClientServiceTest :
                             secret = "encoded-secret"
                             name = "테스트 클라이언트"
                             account = ownerAccount
-                            redirectUrl = listOf("https://example.com")
+                            redirectUrls = setOf("https://example.com")
                         }
                 }
 
@@ -109,7 +110,7 @@ class DeleteClientServiceTest :
                             role = AccountRole.USER
                         }
 
-                    val mockAuthentication = mockk<Authentication>()
+                    val mockAuthentication = mockk<CustomAuthenticationToken>()
 
                     beforeEach {
                         every { mockClientRepository.findById(clientId) } returns Optional.of(existingClient)
@@ -142,7 +143,7 @@ class DeleteClientServiceTest :
                             role = AccountRole.ADMIN
                         }
 
-                    val mockAuthentication = mockk<Authentication>()
+                    val mockAuthentication = mockk<CustomAuthenticationToken>()
 
                     beforeEach {
                         every { mockClientRepository.findById(clientId) } returns Optional.of(existingClient)

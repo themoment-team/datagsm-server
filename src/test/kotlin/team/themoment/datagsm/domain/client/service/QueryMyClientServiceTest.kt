@@ -42,7 +42,7 @@ class QueryMyClientServiceTest :
                             secret = "secret-1"
                             name = "나의 클라이언트"
                             account = currentAccount
-                            redirectUrl = listOf("https://example.com")
+                            redirectUrls = setOf("https://example.com")
                         }
 
                     beforeEach {
@@ -75,7 +75,7 @@ class QueryMyClientServiceTest :
                                 secret = "secret-$index"
                                 name = "클라이언트$index"
                                 account = currentAccount
-                                redirectUrl = listOf("https://example$index.com")
+                                redirectUrls = setOf("https://example$index.com")
                             }
                         }
 
@@ -120,7 +120,7 @@ class QueryMyClientServiceTest :
                             secret = "secret-1"
                             name = "멀티 리다이렉트 클라이언트"
                             account = currentAccount
-                            redirectUrl = listOf("https://url1.com", "https://url2.com", "https://url3.com")
+                            redirectUrls = setOf("https://url1.com", "https://url2.com", "https://url3.com")
                         }
 
                     val client2 =
@@ -129,7 +129,7 @@ class QueryMyClientServiceTest :
                             secret = "secret-2"
                             name = "단일 리다이렉트 클라이언트"
                             account = currentAccount
-                            redirectUrl = listOf("https://single.com")
+                            redirectUrls = setOf("https://single.com")
                         }
 
                     val client3 =
@@ -138,7 +138,7 @@ class QueryMyClientServiceTest :
                             secret = "secret-3"
                             name = "리다이렉트 없는 클라이언트"
                             account = currentAccount
-                            redirectUrl = emptyList()
+                            redirectUrls = emptySet()
                         }
 
                     beforeEach {
@@ -170,7 +170,7 @@ class QueryMyClientServiceTest :
                             secret = "admin-secret"
                             name = "관리자 클라이언트"
                             account = adminAccount
-                            redirectUrl = emptyList()
+                            redirectUrls = emptySet()
                         }
 
                     beforeEach {

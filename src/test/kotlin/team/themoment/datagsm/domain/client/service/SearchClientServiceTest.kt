@@ -41,7 +41,7 @@ class SearchClientServiceTest :
                         secret = "test-secret"
                         name = "테스트 클라이언트"
                         account = testAccount
-                        redirectUrl = listOf("https://test.com")
+                        redirectUrls = setOf("https://test.com")
                     }
 
                 context("클라이언트 이름으로 검색할 때") {
@@ -88,7 +88,7 @@ class SearchClientServiceTest :
                                 secret = "secret-$index"
                                 name = "클라이언트$index"
                                 account = testAccount
-                                redirectUrl = listOf("https://example$index.com")
+                                redirectUrls = setOf("https://example$index.com")
                             }
                         }
 
@@ -149,7 +149,7 @@ class SearchClientServiceTest :
                                 secret = "secret-$index"
                                 name = "클라이언트$index"
                                 account = testAccount
-                                redirectUrl = emptyList()
+                                redirectUrls = emptySet()
                             }
                         }
 
@@ -187,7 +187,7 @@ class SearchClientServiceTest :
                                 secret = "secret-$index"
                                 name = "클라이언트$index"
                                 account = testAccount
-                                redirectUrl = emptyList()
+                                redirectUrls = emptySet()
                             }
                         }
 
@@ -225,14 +225,14 @@ class SearchClientServiceTest :
                                 secret = "secret-1"
                                 name = "API 클라이언트"
                                 account = testAccount
-                                redirectUrl = emptyList()
+                                redirectUrls = emptySet()
                             },
                             ClientJpaEntity().apply {
                                 id = "client-2"
                                 secret = "secret-2"
                                 name = "API 서비스 클라이언트"
                                 account = testAccount
-                                redirectUrl = emptyList()
+                                redirectUrls = emptySet()
                             },
                         )
 
@@ -268,7 +268,7 @@ class SearchClientServiceTest :
                                 secret = "secret-$index"
                                 name = "클라이언트$index"
                                 account = testAccount
-                                redirectUrl = emptyList()
+                                redirectUrls = emptySet()
                             }
                         }
 

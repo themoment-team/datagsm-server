@@ -15,6 +15,7 @@ import team.themoment.datagsm.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.domain.client.service.impl.ModifyClientServiceImpl
 import team.themoment.datagsm.global.exception.error.ExpectedException
+import team.themoment.datagsm.global.security.authentication.CustomAuthenticationToken
 import team.themoment.datagsm.global.security.checker.ScopeChecker
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import java.util.Optional
@@ -60,7 +61,7 @@ class ModifyClientServiceTest :
                             secret = "encoded-secret"
                             name = "기존 클라이언트"
                             account = ownerAccount
-                            redirectUrl = listOf("https://example.com")
+                            redirectUrls = setOf("https://example.com")
                         }
                 }
 
@@ -68,7 +69,7 @@ class ModifyClientServiceTest :
                     val updateRequest =
                         ModifyClientReqDto(
                             name = "수정된 클라이언트",
-                            redirectUri = null,
+                            redirectUrls = null,
                         )
 
                     beforeEach {
@@ -92,7 +93,7 @@ class ModifyClientServiceTest :
                     val updateRequest =
                         ModifyClientReqDto(
                             name = null,
-                            redirectUri = listOf("https://new-url.com", "https://another-url.com"),
+                            redirectUrls = setOf("https://new-url.com", "https://another-url.com"),
                         )
 
                     beforeEach {
@@ -112,7 +113,7 @@ class ModifyClientServiceTest :
                     val updateRequest =
                         ModifyClientReqDto(
                             name = "전체 수정 클라이언트",
-                            redirectUri = listOf("https://updated.com"),
+                            redirectUrls = setOf("https://updated.com"),
                         )
 
                     beforeEach {
@@ -163,7 +164,7 @@ class ModifyClientServiceTest :
                             name = "무단 수정 시도",
                         )
 
-                    val mockAuthentication = mockk<Authentication>()
+                    val mockAuthentication = mockk<CustomAuthenticationToken>()
 
                     beforeEach {
                         every { mockClientRepository.findById(clientId) } returns Optional.of(existingClient)
@@ -200,7 +201,7 @@ class ModifyClientServiceTest :
                             name = "관리자 수정",
                         )
 
-                    val mockAuthentication = mockk<Authentication>()
+                    val mockAuthentication = mockk<CustomAuthenticationToken>()
 
                     beforeEach {
                         every { mockClientRepository.findById(clientId) } returns Optional.of(existingClient)
