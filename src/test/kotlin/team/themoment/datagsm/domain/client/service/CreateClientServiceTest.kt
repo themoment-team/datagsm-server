@@ -1,5 +1,6 @@
 package team.themoment.datagsm.domain.client.service
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -7,13 +8,15 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
-import team.themoment.datagsm.domain.account.entity.constant.AccountRole
+import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.client.dto.request.CreateClientReqDto
 import team.themoment.datagsm.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.domain.client.service.impl.CreateClientServiceImpl
+import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 
 class CreateClientServiceTest :
@@ -21,13 +24,15 @@ class CreateClientServiceTest :
 
         val mockCurrentUserProvider = mockk<CurrentUserProvider>()
         val mockPasswordEncoder = mockk<PasswordEncoder>()
-        val mockClientRepository = mockk<ClientJpaRepository>()
+        val mockClientJpaRepository = mockk<ClientJpaRepository>()
+        val mockGetAvailableOauthScopesService = mockk<GetAvailableOauthScopesService>()
 
         val createClientService =
             CreateClientServiceImpl(
                 mockCurrentUserProvider,
                 mockPasswordEncoder,
-                mockClientRepository,
+                mockClientJpaRepository,
+                mockGetAvailableOauthScopesService,
             )
 
         afterEach {
@@ -37,99 +42,265 @@ class CreateClientServiceTest :
         describe("CreateClientService 클래스의") {
             describe("execute 메서드는") {
 
-                context("유효한 클라이언트 이름으로 생성 요청할 때") {
-                    val createRequest = CreateClientReqDto(name = "테스트 클라이언트")
+                val mockAccount =
+                    AccountJpaEntity().apply {
+                        id = 1L
+                        email = "test@gsm.hs.kr"
+                    }
 
-                    val currentAccount =
-                        AccountJpaEntity().apply {
-                            id = 1L
-                            email = "test@gsm.hs.kr"
-                            role = AccountRole.USER
-                        }
+                context("유효한 scope로 클라이언트 생성 요청할 때") {
+                    val reqDto =
+                        CreateClientReqDto(
+                            name = "Test OAuth Client",
+                            scopes = setOf("self:read", "student:read"),
+                        )
 
                     beforeEach {
-                        every { mockCurrentUserProvider.getCurrentAccount() } returns currentAccount
-                        every { mockPasswordEncoder.encode(any()) } returns "encoded-secret"
-                        every { mockClientRepository.save(any()) } answers {
-                            val client = firstArg<ClientJpaEntity>()
-                            client
+                        every { mockGetAvailableOauthScopesService.execute() } returns
+                            setOf("self:read", "student:read", "club:read")
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
+                        every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
+                        every { mockClientJpaRepository.save(any()) } answers {
+                            firstArg<ClientJpaEntity>()
                         }
                     }
 
-                    it("새로운 클라이언트를 생성하고 저장 후 결과를 반환한다") {
-                        val result = createClientService.execute(createRequest)
+                    it("새로운 OAuth 클라이언트를 생성하고 반환해야 한다") {
+                        val result = createClientService.execute(reqDto)
 
                         result.clientId shouldNotBe null
                         result.clientSecret shouldNotBe null
-                        result.name shouldBe "테스트 클라이언트"
-                        result.redirectUri shouldBe emptyList()
+                        result.name shouldBe "Test OAuth Client"
+                        result.redirectUrls shouldBe emptySet()
 
+                        verify(exactly = 1) { mockGetAvailableOauthScopesService.execute() }
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
                         verify(exactly = 1) { mockPasswordEncoder.encode(any()) }
-                        verify(exactly = 1) { mockClientRepository.save(any()) }
+                        verify(exactly = 1) { mockClientJpaRepository.save(any()) }
                     }
                 }
 
-                context("여러 클라이언트를 연속으로 생성할 때") {
-                    val createRequest1 = CreateClientReqDto(name = "첫번째 클라이언트")
-                    val createRequest2 = CreateClientReqDto(name = "두번째 클라이언트")
-
-                    val currentAccount =
-                        AccountJpaEntity().apply {
-                            id = 1L
-                            email = "test@gsm.hs.kr"
-                            role = AccountRole.USER
-                        }
+                context("허용되지 않는 scope를 포함하여 클라이언트 생성 요청할 때") {
+                    val reqDto =
+                        CreateClientReqDto(
+                            name = "Invalid Client",
+                            scopes = setOf("self:read", "invalid:scope"),
+                        )
 
                     beforeEach {
-                        every { mockCurrentUserProvider.getCurrentAccount() } returns currentAccount
-                        every { mockPasswordEncoder.encode(any()) } returns "encoded-secret"
-                        every { mockClientRepository.save(any()) } answers {
-                            val client = firstArg<ClientJpaEntity>()
-                            client
-                        }
+                        every { mockGetAvailableOauthScopesService.execute() } returns
+                            setOf("self:read", "student:read", "club:read")
                     }
 
-                    it("각각 다른 클라이언트가 생성되어야 한다") {
-                        val result1 = createClientService.execute(createRequest1)
-                        val result2 = createClientService.execute(createRequest2)
+                    it("400 BAD_REQUEST 예외가 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                createClientService.execute(reqDto)
+                            }
 
-                        result1.name shouldBe "첫번째 클라이언트"
-                        result2.name shouldBe "두번째 클라이언트"
-                        result1.clientId shouldNotBe result2.clientId
+                        exception.statusCode shouldBe HttpStatus.BAD_REQUEST
+                        exception.message shouldBe "허용되지 않는 OAuth 권한이 포함되어 있습니다: [invalid:scope]"
 
-                        verify(exactly = 2) { mockCurrentUserProvider.getCurrentAccount() }
-                        verify(exactly = 2) { mockPasswordEncoder.encode(any()) }
-                        verify(exactly = 2) { mockClientRepository.save(any()) }
+                        verify(exactly = 1) { mockGetAvailableOauthScopesService.execute() }
+                        verify(exactly = 0) { mockCurrentUserProvider.getCurrentAccount() }
+                        verify(exactly = 0) { mockPasswordEncoder.encode(any()) }
+                        verify(exactly = 0) { mockClientJpaRepository.save(any()) }
                     }
                 }
 
-                context("관리자 계정으로 클라이언트 생성 요청할 때") {
-                    val createRequest = CreateClientReqDto(name = "관리자 클라이언트")
-
-                    val adminAccount =
-                        AccountJpaEntity().apply {
-                            id = 2L
-                            email = "admin@gsm.hs.kr"
-                            role = AccountRole.ADMIN
-                        }
+                context("여러 개의 허용되지 않는 scope를 포함하여 클라이언트 생성 요청할 때") {
+                    val reqDto =
+                        CreateClientReqDto(
+                            name = "Invalid Client",
+                            scopes = setOf("self:read", "invalid:scope1", "invalid:scope2"),
+                        )
 
                     beforeEach {
-                        every { mockCurrentUserProvider.getCurrentAccount() } returns adminAccount
-                        every { mockPasswordEncoder.encode(any()) } returns "encoded-secret"
-                        every { mockClientRepository.save(any()) } answers {
-                            val client = firstArg<ClientJpaEntity>()
-                            client
+                        every { mockGetAvailableOauthScopesService.execute() } returns
+                            setOf("self:read", "student:read")
+                    }
+
+                    it("400 BAD_REQUEST 예외가 발생하고 모든 유효하지 않은 scope를 포함해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                createClientService.execute(reqDto)
+                            }
+
+                        exception.statusCode shouldBe HttpStatus.BAD_REQUEST
+                        exception.message shouldBe "허용되지 않는 OAuth 권한이 포함되어 있습니다: [invalid:scope1, invalid:scope2]"
+
+                        verify(exactly = 1) { mockGetAvailableOauthScopesService.execute() }
+                        verify(exactly = 0) { mockClientJpaRepository.save(any()) }
+                    }
+                }
+
+                context("클라이언트 secret이 암호화되어 저장될 때") {
+                    val reqDto =
+                        CreateClientReqDto(
+                            name = "Test Client",
+                            scopes = setOf("self:read"),
+                        )
+                    lateinit var savedClient: ClientJpaEntity
+
+                    beforeEach {
+                        every { mockGetAvailableOauthScopesService.execute() } returns
+                            setOf("self:read", "student:read")
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
+                        every { mockPasswordEncoder.encode(any()) } returns "hashed_secret_value"
+                        every { mockClientJpaRepository.save(any()) } answers {
+                            savedClient = firstArg<ClientJpaEntity>()
+                            savedClient
                         }
                     }
 
-                    it("관리자 계정으로 클라이언트가 생성되어야 한다") {
-                        val result = createClientService.execute(createRequest)
+                    it("secret이 PasswordEncoder로 암호화되어 저장되어야 한다") {
+                        val result = createClientService.execute(reqDto)
 
-                        result.name shouldBe "관리자 클라이언트"
-                        result.clientId shouldNotBe null
+                        savedClient.secret shouldBe "hashed_secret_value"
+                        result.clientSecret shouldNotBe "hashed_secret_value"
+
+                        verify(exactly = 1) { mockPasswordEncoder.encode(any()) }
+                    }
+                }
+
+                context("클라이언트 생성 시 redirectUrls가 빈 Set으로 초기화될 때") {
+                    val reqDto =
+                        CreateClientReqDto(
+                            name = "Test Client",
+                            scopes = setOf("self:read"),
+                        )
+                    lateinit var savedClient: ClientJpaEntity
+
+                    beforeEach {
+                        every { mockGetAvailableOauthScopesService.execute() } returns
+                            setOf("self:read")
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
+                        every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
+                        every { mockClientJpaRepository.save(any()) } answers {
+                            savedClient = firstArg<ClientJpaEntity>()
+                            savedClient
+                        }
+                    }
+
+                    it("redirectUrls가 빈 Set으로 설정되어야 한다") {
+                        val result = createClientService.execute(reqDto)
+
+                        savedClient.redirectUrls shouldBe emptySet()
+                        result.redirectUrls shouldBe emptySet()
+
+                        verify(exactly = 1) { mockClientJpaRepository.save(any()) }
+                    }
+                }
+
+                context("클라이언트 생성 시 scope가 ApiScope enum으로 변환될 때") {
+                    val reqDto =
+                        CreateClientReqDto(
+                            name = "Test Client",
+                            scopes = setOf("self:read", "student:read"),
+                        )
+                    lateinit var savedClient: ClientJpaEntity
+
+                    beforeEach {
+                        every { mockGetAvailableOauthScopesService.execute() } returns
+                            setOf("self:read", "student:read", "club:read")
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
+                        every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
+                        every { mockClientJpaRepository.save(any()) } answers {
+                            savedClient = firstArg<ClientJpaEntity>()
+                            savedClient
+                        }
+                    }
+
+                    it("요청된 scope가 ApiScope enum으로 변환되어 저장되어야 한다") {
+                        createClientService.execute(reqDto)
+
+                        savedClient.scopes shouldBe setOf(ApiScope.SELF_READ, ApiScope.STUDENT_READ)
+
+                        verify(exactly = 1) { mockClientJpaRepository.save(any()) }
+                    }
+                }
+
+                context("클라이언트 생성 시 현재 사용자의 Account가 연결될 때") {
+                    val reqDto =
+                        CreateClientReqDto(
+                            name = "Test Client",
+                            scopes = setOf("self:read"),
+                        )
+                    lateinit var savedClient: ClientJpaEntity
+
+                    beforeEach {
+                        every { mockGetAvailableOauthScopesService.execute() } returns
+                            setOf("self:read")
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
+                        every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
+                        every { mockClientJpaRepository.save(any()) } answers {
+                            savedClient = firstArg<ClientJpaEntity>()
+                            savedClient
+                        }
+                    }
+
+                    it("현재 사용자의 Account가 클라이언트에 연결되어야 한다") {
+                        createClientService.execute(reqDto)
+
+                        savedClient.account shouldBe mockAccount
+                        savedClient.account.id shouldBe 1L
+                        savedClient.account.email shouldBe "test@gsm.hs.kr"
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
+                    }
+                }
+
+                context("유효한 scope로 생성된 클라이언트 ID와 secret이 UUID 형식일 때") {
+                    val reqDto =
+                        CreateClientReqDto(
+                            name = "UUID Test Client",
+                            scopes = setOf("self:read"),
+                        )
+
+                    beforeEach {
+                        every { mockGetAvailableOauthScopesService.execute() } returns
+                            setOf("self:read")
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
+                        every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
+                        every { mockClientJpaRepository.save(any()) } answers {
+                            firstArg<ClientJpaEntity>()
+                        }
+                    }
+
+                    it("생성된 clientId와 clientSecret이 UUID 형식이어야 한다") {
+                        val result = createClientService.execute(reqDto)
+
+                        val uuidRegex =
+                            Regex("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+                        uuidRegex.matches(result.clientId) shouldBe true
+                        uuidRegex.matches(result.clientSecret) shouldBe true
+                    }
+                }
+
+                context("빈 scope 목록으로 클라이언트 생성 요청할 때") {
+                    val reqDto =
+                        CreateClientReqDto(
+                            name = "Empty Scope Client",
+                            scopes = emptySet(),
+                        )
+
+                    beforeEach {
+                        every { mockGetAvailableOauthScopesService.execute() } returns
+                            setOf("self:read", "student:read")
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
+                        every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
+                        every { mockClientJpaRepository.save(any()) } answers {
+                            firstArg<ClientJpaEntity>()
+                        }
+                    }
+
+                    it("빈 scope로 클라이언트를 생성해야 한다") {
+                        val result = createClientService.execute(reqDto)
+
+                        result.clientId shouldNotBe null
+                        result.name shouldBe "Empty Scope Client"
+
+                        verify(exactly = 1) { mockClientJpaRepository.save(any()) }
                     }
                 }
             }
