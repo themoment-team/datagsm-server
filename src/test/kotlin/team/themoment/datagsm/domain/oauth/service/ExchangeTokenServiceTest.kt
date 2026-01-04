@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.domain.account.repository.AccountJpaRepository
+import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.domain.oauth.dto.request.OauthTokenReqDto
@@ -71,12 +72,15 @@ class ExchangeTokenServiceTest :
                         ttl = 300L,
                     )
 
+                val testScopes = setOf(ApiScope.STUDENT_READ, ApiScope.CLUB_READ)
+
                 val mockClient =
                     ClientJpaEntity().apply {
                         id = testClientId
                         secret = "encodedSecret"
                         redirectUrls = setOf("https://example.com/callback")
                         name = "Test Client"
+                        scopes = testScopes
                     }
 
                 val mockAccount =
@@ -216,6 +220,7 @@ class ExchangeTokenServiceTest :
                                 testEmail,
                                 mockAccount.role,
                                 testClientId,
+                                testScopes,
                             )
                         } returns testAccessToken
                         every { mockJwtProvider.generateOauthRefreshToken(testEmail, testClientId) } returns testRefreshToken
@@ -242,6 +247,7 @@ class ExchangeTokenServiceTest :
                                 testEmail,
                                 mockAccount.role,
                                 testClientId,
+                                testScopes,
                             )
                         }
                         verify(exactly = 1) { mockJwtProvider.generateOauthRefreshToken(testEmail, testClientId) }

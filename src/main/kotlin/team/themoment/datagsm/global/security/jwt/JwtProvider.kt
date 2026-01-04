@@ -6,6 +6,7 @@ import io.jsonwebtoken.security.Keys
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.domain.account.entity.constant.AccountRole
+import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.authentication.type.AuthType
 import java.nio.charset.StandardCharsets
@@ -56,7 +57,7 @@ class JwtProvider(
         email: String,
         role: AccountRole,
         clientId: String,
-        scopes: Set<String>,
+        scopes: Set<ApiScope>,
     ): String {
         val now = Date()
         val expiration = Date(now.time + jwtProperties.oauthAccessTokenExpiration)

@@ -12,6 +12,9 @@ import org.springframework.http.HttpStatus
 import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.domain.account.repository.AccountJpaRepository
+import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
+import team.themoment.datagsm.domain.client.entity.ClientJpaEntity
+import team.themoment.datagsm.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.domain.oauth.entity.OauthRefreshTokenRedisEntity
 import team.themoment.datagsm.domain.oauth.repository.OauthRefreshTokenRedisRepository
 import team.themoment.datagsm.domain.oauth.service.impl.ReissueOauthTokenServiceImpl
@@ -27,6 +30,7 @@ class ReissueOauthTokenServiceTest :
         val mockJwtProperties = mockk<JwtProperties>()
         val mockOauthRefreshTokenRedisRepository = mockk<OauthRefreshTokenRedisRepository>()
         val mockAccountJpaRepository = mockk<AccountJpaRepository>()
+        val mockClientJpaRepository = mockk<ClientJpaRepository>()
 
         val reissueOauthTokenService =
             ReissueOauthTokenServiceImpl(
@@ -34,6 +38,7 @@ class ReissueOauthTokenServiceTest :
                 mockJwtProperties,
                 mockOauthRefreshTokenRedisRepository,
                 mockAccountJpaRepository,
+                mockClientJpaRepository,
             )
 
         afterEach {
@@ -56,6 +61,17 @@ class ReissueOauthTokenServiceTest :
                         email = testEmail
                         password = "encodedPassword"
                         role = AccountRole.USER
+                    }
+
+                val testScopes = setOf(ApiScope.STUDENT_READ, ApiScope.CLUB_READ)
+
+                val mockClient =
+                    ClientJpaEntity().apply {
+                        id = testClientId
+                        secret = "encodedSecret"
+                        redirectUrls = setOf("https://example.com/callback")
+                        name = "Test Client"
+                        scopes = testScopes
                     }
 
                 val mockStoredRefreshToken =
@@ -208,6 +224,34 @@ class ReissueOauthTokenServiceTest :
                     }
                 }
 
+                context("Oauth 클라이언트를 찾을 수 없을 때") {
+                    beforeEach {
+                        every { mockJwtProvider.validateToken(testRefreshToken) } returns true
+                        every { mockJwtProvider.getEmailFromToken(testRefreshToken) } returns testEmail
+                        every { mockJwtProvider.getClientIdFromToken(testRefreshToken) } returns testClientId
+                        every {
+                            mockOauthRefreshTokenRedisRepository.findByEmailAndClientId(
+                                testEmail,
+                                testClientId,
+                            )
+                        } returns Optional.of(mockStoredRefreshToken)
+                        every { mockAccountJpaRepository.findByEmail(testEmail) } returns Optional.of(mockAccount)
+                        every { mockClientJpaRepository.findById(testClientId) } returns Optional.empty()
+                    }
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                reissueOauthTokenService.execute(testRefreshToken)
+                            }
+
+                        exception.message shouldBe "Oauth 클라이언트를 찾을 수 없습니다."
+                        exception.statusCode shouldBe HttpStatus.NOT_FOUND
+
+                        verify(exactly = 1) { mockClientJpaRepository.findById(testClientId) }
+                    }
+                }
+
                 context("모든 검증을 통과할 때") {
                     val savedRefreshTokenSlot = slot<OauthRefreshTokenRedisEntity>()
 
@@ -222,11 +266,13 @@ class ReissueOauthTokenServiceTest :
                             )
                         } returns Optional.of(mockStoredRefreshToken)
                         every { mockAccountJpaRepository.findByEmail(testEmail) } returns Optional.of(mockAccount)
+                        every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(mockClient)
                         every {
                             mockJwtProvider.generateOauthAccessToken(
                                 testEmail,
                                 mockAccount.role,
                                 testClientId,
+                                testScopes,
                             )
                         } returns newAccessToken
                         every { mockJwtProvider.generateOauthRefreshToken(testEmail, testClientId) } returns newRefreshToken
@@ -247,11 +293,13 @@ class ReissueOauthTokenServiceTest :
                         result.accessToken shouldBe newAccessToken
                         result.refreshToken shouldBe newRefreshToken
 
+                        verify(exactly = 1) { mockClientJpaRepository.findById(testClientId) }
                         verify(exactly = 1) {
                             mockJwtProvider.generateOauthAccessToken(
                                 testEmail,
                                 mockAccount.role,
                                 testClientId,
+                                testScopes,
                             )
                         }
                         verify(exactly = 1) { mockJwtProvider.generateOauthRefreshToken(testEmail, testClientId) }
