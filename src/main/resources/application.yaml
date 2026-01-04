@@ -12,6 +12,11 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      adjust-dates-to-context-time-zone: false
   data:
     redis:
       host: localhost
@@ -30,6 +35,11 @@ spring:
     discord:
       webhook:
         url: ${DISCORD_EMERGENCY_ALERT_CHANNEL_WEBHOOK}
+    neis:
+      api:
+        key: ${NEIS_API_KEY}
+        office-code: ${NEIS_OFFICE_CODE:F10}
+        school-code: ${NEIS_SCHOOL_CODE:7380292}
   security:
     cors:
       allowed-origins:

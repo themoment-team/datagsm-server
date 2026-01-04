@@ -24,8 +24,11 @@ class CreateClubExcelServiceImpl(
 ) : CreateClubExcelService {
     companion object {
         private const val MAJOR_CLUB_COL_IDX = 0
-        private const val JOB_CLUB_COL_IDX = 1
-        private const val AUTONOMOUS_CLUB_COL_IDX = 2
+        private const val MAJOR_CLUB_LEADER_COL_IDX = 1
+        private const val JOB_CLUB_COL_IDX = 2
+        private const val JOB_CLUB_LEADER_COL_IDX = 3
+        private const val AUTONOMOUS_CLUB_COL_IDX = 4
+        private const val AUTONOMOUS_CLUB_LEADER_COL_IDX = 5
 
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     }
@@ -38,30 +41,41 @@ class CreateClubExcelServiceImpl(
             val headerRow = sheet.createRow(0)
 
             headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue(ClubType.MAJOR_CLUB.value)
+            headerRow.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("${ClubType.MAJOR_CLUB.value} 부장")
             headerRow.createCell(JOB_CLUB_COL_IDX).setCellValue(ClubType.JOB_CLUB.value)
+            headerRow.createCell(JOB_CLUB_LEADER_COL_IDX).setCellValue("${ClubType.JOB_CLUB.value} 부장")
             headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue(ClubType.AUTONOMOUS_CLUB.value)
+            headerRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("${ClubType.AUTONOMOUS_CLUB.value} 부장")
 
             val maxRows = data.maxOf { it.clubName.size }
             val clubDataMap = data.associateBy { it.clubType }
             val clubTypeColumnMap =
                 mapOf(
-                    ClubType.MAJOR_CLUB to MAJOR_CLUB_COL_IDX,
-                    ClubType.JOB_CLUB to JOB_CLUB_COL_IDX,
-                    ClubType.AUTONOMOUS_CLUB to AUTONOMOUS_CLUB_COL_IDX,
+                    ClubType.MAJOR_CLUB to (MAJOR_CLUB_COL_IDX to MAJOR_CLUB_LEADER_COL_IDX),
+                    ClubType.JOB_CLUB to (JOB_CLUB_COL_IDX to JOB_CLUB_LEADER_COL_IDX),
+                    ClubType.AUTONOMOUS_CLUB to (AUTONOMOUS_CLUB_COL_IDX to AUTONOMOUS_CLUB_LEADER_COL_IDX),
                 )
 
             for (rowIdx in 0 until maxRows) {
-                val dataRow = sheet.getRow(rowIdx + 1)
-                clubTypeColumnMap.forEach { (clubType, colIdx) ->
-                    clubDataMap[clubType]?.clubName?.getOrNull(rowIdx)?.let { clubName ->
-                        dataRow.createCell(colIdx).setCellValue(clubName)
+                val dataRow = sheet.createRow(rowIdx + 1)
+                clubTypeColumnMap.forEach { (clubType, columnIndices) ->
+                    val (clubNameColIdx, clubLeaderColIdx) = columnIndices
+                    val clubData = clubDataMap[clubType]
+                    clubData?.clubName?.getOrNull(rowIdx)?.let { clubName ->
+                        dataRow.createCell(clubNameColIdx).setCellValue(clubName)
+                    }
+                    clubData?.clubLeader?.getOrNull(rowIdx)?.let { clubLeader ->
+                        dataRow.createCell(clubLeaderColIdx).setCellValue(clubLeader)
                     }
                 }
             }
 
             sheet.autoSizeColumn(MAJOR_CLUB_COL_IDX)
+            sheet.autoSizeColumn(MAJOR_CLUB_LEADER_COL_IDX)
             sheet.autoSizeColumn(JOB_CLUB_COL_IDX)
+            sheet.autoSizeColumn(JOB_CLUB_LEADER_COL_IDX)
             sheet.autoSizeColumn(AUTONOMOUS_CLUB_COL_IDX)
+            sheet.autoSizeColumn(AUTONOMOUS_CLUB_LEADER_COL_IDX)
 
             val byteArrayFile =
                 ByteArrayOutputStream().use { outputStream ->
@@ -94,7 +108,12 @@ class CreateClubExcelServiceImpl(
 
     private fun getClubData(): List<ExcelRowDto> =
         ClubType.entries.map { clubType ->
-            val clubNames = clubJpaRepository.findByType(clubType).map { it.name }
-            ExcelRowDto(clubName = clubNames, clubType = clubType)
+            val clubs = clubJpaRepository.findByType(clubType)
+            val clubNames = clubs.map { it.name }
+            val clubLeaders =
+                clubs.map { club ->
+                    "${club.leader.studentNumber.fullStudentNumber} ${club.leader.name}"
+                }
+            ExcelRowDto(clubName = clubNames, clubLeader = clubLeaders, clubType = clubType)
         }
 }

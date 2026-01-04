@@ -7,9 +7,12 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.DynamicUpdate
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
+import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 
 @Table(name = "tb_club")
 @Entity
@@ -26,4 +29,8 @@ class ClubJpaEntity {
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
     lateinit var type: ClubType
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "leader_id", nullable = false, referencedColumnName = "id")
+    lateinit var leader: StudentJpaEntity
 }

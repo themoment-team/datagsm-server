@@ -9,27 +9,32 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.domain.auth.dto.request.CreateApiKeyReqDto
 import team.themoment.datagsm.domain.auth.dto.request.LoginReqDto
 import team.themoment.datagsm.domain.auth.dto.request.ModifyApiKeyReqDto
 import team.themoment.datagsm.domain.auth.dto.request.RefreshTokenReqDto
-import team.themoment.datagsm.domain.auth.dto.response.ApiKeyRenewableResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeySearchResDto
+import team.themoment.datagsm.domain.auth.dto.response.ApiScopeGroupListResDto
+import team.themoment.datagsm.domain.auth.dto.response.ApiScopeResDto
 import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
-import team.themoment.datagsm.domain.auth.service.CreateApiKeyService
-import team.themoment.datagsm.domain.auth.service.DeleteApiKeyService
+import team.themoment.datagsm.domain.auth.service.CreateCurrentAccountApiKeyService
+import team.themoment.datagsm.domain.auth.service.DeleteApiKeyByIdService
+import team.themoment.datagsm.domain.auth.service.DeleteCurrentAccountApiKeyService
 import team.themoment.datagsm.domain.auth.service.LoginService
-import team.themoment.datagsm.domain.auth.service.ModifyApiKeyService
-import team.themoment.datagsm.domain.auth.service.QueryApiKeyRenewableService
-import team.themoment.datagsm.domain.auth.service.QueryApiKeyService
+import team.themoment.datagsm.domain.auth.service.ModifyCurrentAccountApiKeyService
+import team.themoment.datagsm.domain.auth.service.QueryApiScopeByScopeNameService
+import team.themoment.datagsm.domain.auth.service.QueryApiScopeGroupService
+import team.themoment.datagsm.domain.auth.service.QueryCurrentAccountApiKeyService
 import team.themoment.datagsm.domain.auth.service.ReissueTokenService
 import team.themoment.datagsm.domain.auth.service.SearchApiKeyService
 import team.themoment.datagsm.global.common.response.dto.response.CommonApiResponse
@@ -39,11 +44,13 @@ import team.themoment.datagsm.global.security.annotation.RequireScope
 @RestController
 @RequestMapping("/v1/auth")
 class AuthController(
-    private val createApiKeyService: CreateApiKeyService,
-    private val deleteApiKeyService: DeleteApiKeyService,
-    private val modifyApiKeyService: ModifyApiKeyService,
-    private val queryApiKeyService: QueryApiKeyService,
-    private val queryApiKeyRenewableService: QueryApiKeyRenewableService,
+    private val createCurrentAccountApiKeyService: CreateCurrentAccountApiKeyService,
+    private val deleteCurrentAccountApiKeyService: DeleteCurrentAccountApiKeyService,
+    private val deleteApiKeyByIdService: DeleteApiKeyByIdService,
+    private val modifyCurrentAccountApiKeyService: ModifyCurrentAccountApiKeyService,
+    private val queryCurrentAccountApiKeyService: QueryCurrentAccountApiKeyService,
+    private val queryApiScopeByScopeNameService: QueryApiScopeByScopeNameService,
+    private val queryApiScopeGroupService: QueryApiScopeGroupService,
     private val reissueTokenService: ReissueTokenService,
     private val searchApiKeyService: SearchApiKeyService,
     private val loginService: LoginService,
@@ -89,9 +96,9 @@ class AuthController(
     @PostMapping("/api-key")
     fun createApiKey(
         @RequestBody @Valid reqDto: CreateApiKeyReqDto,
-    ): ApiKeyResDto = createApiKeyService.execute(reqDto)
+    ): ApiKeyResDto = createCurrentAccountApiKeyService.execute(reqDto)
 
-    @Operation(summary = "API 키 갱신", description = "기존 API 키를 갱신합니다. 만료 15일 전부터 만료 15일 후까지만 갱신 가능하며, scope도 변경할 수 있습니다.")
+    @Operation(summary = "API 키 갱신", description = "기존 API 키를 갱신합니다. 권한범위도 변경할 수 있으며 변경 시 새로 API 키가 발급됩니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "API 키 갱신 성공"),
@@ -103,9 +110,9 @@ class AuthController(
     @PutMapping("/api-key")
     fun modifyApiKey(
         @RequestBody @Valid reqDto: ModifyApiKeyReqDto,
-    ): ApiKeyResDto = modifyApiKeyService.execute(reqDto)
+    ): ApiKeyResDto = modifyCurrentAccountApiKeyService.execute(reqDto)
 
-    @Operation(summary = "API 키 삭제", description = "기존 API 키를 삭제합니다.")
+    @Operation(summary = "API 키 삭제", description = "현재 인증된 사용자의 API 키를 삭제합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "API 키 삭제 성공"),
@@ -116,11 +123,29 @@ class AuthController(
     @RequireScope(ApiScope.AUTH_MANAGE)
     @DeleteMapping("/api-key")
     fun deleteApiKey(): CommonApiResponse<Nothing> {
-        deleteApiKeyService.execute()
+        deleteCurrentAccountApiKeyService.execute()
         return CommonApiResponse.success("API 키가 삭제되었습니다.")
     }
 
-    @Operation(summary = "API 키 조회", description = "현재 로그인한 사용자의 API 키를 조회합니다.")
+    @Operation(summary = "ID로 API 키 삭제", description = "특정 ID를 가진 API 키를 삭제합니다. 관리자 전용 API입니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "API 키 삭제 성공"),
+            ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음", content = [Content()]),
+        ],
+    )
+    @RequireScope(ApiScope.ADMIN_APIKEY)
+    @DeleteMapping("/api-key/{id}")
+    fun deleteApiKeyById(
+        @Parameter(description = "삭제할 API 키 ID", required = true)
+        @PathVariable
+        id: Long,
+    ): CommonApiResponse<Nothing> {
+        deleteApiKeyByIdService.execute(id)
+        return CommonApiResponse.success("API 키가 삭제되었습니다.")
+    }
+
+    @Operation(summary = "API 키 조회", description = "현재 로그인한 사용자의 API 키를 조회합니다. API 키는 마스킹되어 반환됩니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "API 키 조회 성공"),
@@ -130,7 +155,7 @@ class AuthController(
     )
     @RequireScope(ApiScope.AUTH_MANAGE)
     @GetMapping("/api-key")
-    fun getApiKey(): ApiKeyResDto = queryApiKeyService.execute()
+    fun getApiKey(): ApiKeyResDto = queryCurrentAccountApiKeyService.execute()
 
     @Operation(summary = "API 키 검색", description = "필터 조건에 맞는 API 키를 검색합니다. API 키는 마스킹되어 반환됩니다.")
     @ApiResponses(
@@ -159,15 +184,32 @@ class AuthController(
             size,
         )
 
-    @Operation(summary = "API 키 갱신 가능 여부 조회", description = "현재 API 키가 갱신 가능한지 확인합니다.")
+    @Operation(summary = "역할별 사용 가능한 API Scope 조회", description = "USER 또는 ADMIN 역할에서 사용 가능한 API Scope 목록을 카테고리별로 그룹핑하여 조회합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
-            ApiResponse(responseCode = "400", description = "학생 정보 없음", content = [Content()]),
-            ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
         ],
     )
+    @GetMapping("/scopes")
     @RequireScope(ApiScope.AUTH_MANAGE)
-    @GetMapping("/api-key/renewable")
-    fun checkApiKeyRenewable(): ApiKeyRenewableResDto = queryApiKeyRenewableService.execute()
+    fun getApiScopes(
+        @Parameter(description = "계정 역할 (USER 또는 ADMIN)", required = true)
+        @RequestParam
+        role: AccountRole,
+    ): ApiScopeGroupListResDto = queryApiScopeGroupService.execute(role)
+
+    @Operation(summary = "API Scope 단건 조회", description = "특정 API Scope의 상세 정보를 조회합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "조회 성공"),
+            ApiResponse(responseCode = "404", description = "존재하지 않는 스코프", content = [Content()]),
+        ],
+    )
+    @GetMapping("/scopes/{scopeName}")
+    @RequireScope(ApiScope.AUTH_MANAGE)
+    fun getApiScope(
+        @Parameter(description = "조회할 스코프 이름", example = "student:read", required = true)
+        @PathVariable
+        scopeName: String,
+    ): ApiScopeResDto = queryApiScopeByScopeNameService.execute(scopeName)
 }

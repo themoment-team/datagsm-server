@@ -3,7 +3,7 @@ package team.themoment.datagsm.domain.student.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.domain.club.dto.response.ClubResDto
+import team.themoment.datagsm.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
@@ -87,9 +87,9 @@ class ModifyStudentServiceImpl(
             dormitoryFloor = student.dormitoryRoomNumber?.dormitoryRoomFloor,
             dormitoryRoom = student.dormitoryRoomNumber?.dormitoryRoomNumber,
             isLeaveSchool = student.isLeaveSchool,
-            majorClub = student.majorClub?.let { ClubResDto(id = it.id!!, name = it.name, type = it.type) },
-            jobClub = student.jobClub?.let { ClubResDto(id = it.id!!, name = it.name, type = it.type) },
-            autonomousClub = student.autonomousClub?.let { ClubResDto(id = it.id!!, name = it.name, type = it.type) },
+            majorClub = student.majorClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
+            jobClub = student.jobClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
+            autonomousClub = student.autonomousClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
         )
     }
 }

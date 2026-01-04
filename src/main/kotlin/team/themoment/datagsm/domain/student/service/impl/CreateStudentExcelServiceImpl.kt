@@ -6,7 +6,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.student.dto.internal.ExcelColumnDto
 import team.themoment.datagsm.domain.student.dto.internal.ExcelRowDto
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
@@ -18,7 +17,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Service
-@Transactional(readOnly = true)
 class CreateStudentExcelServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
 ) : CreateStudentExcelService {
@@ -30,7 +28,7 @@ class CreateStudentExcelServiceImpl(
         private const val MAJOR_CLUB_COL_IDX = 4
         private const val JOB_CLUB_COL_IDX = 5
         private const val AUTONOMOUS_COL_IDX = 6
-        private const val DOROMITORY_ROOM_NUMBER_COL_IDX = 7
+        private const val DORMITORY_ROOM_NUMBER_COL_IDX = 7
         private const val STUDENT_ROLE_COL_IDX = 8
         private const val IS_SCHOOL_LEAVE_COL_IDX = 9
         private const val SEX_COL_IDX = 10
@@ -53,7 +51,7 @@ class CreateStudentExcelServiceImpl(
             headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("전공동아리")
             headerRow.createCell(JOB_CLUB_COL_IDX).setCellValue("취업동아리")
             headerRow.createCell(AUTONOMOUS_COL_IDX).setCellValue("창체동아리")
-            headerRow.createCell(DOROMITORY_ROOM_NUMBER_COL_IDX).setCellValue("호실")
+            headerRow.createCell(DORMITORY_ROOM_NUMBER_COL_IDX).setCellValue("호실")
             headerRow.createCell(STUDENT_ROLE_COL_IDX).setCellValue("소속")
             headerRow.createCell(IS_SCHOOL_LEAVE_COL_IDX).setCellValue("자퇴 여부")
             headerRow.createCell(SEX_COL_IDX).setCellValue("성별")
@@ -69,7 +67,7 @@ class CreateStudentExcelServiceImpl(
                 row.createCell(JOB_CLUB_COL_IDX).setCellValue(columnDto.jobClub ?: "")
                 row.createCell(AUTONOMOUS_COL_IDX).setCellValue(columnDto.autonomousClub ?: "")
                 row
-                    .createCell(DOROMITORY_ROOM_NUMBER_COL_IDX)
+                    .createCell(DORMITORY_ROOM_NUMBER_COL_IDX)
                     .setCellValue(columnDto.dormitoryRoomNumber?.toString() ?: "")
                 row.createCell(STUDENT_ROLE_COL_IDX).setCellValue(columnDto.role.value)
                 row.createCell(IS_SCHOOL_LEAVE_COL_IDX).setCellValue(if (columnDto.isLeaveSchool) "O" else "X")

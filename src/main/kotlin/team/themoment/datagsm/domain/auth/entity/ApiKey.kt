@@ -73,8 +73,13 @@ class ApiKey {
 
     fun canBeRenewed(renewalPeriodDays: Long): Boolean {
         val now = LocalDateTime.now()
-        val renewalStartDate = expiresAt.minusDays(renewalPeriodDays)
         val renewalEndDate = expiresAt.plusDays(renewalPeriodDays)
-        return !now.isBefore(renewalStartDate) && now.isBefore(renewalEndDate)
+        return now.isBefore(renewalEndDate)
     }
+
+    val maskedValue: String
+        get() {
+            val uuidString = value.toString()
+            return "${uuidString.take(8)}-****-****-****-********${uuidString.takeLast(4)}"
+        }
 }

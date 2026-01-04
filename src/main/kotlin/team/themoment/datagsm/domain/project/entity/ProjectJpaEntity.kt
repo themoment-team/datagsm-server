@@ -6,10 +6,13 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.JoinTable
+import jakarta.persistence.ManyToMany
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.DynamicUpdate
 import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 
 @Table(name = "tb_project")
 @Entity
@@ -29,4 +32,12 @@ class ProjectJpaEntity {
     @field:ManyToOne(optional = true)
     @field:JoinColumn(name = "club_id", nullable = true, referencedColumnName = "id")
     var club: ClubJpaEntity? = null
+
+    @field:ManyToMany
+    @field:JoinTable(
+        name = "tb_project_participant",
+        joinColumns = [JoinColumn(name = "project_id")],
+        inverseJoinColumns = [JoinColumn(name = "student_id")],
+    )
+    var participants: MutableSet<StudentJpaEntity> = mutableSetOf()
 }

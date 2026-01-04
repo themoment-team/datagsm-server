@@ -117,4 +117,28 @@ class StudentJpaCustomRepositoryImpl(
                     .and(studentJpaEntity.studentNumber.studentNumber.eq(number))
                     .and(studentJpaEntity.id.ne(id)),
             ).fetchFirst() != null
+
+    override fun findStudentsByGrade(grade: Int): List<StudentJpaEntity> =
+        jpaQueryFactory
+            .selectFrom(studentJpaEntity)
+            .leftJoin(studentJpaEntity.majorClub)
+            .fetchJoin()
+            .leftJoin(studentJpaEntity.jobClub)
+            .fetchJoin()
+            .leftJoin(studentJpaEntity.autonomousClub)
+            .fetchJoin()
+            .where(studentJpaEntity.studentNumber.studentGrade.eq(grade))
+            .orderBy(
+                studentJpaEntity.studentNumber.studentClass.asc(),
+                studentJpaEntity.studentNumber.studentNumber.asc(),
+            ).fetch()
+
+    override fun findAllStudents(): List<StudentJpaEntity> =
+        jpaQueryFactory
+            .selectFrom(studentJpaEntity)
+            .orderBy(
+                studentJpaEntity.studentNumber.studentGrade.asc(),
+                studentJpaEntity.studentNumber.studentClass.asc(),
+                studentJpaEntity.studentNumber.studentNumber.asc(),
+            ).fetch()
 }

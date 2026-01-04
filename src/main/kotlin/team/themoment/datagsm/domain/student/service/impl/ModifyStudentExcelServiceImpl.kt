@@ -6,13 +6,11 @@ import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.student.dto.internal.ExcelColumnDto
 import team.themoment.datagsm.domain.student.dto.internal.ExcelRowDto
-import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
 import team.themoment.datagsm.domain.student.entity.constant.Major
 import team.themoment.datagsm.domain.student.entity.constant.Sex
@@ -24,7 +22,6 @@ import team.themoment.datagsm.global.common.response.dto.response.CommonApiRespo
 import team.themoment.datagsm.global.exception.error.ExpectedException
 
 @Service
-@Transactional
 class ModifyStudentExcelServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
@@ -33,17 +30,69 @@ class ModifyStudentExcelServiceImpl(
 
     override fun execute(file: MultipartFile): CommonApiResponse<Nothing> {
         val excelData: List<ExcelColumnDto> = queryExcelData(file).flatMap { it.excelRows }
-        val studentNumbers = excelData.map { it.number }.distinct()
+        val studentNumbers =
+            excelData
+                .sortedBy { it.number }
+                .map { it.number }
+        val studentEmails =
+            excelData
+                .map { it.email }
+
         if (studentNumbers.isEmpty()) {
             throw ExpectedException(
                 "엑셀 내 모든 학번이 비어있습니다.",
                 HttpStatus.BAD_REQUEST,
             )
         }
+
+        val duplicatesStudentNumber =
+            studentNumbers
+                .groupingBy { it }
+                .eachCount()
+                .filter { it.value > 1 }
+                .keys
+        if (duplicatesStudentNumber.isNotEmpty()) {
+            throw ExpectedException(
+                "엑셀 파일에 다음 학번이 중복으로 존재합니다: $duplicatesStudentNumber",
+                HttpStatus.BAD_REQUEST,
+            )
+        }
+
+        val duplicatesEmail =
+            studentEmails
+                .groupingBy { it }
+                .eachCount()
+                .filter { it.value > 1 }
+                .keys
+        if (duplicatesEmail.isNotEmpty()) {
+            throw ExpectedException(
+                "엑셀 파일에 다음 이메일이 중복으로 존재합니다: $duplicatesEmail",
+                HttpStatus.BAD_REQUEST,
+            )
+        }
+
         val existingStudents =
             studentJpaRepository
-                .findAllByStudentNumberIn(studentNumbers)
+                .findAllStudents()
                 .associateBy { it.studentNumber.fullStudentNumber }
+
+        val dbStudentNumbers = existingStudents.keys
+        val excelStudentNumbers = studentNumbers.toSet()
+
+        val missingInDb = excelStudentNumbers - dbStudentNumbers
+        if (missingInDb.isNotEmpty()) {
+            throw ExpectedException(
+                "DB에 존재하지 않는 학번이 엑셀 파일에 존재합니다: $missingInDb",
+                HttpStatus.BAD_REQUEST,
+            )
+        }
+        val extraInDb = dbStudentNumbers - excelStudentNumbers
+        if (extraInDb.isNotEmpty()) {
+            throw ExpectedException(
+                "엑셀에 존재하지 않는 학번이 데이터베이스에 존재합니다: $extraInDb",
+                HttpStatus.BAD_REQUEST,
+            )
+        }
 
         val majorClubs = excelData.mapNotNull { it.majorClub }.distinct()
         val jobClubs = excelData.mapNotNull { it.jobClub }.distinct()
@@ -76,10 +125,9 @@ class ModifyStudentExcelServiceImpl(
 
         val studentsToSave =
             excelData.map { dto ->
-                (existingStudents[dto.number] ?: StudentJpaEntity()).also { student ->
+                existingStudents.getValue(dto.number).also { student ->
                     student.name = dto.name
-                    student.studentNumber = getStudentNumberEmbedded(dto.number)
-                    student.email = dto.email
+                    student.email = "TEMP_${dto.number}"
                     student.major = dto.major
                     student.majorClub =
                         dto.majorClub?.let { clubName ->
@@ -102,7 +150,12 @@ class ModifyStudentExcelServiceImpl(
                     student.sex = dto.sex
                 }
             }
-        studentJpaRepository.saveAll(studentsToSave)
+        studentJpaRepository.flush()
+
+        excelData.zip(studentsToSave).forEach { (dto, student) ->
+            student.email = dto.email
+        }
+
         return CommonApiResponse.success("엑셀 업로드 성공")
     }
 

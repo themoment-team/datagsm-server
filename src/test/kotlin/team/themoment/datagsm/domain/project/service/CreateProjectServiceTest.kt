@@ -22,8 +22,9 @@ class CreateProjectServiceTest :
 
         val mockProjectRepository = mockk<ProjectJpaRepository>()
         val mockClubRepository = mockk<ClubJpaRepository>()
+        val mockStudentRepository = mockk<team.themoment.datagsm.domain.student.repository.StudentJpaRepository>()
 
-        val createProjectService = CreateProjectServiceImpl(mockProjectRepository, mockClubRepository)
+        val createProjectService = CreateProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository)
 
         afterEach {
             clearAllMocks()
@@ -70,6 +71,7 @@ class CreateProjectServiceTest :
                         result.club?.id shouldBe 1L
                         result.club?.name shouldBe "SW개발동아리"
                         result.club?.type shouldBe ClubType.MAJOR_CLUB
+                        result.participants shouldBe emptyList()
 
                         verify(exactly = 1) { mockProjectRepository.existsByName(createRequest.name) }
                         verify(exactly = 1) { mockClubRepository.findById(createRequest.clubId) }
