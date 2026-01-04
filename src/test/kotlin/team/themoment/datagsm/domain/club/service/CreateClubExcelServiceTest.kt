@@ -20,6 +20,13 @@ import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.entity.constant.StudentNumber
 import java.io.ByteArrayInputStream
 
+private const val MAJOR_CLUB_COL_IDX = 0
+private const val MAJOR_CLUB_LEADER_COL_IDX = 1
+private const val JOB_CLUB_COL_IDX = 2
+private const val JOB_CLUB_LEADER_COL_IDX = 3
+private const val AUTONOMOUS_CLUB_COL_IDX = 4
+private const val AUTONOMOUS_CLUB_LEADER_COL_IDX = 5
+
 class CreateClubExcelServiceTest :
     DescribeSpec({
 
@@ -120,20 +127,20 @@ class CreateClubExcelServiceTest :
                         sheet.sheetName shouldBe "동아리"
 
                         val headerRow = sheet.getRow(0)
-                        headerRow.getCell(0).stringCellValue shouldBe "전공동아리"
-                        headerRow.getCell(1).stringCellValue shouldBe "전공동아리 부장"
-                        headerRow.getCell(2).stringCellValue shouldBe "취업동아리"
-                        headerRow.getCell(3).stringCellValue shouldBe "취업동아리 부장"
-                        headerRow.getCell(4).stringCellValue shouldBe "창체동아리"
-                        headerRow.getCell(5).stringCellValue shouldBe "창체동아리 부장"
+                        headerRow.getCell(MAJOR_CLUB_COL_IDX).stringCellValue shouldBe "전공동아리"
+                        headerRow.getCell(MAJOR_CLUB_LEADER_COL_IDX).stringCellValue shouldBe "전공동아리 부장"
+                        headerRow.getCell(JOB_CLUB_COL_IDX).stringCellValue shouldBe "취업동아리"
+                        headerRow.getCell(JOB_CLUB_LEADER_COL_IDX).stringCellValue shouldBe "취업동아리 부장"
+                        headerRow.getCell(AUTONOMOUS_CLUB_COL_IDX).stringCellValue shouldBe "창체동아리"
+                        headerRow.getCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).stringCellValue shouldBe "창체동아리 부장"
 
                         val dataRow = sheet.getRow(1)
-                        dataRow.getCell(0).stringCellValue shouldBe "SW개발동아리"
-                        dataRow.getCell(1).stringCellValue shouldBe "2404 김철수"
-                        dataRow.getCell(2).stringCellValue shouldBe "취업준비동아리"
-                        dataRow.getCell(3).stringCellValue shouldBe "2305 이영희"
-                        dataRow.getCell(4).stringCellValue shouldBe "창체동아리A"
-                        dataRow.getCell(5).stringCellValue shouldBe "1210 박민수"
+                        dataRow.getCell(MAJOR_CLUB_COL_IDX).stringCellValue shouldBe "SW개발동아리"
+                        dataRow.getCell(MAJOR_CLUB_LEADER_COL_IDX).stringCellValue shouldBe "2404 김철수"
+                        dataRow.getCell(JOB_CLUB_COL_IDX).stringCellValue shouldBe "취업준비동아리"
+                        dataRow.getCell(JOB_CLUB_LEADER_COL_IDX).stringCellValue shouldBe "2305 이영희"
+                        dataRow.getCell(AUTONOMOUS_CLUB_COL_IDX).stringCellValue shouldBe "창체동아리A"
+                        dataRow.getCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).stringCellValue shouldBe "1210 박민수"
 
                         workbook.close()
                     }
@@ -197,8 +204,8 @@ class CreateClubExcelServiceTest :
                         sheet.lastRowNum shouldBe 5
                         for (i in 1..5) {
                             val row = sheet.getRow(i)
-                            row.getCell(0).stringCellValue shouldBe "전공동아리$i"
-                            row.getCell(1).stringCellValue shouldBe "21${String.format("%02d", i)} 학생$i"
+                            row.getCell(MAJOR_CLUB_COL_IDX).stringCellValue shouldBe "전공동아리$i"
+                            row.getCell(MAJOR_CLUB_LEADER_COL_IDX).stringCellValue shouldBe "21${String.format("%02d", i)} 학생$i"
                         }
 
                         workbook.close()
@@ -261,11 +268,11 @@ class CreateClubExcelServiceTest :
                         val sheet = workbook.getSheetAt(0)
                         sheet.lastRowNum shouldBe 3
                         val row1 = sheet.getRow(1)
-                        row1.getCell(0).stringCellValue shouldBe "전공동아리1"
-                        row1.getCell(2).stringCellValue shouldBe "취업동아리1"
+                        row1.getCell(MAJOR_CLUB_COL_IDX).stringCellValue shouldBe "전공동아리1"
+                        row1.getCell(JOB_CLUB_COL_IDX).stringCellValue shouldBe "취업동아리1"
                         val row2 = sheet.getRow(2)
-                        row2.getCell(0) shouldBe null
-                        row2.getCell(2).stringCellValue shouldBe "취업동아리2"
+                        row2.getCell(MAJOR_CLUB_COL_IDX) shouldBe null
+                        row2.getCell(JOB_CLUB_COL_IDX).stringCellValue shouldBe "취업동아리2"
                         workbook.close()
                     }
                 }
