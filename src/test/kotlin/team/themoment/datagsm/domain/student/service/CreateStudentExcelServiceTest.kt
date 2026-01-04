@@ -22,6 +22,18 @@ import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.domain.student.service.impl.CreateStudentExcelServiceImpl
 import java.io.ByteArrayInputStream
 
+private const val NAME_COL_IDX = 0
+private const val STUDENT_NUMBER_COL_IDX = 1
+private const val EMAIL_COL_IDX = 2
+private const val MAJOR_COL_IDX = 3
+private const val MAJOR_CLUB_COL_IDX = 4
+private const val JOB_CLUB_COL_IDX = 5
+private const val AUTONOMOUS_COL_IDX = 6
+private const val DORMITORY_ROOM_NUMBER_COL_IDX = 7
+private const val STUDENT_ROLE_COL_IDX = 8
+private const val IS_SCHOOL_LEAVE_COL_IDX = 9
+private const val SEX_COL_IDX = 10
+
 class CreateStudentExcelServiceTest :
     DescribeSpec({
 
@@ -143,47 +155,47 @@ class CreateStudentExcelServiceTest :
                         // 1학년 시트 검증
                         val sheet1 = workbook.getSheetAt(0)
                         val header1 = sheet1.getRow(0)
-                        header1.getCell(0).stringCellValue shouldBe "학생명"
-                        header1.getCell(1).stringCellValue shouldBe "학번"
-                        header1.getCell(2).stringCellValue shouldBe "이메일"
-                        header1.getCell(3).stringCellValue shouldBe "학과"
-                        header1.getCell(4).stringCellValue shouldBe "전공동아리"
-                        header1.getCell(5).stringCellValue shouldBe "취업동아리"
-                        header1.getCell(6).stringCellValue shouldBe "창체동아리"
-                        header1.getCell(7).stringCellValue shouldBe "호실"
-                        header1.getCell(8).stringCellValue shouldBe "소속"
-                        header1.getCell(9).stringCellValue shouldBe "자퇴 여부"
-                        header1.getCell(10).stringCellValue shouldBe "성별"
+                        header1.getCell(NAME_COL_IDX).stringCellValue shouldBe "학생명"
+                        header1.getCell(STUDENT_NUMBER_COL_IDX).stringCellValue shouldBe "학번"
+                        header1.getCell(EMAIL_COL_IDX).stringCellValue shouldBe "이메일"
+                        header1.getCell(MAJOR_COL_IDX).stringCellValue shouldBe "학과"
+                        header1.getCell(MAJOR_CLUB_COL_IDX).stringCellValue shouldBe "전공동아리"
+                        header1.getCell(JOB_CLUB_COL_IDX).stringCellValue shouldBe "취업동아리"
+                        header1.getCell(AUTONOMOUS_COL_IDX).stringCellValue shouldBe "창체동아리"
+                        header1.getCell(DORMITORY_ROOM_NUMBER_COL_IDX).stringCellValue shouldBe "호실"
+                        header1.getCell(STUDENT_ROLE_COL_IDX).stringCellValue shouldBe "소속"
+                        header1.getCell(IS_SCHOOL_LEAVE_COL_IDX).stringCellValue shouldBe "자퇴 여부"
+                        header1.getCell(SEX_COL_IDX).stringCellValue shouldBe "성별"
 
                         val data1 = sheet1.getRow(1)
-                        data1.getCell(0).stringCellValue shouldBe "홍길동"
-                        data1.getCell(1).stringCellValue shouldBe "1101"
-                        data1.getCell(2).stringCellValue shouldBe "hong@gsm.hs.kr"
-                        data1.getCell(3).stringCellValue shouldBe "SW개발과"
-                        data1.getCell(4).stringCellValue shouldBe "SW개발동아리"
-                        data1.getCell(5).stringCellValue shouldBe "취업동아리A"
-                        data1.getCell(6).stringCellValue shouldBe "창체동아리B"
-                        data1.getCell(7).stringCellValue shouldBe "301"
-                        data1.getCell(8).stringCellValue shouldBe "일반학생"
-                        data1.getCell(9).stringCellValue shouldBe "X"
-                        data1.getCell(10).stringCellValue shouldBe "남자"
+                        data1.getCell(NAME_COL_IDX).stringCellValue shouldBe "홍길동"
+                        data1.getCell(STUDENT_NUMBER_COL_IDX).stringCellValue shouldBe "1101"
+                        data1.getCell(EMAIL_COL_IDX).stringCellValue shouldBe "hong@gsm.hs.kr"
+                        data1.getCell(MAJOR_COL_IDX).stringCellValue shouldBe "SW개발과"
+                        data1.getCell(MAJOR_CLUB_COL_IDX).stringCellValue shouldBe "SW개발동아리"
+                        data1.getCell(JOB_CLUB_COL_IDX).stringCellValue shouldBe "취업동아리A"
+                        data1.getCell(AUTONOMOUS_COL_IDX).stringCellValue shouldBe "창체동아리B"
+                        data1.getCell(DORMITORY_ROOM_NUMBER_COL_IDX).stringCellValue shouldBe "301"
+                        data1.getCell(STUDENT_ROLE_COL_IDX).stringCellValue shouldBe "일반학생"
+                        data1.getCell(IS_SCHOOL_LEAVE_COL_IDX).stringCellValue shouldBe "X"
+                        data1.getCell(SEX_COL_IDX).stringCellValue shouldBe "남자"
 
                         // 2학년 시트 검증 (동아리 없음)
                         val sheet2 = workbook.getSheetAt(1)
                         val data2 = sheet2.getRow(1)
-                        data2.getCell(0).stringCellValue shouldBe "김철수"
-                        data2.getCell(4).stringCellValue shouldBe ""
-                        data2.getCell(5).stringCellValue shouldBe ""
-                        data2.getCell(6).stringCellValue shouldBe ""
-                        data2.getCell(7).stringCellValue shouldBe ""
-                        data2.getCell(8).stringCellValue shouldBe "학생회"
+                        data2.getCell(NAME_COL_IDX).stringCellValue shouldBe "김철수"
+                        data2.getCell(MAJOR_CLUB_COL_IDX).stringCellValue shouldBe ""
+                        data2.getCell(JOB_CLUB_COL_IDX).stringCellValue shouldBe ""
+                        data2.getCell(AUTONOMOUS_COL_IDX).stringCellValue shouldBe ""
+                        data2.getCell(DORMITORY_ROOM_NUMBER_COL_IDX).stringCellValue shouldBe ""
+                        data2.getCell(STUDENT_ROLE_COL_IDX).stringCellValue shouldBe "학생회"
 
                         // 3학년 시트 검증 (자퇴 학생)
                         val sheet3 = workbook.getSheetAt(2)
                         val data3 = sheet3.getRow(1)
-                        data3.getCell(0).stringCellValue shouldBe "이영희"
-                        data3.getCell(9).stringCellValue shouldBe "O"
-                        data3.getCell(10).stringCellValue shouldBe "여자"
+                        data3.getCell(NAME_COL_IDX).stringCellValue shouldBe "이영희"
+                        data3.getCell(IS_SCHOOL_LEAVE_COL_IDX).stringCellValue shouldBe "O"
+                        data3.getCell(SEX_COL_IDX).stringCellValue shouldBe "여자"
 
                         workbook.close()
                     }
@@ -254,11 +266,11 @@ class CreateStudentExcelServiceTest :
 
                         // 첫 번째 학생
                         val firstRow = sheet2.getRow(1)
-                        firstRow.getCell(0).stringCellValue shouldBe "학생1"
+                        firstRow.getCell(NAME_COL_IDX).stringCellValue shouldBe "학생1"
 
                         // 마지막 학생
                         val lastRow = sheet2.getRow(30)
-                        lastRow.getCell(0).stringCellValue shouldBe "학생30"
+                        lastRow.getCell(NAME_COL_IDX).stringCellValue shouldBe "학생30"
 
                         workbook.close()
                     }

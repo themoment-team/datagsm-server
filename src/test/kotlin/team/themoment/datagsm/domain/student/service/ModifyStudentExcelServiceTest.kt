@@ -22,6 +22,18 @@ import team.themoment.datagsm.domain.student.service.impl.ModifyStudentExcelServ
 import team.themoment.datagsm.global.exception.error.ExpectedException
 import java.io.ByteArrayOutputStream
 
+private const val NAME_COL_IDX = 0
+private const val STUDENT_NUMBER_COL_IDX = 1
+private const val EMAIL_COL_IDX = 2
+private const val MAJOR_COL_IDX = 3
+private const val MAJOR_CLUB_COL_IDX = 4
+private const val JOB_CLUB_COL_IDX = 5
+private const val AUTONOMOUS_COL_IDX = 6
+private const val DORMITORY_ROOM_NUMBER_COL_IDX = 7
+private const val STUDENT_ROLE_COL_IDX = 8
+private const val IS_SCHOOL_LEAVE_COL_IDX = 9
+private const val SEX_COL_IDX = 10
+
 class ModifyStudentExcelServiceTest :
     DescribeSpec({
 
@@ -40,30 +52,30 @@ class ModifyStudentExcelServiceTest :
 
             val sheet1 = workbook.createSheet("1학년")
             val header1 = sheet1.createRow(0)
-            header1.createCell(0).setCellValue("학생명")
-            header1.createCell(1).setCellValue("학번")
-            header1.createCell(2).setCellValue("이메일")
-            header1.createCell(3).setCellValue("학과")
-            header1.createCell(4).setCellValue("전공동아리")
-            header1.createCell(5).setCellValue("취업동아리")
-            header1.createCell(6).setCellValue("창체동아리")
-            header1.createCell(7).setCellValue("호실")
-            header1.createCell(8).setCellValue("소속")
-            header1.createCell(9).setCellValue("자퇴 여부")
-            header1.createCell(10).setCellValue("성별")
+            header1.createCell(NAME_COL_IDX).setCellValue("학생명")
+            header1.createCell(STUDENT_NUMBER_COL_IDX).setCellValue("학번")
+            header1.createCell(EMAIL_COL_IDX).setCellValue("이메일")
+            header1.createCell(MAJOR_COL_IDX).setCellValue("학과")
+            header1.createCell(MAJOR_CLUB_COL_IDX).setCellValue("전공동아리")
+            header1.createCell(JOB_CLUB_COL_IDX).setCellValue("취업동아리")
+            header1.createCell(AUTONOMOUS_COL_IDX).setCellValue("창체동아리")
+            header1.createCell(DORMITORY_ROOM_NUMBER_COL_IDX).setCellValue("호실")
+            header1.createCell(STUDENT_ROLE_COL_IDX).setCellValue("소속")
+            header1.createCell(IS_SCHOOL_LEAVE_COL_IDX).setCellValue("자퇴 여부")
+            header1.createCell(SEX_COL_IDX).setCellValue("성별")
 
             val data1 = sheet1.createRow(1)
-            data1.createCell(0).setCellValue("홍길동")
-            data1.createCell(1).setCellValue("1101")
-            data1.createCell(2).setCellValue("hong@gsm.hs.kr")
-            data1.createCell(3).setCellValue("SW개발과")
-            data1.createCell(4).setCellValue("SW개발동아리")
-            data1.createCell(5).setCellValue("취업동아리A")
-            data1.createCell(6).setCellValue("창체동아리B")
-            data1.createCell(7).setCellValue("301")
-            data1.createCell(8).setCellValue("일반학생")
-            data1.createCell(9).setCellValue("X")
-            data1.createCell(10).setCellValue("남자")
+            data1.createCell(NAME_COL_IDX).setCellValue("홍길동")
+            data1.createCell(STUDENT_NUMBER_COL_IDX).setCellValue("1101")
+            data1.createCell(EMAIL_COL_IDX).setCellValue("hong@gsm.hs.kr")
+            data1.createCell(MAJOR_COL_IDX).setCellValue("SW개발과")
+            data1.createCell(MAJOR_CLUB_COL_IDX).setCellValue("SW개발동아리")
+            data1.createCell(JOB_CLUB_COL_IDX).setCellValue("취업동아리A")
+            data1.createCell(AUTONOMOUS_COL_IDX).setCellValue("창체동아리B")
+            data1.createCell(DORMITORY_ROOM_NUMBER_COL_IDX).setCellValue("301")
+            data1.createCell(STUDENT_ROLE_COL_IDX).setCellValue("일반학생")
+            data1.createCell(IS_SCHOOL_LEAVE_COL_IDX).setCellValue("X")
+            data1.createCell(SEX_COL_IDX).setCellValue("남자")
 
             val sheet2 = workbook.createSheet("2학년")
             val header2 = sheet2.createRow(0)
