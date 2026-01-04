@@ -56,6 +56,7 @@ class JwtProvider(
         email: String,
         role: AccountRole,
         clientId: String,
+        scopes: Set<String>,
     ): String {
         val now = Date()
         val expiration = Date(now.time + jwtProperties.oauthAccessTokenExpiration)
@@ -66,6 +67,7 @@ class JwtProvider(
             .claim("role", role.name)
             .claim("type", AuthType.OAUTH_JWT.name)
             .claim("clientId", clientId)
+            .claim("scopes", scopes)
             .issuedAt(now)
             .expiration(expiration)
             .signWith(secretKey)
