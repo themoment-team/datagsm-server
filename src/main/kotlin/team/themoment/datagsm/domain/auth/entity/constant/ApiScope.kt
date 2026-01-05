@@ -16,7 +16,7 @@ enum class ApiScope(
     ADMIN_EXCEL("admin:excel", "Excel 파일 업로드/다운로드", AccountRole.ADMIN),
 
     // Self scopes
-    SELF_READ("self:read", "내 정보 조회", null),
+    SELF_READ("self:read", "내 정보 조회", AccountRole.USER),
 
     // Student scopes
     STUDENT_ALL("student:*", "학생 데이터 모든 권한", AccountRole.ADMIN),
@@ -57,6 +57,7 @@ enum class ApiScope(
                 "project" to "프로젝트",
                 "neis" to "NEIS",
                 "admin" to "관리자",
+                "client" to "클라이언트",
             )
 
         private val ALL_SCOPES by lazy { entries.map { it.scope }.toSet() }
