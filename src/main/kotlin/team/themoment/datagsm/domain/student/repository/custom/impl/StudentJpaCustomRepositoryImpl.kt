@@ -98,6 +98,15 @@ class StudentJpaCustomRepositoryImpl(
                         )
                 }
             }
+            StudentSortBy.DORMITORY_ROOM -> {
+                val path = studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber
+                arrayOf(
+                    when (sortDirection) {
+                        SortDirection.ASC -> path.asc().nullsLast()
+                        SortDirection.DESC -> path.desc().nullsLast()
+                    },
+                )
+            }
             else -> {
                 val path =
                     when (sortBy) {
@@ -110,7 +119,6 @@ class StudentJpaCustomRepositoryImpl(
                         StudentSortBy.MAJOR -> studentJpaEntity.major
                         StudentSortBy.ROLE -> studentJpaEntity.role
                         StudentSortBy.SEX -> studentJpaEntity.sex
-                        StudentSortBy.DORMITORY_ROOM -> studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber
                         StudentSortBy.IS_LEAVE_SCHOOL -> studentJpaEntity.isLeaveSchool
                         else -> return null
                     }
