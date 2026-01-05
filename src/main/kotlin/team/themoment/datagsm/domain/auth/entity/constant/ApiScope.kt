@@ -16,7 +16,7 @@ enum class ApiScope(
     ADMIN_EXCEL("admin:excel", "Excel 파일 업로드/다운로드", AccountRole.ADMIN),
 
     // Self scopes
-    SELF_READ("self:read", "내 정보 조회"),
+    SELF_READ("self:read", "내 정보 조회", null),
 
     // Student scopes
     STUDENT_ALL("student:*", "학생 데이터 모든 권한", AccountRole.ADMIN),
