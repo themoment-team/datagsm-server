@@ -1,5 +1,6 @@
 package team.themoment.datagsm.domain.student.repository.custom.impl
 
+import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -9,7 +10,9 @@ import team.themoment.datagsm.domain.student.entity.QStudentJpaEntity.Companion.
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.entity.constant.StudentRole
+import team.themoment.datagsm.domain.student.entity.constant.StudentSortBy
 import team.themoment.datagsm.domain.student.repository.custom.StudentJpaCustomRepository
+import team.themoment.datagsm.global.common.constant.SortDirection
 
 @Repository
 class StudentJpaCustomRepositoryImpl(
@@ -27,7 +30,11 @@ class StudentJpaCustomRepositoryImpl(
         dormitoryRoom: Int?,
         isLeaveSchool: Boolean?,
         pageable: Pageable,
+        sortBy: StudentSortBy?,
+        sortDirection: SortDirection,
     ): Page<StudentJpaEntity> {
+        val orderSpecifier = createOrderSpecifier(sortBy, sortDirection)
+
         val content =
             jpaQueryFactory
                 .selectFrom(studentJpaEntity)
@@ -42,7 +49,9 @@ class StudentJpaCustomRepositoryImpl(
                     role?.let { studentJpaEntity.role.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
                     isLeaveSchool?.let { studentJpaEntity.isLeaveSchool.eq(it) },
-                ).offset(pageable.offset)
+                ).apply {
+                    orderSpecifier?.let { orderBy(*it) }
+                }.offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
 
@@ -64,6 +73,63 @@ class StudentJpaCustomRepositoryImpl(
                 )
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
+    }
+
+    private fun createOrderSpecifier(
+        sortBy: StudentSortBy?,
+        sortDirection: SortDirection,
+    ): Array<OrderSpecifier<*>>? {
+        if (sortBy == null) return null
+
+        return when (sortBy) {
+            StudentSortBy.STUDENT_NUMBER -> {
+                when (sortDirection) {
+                    SortDirection.ASC ->
+                        arrayOf(
+                            studentJpaEntity.studentNumber.studentGrade.asc(),
+                            studentJpaEntity.studentNumber.studentClass.asc(),
+                            studentJpaEntity.studentNumber.studentNumber.asc(),
+                        )
+                    SortDirection.DESC ->
+                        arrayOf(
+                            studentJpaEntity.studentNumber.studentGrade.desc(),
+                            studentJpaEntity.studentNumber.studentClass.desc(),
+                            studentJpaEntity.studentNumber.studentNumber.desc(),
+                        )
+                }
+            }
+            StudentSortBy.DORMITORY_ROOM -> {
+                val path = studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber
+                arrayOf(
+                    when (sortDirection) {
+                        SortDirection.ASC -> path.asc().nullsLast()
+                        SortDirection.DESC -> path.desc().nullsLast()
+                    },
+                )
+            }
+            else -> {
+                val path =
+                    when (sortBy) {
+                        StudentSortBy.ID -> studentJpaEntity.id
+                        StudentSortBy.NAME -> studentJpaEntity.name
+                        StudentSortBy.EMAIL -> studentJpaEntity.email
+                        StudentSortBy.GRADE -> studentJpaEntity.studentNumber.studentGrade
+                        StudentSortBy.CLASS_NUM -> studentJpaEntity.studentNumber.studentClass
+                        StudentSortBy.NUMBER -> studentJpaEntity.studentNumber.studentNumber
+                        StudentSortBy.MAJOR -> studentJpaEntity.major
+                        StudentSortBy.ROLE -> studentJpaEntity.role
+                        StudentSortBy.SEX -> studentJpaEntity.sex
+                        StudentSortBy.IS_LEAVE_SCHOOL -> studentJpaEntity.isLeaveSchool
+                        else -> return null
+                    }
+                arrayOf(
+                    when (sortDirection) {
+                        SortDirection.ASC -> path.asc()
+                        SortDirection.DESC -> path.desc()
+                    },
+                )
+            }
+        }
     }
 
     override fun existsByEmail(email: String): Boolean =

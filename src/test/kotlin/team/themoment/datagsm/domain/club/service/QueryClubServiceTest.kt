@@ -46,6 +46,8 @@ class QueryClubServiceTest :
                                 name = clubName,
                                 type = clubType,
                                 pageable = any(),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         } returns PageImpl(emptyList())
                     }
@@ -58,7 +60,7 @@ class QueryClubServiceTest :
                         res.clubs.size shouldBe 0
 
                         verify(exactly = 1) {
-                            mockClubRepository.searchClubWithPaging(clubId, clubName, clubType, any())
+                            mockClubRepository.searchClubWithPaging(clubId, clubName, clubType, any(), any(), any())
                         }
                     }
                 }
@@ -113,6 +115,8 @@ class QueryClubServiceTest :
                                 name = clubName,
                                 type = clubType,
                                 pageable = any(),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         } returns PageImpl(listOf(e1, e2))
                         every { mockStudentRepository.findByMajorClub(e1) } returns emptyList()
@@ -136,7 +140,7 @@ class QueryClubServiceTest :
                         res.clubs[1].leader.name shouldBe "Leader2"
 
                         verify(exactly = 1) {
-                            mockClubRepository.searchClubWithPaging(clubId, clubName, clubType, any())
+                            mockClubRepository.searchClubWithPaging(clubId, clubName, clubType, any(), any(), any())
                         }
                     }
                 }
@@ -235,7 +239,7 @@ class QueryClubServiceTest :
                                 this.leader = leader5
                             }
 
-                        every { mockClubRepository.searchClubWithPaging(any(), any(), any(), any()) } answers {
+                        every { mockClubRepository.searchClubWithPaging(any(), any(), any(), any(), any(), any()) } answers {
                             val pageable = arg<Pageable>(3)
                             val all = listOf(e1, e2, e3, e4, e5)
                             val start = pageable.offset.toInt()
@@ -263,7 +267,7 @@ class QueryClubServiceTest :
                         res.clubs[1].type shouldBe ClubType.MAJOR_CLUB
                         res.clubs[1].leader.id shouldBe 40L
 
-                        verify(exactly = 1) { mockClubRepository.searchClubWithPaging(null, null, null, any()) }
+                        verify(exactly = 1) { mockClubRepository.searchClubWithPaging(null, null, null, any(), any(), any()) }
                     }
                 }
             }

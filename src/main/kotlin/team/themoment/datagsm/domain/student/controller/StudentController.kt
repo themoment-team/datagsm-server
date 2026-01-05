@@ -24,11 +24,13 @@ import team.themoment.datagsm.domain.student.dto.response.StudentListResDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.entity.constant.StudentRole
+import team.themoment.datagsm.domain.student.entity.constant.StudentSortBy
 import team.themoment.datagsm.domain.student.service.CreateStudentExcelService
 import team.themoment.datagsm.domain.student.service.CreateStudentService
 import team.themoment.datagsm.domain.student.service.ModifyStudentExcelService
 import team.themoment.datagsm.domain.student.service.ModifyStudentService
 import team.themoment.datagsm.domain.student.service.QueryStudentService
+import team.themoment.datagsm.global.common.constant.SortDirection
 import team.themoment.datagsm.global.security.annotation.RequireScope
 
 @Tag(name = "Student", description = "학생 관련 API")
@@ -62,6 +64,12 @@ class StudentController(
         @Parameter(description = "자퇴 여부") @RequestParam(required = false) isLeaveSchool: Boolean?,
         @Parameter(description = "페이지 번호") @RequestParam(required = false, defaultValue = "0") page: Int,
         @Parameter(description = "페이지 크기") @RequestParam(required = false, defaultValue = "300") size: Int,
+        @Parameter(
+            description =
+                "정렬 기준 (ID, NAME, EMAIL, STUDENT_NUMBER, GRADE, CLASS_NUM, NUMBER, MAJOR, ROLE, SEX, " +
+                    "DORMITORY_ROOM, IS_LEAVE_SCHOOL)",
+        ) @RequestParam(required = false) sortBy: StudentSortBy?,
+        @Parameter(description = "정렬 방향 (ASC, DESC)") @RequestParam(required = false, defaultValue = "ASC") sortDirection: SortDirection,
     ): StudentListResDto =
         queryStudentService.execute(
             studentId,
@@ -76,6 +84,8 @@ class StudentController(
             isLeaveSchool,
             page,
             size,
+            sortBy,
+            sortDirection,
         )
 
     @Operation(summary = "학생 생성", description = "새로운 학생 정보를 생성합니다.")

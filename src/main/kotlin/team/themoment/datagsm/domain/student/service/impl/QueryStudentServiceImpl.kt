@@ -8,8 +8,10 @@ import team.themoment.datagsm.domain.student.dto.response.StudentListResDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.domain.student.entity.constant.Sex
 import team.themoment.datagsm.domain.student.entity.constant.StudentRole
+import team.themoment.datagsm.domain.student.entity.constant.StudentSortBy
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.domain.student.service.QueryStudentService
+import team.themoment.datagsm.global.common.constant.SortDirection
 
 @Service
 @Transactional(readOnly = true)
@@ -29,6 +31,8 @@ class QueryStudentServiceImpl(
         isLeaveSchool: Boolean?,
         page: Int,
         size: Int,
+        sortBy: StudentSortBy?,
+        sortDirection: SortDirection,
     ): StudentListResDto {
         val studentPage =
             studentJpaRepository.searchStudentsWithPaging(
@@ -43,6 +47,8 @@ class QueryStudentServiceImpl(
                 dormitoryRoom = dormitoryRoom,
                 isLeaveSchool = isLeaveSchool,
                 pageable = PageRequest.of(page, size),
+                sortBy = sortBy,
+                sortDirection = sortDirection,
             )
 
         return StudentListResDto(

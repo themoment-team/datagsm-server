@@ -20,10 +20,12 @@ import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.domain.project.dto.response.ProjectListResDto
 import team.themoment.datagsm.domain.project.dto.response.ProjectResDto
+import team.themoment.datagsm.domain.project.entity.constant.ProjectSortBy
 import team.themoment.datagsm.domain.project.service.CreateProjectService
 import team.themoment.datagsm.domain.project.service.DeleteProjectService
 import team.themoment.datagsm.domain.project.service.ModifyProjectService
 import team.themoment.datagsm.domain.project.service.QueryProjectService
+import team.themoment.datagsm.global.common.constant.SortDirection
 import team.themoment.datagsm.global.security.annotation.RequireScope
 
 @Tag(name = "Project", description = "프로젝트 관련 API")
@@ -49,7 +51,9 @@ class ProjectController(
         @Parameter(description = "동아리 ID") @RequestParam(required = false) clubId: Long?,
         @Parameter(description = "페이지 번호") @RequestParam(required = false, defaultValue = "0") page: Int,
         @Parameter(description = "페이지 크기") @RequestParam(required = false, defaultValue = "100") size: Int,
-    ): ProjectListResDto = queryProjectService.execute(projectId, projectName, clubId, page, size)
+        @Parameter(description = "정렬 기준 (ID, NAME)") @RequestParam(required = false) sortBy: ProjectSortBy?,
+        @Parameter(description = "정렬 방향 (ASC, DESC)") @RequestParam(required = false, defaultValue = "ASC") sortDirection: SortDirection,
+    ): ProjectListResDto = queryProjectService.execute(projectId, projectName, clubId, page, size, sortBy, sortDirection)
 
     @Operation(summary = "프로젝트 생성", description = "새로운 프로젝트를 생성합니다.")
     @ApiResponses(

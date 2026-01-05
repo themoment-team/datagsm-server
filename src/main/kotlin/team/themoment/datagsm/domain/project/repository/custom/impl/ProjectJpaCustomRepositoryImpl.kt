@@ -1,5 +1,6 @@
 package team.themoment.datagsm.domain.project.repository.custom.impl
 
+import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -7,7 +8,9 @@ import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
 import team.themoment.datagsm.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.domain.project.entity.QProjectJpaEntity.Companion.projectJpaEntity
+import team.themoment.datagsm.domain.project.entity.constant.ProjectSortBy
 import team.themoment.datagsm.domain.project.repository.custom.ProjectJpaCustomRepository
+import team.themoment.datagsm.global.common.constant.SortDirection
 
 @Repository
 class ProjectJpaCustomRepositoryImpl(
@@ -18,10 +21,12 @@ class ProjectJpaCustomRepositoryImpl(
         name: String?,
         clubId: Long?,
         pageable: Pageable,
+        sortBy: ProjectSortBy?,
+        sortDirection: SortDirection,
     ): Page<ProjectJpaEntity> {
-        var searchResult = searchProjectWithCondition(id, name, clubId, pageable, useStartsWith = true)
+        var searchResult = searchProjectWithCondition(id, name, clubId, pageable, sortBy, sortDirection, useStartsWith = true)
         if (searchResult.content.isEmpty() && name != null) {
-            searchResult = searchProjectWithCondition(id, name, clubId, pageable, useStartsWith = false)
+            searchResult = searchProjectWithCondition(id, name, clubId, pageable, sortBy, sortDirection, useStartsWith = false)
         }
         return searchResult
     }
@@ -31,8 +36,12 @@ class ProjectJpaCustomRepositoryImpl(
         projectName: String?,
         clubId: Long?,
         pageable: Pageable,
+        sortBy: ProjectSortBy?,
+        sortDirection: SortDirection,
         useStartsWith: Boolean,
     ): Page<ProjectJpaEntity> {
+        val orderSpecifier = createOrderSpecifier(sortBy, sortDirection)
+
         val content =
             jpaQueryFactory
                 .select(projectJpaEntity)
@@ -48,7 +57,9 @@ class ProjectJpaCustomRepositoryImpl(
                         if (useStartsWith) projectJpaEntity.name.startsWith(it) else projectJpaEntity.name.contains(it)
                     },
                     clubId?.let { projectJpaEntity.club.id.eq(it) },
-                ).offset(pageable.offset)
+                ).apply {
+                    orderSpecifier?.let { orderBy(it) }
+                }.offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
 
@@ -65,5 +76,23 @@ class ProjectJpaCustomRepositoryImpl(
                 )
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
+    }
+
+    private fun createOrderSpecifier(
+        sortBy: ProjectSortBy?,
+        sortDirection: SortDirection,
+    ): OrderSpecifier<*>? {
+        if (sortBy == null) return null
+
+        val path =
+            when (sortBy) {
+                ProjectSortBy.ID -> projectJpaEntity.id
+                ProjectSortBy.NAME -> projectJpaEntity.name
+            }
+
+        return when (sortDirection) {
+            SortDirection.ASC -> path.asc()
+            SortDirection.DESC -> path.desc()
+        }
     }
 }

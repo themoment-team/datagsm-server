@@ -22,6 +22,7 @@ import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.domain.club.dto.response.ClubListResDto
 import team.themoment.datagsm.domain.club.dto.response.ClubResDto
+import team.themoment.datagsm.domain.club.entity.constant.ClubSortBy
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.domain.club.service.CreateClubExcelService
 import team.themoment.datagsm.domain.club.service.CreateClubService
@@ -29,6 +30,7 @@ import team.themoment.datagsm.domain.club.service.DeleteClubService
 import team.themoment.datagsm.domain.club.service.ModifyClubExcelService
 import team.themoment.datagsm.domain.club.service.ModifyClubService
 import team.themoment.datagsm.domain.club.service.QueryClubService
+import team.themoment.datagsm.global.common.constant.SortDirection
 import team.themoment.datagsm.global.security.annotation.RequireScope
 
 @Tag(name = "Club", description = "동아리 관련 API")
@@ -58,7 +60,9 @@ class ClubController(
         @Parameter(description = "페이지 크기") @RequestParam(required = false, defaultValue = "100") size: Int,
         @Parameter(description = "부장을 부원 목록에 포함할지 여부") @RequestParam(required = false, defaultValue = "false") includeLeaderInParticipants:
             Boolean,
-    ): ClubListResDto = queryClubService.execute(clubId, clubName, clubType, page, size, includeLeaderInParticipants)
+        @Parameter(description = "정렬 기준 (ID, NAME, TYPE)") @RequestParam(required = false) sortBy: ClubSortBy?,
+        @Parameter(description = "정렬 방향 (ASC, DESC)") @RequestParam(required = false, defaultValue = "ASC") sortDirection: SortDirection,
+    ): ClubListResDto = queryClubService.execute(clubId, clubName, clubType, page, size, includeLeaderInParticipants, sortBy, sortDirection)
 
     @Operation(summary = "동아리 생성", description = "새로운 동아리를 생성합니다.")
     @ApiResponses(
