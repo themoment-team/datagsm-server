@@ -11,8 +11,8 @@ import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 @Service
 @Transactional(readOnly = true)
 class QueryMyClientServiceImpl(
-    val clientJpaRepository: ClientJpaRepository,
-    val currentUserProvider: CurrentUserProvider,
+    private val clientJpaRepository: ClientJpaRepository,
+    private val currentUserProvider: CurrentUserProvider,
 ) : QueryMyClientService {
     override fun execute(): ClientListResDto {
         val currentAccount = currentUserProvider.getCurrentAccount()

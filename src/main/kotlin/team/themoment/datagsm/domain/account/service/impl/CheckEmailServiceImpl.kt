@@ -9,7 +9,7 @@ import team.themoment.datagsm.global.exception.error.ExpectedException
 
 @Service
 class CheckEmailServiceImpl(
-    val emailCodeRedisRepository: EmailCodeRedisRepository,
+    private val emailCodeRedisRepository: EmailCodeRedisRepository,
 ) : CheckEmailService {
     override fun execute(reqDto: EmailCodeReqDto) {
         val emailCodeRedisEntity =

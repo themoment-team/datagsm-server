@@ -15,9 +15,9 @@ import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 @Service
 @Transactional
 class ModifyClientServiceImpl(
-    val clientJpaRepository: ClientJpaRepository,
-    val currentUserProvider: CurrentUserProvider,
-    val scopeChecker: ScopeChecker,
+    private val clientJpaRepository: ClientJpaRepository,
+    private val currentUserProvider: CurrentUserProvider,
+    private val scopeChecker: ScopeChecker,
 ) : ModifyClientService {
     override fun execute(
         clientId: String,

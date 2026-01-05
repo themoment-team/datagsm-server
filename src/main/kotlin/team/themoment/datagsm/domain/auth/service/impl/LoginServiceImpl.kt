@@ -15,11 +15,11 @@ import team.themoment.datagsm.global.security.jwt.JwtProvider
 
 @Service
 class LoginServiceImpl(
-    val accountRepository: AccountJpaRepository,
-    val jwtProvider: JwtProvider,
-    val refreshTokenRedisRepository: RefreshTokenRedisRepository,
-    val jwtProperties: JwtProperties,
-    val passwordEncoder: PasswordEncoder,
+    private val accountRepository: AccountJpaRepository,
+    private val jwtProvider: JwtProvider,
+    private val refreshTokenRedisRepository: RefreshTokenRedisRepository,
+    private val jwtProperties: JwtProperties,
+    private val passwordEncoder: PasswordEncoder,
 ) : LoginService {
     override fun execute(reqDto: LoginReqDto): TokenResDto {
         val account =

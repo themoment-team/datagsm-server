@@ -13,9 +13,9 @@ import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 @Service
 @Transactional
 class DeleteClientServiceImpl(
-    val clientJpaRepository: ClientJpaRepository,
-    val currentUserProvider: CurrentUserProvider,
-    val scopeChecker: ScopeChecker,
+    private val clientJpaRepository: ClientJpaRepository,
+    private val currentUserProvider: CurrentUserProvider,
+    private val scopeChecker: ScopeChecker,
 ) : DeleteClientService {
     override fun execute(clientId: String) {
         val client =
