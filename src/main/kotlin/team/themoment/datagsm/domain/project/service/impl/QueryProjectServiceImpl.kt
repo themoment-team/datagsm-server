@@ -6,9 +6,11 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.domain.project.dto.response.ProjectListResDto
 import team.themoment.datagsm.domain.project.dto.response.ProjectResDto
+import team.themoment.datagsm.domain.project.entity.constant.ProjectSortBy
 import team.themoment.datagsm.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.domain.project.service.QueryProjectService
 import team.themoment.datagsm.domain.student.dto.internal.ParticipantInfoDto
+import team.themoment.datagsm.global.common.constant.SortDirection
 
 @Service
 @Transactional(readOnly = true)
@@ -21,6 +23,8 @@ class QueryProjectServiceImpl(
         clubId: Long?,
         page: Int,
         size: Int,
+        sortBy: ProjectSortBy?,
+        sortDirection: SortDirection,
     ): ProjectListResDto {
         val projectPage =
             projectJpaRepository.searchProjectWithPaging(
@@ -28,6 +32,8 @@ class QueryProjectServiceImpl(
                 name = projectName,
                 clubId = clubId,
                 pageable = PageRequest.of(page, size),
+                sortBy = sortBy,
+                sortDirection = sortDirection,
             )
 
         return ProjectListResDto(
