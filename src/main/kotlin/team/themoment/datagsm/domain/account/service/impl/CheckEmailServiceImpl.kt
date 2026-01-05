@@ -14,8 +14,8 @@ class CheckEmailServiceImpl(
     override fun execute(reqDto: EmailCodeReqDto) {
         val emailCodeRedisEntity =
             emailCodeRedisRepository
-                .findById(reqDto.email)
-                .orElseThrow { ExpectedException("해당 이메일에 인증 코드가 존재하지 않습니다.", HttpStatus.NOT_FOUND) }
+                .findByIdOrNull(reqDto.email)
+                ?: throw ExpectedException("해당 이메일에 인증 코드가 존재하지 않습니다.", HttpStatus.NOT_FOUND)
 
         if (emailCodeRedisEntity.code != reqDto.code) {
             throw ExpectedException("인증 코드가 일치하지 않습니다.", HttpStatus.BAD_REQUEST)
