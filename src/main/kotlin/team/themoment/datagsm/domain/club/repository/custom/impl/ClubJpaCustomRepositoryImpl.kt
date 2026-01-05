@@ -1,5 +1,6 @@
 package team.themoment.datagsm.domain.club.repository.custom.impl
 
+import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -7,8 +8,10 @@ import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
 import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.domain.club.entity.QClubJpaEntity.Companion.clubJpaEntity
+import team.themoment.datagsm.domain.club.entity.constant.ClubSortBy
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.domain.club.repository.custom.ClubJpaCustomRepository
+import team.themoment.datagsm.global.common.constant.SortDirection
 
 @Repository
 class ClubJpaCustomRepositoryImpl(
@@ -19,10 +22,12 @@ class ClubJpaCustomRepositoryImpl(
         name: String?,
         type: ClubType?,
         pageable: Pageable,
+        sortBy: ClubSortBy?,
+        sortDirection: SortDirection,
     ): Page<ClubJpaEntity> {
-        var searchResult = searchClubWithCondition(id, name, type, pageable, useStartsWith = true)
+        var searchResult = searchClubWithCondition(id, name, type, pageable, sortBy, sortDirection, useStartsWith = true)
         if (searchResult.content.isEmpty() && name != null) {
-            searchResult = searchClubWithCondition(id, name, type, pageable, useStartsWith = false)
+            searchResult = searchClubWithCondition(id, name, type, pageable, sortBy, sortDirection, useStartsWith = false)
         }
         return searchResult
     }
@@ -32,8 +37,12 @@ class ClubJpaCustomRepositoryImpl(
         clubName: String?,
         clubType: ClubType?,
         pageable: Pageable,
+        sortBy: ClubSortBy?,
+        sortDirection: SortDirection,
         useStartsWith: Boolean,
     ): Page<ClubJpaEntity> {
+        val orderSpecifier = createOrderSpecifier(sortBy, sortDirection)
+
         val content =
             jpaQueryFactory
                 .selectFrom(clubJpaEntity)
@@ -43,7 +52,9 @@ class ClubJpaCustomRepositoryImpl(
                         if (useStartsWith) clubJpaEntity.name.startsWith(it) else clubJpaEntity.name.contains(it)
                     },
                     clubType?.let { clubJpaEntity.type.eq(it) },
-                ).offset(pageable.offset)
+                ).apply {
+                    orderSpecifier?.let { orderBy(it) }
+                }.offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
         val countQuery =
@@ -58,5 +69,24 @@ class ClubJpaCustomRepositoryImpl(
                     clubType?.let { clubJpaEntity.type.eq(it) },
                 )
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
+    }
+
+    private fun createOrderSpecifier(
+        sortBy: ClubSortBy?,
+        sortDirection: SortDirection,
+    ): OrderSpecifier<*>? {
+        if (sortBy == null) return null
+
+        val path =
+            when (sortBy) {
+                ClubSortBy.ID -> clubJpaEntity.id
+                ClubSortBy.NAME -> clubJpaEntity.name
+                ClubSortBy.TYPE -> clubJpaEntity.type
+            }
+
+        return when (sortDirection) {
+            SortDirection.ASC -> path.asc()
+            SortDirection.DESC -> path.desc()
+        }
     }
 }

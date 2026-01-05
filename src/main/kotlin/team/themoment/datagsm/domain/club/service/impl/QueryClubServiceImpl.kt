@@ -6,12 +6,14 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.domain.club.dto.response.ClubListResDto
 import team.themoment.datagsm.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.domain.club.entity.constant.ClubSortBy
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.club.service.QueryClubService
 import team.themoment.datagsm.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
+import team.themoment.datagsm.global.common.constant.SortDirection
 
 @Service
 @Transactional
@@ -26,6 +28,8 @@ class QueryClubServiceImpl(
         page: Int,
         size: Int,
         includeLeaderInParticipants: Boolean,
+        sortBy: ClubSortBy?,
+        sortDirection: SortDirection,
     ): ClubListResDto {
         val clubPage =
             clubJpaRepository.searchClubWithPaging(
@@ -33,6 +37,8 @@ class QueryClubServiceImpl(
                 name = clubName,
                 type = clubType,
                 pageable = PageRequest.of(page, size),
+                sortBy = sortBy,
+                sortDirection = sortDirection,
             )
 
         return ClubListResDto(

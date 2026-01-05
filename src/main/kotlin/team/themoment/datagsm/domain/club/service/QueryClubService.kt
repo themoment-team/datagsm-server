@@ -1,7 +1,9 @@
 package team.themoment.datagsm.domain.club.service
 
 import team.themoment.datagsm.domain.club.dto.response.ClubListResDto
+import team.themoment.datagsm.domain.club.entity.constant.ClubSortBy
 import team.themoment.datagsm.domain.club.entity.constant.ClubType
+import team.themoment.datagsm.global.common.constant.SortDirection
 
 interface QueryClubService {
     fun execute(
@@ -11,5 +13,7 @@ interface QueryClubService {
         page: Int,
         size: Int,
         includeLeaderInParticipants: Boolean = false,
+        sortBy: ClubSortBy? = null,
+        sortDirection: SortDirection = SortDirection.ASC,
     ): ClubListResDto
 }
