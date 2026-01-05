@@ -11,8 +11,8 @@ class StringSetConverter : AttributeConverter<Set<String>, String> {
 
     override fun convertToDatabaseColumn(attribute: Set<String>): String = objectMapper.writeValueAsString(attribute)
 
-    override fun convertToEntityAttribute(dbData: String): Set<String> =
-        if (dbData.isEmpty()) {
+    override fun convertToEntityAttribute(dbData: String?): Set<String> =
+        if (dbData.isNullOrEmpty()) {
             emptySet()
         } else {
             objectMapper.readValue(dbData, object : TypeReference<Set<String>>() {})
