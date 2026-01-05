@@ -59,6 +59,8 @@ class QueryStudentServiceTest :
                                 dormitoryRoom = null,
                                 isLeaveSchool = false,
                                 pageable = PageRequest.of(0, 20),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         } returns PageImpl(listOf(testStudent), PageRequest.of(0, 20), 1L)
                     }
@@ -112,6 +114,8 @@ class QueryStudentServiceTest :
                                 dormitoryRoom = null,
                                 isLeaveSchool = false,
                                 pageable = PageRequest.of(0, 20),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         }
                     }
@@ -132,6 +136,8 @@ class QueryStudentServiceTest :
                                 dormitoryRoom = null,
                                 isLeaveSchool = false,
                                 pageable = PageRequest.of(0, 20),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         } returns PageImpl(listOf(testStudent), PageRequest.of(0, 20), 1L)
                     }
@@ -174,6 +180,8 @@ class QueryStudentServiceTest :
                                 dormitoryRoom = null,
                                 isLeaveSchool = false,
                                 pageable = PageRequest.of(0, 20),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         } returns PageImpl(emptyList(), PageRequest.of(0, 20), 0L)
                     }
@@ -232,6 +240,8 @@ class QueryStudentServiceTest :
                                 dormitoryRoom = null,
                                 isLeaveSchool = false,
                                 pageable = PageRequest.of(0, 20),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         } returns PageImpl(firstPageStudents, PageRequest.of(0, 20), 50L)
                     }

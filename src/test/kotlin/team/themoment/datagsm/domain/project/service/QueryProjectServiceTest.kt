@@ -51,6 +51,8 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = null,
                                 pageable = PageRequest.of(0, 20),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         } returns PageImpl(listOf(testProject), PageRequest.of(0, 20), 1L)
                     }
@@ -84,6 +86,8 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = null,
                                 pageable = PageRequest.of(0, 20),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         }
                     }
@@ -97,6 +101,8 @@ class QueryProjectServiceTest :
                                 name = "DataGSM",
                                 clubId = null,
                                 pageable = PageRequest.of(0, 20),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         } returns PageImpl(listOf(testProject), PageRequest.of(0, 20), 1L)
                     }
@@ -124,6 +130,8 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = 1L,
                                 pageable = PageRequest.of(0, 20),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         } returns PageImpl(listOf(testProject), PageRequest.of(0, 20), 1L)
                     }
@@ -152,6 +160,8 @@ class QueryProjectServiceTest :
                                 name = "DataGSM",
                                 clubId = 1L,
                                 pageable = PageRequest.of(0, 20),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         } returns PageImpl(listOf(testProject), PageRequest.of(0, 20), 1L)
                     }
@@ -180,6 +190,8 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = null,
                                 pageable = PageRequest.of(0, 20),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         } returns PageImpl(emptyList(), PageRequest.of(0, 20), 0L)
                     }
@@ -223,6 +235,8 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = null,
                                 pageable = PageRequest.of(0, 10),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         } returns PageImpl(listOf(testProject, project2), PageRequest.of(0, 10), 2L)
                     }
@@ -249,6 +263,8 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = null,
                                 pageable = PageRequest.of(0, 10),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         }
                     }
@@ -277,6 +293,8 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = 3L,
                                 pageable = PageRequest.of(0, 20),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         } returns PageImpl(listOf(jobProject), PageRequest.of(0, 20), 1L)
                     }
