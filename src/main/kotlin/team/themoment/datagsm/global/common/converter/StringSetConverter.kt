@@ -7,7 +7,9 @@ import jakarta.persistence.Converter
 
 @Converter
 class StringSetConverter : AttributeConverter<Set<String>, String> {
-    private val objectMapper = ObjectMapper()
+    companion object {
+        private val objectMapper = ObjectMapper()
+    }
 
     override fun convertToDatabaseColumn(attribute: Set<String>): String = objectMapper.writeValueAsString(attribute)
 
