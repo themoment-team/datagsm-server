@@ -147,7 +147,7 @@ class RateLimitServiceTest :
 
                         result.consumed shouldBe true
                         result.remainingTokens shouldBe 100L
-                        result.nanosToWaitForRefill shouldBe 0L
+                        result.secondsToWaitForRefill shouldBe 0L
                     }
                 }
 
@@ -171,7 +171,7 @@ class RateLimitServiceTest :
 
                         result.consumed shouldBe false
                         result.remainingTokens shouldBe 0L
-                        result.nanosToWaitForRefill shouldBe 0L
+                        result.secondsToWaitForRefill shouldBe 0L
                     }
                 }
             }
