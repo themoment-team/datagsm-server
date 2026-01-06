@@ -4,17 +4,19 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
+import team.themoment.datagsm.global.security.authentication.CustomAuthenticationToken
+import team.themoment.datagsm.global.security.authentication.principal.PrincipalProvider
 import java.util.UUID
 
 class ApiKeyAuthenticationFilter(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
+    private val principalProvider: PrincipalProvider,
 ) : OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -51,12 +53,10 @@ class ApiKeyAuthenticationFilter(
 
             val authorities = listOfNotNull(account.role, AccountRole.API_KEY_USER) + scopeAuthorities
             val authentication =
-                UsernamePasswordAuthenticationToken(
-                    account.email,
-                    null,
-                    authorities,
+                CustomAuthenticationToken(
+                    principal = principalProvider.provideFromApiKey(apiKey),
+                    authorities = authorities,
                 )
-            authentication.details = apiKey
             SecurityContextHolder.getContext().authentication = authentication
         } catch (e: IllegalArgumentException) {
             response.sendError(HttpStatus.UNAUTHORIZED.value(), "잘못된 형식의 API Key입니다.")

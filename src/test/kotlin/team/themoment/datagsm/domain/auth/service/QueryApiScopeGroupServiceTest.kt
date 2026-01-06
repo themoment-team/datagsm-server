@@ -19,8 +19,8 @@ class QueryApiScopeGroupServiceTest :
                 context("USER 역할로 조회할 때") {
                     val result = queryApiScopeGroupService.execute(AccountRole.USER)
 
-                    it("4개의 카테고리(student, club, project, neis)를 반환한다") {
-                        result.list shouldHaveSize 4
+                    it("5개의 카테고리(student, club, project, neis, self)를 반환한다") {
+                        result.list shouldHaveSize 5
                     }
 
                     it("학생 카테고리에는 read 스코프만 포함된다") {
@@ -45,8 +45,8 @@ class QueryApiScopeGroupServiceTest :
                 context("ADMIN 역할로 조회할 때") {
                     val result = queryApiScopeGroupService.execute(AccountRole.ADMIN)
 
-                    it("5개의 카테고리(student, club, project, neis, admin)를 반환한다") {
-                        result.list shouldHaveSize 5
+                    it("7개의 카테고리(student, club, project, neis, admin, client, self)를 반환한다") {
+                        result.list shouldHaveSize 7
                     }
 
                     it("관리자 카테고리에는 3개의 스코프(*, apikey, excel)가 포함된다") {
@@ -67,8 +67,8 @@ class QueryApiScopeGroupServiceTest :
                             listOf("student:*", "student:read", "student:write")
                     }
 
-                    it("모든 카테고리에 와일드카드 스코프가 포함된다") {
-                        result.list.all { group ->
+                    it("self, 클라이언트 카테고리를 제외한 모든 카테고리에 와일드카드 스코프가 포함된다") {
+                        result.list.filter { it.title !in listOf("self", "클라이언트") }.all { group ->
                             group.scopes.any { it.scope.endsWith(":*") }
                         } shouldBe true
                     }

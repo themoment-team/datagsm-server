@@ -58,6 +58,10 @@ spring:
       secret: ${JWT_SECRET_KEY}
       access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION}
       refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
+      oauth-access-token-expiration: ${OAUTH_ACCESS_TOKEN_EXPIRATION}
+      oauth-refresh-token-expiration: ${OAUTH_REFRESH_TOKEN_EXPIRATION}
+    oauth:
+      code-expiration-seconds: ${OAUTH_CODE_EXPIRATION}
     api-key:
       expiration-days: 30
       renewal-period-days: 15
@@ -68,6 +72,16 @@ spring:
         default-capacity: 100
         default-refill-tokens: 100
         default-refill-duration-seconds: 60
+    email-rate-limit:
+      enabled: true
+      send:
+        capacity: 5
+        refill-tokens: 5
+        refill-duration-minutes: 10
+      check:
+        capacity: 10
+        refill-tokens: 10
+        refill-duration-minutes: 5
   jpa:
     hibernate:
       ddl-auto: update
@@ -76,6 +90,17 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_USERNAME}
+    password: ${GMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 server:
   shutdown: graceful
   port: 8080

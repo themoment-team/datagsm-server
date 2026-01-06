@@ -1,0 +1,15 @@
+package team.themoment.datagsm.domain.oauth.entity
+
+import org.springframework.data.annotation.Id
+import org.springframework.data.redis.core.RedisHash
+import org.springframework.data.redis.core.TimeToLive
+
+@RedisHash("oauthCode")
+data class OauthCodeRedisEntity(
+    val email: String,
+    val clientId: String,
+    @Id
+    val code: String,
+    @TimeToLive
+    val ttl: Long,
+)

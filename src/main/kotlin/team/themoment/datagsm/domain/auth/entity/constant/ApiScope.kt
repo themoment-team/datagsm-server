@@ -15,6 +15,9 @@ enum class ApiScope(
     ADMIN_APIKEY("admin:apikey", "Admin API 키 생성/갱신", AccountRole.ADMIN),
     ADMIN_EXCEL("admin:excel", "Excel 파일 업로드/다운로드", AccountRole.ADMIN),
 
+    // Self scopes
+    SELF_READ("self:read", "내 정보 조회", AccountRole.USER),
+
     // Student scopes
     STUDENT_ALL("student:*", "학생 데이터 모든 권한", AccountRole.ADMIN),
     STUDENT_READ("student:read", "학생 데이터 조회", AccountRole.USER),
@@ -33,6 +36,9 @@ enum class ApiScope(
     // NEIS scopes
     NEIS_ALL("neis:*", "NEIS 데이터 모든 권한", AccountRole.ADMIN),
     NEIS_READ("neis:read", "NEIS 데이터 조회", AccountRole.USER),
+
+    // Client scopes
+    CLIENT_MANAGE("client:manage", "클라이언트 관리 (생성/조회/수정/삭제)", AccountRole.ADMIN),
     ;
 
     val category: String
@@ -51,6 +57,7 @@ enum class ApiScope(
                 "project" to "프로젝트",
                 "neis" to "NEIS",
                 "admin" to "관리자",
+                "client" to "클라이언트",
             )
 
         private val ALL_SCOPES by lazy { entries.map { it.scope }.toSet() }

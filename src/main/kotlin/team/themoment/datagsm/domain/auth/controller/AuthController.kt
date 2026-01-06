@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.domain.auth.dto.request.CreateApiKeyReqDto
+import team.themoment.datagsm.domain.auth.dto.request.LoginReqDto
 import team.themoment.datagsm.domain.auth.dto.request.ModifyApiKeyReqDto
-import team.themoment.datagsm.domain.auth.dto.request.OAuthCodeReqDto
 import team.themoment.datagsm.domain.auth.dto.request.RefreshTokenReqDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiKeySearchResDto
@@ -27,10 +27,10 @@ import team.themoment.datagsm.domain.auth.dto.response.ApiScopeGroupListResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiScopeResDto
 import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
-import team.themoment.datagsm.domain.auth.service.AuthenticateGoogleOAuthService
 import team.themoment.datagsm.domain.auth.service.CreateCurrentAccountApiKeyService
 import team.themoment.datagsm.domain.auth.service.DeleteApiKeyByIdService
 import team.themoment.datagsm.domain.auth.service.DeleteCurrentAccountApiKeyService
+import team.themoment.datagsm.domain.auth.service.LoginService
 import team.themoment.datagsm.domain.auth.service.ModifyCurrentAccountApiKeyService
 import team.themoment.datagsm.domain.auth.service.QueryApiScopeByScopeNameService
 import team.themoment.datagsm.domain.auth.service.QueryApiScopeGroupService
@@ -44,7 +44,6 @@ import team.themoment.datagsm.global.security.annotation.RequireScope
 @RestController
 @RequestMapping("/v1/auth")
 class AuthController(
-    private val authenticateGoogleOAuthService: AuthenticateGoogleOAuthService,
     private val createCurrentAccountApiKeyService: CreateCurrentAccountApiKeyService,
     private val deleteCurrentAccountApiKeyService: DeleteCurrentAccountApiKeyService,
     private val deleteApiKeyByIdService: DeleteApiKeyByIdService,
@@ -54,19 +53,21 @@ class AuthController(
     private val queryApiScopeGroupService: QueryApiScopeGroupService,
     private val reissueTokenService: ReissueTokenService,
     private val searchApiKeyService: SearchApiKeyService,
+    private val loginService: LoginService,
 ) {
-    @Operation(summary = "Google OAuth 인증", description = "Google OAuth 인증 코드로 토큰을 발급받습니다.")
+    @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인하여 JWT 토큰을 발급받습니다.")
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "인증 성공"),
+            ApiResponse(responseCode = "200", description = "로그인 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
-            ApiResponse(responseCode = "500", description = "Google OAuth 설정 오류", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "비밀번호 불일치", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
         ],
     )
-    @PostMapping("/google")
-    fun authenticateWithGoogle(
-        @RequestBody @Valid reqDto: OAuthCodeReqDto,
-    ): TokenResDto = authenticateGoogleOAuthService.execute(reqDto.code)
+    @PostMapping("/login")
+    fun login(
+        @RequestBody @Valid reqDto: LoginReqDto,
+    ): TokenResDto = loginService.execute(reqDto)
 
     @Operation(summary = "토큰 재발급", description = "Refresh Token으로 Access Token을 재발급받습니다.")
     @ApiResponses(
