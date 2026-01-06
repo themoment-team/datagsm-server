@@ -54,8 +54,7 @@ class SendEmailServiceImpl(
         try {
             javaMailSender.send(message)
         } catch (e: Exception) {
-            e.printStackTrace()
-            throw RuntimeException("Email 전송에 실패했습니다.")
+            throw RuntimeException("Email 전송에 실패했습니다.", e)
         }
     }
 
