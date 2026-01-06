@@ -30,8 +30,7 @@ class CreateClientServiceImpl(
         val scopes =
             reqDto.scopes
                 .map {
-                    ApiScope.fromString(it)
-                        ?: throw IllegalStateException("ApiScope는 허용된 $it 값을 포함하지 않습니다. See GetAvailableOauthScopesService")
+                    ApiScope.fromString(it)!!
                 }.toSet()
 
         val currentAccount = currentUserProvider.getCurrentAccount()
