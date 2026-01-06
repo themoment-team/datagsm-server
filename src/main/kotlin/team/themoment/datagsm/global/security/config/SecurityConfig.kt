@@ -23,6 +23,7 @@ import team.themoment.datagsm.global.security.filter.RateLimitFilter
 import team.themoment.datagsm.global.security.handler.CustomAuthenticationEntryPoint
 import team.themoment.datagsm.global.security.jwt.JwtProvider
 import team.themoment.datagsm.global.security.jwt.filter.JwtAuthenticationFilter
+import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import team.themoment.datagsm.global.security.service.RateLimitService
 
 @Configuration
@@ -36,6 +37,7 @@ class SecurityConfig(
     private val customAuthenticationEntryPoint: CustomAuthenticationEntryPoint,
     private val rateLimitService: RateLimitService,
     private val objectMapper: ObjectMapper,
+    private val currentUserProvider: CurrentUserProvider,
 ) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -51,7 +53,7 @@ class SecurityConfig(
                 ApiKeyAuthenticationFilter(apiKeyJpaRepository, principalProvider),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).addFilterBefore(
-                RateLimitFilter(rateLimitService, objectMapper),
+                RateLimitFilter(rateLimitService, objectMapper, currentUserProvider),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).addFilterBefore(
                 JwtAuthenticationFilter(jwtProvider, principalProvider),
