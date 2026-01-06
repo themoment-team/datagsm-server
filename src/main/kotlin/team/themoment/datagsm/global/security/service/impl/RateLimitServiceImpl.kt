@@ -30,7 +30,7 @@ class RateLimitServiceImpl(
     override fun getSecondsUntilRefill(apiKey: ApiKey): Long {
         val bucket = getBucket(apiKey)
         val probe = bucket.estimateAbilityToConsume(1)
-        return if (probe.canBeConsumed()) 0 else probe.nanosToWaitForRefill / 1_000_000_000
+        return if (probe.canBeConsumed()) 0 else nanosToSeconds(probe.nanosToWaitForRefill)
     }
 
     override fun tryConsumeAndReturnRemaining(apiKey: ApiKey): RateLimitConsumeResult {
@@ -38,7 +38,7 @@ class RateLimitServiceImpl(
             return RateLimitConsumeResult(
                 consumed = true,
                 remainingTokens = apiKey.rateLimitCapacity,
-                nanosToWaitForRefill = 0,
+                secondsToWaitForRefill = 0,
             )
         }
 
@@ -47,7 +47,7 @@ class RateLimitServiceImpl(
         return RateLimitConsumeResult(
             consumed = probe.isConsumed,
             remainingTokens = probe.remainingTokens,
-            nanosToWaitForRefill = probe.nanosToWaitForRefill,
+            secondsToWaitForRefill = nanosToSeconds(probe.nanosToWaitForRefill),
         )
     }
 
@@ -72,4 +72,6 @@ class RateLimitServiceImpl(
             .addLimit(bandwidth)
             .build()
     }
+
+    private fun nanosToSeconds(nanos: Long) = nanos / 1_000_000_000
 }
