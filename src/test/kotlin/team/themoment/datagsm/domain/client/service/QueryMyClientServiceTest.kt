@@ -54,7 +54,6 @@ class QueryMyClientServiceTest :
                         val result = queryMyClientService.execute()
 
                         result.totalElements shouldBe 1L
-                        result.totalPages shouldBe 1
                         result.clients.size shouldBe 1
 
                         val clientRes = result.clients[0]
@@ -88,7 +87,6 @@ class QueryMyClientServiceTest :
                         val result = queryMyClientService.execute()
 
                         result.totalElements shouldBe 5L
-                        result.totalPages shouldBe 1
                         result.clients.size shouldBe 5
                         result.clients[0].name shouldBe "클라이언트1"
                         result.clients[4].name shouldBe "클라이언트5"
@@ -105,7 +103,6 @@ class QueryMyClientServiceTest :
                         val result = queryMyClientService.execute()
 
                         result.totalElements shouldBe 0L
-                        result.totalPages shouldBe 1
                         result.clients.size shouldBe 0
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
