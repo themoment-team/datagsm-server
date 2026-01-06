@@ -1,7 +1,7 @@
 package team.themoment.datagsm.domain.client.service
 
-import team.themoment.datagsm.domain.client.dto.response.ClientListResDto
+import team.themoment.datagsm.domain.client.dto.response.QueryMyClientResDto
 
 interface QueryMyClientService {
-    fun execute(): ClientListResDto
+    fun execute(): QueryMyClientResDto
 }

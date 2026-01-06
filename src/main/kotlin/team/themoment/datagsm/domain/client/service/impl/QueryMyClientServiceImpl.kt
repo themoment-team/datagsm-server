@@ -2,8 +2,8 @@ package team.themoment.datagsm.domain.client.service.impl
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.domain.client.dto.response.ClientListResDto
 import team.themoment.datagsm.domain.client.dto.response.ClientResDto
+import team.themoment.datagsm.domain.client.dto.response.QueryMyClientResDto
 import team.themoment.datagsm.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.domain.client.service.QueryMyClientService
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
@@ -14,7 +14,7 @@ class QueryMyClientServiceImpl(
     private val clientJpaRepository: ClientJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
 ) : QueryMyClientService {
-    override fun execute(): ClientListResDto {
+    override fun execute(): QueryMyClientResDto {
         val currentAccount = currentUserProvider.getCurrentAccount()
         val clients = clientJpaRepository.findAllByAccount(currentAccount)
 
@@ -26,9 +26,8 @@ class QueryMyClientServiceImpl(
                     redirectUrl = client.redirectUrls,
                 )
             }
-        return ClientListResDto(
+        return QueryMyClientResDto(
             clients = clientResList,
-            totalPages = 1,
             totalElements = clientResList.size.toLong(),
         )
     }
