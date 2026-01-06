@@ -6,23 +6,24 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.global.common.response.dto.response.CommonApiResponse
+import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import team.themoment.datagsm.global.security.service.RateLimitService
 
 class RateLimitFilter(
     private val rateLimitService: RateLimitService,
     private val objectMapper: ObjectMapper,
+    private val currentUserProvider: CurrentUserProvider,
 ) : OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
         filterChain: FilterChain,
     ) {
-        val apiKey = SecurityContextHolder.getContext().authentication?.details as? ApiKey
+        val apiKey = currentUserProvider.getPrincipal().apiKey
         if (apiKey == null) {
             filterChain.doFilter(request, response)
             return
