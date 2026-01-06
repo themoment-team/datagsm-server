@@ -1,17 +1,21 @@
 package team.themoment.datagsm.domain.account.service.impl
 
+import org.springframework.http.HttpStatus
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.domain.account.dto.request.SendEmailReqDto
 import team.themoment.datagsm.domain.account.entity.EmailCodeRedisEntity
+import team.themoment.datagsm.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.domain.account.repository.EmailCodeRedisRepository
 import team.themoment.datagsm.domain.account.service.SendEmailService
+import team.themoment.datagsm.global.exception.error.ExpectedException
 import java.security.SecureRandom
 
 @Service
 class SendEmailServiceImpl(
     private val emailCodeRedisRepository: EmailCodeRedisRepository,
+    private val accountJpaRepository: AccountJpaRepository,
     private val javaMailSender: JavaMailSender,
 ) : SendEmailService {
     companion object {
@@ -19,6 +23,10 @@ class SendEmailServiceImpl(
     }
 
     override fun execute(reqDto: SendEmailReqDto) {
+        if (accountJpaRepository.findByEmail(reqDto.email).isPresent) {
+            throw ExpectedException("이미 해당 이메일을 가진 계정이 존재합니다.", HttpStatus.CONFLICT)
+        }
+
         val emailCodeRedisEntity =
             EmailCodeRedisEntity(
                 email = reqDto.email,

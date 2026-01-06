@@ -25,6 +25,10 @@ class CreateAccountServiceImpl(
     private val passwordEncoder: PasswordEncoder,
 ) : CreateAccountService {
     override fun execute(reqDto: CreateAccountReqDto): AccountJpaEntity {
+        if (accountJpaRepository.findByEmail(reqDto.email).isPresent) {
+            throw ExpectedException("이미 해당 이메일을 가진 계정이 존재합니다.", HttpStatus.CONFLICT)
+        }
+
         consumeEmailCode(reqDto.email, reqDto.code)
         val newAccount =
             AccountJpaEntity.create(reqDto.email).apply {
