@@ -39,7 +39,7 @@ class EmailRateLimitServiceImpl(
         return RateLimitConsumeResult(
             consumed = probe.isConsumed,
             remainingTokens = probe.remainingTokens,
-            nanosToWaitForRefill = probe.nanosToWaitForRefill,
+            secondsToWaitForRefill = nanosToSeconds(probe.nanosToWaitForRefill),
         )
     }
 
@@ -59,8 +59,10 @@ class EmailRateLimitServiceImpl(
         RateLimitConsumeResult(
             consumed = true,
             remainingTokens = capacity,
-            nanosToWaitForRefill = 0,
+            secondsToWaitForRefill = 0,
         )
+
+    private fun nanosToSeconds(nanos: Long): Long = nanos / 1_000_000_000
 
     private fun createBucketConfiguration(config: EmailRateLimitEnvironment.RateLimitConfig): BucketConfiguration {
         val bandwidth =

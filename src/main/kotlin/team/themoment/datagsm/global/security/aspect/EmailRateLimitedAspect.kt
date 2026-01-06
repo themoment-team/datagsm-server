@@ -29,9 +29,8 @@ class EmailRateLimitedAspect(
         val result = emailRateLimitService.tryConsume(email, annotation.type)
 
         if (!result.consumed) {
-            val secondsToWait = result.nanosToWaitForRefill / 1_000_000_000
             throw ExpectedException(
-                "요청 횟수를 초과했습니다. ${secondsToWait}초 후에 다시 시도해주세요.",
+                "요청 횟수를 초과했습니다. ${result.secondsToWaitForRefill}초 후에 다시 시도해주세요.",
                 HttpStatus.TOO_MANY_REQUESTS,
             )
         }
