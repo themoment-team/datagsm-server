@@ -12,9 +12,12 @@ import java.security.SecureRandom
 @Service
 class SendEmailServiceImpl(
     private val emailCodeRedisRepository: EmailCodeRedisRepository,
-    private val secureRandom: SecureRandom = SecureRandom(),
     private val javaMailSender: JavaMailSender,
 ) : SendEmailService {
+    companion object {
+        private val secureRandom = SecureRandom()
+    }
+
     override fun execute(reqDto: SendEmailReqDto) {
         val emailCodeRedisEntity =
             EmailCodeRedisEntity(

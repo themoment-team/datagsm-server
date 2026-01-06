@@ -25,8 +25,11 @@ class IssueOauthCodeServiceImpl(
     private val passwordEncoder: PasswordEncoder,
     private val oauthCodeRedisRepository: OauthCodeRedisRepository,
     private val oauthProperties: OauthProperties,
-    private val secureRandom: SecureRandom = SecureRandom(),
 ) : IssueOauthCodeService {
+    companion object {
+        private val secureRandom = SecureRandom()
+    }
+
     @Transactional(readOnly = true)
     override fun execute(reqDto: OauthCodeReqDto): OauthCodeResDto {
         val client =
