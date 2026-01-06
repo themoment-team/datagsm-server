@@ -56,5 +56,5 @@ class SendEmailServiceImpl(
         }
     }
 
-    private fun generateCode(): String = secureRandom.nextInt(0, 1000000).toString().padStart(6, '0')
+    private fun generateCode(): String = secureRandom.nextInt(0, 100000000).toString().padStart(6, '0')
 }
