@@ -10,6 +10,8 @@ import team.themoment.datagsm.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.domain.account.repository.EmailCodeRedisRepository
 import team.themoment.datagsm.domain.account.service.SendEmailService
 import team.themoment.datagsm.global.exception.error.ExpectedException
+import team.themoment.datagsm.global.security.annotation.EmailRateLimitType
+import team.themoment.datagsm.global.security.annotation.EmailRateLimited
 import java.security.SecureRandom
 
 @Service
@@ -22,6 +24,7 @@ class SendEmailServiceImpl(
         private val secureRandom = SecureRandom()
     }
 
+    @EmailRateLimited(type = EmailRateLimitType.SEND_EMAIL)
     override fun execute(reqDto: SendEmailReqDto) {
         if (accountJpaRepository.findByEmail(reqDto.email).isPresent) {
             throw ExpectedException("이미 해당 이메일을 가진 계정이 존재합니다.", HttpStatus.CONFLICT)

@@ -7,11 +7,14 @@ import team.themoment.datagsm.domain.account.dto.request.EmailCodeReqDto
 import team.themoment.datagsm.domain.account.repository.EmailCodeRedisRepository
 import team.themoment.datagsm.domain.account.service.CheckEmailService
 import team.themoment.datagsm.global.exception.error.ExpectedException
+import team.themoment.datagsm.global.security.annotation.EmailRateLimitType
+import team.themoment.datagsm.global.security.annotation.EmailRateLimited
 
 @Service
 class CheckEmailServiceImpl(
     private val emailCodeRedisRepository: EmailCodeRedisRepository,
 ) : CheckEmailService {
+    @EmailRateLimited(type = EmailRateLimitType.CHECK_EMAIL)
     override fun execute(reqDto: EmailCodeReqDto) {
         val emailCodeRedisEntity =
             emailCodeRedisRepository
