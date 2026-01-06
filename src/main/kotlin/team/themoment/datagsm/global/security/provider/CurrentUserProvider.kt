@@ -20,6 +20,10 @@ class CurrentUserProvider(
             SecurityContextHolder
                 .getContext()
                 .authentication
+        if (authentication == null) {
+            throw ExpectedException("인증 정보가 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
+        }
+
         if (authentication !is CustomAuthenticationToken) {
             throw ExpectedException("인증 정보가 올바르지 않습니다.", HttpStatus.UNAUTHORIZED)
         }
