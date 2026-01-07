@@ -1,0 +1,69 @@
+spring:
+  application:
+    name: datagsm-authorization
+  datasource:
+    url: jdbc:mysql://localhost:3306/datagsm?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Seoul
+    username: root
+    password: ${DB_PASSWORD:datagsm1234!}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      database: 0
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_USERNAME}
+    password: ${GMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  cloud:
+    discord:
+      webhook:
+        url: ${DISCORD_EMERGENCY_ALERT_CHANNEL_WEBHOOK}
+  security:
+    cors:
+      allowed-origins:
+        - ${CORS_ALLOWED_ORIGINS:*}
+    jwt:
+      secret: ${JWT_SECRET_KEY}
+      access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:3600000}
+      refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:86400000}
+      oauth-access-token-expiration: ${OAUTH_ACCESS_TOKEN_EXPIRATION:3600000}
+      oauth-refresh-token-expiration: ${OAUTH_REFRESH_TOKEN_EXPIRATION:2592000000}
+    oauth:
+      code-expiration-seconds: ${OAUTH_CODE_EXPIRATION:300}
+    email-rate-limit:
+      enabled: true
+      send:
+        capacity: 5
+        refill-tokens: 5
+        refill-duration-minutes: 10
+      check:
+        capacity: 10
+        refill-tokens: 10
+        refill-duration-minutes: 5
+    resource-server:
+      api-key: ${RESOURCE_SERVER_API_KEY}
+      url: ${RESOURCE_SERVER_URL:http://localhost:8082}
+
+server:
+  port: 8081
+  shutdown: graceful
+
+springdoc:
+  swagger-ui:
+    enabled: true
