@@ -37,6 +37,7 @@ import dependency.Dependencies.SPRING_VALIDATION
 import dependency.Dependencies.SPRING_WEB
 import dependency.Dependencies.SPRINT_MAIL
 import dependency.Dependencies.SWAGGER_UI
+import dependency.Dependencies.THE_MOMENT_THE_SDK
 
 plugins {
     id(plugin.Plugins.SPRING_BOOT) version plugin.PluginVersions.SPRING_BOOT_VERSION
@@ -67,6 +68,9 @@ repositories {
 }
 
 dependencies {
+    // Common Module
+    implementation(project(":common"))
+
     // Spring Starters
     implementation(SPRING_WEB)
     implementation(SPRING_VALIDATION)
@@ -131,6 +135,7 @@ dependencies {
 
     // Custom Libraries
     implementation(PEANUT_BUTTER)
+    implementation(THE_MOMENT_THE_SDK)
 }
 kotlin {
     compilerOptions {

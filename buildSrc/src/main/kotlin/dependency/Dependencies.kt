@@ -12,6 +12,7 @@ import dependency.DependencyVersions.POI_VERSION
 import dependency.DependencyVersions.QUERY_DSL_VERSION
 import dependency.DependencyVersions.SPRING_CLOUD_VERSION
 import dependency.DependencyVersions.SWAGGER_VERSION
+import dependency.DependencyVersions.THE_MOMENT_THE_SDK_VERSION
 
 object Dependencies {
     // Spring Starters
@@ -82,4 +83,5 @@ object Dependencies {
 
     // Custom Libraries
     const val PEANUT_BUTTER = "com.github.snowykte0426:peanut-butter:${PEANUT_BUTTER_VERSION}"
+    const val THE_MOMENT_THE_SDK = "com.github.themoment-team:the-sdk:${THE_MOMENT_THE_SDK_VERSION}"
 }
