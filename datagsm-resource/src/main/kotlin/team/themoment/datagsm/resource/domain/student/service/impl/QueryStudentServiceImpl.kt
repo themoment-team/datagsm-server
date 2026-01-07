@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.student.Sex
 import team.themoment.datagsm.common.domain.student.StudentRole
 import team.themoment.datagsm.common.domain.student.StudentSortBy
-import team.themoment.datagsm.domain.club.dto.internal.ClubSummaryDto
+import team.themoment.datagsm.resource.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.resource.domain.student.dto.response.StudentListResDto
 import team.themoment.datagsm.resource.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.resource.domain.student.repository.StudentJpaRepository

@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.resource.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.resource.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.resource.domain.auth.service.QueryCurrentAccountApiKeyService
-import team.themoment.datagsm.resource.global.exception.error.ExpectedException
+import team.themoment.datagsm.resource.global.common.error.ExpectedException
 import team.themoment.datagsm.resource.global.security.provider.CurrentUserProvider
 
 @Service

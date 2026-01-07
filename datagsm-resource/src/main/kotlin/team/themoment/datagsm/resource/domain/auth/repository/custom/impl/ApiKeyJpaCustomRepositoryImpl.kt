@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
-import team.themoment.datagsm.resource.domain.auth.entity.QApiKey.Companion.apiKey
+import team.themoment.datagsm.common.domain.auth.entity.QApiKey.Companion.apiKey
 import team.themoment.datagsm.resource.domain.auth.repository.custom.ApiKeyJpaCustomRepository
 import team.themoment.datagsm.resource.global.security.data.ApiKeyEnvironment
 import java.time.LocalDateTime
