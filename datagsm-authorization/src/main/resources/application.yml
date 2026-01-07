@@ -64,6 +64,30 @@ server:
   port: 8081
   shutdown: graceful
 
+sdk:
+  logging:
+    enabled: false  # 커스텀 LoggingFilter 사용
+
+  response:
+    enabled: true
+    not-wrapping-urls:
+      - "/v3/api-docs/**"
+      - "/swagger-ui/**"
+      - "/actuator/**"
+
+  swagger:
+    enabled: true
+    title: "DataGSM Authorization Server API"
+    description: "OAuth 2.0 Authorization Server"
+    version: "v1"
+    group: "authorization-api"
+    paths-to-match:
+      - "/v1/**"
+
+  exception:
+    enabled: false  # 커스텀 GlobalExceptionHandler 사용 (Discord 통합)
+    use-english-message: false
+
 springdoc:
   swagger-ui:
     enabled: true

@@ -56,6 +56,32 @@ server:
   port: 8080
   shutdown: graceful
 
+sdk:
+  logging:
+    enabled: false  # 커스텀 LoggingFilter 사용
+
+  response:
+    enabled: true
+    not-wrapping-urls:
+      - "/v3/api-docs/**"
+      - "/swagger-ui/**"
+      - "/actuator/**"
+      - "/v1/students/excel/download"
+      - "/v1/clubs/excel/download"
+
+  swagger:
+    enabled: true
+    title: "DataGSM Web Server API"
+    description: "DataGSM Web Application API"
+    version: "v1"
+    group: "web-api"
+    paths-to-match:
+      - "/v1/**"
+
+  exception:
+    enabled: false  # 커스텀 GlobalExceptionHandler 사용 (Discord 통합)
+    use-english-message: false
+
 springdoc:
   swagger-ui:
     enabled: true

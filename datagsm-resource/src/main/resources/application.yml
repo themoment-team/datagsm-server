@@ -57,6 +57,34 @@ server:
   port: 8082
   shutdown: graceful
 
+sdk:
+  logging:
+    enabled: true  # datagsm-resource는 커스텀 LoggingFilter 없음
+    not-logging-urls:
+      - "/v3/api-docs/**"
+      - "/swagger-ui/**"
+      - "/actuator/**"
+
+  response:
+    enabled: true
+    not-wrapping-urls:
+      - "/v3/api-docs/**"
+      - "/swagger-ui/**"
+      - "/actuator/**"
+
+  swagger:
+    enabled: true
+    title: "DataGSM Resource Server API"
+    description: "DataGSM Read-Only Resource API with API Key Authentication"
+    version: "v1"
+    group: "resource-api"
+    paths-to-match:
+      - "/v1/**"
+
+  exception:
+    enabled: false  # 커스텀 GlobalExceptionHandler 사용 (Discord 통합)
+    use-english-message: false
+
 springdoc:
   swagger-ui:
     enabled: true
