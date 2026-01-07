@@ -1,2 +1,2 @@
 rootProject.name = "datagsm"
-include("common")
+include("datagsm-common")

@@ -69,7 +69,7 @@ repositories {
 
 dependencies {
     // Common Module
-    implementation(project(":common"))
+    implementation(project(":datagsm-common"))
 
     // Spring Starters
     implementation(SPRING_WEB)
