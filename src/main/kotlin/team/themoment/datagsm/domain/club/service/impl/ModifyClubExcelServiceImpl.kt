@@ -6,13 +6,13 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
+import team.themoment.datagsm.common.domain.club.ClubJpaEntity
+import team.themoment.datagsm.common.domain.club.ClubType
+import team.themoment.datagsm.common.domain.student.StudentJpaEntity
 import team.themoment.datagsm.domain.club.dto.internal.ClubInfoDto
 import team.themoment.datagsm.domain.club.dto.internal.ExcelRowDto
-import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
-import team.themoment.datagsm.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.club.service.ModifyClubExcelService
-import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.global.common.response.dto.response.CommonApiResponse
 import team.themoment.datagsm.global.exception.error.ExpectedException

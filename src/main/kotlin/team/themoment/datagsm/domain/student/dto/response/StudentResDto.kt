@@ -1,10 +1,10 @@
 package team.themoment.datagsm.domain.student.dto.response
 
 import io.swagger.v3.oas.annotations.media.Schema
+import team.themoment.datagsm.common.domain.student.Major
+import team.themoment.datagsm.common.domain.student.Sex
+import team.themoment.datagsm.common.domain.student.StudentRole
 import team.themoment.datagsm.domain.club.dto.internal.ClubSummaryDto
-import team.themoment.datagsm.domain.student.entity.constant.Major
-import team.themoment.datagsm.domain.student.entity.constant.Sex
-import team.themoment.datagsm.domain.student.entity.constant.StudentRole
 
 data class StudentResDto(
     @param:Schema(description = "학생 ID", example = "1")

@@ -3,10 +3,10 @@ package team.themoment.datagsm.domain.auth.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import team.themoment.datagsm.common.domain.account.RefreshTokenRedisEntity
 import team.themoment.datagsm.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.domain.auth.dto.request.LoginReqDto
 import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
-import team.themoment.datagsm.domain.auth.entity.RefreshTokenRedisEntity
 import team.themoment.datagsm.domain.auth.repository.RefreshTokenRedisRepository
 import team.themoment.datagsm.domain.auth.service.LoginService
 import team.themoment.datagsm.global.exception.error.ExpectedException

@@ -2,7 +2,7 @@ package team.themoment.datagsm.domain.account.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
-import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.AccountJpaEntity
 import java.util.Optional
 
 @Repository

@@ -6,9 +6,9 @@ import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
-import team.themoment.datagsm.domain.student.entity.constant.Major
-import team.themoment.datagsm.domain.student.entity.constant.Sex
-import team.themoment.datagsm.domain.student.entity.constant.StudentRole
+import team.themoment.datagsm.common.domain.student.Major
+import team.themoment.datagsm.common.domain.student.Sex
+import team.themoment.datagsm.common.domain.student.StudentRole
 
 data class ExcelColumnDto(
     @field:NotBlank

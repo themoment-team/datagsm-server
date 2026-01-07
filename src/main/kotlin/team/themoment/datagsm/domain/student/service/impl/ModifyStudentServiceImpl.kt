@@ -3,13 +3,13 @@ package team.themoment.datagsm.domain.student.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.student.DormitoryRoomNumber
+import team.themoment.datagsm.common.domain.student.Major
+import team.themoment.datagsm.common.domain.student.StudentNumber
 import team.themoment.datagsm.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
-import team.themoment.datagsm.domain.student.entity.constant.DormitoryRoomNumber
-import team.themoment.datagsm.domain.student.entity.constant.Major
-import team.themoment.datagsm.domain.student.entity.constant.StudentNumber
 import team.themoment.datagsm.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.domain.student.service.ModifyStudentService
 import team.themoment.datagsm.global.exception.error.ExpectedException

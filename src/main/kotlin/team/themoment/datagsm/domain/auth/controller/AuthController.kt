@@ -16,7 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.domain.account.entity.constant.AccountRole
+import team.themoment.datagsm.common.domain.account.AccountRole
+import team.themoment.datagsm.common.domain.account.ApiScope
 import team.themoment.datagsm.domain.auth.dto.request.CreateApiKeyReqDto
 import team.themoment.datagsm.domain.auth.dto.request.LoginReqDto
 import team.themoment.datagsm.domain.auth.dto.request.ModifyApiKeyReqDto
@@ -26,7 +27,6 @@ import team.themoment.datagsm.domain.auth.dto.response.ApiKeySearchResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiScopeGroupListResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiScopeResDto
 import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
-import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.service.CreateCurrentAccountApiKeyService
 import team.themoment.datagsm.domain.auth.service.DeleteApiKeyByIdService
 import team.themoment.datagsm.domain.auth.service.DeleteCurrentAccountApiKeyService

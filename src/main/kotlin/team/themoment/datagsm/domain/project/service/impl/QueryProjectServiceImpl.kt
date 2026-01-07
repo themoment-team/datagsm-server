@@ -3,10 +3,10 @@ package team.themoment.datagsm.domain.project.service.impl
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.project.ProjectSortBy
 import team.themoment.datagsm.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.domain.project.dto.response.ProjectListResDto
 import team.themoment.datagsm.domain.project.dto.response.ProjectResDto
-import team.themoment.datagsm.domain.project.entity.constant.ProjectSortBy
 import team.themoment.datagsm.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.domain.project.service.QueryProjectService
 import team.themoment.datagsm.domain.student.dto.internal.ParticipantInfoDto

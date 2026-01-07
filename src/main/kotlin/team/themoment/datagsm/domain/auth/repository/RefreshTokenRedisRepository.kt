@@ -1,7 +1,7 @@
 package team.themoment.datagsm.domain.auth.repository
 
 import org.springframework.data.repository.CrudRepository
-import team.themoment.datagsm.domain.auth.entity.RefreshTokenRedisEntity
+import team.themoment.datagsm.common.domain.account.RefreshTokenRedisEntity
 import java.util.Optional
 
 interface RefreshTokenRedisRepository : CrudRepository<RefreshTokenRedisEntity, String> {

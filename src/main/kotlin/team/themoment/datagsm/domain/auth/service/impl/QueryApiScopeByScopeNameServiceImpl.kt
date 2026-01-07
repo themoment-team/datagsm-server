@@ -2,8 +2,8 @@ package team.themoment.datagsm.domain.auth.service.impl
 
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import team.themoment.datagsm.common.domain.account.ApiScope
 import team.themoment.datagsm.domain.auth.dto.response.ApiScopeResDto
-import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.service.QueryApiScopeByScopeNameService
 import team.themoment.datagsm.global.exception.error.ExpectedException
 

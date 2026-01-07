@@ -4,13 +4,13 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.OauthCodeRedisEntity
+import team.themoment.datagsm.common.domain.client.ClientJpaEntity
 import team.themoment.datagsm.domain.account.repository.AccountJpaRepository
-import team.themoment.datagsm.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.domain.oauth.dto.request.OauthCodeReqDto
 import team.themoment.datagsm.domain.oauth.dto.response.OauthCodeResDto
-import team.themoment.datagsm.domain.oauth.entity.OauthCodeRedisEntity
 import team.themoment.datagsm.domain.oauth.property.OauthProperties
 import team.themoment.datagsm.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.domain.oauth.service.IssueOauthCodeService

@@ -1,10 +1,10 @@
 package team.themoment.datagsm.domain.auth.service.impl
 
 import org.springframework.stereotype.Service
-import team.themoment.datagsm.domain.account.entity.constant.AccountRole
+import team.themoment.datagsm.common.domain.account.AccountRole
+import team.themoment.datagsm.common.domain.account.ApiScope
 import team.themoment.datagsm.domain.auth.dto.response.ApiScopeGroupListResDto
 import team.themoment.datagsm.domain.auth.dto.response.ApiScopeResDto
-import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.service.QueryApiScopeGroupService
 
 @Service

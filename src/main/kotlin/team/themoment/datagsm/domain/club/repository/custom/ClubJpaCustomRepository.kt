@@ -2,9 +2,9 @@ package team.themoment.datagsm.domain.club.repository.custom
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import team.themoment.datagsm.domain.club.entity.ClubJpaEntity
-import team.themoment.datagsm.domain.club.entity.constant.ClubSortBy
-import team.themoment.datagsm.domain.club.entity.constant.ClubType
+import team.themoment.datagsm.common.domain.club.ClubJpaEntity
+import team.themoment.datagsm.common.domain.club.ClubSortBy
+import team.themoment.datagsm.common.domain.club.ClubType
 import team.themoment.datagsm.global.common.constant.SortDirection
 
 interface ClubJpaCustomRepository {

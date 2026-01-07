@@ -7,8 +7,8 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.club.ClubType
 import team.themoment.datagsm.domain.club.dto.internal.ExcelRowDto
-import team.themoment.datagsm.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.club.service.CreateClubExcelService
 import java.io.ByteArrayOutputStream

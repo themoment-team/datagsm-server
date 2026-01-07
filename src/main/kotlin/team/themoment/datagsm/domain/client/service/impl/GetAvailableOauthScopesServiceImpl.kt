@@ -1,7 +1,7 @@
 package team.themoment.datagsm.domain.client.service.impl
 
 import org.springframework.stereotype.Service
-import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
+import team.themoment.datagsm.common.domain.account.ApiScope
 import team.themoment.datagsm.domain.client.service.GetAvailableOauthScopesService
 
 @Service

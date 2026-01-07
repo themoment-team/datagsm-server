@@ -2,7 +2,7 @@ package team.themoment.datagsm.domain.neis.meal.dto.response
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import io.swagger.v3.oas.annotations.media.Schema
-import team.themoment.datagsm.domain.neis.meal.entity.constant.MealType
+import team.themoment.datagsm.common.domain.neis.MealType
 import java.time.LocalDate
 
 @Schema(description = "급식 정보 응답")

@@ -7,8 +7,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
-import team.themoment.datagsm.domain.account.entity.constant.AccountRole
-import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
+import team.themoment.datagsm.common.domain.account.AccountRole
+import team.themoment.datagsm.common.domain.account.ApiScope
 import team.themoment.datagsm.global.security.authentication.CustomAuthenticationToken
 import team.themoment.datagsm.global.security.authentication.principal.PrincipalProvider
 import team.themoment.datagsm.global.security.config.AuthenticationPathConfig

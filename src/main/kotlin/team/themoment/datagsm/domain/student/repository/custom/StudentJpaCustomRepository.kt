@@ -2,10 +2,10 @@ package team.themoment.datagsm.domain.student.repository.custom
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
-import team.themoment.datagsm.domain.student.entity.constant.Sex
-import team.themoment.datagsm.domain.student.entity.constant.StudentRole
-import team.themoment.datagsm.domain.student.entity.constant.StudentSortBy
+import team.themoment.datagsm.common.domain.student.Sex
+import team.themoment.datagsm.common.domain.student.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.StudentRole
+import team.themoment.datagsm.common.domain.student.StudentSortBy
 import team.themoment.datagsm.global.common.constant.SortDirection
 
 interface StudentJpaCustomRepository {

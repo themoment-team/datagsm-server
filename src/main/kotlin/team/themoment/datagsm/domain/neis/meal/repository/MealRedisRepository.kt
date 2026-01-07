@@ -1,7 +1,7 @@
 package team.themoment.datagsm.domain.neis.meal.repository
 
 import org.springframework.data.repository.CrudRepository
-import team.themoment.datagsm.domain.neis.meal.entity.MealRedisEntity
+import team.themoment.datagsm.common.domain.neis.MealRedisEntity
 import java.time.LocalDate
 
 interface MealRedisRepository : CrudRepository<MealRedisEntity, String> {

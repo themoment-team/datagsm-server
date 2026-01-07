@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
+import team.themoment.datagsm.common.domain.account.ApiScope
+import team.themoment.datagsm.common.domain.project.ProjectSortBy
 import team.themoment.datagsm.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.domain.project.dto.response.ProjectListResDto
 import team.themoment.datagsm.domain.project.dto.response.ProjectResDto
-import team.themoment.datagsm.domain.project.entity.constant.ProjectSortBy
 import team.themoment.datagsm.domain.project.service.CreateProjectService
 import team.themoment.datagsm.domain.project.service.DeleteProjectService
 import team.themoment.datagsm.domain.project.service.ModifyProjectService

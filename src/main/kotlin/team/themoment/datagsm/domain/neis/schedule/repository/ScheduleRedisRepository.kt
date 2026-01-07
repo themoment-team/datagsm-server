@@ -1,7 +1,7 @@
 package team.themoment.datagsm.domain.neis.schedule.repository
 
 import org.springframework.data.repository.CrudRepository
-import team.themoment.datagsm.domain.neis.schedule.entity.ScheduleRedisEntity
+import team.themoment.datagsm.common.domain.neis.ScheduleRedisEntity
 import java.time.LocalDate
 
 interface ScheduleRedisRepository : CrudRepository<ScheduleRedisEntity, String> {

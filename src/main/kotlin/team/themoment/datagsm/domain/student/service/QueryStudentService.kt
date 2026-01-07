@@ -1,9 +1,9 @@
 package team.themoment.datagsm.domain.student.service
 
+import team.themoment.datagsm.common.domain.student.Sex
+import team.themoment.datagsm.common.domain.student.StudentRole
+import team.themoment.datagsm.common.domain.student.StudentSortBy
 import team.themoment.datagsm.domain.student.dto.response.StudentListResDto
-import team.themoment.datagsm.domain.student.entity.constant.Sex
-import team.themoment.datagsm.domain.student.entity.constant.StudentRole
-import team.themoment.datagsm.domain.student.entity.constant.StudentSortBy
 import team.themoment.datagsm.global.common.constant.SortDirection
 
 interface QueryStudentService {

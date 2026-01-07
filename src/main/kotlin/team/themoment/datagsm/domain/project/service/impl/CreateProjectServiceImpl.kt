@@ -3,11 +3,11 @@ package team.themoment.datagsm.domain.project.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.project.ProjectJpaEntity
 import team.themoment.datagsm.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.domain.project.dto.response.ProjectResDto
-import team.themoment.datagsm.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.domain.project.service.CreateProjectService
 import team.themoment.datagsm.domain.student.dto.internal.ParticipantInfoDto

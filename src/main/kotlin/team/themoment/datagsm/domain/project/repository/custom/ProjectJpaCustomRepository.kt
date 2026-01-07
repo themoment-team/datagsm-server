@@ -2,8 +2,8 @@ package team.themoment.datagsm.domain.project.repository.custom
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import team.themoment.datagsm.domain.project.entity.ProjectJpaEntity
-import team.themoment.datagsm.domain.project.entity.constant.ProjectSortBy
+import team.themoment.datagsm.common.domain.project.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.ProjectSortBy
 import team.themoment.datagsm.global.common.constant.SortDirection
 
 interface ProjectJpaCustomRepository {

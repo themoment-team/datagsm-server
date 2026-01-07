@@ -3,7 +3,7 @@ package team.themoment.datagsm.domain.client.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
+import team.themoment.datagsm.common.domain.account.ApiScope
 import team.themoment.datagsm.domain.client.dto.request.ModifyClientReqDto
 import team.themoment.datagsm.domain.client.dto.response.ClientResDto
 import team.themoment.datagsm.domain.client.repository.ClientJpaRepository

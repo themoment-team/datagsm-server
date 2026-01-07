@@ -3,9 +3,9 @@ package team.themoment.datagsm.domain.auth.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.account.RefreshTokenRedisEntity
 import team.themoment.datagsm.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.domain.auth.dto.response.TokenResDto
-import team.themoment.datagsm.domain.auth.entity.RefreshTokenRedisEntity
 import team.themoment.datagsm.domain.auth.repository.RefreshTokenRedisRepository
 import team.themoment.datagsm.domain.auth.service.ReissueTokenService
 import team.themoment.datagsm.global.exception.error.ExpectedException

@@ -3,7 +3,7 @@ package team.themoment.datagsm.domain.client.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
+import team.themoment.datagsm.common.domain.account.ApiScope
 import team.themoment.datagsm.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.domain.client.service.DeleteClientService
 import team.themoment.datagsm.global.exception.error.ExpectedException

@@ -3,11 +3,11 @@ package team.themoment.datagsm.domain.account.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.student.StudentJpaEntity
 import team.themoment.datagsm.domain.account.dto.response.GetMyInfoResDto
 import team.themoment.datagsm.domain.account.service.GetMyInfoService
 import team.themoment.datagsm.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.domain.student.dto.response.StudentResDto
-import team.themoment.datagsm.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.global.exception.error.ExpectedException
 import team.themoment.datagsm.global.security.authentication.type.AuthType
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider

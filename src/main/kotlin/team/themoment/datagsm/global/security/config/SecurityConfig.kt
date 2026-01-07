@@ -53,10 +53,10 @@ class SecurityConfig(
                 ApiKeyAuthenticationFilter(apiKeyJpaRepository, principalProvider),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).addFilterBefore(
-                RateLimitFilter(rateLimitService, objectMapper, currentUserProvider),
+                JwtAuthenticationFilter(jwtProvider, principalProvider),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).addFilterBefore(
-                JwtAuthenticationFilter(jwtProvider, principalProvider),
+                RateLimitFilter(rateLimitService, objectMapper, currentUserProvider),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).authorizeHttpRequests {
                 it

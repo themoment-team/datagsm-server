@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import team.themoment.datagsm.common.domain.account.ApiScope
 import team.themoment.datagsm.domain.account.dto.request.CreateAccountReqDto
 import team.themoment.datagsm.domain.account.dto.request.EmailCodeReqDto
 import team.themoment.datagsm.domain.account.dto.request.SendEmailReqDto
@@ -19,7 +20,6 @@ import team.themoment.datagsm.domain.account.service.CheckEmailService
 import team.themoment.datagsm.domain.account.service.CreateAccountService
 import team.themoment.datagsm.domain.account.service.GetMyInfoService
 import team.themoment.datagsm.domain.account.service.SendEmailService
-import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.global.common.response.dto.response.CommonApiResponse
 import team.themoment.datagsm.global.security.annotation.RequireScope
 
