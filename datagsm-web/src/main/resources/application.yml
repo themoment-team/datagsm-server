@@ -1,0 +1,70 @@
+spring:
+  application:
+    name: datagsm-web
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/datagsm?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Seoul
+    username: root
+    password: ${DB_PASSWORD:datagsm1234!}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      database: 0
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+
+  cloud:
+    discord:
+      webhook:
+        url: ${DISCORD_EMERGENCY_ALERT_CHANNEL_WEBHOOK}
+
+  security:
+    cors:
+      allowed-origins:
+        - ${CORS_ALLOWED_ORIGINS:*}
+    jwt:
+      secret: ${JWT_SECRET_KEY}
+      access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:3600000}
+      refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:86400000}
+    api-key:
+      expiration-days: 30
+      renewal-period-days: 15
+      admin-expiration-days: 365
+      admin-renewal-period-days: 30
+      rate-limit:
+        enabled: true
+        default-capacity: 100
+        default-refill-tokens: 100
+        default-refill-duration-seconds: 60
+
+server:
+  port: 8080
+  shutdown: graceful
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    team.themoment: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

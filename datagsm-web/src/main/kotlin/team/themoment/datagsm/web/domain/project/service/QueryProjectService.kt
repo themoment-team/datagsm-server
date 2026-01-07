@@ -1,0 +1,17 @@
+package team.themoment.datagsm.web.domain.project.service
+
+import team.themoment.datagsm.common.domain.project.ProjectSortBy
+import team.themoment.datagsm.web.domain.project.dto.response.ProjectListResDto
+import team.themoment.datagsm.web.global.common.constant.SortDirection
+
+interface QueryProjectService {
+    fun execute(
+        projectId: Long?,
+        projectName: String?,
+        clubId: Long?,
+        page: Int,
+        size: Int,
+        sortBy: ProjectSortBy? = null,
+        sortDirection: SortDirection = SortDirection.ASC,
+    ): ProjectListResDto
+}
