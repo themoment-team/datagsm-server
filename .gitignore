@@ -38,3 +38,6 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+### Migration Documents ###
+MULTIMODULE_MIGRATION.md
