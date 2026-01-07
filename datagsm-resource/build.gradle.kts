@@ -3,6 +3,7 @@ import dependency.Dependencies.JACKSON_KOTLIN
 import dependency.Dependencies.KOTLIN_COROUTINES
 import dependency.Dependencies.KOTLIN_REFLECT
 import dependency.Dependencies.MYSQL_CONNECTOR
+import dependency.Dependencies.PEANUT_BUTTER
 import dependency.Dependencies.SPRING_AOP
 import dependency.Dependencies.SPRING_CLOUD_BOM
 import dependency.Dependencies.SPRING_DATA_JPA
@@ -63,6 +64,9 @@ dependencies {
 
     // Rate Limiting
     implementation(BUCKET4J_CORE)
+
+    // Logging
+    implementation(PEANUT_BUTTER)
 
     // the-sdk
     implementation(THE_MOMENT_THE_SDK)
