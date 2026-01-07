@@ -8,7 +8,7 @@ import team.themoment.datagsm.authorization.domain.account.repository.AccountJpa
 import team.themoment.datagsm.authorization.global.security.authentication.CustomAuthenticationToken
 import team.themoment.datagsm.authorization.global.security.authentication.principal.CustomPrincipal
 import team.themoment.datagsm.common.domain.account.AccountJpaEntity
-import team.themoment.datagsm.authorization.global.exception.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 
 @Component
 class CurrentUserProvider(

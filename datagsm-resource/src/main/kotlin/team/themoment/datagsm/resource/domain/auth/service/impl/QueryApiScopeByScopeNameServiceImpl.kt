@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.account.ApiScope
 import team.themoment.datagsm.resource.domain.auth.dto.response.ApiScopeResDto
 import team.themoment.datagsm.resource.domain.auth.service.QueryApiScopeByScopeNameService
-import team.themoment.datagsm.resource.global.common.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 
 @Service
 class QueryApiScopeByScopeNameServiceImpl : QueryApiScopeByScopeNameService {

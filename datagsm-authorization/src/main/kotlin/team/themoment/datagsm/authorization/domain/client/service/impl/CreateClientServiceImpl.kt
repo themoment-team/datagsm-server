@@ -11,7 +11,7 @@ import team.themoment.datagsm.authorization.domain.client.dto.response.CreateCli
 import team.themoment.datagsm.authorization.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.authorization.domain.client.service.CreateClientService
 import team.themoment.datagsm.authorization.domain.client.service.GetAvailableOauthScopesService
-import team.themoment.datagsm.authorization.global.exception.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 import team.themoment.datagsm.authorization.global.security.provider.CurrentUserProvider
 import java.util.UUID
 

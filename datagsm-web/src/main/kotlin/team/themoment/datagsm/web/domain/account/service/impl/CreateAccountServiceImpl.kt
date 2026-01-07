@@ -13,7 +13,7 @@ import team.themoment.datagsm.web.domain.account.repository.EmailCodeRedisReposi
 import team.themoment.datagsm.web.domain.account.service.CheckEmailService
 import team.themoment.datagsm.web.domain.account.service.CreateAccountService
 import team.themoment.datagsm.web.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.web.global.exception.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 
 @Service
 @Transactional

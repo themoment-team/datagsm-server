@@ -12,7 +12,7 @@ import team.themoment.datagsm.web.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.web.domain.project.service.CreateProjectService
 import team.themoment.datagsm.web.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.web.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.web.global.exception.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 
 @Service
 @Transactional

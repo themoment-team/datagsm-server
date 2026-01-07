@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.web.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.web.domain.project.service.DeleteProjectService
-import team.themoment.datagsm.web.global.exception.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 
 @Service
 @Transactional

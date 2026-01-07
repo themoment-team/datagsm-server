@@ -9,7 +9,7 @@ import team.themoment.datagsm.authorization.domain.account.dto.request.SendEmail
 import team.themoment.datagsm.authorization.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.authorization.domain.account.repository.EmailCodeRedisRepository
 import team.themoment.datagsm.authorization.domain.account.service.SendEmailService
-import team.themoment.datagsm.authorization.global.exception.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 import team.themoment.datagsm.authorization.global.security.annotation.EmailRateLimitType
 import team.themoment.datagsm.authorization.global.security.annotation.EmailRateLimited
 import java.security.SecureRandom

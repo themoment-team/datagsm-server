@@ -9,7 +9,7 @@ import team.themoment.datagsm.web.domain.account.dto.request.SendEmailReqDto
 import team.themoment.datagsm.web.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.web.domain.account.repository.EmailCodeRedisRepository
 import team.themoment.datagsm.web.domain.account.service.SendEmailService
-import team.themoment.datagsm.web.global.exception.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 import java.security.SecureRandom
 
 @Service

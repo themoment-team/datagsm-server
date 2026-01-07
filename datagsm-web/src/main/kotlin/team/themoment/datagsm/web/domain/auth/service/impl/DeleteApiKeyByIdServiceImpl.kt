@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.web.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.web.domain.auth.service.DeleteApiKeyByIdService
-import team.themoment.datagsm.web.global.exception.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 
 @Service
 class DeleteApiKeyByIdServiceImpl(

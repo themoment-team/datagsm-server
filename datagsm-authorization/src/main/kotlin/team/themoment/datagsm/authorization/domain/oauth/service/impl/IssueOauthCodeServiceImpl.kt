@@ -14,7 +14,7 @@ import team.themoment.datagsm.authorization.domain.oauth.dto.response.OauthCodeR
 import team.themoment.datagsm.authorization.domain.oauth.property.OauthProperties
 import team.themoment.datagsm.authorization.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.authorization.domain.oauth.service.IssueOauthCodeService
-import team.themoment.datagsm.authorization.global.exception.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 import java.security.SecureRandom
 import java.util.Base64
 

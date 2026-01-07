@@ -10,7 +10,7 @@ import team.themoment.datagsm.web.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.web.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.web.domain.auth.service.CreateCurrentAccountApiKeyService
-import team.themoment.datagsm.web.global.exception.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 import team.themoment.datagsm.web.global.security.checker.ScopeChecker
 import team.themoment.datagsm.web.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider

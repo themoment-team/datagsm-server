@@ -9,7 +9,7 @@ import team.themoment.datagsm.authorization.domain.client.repository.ClientJpaRe
 import team.themoment.datagsm.authorization.domain.oauth.dto.response.OauthTokenResDto
 import team.themoment.datagsm.authorization.domain.oauth.repository.OauthRefreshTokenRedisRepository
 import team.themoment.datagsm.authorization.domain.oauth.service.ReissueOauthTokenService
-import team.themoment.datagsm.authorization.global.exception.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 import team.themoment.datagsm.authorization.global.security.jwt.JwtProperties
 import team.themoment.datagsm.authorization.global.security.jwt.JwtProvider
 import java.security.MessageDigest

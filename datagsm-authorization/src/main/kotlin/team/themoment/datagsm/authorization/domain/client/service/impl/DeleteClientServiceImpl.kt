@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.authorization.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.authorization.domain.client.service.DeleteClientService
-import team.themoment.datagsm.authorization.global.exception.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 import team.themoment.datagsm.authorization.global.security.provider.CurrentUserProvider
 
 @Service

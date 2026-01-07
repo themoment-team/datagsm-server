@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.stereotype.Component
-import team.themoment.datagsm.resource.global.common.response.dto.response.CommonApiResponse
+import team.themoment.sdk.response.CommonApiResponse
 
 @Component
 class CustomAuthenticationEntryPoint(

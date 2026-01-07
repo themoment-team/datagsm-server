@@ -26,7 +26,7 @@ import team.themoment.datagsm.authorization.domain.client.service.GetAvailableOa
 import team.themoment.datagsm.authorization.domain.client.service.ModifyClientService
 import team.themoment.datagsm.authorization.domain.client.service.QueryMyClientService
 import team.themoment.datagsm.authorization.domain.client.service.SearchClientService
-import team.themoment.datagsm.authorization.global.common.response.dto.response.CommonApiResponse
+import team.themoment.sdk.response.CommonApiResponse
 
 @Tag(name = "Client", description = "OAuth 클라이언트 관련 API")
 @RestController

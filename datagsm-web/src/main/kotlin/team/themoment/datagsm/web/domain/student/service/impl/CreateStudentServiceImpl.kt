@@ -13,7 +13,7 @@ import team.themoment.datagsm.web.domain.student.dto.request.CreateStudentReqDto
 import team.themoment.datagsm.web.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.web.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.student.service.CreateStudentService
-import team.themoment.datagsm.web.global.exception.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 
 @Service
 @Transactional

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 import team.themoment.datagsm.authorization.global.security.authentication.type.AuthType
 import team.themoment.datagsm.common.domain.account.AccountRole
 import team.themoment.datagsm.common.domain.account.ApiScope
-import team.themoment.datagsm.authorization.global.exception.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 import java.nio.charset.StandardCharsets
 import java.util.Date
 import javax.crypto.SecretKey

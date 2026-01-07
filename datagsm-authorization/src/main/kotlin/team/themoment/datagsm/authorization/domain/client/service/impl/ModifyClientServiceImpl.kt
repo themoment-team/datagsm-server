@@ -7,7 +7,7 @@ import team.themoment.datagsm.authorization.domain.client.dto.request.ModifyClie
 import team.themoment.datagsm.authorization.domain.client.dto.response.ClientResDto
 import team.themoment.datagsm.authorization.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.authorization.domain.client.service.ModifyClientService
-import team.themoment.datagsm.authorization.global.exception.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 import team.themoment.datagsm.authorization.global.security.provider.CurrentUserProvider
 
 @Service

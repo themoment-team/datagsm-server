@@ -13,7 +13,7 @@ import team.themoment.datagsm.authorization.domain.oauth.dto.response.OauthToken
 import team.themoment.datagsm.authorization.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.authorization.domain.oauth.repository.OauthRefreshTokenRedisRepository
 import team.themoment.datagsm.authorization.domain.oauth.service.ExchangeTokenService
-import team.themoment.datagsm.authorization.global.exception.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 import team.themoment.datagsm.authorization.global.security.jwt.JwtProperties
 import team.themoment.datagsm.authorization.global.security.jwt.JwtProvider
 

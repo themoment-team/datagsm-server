@@ -6,7 +6,7 @@ import org.aspectj.lang.annotation.Before
 import org.aspectj.lang.reflect.MethodSignature
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
-import team.themoment.datagsm.authorization.global.exception.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 import team.themoment.datagsm.authorization.global.security.annotation.EmailRateLimited
 import team.themoment.datagsm.authorization.global.security.service.EmailRateLimitService
 import kotlin.reflect.full.memberProperties

@@ -19,7 +19,7 @@ import team.themoment.datagsm.web.domain.account.service.CheckEmailService
 import team.themoment.datagsm.web.domain.account.service.CreateAccountService
 import team.themoment.datagsm.web.domain.account.service.GetMyInfoService
 import team.themoment.datagsm.web.domain.account.service.SendEmailService
-import team.themoment.datagsm.web.global.common.response.dto.response.CommonApiResponse
+import team.themoment.sdk.response.CommonApiResponse
 
 @Tag(name = "Account", description = "계정 관련 API")
 @RestController

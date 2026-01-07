@@ -14,8 +14,8 @@ import team.themoment.datagsm.web.domain.club.dto.internal.ExcelRowDto
 import team.themoment.datagsm.web.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.web.domain.club.service.ModifyClubExcelService
 import team.themoment.datagsm.web.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.web.global.common.response.dto.response.CommonApiResponse
-import team.themoment.datagsm.web.global.exception.error.ExpectedException
+import team.themoment.sdk.response.CommonApiResponse
+import team.themoment.sdk.exception.ExpectedException
 
 @Service
 @Transactional

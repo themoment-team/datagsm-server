@@ -6,7 +6,7 @@ import feign.codec.ErrorDecoder
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.util.StreamUtils
-import team.themoment.datagsm.web.global.exception.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 

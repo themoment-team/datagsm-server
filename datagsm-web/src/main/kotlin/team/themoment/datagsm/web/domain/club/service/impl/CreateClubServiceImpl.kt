@@ -11,7 +11,7 @@ import team.themoment.datagsm.web.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.web.domain.club.service.CreateClubService
 import team.themoment.datagsm.web.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.web.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.web.global.exception.error.ExpectedException
+import team.themoment.sdk.exception.ExpectedException
 
 @Service
 @Transactional

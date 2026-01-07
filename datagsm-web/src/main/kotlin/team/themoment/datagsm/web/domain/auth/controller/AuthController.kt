@@ -32,7 +32,7 @@ import team.themoment.datagsm.web.domain.auth.service.ModifyCurrentAccountApiKey
 import team.themoment.datagsm.web.domain.auth.service.QueryCurrentAccountApiKeyService
 import team.themoment.datagsm.web.domain.auth.service.ReissueTokenService
 import team.themoment.datagsm.web.domain.auth.service.SearchApiKeyService
-import team.themoment.datagsm.web.global.common.response.dto.response.CommonApiResponse
+import team.themoment.sdk.response.CommonApiResponse
 
 @Tag(name = "Auth", description = "인증 관련 API")
 @RestController
