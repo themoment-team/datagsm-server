@@ -6,8 +6,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.neis.ScheduleRedisEntity
+import team.themoment.datagsm.common.domain.neis.schedule.repository.ScheduleRedisRepository
 import team.themoment.datagsm.resource.domain.neis.common.data.NeisEnvironment
-import team.themoment.datagsm.resource.domain.neis.schedule.repository.ScheduleRedisRepository
 import team.themoment.datagsm.resource.domain.neis.schedule.service.impl.SyncScheduleServiceImpl
 import team.themoment.datagsm.resource.global.thirdparty.feign.neis.NeisApiClient
 import team.themoment.datagsm.resource.global.thirdparty.feign.neis.dto.NeisScheduleApiResponse

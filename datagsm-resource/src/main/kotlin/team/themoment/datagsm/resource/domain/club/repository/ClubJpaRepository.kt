@@ -1,9 +1,9 @@
-package team.themoment.datagsm.resource.domain.club.repository
+package team.themoment.datagsm.common.domain.club.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
 import team.themoment.datagsm.common.domain.club.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.ClubType
-import team.themoment.datagsm.resource.domain.club.repository.custom.ClubJpaCustomRepository
+import team.themoment.datagsm.common.domain.club.repository.custom.ClubJpaCustomRepository
 
 interface ClubJpaRepository :
     JpaRepository<ClubJpaEntity, Long>,

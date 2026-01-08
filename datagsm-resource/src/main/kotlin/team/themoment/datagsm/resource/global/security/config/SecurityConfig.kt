@@ -16,7 +16,7 @@ import org.springframework.security.core.annotation.AnnotationTemplateExpression
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfigurationSource
-import team.themoment.datagsm.resource.domain.auth.repository.ApiKeyJpaRepository
+import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.resource.global.security.authentication.principal.PrincipalProvider
 import team.themoment.datagsm.resource.global.security.filter.ApiKeyAuthenticationFilter
 import team.themoment.datagsm.resource.global.security.filter.RateLimitFilter

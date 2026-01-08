@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.student.repository.custom.impl
+package team.themoment.datagsm.common.domain.student.repository.custom.impl
 
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.jpa.impl.JPAQueryFactory
@@ -11,8 +11,8 @@ import team.themoment.datagsm.common.domain.student.Sex
 import team.themoment.datagsm.common.domain.student.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.StudentRole
 import team.themoment.datagsm.common.domain.student.StudentSortBy
-import team.themoment.datagsm.resource.domain.student.repository.custom.StudentJpaCustomRepository
-import team.themoment.datagsm.resource.global.common.constant.SortDirection
+import team.themoment.datagsm.common.domain.student.repository.custom.StudentJpaCustomRepository
+import team.themoment.datagsm.common.global.constant.SortDirection
 
 @Repository
 class StudentJpaCustomRepositoryImpl(

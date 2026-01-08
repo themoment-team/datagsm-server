@@ -9,7 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 import team.themoment.datagsm.common.domain.account.AccountRole
 import team.themoment.datagsm.common.domain.account.ApiScope
-import team.themoment.datagsm.resource.domain.auth.repository.ApiKeyJpaRepository
+import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.resource.global.security.authentication.CustomAuthenticationToken
 import team.themoment.datagsm.resource.global.security.authentication.principal.PrincipalProvider
 import java.util.UUID

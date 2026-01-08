@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.club.repository.custom.impl
+package team.themoment.datagsm.common.domain.club.repository.custom.impl
 
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.jpa.impl.JPAQueryFactory
@@ -10,8 +10,8 @@ import team.themoment.datagsm.common.domain.club.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.ClubSortBy
 import team.themoment.datagsm.common.domain.club.ClubType
 import team.themoment.datagsm.common.domain.club.QClubJpaEntity.Companion.clubJpaEntity
-import team.themoment.datagsm.resource.domain.club.repository.custom.ClubJpaCustomRepository
-import team.themoment.datagsm.resource.global.common.constant.SortDirection
+import team.themoment.datagsm.common.domain.club.repository.custom.ClubJpaCustomRepository
+import team.themoment.datagsm.common.global.constant.SortDirection
 
 @Repository
 class ClubJpaCustomRepositoryImpl(

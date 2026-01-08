@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.neis.meal.repository
+package team.themoment.datagsm.common.domain.neis.meal.repository
 
 import org.springframework.data.repository.CrudRepository
 import team.themoment.datagsm.common.domain.neis.MealRedisEntity

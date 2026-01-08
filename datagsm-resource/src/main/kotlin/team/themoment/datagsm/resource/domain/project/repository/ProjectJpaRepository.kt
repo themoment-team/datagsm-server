@@ -1,8 +1,8 @@
-package team.themoment.datagsm.resource.domain.project.repository
+package team.themoment.datagsm.common.domain.project.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
 import team.themoment.datagsm.common.domain.project.ProjectJpaEntity
-import team.themoment.datagsm.resource.domain.project.repository.custom.ProjectJpaCustomRepository
+import team.themoment.datagsm.common.domain.project.repository.custom.ProjectJpaCustomRepository
 
 interface ProjectJpaRepository :
     JpaRepository<ProjectJpaEntity, Long>,

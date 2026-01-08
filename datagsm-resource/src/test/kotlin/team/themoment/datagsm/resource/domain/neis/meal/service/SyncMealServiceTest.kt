@@ -6,8 +6,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.neis.MealRedisEntity
+import team.themoment.datagsm.common.domain.neis.meal.repository.MealRedisRepository
 import team.themoment.datagsm.resource.domain.neis.common.data.NeisEnvironment
-import team.themoment.datagsm.resource.domain.neis.meal.repository.MealRedisRepository
 import team.themoment.datagsm.resource.domain.neis.meal.service.impl.SyncMealServiceImpl
 import team.themoment.datagsm.resource.global.thirdparty.feign.neis.NeisApiClient
 import team.themoment.datagsm.resource.global.thirdparty.feign.neis.dto.MealServiceDietInfo

@@ -5,8 +5,8 @@ import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.neis.MealRedisEntity
 import team.themoment.datagsm.common.domain.neis.MealType
+import team.themoment.datagsm.common.domain.neis.meal.repository.MealRedisRepository
 import team.themoment.datagsm.resource.domain.neis.common.data.NeisEnvironment
-import team.themoment.datagsm.resource.domain.neis.meal.repository.MealRedisRepository
 import team.themoment.datagsm.resource.domain.neis.meal.service.SyncMealService
 import team.themoment.datagsm.resource.global.thirdparty.feign.neis.NeisApiClient
 import team.themoment.datagsm.resource.global.thirdparty.feign.neis.dto.MealServiceDietInfo
