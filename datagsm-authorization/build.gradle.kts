@@ -4,8 +4,14 @@ import dependency.Dependencies.JACKSON_KOTLIN
 import dependency.Dependencies.JJWT
 import dependency.Dependencies.JJWT_IMPL
 import dependency.Dependencies.JJWT_JACKSON
+import dependency.Dependencies.JUNIT_PLATFORM_LAUNCHER
+import dependency.Dependencies.KOTEST_ASSERTIONS
+import dependency.Dependencies.KOTEST_FRAMEWORK
+import dependency.Dependencies.KOTEST_RUNNER
 import dependency.Dependencies.KOTLIN_COROUTINES
+import dependency.Dependencies.KOTLIN_JUNIT5
 import dependency.Dependencies.KOTLIN_REFLECT
+import dependency.Dependencies.MOCKK
 import dependency.Dependencies.MYSQL_CONNECTOR
 import dependency.Dependencies.SPRING_AOP
 import dependency.Dependencies.SPRING_CLOUD_BOM
@@ -15,6 +21,8 @@ import dependency.Dependencies.SPRING_OAUTH2_CLIENT
 import dependency.Dependencies.SPRING_OPENFEIGN
 import dependency.Dependencies.SPRING_RETRY
 import dependency.Dependencies.SPRING_SECURITY
+import dependency.Dependencies.SPRING_SECURITY_TEST
+import dependency.Dependencies.SPRING_TEST
 import dependency.Dependencies.SPRING_VALIDATION
 import dependency.Dependencies.SPRING_WEB
 import dependency.Dependencies.SPRINT_MAIL
@@ -85,6 +93,16 @@ dependencies {
 
     // the-sdk
     implementation(THE_MOMENT_THE_SDK)
+
+    // Testing
+    testImplementation(SPRING_TEST)
+    testImplementation(KOTLIN_JUNIT5)
+    testImplementation(KOTEST_ASSERTIONS)
+    testImplementation(KOTEST_RUNNER)
+    testImplementation(KOTEST_FRAMEWORK)
+    testImplementation(SPRING_SECURITY_TEST)
+    testRuntimeOnly(JUNIT_PLATFORM_LAUNCHER)
+    testImplementation(MOCKK)
 }
 
 kotlin {
