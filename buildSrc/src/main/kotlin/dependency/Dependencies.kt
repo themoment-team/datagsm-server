@@ -52,6 +52,13 @@ object Dependencies {
 
     // Database
     const val MYSQL_CONNECTOR = "com.mysql:mysql-connector-j"
+    const val HIBERNATE = "org.hibernate.orm:hibernate-core"
+
+    // Spring Security
+    const val SPRING_SECURITY_CORE = "org.springframework.security:spring-security-core"
+
+    // Jackson
+    const val JACKSON_DATABIND = "com.fasterxml.jackson.core:jackson-databind"
 
     // Swagger
     const val SWAGGER_UI = "org.springdoc:springdoc-openapi-starter-webmvc-ui:${SWAGGER_VERSION}"
@@ -64,10 +71,11 @@ object Dependencies {
     const val BUCKET4J_REDIS = "com.bucket4j:bucket4j_jdk17-lettuce:${BUCKET4J_VERSION}"
 
     // BOM
+    const val SPRING_BOOT_BOM = "org.springframework.boot:spring-boot-dependencies:${plugin.PluginVersions.SPRING_BOOT_VERSION}"
     const val SPRING_CLOUD_BOM = "org.springframework.cloud:spring-cloud-dependencies:${SPRING_CLOUD_VERSION}"
     const val AWS_SDK_BOM = "software.amazon.awssdk:bom:${AWS_SDK_VERSION}"
 
-    // Excel
+    // POI
     const val POI = "org.apache.poi:poi:${POI_VERSION}"
     const val POI_OOXML = "org.apache.poi:poi-ooxml:${POI_VERSION}"
 

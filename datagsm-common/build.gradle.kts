@@ -1,12 +1,3 @@
-import dependency.Dependencies.JACKSON_KOTLIN
-import dependency.Dependencies.JAKARTA_PERSISTENCE_API
-import dependency.Dependencies.JAKARTA_TRANSACTION_API
-import dependency.Dependencies.KOTLIN_REFLECT
-import dependency.Dependencies.QUERY_DSL
-import dependency.Dependencies.QUERY_DSL_PROCESSOR
-import dependency.Dependencies.SPRING_CLOUD_BOM
-import dependency.Dependencies.SPRING_DATA_REDIS
-
 plugins {
     id(plugin.Plugins.KOTLIN_JVM) version plugin.PluginVersions.KOTLIN_VERSION
     id(plugin.Plugins.KOTLIN_SPRING) version plugin.PluginVersions.KOTLIN_VERSION
@@ -14,7 +5,6 @@ plugins {
     id(plugin.Plugins.KOTLIN_ALLOPEN) version plugin.PluginVersions.KOTLIN_VERSION
     id(plugin.Plugins.SPRING_DEPENDENCY_MANAGEMENT) version plugin.PluginVersions.SPRING_DEPENDENCY_MANAGEMENT_VERSION
     id(plugin.Plugins.KSP) version plugin.PluginVersions.KSP_VERSION
-    idea
 }
 
 java {
@@ -27,30 +17,37 @@ repositories {
     mavenCentral()
 }
 
+dependencyManagement {
+    imports {
+        mavenBom(dependency.Dependencies.SPRING_BOOT_BOM)
+        mavenBom(dependency.Dependencies.AWS_SDK_BOM)
+    }
+}
+
 dependencies {
     // Jakarta EE
-    api(JAKARTA_PERSISTENCE_API)
-    api(JAKARTA_TRANSACTION_API)
-
-    // Kotlin
-    api(JACKSON_KOTLIN)
-    api(KOTLIN_REFLECT)
-
-    // Jackson (for StringSetConverter)
-    api("com.fasterxml.jackson.core:jackson-databind")
+    api(dependency.Dependencies.JAKARTA_PERSISTENCE_API)
+    api(dependency.Dependencies.JAKARTA_TRANSACTION_API)
 
     // Spring Data
-    api(SPRING_DATA_REDIS)
+    api(dependency.Dependencies.SPRING_DATA_REDIS)
 
-    // Spring Security (for GrantedAuthority)
-    api("org.springframework.security:spring-security-core")
+    // Spring Security
+    api(dependency.Dependencies.SPRING_SECURITY_CORE)
 
     // Hibernate
-    api("org.hibernate.orm:hibernate-core")
+    api(dependency.Dependencies.HIBERNATE)
 
     // QueryDSL
-    api(QUERY_DSL)
-    ksp(QUERY_DSL_PROCESSOR)
+    api(dependency.Dependencies.QUERY_DSL)
+    ksp(dependency.Dependencies.QUERY_DSL_PROCESSOR)
+
+    // Kotlin
+    api(dependency.Dependencies.KOTLIN_REFLECT)
+    api(dependency.Dependencies.JACKSON_KOTLIN)
+
+    // Jackson
+    api(dependency.Dependencies.JACKSON_DATABIND)
 }
 
 kotlin {
@@ -60,12 +57,5 @@ kotlin {
 
     sourceSets.main {
         kotlin.srcDirs("build/generated/ksp/main/kotlin")
-    }
-}
-
-dependencyManagement {
-    imports {
-        mavenBom("org.springframework.boot:spring-boot-dependencies:${plugin.PluginVersions.SPRING_BOOT_VERSION}")
-        mavenBom(SPRING_CLOUD_BOM)
     }
 }

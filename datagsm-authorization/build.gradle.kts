@@ -1,42 +1,9 @@
-import dependency.Dependencies.BUCKET4J_CORE
-import dependency.Dependencies.BUCKET4J_REDIS
-import dependency.Dependencies.JACKSON_KOTLIN
-import dependency.Dependencies.JJWT
-import dependency.Dependencies.JJWT_IMPL
-import dependency.Dependencies.JJWT_JACKSON
-import dependency.Dependencies.JUNIT_PLATFORM_LAUNCHER
-import dependency.Dependencies.KOTEST_ASSERTIONS
-import dependency.Dependencies.KOTEST_FRAMEWORK
-import dependency.Dependencies.KOTEST_RUNNER
-import dependency.Dependencies.KOTLIN_COROUTINES
-import dependency.Dependencies.KOTLIN_JUNIT5
-import dependency.Dependencies.KOTLIN_REFLECT
-import dependency.Dependencies.MOCKK
-import dependency.Dependencies.MYSQL_CONNECTOR
-import dependency.Dependencies.SPRING_AOP
-import dependency.Dependencies.SPRING_CLOUD_BOM
-import dependency.Dependencies.SPRING_DATA_JPA
-import dependency.Dependencies.SPRING_DATA_REDIS
-import dependency.Dependencies.SPRING_OAUTH2_CLIENT
-import dependency.Dependencies.SPRING_OPENFEIGN
-import dependency.Dependencies.SPRING_RETRY
-import dependency.Dependencies.SPRING_SECURITY
-import dependency.Dependencies.SPRING_SECURITY_TEST
-import dependency.Dependencies.SPRING_TEST
-import dependency.Dependencies.SPRING_VALIDATION
-import dependency.Dependencies.SPRING_WEB
-import dependency.Dependencies.SPRINT_MAIL
-import dependency.Dependencies.SWAGGER_UI
-import dependency.Dependencies.THE_MOMENT_THE_SDK
-
 plugins {
-    id(plugin.Plugins.SPRING_BOOT) version plugin.PluginVersions.SPRING_BOOT_VERSION
-    id(plugin.Plugins.SPRING_DEPENDENCY_MANAGEMENT) version plugin.PluginVersions.SPRING_DEPENDENCY_MANAGEMENT_VERSION
     id(plugin.Plugins.KOTLIN_JVM) version plugin.PluginVersions.KOTLIN_VERSION
     id(plugin.Plugins.KOTLIN_SPRING) version plugin.PluginVersions.KOTLIN_VERSION
     id(plugin.Plugins.KOTLIN_JPA) version plugin.PluginVersions.KOTLIN_VERSION
-    id(plugin.Plugins.KOTLIN_ALLOPEN) version plugin.PluginVersions.KOTLIN_VERSION
-    idea
+    id(plugin.Plugins.SPRING_BOOT) version plugin.PluginVersions.SPRING_BOOT_VERSION
+    id(plugin.Plugins.SPRING_DEPENDENCY_MANAGEMENT) version plugin.PluginVersions.SPRING_DEPENDENCY_MANAGEMENT_VERSION
 }
 
 group = "team.themoment"
@@ -53,70 +20,74 @@ repositories {
     maven { url = uri("https://jitpack.io") }
 }
 
+dependencyManagement {
+    imports {
+        mavenBom(dependency.Dependencies.SPRING_CLOUD_BOM)
+    }
+}
+
 dependencies {
     // Common Module
     implementation(project(":datagsm-common"))
 
-    // Spring Starters
-    implementation(SPRING_WEB)
-    implementation(SPRING_VALIDATION)
-    implementation(SPRING_SECURITY)
-    implementation(SPRING_OAUTH2_CLIENT)
-    implementation(SPRINT_MAIL)
-    implementation(SPRING_OPENFEIGN)
-    implementation(SPRING_RETRY)
-    implementation(SPRING_AOP)
+    // Spring Boot
+    implementation(dependency.Dependencies.SPRING_WEB)
+    implementation(dependency.Dependencies.SPRING_SECURITY)
+    implementation(dependency.Dependencies.SPRING_VALIDATION)
+    implementation(dependency.Dependencies.SPRING_AOP)
+    implementation(dependency.Dependencies.SPRING_RETRY)
+    implementation(dependency.Dependencies.SPRINT_MAIL)
 
     // Spring Data
-    implementation(SPRING_DATA_JPA)
-    implementation(SPRING_DATA_REDIS)
+    implementation(dependency.Dependencies.SPRING_DATA_JPA)
+    implementation(dependency.Dependencies.SPRING_DATA_REDIS)
+
+    // Spring Cloud
+    implementation(dependency.Dependencies.SPRING_OPENFEIGN)
+
+    // Spring OAuth2
+    implementation(dependency.Dependencies.SPRING_OAUTH2_CLIENT)
 
     // JWT
-    implementation(JJWT)
-    runtimeOnly(JJWT_IMPL)
-    runtimeOnly(JJWT_JACKSON)
+    implementation(dependency.Dependencies.JJWT)
+    runtimeOnly(dependency.Dependencies.JJWT_IMPL)
+    runtimeOnly(dependency.Dependencies.JJWT_JACKSON)
 
-    // Kotlin
-    implementation(JACKSON_KOTLIN)
-    implementation(KOTLIN_REFLECT)
-    implementation(KOTLIN_COROUTINES)
+    // Rate Limiting
+    implementation(dependency.Dependencies.BUCKET4J_CORE)
+    implementation(dependency.Dependencies.BUCKET4J_REDIS)
 
     // Database
-    runtimeOnly(MYSQL_CONNECTOR)
+    runtimeOnly(dependency.Dependencies.MYSQL_CONNECTOR)
 
     // Swagger
-    implementation(SWAGGER_UI)
+    implementation(dependency.Dependencies.SWAGGER_UI)
 
-    // Rate Limiting (Email)
-    implementation(BUCKET4J_CORE)
-    implementation(BUCKET4J_REDIS)
+    // Custom Libraries
+    implementation(dependency.Dependencies.THE_MOMENT_THE_SDK)
 
-    // the-sdk
-    implementation(THE_MOMENT_THE_SDK)
+    // Kotlin
+    implementation(dependency.Dependencies.KOTLIN_REFLECT)
+    implementation(dependency.Dependencies.KOTLIN_COROUTINES)
+    implementation(dependency.Dependencies.JACKSON_KOTLIN)
 
     // Testing
-    testImplementation(SPRING_TEST)
-    testImplementation(KOTLIN_JUNIT5)
-    testImplementation(KOTEST_ASSERTIONS)
-    testImplementation(KOTEST_RUNNER)
-    testImplementation(KOTEST_FRAMEWORK)
-    testImplementation(SPRING_SECURITY_TEST)
-    testRuntimeOnly(JUNIT_PLATFORM_LAUNCHER)
-    testImplementation(MOCKK)
+    testImplementation(dependency.Dependencies.SPRING_TEST)
+    testImplementation(dependency.Dependencies.KOTLIN_JUNIT5)
+    testImplementation(dependency.Dependencies.KOTEST_ASSERTIONS)
+    testImplementation(dependency.Dependencies.KOTEST_RUNNER)
+    testImplementation(dependency.Dependencies.KOTEST_FRAMEWORK)
+    testImplementation(dependency.Dependencies.SPRING_SECURITY_TEST)
+    testRuntimeOnly(dependency.Dependencies.JUNIT_PLATFORM_LAUNCHER)
+    testImplementation(dependency.Dependencies.MOCKK)
 }
 
-kotlin {
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict")
+        freeCompilerArgs.add("-Xjsr305=strict")
     }
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
-}
-
-dependencyManagement {
-    imports {
-        mavenBom(SPRING_CLOUD_BOM)
-    }
 }

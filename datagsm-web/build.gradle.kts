@@ -1,39 +1,9 @@
-import dependency.Dependencies.JJWT
-import dependency.Dependencies.JJWT_IMPL
-import dependency.Dependencies.JJWT_JACKSON
-import dependency.Dependencies.JUNIT_PLATFORM_LAUNCHER
-import dependency.Dependencies.KOTEST_ASSERTIONS
-import dependency.Dependencies.KOTEST_FRAMEWORK
-import dependency.Dependencies.KOTEST_RUNNER
-import dependency.Dependencies.KOTLIN_COROUTINES
-import dependency.Dependencies.KOTLIN_JUNIT5
-import dependency.Dependencies.MOCKK
-import dependency.Dependencies.MYSQL_CONNECTOR
-import dependency.Dependencies.PEANUT_BUTTER
-import dependency.Dependencies.POI
-import dependency.Dependencies.POI_OOXML
-import dependency.Dependencies.QUERY_DSL
-import dependency.Dependencies.SPRING_AOP
-import dependency.Dependencies.SPRING_CLOUD_BOM
-import dependency.Dependencies.SPRING_DATA_JPA
-import dependency.Dependencies.SPRING_DATA_REDIS
-import dependency.Dependencies.SPRING_OPENFEIGN
-import dependency.Dependencies.SPRING_RETRY
-import dependency.Dependencies.SPRING_SECURITY
-import dependency.Dependencies.SPRING_SECURITY_TEST
-import dependency.Dependencies.SPRINT_MAIL
-import dependency.Dependencies.SPRING_TEST
-import dependency.Dependencies.SPRING_VALIDATION
-import dependency.Dependencies.SPRING_WEB
-import dependency.Dependencies.SWAGGER_UI
-import dependency.Dependencies.THE_MOMENT_THE_SDK
-
 plugins {
-    kotlin("jvm") version plugin.PluginVersions.KOTLIN_VERSION
-    kotlin("plugin.spring") version plugin.PluginVersions.KOTLIN_VERSION
-    kotlin("plugin.jpa") version plugin.PluginVersions.KOTLIN_VERSION
-    id("org.springframework.boot") version plugin.PluginVersions.SPRING_BOOT_VERSION
-    id("io.spring.dependency-management") version plugin.PluginVersions.SPRING_DEPENDENCY_MANAGEMENT_VERSION
+    id(plugin.Plugins.KOTLIN_JVM) version plugin.PluginVersions.KOTLIN_VERSION
+    id(plugin.Plugins.KOTLIN_SPRING) version plugin.PluginVersions.KOTLIN_VERSION
+    id(plugin.Plugins.KOTLIN_JPA) version plugin.PluginVersions.KOTLIN_VERSION
+    id(plugin.Plugins.SPRING_BOOT) version plugin.PluginVersions.SPRING_BOOT_VERSION
+    id(plugin.Plugins.SPRING_DEPENDENCY_MANAGEMENT) version plugin.PluginVersions.SPRING_DEPENDENCY_MANAGEMENT_VERSION
 }
 
 group = "team.themoment"
@@ -52,7 +22,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom(SPRING_CLOUD_BOM)
+        mavenBom(dependency.Dependencies.SPRING_CLOUD_BOM)
     }
 }
 
@@ -61,58 +31,54 @@ dependencies {
     implementation(project(":datagsm-common"))
 
     // Spring Boot
-    implementation(SPRING_WEB)
-    implementation(SPRING_SECURITY)
-    implementation(SPRING_VALIDATION)
-    implementation(SPRING_DATA_JPA)
-    implementation(SPRING_DATA_REDIS)
+    implementation(dependency.Dependencies.SPRING_WEB)
+    implementation(dependency.Dependencies.SPRING_SECURITY)
+    implementation(dependency.Dependencies.SPRING_VALIDATION)
+    implementation(dependency.Dependencies.SPRING_AOP)
+    implementation(dependency.Dependencies.SPRING_RETRY)
+    implementation(dependency.Dependencies.SPRINT_MAIL)
+
+    // Spring Data
+    implementation(dependency.Dependencies.SPRING_DATA_JPA)
+    implementation(dependency.Dependencies.SPRING_DATA_REDIS)
+
+    // Spring Cloud
+    implementation(dependency.Dependencies.SPRING_OPENFEIGN)
 
     // JWT
-    implementation(JJWT)
-    runtimeOnly(JJWT_IMPL)
-    runtimeOnly(JJWT_JACKSON)
+    implementation(dependency.Dependencies.JJWT)
+    runtimeOnly(dependency.Dependencies.JJWT_IMPL)
+    runtimeOnly(dependency.Dependencies.JJWT_JACKSON)
 
-    // Apache POI (Excel)
-    implementation(POI)
-    implementation(POI_OOXML)
+    // Apache POI
+    implementation(dependency.Dependencies.POI)
+    implementation(dependency.Dependencies.POI_OOXML)
 
     // QueryDSL
-    implementation(QUERY_DSL)
+    implementation(dependency.Dependencies.QUERY_DSL)
 
     // Database
-    runtimeOnly(MYSQL_CONNECTOR)
-
-    // the-sdk
-    implementation(THE_MOMENT_THE_SDK)
+    runtimeOnly(dependency.Dependencies.MYSQL_CONNECTOR)
 
     // Swagger
-    implementation(SWAGGER_UI)
+    implementation(dependency.Dependencies.SWAGGER_UI)
 
-    // Logging
-    implementation(PEANUT_BUTTER)
+    // Custom Libraries
+    implementation(dependency.Dependencies.PEANUT_BUTTER)
+    implementation(dependency.Dependencies.THE_MOMENT_THE_SDK)
 
-    // Kotlin Coroutines
-    implementation(KOTLIN_COROUTINES)
-
-    // Spring AOP & Retry
-    implementation(SPRING_AOP)
-    implementation(SPRING_RETRY)
-
-    // OpenFeign (for Discord webhook)
-    implementation(SPRING_OPENFEIGN)
-
-    // Email
-    implementation(SPRINT_MAIL)
+    // Kotlin
+    implementation(dependency.Dependencies.KOTLIN_COROUTINES)
 
     // Testing
-    testImplementation(SPRING_TEST)
-    testImplementation(KOTLIN_JUNIT5)
-    testImplementation(KOTEST_ASSERTIONS)
-    testImplementation(KOTEST_RUNNER)
-    testImplementation(KOTEST_FRAMEWORK)
-    testImplementation(SPRING_SECURITY_TEST)
-    testRuntimeOnly(JUNIT_PLATFORM_LAUNCHER)
-    testImplementation(MOCKK)
+    testImplementation(dependency.Dependencies.SPRING_TEST)
+    testImplementation(dependency.Dependencies.KOTLIN_JUNIT5)
+    testImplementation(dependency.Dependencies.KOTEST_ASSERTIONS)
+    testImplementation(dependency.Dependencies.KOTEST_RUNNER)
+    testImplementation(dependency.Dependencies.KOTEST_FRAMEWORK)
+    testImplementation(dependency.Dependencies.SPRING_SECURITY_TEST)
+    testRuntimeOnly(dependency.Dependencies.JUNIT_PLATFORM_LAUNCHER)
+    testImplementation(dependency.Dependencies.MOCKK)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {

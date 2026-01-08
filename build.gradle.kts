@@ -1,6 +1,3 @@
-import dependency.Dependencies.AWS_SDK_BOM
-import dependency.Dependencies.SPRING_CLOUD_BOM
-
 plugins {
     id(plugin.Plugins.KOTLIN_JVM) version plugin.PluginVersions.KOTLIN_VERSION
     id(plugin.Plugins.SPRING_DEPENDENCY_MANAGEMENT) version plugin.PluginVersions.SPRING_DEPENDENCY_MANAGEMENT_VERSION
@@ -28,7 +25,7 @@ tasks.whenTaskAdded {
 
 dependencyManagement {
     imports {
-        mavenBom(SPRING_CLOUD_BOM)
-        mavenBom(AWS_SDK_BOM)
+        mavenBom(dependency.Dependencies.SPRING_CLOUD_BOM)
+        mavenBom(dependency.Dependencies.AWS_SDK_BOM)
     }
 }
