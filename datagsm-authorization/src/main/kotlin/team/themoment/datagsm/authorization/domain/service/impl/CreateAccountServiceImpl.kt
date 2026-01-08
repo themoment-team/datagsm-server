@@ -1,4 +1,4 @@
-package team.themoment.datagsm.authorization.domain.account.service.impl
+package team.themoment.datagsm.authorization.domain.service.impl
 
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -30,8 +30,8 @@ class CreateAccountServiceImpl(
         consumeEmailCode(reqDto.email, reqDto.code)
         val newAccount =
             AccountJpaEntity.create(reqDto.email).apply {
-                password = passwordEncoder.encode(reqDto.password)
-                student = null // Student 정보는 Resource Server에서 관리
+                password = passwordEncoder.encode(reqDto.password).toString()
+                student = null
                 role = AccountRole.USER
             }
         return accountJpaRepository.save(newAccount)

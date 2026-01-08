@@ -41,7 +41,7 @@ class CreateClientServiceImpl(
         val client =
             ClientJpaEntity().apply {
                 id = generateUUID()
-                secret = passwordEncoder.encode(rawSecret)
+                secret = passwordEncoder.encode(rawSecret).toString()
                 name = reqDto.name
                 account = currentAccount
                 redirectUrls = emptySet()
