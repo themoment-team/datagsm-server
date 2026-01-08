@@ -9,7 +9,7 @@ class CustomAuthenticationToken : AbstractAuthenticationToken {
 
     constructor(
         principal: CustomPrincipal,
-        authorities: Collection<GrantedAuthority?>,
+        authorities: Collection<GrantedAuthority>,
     ) : super(authorities) {
         this.principal = principal
         super.setAuthenticated(true)

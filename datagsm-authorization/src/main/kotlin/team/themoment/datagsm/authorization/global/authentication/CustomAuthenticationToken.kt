@@ -1,4 +1,4 @@
-package team.themoment.datagsm.authorization.global.security.authentication
+package team.themoment.datagsm.authorization.global.authentication
 
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
@@ -9,7 +9,7 @@ class CustomAuthenticationToken : AbstractAuthenticationToken {
 
     constructor(
         principal: CustomPrincipal,
-        authorities: Collection<GrantedAuthority?>,
+        authorities: Collection<GrantedAuthority>,
     ) : super(authorities) {
         this.principal = principal
         super.setAuthenticated(true)
