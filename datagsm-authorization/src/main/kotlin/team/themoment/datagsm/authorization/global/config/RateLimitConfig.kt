@@ -19,7 +19,7 @@ import java.time.Duration
 class RateLimitConfig {
     @Bean(destroyMethod = "shutdown")
     fun redisClient(lettuceConnectionFactory: LettuceConnectionFactory): RedisClient {
-        val standaloneConfig = lettuceConnectionFactory.standaloneConfiguration as RedisStandaloneConfiguration
+        val standaloneConfig = lettuceConnectionFactory.standaloneConfiguration
         val redisUriBuilder =
             RedisURI
                 .builder()
