@@ -32,7 +32,7 @@ class CreateAccountServiceImpl(
         consumeEmailCode(reqDto.email, reqDto.code)
         val newAccount =
             AccountJpaEntity.create(reqDto.email).apply {
-                password = passwordEncoder.encode(reqDto.password)
+                password = passwordEncoder.encode(reqDto.password).toString()
                 student = studentJpaRepository.findByEmail(reqDto.email).orElse(null)
                 role = AccountRole.USER
             }

@@ -47,7 +47,7 @@ class ModifyCurrentAccountApiKeyServiceImpl(
         val authentication = SecurityContextHolder.getContext().authentication
         val isAdmin =
             scopeChecker.hasScope(
-                authentication,
+                authentication!!,
                 ApiScope.ADMIN_APIKEY.scope,
             )
         val validScopes = if (isAdmin) ApiScope.getAllScopes() else ApiScope.READ_ONLY_SCOPES

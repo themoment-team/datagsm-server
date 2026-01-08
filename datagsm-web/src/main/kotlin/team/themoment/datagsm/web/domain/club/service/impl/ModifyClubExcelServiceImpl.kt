@@ -185,7 +185,7 @@ class ModifyClubExcelServiceImpl(
 
                                 clubName?.let {
                                     val clubLeader =
-                                        row?.getCell(clubLeaderColIdx)?.toString()?.trim() ?: ""
+                                        row.getCell(clubLeaderColIdx)?.toString()?.trim() ?: ""
                                     it to clubLeader
                                 }
                             }
