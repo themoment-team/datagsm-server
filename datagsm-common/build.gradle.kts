@@ -19,7 +19,7 @@ plugins {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(24)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -51,32 +51,16 @@ dependencies {
     // QueryDSL
     api(QUERY_DSL)
     ksp(QUERY_DSL_PROCESSOR)
-    api(JAKARTA_TRANSACTION_API)
-    api(JAKARTA_TRANSACTION_API)
 }
 
 kotlin {
     compilerOptions {
         freeCompilerArgs.addAll("-Xjsr305=strict")
     }
-}
 
-idea {
-    module {
-        val kspMain = file("build/generated/ksp/main/kotlin")
-        sourceDirs.add(kspMain)
-        generatedSourceDirs.add(kspMain)
-    }
-}
-
-kotlin {
     sourceSets.main {
         kotlin.srcDirs("build/generated/ksp/main/kotlin")
     }
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    dependsOn("kspKotlin")
 }
 
 dependencyManagement {
