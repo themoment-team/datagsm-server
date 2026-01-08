@@ -1,4 +1,4 @@
-package team.themoment.datagsm.web.domain.auth.repository.custom
+package team.themoment.datagsm.common.domain.auth.repository.custom
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable

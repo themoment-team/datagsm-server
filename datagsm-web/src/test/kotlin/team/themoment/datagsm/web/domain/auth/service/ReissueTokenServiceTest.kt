@@ -10,10 +10,10 @@ import io.mockk.verify
 import team.themoment.datagsm.common.domain.account.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.AccountRole
 import team.themoment.datagsm.common.domain.account.RefreshTokenRedisEntity
+import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
+import team.themoment.datagsm.common.domain.auth.repository.RefreshTokenRedisRepository
 import team.themoment.datagsm.common.domain.student.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.StudentRole
-import team.themoment.datagsm.web.domain.account.repository.AccountJpaRepository
-import team.themoment.datagsm.web.domain.auth.repository.RefreshTokenRedisRepository
 import team.themoment.datagsm.web.domain.auth.service.impl.ReissueTokenServiceImpl
 import team.themoment.datagsm.web.global.security.jwt.JwtProperties
 import team.themoment.datagsm.web.global.security.jwt.JwtProvider

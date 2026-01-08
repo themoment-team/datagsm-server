@@ -9,15 +9,15 @@ import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.club.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.ClubType
+import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.Major
 import team.themoment.datagsm.common.domain.student.Sex
 import team.themoment.datagsm.common.domain.student.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.StudentNumber
 import team.themoment.datagsm.common.domain.student.StudentRole
-import team.themoment.datagsm.web.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.student.dto.request.CreateStudentReqDto
-import team.themoment.datagsm.web.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.student.service.impl.CreateStudentServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 

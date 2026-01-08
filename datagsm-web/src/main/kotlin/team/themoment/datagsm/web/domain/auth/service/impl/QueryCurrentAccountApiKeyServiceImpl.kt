@@ -3,8 +3,8 @@ package team.themoment.datagsm.web.domain.auth.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.web.domain.auth.dto.response.ApiKeyResDto
-import team.themoment.datagsm.web.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.web.domain.auth.service.QueryCurrentAccountApiKeyService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException

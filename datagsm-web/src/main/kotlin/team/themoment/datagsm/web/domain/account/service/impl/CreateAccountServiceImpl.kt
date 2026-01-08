@@ -6,13 +6,13 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.account.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.AccountRole
+import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
+import team.themoment.datagsm.common.domain.account.repository.EmailCodeRedisRepository
+import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.account.dto.request.CreateAccountReqDto
 import team.themoment.datagsm.web.domain.account.dto.request.EmailCodeReqDto
-import team.themoment.datagsm.web.domain.account.repository.AccountJpaRepository
-import team.themoment.datagsm.web.domain.account.repository.EmailCodeRedisRepository
 import team.themoment.datagsm.web.domain.account.service.CheckEmailService
 import team.themoment.datagsm.web.domain.account.service.CreateAccountService
-import team.themoment.datagsm.web.domain.student.repository.StudentJpaRepository
 import team.themoment.sdk.exception.ExpectedException
 
 @Service

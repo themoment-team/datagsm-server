@@ -1,10 +1,10 @@
-package team.themoment.datagsm.web.domain.project.repository.custom
+package team.themoment.datagsm.common.domain.project.repository.custom
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import team.themoment.datagsm.common.domain.project.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.ProjectSortBy
-import team.themoment.datagsm.web.global.common.constant.SortDirection
+import team.themoment.datagsm.common.global.constant.SortDirection
 
 interface ProjectJpaCustomRepository {
     fun searchProjectWithPaging(

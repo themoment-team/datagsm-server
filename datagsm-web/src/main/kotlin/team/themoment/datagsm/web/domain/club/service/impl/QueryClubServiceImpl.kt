@@ -6,14 +6,14 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.ClubSortBy
 import team.themoment.datagsm.common.domain.club.ClubType
+import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
+import team.themoment.datagsm.common.global.constant.SortDirection
 import team.themoment.datagsm.web.domain.club.dto.response.ClubListResDto
 import team.themoment.datagsm.web.domain.club.dto.response.ClubResDto
-import team.themoment.datagsm.web.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.web.domain.club.service.QueryClubService
 import team.themoment.datagsm.web.domain.student.dto.internal.ParticipantInfoDto
-import team.themoment.datagsm.web.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.web.global.common.constant.SortDirection
 
 @Service
 @Transactional

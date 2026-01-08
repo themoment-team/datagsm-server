@@ -8,12 +8,12 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.common.domain.club.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.ClubType
+import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.club.dto.internal.ClubInfoDto
 import team.themoment.datagsm.web.domain.club.dto.internal.ExcelRowDto
-import team.themoment.datagsm.web.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.web.domain.club.service.ModifyClubExcelService
-import team.themoment.datagsm.web.domain.student.repository.StudentJpaRepository
 import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.response.CommonApiResponse
 

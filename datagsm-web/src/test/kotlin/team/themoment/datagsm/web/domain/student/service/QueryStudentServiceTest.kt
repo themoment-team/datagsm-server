@@ -14,7 +14,7 @@ import team.themoment.datagsm.common.domain.student.Sex
 import team.themoment.datagsm.common.domain.student.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.StudentNumber
 import team.themoment.datagsm.common.domain.student.StudentRole
-import team.themoment.datagsm.web.domain.student.repository.StudentJpaRepository
+import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.student.service.impl.QueryStudentServiceImpl
 
 class QueryStudentServiceTest :

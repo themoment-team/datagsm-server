@@ -10,7 +10,7 @@ import io.mockk.runs
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.club.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.ClubType
-import team.themoment.datagsm.web.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.web.domain.club.service.impl.DeleteClubServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional

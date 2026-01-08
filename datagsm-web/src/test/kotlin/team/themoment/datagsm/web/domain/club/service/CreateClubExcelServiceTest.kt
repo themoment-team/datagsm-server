@@ -12,11 +12,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.springframework.http.HttpStatus
 import team.themoment.datagsm.common.domain.club.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.ClubType
+import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.Major
 import team.themoment.datagsm.common.domain.student.Sex
 import team.themoment.datagsm.common.domain.student.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.StudentNumber
-import team.themoment.datagsm.web.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.web.domain.club.service.impl.CreateClubExcelServiceImpl
 import java.io.ByteArrayInputStream
 

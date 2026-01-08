@@ -3,7 +3,7 @@ package team.themoment.datagsm.web.domain.project.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.web.domain.project.repository.ProjectJpaRepository
+import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.web.domain.project.service.DeleteProjectService
 import team.themoment.sdk.exception.ExpectedException
 

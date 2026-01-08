@@ -8,10 +8,10 @@ import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.club.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.ClubType
+import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.project.ProjectJpaEntity
-import team.themoment.datagsm.web.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.web.domain.project.dto.request.ProjectReqDto
-import team.themoment.datagsm.web.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.web.domain.project.service.impl.ModifyProjectServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
@@ -23,12 +23,12 @@ class ModifyProjectServiceTest :
         lateinit var mockClubRepository: ClubJpaRepository
         lateinit var modifyProjectService: ModifyProjectService
 
-        lateinit var mockStudentRepository: team.themoment.datagsm.web.domain.student.repository.StudentJpaRepository
+        lateinit var mockStudentRepository: team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 
         beforeEach {
             mockProjectRepository = mockk<ProjectJpaRepository>()
             mockClubRepository = mockk<ClubJpaRepository>()
-            mockStudentRepository = mockk<team.themoment.datagsm.web.domain.student.repository.StudentJpaRepository>()
+            mockStudentRepository = mockk<team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository>()
             modifyProjectService = ModifyProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository)
         }
 

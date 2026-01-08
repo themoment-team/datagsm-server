@@ -4,7 +4,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.web.domain.auth.repository.ApiKeyJpaRepository
+import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.web.domain.auth.service.DeleteApiKeyByIdService
 import team.themoment.sdk.exception.ExpectedException
 

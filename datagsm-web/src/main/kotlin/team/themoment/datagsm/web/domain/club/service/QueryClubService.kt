@@ -2,8 +2,8 @@ package team.themoment.datagsm.web.domain.club.service
 
 import team.themoment.datagsm.common.domain.club.ClubSortBy
 import team.themoment.datagsm.common.domain.club.ClubType
+import team.themoment.datagsm.common.global.constant.SortDirection
 import team.themoment.datagsm.web.domain.club.dto.response.ClubListResDto
-import team.themoment.datagsm.web.global.common.constant.SortDirection
 
 interface QueryClubService {
     fun execute(

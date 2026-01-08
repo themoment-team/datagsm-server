@@ -4,10 +4,10 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.account.RefreshTokenRedisEntity
-import team.themoment.datagsm.web.domain.account.repository.AccountJpaRepository
+import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
+import team.themoment.datagsm.common.domain.auth.repository.RefreshTokenRedisRepository
 import team.themoment.datagsm.web.domain.auth.dto.request.LoginReqDto
 import team.themoment.datagsm.web.domain.auth.dto.response.TokenResDto
-import team.themoment.datagsm.web.domain.auth.repository.RefreshTokenRedisRepository
 import team.themoment.datagsm.web.domain.auth.service.LoginService
 import team.themoment.datagsm.web.global.security.jwt.JwtProperties
 import team.themoment.datagsm.web.global.security.jwt.JwtProvider

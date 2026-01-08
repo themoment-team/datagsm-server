@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.common.domain.student.Sex
 import team.themoment.datagsm.common.domain.student.StudentRole
 import team.themoment.datagsm.common.domain.student.StudentSortBy
+import team.themoment.datagsm.common.global.constant.SortDirection
 import team.themoment.datagsm.web.domain.student.dto.request.CreateStudentReqDto
 import team.themoment.datagsm.web.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.web.domain.student.dto.response.StudentListResDto
@@ -29,7 +30,6 @@ import team.themoment.datagsm.web.domain.student.service.CreateStudentService
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentExcelService
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentService
 import team.themoment.datagsm.web.domain.student.service.QueryStudentService
-import team.themoment.datagsm.web.global.common.constant.SortDirection
 
 @Tag(name = "Student", description = "학생 관련 API")
 @RestController

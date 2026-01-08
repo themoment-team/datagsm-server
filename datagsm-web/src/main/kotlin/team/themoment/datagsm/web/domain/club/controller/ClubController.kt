@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.common.domain.club.ClubSortBy
 import team.themoment.datagsm.common.domain.club.ClubType
+import team.themoment.datagsm.common.global.constant.SortDirection
 import team.themoment.datagsm.web.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.web.domain.club.dto.response.ClubListResDto
 import team.themoment.datagsm.web.domain.club.dto.response.ClubResDto
@@ -29,7 +30,6 @@ import team.themoment.datagsm.web.domain.club.service.DeleteClubService
 import team.themoment.datagsm.web.domain.club.service.ModifyClubExcelService
 import team.themoment.datagsm.web.domain.club.service.ModifyClubService
 import team.themoment.datagsm.web.domain.club.service.QueryClubService
-import team.themoment.datagsm.web.global.common.constant.SortDirection
 
 @Tag(name = "Club", description = "동아리 관련 API")
 @RestController

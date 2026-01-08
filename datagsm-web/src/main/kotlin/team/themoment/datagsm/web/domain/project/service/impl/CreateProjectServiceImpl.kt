@@ -3,15 +3,15 @@ package team.themoment.datagsm.web.domain.project.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.project.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
+import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.club.dto.internal.ClubSummaryDto
-import team.themoment.datagsm.web.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.web.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.web.domain.project.dto.response.ProjectResDto
-import team.themoment.datagsm.web.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.web.domain.project.service.CreateProjectService
 import team.themoment.datagsm.web.domain.student.dto.internal.ParticipantInfoDto
-import team.themoment.datagsm.web.domain.student.repository.StudentJpaRepository
 import team.themoment.sdk.exception.ExpectedException
 
 @Service

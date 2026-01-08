@@ -9,7 +9,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.account.AccountJpaEntity
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
-import team.themoment.datagsm.web.domain.auth.repository.ApiKeyJpaRepository
+import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.web.domain.auth.service.impl.QueryCurrentAccountApiKeyServiceImpl
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException

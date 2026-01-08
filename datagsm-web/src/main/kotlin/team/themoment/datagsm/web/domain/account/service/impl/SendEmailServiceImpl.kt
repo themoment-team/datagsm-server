@@ -5,9 +5,9 @@ import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.account.EmailCodeRedisEntity
+import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
+import team.themoment.datagsm.common.domain.account.repository.EmailCodeRedisRepository
 import team.themoment.datagsm.web.domain.account.dto.request.SendEmailReqDto
-import team.themoment.datagsm.web.domain.account.repository.AccountJpaRepository
-import team.themoment.datagsm.web.domain.account.repository.EmailCodeRedisRepository
 import team.themoment.datagsm.web.domain.account.service.SendEmailService
 import team.themoment.sdk.exception.ExpectedException
 import java.security.SecureRandom

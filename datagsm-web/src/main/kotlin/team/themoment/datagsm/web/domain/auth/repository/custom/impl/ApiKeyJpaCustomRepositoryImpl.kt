@@ -1,4 +1,4 @@
-package team.themoment.datagsm.web.domain.auth.repository.custom.impl
+package team.themoment.datagsm.common.domain.auth.repository.custom.impl
 
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Page
@@ -7,7 +7,7 @@ import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.common.domain.auth.entity.QApiKey.Companion.apiKey
-import team.themoment.datagsm.web.domain.auth.repository.custom.ApiKeyJpaCustomRepository
+import team.themoment.datagsm.common.domain.auth.repository.custom.ApiKeyJpaCustomRepository
 import team.themoment.datagsm.web.global.security.data.ApiKeyEnvironment
 import java.time.LocalDateTime
 

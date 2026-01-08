@@ -1,4 +1,4 @@
-package team.themoment.datagsm.web.domain.student.repository.custom
+package team.themoment.datagsm.common.domain.student.repository.custom
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -6,7 +6,7 @@ import team.themoment.datagsm.common.domain.student.Sex
 import team.themoment.datagsm.common.domain.student.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.StudentRole
 import team.themoment.datagsm.common.domain.student.StudentSortBy
-import team.themoment.datagsm.web.global.common.constant.SortDirection
+import team.themoment.datagsm.common.global.constant.SortDirection
 
 interface StudentJpaCustomRepository {
     fun searchStudentsWithPaging(

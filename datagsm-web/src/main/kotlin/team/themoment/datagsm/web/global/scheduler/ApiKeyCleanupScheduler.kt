@@ -4,7 +4,7 @@ import com.github.snowykte0426.peanut.butter.logging.logger
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.web.domain.auth.repository.ApiKeyJpaRepository
+import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.web.global.data.ApiKeyEnvironment
 import java.time.LocalDateTime
 

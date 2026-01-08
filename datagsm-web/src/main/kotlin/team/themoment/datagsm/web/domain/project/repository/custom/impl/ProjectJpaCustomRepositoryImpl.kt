@@ -1,4 +1,4 @@
-package team.themoment.datagsm.web.domain.project.repository.custom.impl
+package team.themoment.datagsm.common.domain.project.repository.custom.impl
 
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.jpa.impl.JPAQueryFactory
@@ -9,8 +9,8 @@ import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.project.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.ProjectSortBy
 import team.themoment.datagsm.common.domain.project.QProjectJpaEntity.Companion.projectJpaEntity
-import team.themoment.datagsm.web.domain.project.repository.custom.ProjectJpaCustomRepository
-import team.themoment.datagsm.web.global.common.constant.SortDirection
+import team.themoment.datagsm.common.domain.project.repository.custom.ProjectJpaCustomRepository
+import team.themoment.datagsm.common.global.constant.SortDirection
 
 @Repository
 class ProjectJpaCustomRepositoryImpl(

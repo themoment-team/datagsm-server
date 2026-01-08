@@ -1,4 +1,4 @@
-package team.themoment.datagsm.web.domain.account.repository
+package team.themoment.datagsm.common.domain.account.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository

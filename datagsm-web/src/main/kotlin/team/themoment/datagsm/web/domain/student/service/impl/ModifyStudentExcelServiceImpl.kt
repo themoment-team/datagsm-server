@@ -8,15 +8,15 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.common.domain.club.ClubType
+import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.Major
 import team.themoment.datagsm.common.domain.student.Sex
 import team.themoment.datagsm.common.domain.student.StudentNumber
 import team.themoment.datagsm.common.domain.student.StudentRole
-import team.themoment.datagsm.web.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.student.dto.internal.ExcelColumnDto
 import team.themoment.datagsm.web.domain.student.dto.internal.ExcelRowDto
-import team.themoment.datagsm.web.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentExcelService
 import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.response.CommonApiResponse

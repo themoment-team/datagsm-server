@@ -1,4 +1,4 @@
-package team.themoment.datagsm.web.domain.auth.repository
+package team.themoment.datagsm.common.domain.auth.repository
 
 import org.springframework.data.repository.CrudRepository
 import team.themoment.datagsm.common.domain.account.RefreshTokenRedisEntity
