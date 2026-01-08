@@ -5,9 +5,9 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
-import team.themoment.datagsm.authorization.domain.client.repository.custom.ClientJpaCustomRepository
 import team.themoment.datagsm.common.domain.client.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.QClientJpaEntity.Companion.clientJpaEntity
+import team.themoment.datagsm.common.domain.client.repository.custom.ClientJpaCustomRepository
 
 @Repository
 class ClientJpaCustomRepositoryImpl(

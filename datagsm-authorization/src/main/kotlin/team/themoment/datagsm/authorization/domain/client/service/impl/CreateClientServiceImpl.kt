@@ -6,12 +6,12 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.authorization.domain.client.dto.request.CreateClientReqDto
 import team.themoment.datagsm.authorization.domain.client.dto.response.CreateClientResDto
-import team.themoment.datagsm.authorization.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.authorization.domain.client.service.CreateClientService
 import team.themoment.datagsm.authorization.domain.client.service.GetAvailableOauthScopesService
 import team.themoment.datagsm.authorization.global.security.provider.CurrentUserProvider
 import team.themoment.datagsm.common.domain.account.ApiScope
 import team.themoment.datagsm.common.domain.client.ClientJpaEntity
+import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.sdk.exception.ExpectedException
 import java.util.UUID
 

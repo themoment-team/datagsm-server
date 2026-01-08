@@ -7,14 +7,13 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.authorization.domain.account.dto.request.CreateAccountReqDto
 import team.themoment.datagsm.authorization.domain.account.dto.request.EmailCodeReqDto
-import team.themoment.datagsm.authorization.domain.account.repository.AccountJpaRepository
-import team.themoment.datagsm.authorization.domain.account.repository.EmailCodeRedisRepository
 import team.themoment.datagsm.authorization.domain.account.service.CheckEmailService
 import team.themoment.datagsm.authorization.domain.account.service.CreateAccountService
-import team.themoment.datagsm.authorization.global.thirdparty.feign.resource.ResourceServerClient
-import team.themoment.datagsm.authorization.global.thirdparty.feign.resource.ResourceServerProperties
 import team.themoment.datagsm.common.domain.account.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.AccountRole
+import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
+import team.themoment.datagsm.common.domain.account.repository.EmailCodeRedisRepository
+import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
@@ -24,8 +23,7 @@ class CreateAccountServiceImpl(
     private val checkEmailService: CheckEmailService,
     private val emailCodeRedisRepository: EmailCodeRedisRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val resourceServerClient: ResourceServerClient,
-    private val resourceServerProperties: ResourceServerProperties,
+    private val studentJpaRepository: StudentJpaRepository,
 ) : CreateAccountService {
     private val log = LoggerFactory.getLogger(this::class.java)
 
@@ -35,29 +33,29 @@ class CreateAccountServiceImpl(
         }
 
         consumeEmailCode(reqDto.email, reqDto.code)
-        fetchAndLogStudentInfo(reqDto.email)
+        val student = findStudentByEmail(reqDto.email)
         val newAccount =
             AccountJpaEntity.create(reqDto.email).apply {
                 password = passwordEncoder.encode(reqDto.password).toString()
-                student = null
+                this.student = student
                 role = AccountRole.USER
             }
         return accountJpaRepository.save(newAccount)
     }
 
-    private fun fetchAndLogStudentInfo(email: String) {
+    private fun findStudentByEmail(email: String) =
         try {
-            val students = resourceServerClient.getStudentByEmail(resourceServerProperties.apiKey, email)
-            val student = students.firstOrNull()
-            if (student == null) {
-                log.warn("Student not found for email: $email")
-            } else {
-                log.info("Successfully fetched student info for email: $email - ID: ${student.id}, Name: ${student.name}")
+            studentJpaRepository.findByEmail(email).orElse(null).also {
+                if (it == null) {
+                    log.warn("Student not found for email: $email")
+                } else {
+                    log.info("Successfully found student for email: $email - ID: ${it.id}, Name: ${it.name}")
+                }
             }
         } catch (e: Exception) {
-            log.error("Failed to fetch student from resource server for email: $email", e)
+            log.error("Failed to find student for email: $email", e)
+            null
         }
-    }
 
     private fun consumeEmailCode(
         email: String,

@@ -4,9 +4,9 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.authorization.domain.client.dto.response.ClientResDto
 import team.themoment.datagsm.authorization.domain.client.dto.response.QueryMyClientResDto
-import team.themoment.datagsm.authorization.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.authorization.domain.client.service.QueryMyClientService
 import team.themoment.datagsm.authorization.global.security.provider.CurrentUserProvider
+import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 
 @Service
 @Transactional(readOnly = true)

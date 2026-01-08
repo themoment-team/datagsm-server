@@ -56,9 +56,6 @@ spring:
         capacity: 10
         refill-tokens: 10
         refill-duration-minutes: 5
-    resource-server:
-      api-key: ${RESOURCE_SERVER_API_KEY}
-      url: ${RESOURCE_SERVER_URL:http://localhost:8082}
 
 server:
   port: 8081
