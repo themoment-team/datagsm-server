@@ -18,7 +18,7 @@ data class MealResDto(
     @param:Schema(description = "시도교육청명", example = "광주광역시교육청")
     val officeName: String,
     @param:Schema(description = "급식 날짜", example = "2025-12-15")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @param:JsonFormat(pattern = "yyyy-MM-dd")
     val mealDate: LocalDate,
     @param:Schema(description = "급식 타입 (BREAKFAST, LUNCH, DINNER)", example = "LUNCH")
     val mealType: MealType,

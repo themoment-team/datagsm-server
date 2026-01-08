@@ -8,8 +8,8 @@ import team.themoment.datagsm.resource.global.security.validator.ScopeValidator
 class ScopeChecker {
     private fun extractScopes(authentication: Authentication): Set<String> =
         authentication.authorities
-            .filter { it.authority.startsWith("SCOPE_") }
-            .map { it.authority.removePrefix("SCOPE_") }
+            .filter { it.authority!!.startsWith("SCOPE_") }
+            .map { it.authority!!.removePrefix("SCOPE_") }
             .toSet()
 
     fun hasScope(
