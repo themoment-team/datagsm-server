@@ -30,6 +30,7 @@ dependencies {
     api(dependency.Dependencies.JAKARTA_TRANSACTION_API)
 
     // Spring Data
+    api(dependency.Dependencies.SPRING_DATA_JPA)
     api(dependency.Dependencies.SPRING_DATA_REDIS)
 
     // Spring Security
