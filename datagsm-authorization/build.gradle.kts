@@ -32,10 +32,10 @@ import dependency.Dependencies.THE_MOMENT_THE_SDK
 plugins {
     id(plugin.Plugins.SPRING_BOOT) version plugin.PluginVersions.SPRING_BOOT_VERSION
     id(plugin.Plugins.SPRING_DEPENDENCY_MANAGEMENT) version plugin.PluginVersions.SPRING_DEPENDENCY_MANAGEMENT_VERSION
-    id(plugin.Plugins.KOTLIN_JVM)
-    id(plugin.Plugins.KOTLIN_SPRING)
-    id(plugin.Plugins.KOTLIN_JPA)
-    id(plugin.Plugins.KOTLIN_ALLOPEN)
+    id(plugin.Plugins.KOTLIN_JVM) version plugin.PluginVersions.KOTLIN_VERSION
+    id(plugin.Plugins.KOTLIN_SPRING) version plugin.PluginVersions.KOTLIN_VERSION
+    id(plugin.Plugins.KOTLIN_JPA) version plugin.PluginVersions.KOTLIN_VERSION
+    id(plugin.Plugins.KOTLIN_ALLOPEN) version plugin.PluginVersions.KOTLIN_VERSION
     idea
 }
 

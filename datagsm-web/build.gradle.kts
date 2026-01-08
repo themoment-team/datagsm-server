@@ -29,11 +29,11 @@ import dependency.Dependencies.SWAGGER_UI
 import dependency.Dependencies.THE_MOMENT_THE_SDK
 
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.spring")
-    kotlin("plugin.jpa")
-    id("org.springframework.boot")
-    id("io.spring.dependency-management")
+    kotlin("jvm") version plugin.PluginVersions.KOTLIN_VERSION
+    kotlin("plugin.spring") version plugin.PluginVersions.KOTLIN_VERSION
+    kotlin("plugin.jpa") version plugin.PluginVersions.KOTLIN_VERSION
+    id("org.springframework.boot") version plugin.PluginVersions.SPRING_BOOT_VERSION
+    id("io.spring.dependency-management") version plugin.PluginVersions.SPRING_DEPENDENCY_MANAGEMENT_VERSION
 }
 
 group = "team.themoment"
