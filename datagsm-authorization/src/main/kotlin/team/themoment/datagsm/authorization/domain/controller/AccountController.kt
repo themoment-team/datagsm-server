@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.common.domain.account.ApiScope
 import team.themoment.datagsm.authorization.domain.account.dto.request.CreateAccountReqDto
 import team.themoment.datagsm.authorization.domain.account.dto.request.EmailCodeReqDto
 import team.themoment.datagsm.authorization.domain.account.dto.request.SendEmailReqDto

@@ -10,21 +10,21 @@ import io.mockk.slot
 import io.mockk.verify
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
-import team.themoment.datagsm.common.domain.account.AccountJpaEntity
-import team.themoment.datagsm.common.domain.account.AccountRole
 import team.themoment.datagsm.authorization.domain.account.repository.AccountJpaRepository
-import team.themoment.datagsm.common.domain.account.ApiScope
-import team.themoment.datagsm.common.domain.client.ClientJpaEntity
 import team.themoment.datagsm.authorization.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.authorization.domain.oauth.dto.request.OauthTokenReqDto
-import team.themoment.datagsm.common.domain.account.OauthCodeRedisEntity
-import team.themoment.datagsm.common.domain.account.OauthRefreshTokenRedisEntity
 import team.themoment.datagsm.authorization.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.authorization.domain.oauth.repository.OauthRefreshTokenRedisRepository
 import team.themoment.datagsm.authorization.domain.oauth.service.impl.ExchangeTokenServiceImpl
-import team.themoment.sdk.exception.ExpectedException
 import team.themoment.datagsm.authorization.global.security.jwt.JwtProperties
 import team.themoment.datagsm.authorization.global.security.jwt.JwtProvider
+import team.themoment.datagsm.common.domain.account.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.AccountRole
+import team.themoment.datagsm.common.domain.account.ApiScope
+import team.themoment.datagsm.common.domain.account.OauthCodeRedisEntity
+import team.themoment.datagsm.common.domain.account.OauthRefreshTokenRedisEntity
+import team.themoment.datagsm.common.domain.client.ClientJpaEntity
+import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 
 class ExchangeTokenServiceTest :

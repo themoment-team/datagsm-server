@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.common.domain.account.ApiScope
 import team.themoment.datagsm.authorization.domain.client.dto.request.CreateClientReqDto
 import team.themoment.datagsm.authorization.domain.client.dto.request.ModifyClientReqDto
 import team.themoment.datagsm.authorization.domain.client.dto.response.ClientListResDto

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.common.domain.account.AccountRole
 import team.themoment.datagsm.web.domain.auth.dto.request.CreateApiKeyReqDto
 import team.themoment.datagsm.web.domain.auth.dto.request.LoginReqDto
 import team.themoment.datagsm.web.domain.auth.dto.request.ModifyApiKeyReqDto
@@ -169,5 +168,4 @@ class AuthController(
             page,
             size,
         )
-
 }

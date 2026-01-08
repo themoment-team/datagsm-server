@@ -7,12 +7,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
-import team.themoment.datagsm.common.domain.account.AccountRole
-import team.themoment.datagsm.common.domain.account.ApiScope
 import team.themoment.datagsm.authorization.global.security.authentication.CustomAuthenticationToken
 import team.themoment.datagsm.authorization.global.security.authentication.principal.PrincipalProvider
 import team.themoment.datagsm.authorization.global.security.config.AuthenticationPathConfig
 import team.themoment.datagsm.authorization.global.security.jwt.JwtProvider
+import team.themoment.datagsm.common.domain.account.AccountRole
+import team.themoment.datagsm.common.domain.account.ApiScope
 
 class JwtAuthenticationFilter(
     private val jwtProvider: JwtProvider,

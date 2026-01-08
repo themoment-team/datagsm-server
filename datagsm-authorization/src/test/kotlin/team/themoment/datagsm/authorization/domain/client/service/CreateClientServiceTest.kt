@@ -10,15 +10,15 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
-import team.themoment.datagsm.common.domain.account.AccountJpaEntity
-import team.themoment.datagsm.common.domain.account.ApiScope
 import team.themoment.datagsm.authorization.domain.client.dto.request.CreateClientReqDto
-import team.themoment.datagsm.common.domain.client.ClientJpaEntity
 import team.themoment.datagsm.authorization.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.authorization.domain.client.service.GetAvailableOauthScopesService
 import team.themoment.datagsm.authorization.domain.client.service.impl.CreateClientServiceImpl
-import team.themoment.sdk.exception.ExpectedException
 import team.themoment.datagsm.authorization.global.security.provider.CurrentUserProvider
+import team.themoment.datagsm.common.domain.account.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.ApiScope
+import team.themoment.datagsm.common.domain.client.ClientJpaEntity
+import team.themoment.sdk.exception.ExpectedException
 
 class CreateClientServiceTest :
     DescribeSpec({

@@ -1,6 +1,5 @@
 package team.themoment.datagsm.authorization.domain.account.service.impl
 
-import team.themoment.sdk.exception.ExpectedException
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -13,6 +12,7 @@ import team.themoment.datagsm.authorization.domain.account.service.CheckEmailSer
 import team.themoment.datagsm.authorization.domain.account.service.CreateAccountService
 import team.themoment.datagsm.common.domain.account.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.AccountRole
+import team.themoment.sdk.exception.ExpectedException
 
 @Service
 @Transactional
@@ -31,7 +31,7 @@ class CreateAccountServiceImpl(
         val newAccount =
             AccountJpaEntity.create(reqDto.email).apply {
                 password = passwordEncoder.encode(reqDto.password)
-                student = null  // Student 정보는 Resource Server에서 관리
+                student = null // Student 정보는 Resource Server에서 관리
                 role = AccountRole.USER
             }
         return accountJpaRepository.save(newAccount)

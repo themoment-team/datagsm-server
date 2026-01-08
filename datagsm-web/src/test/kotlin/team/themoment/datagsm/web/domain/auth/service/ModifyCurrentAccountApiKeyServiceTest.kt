@@ -13,15 +13,15 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import team.themoment.datagsm.common.domain.account.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.ApiScope
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.web.domain.auth.dto.request.ModifyApiKeyReqDto
 import team.themoment.datagsm.web.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.web.domain.auth.service.impl.ModifyCurrentAccountApiKeyServiceImpl
-import team.themoment.datagsm.web.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.web.global.security.checker.ScopeChecker
+import team.themoment.datagsm.web.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
-import team.themoment.datagsm.common.domain.account.ApiScope
 import java.time.LocalDateTime
 import java.util.Optional
 import java.util.UUID

@@ -8,9 +8,9 @@ import team.themoment.datagsm.web.domain.account.dto.response.GetMyInfoResDto
 import team.themoment.datagsm.web.domain.account.service.GetMyInfoService
 import team.themoment.datagsm.web.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.web.domain.student.dto.response.StudentResDto
-import team.themoment.sdk.exception.ExpectedException
 import team.themoment.datagsm.web.global.security.authentication.type.AuthType
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
+import team.themoment.sdk.exception.ExpectedException
 
 @Service
 class GetMyInfoServiceImpl(

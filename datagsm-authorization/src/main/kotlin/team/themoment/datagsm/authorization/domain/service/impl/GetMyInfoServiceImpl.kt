@@ -1,6 +1,5 @@
 package team.themoment.datagsm.authorization.domain.account.service.impl
 
-import team.themoment.sdk.exception.ExpectedException
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -8,6 +7,7 @@ import team.themoment.datagsm.authorization.domain.account.dto.response.GetMyInf
 import team.themoment.datagsm.authorization.domain.account.service.GetMyInfoService
 import team.themoment.datagsm.authorization.global.security.authentication.type.AuthType
 import team.themoment.datagsm.authorization.global.security.provider.CurrentUserProvider
+import team.themoment.sdk.exception.ExpectedException
 
 @Service
 class GetMyInfoServiceImpl(

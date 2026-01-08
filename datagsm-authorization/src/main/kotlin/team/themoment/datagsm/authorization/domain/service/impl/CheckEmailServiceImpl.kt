@@ -6,9 +6,9 @@ import org.springframework.stereotype.Service
 import team.themoment.datagsm.authorization.domain.account.dto.request.EmailCodeReqDto
 import team.themoment.datagsm.authorization.domain.account.repository.EmailCodeRedisRepository
 import team.themoment.datagsm.authorization.domain.account.service.CheckEmailService
-import team.themoment.sdk.exception.ExpectedException
 import team.themoment.datagsm.authorization.global.security.annotation.EmailRateLimitType
 import team.themoment.datagsm.authorization.global.security.annotation.EmailRateLimited
+import team.themoment.sdk.exception.ExpectedException
 
 @Service
 class CheckEmailServiceImpl(

@@ -9,9 +9,9 @@ import team.themoment.datagsm.web.domain.auth.dto.request.LoginReqDto
 import team.themoment.datagsm.web.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.web.domain.auth.repository.RefreshTokenRedisRepository
 import team.themoment.datagsm.web.domain.auth.service.LoginService
-import team.themoment.sdk.exception.ExpectedException
 import team.themoment.datagsm.web.global.security.jwt.JwtProperties
 import team.themoment.datagsm.web.global.security.jwt.JwtProvider
+import team.themoment.sdk.exception.ExpectedException
 
 @Service
 class LoginServiceImpl(
