@@ -9,7 +9,7 @@ import team.themoment.datagsm.resource.global.common.discord.data.DiscordWebhook
 @Profile("stage", "prod")
 @FeignClient(
     name = "discord-webhook",
-    url = "\${spring.cloud.discord.webhook.url}",
+    url = $$"${spring.cloud.discord.webhook.url}",
 )
 interface DiscordWebhookClient {
     @PostMapping(
