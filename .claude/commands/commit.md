@@ -5,7 +5,7 @@ description: Create Git commits by splitting changes into logical units
 Create Git commits following these rules:
 - Follow commit message format: `type(scope): description`
   - Types: add/update/fix/refactor/test/docs/merge
-  - Scopes: domain names (auth, account, student, club, project, neis, client, oauth)
+  - Scopes: ONLY domain names (auth, account, student, club, project, neis, client, oauth) OR global. No other scopes allowed.
   - Description: Korean, lowercase start, no period, avoid noun-ending style (e.g., "~ 추가", "~ 수정")
 - Use subject line only (no commit body)
 - Do NOT add Claude as co-author
