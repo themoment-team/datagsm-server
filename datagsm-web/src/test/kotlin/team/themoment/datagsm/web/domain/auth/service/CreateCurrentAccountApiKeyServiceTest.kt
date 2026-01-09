@@ -10,7 +10,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
-import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.domain.auth.dto.request.CreateApiKeyReqDto
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
