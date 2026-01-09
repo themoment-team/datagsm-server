@@ -16,7 +16,7 @@ import org.springframework.web.context.request.ServletRequestAttributes
 import org.springframework.web.multipart.MaxUploadSizeExceededException
 import org.springframework.web.servlet.NoHandlerFoundException
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
-import team.themoment.datagsm.resource.global.common.discord.error.DiscordErrorNotificationService
+import team.themoment.datagsm.common.global.common.discord.error.DiscordErrorNotificationService
 import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.response.CommonApiResponse
 import java.net.URLDecoder

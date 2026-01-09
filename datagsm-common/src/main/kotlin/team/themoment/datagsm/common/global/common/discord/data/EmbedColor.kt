@@ -1,4 +1,4 @@
-package team.themoment.datagsm.authorization.global.common.discord.data
+package team.themoment.datagsm.common.global.common.discord.data
 
 enum class EmbedColor(
     val color: Int,

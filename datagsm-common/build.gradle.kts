@@ -68,6 +68,7 @@ dependencies {
 
     // Custom Libraries
     api(dependency.Dependencies.THE_MOMENT_THE_SDK)
+    api(dependency.Dependencies.PEANUT_BUTTER)
 
     // Logging
     api(dependency.Dependencies.LOGBACK_AWS_APPENDER)

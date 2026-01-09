@@ -1,4 +1,4 @@
-package team.themoment.datagsm.web.global.common.discord.data
+package team.themoment.datagsm.common.global.common.discord.data
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

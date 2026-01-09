@@ -1,25 +1,26 @@
-package team.themoment.datagsm.resource.global.common.discord.error
+package team.themoment.datagsm.common.global.common.discord.error
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
-import team.themoment.datagsm.resource.global.common.discord.data.DiscordEmbed
-import team.themoment.datagsm.resource.global.common.discord.data.DiscordField
-import team.themoment.datagsm.resource.global.common.discord.data.DiscordWebhookPayload
-import team.themoment.datagsm.resource.global.common.discord.data.EmbedColor
-import team.themoment.datagsm.resource.global.thirdparty.feign.discord.DiscordWebhookClient
+import team.themoment.datagsm.common.global.common.discord.data.DiscordEmbed
+import team.themoment.datagsm.common.global.common.discord.data.DiscordField
+import team.themoment.datagsm.common.global.common.discord.data.DiscordWebhookPayload
+import team.themoment.datagsm.common.global.common.discord.data.EmbedColor
+import team.themoment.datagsm.common.global.thirdparty.feign.discord.DiscordWebhookClient
 import java.time.Instant
 
 @Profile("stage", "prod")
 @Component
 class DiscordErrorNotificationService(
     private val discordWebhookClient: DiscordWebhookClient,
+    @param:Value($$"${spring.application.name}") private val moduleName: String,
 ) {
-    private val logger = LoggerFactory.getLogger(DiscordErrorNotificationService::class.java)
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     companion object {
@@ -39,7 +40,7 @@ class DiscordErrorNotificationService(
 
                 discordWebhookClient.sendMessage(payload)
             }.onFailure { sendException ->
-                logger.error("Discord 에러 알림 전송 실패", sendException)
+                logger().error("Discord 에러 알림 전송 실패", sendException)
             }
         }
     }
@@ -51,6 +52,7 @@ class DiscordErrorNotificationService(
     ): DiscordEmbed {
         val fields =
             buildList {
+                add(DiscordField("Module", moduleName, true))
                 add(DiscordField("Exception Type", exception::class.simpleName ?: "Unknown", true))
                 add(DiscordField("Message", exception.message?.truncateField() ?: "No message", false))
 

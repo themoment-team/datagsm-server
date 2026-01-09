@@ -1,10 +1,10 @@
-package team.themoment.datagsm.authorization.global.thirdparty.feign.discord
+package team.themoment.datagsm.common.global.thirdparty.feign.discord
 
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.context.annotation.Profile
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import team.themoment.datagsm.authorization.global.common.discord.data.DiscordWebhookPayload
+import team.themoment.datagsm.common.global.common.discord.data.DiscordWebhookPayload
 
 @Profile("stage", "prod")
 @FeignClient(
