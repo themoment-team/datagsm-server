@@ -10,7 +10,7 @@ import io.mockk.slot
 import io.mockk.verify
 import org.springframework.http.HttpStatus
 import team.themoment.datagsm.authorization.domain.oauth.service.impl.ReissueOauthTokenServiceImpl
-import team.themoment.datagsm.authorization.global.security.jwt.JwtProperties
+import team.themoment.datagsm.authorization.global.jwt.JwtProperties
 import team.themoment.datagsm.authorization.global.security.jwt.JwtProvider
 import team.themoment.datagsm.common.domain.account.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.AccountRole
