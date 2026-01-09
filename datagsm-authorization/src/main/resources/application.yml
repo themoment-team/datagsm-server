@@ -49,6 +49,15 @@ spring:
       secret: ${JWT_SECRET_KEY}
       oauth-access-token-expiration: ${OAUTH_ACCESS_TOKEN_EXPIRATION:3600000}
       oauth-refresh-token-expiration: ${OAUTH_REFRESH_TOKEN_EXPIRATION:2592000000}
+    api-key:
+      expiration-days: 30
+      renewal-period-days: 15
+      admin-expiration-days: 365
+      rate-limit:
+        enabled: true
+        default-capacity: 100
+        default-refill-tokens: 100
+        default-refill-duration-seconds: 60
     oauth:
       code-expiration-seconds: ${OAUTH_CODE_EXPIRATION:300}
     email-rate-limit:
