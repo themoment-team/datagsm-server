@@ -31,14 +31,20 @@ class ModifyCurrentAccountApiKeyServiceTest :
 
         val mockApiKeyRepository = mockk<ApiKeyJpaRepository>()
         val mockCurrentUserProvider = mockk<CurrentUserProvider>()
-        val mockApiKeyEnvironment = mockk<ApiKeyEnvironment>()
+        val apiKeyEnvironment =
+            ApiKeyEnvironment(
+                expirationDays = 30L,
+                renewalPeriodDays = 15L,
+                adminExpirationDays = 365L,
+                rateLimit = ApiKeyEnvironment.RateLimit(true, 100L, 100L, 60L),
+            )
         val mockScopeChecker = mockk<ScopeChecker>()
 
         val modifyApiKeyService =
             ModifyCurrentAccountApiKeyServiceImpl(
                 mockApiKeyRepository,
                 mockCurrentUserProvider,
-                mockApiKeyEnvironment,
+                apiKeyEnvironment,
                 mockScopeChecker,
             )
 
@@ -62,8 +68,6 @@ class ModifyCurrentAccountApiKeyServiceTest :
                     every { SecurityContextHolder.getContext() } returns mockSecurityContext
                     every { mockSecurityContext.authentication } returns mockAuthentication
                     every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
-                    every { mockApiKeyEnvironment.expirationDays } returns 30L
-                    every { mockApiKeyEnvironment.renewalPeriodDays } returns 15L
                     every { mockScopeChecker.hasScope(mockAuthentication, ApiScope.ADMIN_APIKEY.scope) } returns false
                 }
 
@@ -446,7 +450,6 @@ class ModifyCurrentAccountApiKeyServiceTest :
 
                     beforeEach {
                         every { mockScopeChecker.hasScope(mockAuthentication, ApiScope.ADMIN_APIKEY.scope) } returns true
-                        every { mockApiKeyEnvironment.adminExpirationDays } returns 365L
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                         every { mockApiKeyRepository.save(apiKey) } returns apiKey
                     }
