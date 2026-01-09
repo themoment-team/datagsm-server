@@ -15,5 +15,5 @@ data class ClubReqDto(
     val type: ClubType,
     @field:NotNull
     @param:Schema(description = "동아리 부장 학생 ID", example = "1")
-    val leaderId: Long,
+    var leaderId: Long,
 )
