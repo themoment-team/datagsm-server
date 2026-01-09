@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.common.domain.auth.entity.QApiKey.Companion.apiKey
 import team.themoment.datagsm.common.domain.auth.repository.custom.ApiKeyJpaCustomRepository
-import team.themoment.datagsm.common.global.security.data.ApiKeyEnvironment
+import team.themoment.datagsm.common.global.data.ApiKeyEnvironment
 import java.time.LocalDateTime
 
 @Repository
@@ -25,8 +25,7 @@ class ApiKeyJpaCustomRepositoryImpl(
         pageable: Pageable,
     ): Page<ApiKey> {
         val now = LocalDateTime.now()
-        val renewalPeriodDays = apiKeyEnvironment.renewalPeriodDays
-        val renewalDeadline = now.minusDays(renewalPeriodDays)
+        val renewalDeadline = now.minusDays(apiKeyEnvironment.renewalPeriodDays!!)
 
         val content =
             jpaQueryFactory

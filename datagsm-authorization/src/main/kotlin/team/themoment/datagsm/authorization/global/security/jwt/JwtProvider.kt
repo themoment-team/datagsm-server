@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.authorization.global.security.authentication.type.AuthType
-import team.themoment.datagsm.common.global.data.JwtProperties
 import team.themoment.datagsm.common.domain.account.AccountRole
 import team.themoment.datagsm.common.domain.account.ApiScope
+import team.themoment.datagsm.common.global.data.JwtProperties
 import team.themoment.sdk.exception.ExpectedException
 import java.nio.charset.StandardCharsets
 import java.util.Date
@@ -33,7 +33,7 @@ class JwtProvider(
         scopes: Set<ApiScope>,
     ): String {
         val now = Date()
-        val expiration = Date(now.time + jwtProperties.oauthAccessTokenExpiration)
+        val expiration = Date(now.time + jwtProperties.oauthAccessTokenExpiration!!)
 
         return Jwts
             .builder()
@@ -53,7 +53,7 @@ class JwtProvider(
         clientId: String,
     ): String {
         val now = Date()
-        val expiration = Date(now.time + jwtProperties.oauthRefreshTokenExpiration)
+        val expiration = Date(now.time + jwtProperties.oauthRefreshTokenExpiration!!)
 
         return Jwts
             .builder()
