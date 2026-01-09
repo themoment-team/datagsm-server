@@ -36,11 +36,11 @@ class SyncScheduleServiceImpl(
         do {
             val apiResponse =
                 neisApiClient.getSchoolSchedule(
-                    key = neisEnvironment.key,
+                    key = neisEnvironment.key!!,
                     pIndex = pageIndex,
                     pSize = pageSize,
-                    atptOfcdcScCode = neisEnvironment.officeCode,
-                    sdSchulCode = neisEnvironment.schoolCode,
+                    atptOfcdcScCode = neisEnvironment.officeCode!!,
+                    sdSchulCode = neisEnvironment.schoolCode!!,
                     aa_ymd = null,
                     aa_from_ymd = aaFromYmd,
                     aa_to_ymd = aaToYmd,

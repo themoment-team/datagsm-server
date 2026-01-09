@@ -48,11 +48,11 @@ class ExchangeTokenServiceImpl(
         oauthCodeRedisRepository.delete(oauthCodeRedisEntity)
 
         val accessToken = jwtProvider.generateOauthAccessToken(account.email, account.role, client.id, client.scopes)
-        val refreshToken = jwtProvider.generateOauthRefreshToken(account.email, client.id)
-
-        oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(account.email, client.id)
-        val ttlSeconds = jwtProperties.oauthRefreshTokenExpiration!! / 1000
-        val refreshTokenEntity =
+                val refreshToken = jwtProvider.generateOauthRefreshToken(account.email, client.id)
+        
+                oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(account.email, client.id)
+                val ttlSeconds = jwtProperties.oauthRefreshTokenExpiration / 1000
+                val refreshTokenEntity =
             OauthRefreshTokenRedisEntity.of(
                 email = account.email,
                 clientId = client.id,

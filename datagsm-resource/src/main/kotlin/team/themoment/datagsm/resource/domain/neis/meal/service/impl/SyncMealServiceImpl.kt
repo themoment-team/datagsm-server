@@ -37,11 +37,11 @@ class SyncMealServiceImpl(
         do {
             val apiResponse =
                 neisApiClient.getMealServiceDietInfo(
-                    key = neisEnvironment.key,
+                    key = neisEnvironment.key!!,
                     pIndex = pageIndex,
                     pSize = pageSize,
-                    atptOfcdcScCode = neisEnvironment.officeCode,
-                    sdSchulCode = neisEnvironment.schoolCode,
+                    atptOfcdcScCode = neisEnvironment.officeCode!!,
+                    sdSchulCode = neisEnvironment.schoolCode!!,
                     mlsvYmd = null,
                     mlsvFromYmd = mlsvFromYmd,
                     mlsvToYmd = mlsvToYmd,

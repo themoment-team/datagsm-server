@@ -25,7 +25,8 @@ class ApiKeyJpaCustomRepositoryImpl(
         pageable: Pageable,
     ): Page<ApiKey> {
         val now = LocalDateTime.now()
-        val renewalDeadline = now.minusDays(apiKeyEnvironment.renewalPeriodDays!!)
+        val renewalPeriodDays = apiKeyEnvironment.renewalPeriodDays
+        val renewalDeadline = now.minusDays(renewalPeriodDays)
 
         val content =
             jpaQueryFactory
