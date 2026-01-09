@@ -54,6 +54,13 @@ dependencies {
     implementation(dependency.Dependencies.PEANUT_BUTTER)
     implementation(dependency.Dependencies.THE_MOMENT_THE_SDK)
 
+    // Logging
+    implementation(dependency.Dependencies.LOGBACK_AWS_APPENDER)
+
+    // Development Tools
+    developmentOnly(dependency.Dependencies.SPRING_BOOT_DEVTOOLS)
+    developmentOnly(dependency.Dependencies.SPRING_DOCKER_SUPPORT)
+
     // Kotlin
     implementation(dependency.Dependencies.KOTLIN_REFLECT)
     implementation(dependency.Dependencies.KOTLIN_COROUTINES)
