@@ -92,7 +92,7 @@ class ExchangeTokenServiceTest :
                     }
 
                 beforeEach {
-                    every { mockJwtEnvironment.oauthRefreshTokenExpiration } returns oauthRefreshTokenExpiration
+                    every { mockJwtEnvironment.refreshTokenExpiration } returns oauthRefreshTokenExpiration
                 }
 
                 context("존재하지 않거나 만료된 코드로 요청할 때") {

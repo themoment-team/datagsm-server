@@ -83,7 +83,7 @@ class ReissueOauthTokenServiceTest :
                     )
 
                 beforeEach {
-                    every { mockJwtEnvironment.oauthRefreshTokenExpiration } returns oauthRefreshTokenExpiration
+                    every { mockJwtEnvironment.refreshTokenExpiration } returns oauthRefreshTokenExpiration
                 }
 
                 context("유효하지 않은 refresh token으로 요청할 때") {
