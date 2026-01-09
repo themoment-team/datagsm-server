@@ -5,8 +5,8 @@ import io.github.bucket4j.BucketConfiguration
 import io.github.bucket4j.distributed.proxy.ProxyManager
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.authorization.global.security.annotation.EmailRateLimitType
-import team.themoment.datagsm.common.global.data.EmailRateLimitEnvironment
 import team.themoment.datagsm.authorization.global.security.service.EmailRateLimitService
+import team.themoment.datagsm.common.global.data.EmailRateLimitEnvironment
 import team.themoment.datagsm.common.global.dto.internal.RateLimitConsumeResult
 import java.time.Duration
 
@@ -33,8 +33,7 @@ class EmailRateLimitServiceImpl(
         val bucket =
             proxyManager.builder().build(
                 "${getBucketPrefix(type)}$email",
-                { createBucketConfiguration(config) },
-            )
+            ) { createBucketConfiguration(config) }
         val probe = bucket.tryConsumeAndReturnRemaining(1)
         return RateLimitConsumeResult(
             consumed = probe.isConsumed,

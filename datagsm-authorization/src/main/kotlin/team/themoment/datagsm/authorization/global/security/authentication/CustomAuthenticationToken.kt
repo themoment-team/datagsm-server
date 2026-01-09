@@ -1,4 +1,4 @@
-package team.themoment.datagsm.authorization.global.authentication
+package team.themoment.datagsm.authorization.global.security.authentication
 
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.core.GrantedAuthority

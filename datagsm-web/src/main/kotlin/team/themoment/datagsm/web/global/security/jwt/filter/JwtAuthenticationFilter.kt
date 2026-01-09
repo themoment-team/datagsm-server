@@ -40,9 +40,8 @@ class JwtAuthenticationFilter(
         val bearerToken = request.getHeader("Authorization")
         val token = jwtProvider.extractToken(bearerToken)
         if (token != null && jwtProvider.validateToken(token)) {
-            val role = jwtProvider.getRoleFromToken(token)
             val authorities =
-                when (role) {
+                when (val role = jwtProvider.getRoleFromToken(token)) {
                     AccountRole.ADMIN, AccountRole.ROOT -> {
                         listOf(role, SimpleGrantedAuthority("SCOPE_${ApiScope.ALL_SCOPE}"))
                     }

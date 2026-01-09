@@ -7,7 +7,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
-import team.themoment.datagsm.authorization.global.authentication.CustomAuthenticationToken
+import team.themoment.datagsm.authorization.global.security.authentication.CustomAuthenticationToken
 import team.themoment.datagsm.authorization.global.security.authentication.principal.PrincipalProvider
 import team.themoment.datagsm.authorization.global.security.config.AuthenticationPathConfig
 import team.themoment.datagsm.authorization.global.security.jwt.JwtProvider
@@ -40,9 +40,8 @@ class JwtAuthenticationFilter(
         val bearerToken = request.getHeader("Authorization")
         val token = jwtProvider.extractToken(bearerToken)
         if (token != null && jwtProvider.validateToken(token)) {
-            val role = jwtProvider.getRoleFromToken(token)
             val authorities =
-                when (role) {
+                when (val role = jwtProvider.getRoleFromToken(token)) {
                     AccountRole.ADMIN, AccountRole.ROOT -> {
                         listOf(role, SimpleGrantedAuthority("SCOPE_${ApiScope.ALL_SCOPE}"))
                     }
