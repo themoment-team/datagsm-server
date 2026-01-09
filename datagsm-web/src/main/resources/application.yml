@@ -63,7 +63,6 @@ spring:
       expiration-days: 30
       renewal-period-days: 15
       admin-expiration-days: 365
-      admin-renewal-period-days: 30
       rate-limit:
         enabled: true
         default-capacity: 100
