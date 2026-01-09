@@ -7,19 +7,15 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.verify
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.context.SecurityContext
-import org.springframework.security.core.context.SecurityContextHolder
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.domain.auth.dto.request.CreateApiKeyReqDto
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.common.global.data.ApiKeyEnvironment
 import team.themoment.datagsm.web.domain.auth.service.impl.CreateCurrentAccountApiKeyServiceImpl
-import team.themoment.datagsm.web.global.security.checker.ScopeChecker
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 import java.time.LocalDateTime
@@ -38,14 +34,12 @@ class CreateCurrentAccountApiKeyServiceTest :
                 adminExpirationDays = 365L,
                 rateLimit = ApiKeyEnvironment.RateLimit(true, 100L, 100L, 60L),
             )
-        val mockScopeChecker = mockk<ScopeChecker>()
 
         val createApiKeyService =
             CreateCurrentAccountApiKeyServiceImpl(
                 mockApiKeyRepository,
                 mockCurrentUserProvider,
                 apiKeyEnvironment,
-                mockScopeChecker,
             )
 
         afterEach {
@@ -59,16 +53,11 @@ class CreateCurrentAccountApiKeyServiceTest :
                     AccountJpaEntity().apply {
                         id = 1L
                         email = "test@gsm.hs.kr"
+                        role = AccountRole.USER
                     }
-                val mockAuthentication = mockk<Authentication>()
-                val mockSecurityContext = mockk<SecurityContext>()
 
                 beforeEach {
-                    mockkStatic(SecurityContextHolder::class)
-                    every { SecurityContextHolder.getContext() } returns mockSecurityContext
-                    every { mockSecurityContext.authentication } returns mockAuthentication
                     every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
-                    every { mockScopeChecker.hasScope(mockAuthentication, ApiScope.ADMIN_APIKEY.scope) } returns false
                 }
 
                 context("기존 API 키가 없을 때") {
@@ -288,7 +277,7 @@ class CreateCurrentAccountApiKeyServiceTest :
                         )
 
                     beforeEach {
-                        every { mockScopeChecker.hasScope(mockAuthentication, ApiScope.ADMIN_APIKEY.scope) } returns true
+                        mockAccount.role = AccountRole.ADMIN
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.empty()
                         every { mockApiKeyRepository.save(any()) } answers {
                             val entity = firstArg<ApiKey>()
@@ -324,7 +313,7 @@ class CreateCurrentAccountApiKeyServiceTest :
                         )
 
                     beforeEach {
-                        every { mockScopeChecker.hasScope(mockAuthentication, ApiScope.ADMIN_APIKEY.scope) } returns true
+                        mockAccount.role = AccountRole.ADMIN
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.empty()
                     }
 

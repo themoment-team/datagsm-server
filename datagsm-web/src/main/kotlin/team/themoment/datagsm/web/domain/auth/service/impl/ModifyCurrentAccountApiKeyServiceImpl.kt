@@ -2,16 +2,15 @@ package team.themoment.datagsm.web.domain.auth.service.impl
 
 import com.github.snowykte0426.peanut.butter.logging.logger
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.domain.auth.dto.request.ModifyApiKeyReqDto
 import team.themoment.datagsm.common.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.common.global.data.ApiKeyEnvironment
 import team.themoment.datagsm.web.domain.auth.service.ModifyCurrentAccountApiKeyService
-import team.themoment.datagsm.web.global.security.checker.ScopeChecker
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 import java.time.LocalDateTime
@@ -22,7 +21,6 @@ class ModifyCurrentAccountApiKeyServiceImpl(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
     private val apiKeyEnvironment: ApiKeyEnvironment,
-    private val scopeChecker: ScopeChecker,
 ) : ModifyCurrentAccountApiKeyService {
     @Transactional
     override fun execute(reqDto: ModifyApiKeyReqDto): ApiKeyResDto {
@@ -44,14 +42,7 @@ class ModifyCurrentAccountApiKeyServiceImpl(
             )
         }
 
-        val authentication =
-            SecurityContextHolder.getContext().authentication
-                ?: throw ExpectedException("인증 정보가 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
-        val isAdmin =
-            scopeChecker.hasScope(
-                authentication,
-                ApiScope.ADMIN_APIKEY.scope,
-            )
+        val isAdmin = account.role in setOf(AccountRole.ADMIN, AccountRole.ROOT)
         val validScopes = if (isAdmin) ApiScope.getAllScopes() else ApiScope.READ_ONLY_SCOPES
         val invalidScopes = reqDto.scopes.filter { it !in validScopes }
         if (invalidScopes.isNotEmpty()) {
