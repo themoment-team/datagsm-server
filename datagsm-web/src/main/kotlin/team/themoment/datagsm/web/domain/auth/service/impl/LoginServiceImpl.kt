@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.account.RefreshTokenRedisEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
+import team.themoment.datagsm.common.domain.auth.repository.RefreshTokenRedisRepository
 import team.themoment.datagsm.common.dto.auth.request.LoginReqDto
 import team.themoment.datagsm.common.dto.auth.response.TokenResDto
 import team.themoment.datagsm.common.global.data.JwtProperties
@@ -29,7 +30,7 @@ class LoginServiceImpl(
         val accessToken = jwtProvider.generateAccessToken(account.email, account.role)
         val refreshToken = jwtProvider.generateRefreshToken(reqDto.email)
         refreshTokenRedisRepository.deleteByEmail(reqDto.email)
-        val ttlSeconds = jwtProperties.refreshTokenExpiration / 1000
+        val ttlSeconds = jwtProperties.refreshTokenExpiration!!.div(1000)
         val refreshTokenEntity =
             RefreshTokenRedisEntity.of(
                 email = account.email,
