@@ -6,18 +6,29 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
 import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.domain.auth.entity.constant.ApiScope
 import team.themoment.datagsm.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.global.security.authentication.CustomAuthenticationToken
 import team.themoment.datagsm.global.security.authentication.principal.PrincipalProvider
+import team.themoment.datagsm.global.security.config.AuthenticationPathConfig
 import java.util.UUID
 
 class ApiKeyAuthenticationFilter(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
     private val principalProvider: PrincipalProvider,
 ) : OncePerRequestFilter() {
+    private val pathMatcher = AntPathMatcher()
+
+    override fun shouldNotFilter(request: HttpServletRequest): Boolean {
+        val requestPath = request.requestURI
+        return AuthenticationPathConfig.PUBLIC_PATHS.any { path ->
+            pathMatcher.match(path, requestPath)
+        }
+    }
+
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
