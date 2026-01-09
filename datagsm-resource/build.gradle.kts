@@ -32,6 +32,16 @@ dependencies {
 
     // Custom Libraries
     implementation(dependency.Dependencies.PEANUT_BUTTER)
+
+    // Testing
+    testImplementation(dependency.Dependencies.SPRING_TEST)
+    testImplementation(dependency.Dependencies.KOTLIN_JUNIT5)
+    testImplementation(dependency.Dependencies.KOTEST_ASSERTIONS)
+    testImplementation(dependency.Dependencies.KOTEST_RUNNER)
+    testImplementation(dependency.Dependencies.KOTEST_FRAMEWORK)
+    testImplementation(dependency.Dependencies.SPRING_SECURITY_TEST)
+    testRuntimeOnly(dependency.Dependencies.JUNIT_PLATFORM_LAUNCHER)
+    testImplementation(dependency.Dependencies.MOCKK)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
