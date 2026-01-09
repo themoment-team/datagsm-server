@@ -11,7 +11,7 @@ import io.mockk.slot
 import io.mockk.verify
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
-import team.themoment.datagsm.authorization.domain.oauth.property.OauthProperties
+import team.themoment.datagsm.common.global.data.OauthProperties
 import team.themoment.datagsm.authorization.domain.oauth.service.impl.IssueOauthCodeServiceImpl
 import team.themoment.datagsm.common.domain.account.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.OauthCodeRedisEntity

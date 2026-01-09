@@ -5,7 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.authorization.domain.oauth.service.ExchangeTokenService
-import team.themoment.datagsm.authorization.global.security.data.JwtProperties
+import team.themoment.datagsm.common.global.data.JwtProperties
 import team.themoment.datagsm.authorization.global.security.jwt.JwtProvider
 import team.themoment.datagsm.common.domain.account.OauthRefreshTokenRedisEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository

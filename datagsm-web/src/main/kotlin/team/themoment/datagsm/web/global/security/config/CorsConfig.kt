@@ -6,7 +6,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
-import team.themoment.datagsm.web.global.security.data.CorsEnvironment
+import team.themoment.datagsm.common.global.data.CorsEnvironment
 
 @Configuration
 class CorsConfig(

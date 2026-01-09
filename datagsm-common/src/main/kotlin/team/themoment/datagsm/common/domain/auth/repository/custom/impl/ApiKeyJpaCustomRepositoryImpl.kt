@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.common.domain.auth.entity.QApiKey.Companion.apiKey
 import team.themoment.datagsm.common.domain.auth.repository.custom.ApiKeyJpaCustomRepository
-import team.themoment.datagsm.resource.global.security.data.ApiKeyEnvironment
+import team.themoment.datagsm.common.global.security.data.ApiKeyEnvironment
 import java.time.LocalDateTime
 
 @Repository

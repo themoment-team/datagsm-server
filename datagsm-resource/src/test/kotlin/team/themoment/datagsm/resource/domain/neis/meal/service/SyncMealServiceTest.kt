@@ -10,7 +10,7 @@ import team.themoment.datagsm.common.domain.neis.meal.repository.MealRedisReposi
 import team.themoment.datagsm.common.dto.neis.internal.MealServiceDietInfo
 import team.themoment.datagsm.common.dto.neis.internal.MealServiceDietInfoWrapper
 import team.themoment.datagsm.common.dto.neis.internal.NeisMealApiResponse
-import team.themoment.datagsm.resource.domain.neis.common.data.NeisEnvironment
+import team.themoment.datagsm.common.global.data.NeisEnvironment
 import team.themoment.datagsm.resource.domain.neis.meal.service.impl.SyncMealServiceImpl
 import team.themoment.datagsm.resource.global.thirdparty.feign.neis.NeisApiClient
 import java.time.LocalDate

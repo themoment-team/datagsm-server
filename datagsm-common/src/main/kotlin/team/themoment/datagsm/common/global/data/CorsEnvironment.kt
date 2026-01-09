@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.global.security.data
+package team.themoment.datagsm.common.global.data
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 

@@ -9,7 +9,7 @@ import team.themoment.datagsm.common.domain.auth.repository.RefreshTokenRedisRep
 import team.themoment.datagsm.common.dto.auth.request.LoginReqDto
 import team.themoment.datagsm.common.dto.auth.response.TokenResDto
 import team.themoment.datagsm.web.domain.auth.service.LoginService
-import team.themoment.datagsm.web.global.security.data.JwtProperties
+import team.themoment.datagsm.common.global.data.JwtProperties
 import team.themoment.datagsm.web.global.security.jwt.JwtProvider
 import team.themoment.sdk.exception.ExpectedException
 
