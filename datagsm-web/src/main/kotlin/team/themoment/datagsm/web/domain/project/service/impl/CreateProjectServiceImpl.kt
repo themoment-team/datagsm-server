@@ -7,11 +7,11 @@ import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.project.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.web.domain.club.dto.internal.ClubSummaryDto
-import team.themoment.datagsm.web.domain.project.dto.request.ProjectReqDto
-import team.themoment.datagsm.web.domain.project.dto.response.ProjectResDto
+import team.themoment.datagsm.common.dto.club.internal.ClubSummaryDto
+import team.themoment.datagsm.common.dto.project.request.ProjectReqDto
+import team.themoment.datagsm.common.dto.project.response.ProjectResDto
+import team.themoment.datagsm.common.dto.student.internal.ParticipantInfoDto
 import team.themoment.datagsm.web.domain.project.service.CreateProjectService
-import team.themoment.datagsm.web.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.sdk.exception.ExpectedException
 
 @Service

@@ -9,10 +9,10 @@ import team.themoment.datagsm.common.domain.club.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.web.domain.club.dto.request.ClubReqDto
-import team.themoment.datagsm.web.domain.club.dto.response.ClubResDto
+import team.themoment.datagsm.common.dto.club.request.ClubReqDto
+import team.themoment.datagsm.common.dto.club.response.ClubResDto
+import team.themoment.datagsm.common.dto.student.internal.ParticipantInfoDto
 import team.themoment.datagsm.web.domain.club.service.ModifyClubService
-import team.themoment.datagsm.web.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.sdk.exception.ExpectedException
 
 @Service

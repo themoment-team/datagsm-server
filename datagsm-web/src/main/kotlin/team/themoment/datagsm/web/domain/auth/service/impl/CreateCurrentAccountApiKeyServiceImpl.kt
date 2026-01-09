@@ -7,8 +7,8 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.account.ApiScope
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
-import team.themoment.datagsm.web.domain.auth.dto.request.CreateApiKeyReqDto
-import team.themoment.datagsm.web.domain.auth.dto.response.ApiKeyResDto
+import team.themoment.datagsm.common.dto.auth.request.CreateApiKeyReqDto
+import team.themoment.datagsm.common.dto.auth.response.ApiKeyResDto
 import team.themoment.datagsm.web.domain.auth.service.CreateCurrentAccountApiKeyService
 import team.themoment.datagsm.web.global.security.checker.ScopeChecker
 import team.themoment.datagsm.web.global.security.data.ApiKeyEnvironment

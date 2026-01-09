@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.web.domain.club.dto.internal.ExcelRowDto
+import team.themoment.datagsm.common.dto.club.internal.ExcelRowDto
 import team.themoment.datagsm.web.domain.club.service.CreateClubExcelService
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets

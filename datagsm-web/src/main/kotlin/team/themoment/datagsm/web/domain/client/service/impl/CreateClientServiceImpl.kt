@@ -7,8 +7,8 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.account.ApiScope
 import team.themoment.datagsm.common.domain.client.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
-import team.themoment.datagsm.web.domain.client.dto.request.CreateClientReqDto
-import team.themoment.datagsm.web.domain.client.dto.response.CreateClientResDto
+import team.themoment.datagsm.common.dto.client.request.CreateClientReqDto
+import team.themoment.datagsm.common.dto.client.response.CreateClientResDto
 import team.themoment.datagsm.web.domain.client.service.CreateClientService
 import team.themoment.datagsm.web.domain.client.service.GetAvailableOauthScopesService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider

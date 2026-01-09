@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.common.domain.club.ClubSortBy
 import team.themoment.datagsm.common.domain.club.ClubType
+import team.themoment.datagsm.common.dto.club.request.ClubReqDto
+import team.themoment.datagsm.common.dto.club.response.ClubListResDto
+import team.themoment.datagsm.common.dto.club.response.ClubResDto
 import team.themoment.datagsm.common.global.constant.SortDirection
-import team.themoment.datagsm.web.domain.club.dto.request.ClubReqDto
-import team.themoment.datagsm.web.domain.club.dto.response.ClubListResDto
-import team.themoment.datagsm.web.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.web.domain.club.service.CreateClubExcelService
 import team.themoment.datagsm.web.domain.club.service.CreateClubService
 import team.themoment.datagsm.web.domain.club.service.DeleteClubService

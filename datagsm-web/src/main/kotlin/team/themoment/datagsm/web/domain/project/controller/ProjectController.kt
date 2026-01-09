@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.project.ProjectSortBy
+import team.themoment.datagsm.common.dto.project.request.ProjectReqDto
+import team.themoment.datagsm.common.dto.project.response.ProjectListResDto
+import team.themoment.datagsm.common.dto.project.response.ProjectResDto
 import team.themoment.datagsm.common.global.constant.SortDirection
-import team.themoment.datagsm.web.domain.project.dto.request.ProjectReqDto
-import team.themoment.datagsm.web.domain.project.dto.response.ProjectListResDto
-import team.themoment.datagsm.web.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.web.domain.project.service.CreateProjectService
 import team.themoment.datagsm.web.domain.project.service.DeleteProjectService
 import team.themoment.datagsm.web.domain.project.service.ModifyProjectService

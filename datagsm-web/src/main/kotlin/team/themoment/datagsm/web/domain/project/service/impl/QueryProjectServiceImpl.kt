@@ -5,12 +5,12 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.project.ProjectSortBy
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
+import team.themoment.datagsm.common.dto.club.internal.ClubSummaryDto
+import team.themoment.datagsm.common.dto.project.response.ProjectListResDto
+import team.themoment.datagsm.common.dto.project.response.ProjectResDto
+import team.themoment.datagsm.common.dto.student.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.global.constant.SortDirection
-import team.themoment.datagsm.web.domain.club.dto.internal.ClubSummaryDto
-import team.themoment.datagsm.web.domain.project.dto.response.ProjectListResDto
-import team.themoment.datagsm.web.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.web.domain.project.service.QueryProjectService
-import team.themoment.datagsm.web.domain.student.dto.internal.ParticipantInfoDto
 
 @Service
 @Transactional(readOnly = true)
