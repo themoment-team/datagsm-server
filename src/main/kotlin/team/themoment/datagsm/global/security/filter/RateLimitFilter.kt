@@ -6,10 +6,12 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
 import team.themoment.datagsm.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.domain.auth.entity.ApiKey
 import team.themoment.datagsm.global.common.response.dto.response.CommonApiResponse
+import team.themoment.datagsm.global.security.config.AuthenticationPathConfig
 import team.themoment.datagsm.global.security.provider.CurrentUserProvider
 import team.themoment.datagsm.global.security.service.RateLimitService
 
@@ -18,6 +20,15 @@ class RateLimitFilter(
     private val objectMapper: ObjectMapper,
     private val currentUserProvider: CurrentUserProvider,
 ) : OncePerRequestFilter() {
+    private val pathMatcher = AntPathMatcher()
+
+    override fun shouldNotFilter(request: HttpServletRequest): Boolean {
+        val requestPath = request.requestURI
+        return AuthenticationPathConfig.PUBLIC_PATHS.any { path ->
+            pathMatcher.match(path, requestPath)
+        }
+    }
+
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
