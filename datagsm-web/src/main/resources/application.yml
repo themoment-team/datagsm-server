@@ -58,7 +58,11 @@ server:
 
 sdk:
   logging:
-    enabled: false  # 커스텀 LoggingFilter 사용
+    enabled: true
+    not-logging-urls:
+      - "/v3/api-docs/**"
+      - "/swagger-ui/**"
+      - "/actuator/**"
 
   response:
     enabled: true

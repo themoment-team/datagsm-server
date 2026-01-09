@@ -59,7 +59,7 @@ server:
 
 sdk:
   logging:
-    enabled: true  # datagsm-resource는 커스텀 LoggingFilter 없음
+    enabled: true
     not-logging-urls:
       - "/v3/api-docs/**"
       - "/swagger-ui/**"
@@ -82,7 +82,7 @@ sdk:
       - "/v1/**"
 
   exception:
-    enabled: false  # 커스텀 GlobalExceptionHandler 사용 (Discord 통합)
+    enabled: false
     use-english-message: false
 
 springdoc:
