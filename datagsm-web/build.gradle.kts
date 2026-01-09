@@ -45,9 +45,6 @@ dependencies {
     // QueryDSL
     implementation(dependency.Dependencies.QUERY_DSL)
 
-    // Custom Libraries
-    implementation(dependency.Dependencies.PEANUT_BUTTER)
-
     // Testing
     testImplementation(dependency.Dependencies.SPRING_TEST)
     testImplementation(dependency.Dependencies.KOTLIN_JUNIT5)

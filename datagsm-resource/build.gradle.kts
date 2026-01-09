@@ -27,9 +27,6 @@ dependencies {
     // Common Module
     implementation(project(":datagsm-common"))
 
-    // Custom Libraries
-    implementation(dependency.Dependencies.PEANUT_BUTTER)
-
     // Testing
     testImplementation(dependency.Dependencies.SPRING_TEST)
     testImplementation(dependency.Dependencies.KOTLIN_JUNIT5)

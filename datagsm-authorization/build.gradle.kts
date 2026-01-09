@@ -30,7 +30,7 @@ dependencies {
     // Common Module
     implementation(project(":datagsm-common"))
 
-    // Spring Boot (module-specific)
+    // Spring Boot
     implementation(dependency.Dependencies.SPRINT_MAIL)
 
     // Spring OAuth2
