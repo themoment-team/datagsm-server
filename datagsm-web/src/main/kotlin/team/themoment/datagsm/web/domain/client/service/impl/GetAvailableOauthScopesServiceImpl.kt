@@ -1,8 +1,8 @@
-package team.themoment.datagsm.authorization.domain.client.service.impl
+package team.themoment.datagsm.web.domain.client.service.impl
 
 import org.springframework.stereotype.Service
-import team.themoment.datagsm.authorization.domain.client.service.GetAvailableOauthScopesService
 import team.themoment.datagsm.common.domain.account.ApiScope
+import team.themoment.datagsm.web.domain.client.service.GetAvailableOauthScopesService
 
 @Service
 class GetAvailableOauthScopesServiceImpl : GetAvailableOauthScopesService {

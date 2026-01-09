@@ -1,4 +1,4 @@
-package team.themoment.datagsm.authorization.domain.client.dto.response
+package team.themoment.datagsm.web.domain.client.dto.response
 
 data class QueryMyClientResDto(
     val clients: List<ClientResDto>,

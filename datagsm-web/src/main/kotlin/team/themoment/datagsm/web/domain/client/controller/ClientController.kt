@@ -1,4 +1,4 @@
-package team.themoment.datagsm.authorization.domain.client.controller
+package team.themoment.datagsm.web.domain.client.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -16,15 +16,15 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.authorization.domain.client.dto.request.CreateClientReqDto
-import team.themoment.datagsm.authorization.domain.client.dto.request.ModifyClientReqDto
-import team.themoment.datagsm.authorization.domain.client.dto.response.ClientListResDto
-import team.themoment.datagsm.authorization.domain.client.service.CreateClientService
-import team.themoment.datagsm.authorization.domain.client.service.DeleteClientService
-import team.themoment.datagsm.authorization.domain.client.service.GetAvailableOauthScopesService
-import team.themoment.datagsm.authorization.domain.client.service.ModifyClientService
-import team.themoment.datagsm.authorization.domain.client.service.QueryMyClientService
-import team.themoment.datagsm.authorization.domain.client.service.SearchClientService
+import team.themoment.datagsm.web.domain.client.dto.request.CreateClientReqDto
+import team.themoment.datagsm.web.domain.client.dto.request.ModifyClientReqDto
+import team.themoment.datagsm.web.domain.client.dto.response.ClientListResDto
+import team.themoment.datagsm.web.domain.client.service.CreateClientService
+import team.themoment.datagsm.web.domain.client.service.DeleteClientService
+import team.themoment.datagsm.web.domain.client.service.GetAvailableOauthScopesService
+import team.themoment.datagsm.web.domain.client.service.ModifyClientService
+import team.themoment.datagsm.web.domain.client.service.QueryMyClientService
+import team.themoment.datagsm.web.domain.client.service.SearchClientService
 import team.themoment.sdk.response.CommonApiResponse
 
 @Tag(name = "Client", description = "OAuth 클라이언트 관련 API")

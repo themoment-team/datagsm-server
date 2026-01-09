@@ -1,12 +1,12 @@
-package team.themoment.datagsm.authorization.domain.client.service.impl
+package team.themoment.datagsm.web.domain.client.service.impl
 
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.authorization.domain.client.dto.response.ClientListResDto
-import team.themoment.datagsm.authorization.domain.client.dto.response.ClientResDto
-import team.themoment.datagsm.authorization.domain.client.service.SearchClientService
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
+import team.themoment.datagsm.web.domain.client.dto.response.ClientListResDto
+import team.themoment.datagsm.web.domain.client.dto.response.ClientResDto
+import team.themoment.datagsm.web.domain.client.service.SearchClientService
 
 @Service
 @Transactional(readOnly = true)

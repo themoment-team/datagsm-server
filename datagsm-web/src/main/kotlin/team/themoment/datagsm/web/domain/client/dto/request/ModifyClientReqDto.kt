@@ -1,4 +1,4 @@
-package team.themoment.datagsm.authorization.domain.client.dto.request
+package team.themoment.datagsm.web.domain.client.dto.request
 
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Size
