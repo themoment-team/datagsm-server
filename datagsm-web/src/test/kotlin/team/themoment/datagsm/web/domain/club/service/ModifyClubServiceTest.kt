@@ -14,7 +14,7 @@ import team.themoment.datagsm.common.domain.student.Sex
 import team.themoment.datagsm.common.domain.student.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.StudentNumber
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.web.domain.club.dto.request.ClubReqDto
+import team.themoment.datagsm.common.dto.club.request.ClubReqDto
 import team.themoment.datagsm.web.domain.club.service.impl.ModifyClubServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional

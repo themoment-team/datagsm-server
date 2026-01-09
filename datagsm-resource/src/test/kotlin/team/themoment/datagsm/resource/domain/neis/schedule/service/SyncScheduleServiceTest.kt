@@ -7,12 +7,12 @@ import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.neis.ScheduleRedisEntity
 import team.themoment.datagsm.common.domain.neis.schedule.repository.ScheduleRedisRepository
+import team.themoment.datagsm.common.dto.neis.internal.NeisScheduleApiResponse
+import team.themoment.datagsm.common.dto.neis.internal.SchoolScheduleInfo
+import team.themoment.datagsm.common.dto.neis.internal.SchoolScheduleWrapper
 import team.themoment.datagsm.resource.domain.neis.common.data.NeisEnvironment
 import team.themoment.datagsm.resource.domain.neis.schedule.service.impl.SyncScheduleServiceImpl
 import team.themoment.datagsm.resource.global.thirdparty.feign.neis.NeisApiClient
-import team.themoment.datagsm.resource.global.thirdparty.feign.neis.dto.NeisScheduleApiResponse
-import team.themoment.datagsm.resource.global.thirdparty.feign.neis.dto.SchoolScheduleInfo
-import team.themoment.datagsm.resource.global.thirdparty.feign.neis.dto.SchoolScheduleWrapper
 import java.time.LocalDate
 
 class SyncScheduleServiceTest :

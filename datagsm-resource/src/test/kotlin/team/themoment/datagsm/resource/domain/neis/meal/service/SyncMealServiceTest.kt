@@ -7,12 +7,12 @@ import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.neis.MealRedisEntity
 import team.themoment.datagsm.common.domain.neis.meal.repository.MealRedisRepository
+import team.themoment.datagsm.common.dto.neis.internal.MealServiceDietInfo
+import team.themoment.datagsm.common.dto.neis.internal.MealServiceDietInfoWrapper
+import team.themoment.datagsm.common.dto.neis.internal.NeisMealApiResponse
 import team.themoment.datagsm.resource.domain.neis.common.data.NeisEnvironment
 import team.themoment.datagsm.resource.domain.neis.meal.service.impl.SyncMealServiceImpl
 import team.themoment.datagsm.resource.global.thirdparty.feign.neis.NeisApiClient
-import team.themoment.datagsm.resource.global.thirdparty.feign.neis.dto.MealServiceDietInfo
-import team.themoment.datagsm.resource.global.thirdparty.feign.neis.dto.MealServiceDietInfoWrapper
-import team.themoment.datagsm.resource.global.thirdparty.feign.neis.dto.NeisMealApiResponse
 import java.time.LocalDate
 
 class SyncMealServiceTest :
