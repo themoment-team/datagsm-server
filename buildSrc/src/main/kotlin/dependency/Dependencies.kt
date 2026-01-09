@@ -84,6 +84,7 @@ object Dependencies {
     const val LOGBACK_AWS_APPENDER = "ca.pjer:logback-awslogs-appender:${LOGBACK_AWS_APPENDER_VERSION}"
 
     // Development Tools
+    const val SPRING_BOOT_DEVTOOLS = "org.springframework.boot:spring-boot-devtools"
     const val SPRING_DOCKER_SUPPORT = "org.springframework.boot:spring-boot-docker-compose"
 
     // Testing
