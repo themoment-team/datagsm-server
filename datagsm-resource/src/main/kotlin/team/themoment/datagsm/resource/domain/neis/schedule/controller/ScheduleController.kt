@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
-import team.themoment.datagsm.common.dto.neis.schedule.response.ScheduleResDto
+import team.themoment.datagsm.common.domain.neis.dto.schedule.response.ScheduleResDto
 import team.themoment.datagsm.resource.domain.neis.schedule.service.SearchScheduleService
 import team.themoment.datagsm.resource.global.security.annotation.RequireScope
 import java.time.LocalDate

@@ -14,7 +14,7 @@ import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
-import team.themoment.datagsm.common.dto.client.request.CreateClientReqDto
+import team.themoment.datagsm.common.domain.client.dto.request.CreateClientReqDto
 import team.themoment.datagsm.web.domain.client.service.GetAvailableOauthScopesService
 import team.themoment.datagsm.web.domain.client.service.impl.CreateClientServiceImpl
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider

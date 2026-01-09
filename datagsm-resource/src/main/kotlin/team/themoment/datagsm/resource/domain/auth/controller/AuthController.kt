@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
-import team.themoment.datagsm.common.dto.auth.response.ApiKeyResDto
-import team.themoment.datagsm.common.dto.auth.response.ApiKeySearchResDto
-import team.themoment.datagsm.common.dto.auth.response.ApiScopeGroupListResDto
-import team.themoment.datagsm.common.dto.auth.response.ApiScopeResDto
+import team.themoment.datagsm.common.domain.auth.dto.response.ApiKeyResDto
+import team.themoment.datagsm.common.domain.auth.dto.response.ApiKeySearchResDto
+import team.themoment.datagsm.common.domain.auth.dto.response.ApiScopeGroupListResDto
+import team.themoment.datagsm.common.domain.auth.dto.response.ApiScopeResDto
 import team.themoment.datagsm.resource.domain.auth.service.QueryApiScopeByScopeNameService
 import team.themoment.datagsm.resource.domain.auth.service.QueryApiScopeGroupService
 import team.themoment.datagsm.resource.domain.auth.service.QueryCurrentAccountApiKeyService

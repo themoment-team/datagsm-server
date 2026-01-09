@@ -12,7 +12,7 @@ import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
-import team.themoment.datagsm.common.dto.project.request.ProjectReqDto
+import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.web.domain.project.service.impl.CreateProjectServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional

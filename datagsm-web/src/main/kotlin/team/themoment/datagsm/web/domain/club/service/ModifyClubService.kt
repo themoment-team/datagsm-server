@@ -1,7 +1,7 @@
 package team.themoment.datagsm.web.domain.club.service
 
-import team.themoment.datagsm.common.dto.club.request.ClubReqDto
-import team.themoment.datagsm.common.dto.club.response.ClubResDto
+import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
+import team.themoment.datagsm.common.domain.club.dto.response.ClubResDto
 
 interface ModifyClubService {
     fun execute(

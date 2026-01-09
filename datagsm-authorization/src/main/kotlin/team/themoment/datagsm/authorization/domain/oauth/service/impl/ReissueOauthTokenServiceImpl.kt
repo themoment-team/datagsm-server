@@ -9,7 +9,7 @@ import team.themoment.datagsm.common.domain.account.repository.AccountJpaReposit
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisEntity
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
-import team.themoment.datagsm.common.dto.oauth.response.OauthTokenResDto
+import team.themoment.datagsm.common.domain.oauth.dto.response.OauthTokenResDto
 import team.themoment.datagsm.common.global.data.JwtEnvironment
 import team.themoment.sdk.exception.ExpectedException
 import java.security.MessageDigest

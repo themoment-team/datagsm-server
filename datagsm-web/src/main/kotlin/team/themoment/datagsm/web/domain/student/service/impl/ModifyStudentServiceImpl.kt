@@ -8,9 +8,9 @@ import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.common.dto.club.internal.ClubSummaryDto
-import team.themoment.datagsm.common.dto.student.request.UpdateStudentReqDto
-import team.themoment.datagsm.common.dto.student.response.StudentResDto
+import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
+import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentReqDto
+import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentService
 import team.themoment.sdk.exception.ExpectedException
 

@@ -1,6 +1,6 @@
 package team.themoment.datagsm.web.domain.client.service
 
-import team.themoment.datagsm.common.dto.client.response.ClientListResDto
+import team.themoment.datagsm.common.domain.client.dto.response.ClientListResDto
 
 interface SearchClientService {
     fun execute(

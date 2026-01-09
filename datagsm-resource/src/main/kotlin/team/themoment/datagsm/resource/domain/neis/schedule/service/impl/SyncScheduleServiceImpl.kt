@@ -5,7 +5,7 @@ import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.neis.schedule.entity.ScheduleRedisEntity
 import team.themoment.datagsm.common.domain.neis.schedule.repository.ScheduleRedisRepository
-import team.themoment.datagsm.common.dto.neis.internal.SchoolScheduleInfo
+import team.themoment.datagsm.common.domain.neis.dto.internal.SchoolScheduleInfo
 import team.themoment.datagsm.common.global.data.NeisEnvironment
 import team.themoment.datagsm.resource.domain.neis.schedule.service.SyncScheduleService
 import team.themoment.datagsm.resource.global.thirdparty.feign.neis.NeisApiClient

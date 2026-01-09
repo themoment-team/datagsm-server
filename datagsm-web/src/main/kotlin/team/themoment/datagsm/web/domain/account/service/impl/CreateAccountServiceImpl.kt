@@ -9,8 +9,8 @@ import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.account.repository.EmailCodeRedisRepository
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.common.dto.account.request.CreateAccountReqDto
-import team.themoment.datagsm.common.dto.account.request.EmailCodeReqDto
+import team.themoment.datagsm.common.domain.account.dto.request.CreateAccountReqDto
+import team.themoment.datagsm.common.domain.account.dto.request.EmailCodeReqDto
 import team.themoment.datagsm.web.domain.account.service.CheckEmailService
 import team.themoment.datagsm.web.domain.account.service.CreateAccountService
 import team.themoment.sdk.exception.ExpectedException

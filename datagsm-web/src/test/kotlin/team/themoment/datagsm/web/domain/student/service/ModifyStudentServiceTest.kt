@@ -16,7 +16,7 @@ import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.common.dto.student.request.UpdateStudentReqDto
+import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.web.domain.student.service.impl.ModifyStudentServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional

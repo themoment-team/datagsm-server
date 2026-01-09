@@ -7,9 +7,9 @@ import team.themoment.datagsm.authorization.domain.account.service.GetMyInfoServ
 import team.themoment.datagsm.authorization.global.security.authentication.type.AuthType
 import team.themoment.datagsm.authorization.global.security.provider.CurrentUserProvider
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
-import team.themoment.datagsm.common.dto.account.response.GetMyInfoResDto
-import team.themoment.datagsm.common.dto.club.internal.ClubSummaryDto
-import team.themoment.datagsm.common.dto.student.response.StudentResDto
+import team.themoment.datagsm.common.domain.account.dto.response.GetMyInfoResDto
+import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
+import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
 import team.themoment.sdk.exception.ExpectedException
 
 @Service

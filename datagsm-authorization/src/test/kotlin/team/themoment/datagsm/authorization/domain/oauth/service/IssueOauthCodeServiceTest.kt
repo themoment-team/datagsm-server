@@ -18,7 +18,7 @@ import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
-import team.themoment.datagsm.common.dto.oauth.request.OauthCodeReqDto
+import team.themoment.datagsm.common.domain.oauth.dto.request.OauthCodeReqDto
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional

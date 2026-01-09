@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service
 import team.themoment.datagsm.authorization.global.security.annotation.EmailRateLimitType
 import team.themoment.datagsm.common.global.data.EmailRateLimitEnvironment
 import team.themoment.datagsm.authorization.global.security.service.EmailRateLimitService
-import team.themoment.datagsm.common.dto.global.internal.RateLimitConsumeResult
+import team.themoment.datagsm.common.global.dto.internal.RateLimitConsumeResult
 import java.time.Duration
 
 @Service

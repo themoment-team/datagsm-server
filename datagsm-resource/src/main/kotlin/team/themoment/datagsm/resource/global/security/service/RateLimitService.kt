@@ -1,7 +1,7 @@
 package team.themoment.datagsm.resource.global.security.service
 
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
-import team.themoment.datagsm.common.dto.global.internal.RateLimitConsumeResult
+import team.themoment.datagsm.common.global.dto.internal.RateLimitConsumeResult
 
 interface RateLimitService {
     fun tryConsume(apiKey: ApiKey): Boolean

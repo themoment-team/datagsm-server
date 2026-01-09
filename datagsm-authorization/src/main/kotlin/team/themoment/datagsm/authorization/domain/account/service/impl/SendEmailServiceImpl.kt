@@ -10,7 +10,7 @@ import team.themoment.datagsm.authorization.global.security.annotation.EmailRate
 import team.themoment.datagsm.common.domain.account.entity.EmailCodeRedisEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.account.repository.EmailCodeRedisRepository
-import team.themoment.datagsm.common.dto.account.request.SendEmailReqDto
+import team.themoment.datagsm.common.domain.account.dto.request.SendEmailReqDto
 import team.themoment.sdk.exception.ExpectedException
 import java.security.SecureRandom
 

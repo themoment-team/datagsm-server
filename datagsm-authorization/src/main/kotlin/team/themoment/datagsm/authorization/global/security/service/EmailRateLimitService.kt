@@ -1,7 +1,7 @@
 package team.themoment.datagsm.authorization.global.security.service
 
 import team.themoment.datagsm.authorization.global.security.annotation.EmailRateLimitType
-import team.themoment.datagsm.common.dto.global.internal.RateLimitConsumeResult
+import team.themoment.datagsm.common.global.dto.internal.RateLimitConsumeResult
 
 interface EmailRateLimitService {
     /**

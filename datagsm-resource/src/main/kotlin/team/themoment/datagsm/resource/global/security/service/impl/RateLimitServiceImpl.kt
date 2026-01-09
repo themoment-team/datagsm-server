@@ -5,7 +5,7 @@ import io.github.bucket4j.BucketConfiguration
 import io.github.bucket4j.distributed.proxy.ProxyManager
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
-import team.themoment.datagsm.common.dto.global.internal.RateLimitConsumeResult
+import team.themoment.datagsm.common.global.dto.internal.RateLimitConsumeResult
 import team.themoment.datagsm.common.global.data.ApiKeyEnvironment
 import team.themoment.datagsm.resource.global.security.service.RateLimitService
 import java.time.Duration

@@ -20,10 +20,10 @@ import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentSortBy
-import team.themoment.datagsm.common.dto.student.request.CreateStudentReqDto
-import team.themoment.datagsm.common.dto.student.request.UpdateStudentReqDto
-import team.themoment.datagsm.common.dto.student.response.StudentListResDto
-import team.themoment.datagsm.common.dto.student.response.StudentResDto
+import team.themoment.datagsm.common.domain.student.dto.request.CreateStudentReqDto
+import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentReqDto
+import team.themoment.datagsm.common.domain.student.dto.response.StudentListResDto
+import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.common.global.constant.SortDirection
 import team.themoment.datagsm.web.domain.student.service.CreateStudentExcelService
 import team.themoment.datagsm.web.domain.student.service.CreateStudentService

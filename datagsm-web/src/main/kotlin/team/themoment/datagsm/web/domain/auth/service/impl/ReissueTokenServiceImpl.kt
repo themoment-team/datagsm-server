@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.account.entity.RefreshTokenRedisEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.auth.repository.RefreshTokenRedisRepository
-import team.themoment.datagsm.common.dto.auth.response.TokenResDto
+import team.themoment.datagsm.common.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.common.global.data.JwtEnvironment
 import team.themoment.datagsm.web.domain.auth.service.ReissueTokenService
 import team.themoment.datagsm.web.global.security.jwt.JwtProvider

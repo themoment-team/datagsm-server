@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubSortBy
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
-import team.themoment.datagsm.common.dto.club.response.ClubListResDto
+import team.themoment.datagsm.common.domain.club.dto.response.ClubListResDto
 import team.themoment.datagsm.common.global.constant.SortDirection
 import team.themoment.datagsm.resource.domain.club.service.QueryClubService
 import team.themoment.datagsm.resource.global.security.annotation.RequireScope

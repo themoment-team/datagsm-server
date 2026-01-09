@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
-import team.themoment.datagsm.common.dto.client.request.ModifyClientReqDto
-import team.themoment.datagsm.common.dto.client.response.ClientResDto
+import team.themoment.datagsm.common.domain.client.dto.request.ModifyClientReqDto
+import team.themoment.datagsm.common.domain.client.dto.response.ClientResDto
 import team.themoment.datagsm.web.domain.client.service.ModifyClientService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException

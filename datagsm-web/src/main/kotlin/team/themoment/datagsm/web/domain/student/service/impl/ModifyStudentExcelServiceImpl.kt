@@ -15,8 +15,8 @@ import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.common.dto.student.internal.ExcelColumnDto
-import team.themoment.datagsm.common.dto.student.internal.ExcelRowDto
+import team.themoment.datagsm.common.domain.student.dto.internal.ExcelColumnDto
+import team.themoment.datagsm.common.domain.student.dto.internal.ExcelRowDto
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentExcelService
 import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.response.CommonApiResponse

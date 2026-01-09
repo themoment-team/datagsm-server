@@ -4,7 +4,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.account.repository.EmailCodeRedisRepository
-import team.themoment.datagsm.common.dto.account.request.EmailCodeReqDto
+import team.themoment.datagsm.common.domain.account.dto.request.EmailCodeReqDto
 import team.themoment.datagsm.web.domain.account.service.CheckEmailService
 import team.themoment.sdk.exception.ExpectedException
 
