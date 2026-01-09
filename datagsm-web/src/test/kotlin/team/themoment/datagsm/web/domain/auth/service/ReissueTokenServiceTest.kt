@@ -15,7 +15,7 @@ import team.themoment.datagsm.common.domain.auth.repository.RefreshTokenRedisRep
 import team.themoment.datagsm.common.domain.student.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.StudentRole
 import team.themoment.datagsm.web.domain.auth.service.impl.ReissueTokenServiceImpl
-import team.themoment.datagsm.web.global.security.jwt.JwtProperties
+import team.themoment.datagsm.web.global.security.data.JwtProperties
 import team.themoment.datagsm.web.global.security.jwt.JwtProvider
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional

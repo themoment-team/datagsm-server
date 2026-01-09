@@ -6,8 +6,7 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @ConfigurationPropertiesScan(
     basePackages = [
-        "team.themoment.datagsm.authorization.global.jwt",
-        "team.themoment.datagsm.authorization.domain.oauth.property",
+        "team.themoment.datagsm.authorization.global.security.data",
     ],
 )
 class PropertiesScanConfig

@@ -11,7 +11,7 @@ import io.mockk.verify
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.authorization.domain.oauth.service.impl.ExchangeTokenServiceImpl
-import team.themoment.datagsm.authorization.global.jwt.JwtProperties
+import team.themoment.datagsm.authorization.global.security.data.JwtProperties
 import team.themoment.datagsm.authorization.global.security.jwt.JwtProvider
 import team.themoment.datagsm.common.domain.account.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.AccountRole

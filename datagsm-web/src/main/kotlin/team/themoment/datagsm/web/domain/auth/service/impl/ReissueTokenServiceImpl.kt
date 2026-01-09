@@ -8,7 +8,7 @@ import team.themoment.datagsm.common.domain.account.repository.AccountJpaReposit
 import team.themoment.datagsm.common.domain.auth.repository.RefreshTokenRedisRepository
 import team.themoment.datagsm.common.dto.auth.response.TokenResDto
 import team.themoment.datagsm.web.domain.auth.service.ReissueTokenService
-import team.themoment.datagsm.web.global.security.jwt.JwtProperties
+import team.themoment.datagsm.web.global.security.data.JwtProperties
 import team.themoment.datagsm.web.global.security.jwt.JwtProvider
 import team.themoment.sdk.exception.ExpectedException
 import java.security.MessageDigest

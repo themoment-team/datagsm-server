@@ -1,4 +1,4 @@
-package team.themoment.datagsm.authorization.global.jwt
+package team.themoment.datagsm.authorization.global.security.data
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 

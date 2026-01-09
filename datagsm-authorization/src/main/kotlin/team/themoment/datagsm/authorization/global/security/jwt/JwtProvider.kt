@@ -6,8 +6,8 @@ import io.jsonwebtoken.security.Keys
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
-import team.themoment.datagsm.authorization.global.jwt.JwtProperties
 import team.themoment.datagsm.authorization.global.security.authentication.type.AuthType
+import team.themoment.datagsm.authorization.global.security.data.JwtProperties
 import team.themoment.datagsm.common.domain.account.AccountRole
 import team.themoment.datagsm.common.domain.account.ApiScope
 import team.themoment.sdk.exception.ExpectedException
