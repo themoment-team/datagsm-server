@@ -2,10 +2,16 @@ spring:
   application:
     name: datagsm-web
 
+  docker:
+    compose:
+      enabled: true
+      file: compose.yaml
+      lifecycle-management: start_and_stop
+
   datasource:
-    url: jdbc:mysql://localhost:3306/datagsm?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Seoul
-    username: root
-    password: ${DB_PASSWORD:datagsm1234!}
+    url: ${DB_URL:jdbc:mysql://localhost:3306/datagsm?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Seoul}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
@@ -83,7 +89,7 @@ sdk:
       - "/v1/**"
 
   exception:
-    enabled: false  # 커스텀 GlobalExceptionHandler 사용 (Discord 통합)
+    enabled: false
     use-english-message: false
 
 springdoc:
@@ -98,3 +104,4 @@ logging:
     team.themoment: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  config: classpath:logback-spring.xml

@@ -2,10 +2,16 @@ spring:
   application:
     name: datagsm-resource
 
+  docker:
+    compose:
+      enabled: true
+      file: compose.yaml
+      lifecycle-management: start_and_stop
+
   datasource:
-    url: jdbc:mysql://localhost:3306/datagsm?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Seoul
-    username: root
-    password: ${DB_PASSWORD:datagsm1234!}
+    url: ${DB_URL:jdbc:mysql://localhost:3308/datagsm?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Seoul}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
@@ -15,7 +21,7 @@ spring:
   data:
     redis:
       host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
+      port: ${REDIS_PORT:6381}
       database: 0
 
   jpa:
@@ -46,7 +52,6 @@ spring:
       expiration-days: 30
       renewal-period-days: 15
       admin-expiration-days: 365
-      admin-renewal-period-days: 30
       rate-limit:
         enabled: true
         default-capacity: 100
@@ -97,3 +102,4 @@ logging:
     team.themoment: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  config: classpath:logback-spring.xml
