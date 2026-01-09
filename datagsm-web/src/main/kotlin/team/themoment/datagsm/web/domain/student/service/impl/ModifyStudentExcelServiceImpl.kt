@@ -12,7 +12,6 @@ import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelColumnDto
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelRowDto
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
-import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
@@ -284,13 +283,6 @@ class ModifyStudentExcelServiceImpl(
         if (studentNumber / 100 % 10 !in 1..4) throw ExpectedException("반은 1~4반이여야 합니다.", HttpStatus.BAD_REQUEST)
         return studentNumber
     }
-
-    private fun getStudentNumberEmbedded(number: Int): StudentNumber =
-        StudentNumber(
-            number / 1000,
-            number / 100 % 10,
-            number % 100,
-        )
 
     private fun getDormitoryEmbedded(room: Int?): DormitoryRoomNumber = DormitoryRoomNumber(room)
 }
