@@ -59,8 +59,6 @@ spring:
       secret: ${JWT_SECRET_KEY}
       access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:3600000}
       refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:86400000}
-      oauth-access-token-expiration: ${JWT_OAUTH_ACCESS_TOKEN_EXPIRATION:604800000}
-      oauth-refresh-token-expiration: ${JWT_OAUTH_REFRESH_TOKEN_EXPIRATION:1209600000}
     api-key:
       expiration-days: 30
       renewal-period-days: 15

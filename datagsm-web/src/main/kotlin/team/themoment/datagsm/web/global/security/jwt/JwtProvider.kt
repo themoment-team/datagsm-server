@@ -7,7 +7,6 @@ import io.jsonwebtoken.security.Keys
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.common.domain.account.AccountRole
-import team.themoment.datagsm.common.domain.account.ApiScope
 import team.themoment.datagsm.web.global.security.authentication.type.AuthType
 import team.themoment.sdk.exception.ExpectedException
 import java.nio.charset.StandardCharsets
@@ -48,46 +47,6 @@ class JwtProvider(
         return Jwts
             .builder()
             .subject(email)
-            .issuedAt(now)
-            .expiration(expiration)
-            .signWith(secretKey)
-            .compact()
-    }
-
-    fun generateOauthAccessToken(
-        email: String,
-        role: AccountRole,
-        clientId: String,
-        scopes: Set<ApiScope>,
-    ): String {
-        val now = Date()
-        val expiration = Date(now.time + jwtProperties.oauthAccessTokenExpiration)
-
-        return Jwts
-            .builder()
-            .subject(email)
-            .claim("role", role.name)
-            .claim("type", AuthType.OAUTH_JWT.name)
-            .claim("clientId", clientId)
-            .claim("scopes", scopes)
-            .issuedAt(now)
-            .expiration(expiration)
-            .signWith(secretKey)
-            .compact()
-    }
-
-    fun generateOauthRefreshToken(
-        email: String,
-        clientId: String,
-    ): String {
-        val now = Date()
-        val expiration = Date(now.time + jwtProperties.oauthRefreshTokenExpiration)
-
-        return Jwts
-            .builder()
-            .subject(email)
-            .claim("type", AuthType.OAUTH_JWT.name)
-            .claim("clientId", clientId)
             .issuedAt(now)
             .expiration(expiration)
             .signWith(secretKey)
