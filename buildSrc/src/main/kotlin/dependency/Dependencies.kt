@@ -64,8 +64,7 @@ object Dependencies {
     // Database
     const val MYSQL_CONNECTOR = "com.mysql:mysql-connector-j"
 
-    // Swagger
-    const val SWAGGER_UI = "org.springdoc:springdoc-openapi-starter-webmvc-ui:${SWAGGER_VERSION}"
+    // OpenAPI / Swagger
     const val SPRINGDOC_OPENAPI = "org.springdoc:springdoc-openapi-starter-webmvc-ui:${SWAGGER_VERSION}"
 
     // Custom Libraries

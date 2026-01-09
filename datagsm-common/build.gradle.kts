@@ -63,8 +63,8 @@ dependencies {
     // Database
     api(dependency.Dependencies.MYSQL_CONNECTOR)
 
-    // Swagger
-    api(dependency.Dependencies.SWAGGER_UI)
+    // OpenAPI / Swagger
+    api(dependency.Dependencies.SPRINGDOC_OPENAPI)
 
     // Custom Libraries
     api(dependency.Dependencies.THE_MOMENT_THE_SDK)
@@ -84,9 +84,6 @@ dependencies {
 
     // Jackson
     api(dependency.Dependencies.JACKSON_DATABIND)
-
-    // Swagger/OpenAPI
-    api(dependency.Dependencies.SPRINGDOC_OPENAPI)
 }
 
 kotlin {
