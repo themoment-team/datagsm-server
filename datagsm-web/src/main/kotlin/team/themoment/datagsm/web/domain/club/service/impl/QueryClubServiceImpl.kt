@@ -18,8 +18,8 @@ import team.themoment.datagsm.web.domain.club.service.QueryClubService
 @Service
 @Transactional
 class QueryClubServiceImpl(
-    private final val clubJpaRepository: ClubJpaRepository,
-    private final val studentJpaRepository: StudentJpaRepository,
+    private val clubJpaRepository: ClubJpaRepository,
+    private val studentJpaRepository: StudentJpaRepository,
 ) : QueryClubService {
     override fun execute(
         clubId: Long?,
