@@ -10,14 +10,14 @@ import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepositor
 import team.themoment.datagsm.common.domain.oauth.dto.response.OauthTokenResDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisEntity
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
-import team.themoment.datagsm.common.global.data.JwtEnvironment
+import team.themoment.datagsm.common.global.data.OauthJwtEnvironment
 import team.themoment.sdk.exception.ExpectedException
 import java.security.MessageDigest
 
 @Service
 class ReissueOauthTokenServiceImpl(
     private val jwtProvider: JwtProvider,
-    private val jwtEnvironment: JwtEnvironment,
+    private val jwtEnvironment: OauthJwtEnvironment,
     private val oauthRefreshTokenRedisRepository: OauthRefreshTokenRedisRepository,
     private val accountJpaRepository: AccountJpaRepository,
     private val clientJpaRepository: ClientJpaRepository,
@@ -63,7 +63,7 @@ class ReissueOauthTokenServiceImpl(
 
         oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(email, clientId)
 
-        val ttlSeconds = jwtEnvironment.oauthRefreshTokenExpiration!!.div(1000)
+        val ttlSeconds = jwtEnvironment.oauthRefreshTokenExpiration.div(1000)
         val newRefreshTokenEntity =
             OauthRefreshTokenRedisEntity.of(
                 email = email,

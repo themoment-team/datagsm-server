@@ -14,7 +14,7 @@ import team.themoment.datagsm.common.domain.oauth.dto.response.OauthTokenResDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisEntity
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
-import team.themoment.datagsm.common.global.data.JwtEnvironment
+import team.themoment.datagsm.common.global.data.OauthJwtEnvironment
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
@@ -24,7 +24,7 @@ class ExchangeTokenServiceImpl(
     private val passwordEncoder: PasswordEncoder,
     private val oauthCodeRedisRepository: OauthCodeRedisRepository,
     private val jwtProvider: JwtProvider,
-    private val jwtEnvironment: JwtEnvironment,
+    private val jwtEnvironment: OauthJwtEnvironment,
     private val oauthRefreshTokenRedisRepository: OauthRefreshTokenRedisRepository,
 ) : ExchangeTokenService {
     @Transactional(readOnly = true)
@@ -51,7 +51,7 @@ class ExchangeTokenServiceImpl(
         val refreshToken = jwtProvider.generateOauthRefreshToken(account.email, client.id)
 
         oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(account.email, client.id)
-        val ttlSeconds = jwtEnvironment.oauthRefreshTokenExpiration!!.div(1000)
+        val ttlSeconds = jwtEnvironment.oauthRefreshTokenExpiration.div(1000)
         val refreshTokenEntity =
             OauthRefreshTokenRedisEntity.of(
                 email = account.email,

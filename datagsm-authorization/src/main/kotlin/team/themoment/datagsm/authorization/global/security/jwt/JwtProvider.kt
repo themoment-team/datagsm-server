@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 import team.themoment.datagsm.authorization.global.security.authentication.type.AuthType
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
-import team.themoment.datagsm.common.global.data.JwtEnvironment
+import team.themoment.datagsm.common.global.data.OauthJwtEnvironment
 import team.themoment.sdk.exception.ExpectedException
 import java.nio.charset.StandardCharsets
 import java.util.Date
@@ -17,7 +17,7 @@ import javax.crypto.SecretKey
 
 @Component
 class JwtProvider(
-    private val jwtEnvironment: JwtEnvironment,
+    private val jwtEnvironment: OauthJwtEnvironment,
 ) {
     private val secretKey: SecretKey =
         Keys.hmacShaKeyFor(
@@ -31,7 +31,7 @@ class JwtProvider(
         scopes: Set<ApiScope>,
     ): String {
         val now = Date()
-        val expiration = Date(now.time + jwtEnvironment.oauthAccessTokenExpiration!!)
+        val expiration = Date(now.time + jwtEnvironment.oauthAccessTokenExpiration)
 
         return Jwts
             .builder()
@@ -51,7 +51,7 @@ class JwtProvider(
         clientId: String,
     ): String {
         val now = Date()
-        val expiration = Date(now.time + jwtEnvironment.oauthRefreshTokenExpiration!!)
+        val expiration = Date(now.time + jwtEnvironment.oauthRefreshTokenExpiration)
 
         return Jwts
             .builder()
