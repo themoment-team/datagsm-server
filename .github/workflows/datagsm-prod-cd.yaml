@@ -30,7 +30,7 @@ jobs:
           mkdir -p ./datagsm-resource/src/main/resources
 
           touch ./datagsm-authorization/src/main/resources/application-prod.yml
-          echo "${{ secrets.PROD_AUTH_APPLICATION_YAML }}" > ./datagsm-authorization/src/main/resources/application-prod.yml
+          echo "${{ secrets.PROD_AUTHORIZATION_APPLICATION_YAML }}" > ./datagsm-authorization/src/main/resources/application-prod.yml
 
           touch ./datagsm-web/src/main/resources/application-prod.yml
           echo "${{ secrets.PROD_WEB_APPLICATION_YAML }}" > ./datagsm-web/src/main/resources/application-prod.yml
