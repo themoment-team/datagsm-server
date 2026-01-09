@@ -7,8 +7,8 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
-import team.themoment.datagsm.common.domain.account.AccountJpaEntity
-import team.themoment.datagsm.common.domain.account.ApiScope
+import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.global.converter.StringSetConverter
 
 @Table(name = "tb_client")

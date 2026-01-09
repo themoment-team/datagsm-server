@@ -3,7 +3,7 @@ package team.themoment.datagsm.web.domain.account.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.common.domain.student.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.dto.account.response.GetMyInfoResDto
 import team.themoment.datagsm.common.dto.club.internal.ClubSummaryDto
 import team.themoment.datagsm.common.dto.student.response.StudentResDto

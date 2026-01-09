@@ -3,7 +3,7 @@ package team.themoment.datagsm.resource.domain.neis.schedule.service.impl
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Service
-import team.themoment.datagsm.common.domain.neis.ScheduleRedisEntity
+import team.themoment.datagsm.common.domain.neis.schedule.entity.ScheduleRedisEntity
 import team.themoment.datagsm.common.domain.neis.schedule.repository.ScheduleRedisRepository
 import team.themoment.datagsm.common.dto.neis.internal.SchoolScheduleInfo
 import team.themoment.datagsm.common.global.data.NeisEnvironment

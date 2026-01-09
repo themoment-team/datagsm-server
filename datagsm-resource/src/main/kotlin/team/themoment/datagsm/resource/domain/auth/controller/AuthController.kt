@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.common.domain.account.AccountRole
-import team.themoment.datagsm.common.domain.account.ApiScope
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
+import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.dto.auth.response.ApiKeyResDto
 import team.themoment.datagsm.common.dto.auth.response.ApiKeySearchResDto
 import team.themoment.datagsm.common.dto.auth.response.ApiScopeGroupListResDto

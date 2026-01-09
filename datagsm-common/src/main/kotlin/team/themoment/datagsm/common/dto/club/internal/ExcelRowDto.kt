@@ -3,7 +3,7 @@ package team.themoment.datagsm.common.dto.club.internal
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
-import team.themoment.datagsm.common.domain.club.ClubType
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 
 data class ExcelRowDto(
     @field:NotEmpty

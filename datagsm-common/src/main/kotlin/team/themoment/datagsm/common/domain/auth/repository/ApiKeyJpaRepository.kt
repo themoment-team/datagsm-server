@@ -2,7 +2,7 @@ package team.themoment.datagsm.common.domain.auth.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
-import team.themoment.datagsm.common.domain.account.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.common.domain.auth.repository.custom.ApiKeyJpaCustomRepository
 import java.time.LocalDateTime

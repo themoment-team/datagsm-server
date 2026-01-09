@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.authorization.domain.account.service.CheckEmailService
 import team.themoment.datagsm.authorization.domain.account.service.CreateAccountService
-import team.themoment.datagsm.common.domain.account.AccountJpaEntity
-import team.themoment.datagsm.common.domain.account.AccountRole
+import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.account.repository.EmailCodeRedisRepository
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository

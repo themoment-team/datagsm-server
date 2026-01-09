@@ -6,8 +6,8 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import team.themoment.datagsm.common.domain.neis.MealRedisEntity
-import team.themoment.datagsm.common.domain.neis.MealType
+import team.themoment.datagsm.common.domain.neis.meal.entity.MealRedisEntity
+import team.themoment.datagsm.common.domain.neis.meal.entity.constant.MealType
 import team.themoment.datagsm.common.domain.neis.meal.repository.MealRedisRepository
 import team.themoment.datagsm.resource.domain.neis.meal.service.impl.SearchMealServiceImpl
 import java.time.LocalDate

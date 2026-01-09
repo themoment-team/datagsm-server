@@ -1,6 +1,6 @@
 package team.themoment.datagsm.resource.global.security.annotation
 
-import team.themoment.datagsm.common.domain.account.ApiScope
+import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)

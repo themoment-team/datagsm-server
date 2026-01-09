@@ -1,7 +1,7 @@
 package team.themoment.datagsm.common.dto.account.response
 
 import io.swagger.v3.oas.annotations.media.Schema
-import team.themoment.datagsm.common.domain.account.AccountRole
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.dto.student.response.StudentResDto
 
 data class GetMyInfoResDto(

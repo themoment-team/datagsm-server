@@ -1,6 +1,6 @@
 package team.themoment.datagsm.web.domain.project.service
 
-import team.themoment.datagsm.common.domain.project.ProjectSortBy
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectSortBy
 import team.themoment.datagsm.common.dto.project.response.ProjectListResDto
 import team.themoment.datagsm.common.global.constant.SortDirection
 

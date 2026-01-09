@@ -11,8 +11,8 @@ import jakarta.persistence.ManyToMany
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.DynamicUpdate
-import team.themoment.datagsm.common.domain.club.ClubJpaEntity
-import team.themoment.datagsm.common.domain.student.StudentJpaEntity
+import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 
 @Table(name = "tb_project")
 @Entity

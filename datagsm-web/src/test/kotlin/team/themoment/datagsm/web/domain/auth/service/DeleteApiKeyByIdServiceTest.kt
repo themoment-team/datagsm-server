@@ -7,7 +7,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import team.themoment.datagsm.common.domain.account.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.web.domain.auth.service.impl.DeleteApiKeyByIdServiceImpl

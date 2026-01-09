@@ -12,8 +12,8 @@ import team.themoment.datagsm.authorization.domain.account.service.impl.GetMyInf
 import team.themoment.datagsm.authorization.global.security.authentication.principal.CustomPrincipal
 import team.themoment.datagsm.authorization.global.security.authentication.type.AuthType
 import team.themoment.datagsm.authorization.global.security.provider.CurrentUserProvider
-import team.themoment.datagsm.common.domain.account.AccountJpaEntity
-import team.themoment.datagsm.common.domain.account.AccountRole
+import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.sdk.exception.ExpectedException
 
 class GetMyInfoServiceTest :

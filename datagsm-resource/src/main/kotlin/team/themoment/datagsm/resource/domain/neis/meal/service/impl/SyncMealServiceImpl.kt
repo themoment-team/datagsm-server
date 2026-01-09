@@ -3,8 +3,8 @@ package team.themoment.datagsm.resource.domain.neis.meal.service.impl
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Service
-import team.themoment.datagsm.common.domain.neis.MealRedisEntity
-import team.themoment.datagsm.common.domain.neis.MealType
+import team.themoment.datagsm.common.domain.neis.meal.entity.MealRedisEntity
+import team.themoment.datagsm.common.domain.neis.meal.entity.constant.MealType
 import team.themoment.datagsm.common.domain.neis.meal.repository.MealRedisRepository
 import team.themoment.datagsm.common.dto.neis.internal.MealServiceDietInfo
 import team.themoment.datagsm.common.global.data.NeisEnvironment

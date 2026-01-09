@@ -6,8 +6,8 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
-import team.themoment.datagsm.common.domain.project.ProjectJpaEntity
-import team.themoment.datagsm.common.domain.project.ProjectSortBy
+import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectSortBy
 import team.themoment.datagsm.common.domain.project.QProjectJpaEntity.Companion.projectJpaEntity
 import team.themoment.datagsm.common.domain.project.repository.custom.ProjectJpaCustomRepository
 import team.themoment.datagsm.common.global.constant.SortDirection

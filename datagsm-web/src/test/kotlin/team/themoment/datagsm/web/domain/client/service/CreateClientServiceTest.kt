@@ -10,9 +10,9 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
-import team.themoment.datagsm.common.domain.account.AccountJpaEntity
-import team.themoment.datagsm.common.domain.account.ApiScope
-import team.themoment.datagsm.common.domain.client.ClientJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
+import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.dto.client.request.CreateClientReqDto
 import team.themoment.datagsm.web.domain.client.service.GetAvailableOauthScopesService

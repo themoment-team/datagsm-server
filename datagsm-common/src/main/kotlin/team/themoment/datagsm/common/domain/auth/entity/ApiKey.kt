@@ -12,7 +12,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.DynamicUpdate
-import team.themoment.datagsm.common.domain.account.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import java.time.LocalDateTime
 import java.util.UUID
 

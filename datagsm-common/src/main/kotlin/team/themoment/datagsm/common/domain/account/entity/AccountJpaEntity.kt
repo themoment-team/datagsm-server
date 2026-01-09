@@ -13,8 +13,8 @@ import jakarta.persistence.Table
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.DynamicUpdate
 import org.hibernate.annotations.UpdateTimestamp
-import team.themoment.datagsm.common.domain.account.AccountRole
-import team.themoment.datagsm.common.domain.student.StudentJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
+import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import java.time.LocalDateTime
 
 @Table(name = "tb_account")

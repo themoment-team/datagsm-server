@@ -6,7 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.authorization.global.authentication.CustomAuthenticationToken
 import team.themoment.datagsm.authorization.global.security.authentication.principal.CustomPrincipal
-import team.themoment.datagsm.common.domain.account.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.sdk.exception.ExpectedException
 

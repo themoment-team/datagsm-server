@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
-import team.themoment.datagsm.common.domain.account.AccountRole
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.resource.global.security.authentication.CustomAuthenticationToken
 import team.themoment.datagsm.resource.global.security.provider.CurrentUserProvider

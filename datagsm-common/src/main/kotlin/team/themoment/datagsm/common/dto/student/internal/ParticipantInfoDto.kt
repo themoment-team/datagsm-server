@@ -1,8 +1,8 @@
 package team.themoment.datagsm.common.dto.student.internal
 
 import io.swagger.v3.oas.annotations.media.Schema
-import team.themoment.datagsm.common.domain.student.Major
-import team.themoment.datagsm.common.domain.student.Sex
+import team.themoment.datagsm.common.domain.student.entity.constant.Major
+import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 
 data class ParticipantInfoDto(
     @param:Schema(description = "학생 ID", example = "1")

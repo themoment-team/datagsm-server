@@ -1,7 +1,7 @@
 package team.themoment.datagsm.common.dto.club.internal
 
 import io.swagger.v3.oas.annotations.media.Schema
-import team.themoment.datagsm.common.domain.club.ClubType
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 
 data class ClubSummaryDto(
     @param:Schema(description = "동아리 ID", example = "1")

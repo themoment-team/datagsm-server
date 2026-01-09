@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.common.domain.account.ApiScope
-import team.themoment.datagsm.common.domain.client.ClientJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
+import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.dto.client.request.CreateClientReqDto
 import team.themoment.datagsm.common.dto.client.response.CreateClientResDto

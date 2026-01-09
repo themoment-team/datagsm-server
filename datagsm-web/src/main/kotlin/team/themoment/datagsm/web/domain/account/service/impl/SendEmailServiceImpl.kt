@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.Service
-import team.themoment.datagsm.common.domain.account.EmailCodeRedisEntity
+import team.themoment.datagsm.common.domain.account.entity.EmailCodeRedisEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.account.repository.EmailCodeRedisRepository
 import team.themoment.datagsm.common.dto.account.request.SendEmailReqDto

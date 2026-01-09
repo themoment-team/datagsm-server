@@ -4,10 +4,10 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.student.DormitoryRoomNumber
-import team.themoment.datagsm.common.domain.student.Major
-import team.themoment.datagsm.common.domain.student.StudentJpaEntity
-import team.themoment.datagsm.common.domain.student.StudentNumber
+import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
+import team.themoment.datagsm.common.domain.student.entity.constant.Major
+import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.common.dto.club.internal.ClubSummaryDto
 import team.themoment.datagsm.common.dto.student.request.CreateStudentReqDto

@@ -6,9 +6,9 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import team.themoment.datagsm.common.domain.account.AccountJpaEntity
-import team.themoment.datagsm.common.domain.account.AccountRole
-import team.themoment.datagsm.common.domain.client.ClientJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
+import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.web.domain.client.service.impl.QueryMyClientServiceImpl
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider

@@ -1,9 +1,9 @@
 package team.themoment.datagsm.common.dto.student.response
 
 import io.swagger.v3.oas.annotations.media.Schema
-import team.themoment.datagsm.common.domain.student.Major
-import team.themoment.datagsm.common.domain.student.Sex
-import team.themoment.datagsm.common.domain.student.StudentRole
+import team.themoment.datagsm.common.domain.student.entity.constant.Major
+import team.themoment.datagsm.common.domain.student.entity.constant.Sex
+import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.dto.club.internal.ClubSummaryDto
 
 data class StudentResDto(

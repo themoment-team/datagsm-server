@@ -1,6 +1,6 @@
 package team.themoment.datagsm.resource.global.security.validator
 
-import team.themoment.datagsm.common.domain.account.ApiScope
+import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 
 object ScopeValidator {
     /**

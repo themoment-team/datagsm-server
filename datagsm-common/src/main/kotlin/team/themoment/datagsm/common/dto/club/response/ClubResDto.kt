@@ -1,7 +1,7 @@
 package team.themoment.datagsm.common.dto.club.response
 
 import io.swagger.v3.oas.annotations.media.Schema
-import team.themoment.datagsm.common.domain.club.ClubType
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.dto.student.internal.ParticipantInfoDto
 
 data class ClubResDto(

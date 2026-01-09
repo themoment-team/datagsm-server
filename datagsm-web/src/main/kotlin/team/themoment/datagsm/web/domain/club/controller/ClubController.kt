@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
-import team.themoment.datagsm.common.domain.club.ClubSortBy
-import team.themoment.datagsm.common.domain.club.ClubType
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubSortBy
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.dto.club.request.ClubReqDto
 import team.themoment.datagsm.common.dto.club.response.ClubListResDto
 import team.themoment.datagsm.common.dto.club.response.ClubResDto

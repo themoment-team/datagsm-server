@@ -5,7 +5,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import team.themoment.datagsm.common.domain.neis.ScheduleRedisEntity
+import team.themoment.datagsm.common.domain.neis.schedule.entity.ScheduleRedisEntity
 import team.themoment.datagsm.common.domain.neis.schedule.repository.ScheduleRedisRepository
 import team.themoment.datagsm.common.dto.neis.internal.NeisScheduleApiResponse
 import team.themoment.datagsm.common.dto.neis.internal.SchoolScheduleInfo

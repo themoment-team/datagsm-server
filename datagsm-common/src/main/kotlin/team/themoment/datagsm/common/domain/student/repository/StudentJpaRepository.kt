@@ -1,8 +1,8 @@
 package team.themoment.datagsm.common.domain.student.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
-import team.themoment.datagsm.common.domain.club.ClubJpaEntity
-import team.themoment.datagsm.common.domain.student.StudentJpaEntity
+import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.repository.custom.StudentJpaCustomRepository
 import java.util.Optional
 

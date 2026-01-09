@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.common.domain.account.ApiScope
+import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.dto.neis.meal.response.MealResDto
 import team.themoment.datagsm.resource.domain.neis.meal.service.SearchMealService
 import team.themoment.datagsm.resource.global.security.annotation.RequireScope

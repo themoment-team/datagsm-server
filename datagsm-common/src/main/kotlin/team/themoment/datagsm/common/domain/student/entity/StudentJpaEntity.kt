@@ -13,12 +13,12 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
 import org.hibernate.annotations.DynamicUpdate
-import team.themoment.datagsm.common.domain.club.ClubJpaEntity
-import team.themoment.datagsm.common.domain.student.DormitoryRoomNumber
-import team.themoment.datagsm.common.domain.student.Major
-import team.themoment.datagsm.common.domain.student.Sex
-import team.themoment.datagsm.common.domain.student.StudentNumber
-import team.themoment.datagsm.common.domain.student.StudentRole
+import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
+import team.themoment.datagsm.common.domain.student.entity.constant.Major
+import team.themoment.datagsm.common.domain.student.entity.constant.Sex
+import team.themoment.datagsm.common.domain.student.entity.StudentNumber
+import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 
 @Table(
     name = "tb_student",

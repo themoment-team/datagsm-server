@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.common.domain.account.ApiScope
-import team.themoment.datagsm.common.domain.project.ProjectSortBy
+import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectSortBy
 import team.themoment.datagsm.common.dto.project.response.ProjectListResDto
 import team.themoment.datagsm.common.global.constant.SortDirection
 import team.themoment.datagsm.resource.domain.project.service.QueryProjectService

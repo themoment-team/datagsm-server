@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.authorization.domain.oauth.service.ReissueOauthTokenService
 import team.themoment.datagsm.authorization.global.security.jwt.JwtProvider
-import team.themoment.datagsm.common.domain.account.OauthRefreshTokenRedisEntity
+import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository

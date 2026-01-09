@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
-import team.themoment.datagsm.common.domain.student.Sex
-import team.themoment.datagsm.common.domain.student.StudentRole
-import team.themoment.datagsm.common.domain.student.StudentSortBy
+import team.themoment.datagsm.common.domain.student.entity.constant.Sex
+import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
+import team.themoment.datagsm.common.domain.student.entity.constant.StudentSortBy
 import team.themoment.datagsm.common.dto.student.request.CreateStudentReqDto
 import team.themoment.datagsm.common.dto.student.request.UpdateStudentReqDto
 import team.themoment.datagsm.common.dto.student.response.StudentListResDto
