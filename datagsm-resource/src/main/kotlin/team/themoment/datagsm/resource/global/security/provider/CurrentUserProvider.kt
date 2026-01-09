@@ -40,10 +40,4 @@ class CurrentUserProvider(
             .findByEmail(email)
             .orElseThrow { ExpectedException("계정을 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
     }
-
-    fun getCurrentStudent(): StudentJpaEntity {
-        val account = getCurrentAccount()
-        return account.student
-            ?: throw ExpectedException("학생 정보가 없습니다.", HttpStatus.BAD_REQUEST)
-    }
 }
