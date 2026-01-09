@@ -14,7 +14,7 @@ import team.themoment.datagsm.common.domain.account.repository.AccountJpaReposit
 import team.themoment.datagsm.common.domain.auth.repository.RefreshTokenRedisRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
-import team.themoment.datagsm.common.global.data.JwtEnvironment
+import team.themoment.datagsm.common.global.data.InternalJwtEnvironment
 import team.themoment.datagsm.web.domain.auth.service.impl.ReissueTokenServiceImpl
 import team.themoment.datagsm.web.global.security.jwt.JwtProvider
 import team.themoment.sdk.exception.ExpectedException
@@ -24,7 +24,7 @@ class ReissueTokenServiceTest :
     DescribeSpec({
 
         val mockJwtProvider = mockk<JwtProvider>()
-        val mockJwtEnvironment = mockk<JwtEnvironment>()
+        val mockJwtEnvironment = mockk<InternalJwtEnvironment>()
         val mockRefreshTokenRepository = mockk<RefreshTokenRedisRepository>()
         val mockAccountRepository = mockk<AccountJpaRepository>()
 
