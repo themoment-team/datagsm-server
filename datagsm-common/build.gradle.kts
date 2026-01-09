@@ -28,6 +28,7 @@ dependencies {
     // Jakarta EE
     api(dependency.Dependencies.JAKARTA_PERSISTENCE_API)
     api(dependency.Dependencies.JAKARTA_TRANSACTION_API)
+    api(dependency.Dependencies.JAKARTA_VALIDATION_API)
 
     // Spring Data
     api(dependency.Dependencies.SPRING_DATA_JPA)
@@ -49,6 +50,9 @@ dependencies {
 
     // Jackson
     api(dependency.Dependencies.JACKSON_DATABIND)
+
+    // Swagger/OpenAPI
+    api(dependency.Dependencies.SPRINGDOC_OPENAPI)
 }
 
 kotlin {

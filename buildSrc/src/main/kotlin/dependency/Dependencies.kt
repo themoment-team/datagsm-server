@@ -44,6 +44,7 @@ object Dependencies {
     // Jakarta EE
     const val JAKARTA_PERSISTENCE_API = "jakarta.persistence:jakarta.persistence-api"
     const val JAKARTA_TRANSACTION_API = "jakarta.transaction:jakarta.transaction-api"
+    const val JAKARTA_VALIDATION_API = "jakarta.validation:jakarta.validation-api"
 
     // Hibernate
     const val HIBERNATE = "org.hibernate.orm:hibernate-core"
@@ -65,6 +66,7 @@ object Dependencies {
 
     // Swagger
     const val SWAGGER_UI = "org.springdoc:springdoc-openapi-starter-webmvc-ui:${SWAGGER_VERSION}"
+    const val SPRINGDOC_OPENAPI = "org.springdoc:springdoc-openapi-starter-webmvc-ui:${SWAGGER_VERSION}"
 
     // Custom Libraries
     const val PEANUT_BUTTER = "com.github.snowykte0426:peanut-butter:${PEANUT_BUTTER_VERSION}"

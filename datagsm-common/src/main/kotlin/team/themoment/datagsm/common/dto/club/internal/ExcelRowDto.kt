@@ -1,0 +1,18 @@
+package team.themoment.datagsm.common.dto.club.internal
+
+import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotEmpty
+import team.themoment.datagsm.common.domain.club.ClubType
+
+data class ExcelRowDto(
+    @field:NotEmpty
+    @param:Schema(description = "동아리명 목록", example = "더모먼트")
+    val clubName: List<String>,
+    @field:NotEmpty
+    @param:Schema(description = "동아리 부장 목록", example = "2404 김태은")
+    val clubLeader: List<String>,
+    @field:NotBlank
+    @param:Schema(description = "동아리 종류", example = "전공동아리")
+    val clubType: ClubType,
+)
