@@ -6,15 +6,15 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.authorization.domain.oauth.service.ExchangeTokenService
 import team.themoment.datagsm.authorization.global.security.jwt.JwtProvider
-import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
+import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisEntity
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
 import team.themoment.datagsm.common.dto.oauth.request.OauthTokenReqDto
 import team.themoment.datagsm.common.dto.oauth.response.OauthTokenResDto
-import team.themoment.datagsm.common.global.data.JwtProperties
+import team.themoment.datagsm.common.global.data.JwtEnvironment
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
@@ -24,7 +24,7 @@ class ExchangeTokenServiceImpl(
     private val passwordEncoder: PasswordEncoder,
     private val oauthCodeRedisRepository: OauthCodeRedisRepository,
     private val jwtProvider: JwtProvider,
-    private val jwtProperties: JwtProperties,
+    private val jwtEnvironment: JwtEnvironment,
     private val oauthRefreshTokenRedisRepository: OauthRefreshTokenRedisRepository,
 ) : ExchangeTokenService {
     @Transactional(readOnly = true)
@@ -51,7 +51,7 @@ class ExchangeTokenServiceImpl(
         val refreshToken = jwtProvider.generateOauthRefreshToken(account.email, client.id)
 
         oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(account.email, client.id)
-        val ttlSeconds = jwtProperties.oauthRefreshTokenExpiration!!.div(1000)
+        val ttlSeconds = jwtEnvironment.oauthRefreshTokenExpiration!!.div(1000)
         val refreshTokenEntity =
             OauthRefreshTokenRedisEntity.of(
                 email = account.email,

@@ -4,16 +4,16 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.common.global.data.OauthProperties
 import team.themoment.datagsm.authorization.domain.oauth.service.IssueOauthCodeService
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
-import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
+import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.dto.oauth.request.OauthCodeReqDto
 import team.themoment.datagsm.common.dto.oauth.response.OauthCodeResDto
+import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.sdk.exception.ExpectedException
 import java.security.SecureRandom
 import java.util.Base64
@@ -24,7 +24,7 @@ class IssueOauthCodeServiceImpl(
     private val clientJpaRepository: ClientJpaRepository,
     private val passwordEncoder: PasswordEncoder,
     private val oauthCodeRedisRepository: OauthCodeRedisRepository,
-    private val oauthProperties: OauthProperties,
+    private val oauthEnvironment: OauthEnvironment,
 ) : IssueOauthCodeService {
     companion object {
         private val secureRandom = SecureRandom()
@@ -71,7 +71,7 @@ class IssueOauthCodeServiceImpl(
                 email = account.email,
                 clientId = clientId,
                 code = code,
-                ttl = oauthProperties.codeExpirationSeconds,
+                ttl = oauthEnvironment.codeExpirationSeconds,
             )
         oauthCodeRedisRepository.save(oauthCodeEntity)
         return code

@@ -8,14 +8,14 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
-import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.entity.RefreshTokenRedisEntity
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.auth.repository.RefreshTokenRedisRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
+import team.themoment.datagsm.common.global.data.JwtEnvironment
 import team.themoment.datagsm.web.domain.auth.service.impl.ReissueTokenServiceImpl
-import team.themoment.datagsm.common.global.data.JwtProperties
 import team.themoment.datagsm.web.global.security.jwt.JwtProvider
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
@@ -24,14 +24,14 @@ class ReissueTokenServiceTest :
     DescribeSpec({
 
         val mockJwtProvider = mockk<JwtProvider>()
-        val mockJwtProperties = mockk<JwtProperties>()
+        val mockJwtEnvironment = mockk<JwtEnvironment>()
         val mockRefreshTokenRepository = mockk<RefreshTokenRedisRepository>()
         val mockAccountRepository = mockk<AccountJpaRepository>()
 
         val reissueTokenService =
             ReissueTokenServiceImpl(
                 mockJwtProvider,
-                mockJwtProperties,
+                mockJwtEnvironment,
                 mockRefreshTokenRepository,
                 mockAccountRepository,
             )
@@ -49,7 +49,7 @@ class ReissueTokenServiceTest :
                 val newRefreshToken = "new.refresh.token"
 
                 beforeEach {
-                    every { mockJwtProperties.refreshTokenExpiration } returns 604800000L
+                    every { mockJwtEnvironment.refreshTokenExpiration } returns 604800000L
                 }
 
                 context("유효하지 않은 refresh token으로 요청할 때") {

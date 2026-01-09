@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 import team.themoment.datagsm.authorization.global.security.authentication.type.AuthType
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
-import team.themoment.datagsm.common.global.data.JwtProperties
+import team.themoment.datagsm.common.global.data.JwtEnvironment
 import team.themoment.sdk.exception.ExpectedException
 import java.nio.charset.StandardCharsets
 import java.util.Date
@@ -17,13 +17,13 @@ import javax.crypto.SecretKey
 
 @Component
 class JwtProvider(
-    private val jwtProperties: JwtProperties,
+    private val jwtEnvironment: JwtEnvironment,
 ) {
     private val logger = LoggerFactory.getLogger(JwtProvider::class.java)
 
     private val secretKey: SecretKey =
         Keys.hmacShaKeyFor(
-            jwtProperties.secret.toByteArray(StandardCharsets.UTF_8),
+            jwtEnvironment.secret.toByteArray(StandardCharsets.UTF_8),
         )
 
     fun generateOauthAccessToken(
@@ -33,7 +33,7 @@ class JwtProvider(
         scopes: Set<ApiScope>,
     ): String {
         val now = Date()
-        val expiration = Date(now.time + jwtProperties.oauthAccessTokenExpiration!!)
+        val expiration = Date(now.time + jwtEnvironment.oauthAccessTokenExpiration!!)
 
         return Jwts
             .builder()
@@ -53,7 +53,7 @@ class JwtProvider(
         clientId: String,
     ): String {
         val now = Date()
-        val expiration = Date(now.time + jwtProperties.oauthRefreshTokenExpiration!!)
+        val expiration = Date(now.time + jwtEnvironment.oauthRefreshTokenExpiration!!)
 
         return Jwts
             .builder()

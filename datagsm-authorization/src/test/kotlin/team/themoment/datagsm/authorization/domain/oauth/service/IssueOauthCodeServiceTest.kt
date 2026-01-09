@@ -11,15 +11,15 @@ import io.mockk.slot
 import io.mockk.verify
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
-import team.themoment.datagsm.common.global.data.OauthProperties
 import team.themoment.datagsm.authorization.domain.oauth.service.impl.IssueOauthCodeServiceImpl
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
-import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
+import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.dto.oauth.request.OauthCodeReqDto
+import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 
@@ -30,7 +30,7 @@ class IssueOauthCodeServiceTest :
         val mockClientJpaRepository = mockk<ClientJpaRepository>()
         val mockPasswordEncoder = mockk<PasswordEncoder>()
         val mockOauthCodeRedisRepository = mockk<OauthCodeRedisRepository>()
-        val mockOauthProperties = mockk<OauthProperties>()
+        val mockOauthEnvironment = mockk<OauthEnvironment>()
 
         val issueOauthCodeService =
             IssueOauthCodeServiceImpl(
@@ -38,7 +38,7 @@ class IssueOauthCodeServiceTest :
                 mockClientJpaRepository,
                 mockPasswordEncoder,
                 mockOauthCodeRedisRepository,
-                mockOauthProperties,
+                mockOauthEnvironment,
             )
 
         afterEach {
@@ -70,7 +70,7 @@ class IssueOauthCodeServiceTest :
                     }
 
                 beforeEach {
-                    every { mockOauthProperties.codeExpirationSeconds } returns codeExpirationSeconds
+                    every { mockOauthEnvironment.codeExpirationSeconds } returns codeExpirationSeconds
                 }
 
                 context("존재하지 않는 Client ID로 요청할 때") {

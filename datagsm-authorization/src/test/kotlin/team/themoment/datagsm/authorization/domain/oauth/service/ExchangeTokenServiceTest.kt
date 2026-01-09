@@ -11,19 +11,19 @@ import io.mockk.verify
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.authorization.domain.oauth.service.impl.ExchangeTokenServiceImpl
-import team.themoment.datagsm.common.global.data.JwtProperties
 import team.themoment.datagsm.authorization.global.security.jwt.JwtProvider
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
-import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
-import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
+import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
+import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisEntity
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
 import team.themoment.datagsm.common.dto.oauth.request.OauthTokenReqDto
+import team.themoment.datagsm.common.global.data.JwtEnvironment
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 
@@ -35,7 +35,7 @@ class ExchangeTokenServiceTest :
         val mockPasswordEncoder = mockk<PasswordEncoder>()
         val mockOauthCodeRedisRepository = mockk<OauthCodeRedisRepository>()
         val mockJwtProvider = mockk<JwtProvider>()
-        val mockJwtProperties = mockk<JwtProperties>()
+        val mockJwtEnvironment = mockk<JwtEnvironment>()
         val mockOauthRefreshTokenRedisRepository = mockk<OauthRefreshTokenRedisRepository>()
 
         val exchangeTokenService =
@@ -45,7 +45,7 @@ class ExchangeTokenServiceTest :
                 mockPasswordEncoder,
                 mockOauthCodeRedisRepository,
                 mockJwtProvider,
-                mockJwtProperties,
+                mockJwtEnvironment,
                 mockOauthRefreshTokenRedisRepository,
             )
 
@@ -92,7 +92,7 @@ class ExchangeTokenServiceTest :
                     }
 
                 beforeEach {
-                    every { mockJwtProperties.oauthRefreshTokenExpiration } returns oauthRefreshTokenExpiration
+                    every { mockJwtEnvironment.oauthRefreshTokenExpiration } returns oauthRefreshTokenExpiration
                 }
 
                 context("존재하지 않거나 만료된 코드로 요청할 때") {
