@@ -63,7 +63,7 @@ class ReissueOauthTokenServiceImpl(
 
         oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(email, clientId)
 
-        val ttlSeconds = jwtEnvironment.oauthRefreshTokenExpiration.div(1000)
+        val ttlSeconds = jwtEnvironment.refreshTokenExpiration.div(1000)
         val newRefreshTokenEntity =
             OauthRefreshTokenRedisEntity.of(
                 email = email,

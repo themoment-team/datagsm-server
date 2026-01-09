@@ -51,7 +51,7 @@ class ExchangeTokenServiceImpl(
         val refreshToken = jwtProvider.generateOauthRefreshToken(account.email, client.id)
 
         oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(account.email, client.id)
-        val ttlSeconds = jwtEnvironment.oauthRefreshTokenExpiration.div(1000)
+        val ttlSeconds = jwtEnvironment.refreshTokenExpiration.div(1000)
         val refreshTokenEntity =
             OauthRefreshTokenRedisEntity.of(
                 email = account.email,

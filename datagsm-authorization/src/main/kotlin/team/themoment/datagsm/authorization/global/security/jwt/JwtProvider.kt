@@ -31,7 +31,7 @@ class JwtProvider(
         scopes: Set<ApiScope>,
     ): String {
         val now = Date()
-        val expiration = Date(now.time + jwtEnvironment.oauthAccessTokenExpiration)
+        val expiration = Date(now.time + jwtEnvironment.accessTokenExpiration)
 
         return Jwts
             .builder()
@@ -51,7 +51,7 @@ class JwtProvider(
         clientId: String,
     ): String {
         val now = Date()
-        val expiration = Date(now.time + jwtEnvironment.oauthRefreshTokenExpiration)
+        val expiration = Date(now.time + jwtEnvironment.refreshTokenExpiration)
 
         return Jwts
             .builder()
