@@ -5,8 +5,11 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.authorization.domain.account.dto.response.GetMyInfoResDto
 import team.themoment.datagsm.authorization.domain.account.service.GetMyInfoService
+import team.themoment.datagsm.authorization.domain.club.dto.internal.ClubSummaryDto
+import team.themoment.datagsm.authorization.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.authorization.global.security.authentication.type.AuthType
 import team.themoment.datagsm.authorization.global.security.provider.CurrentUserProvider
+import team.themoment.datagsm.common.domain.student.StudentJpaEntity
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
@@ -25,6 +28,31 @@ class GetMyInfoServiceImpl(
             id = account.id!!,
             email = account.email,
             role = account.role,
+            isStudent = account.student != null,
+            student =
+                account.student?.let { student ->
+                    generateStudentResDto(student)
+                },
         )
     }
+
+    private fun generateStudentResDto(student: StudentJpaEntity): StudentResDto =
+        StudentResDto(
+            id = student.id!!,
+            name = student.name,
+            sex = student.sex,
+            email = student.email,
+            grade = student.studentNumber.studentGrade,
+            classNum = student.studentNumber.studentClass,
+            number = student.studentNumber.studentNumber,
+            studentNumber = student.studentNumber.fullStudentNumber,
+            major = student.major,
+            role = student.role,
+            dormitoryFloor = student.dormitoryRoomNumber?.dormitoryRoomFloor,
+            dormitoryRoom = student.dormitoryRoomNumber?.dormitoryRoomNumber,
+            isLeaveSchool = student.isLeaveSchool,
+            majorClub = student.majorClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
+            jobClub = student.jobClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
+            autonomousClub = student.autonomousClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
+        )
 }

@@ -10,4 +10,12 @@ class ApiKeyEnvironment {
     var renewalPeriodDays: Long = 15
     var adminExpirationDays: Long = 365
     var adminRenewalPeriodDays: Long = 30
+    var rateLimit: RateLimit = RateLimit()
+
+    class RateLimit {
+        var enabled: Boolean = true
+        var defaultCapacity: Long = 100
+        var defaultRefillTokens: Long = 100
+        var defaultRefillDurationSeconds: Long = 60
+    }
 }

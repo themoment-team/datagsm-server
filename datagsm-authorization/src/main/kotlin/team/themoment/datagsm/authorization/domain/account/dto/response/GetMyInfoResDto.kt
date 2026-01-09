@@ -1,6 +1,7 @@
 package team.themoment.datagsm.authorization.domain.account.dto.response
 
 import io.swagger.v3.oas.annotations.media.Schema
+import team.themoment.datagsm.authorization.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.common.domain.account.AccountRole
 
 data class GetMyInfoResDto(
@@ -10,4 +11,8 @@ data class GetMyInfoResDto(
     val email: String,
     @param:Schema(description = "계정 역할 (ADMIN, USER)", example = "USER")
     val role: AccountRole,
+    @param:Schema(description = "학생 계정 여부", example = "true")
+    val isStudent: Boolean,
+    @param:Schema(description = "학생 정보 (학생인 경우에만 포함)")
+    val student: StudentResDto?,
 )
