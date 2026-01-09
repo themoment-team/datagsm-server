@@ -30,20 +30,8 @@ dependencies {
     // Common Module
     implementation(project(":datagsm-common"))
 
-    // Spring Boot
-    implementation(dependency.Dependencies.SPRING_WEB)
-    implementation(dependency.Dependencies.SPRING_SECURITY)
-    implementation(dependency.Dependencies.SPRING_VALIDATION)
-    implementation(dependency.Dependencies.SPRING_AOP)
-    implementation(dependency.Dependencies.SPRING_RETRY)
+    // Spring Boot (module-specific)
     implementation(dependency.Dependencies.SPRINT_MAIL)
-
-    // Spring Data
-    implementation(dependency.Dependencies.SPRING_DATA_JPA)
-    implementation(dependency.Dependencies.SPRING_DATA_REDIS)
-
-    // Spring Cloud
-    implementation(dependency.Dependencies.SPRING_OPENFEIGN)
 
     // JWT
     implementation(dependency.Dependencies.JJWT)
@@ -57,35 +45,8 @@ dependencies {
     // QueryDSL
     implementation(dependency.Dependencies.QUERY_DSL)
 
-    // Database
-    runtimeOnly(dependency.Dependencies.MYSQL_CONNECTOR)
-
-    // Swagger
-    implementation(dependency.Dependencies.SWAGGER_UI)
-
     // Custom Libraries
     implementation(dependency.Dependencies.PEANUT_BUTTER)
-    implementation(dependency.Dependencies.THE_MOMENT_THE_SDK)
-
-    // Logging
-    implementation(dependency.Dependencies.LOGBACK_AWS_APPENDER)
-
-    // Development Tools
-    developmentOnly(dependency.Dependencies.SPRING_BOOT_DEVTOOLS)
-    developmentOnly(dependency.Dependencies.SPRING_DOCKER_SUPPORT)
-
-    // Kotlin
-    implementation(dependency.Dependencies.KOTLIN_COROUTINES)
-
-    // Testing
-    testImplementation(dependency.Dependencies.SPRING_TEST)
-    testImplementation(dependency.Dependencies.KOTLIN_JUNIT5)
-    testImplementation(dependency.Dependencies.KOTEST_ASSERTIONS)
-    testImplementation(dependency.Dependencies.KOTEST_RUNNER)
-    testImplementation(dependency.Dependencies.KOTEST_FRAMEWORK)
-    testImplementation(dependency.Dependencies.SPRING_SECURITY_TEST)
-    testRuntimeOnly(dependency.Dependencies.JUNIT_PLATFORM_LAUNCHER)
-    testImplementation(dependency.Dependencies.MOCKK)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {

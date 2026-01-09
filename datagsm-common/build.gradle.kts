@@ -15,11 +15,13 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencyManagement {
     imports {
         mavenBom(dependency.Dependencies.SPRING_BOOT_BOM)
+        mavenBom(dependency.Dependencies.SPRING_CLOUD_BOM)
         mavenBom(dependency.Dependencies.AWS_SDK_BOM)
     }
 }
@@ -30,12 +32,22 @@ dependencies {
     api(dependency.Dependencies.JAKARTA_TRANSACTION_API)
     api(dependency.Dependencies.JAKARTA_VALIDATION_API)
 
+    // Spring Boot
+    api(dependency.Dependencies.SPRING_WEB)
+    api(dependency.Dependencies.SPRING_SECURITY)
+    api(dependency.Dependencies.SPRING_VALIDATION)
+    api(dependency.Dependencies.SPRING_AOP)
+    api(dependency.Dependencies.SPRING_RETRY)
+
     // Spring Data
     api(dependency.Dependencies.SPRING_DATA_JPA)
     api(dependency.Dependencies.SPRING_DATA_REDIS)
 
     // Spring Security
     api(dependency.Dependencies.SPRING_SECURITY_CORE)
+
+    // Spring Cloud
+    api(dependency.Dependencies.SPRING_OPENFEIGN)
 
     // Hibernate
     api(dependency.Dependencies.HIBERNATE)
@@ -44,8 +56,25 @@ dependencies {
     api(dependency.Dependencies.QUERY_DSL)
     ksp(dependency.Dependencies.QUERY_DSL_PROCESSOR)
 
+    // Database
+    api(dependency.Dependencies.MYSQL_CONNECTOR)
+
+    // Swagger
+    api(dependency.Dependencies.SWAGGER_UI)
+
+    // Custom Libraries
+    api(dependency.Dependencies.THE_MOMENT_THE_SDK)
+
+    // Logging
+    api(dependency.Dependencies.LOGBACK_AWS_APPENDER)
+
+    // Development Tools
+    api(dependency.Dependencies.SPRING_BOOT_DEVTOOLS)
+    api(dependency.Dependencies.SPRING_DOCKER_SUPPORT)
+
     // Kotlin
     api(dependency.Dependencies.KOTLIN_REFLECT)
+    api(dependency.Dependencies.KOTLIN_COROUTINES)
     api(dependency.Dependencies.JACKSON_KOTLIN)
 
     // Jackson
@@ -53,6 +82,16 @@ dependencies {
 
     // Swagger/OpenAPI
     api(dependency.Dependencies.SPRINGDOC_OPENAPI)
+
+    // Testing
+    testImplementation(dependency.Dependencies.SPRING_TEST)
+    testImplementation(dependency.Dependencies.KOTLIN_JUNIT5)
+    testImplementation(dependency.Dependencies.KOTEST_ASSERTIONS)
+    testImplementation(dependency.Dependencies.KOTEST_RUNNER)
+    testImplementation(dependency.Dependencies.KOTEST_FRAMEWORK)
+    testImplementation(dependency.Dependencies.SPRING_SECURITY_TEST)
+    testRuntimeOnly(dependency.Dependencies.JUNIT_PLATFORM_LAUNCHER)
+    testImplementation(dependency.Dependencies.MOCKK)
 }
 
 kotlin {
