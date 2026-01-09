@@ -3,9 +3,9 @@ package team.themoment.datagsm.resource.global.thirdparty.feign.neis
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
+import team.themoment.datagsm.common.dto.neis.internal.NeisMealApiResponse
+import team.themoment.datagsm.common.dto.neis.internal.NeisScheduleApiResponse
 import team.themoment.datagsm.resource.global.thirdparty.feign.config.FeignConfig
-import team.themoment.datagsm.resource.global.thirdparty.feign.neis.dto.NeisMealApiResponse
-import team.themoment.datagsm.resource.global.thirdparty.feign.neis.dto.NeisScheduleApiResponse
 
 @FeignClient(
     name = "neis-api-client",

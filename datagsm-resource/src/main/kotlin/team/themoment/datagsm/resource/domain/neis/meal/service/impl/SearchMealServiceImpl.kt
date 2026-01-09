@@ -2,7 +2,7 @@ package team.themoment.datagsm.resource.domain.neis.meal.service.impl
 
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.neis.meal.repository.MealRedisRepository
-import team.themoment.datagsm.resource.domain.neis.meal.dto.response.MealResDto
+import team.themoment.datagsm.common.dto.neis.meal.response.MealResDto
 import team.themoment.datagsm.resource.domain.neis.meal.service.SearchMealService
 import java.time.LocalDate
 

@@ -9,11 +9,11 @@ import team.themoment.datagsm.common.domain.club.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
+import team.themoment.datagsm.common.dto.club.response.ClubListResDto
+import team.themoment.datagsm.common.dto.club.response.ClubResDto
+import team.themoment.datagsm.common.dto.student.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.global.constant.SortDirection
-import team.themoment.datagsm.resource.domain.club.dto.response.ClubListResDto
-import team.themoment.datagsm.resource.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.resource.domain.club.service.QueryClubService
-import team.themoment.datagsm.resource.domain.student.dto.internal.ParticipantInfoDto
 
 @Service
 @Transactional

@@ -2,7 +2,7 @@ package team.themoment.datagsm.resource.domain.neis.schedule.service.impl
 
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.neis.schedule.repository.ScheduleRedisRepository
-import team.themoment.datagsm.resource.domain.neis.schedule.dto.response.ScheduleResDto
+import team.themoment.datagsm.common.dto.neis.schedule.response.ScheduleResDto
 import team.themoment.datagsm.resource.domain.neis.schedule.service.SearchScheduleService
 import java.time.LocalDate
 

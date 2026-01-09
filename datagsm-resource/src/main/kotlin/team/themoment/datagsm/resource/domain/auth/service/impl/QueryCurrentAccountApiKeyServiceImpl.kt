@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
-import team.themoment.datagsm.resource.domain.auth.dto.response.ApiKeyResDto
+import team.themoment.datagsm.common.dto.auth.response.ApiKeyResDto
 import team.themoment.datagsm.resource.domain.auth.service.QueryCurrentAccountApiKeyService
 import team.themoment.datagsm.resource.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException

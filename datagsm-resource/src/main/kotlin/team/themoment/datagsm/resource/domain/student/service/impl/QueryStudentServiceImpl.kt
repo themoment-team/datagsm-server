@@ -7,10 +7,10 @@ import team.themoment.datagsm.common.domain.student.Sex
 import team.themoment.datagsm.common.domain.student.StudentRole
 import team.themoment.datagsm.common.domain.student.StudentSortBy
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
+import team.themoment.datagsm.common.dto.club.internal.ClubSummaryDto
+import team.themoment.datagsm.common.dto.student.response.StudentListResDto
+import team.themoment.datagsm.common.dto.student.response.StudentResDto
 import team.themoment.datagsm.common.global.constant.SortDirection
-import team.themoment.datagsm.resource.domain.club.dto.internal.ClubSummaryDto
-import team.themoment.datagsm.resource.domain.student.dto.response.StudentListResDto
-import team.themoment.datagsm.resource.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.resource.domain.student.service.QueryStudentService
 
 @Service

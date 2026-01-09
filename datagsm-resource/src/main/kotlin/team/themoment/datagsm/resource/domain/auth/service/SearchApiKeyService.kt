@@ -1,6 +1,6 @@
 package team.themoment.datagsm.resource.domain.auth.service
 
-import team.themoment.datagsm.resource.domain.auth.dto.response.ApiKeySearchResDto
+import team.themoment.datagsm.common.dto.auth.response.ApiKeySearchResDto
 
 interface SearchApiKeyService {
     fun execute(
