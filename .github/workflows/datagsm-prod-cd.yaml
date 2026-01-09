@@ -14,19 +14,29 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v6
 
-      - name: Setup JDK 24
+      - name: Setup JDK 25
         uses: actions/setup-java@v5
         with:
-          java-version: '24'
+          java-version: '25'
           distribution: 'temurin'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
 
-      - name: Make YML File
+      - name: Make YML Files
         run: |
-          touch ./src/main/resources/application-prod.yml
-          echo "${{ secrets.PROD_APPLICATION_YAML }}" > ./src/main/resources/application-prod.yml
+          mkdir -p ./datagsm-authorization/src/main/resources
+          mkdir -p ./datagsm-web/src/main/resources
+          mkdir -p ./datagsm-resource/src/main/resources
+
+          touch ./datagsm-authorization/src/main/resources/application-prod.yml
+          echo "${{ secrets.PROD_AUTH_APPLICATION_YAML }}" > ./datagsm-authorization/src/main/resources/application-prod.yml
+
+          touch ./datagsm-web/src/main/resources/application-prod.yml
+          echo "${{ secrets.PROD_WEB_APPLICATION_YAML }}" > ./datagsm-web/src/main/resources/application-prod.yml
+
+          touch ./datagsm-resource/src/main/resources/application-prod.yml
+          echo "${{ secrets.PROD_RESOURCE_APPLICATION_YAML }}" > ./datagsm-resource/src/main/resources/application-prod.yml
         shell: bash
 
       - name: Build with Gradle
