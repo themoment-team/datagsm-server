@@ -1,4 +1,4 @@
-package team.themoment.datagsm.common.domain.club
+package team.themoment.datagsm.common.domain.club.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity

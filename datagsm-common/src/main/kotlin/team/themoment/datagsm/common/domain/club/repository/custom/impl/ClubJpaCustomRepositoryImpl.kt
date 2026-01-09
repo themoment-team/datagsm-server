@@ -7,9 +7,9 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.club.entity.QClubJpaEntity.Companion.clubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubSortBy
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
-import team.themoment.datagsm.common.domain.club.QClubJpaEntity.Companion.clubJpaEntity
 import team.themoment.datagsm.common.domain.club.repository.custom.ClubJpaCustomRepository
 import team.themoment.datagsm.common.global.constant.SortDirection
 

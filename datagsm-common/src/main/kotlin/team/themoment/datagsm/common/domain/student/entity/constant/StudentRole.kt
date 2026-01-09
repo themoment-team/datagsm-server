@@ -1,4 +1,4 @@
-package team.themoment.datagsm.common.domain.student
+package team.themoment.datagsm.common.domain.student.entity.constant
 
 /**
  * 인증/인가와 관련 없이 학생의 역할을 정의하는 열거형 클래스입니다.

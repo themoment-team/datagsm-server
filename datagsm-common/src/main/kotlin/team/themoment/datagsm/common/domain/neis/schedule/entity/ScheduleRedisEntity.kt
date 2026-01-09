@@ -1,4 +1,4 @@
-package team.themoment.datagsm.common.domain.neis
+package team.themoment.datagsm.common.domain.neis.schedule.entity
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.redis.core.RedisHash

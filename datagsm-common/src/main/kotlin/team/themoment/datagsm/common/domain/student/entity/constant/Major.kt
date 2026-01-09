@@ -1,4 +1,4 @@
-package team.themoment.datagsm.common.domain.student
+package team.themoment.datagsm.common.domain.student.entity.constant
 
 enum class Major(
     val value: String,

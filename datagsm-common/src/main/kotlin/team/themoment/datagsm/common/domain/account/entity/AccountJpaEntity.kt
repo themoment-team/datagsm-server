@@ -1,4 +1,4 @@
-package team.themoment.datagsm.common.domain.account
+package team.themoment.datagsm.common.domain.account.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity

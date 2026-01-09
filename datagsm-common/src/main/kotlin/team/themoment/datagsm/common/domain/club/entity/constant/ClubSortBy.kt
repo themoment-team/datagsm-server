@@ -1,4 +1,4 @@
-package team.themoment.datagsm.common.domain.club
+package team.themoment.datagsm.common.domain.club.entity.constant
 
 enum class ClubSortBy {
     ID,

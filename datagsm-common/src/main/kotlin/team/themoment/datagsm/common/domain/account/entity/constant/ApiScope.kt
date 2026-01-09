@@ -1,4 +1,4 @@
-package team.themoment.datagsm.common.domain.account
+package team.themoment.datagsm.common.domain.account.entity.constant
 
 enum class ApiScope(
     val scope: String,

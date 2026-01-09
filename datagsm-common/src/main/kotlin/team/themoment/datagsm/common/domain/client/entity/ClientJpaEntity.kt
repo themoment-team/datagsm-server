@@ -1,4 +1,4 @@
-package team.themoment.datagsm.common.domain.client
+package team.themoment.datagsm.common.domain.client.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Convert
@@ -19,8 +19,6 @@ class ClientJpaEntity {
 
     /**
      * PasswordEncoder로 암호화된 UUID 문자열 값
-     * @see team.themoment.datagsm.domain.client.service.impl.CreateClientServiceImpl
-     * @see team.themoment.datagsm.global.security.config.PasswordEncoderConfig
      */
     lateinit var secret: String
 

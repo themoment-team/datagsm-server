@@ -6,9 +6,9 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
-import team.themoment.datagsm.common.domain.student.QStudentJpaEntity.Companion.studentJpaEntity
-import team.themoment.datagsm.common.domain.student.entity.constant.Sex
+import team.themoment.datagsm.common.domain.student.entity.QStudentJpaEntity.Companion.studentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentSortBy
 import team.themoment.datagsm.common.domain.student.repository.custom.StudentJpaCustomRepository
