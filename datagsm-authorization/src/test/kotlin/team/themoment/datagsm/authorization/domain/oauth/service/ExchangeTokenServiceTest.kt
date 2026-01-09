@@ -23,7 +23,7 @@ import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
 import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisEntity
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
-import team.themoment.datagsm.common.global.data.JwtEnvironment
+import team.themoment.datagsm.common.global.data.OauthJwtEnvironment
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 
@@ -35,7 +35,7 @@ class ExchangeTokenServiceTest :
         val mockPasswordEncoder = mockk<PasswordEncoder>()
         val mockOauthCodeRedisRepository = mockk<OauthCodeRedisRepository>()
         val mockJwtProvider = mockk<JwtProvider>()
-        val mockJwtEnvironment = mockk<JwtEnvironment>()
+        val mockJwtEnvironment = mockk<OauthJwtEnvironment>()
         val mockOauthRefreshTokenRedisRepository = mockk<OauthRefreshTokenRedisRepository>()
 
         val exchangeTokenService =
