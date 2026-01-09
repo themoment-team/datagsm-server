@@ -1,9 +1,9 @@
 package team.themoment.datagsm.authorization.global.security.jwt
 
+import com.github.snowykte0426.peanut.butter.logging.logger
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.authorization.global.security.authentication.type.AuthType
@@ -19,8 +19,6 @@ import javax.crypto.SecretKey
 class JwtProvider(
     private val jwtEnvironment: JwtEnvironment,
 ) {
-    private val logger = LoggerFactory.getLogger(JwtProvider::class.java)
-
     private val secretKey: SecretKey =
         Keys.hmacShaKeyFor(
             jwtEnvironment.secret.toByteArray(StandardCharsets.UTF_8),
@@ -71,7 +69,7 @@ class JwtProvider(
             val claims = parseClaims(token)
             claims.expiration?.after(Date()) ?: false
         } catch (e: Exception) {
-            logger.error("Invalid JWT token ${e.message}")
+            logger().error("Invalid JWT token ${e.message}")
             false
         }
 

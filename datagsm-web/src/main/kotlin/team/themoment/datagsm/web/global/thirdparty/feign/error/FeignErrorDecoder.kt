@@ -1,9 +1,9 @@
 package team.themoment.datagsm.web.global.thirdparty.feign.error
 
+import com.github.snowykte0426.peanut.butter.logging.logger
 import feign.FeignException
 import feign.Response
 import feign.codec.ErrorDecoder
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.util.StreamUtils
 import team.themoment.sdk.exception.ExpectedException
@@ -11,8 +11,6 @@ import java.io.IOException
 import java.nio.charset.StandardCharsets
 
 class FeignErrorDecoder : ErrorDecoder {
-    private val logger = LoggerFactory.getLogger(FeignErrorDecoder::class.java)
-
     override fun decode(
         methodKey: String,
         response: Response,
@@ -25,7 +23,7 @@ class FeignErrorDecoder : ErrorDecoder {
             val url = response.request().url()
             val httpMethod = response.request().httpMethod().name
 
-            logger.error(
+            logger().error(
                 "Feign 클라이언트 오류 - 메서드: {}, HTTP 메서드: {}, URL: {}, 상태: {}, 이유: {}",
                 methodKey,
                 httpMethod,
@@ -33,8 +31,8 @@ class FeignErrorDecoder : ErrorDecoder {
                 status,
                 response.reason(),
             )
-            logger.error("응답 헤더: {}", headers)
-            logger.error("응답 본문: {}", errorBody)
+            logger().error("응답 헤더: {}", headers)
+            logger().error("응답 본문: {}", errorBody)
             logRequestDetails(response, methodKey)
 
             val (userMessage, httpStatus) =
@@ -62,7 +60,7 @@ class FeignErrorDecoder : ErrorDecoder {
                 StreamUtils.copyToString(it, StandardCharsets.UTF_8)
             } ?: "응답 본문을 읽을 수 없습니다"
         } catch (e: IOException) {
-            logger.warn("오류 응답 본문을 읽는 데 실패했습니다", e)
+            logger().warn("오류 응답 본문을 읽는 데 실패했습니다", e)
             "응답 본문을 읽을 수 없습니다"
         }
 
@@ -75,15 +73,15 @@ class FeignErrorDecoder : ErrorDecoder {
             val method = response.request().httpMethod().name
             val requestHeaders = response.request().headers()
 
-            logger.error("요청 정보 - 메서드: {}, HTTP 메서드: {}, URL: {}", methodKey, method, url)
-            logger.error("요청 헤더: {}", requestHeaders)
+            logger().error("요청 정보 - 메서드: {}, HTTP 메서드: {}, URL: {}", methodKey, method, url)
+            logger().error("요청 헤더: {}", requestHeaders)
 
             response.request().body()?.let { body ->
                 val requestBody = String(body, StandardCharsets.UTF_8)
-                logger.error("요청 본문: {}", requestBody)
+                logger().error("요청 본문: {}", requestBody)
             }
         } catch (e: Exception) {
-            logger.warn("요청 상세 로깅에 실패했습니다", e)
+            logger().warn("요청 상세 로깅에 실패했습니다", e)
         }
     }
 }
