@@ -82,7 +82,7 @@ sdk:
       - "/v1/**"
 
   exception:
-    enabled: false  # 커스텀 GlobalExceptionHandler 사용 (Discord 통합)
+    enabled: false
     use-english-message: false
 
 springdoc:
