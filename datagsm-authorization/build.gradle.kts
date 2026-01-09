@@ -41,10 +41,6 @@ dependencies {
     runtimeOnly(dependency.Dependencies.JJWT_IMPL)
     runtimeOnly(dependency.Dependencies.JJWT_JACKSON)
 
-    // Rate Limiting
-    implementation(dependency.Dependencies.BUCKET4J_CORE)
-    implementation(dependency.Dependencies.BUCKET4J_REDIS)
-
     // Testing
     testImplementation(dependency.Dependencies.SPRING_TEST)
     testImplementation(dependency.Dependencies.KOTLIN_JUNIT5)

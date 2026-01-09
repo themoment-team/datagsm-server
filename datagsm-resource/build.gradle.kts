@@ -27,9 +27,6 @@ dependencies {
     // Common Module
     implementation(project(":datagsm-common"))
 
-    // Rate Limiting
-    implementation(dependency.Dependencies.BUCKET4J_CORE)
-
     // Custom Libraries
     implementation(dependency.Dependencies.PEANUT_BUTTER)
 

@@ -1,6 +1,5 @@
 package team.themoment.datagsm.resource.global.security.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -23,6 +22,7 @@ import team.themoment.datagsm.resource.global.security.filter.RateLimitFilter
 import team.themoment.datagsm.resource.global.security.handler.CustomAuthenticationEntryPoint
 import team.themoment.datagsm.resource.global.security.provider.CurrentUserProvider
 import team.themoment.datagsm.resource.global.security.service.RateLimitService
+import tools.jackson.databind.ObjectMapper
 
 @Configuration
 @EnableWebSecurity
