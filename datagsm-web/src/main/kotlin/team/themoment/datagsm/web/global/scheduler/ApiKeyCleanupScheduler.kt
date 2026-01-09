@@ -5,7 +5,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
-import team.themoment.datagsm.web.global.data.ApiKeyEnvironment
+import team.themoment.datagsm.web.global.security.data.ApiKeyEnvironment
 import java.time.LocalDateTime
 
 @Component

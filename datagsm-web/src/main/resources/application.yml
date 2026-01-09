@@ -34,6 +34,18 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
     open-in-view: false
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
   cloud:
     discord:
       webhook:
@@ -47,6 +59,8 @@ spring:
       secret: ${JWT_SECRET_KEY}
       access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:3600000}
       refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:86400000}
+      oauth-access-token-expiration: ${JWT_OAUTH_ACCESS_TOKEN_EXPIRATION:604800000}
+      oauth-refresh-token-expiration: ${JWT_OAUTH_REFRESH_TOKEN_EXPIRATION:1209600000}
     api-key:
       expiration-days: 30
       renewal-period-days: 15
