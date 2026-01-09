@@ -6,9 +6,9 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
-import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelColumnDto
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelRowDto
+import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.student.service.CreateStudentExcelService
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
@@ -76,13 +76,11 @@ class CreateStudentExcelServiceImpl(
         }
 
         val byteArrayFile =
-            try {
+            workbook.use { workbook ->
                 ByteArrayOutputStream().use { outputStream ->
                     workbook.write(outputStream)
                     outputStream.toByteArray()
                 }
-            } finally {
-                workbook.close()
             }
 
         val fileName = "학생_현황_${LocalDate.now(ZoneId.of("Asia/Seoul"))

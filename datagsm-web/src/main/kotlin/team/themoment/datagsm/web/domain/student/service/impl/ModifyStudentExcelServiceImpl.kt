@@ -9,14 +9,14 @@ import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
-import team.themoment.datagsm.common.domain.student.entity.constant.Major
-import team.themoment.datagsm.common.domain.student.entity.constant.Sex
-import team.themoment.datagsm.common.domain.student.entity.StudentNumber
-import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
-import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelColumnDto
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelRowDto
+import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
+import team.themoment.datagsm.common.domain.student.entity.StudentNumber
+import team.themoment.datagsm.common.domain.student.entity.constant.Major
+import team.themoment.datagsm.common.domain.student.entity.constant.Sex
+import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
+import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentExcelService
 import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.response.CommonApiResponse
@@ -169,7 +169,7 @@ class ModifyStudentExcelServiceImpl(
                 }
             }
 
-        try {
+        workbook.use { workbook ->
             if (
                 workbook.numberOfSheets != 3 ||
                 !workbook.getSheetAt(0).sheetName.equals("1학년") ||
@@ -210,7 +210,9 @@ class ModifyStudentExcelServiceImpl(
                                 isLeaveSchool =
                                     when (getRequiredString(row, 9, "자퇴 여부").uppercase()) {
                                         "O" -> true
+
                                         "X" -> false
+
                                         else -> throw ExpectedException(
                                             "${row.rowNum + 1}행: 자퇴 여부는 O 또는 X여야 합니다.",
                                             HttpStatus.BAD_REQUEST,
@@ -228,8 +230,6 @@ class ModifyStudentExcelServiceImpl(
                 data.add(excelRowDto)
             }
             return data.toList()
-        } finally {
-            workbook.close()
         }
     }
 
