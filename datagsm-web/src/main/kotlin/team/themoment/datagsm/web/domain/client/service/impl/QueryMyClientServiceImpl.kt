@@ -2,9 +2,9 @@ package team.themoment.datagsm.web.domain.client.service.impl
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.client.dto.response.ClientResDto
 import team.themoment.datagsm.common.domain.client.dto.response.QueryMyClientResDto
+import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.web.domain.client.service.QueryMyClientService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 

@@ -3,9 +3,9 @@ package team.themoment.datagsm.web.domain.client.service.impl
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.client.dto.response.ClientListResDto
 import team.themoment.datagsm.common.domain.client.dto.response.ClientResDto
+import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.web.domain.client.service.SearchClientService
 
 @Service

@@ -3,13 +3,13 @@ package team.themoment.datagsm.web.domain.student.service.impl
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
+import team.themoment.datagsm.common.domain.student.dto.response.StudentListResDto
+import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentSortBy
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
-import team.themoment.datagsm.common.domain.student.dto.response.StudentListResDto
-import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.common.global.constant.SortDirection
 import team.themoment.datagsm.web.domain.student.service.QueryStudentService
 

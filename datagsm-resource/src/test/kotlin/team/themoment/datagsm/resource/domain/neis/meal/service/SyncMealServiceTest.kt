@@ -5,11 +5,11 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import team.themoment.datagsm.common.domain.neis.meal.entity.MealRedisEntity
-import team.themoment.datagsm.common.domain.neis.meal.repository.MealRedisRepository
 import team.themoment.datagsm.common.domain.neis.dto.internal.MealServiceDietInfo
 import team.themoment.datagsm.common.domain.neis.dto.internal.MealServiceDietInfoWrapper
 import team.themoment.datagsm.common.domain.neis.dto.internal.NeisMealApiResponse
+import team.themoment.datagsm.common.domain.neis.meal.entity.MealRedisEntity
+import team.themoment.datagsm.common.domain.neis.meal.repository.MealRedisRepository
 import team.themoment.datagsm.common.global.data.NeisEnvironment
 import team.themoment.datagsm.resource.domain.neis.meal.service.impl.SyncMealServiceImpl
 import team.themoment.datagsm.resource.global.thirdparty.feign.neis.NeisApiClient

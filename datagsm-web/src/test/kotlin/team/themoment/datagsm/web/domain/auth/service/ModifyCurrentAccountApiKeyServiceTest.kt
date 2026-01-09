@@ -14,9 +14,9 @@ import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
+import team.themoment.datagsm.common.domain.auth.dto.request.ModifyApiKeyReqDto
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
-import team.themoment.datagsm.common.domain.auth.dto.request.ModifyApiKeyReqDto
 import team.themoment.datagsm.web.domain.auth.service.impl.ModifyCurrentAccountApiKeyServiceImpl
 import team.themoment.datagsm.web.global.security.checker.ScopeChecker
 import team.themoment.datagsm.web.global.security.data.ApiKeyEnvironment
