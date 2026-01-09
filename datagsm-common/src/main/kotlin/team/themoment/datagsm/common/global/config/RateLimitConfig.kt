@@ -1,4 +1,4 @@
-package team.themoment.datagsm.authorization.global.config
+package team.themoment.datagsm.common.global.config
 
 import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy
 import io.github.bucket4j.distributed.proxy.ProxyManager

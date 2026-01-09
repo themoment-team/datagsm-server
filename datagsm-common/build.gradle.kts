@@ -49,6 +49,10 @@ dependencies {
     // Spring Cloud
     api(dependency.Dependencies.SPRING_OPENFEIGN)
 
+    // Rate Limiting
+    api(dependency.Dependencies.BUCKET4J_CORE)
+    api(dependency.Dependencies.BUCKET4J_REDIS)
+
     // Hibernate
     api(dependency.Dependencies.HIBERNATE)
 
