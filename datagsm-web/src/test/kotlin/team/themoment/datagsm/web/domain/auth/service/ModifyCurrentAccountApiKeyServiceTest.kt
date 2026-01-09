@@ -17,9 +17,9 @@ import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.domain.auth.dto.request.ModifyApiKeyReqDto
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
+import team.themoment.datagsm.common.global.data.ApiKeyEnvironment
 import team.themoment.datagsm.web.domain.auth.service.impl.ModifyCurrentAccountApiKeyServiceImpl
 import team.themoment.datagsm.web.global.security.checker.ScopeChecker
-import team.themoment.datagsm.web.global.security.data.ApiKeyEnvironment
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 import java.time.LocalDateTime
