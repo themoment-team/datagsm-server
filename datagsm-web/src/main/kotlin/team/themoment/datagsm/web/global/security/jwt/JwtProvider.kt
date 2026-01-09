@@ -7,7 +7,7 @@ import io.jsonwebtoken.security.Keys
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
-import team.themoment.datagsm.common.global.data.JwtEnvironment
+import team.themoment.datagsm.common.global.data.InternalJwtEnvironment
 import team.themoment.datagsm.web.global.security.authentication.type.AuthType
 import team.themoment.sdk.exception.ExpectedException
 import java.nio.charset.StandardCharsets
@@ -16,7 +16,7 @@ import javax.crypto.SecretKey
 
 @Component
 class JwtProvider(
-    private val jwtEnvironment: JwtEnvironment,
+    private val jwtEnvironment: InternalJwtEnvironment,
 ) {
     private val secretKey: SecretKey =
         Keys.hmacShaKeyFor(
@@ -28,7 +28,7 @@ class JwtProvider(
         role: AccountRole,
     ): String {
         val now = Date()
-        val expiration = Date(now.time + jwtEnvironment.accessTokenExpiration!!)
+        val expiration = Date(now.time + jwtEnvironment.accessTokenExpiration)
 
         return Jwts
             .builder()
@@ -43,7 +43,7 @@ class JwtProvider(
 
     fun generateRefreshToken(email: String): String {
         val now = Date()
-        val expiration = Date(now.time + jwtEnvironment.refreshTokenExpiration!!)
+        val expiration = Date(now.time + jwtEnvironment.refreshTokenExpiration)
 
         return Jwts
             .builder()

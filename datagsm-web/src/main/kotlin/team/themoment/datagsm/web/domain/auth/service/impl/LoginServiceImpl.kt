@@ -8,7 +8,7 @@ import team.themoment.datagsm.common.domain.account.repository.AccountJpaReposit
 import team.themoment.datagsm.common.domain.auth.dto.request.LoginReqDto
 import team.themoment.datagsm.common.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.common.domain.auth.repository.RefreshTokenRedisRepository
-import team.themoment.datagsm.common.global.data.JwtEnvironment
+import team.themoment.datagsm.common.global.data.InternalJwtEnvironment
 import team.themoment.datagsm.web.domain.auth.service.LoginService
 import team.themoment.datagsm.web.global.security.jwt.JwtProvider
 import team.themoment.sdk.exception.ExpectedException
@@ -18,7 +18,7 @@ class LoginServiceImpl(
     private val accountRepository: AccountJpaRepository,
     private val jwtProvider: JwtProvider,
     private val refreshTokenRedisRepository: RefreshTokenRedisRepository,
-    private val jwtEnvironment: JwtEnvironment,
+    private val jwtEnvironment: InternalJwtEnvironment,
     private val passwordEncoder: PasswordEncoder,
 ) : LoginService {
     override fun execute(reqDto: LoginReqDto): TokenResDto {
@@ -30,7 +30,7 @@ class LoginServiceImpl(
         val accessToken = jwtProvider.generateAccessToken(account.email, account.role)
         val refreshToken = jwtProvider.generateRefreshToken(reqDto.email)
         refreshTokenRedisRepository.deleteByEmail(reqDto.email)
-        val ttlSeconds = jwtEnvironment.refreshTokenExpiration!!.div(1000)
+        val ttlSeconds = jwtEnvironment.refreshTokenExpiration.div(1000)
         val refreshTokenEntity =
             RefreshTokenRedisEntity.of(
                 email = account.email,
