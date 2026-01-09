@@ -31,10 +31,12 @@ class CreateCurrentAccountApiKeyServiceImpl(
             throw ExpectedException("이미 API 키가 존재합니다.", HttpStatus.CONFLICT)
         }
 
-        val authentication = SecurityContextHolder.getContext().authentication
+        val authentication =
+            SecurityContextHolder.getContext().authentication
+                ?: throw ExpectedException("인증 정보가 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
         val isAdmin =
             scopeChecker.hasScope(
-                authentication!!,
+                authentication,
                 ApiScope.ADMIN_APIKEY.scope,
             )
 
