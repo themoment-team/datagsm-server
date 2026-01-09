@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.authorization.domain.oauth.dto.request.OauthCodeReqDto
-import team.themoment.datagsm.authorization.domain.oauth.dto.request.OauthTokenReqDto
-import team.themoment.datagsm.authorization.domain.oauth.dto.request.RefreshOauthTokenReqDto
-import team.themoment.datagsm.authorization.domain.oauth.dto.response.OauthCodeResDto
-import team.themoment.datagsm.authorization.domain.oauth.dto.response.OauthTokenResDto
 import team.themoment.datagsm.authorization.domain.oauth.service.ExchangeTokenService
 import team.themoment.datagsm.authorization.domain.oauth.service.IssueOauthCodeService
 import team.themoment.datagsm.authorization.domain.oauth.service.ReissueOauthTokenService
+import team.themoment.datagsm.common.dto.oauth.request.OauthCodeReqDto
+import team.themoment.datagsm.common.dto.oauth.request.OauthTokenReqDto
+import team.themoment.datagsm.common.dto.oauth.request.RefreshOauthTokenReqDto
+import team.themoment.datagsm.common.dto.oauth.response.OauthCodeResDto
+import team.themoment.datagsm.common.dto.oauth.response.OauthTokenResDto
 
 @Tag(name = "OAuth", description = "OAuth2 Authorization Server API")
 @RestController

@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.authorization.domain.account.dto.request.CreateAccountReqDto
-import team.themoment.datagsm.authorization.domain.account.dto.request.EmailCodeReqDto
-import team.themoment.datagsm.authorization.domain.account.dto.request.SendEmailReqDto
-import team.themoment.datagsm.authorization.domain.account.dto.response.GetMyInfoResDto
 import team.themoment.datagsm.authorization.domain.account.service.CheckEmailService
 import team.themoment.datagsm.authorization.domain.account.service.CreateAccountService
 import team.themoment.datagsm.authorization.domain.account.service.GetMyInfoService
 import team.themoment.datagsm.authorization.domain.account.service.SendEmailService
+import team.themoment.datagsm.common.dto.account.request.CreateAccountReqDto
+import team.themoment.datagsm.common.dto.account.request.EmailCodeReqDto
+import team.themoment.datagsm.common.dto.account.request.SendEmailReqDto
+import team.themoment.datagsm.common.dto.account.response.GetMyInfoResDto
 import team.themoment.sdk.response.CommonApiResponse
 
 @Tag(name = "Account", description = "계정 관련 API")
