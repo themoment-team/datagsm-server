@@ -2,7 +2,6 @@ package team.themoment.datagsm.common.global.thirdparty.aws.cloudwatch.appender
 
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.UnsynchronizedAppenderBase
-import com.github.snowykte0426.peanut.butter.logging.logger
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClient
@@ -68,7 +67,7 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
 
             running = true
             writerThread =
-                thread(name = "CloudWatchAppender-Writer") {
+                thread(name = "CloudWatchAppender-Writer-$name") {
                     runWriter()
                 }
 
@@ -82,7 +81,7 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
     override fun stop() {
         running = false
         writerThread?.interrupt()
-        writerThread?.join(5000)
+        writerThread?.join(shutdownTimeoutMillis)
 
         try {
             flushLogs()
@@ -127,9 +126,8 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
                     .build()
             cloudWatchClient.createLogGroup(request)
             addInfo("Created log group: $logGroupName")
-        } catch (e: ResourceAlreadyExistsException) {
+        } catch (_: ResourceAlreadyExistsException) {
             addInfo("Log group already exists: $logGroupName")
-            logger().warn("Log group $logGroupName already exists. ${e.message}")
         } catch (e: Exception) {
             addError("Failed to create log group: $logGroupName", e)
             throw e
@@ -161,10 +159,9 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
                     .build()
             cloudWatchClient.createLogStream(request)
             addInfo("Created log stream: $actualLogStreamName")
-        } catch (e: ResourceAlreadyExistsException) {
+        } catch (_: ResourceAlreadyExistsException) {
             addInfo("Log stream already exists: $actualLogStreamName")
             refreshSequenceToken()
-            logger().warn("Log stream $actualLogStreamName already exists. ${e.message}")
         } catch (e: Exception) {
             addError("Failed to create log stream: $actualLogStreamName", e)
             throw e
@@ -210,8 +207,8 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
                     batch.clear()
                     lastFlushTime = now
                 }
-            } catch (e: InterruptedException) {
-                logger().info("Writer thread interrupted, flushing remaining logs, ${e.message}")
+            } catch (_: InterruptedException) {
+                addInfo("Writer thread interrupted, flushing remaining logs")
                 if (!running) {
                     break
                 }
@@ -252,7 +249,7 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
                             .message(event.formattedMessage)
                             .build()
                     }.sortedBy { it.timestamp() }
-            repeat(3) { retryCount ->
+            repeat(maxRetries) { retryCount ->
                 try {
                     val requestBuilder =
                         PutLogEventsRequest
@@ -271,12 +268,12 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
                     return@repeat
                 } catch (e: InvalidSequenceTokenException) {
                     sequenceToken.set(e.expectedSequenceToken())
-                    if (retryCount >= 2) throw e
+                    if (retryCount >= maxRetries - 1) throw e
                 } catch (e: ResourceNotFoundException) {
                     addError("Log group or stream not found, attempting to recreate", e)
                     initializeLogGroup()
                     initializeLogStream()
-                    if (retryCount >= 2) throw e
+                    if (retryCount >= maxRetries - 1) throw e
                 }
             }
         } catch (e: Exception) {
