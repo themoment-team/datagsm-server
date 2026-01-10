@@ -55,8 +55,11 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
                 CloudWatchLogsClient
                     .builder()
                     .region(Region.of(region))
-                    .credentialsProvider(DefaultCredentialsProvider.create())
-                    .build()
+                    .credentialsProvider(
+                        DefaultCredentialsProvider
+                            .builder()
+                            .build(),
+                    ).build()
 
             initializeLogGroup()
             initializeLogStream()
