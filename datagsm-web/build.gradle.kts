@@ -23,6 +23,7 @@ repositories {
 dependencyManagement {
     imports {
         mavenBom(dependency.Dependencies.SPRING_CLOUD_BOM)
+        mavenBom(dependency.Dependencies.AWS_SDK_BOM)
     }
 }
 
