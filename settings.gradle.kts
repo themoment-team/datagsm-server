@@ -18,7 +18,6 @@ dependencyResolutionManagement {
 
 buildCache {
     local {
-        isEnabled = true
         directory = file("$rootDir/.gradle/build-cache")
     }
 }
