@@ -30,7 +30,7 @@ jobs:
           gradle-home-cache-cleanup: true
 
       - name: Test with Gradle
-        run: ./gradlew build --parallel --configuration-cache --build-cache
+        run: ./gradlew build --parallel --build-cache
 
       - name: CI Success Notification
         uses: sarisia/actions-status-discord@v1
