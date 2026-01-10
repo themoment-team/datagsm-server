@@ -47,18 +47,14 @@ class SecurityConfig(
                 it
                     .requestMatchers(*AuthenticationPathConfig.PUBLIC_PATHS.toTypedArray())
                     .permitAll()
-                    .requestMatchers("/v1/students/**")
-                    .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
-                    .requestMatchers("/v1/projects/**")
-                    .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
-                    .requestMatchers("/v1/clubs/**")
-                    .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
-                    .requestMatchers("/v1/clients/search")
-                    .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
-                    .requestMatchers("/v1/auth/api-keys/search")
-                    .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
-                    .requestMatchers("/v1/auth/api-key/*")
-                    .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
+                    .requestMatchers(
+                        "/v1/students/**",
+                        "/v1/projects/**",
+                        "/v1/clubs/**",
+                        "/v1/clients/search",
+                        "/v1/auth/api-keys/search",
+                        "/v1/auth/api-key/*",
+                    ).hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
                     .anyRequest()
                     .authenticated()
             }
