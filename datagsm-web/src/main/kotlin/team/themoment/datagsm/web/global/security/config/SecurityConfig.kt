@@ -15,6 +15,7 @@ import org.springframework.security.core.annotation.AnnotationTemplateExpression
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfigurationSource
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.web.global.security.authentication.principal.PrincipalProvider
 import team.themoment.datagsm.web.global.security.handler.CustomAuthenticationEntryPoint
 import team.themoment.datagsm.web.global.security.jwt.JwtProvider
@@ -46,6 +47,18 @@ class SecurityConfig(
                 it
                     .requestMatchers(*AuthenticationPathConfig.PUBLIC_PATHS.toTypedArray())
                     .permitAll()
+                    .requestMatchers("/v1/students/**")
+                    .hasAllRoles(AccountRole.ADMIN.name, AccountRole.ROOT.name)
+                    .requestMatchers("/v1/projects/**")
+                    .hasAllRoles(AccountRole.ADMIN.name, AccountRole.ROOT.name)
+                    .requestMatchers("/v1/clubs/**")
+                    .hasAllRoles(AccountRole.ADMIN.name, AccountRole.ROOT.name)
+                    .requestMatchers("/v1/clients/search")
+                    .hasAllRoles(AccountRole.ADMIN.name, AccountRole.ROOT.name)
+                    .requestMatchers("/v1/auth/api-keys/search")
+                    .hasAllRoles(AccountRole.ADMIN.name, AccountRole.ROOT.name)
+                    .requestMatchers("/v1/auth/api-key/*")
+                    .hasAllRoles(AccountRole.ADMIN.name, AccountRole.ROOT.name)
                     .anyRequest()
                     .authenticated()
             }
