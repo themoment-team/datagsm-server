@@ -90,10 +90,12 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
             addError("Error flushing logs during shutdown", e)
         }
 
-        try {
-            cloudWatchClient.close()
-        } catch (e: Exception) {
-            addError("Error closing CloudWatch client", e)
+        if (::cloudWatchClient.isInitialized) {
+            try {
+                cloudWatchClient.close()
+            } catch (e: Exception) {
+                addError("Error closing CloudWatch client", e)
+            }
         }
 
         super.stop()
