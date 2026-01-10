@@ -5,7 +5,6 @@ import dependency.DependencyVersions.BUCKET4J_VERSION
 import dependency.DependencyVersions.JJWT_VERSION
 import dependency.DependencyVersions.KOTEST_VERSION
 import dependency.DependencyVersions.KOTLIN_COROUTINES_VERSION
-import dependency.DependencyVersions.LOGBACK_AWS_APPENDER_VERSION
 import dependency.DependencyVersions.MOCKK_VERSION
 import dependency.DependencyVersions.PEANUT_BUTTER_VERSION
 import dependency.DependencyVersions.POI_VERSION
@@ -79,8 +78,8 @@ object Dependencies {
     // Jackson
     const val JACKSON_DATABIND = "com.fasterxml.jackson.core:jackson-databind"
 
-    // Logging
-    const val LOGBACK_AWS_APPENDER = "ca.pjer:logback-awslogs-appender:${LOGBACK_AWS_APPENDER_VERSION}"
+    // AWS SDK
+    const val AWS_CLOUDWATCH_LOGS = "software.amazon.awssdk:cloudwatchlogs"
 
     // Development Tools
     const val SPRING_BOOT_DEVTOOLS = "org.springframework.boot:spring-boot-devtools"

@@ -70,8 +70,8 @@ dependencies {
     api(dependency.Dependencies.THE_MOMENT_THE_SDK)
     api(dependency.Dependencies.PEANUT_BUTTER)
 
-    // Logging
-    api(dependency.Dependencies.LOGBACK_AWS_APPENDER)
+    // Logging / AWS CloudWatch
+    api(dependency.Dependencies.AWS_CLOUDWATCH_LOGS)
 
     // Development Tools
     api(dependency.Dependencies.SPRING_BOOT_DEVTOOLS)

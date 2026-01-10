@@ -12,8 +12,6 @@ object DependencyVersions {
 
     const val SWAGGER_VERSION = "3.0.1"
 
-    const val LOGBACK_AWS_APPENDER_VERSION = "1.6.0"
-
     const val SPRING_CLOUD_VERSION = "2025.1.0"
     const val AWS_SDK_VERSION = "2.41.2"
 
