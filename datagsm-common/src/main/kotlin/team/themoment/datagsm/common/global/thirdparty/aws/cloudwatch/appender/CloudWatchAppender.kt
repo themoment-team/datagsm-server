@@ -1,4 +1,4 @@
-package team.themoment.datagsm.common.logging
+package team.themoment.datagsm.common.global.thirdparty.aws.cloudwatch.appender
 
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.UnsynchronizedAppenderBase
