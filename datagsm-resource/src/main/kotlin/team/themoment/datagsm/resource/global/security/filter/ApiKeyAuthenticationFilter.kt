@@ -8,8 +8,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
-import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
-import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.resource.global.security.authentication.CustomAuthenticationToken
 import team.themoment.datagsm.resource.global.security.authentication.principal.PrincipalProvider
@@ -53,20 +51,12 @@ class ApiKeyAuthenticationFilter(
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "만료된 API Key입니다.")
                 return
             }
-            val account = apiKey.account
+            val scopeAuthorities = apiKey.scopes.map { SimpleGrantedAuthority("SCOPE_$it") }
 
-            val scopeAuthorities =
-                if (account.role in setOf(AccountRole.ADMIN, AccountRole.ROOT)) {
-                    listOf(SimpleGrantedAuthority("SCOPE_${ApiScope.ALL_SCOPE}"))
-                } else {
-                    apiKey.scopes.map { SimpleGrantedAuthority("SCOPE_$it") }
-                }
-
-            val authorities = listOfNotNull(account.role, AccountRole.API_KEY_USER) + scopeAuthorities
             val authentication =
                 CustomAuthenticationToken(
                     principal = principalProvider.provideFromApiKey(apiKey),
-                    authorities = authorities,
+                    authorities = scopeAuthorities,
                 )
             SecurityContextHolder.getContext().authentication = authentication
         } catch (e: IllegalArgumentException) {
