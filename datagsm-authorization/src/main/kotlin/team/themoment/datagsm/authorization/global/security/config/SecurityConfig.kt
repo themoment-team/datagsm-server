@@ -41,7 +41,9 @@ class SecurityConfig(
             .addFilterBefore(
                 JwtAuthenticationFilter(jwtProvider, principalProvider),
                 UsernamePasswordAuthenticationFilter::class.java,
-            )
+            ).authorizeHttpRequests {
+                it.anyRequest().permitAll()
+            }
 
         return http.build()
     }

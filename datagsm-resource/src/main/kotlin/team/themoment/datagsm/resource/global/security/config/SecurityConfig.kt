@@ -53,11 +53,7 @@ class SecurityConfig(
                 RateLimitFilter(rateLimitService, objectMapper, currentUserProvider),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).authorizeHttpRequests {
-                it
-                    .requestMatchers(*AuthenticationPathConfig.PUBLIC_PATHS.toTypedArray())
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated()
+                it.anyRequest().permitAll()
             }
 
         return http.build()
