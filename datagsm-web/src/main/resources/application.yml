@@ -1,13 +1,11 @@
 spring:
   application:
     name: datagsm-web
-
   docker:
     compose:
       enabled: true
       file: compose.yaml
       lifecycle-management: start_and_stop
-
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/datagsm?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Seoul}
     username: ${DB_USERNAME:root}
@@ -17,13 +15,11 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 5
       connection-timeout: 30000
-
   data:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       database: 0
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -33,7 +29,6 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
     open-in-view: false
-
   mail:
     host: smtp.gmail.com
     port: 587
@@ -45,12 +40,10 @@ spring:
           auth: true
           starttls:
             enable: true
-
   cloud:
     discord:
       webhook:
         url: ${DISCORD_EMERGENCY_ALERT_CHANNEL_WEBHOOK}
-
   security:
     cors:
       allowed-origins:
@@ -68,11 +61,9 @@ spring:
         default-capacity: 100
         default-refill-tokens: 100
         default-refill-duration-seconds: 60
-
 server:
   port: 8080
   shutdown: graceful
-
 sdk:
   logging:
     enabled: true
@@ -80,7 +71,6 @@ sdk:
       - "/v3/api-docs/**"
       - "/swagger-ui/**"
       - "/actuator/**"
-
   response:
     enabled: true
     not-wrapping-urls:
@@ -89,7 +79,6 @@ sdk:
       - "/actuator/**"
       - "/v1/students/excel/download"
       - "/v1/clubs/excel/download"
-
   swagger:
     enabled: true
     title: "DataGSM Web Server API"
@@ -98,21 +87,12 @@ sdk:
     group: "web-api"
     paths-to-match:
       - "/v1/**"
-
   exception:
     enabled: false
     use-english-message: false
-
 springdoc:
   swagger-ui:
     enabled: true
-    path: /swagger-ui.html
-  api-docs:
-    path: /v3/api-docs
 
 logging:
-  level:
-    team.themoment: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
   config: classpath:logback-spring.xml
