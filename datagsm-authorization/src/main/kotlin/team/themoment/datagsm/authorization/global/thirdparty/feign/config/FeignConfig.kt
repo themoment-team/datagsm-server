@@ -6,7 +6,12 @@ import org.springframework.context.annotation.Configuration
 import team.themoment.datagsm.authorization.global.thirdparty.feign.error.FeignErrorDecoder
 
 @Configuration
-@EnableFeignClients(basePackages = ["team.themoment.datagsm.authorization.global.thirdparty.feign"])
+@EnableFeignClients(
+    basePackages = [
+        "team.themoment.datagsm.authorization.global.thirdparty.feign",
+        "team.themoment.datagsm.common.global.thirdparty.feign",
+    ],
+)
 class FeignConfig {
     @Bean
     fun feignErrorDecoder(): FeignErrorDecoder = FeignErrorDecoder()
