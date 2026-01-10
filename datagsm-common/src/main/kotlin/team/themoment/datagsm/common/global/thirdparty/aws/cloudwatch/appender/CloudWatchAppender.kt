@@ -30,6 +30,8 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
     var maxBatchTimeMillis: Long = 10000
     var maxBlockTimeMillis: Long = 5000
     var retentionTimeDays: Int = 30
+    var shutdownTimeoutMillis: Long = 5000
+    var maxRetries: Int = 3
 
     private lateinit var cloudWatchClient: CloudWatchLogsClient
     private val logQueue: BlockingQueue<ILoggingEvent> = LinkedBlockingQueue()
