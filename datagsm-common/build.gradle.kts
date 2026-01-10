@@ -13,11 +13,6 @@ java {
     }
 }
 
-repositories {
-    mavenCentral()
-    maven { url = uri("https://jitpack.io") }
-}
-
 dependencyManagement {
     imports {
         mavenBom(dependency.Dependencies.SPRING_BOOT_BOM)

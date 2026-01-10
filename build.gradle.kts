@@ -13,11 +13,6 @@ java {
     }
 }
 
-repositories {
-    mavenCentral()
-    maven { url = uri("https://jitpack.io") }
-}
-
 allprojects {
     apply(plugin = plugin.Plugins.KTLINT)
 
