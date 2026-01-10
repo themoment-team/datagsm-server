@@ -59,6 +59,5 @@ class RateLimitFilter(
         filterChain.doFilter(request, response)
     }
 
-    private fun isExcludedFromRateLimit(apiKey: ApiKey): Boolean =
-        apiKey.scopes.any { it.startsWith("admin:") || it == "*:*" }
+    private fun isExcludedFromRateLimit(apiKey: ApiKey): Boolean = apiKey.scopes.any { it.startsWith("admin:") || it == "*:*" }
 }
