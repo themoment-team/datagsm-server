@@ -265,7 +265,7 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
 
                     val response = cloudWatchClient.putLogEvents(requestBuilder.build())
                     sequenceToken.set(response.nextSequenceToken())
-                    return@repeat
+                    return@flushBatch
                 } catch (e: InvalidSequenceTokenException) {
                     sequenceToken.set(e.expectedSequenceToken())
                     if (retryCount >= maxRetries - 1) throw e
