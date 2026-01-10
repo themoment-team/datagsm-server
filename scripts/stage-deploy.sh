@@ -1,21 +1,45 @@
 #!/bin/bash
 
-IMAGE_NAME=datagsm-stage-server-img
-CONTAINER_NAME=datagsm-stage-server
-DOCKERFILE_NAME=stage.dockerfile
+echo "> DataGSM Multi-Module Staging Deployment Start"
 
-EXISTING_CONTAINER_ID=$(docker ps -a -q -f name=$CONTAINER_NAME)
+WEB_CONTAINER=datagsm-web-stage
+AUTH_CONTAINER=datagsm-auth-stage
+RESOURCE_CONTAINER=datagsm-resource-stage
 
-if [ ! -z "$EXISTING_CONTAINER_ID" ]
-then
-  echo "현재 이전버전의 컨테이너가 있습니다. 중지하고 삭제합니다."
-  docker stop $CONTAINER_NAME || true
-  docker rm $CONTAINER_NAME
-fi
+WEB_IMAGE=datagsm-web-stage-img
+AUTH_IMAGE=datagsm-auth-stage-img
+RESOURCE_IMAGE=datagsm-resource-stage-img
+
+stop_and_remove_container() {
+  local CONTAINER_NAME=$1
+  echo "> Checking container: $CONTAINER_NAME"
+
+  EXISTING_ID=$(docker ps -a -q -f name=$CONTAINER_NAME)
+
+  if [ ! -z "$EXISTING_ID" ]; then
+    echo "> Stopping and removing container: $CONTAINER_NAME"
+    docker stop $CONTAINER_NAME || true
+    docker rm $CONTAINER_NAME
+  fi
+}
+
+stop_and_remove_container $WEB_CONTAINER
+stop_and_remove_container $AUTH_CONTAINER
+stop_and_remove_container $RESOURCE_CONTAINER
 
 cd /home/ec2-user/builds/
-docker build -t $IMAGE_NAME -f $DOCKERFILE_NAME .
 
-docker run -d --name $CONTAINER_NAME -p 8080:8080 $IMAGE_NAME
+echo "> Building Docker images..."
+docker build -t $WEB_IMAGE -f datagsm-web/stage.dockerfile ./datagsm-web
+docker build -t $AUTH_IMAGE -f datagsm-authorization/stage.dockerfile ./datagsm-authorization
+docker build -t $RESOURCE_IMAGE -f datagsm-resource/stage.dockerfile ./datagsm-resource
 
+echo "> Starting Docker containers..."
+docker run -d --name $WEB_CONTAINER -p 8080:8080 $WEB_IMAGE
+docker run -d --name $AUTH_CONTAINER -p 8081:8081 $AUTH_IMAGE
+docker run -d --name $RESOURCE_CONTAINER -p 8082:8082 $RESOURCE_IMAGE
+
+echo "> Cleaning up unused Docker resources..."
 docker system prune -a --volumes -f
+
+echo "> Deployment completed successfully"

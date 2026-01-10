@@ -38,3 +38,11 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+### Profile Files ###
+/datagsm-authorization/src/main/resources/application-stage.yml
+/datagsm-authorization/src/main/resources/application-prod.yml
+/datagsm-resource/src/main/resources/application-stage.yml
+/datagsm-resource/src/main/resources/application-prod.yml
+/datagsm-web/src/main/resources/application-stage.yml
+/datagsm-web/src/main/resources/application-prod.yml

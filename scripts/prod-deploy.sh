@@ -1,29 +1,47 @@
 #!/bin/bash
 
-IMAGE_NAME=datagsm-prod-server-img
-CONTAINER_NAME=datagsm-prod-server
-DOCKERFILE_NAME=prod.dockerfile
+echo "> DataGSM Multi-Module Deployment Start" >> /home/ec2-user/deploy.log
 
-echo "> 현재 실행 중인 Docker 컨테이너 ID 확인" >> /home/ec2-user/deploy.log
-RUNNING_CONTAINER_ID=$(docker ps -q -f name=$CONTAINER_NAME)
-EXISTING_CONTAINER_ID=$(docker ps -a -q -f name=$CONTAINER_NAME)
+WEB_CONTAINER=datagsm-web-prod
+AUTH_CONTAINER=datagsm-auth-prod
+RESOURCE_CONTAINER=datagsm-resource-prod
 
-if [ -z $RUNNING_CONTAINER_ID ]
-then
-  echo "> 현재 구동중인 Docker 컨테이너가 없으므로 종료하지 않습니다." >> /home/ec2-user/deploy.log
-else
-  echo "> sudo docker stop $RUNNING_CONTAINER_ID"
-  sudo docker stop $RUNNING_CONTAINER_ID
-fi
+WEB_IMAGE=datagsm-web-prod-img
+AUTH_IMAGE=datagsm-auth-prod-img
+RESOURCE_IMAGE=datagsm-resource-prod-img
 
-if [ -z $EXISTING_CONTAINER_ID ]
-then
-  echo "> 현재 존재하는 Docker 컨테이너가 없으므로 삭제하지 않습니다." >> /home/ec2-user/deploy.log
-else
-  echo "> sudo docker rm $EXISTING_CONTAINER_ID"
-  sudo docker rm $EXISTING_CONTAINER_ID
-fi
+stop_and_remove_container() {
+  local CONTAINER_NAME=$1
+  echo "> Checking container: $CONTAINER_NAME" >> /home/ec2-user/deploy.log
+
+  RUNNING_ID=$(docker ps -q -f name=$CONTAINER_NAME)
+  EXISTING_ID=$(docker ps -a -q -f name=$CONTAINER_NAME)
+
+  if [ ! -z "$RUNNING_ID" ]; then
+    echo "> Stopping container: $CONTAINER_NAME" >> /home/ec2-user/deploy.log
+    docker stop $CONTAINER_NAME
+  fi
+
+  if [ ! -z "$EXISTING_ID" ]; then
+    echo "> Removing container: $CONTAINER_NAME" >> /home/ec2-user/deploy.log
+    docker rm $CONTAINER_NAME
+  fi
+}
+
+stop_and_remove_container $WEB_CONTAINER
+stop_and_remove_container $AUTH_CONTAINER
+stop_and_remove_container $RESOURCE_CONTAINER
 
 cd /home/ec2-user/builds/
-docker build -t $IMAGE_NAME -f $DOCKERFILE_NAME .
-docker run -d --name $CONTAINER_NAME -p 8080:8080 $IMAGE_NAME
+
+echo "> Building Docker images..." >> /home/ec2-user/deploy.log
+docker build -t $WEB_IMAGE -f datagsm-web/prod.dockerfile ./datagsm-web
+docker build -t $AUTH_IMAGE -f datagsm-authorization/prod.dockerfile ./datagsm-authorization
+docker build -t $RESOURCE_IMAGE -f datagsm-resource/prod.dockerfile ./datagsm-resource
+
+echo "> Starting Docker containers..." >> /home/ec2-user/deploy.log
+docker run -d --name $WEB_CONTAINER -p 8080:8080 $WEB_IMAGE
+docker run -d --name $AUTH_CONTAINER -p 8081:8081 $AUTH_IMAGE
+docker run -d --name $RESOURCE_CONTAINER -p 8082:8082 $RESOURCE_IMAGE
+
+echo "> Deployment completed successfully" >> /home/ec2-user/deploy.log
