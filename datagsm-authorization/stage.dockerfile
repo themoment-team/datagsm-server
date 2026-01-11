@@ -10,4 +10,4 @@ COPY ${JAR_FILE} datagsm-authorization.jar
 
 RUN ln -snf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
 
-ENTRYPOINT ["java", "-Dspring.profiles.active=stage", "-jar", "datagsm-authorization.jar"]
+ENTRYPOINT ["sh", "-c", "exec java -Dspring.profiles.active=stage -jar datagsm-authorization.jar"]

@@ -10,4 +10,4 @@ COPY ${JAR_FILE} datagsm-web.jar
 
 RUN ln -snf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
 
-ENTRYPOINT ["java", "-Dspring.profiles.active=stage", "-jar", "datagsm-web.jar"]
+ENTRYPOINT ["sh", "-c", "exec java -Dspring.profiles.active=stage -jar datagsm-web.jar"]
