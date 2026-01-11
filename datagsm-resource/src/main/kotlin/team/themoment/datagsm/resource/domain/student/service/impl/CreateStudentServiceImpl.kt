@@ -17,8 +17,8 @@ import team.themoment.sdk.exception.ExpectedException
 
 @Service
 class CreateStudentServiceImpl(
-    private final val studentJpaRepository: StudentJpaRepository,
-    private final val clubJpaRepository: ClubJpaRepository,
+    private val studentJpaRepository: StudentJpaRepository,
+    private val clubJpaRepository: ClubJpaRepository,
 ) : CreateStudentService {
     @Transactional
     override fun execute(reqDto: CreateStudentReqDto): StudentResDto {

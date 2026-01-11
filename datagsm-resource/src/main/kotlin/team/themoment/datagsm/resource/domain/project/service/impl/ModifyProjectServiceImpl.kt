@@ -1,5 +1,6 @@
 package team.themoment.datagsm.resource.domain.project.service.impl
 
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -26,20 +27,18 @@ class ModifyProjectServiceImpl(
     ): ProjectResDto {
         val project =
             projectJpaRepository
-                .findById(projectId)
-                .orElseThrow { ExpectedException("프로젝트를 찾을 수 없습니다. projectId: $projectId", HttpStatus.NOT_FOUND) }
+                .findByIdOrNull(projectId)
+                ?: throw ExpectedException("프로젝트를 찾을 수 없습니다. projectId: $projectId", HttpStatus.NOT_FOUND)
         if (projectJpaRepository.existsByNameAndIdNot(reqDto.name, projectId)) {
             throw ExpectedException("이미 존재하는 프로젝트 이름입니다: ${reqDto.name}", HttpStatus.CONFLICT)
         }
         val ownerClub =
             clubJpaRepository
-                .findById(reqDto.clubId)
-                .orElseThrow {
-                    ExpectedException(
-                        "동아리를 찾을 수 없습니다. clubId: ${reqDto.clubId}",
-                        HttpStatus.NOT_FOUND,
-                    )
-                }
+                .findByIdOrNull(reqDto.clubId)
+                ?: throw ExpectedException(
+                    "동아리를 찾을 수 없습니다. clubId: ${reqDto.clubId}",
+                    HttpStatus.NOT_FOUND,
+                )
 
         val newParticipants =
             if (reqDto.participantIds.isNotEmpty()) {

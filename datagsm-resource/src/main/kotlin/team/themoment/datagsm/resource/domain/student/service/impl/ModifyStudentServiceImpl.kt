@@ -1,5 +1,6 @@
 package team.themoment.datagsm.resource.domain.student.service.impl
 
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -16,8 +17,8 @@ import team.themoment.sdk.exception.ExpectedException
 
 @Service
 class ModifyStudentServiceImpl(
-    private final val studentJpaRepository: StudentJpaRepository,
-    private final val clubJpaRepository: ClubJpaRepository,
+    private val studentJpaRepository: StudentJpaRepository,
+    private val clubJpaRepository: ClubJpaRepository,
 ) : ModifyStudentService {
     @Transactional
     override fun execute(
@@ -26,8 +27,8 @@ class ModifyStudentServiceImpl(
     ): StudentResDto {
         val student =
             studentJpaRepository
-                .findById(studentId)
-                .orElseThrow { ExpectedException("학생을 찾을 수 없습니다. studentId: $studentId", HttpStatus.NOT_FOUND) }
+                .findByIdOrNull(studentId)
+                ?: throw ExpectedException("학생을 찾을 수 없습니다. studentId: $studentId", HttpStatus.NOT_FOUND)
         if (studentJpaRepository.existsByStudentEmailAndNotId(reqDto.email, studentId)) {
             throw ExpectedException("이미 존재하는 이메일입니다: ${reqDto.email}", HttpStatus.CONFLICT)
         }
