@@ -1,0 +1,27 @@
+services:
+  datagsm-web:
+    build:
+      context: ./datagsm-web
+      dockerfile: stage.dockerfile
+    container_name: datagsm-web-stage
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  datagsm-authorization:
+    build:
+      context: ./datagsm-authorization
+      dockerfile: stage.dockerfile
+    container_name: datagsm-auth-stage
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+
+  datagsm-resource:
+    build:
+      context: ./datagsm-resource
+      dockerfile: stage.dockerfile
+    container_name: datagsm-resource-stage
+    ports:
+      - "8082:8082"
+    restart: unless-stopped

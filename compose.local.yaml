@@ -1,20 +1,20 @@
 services:
   mysql:
     image: mysql:8.0
-    container_name: datagsm-resource-mysql
+    container_name: datagsm-local-mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: datagsm
     ports:
-      - "3308:3306"
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 
   redis:
     image: redis:7-alpine
-    container_name: datagsm-resource-redis
+    container_name: datagsm-local-redis
     ports:
-      - "6381:6379"
+      - "6379:6379"
     volumes:
       - redis_data:/data
 
