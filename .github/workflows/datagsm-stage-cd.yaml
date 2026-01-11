@@ -22,6 +22,9 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-read-only: false
+          gradle-home-cache-cleanup: true
 
       - name: Make YML Files
         run: |
@@ -40,7 +43,7 @@ jobs:
         shell: bash
 
       - name: Build with Gradle
-        run : ./gradlew clean build -x test
+        run : ./gradlew build -x test --parallel --build-cache
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v5
