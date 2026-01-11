@@ -176,7 +176,7 @@ class AuthController(
             size,
         )
 
-    @Operation(summary = "역할별 사용 가능한 API Scope 조회", description = "USER 또는 ADMIN 역할에서 사용 가능한 API Scope 목록을 카테고리별로 그룹핑하여 조회합니다.")
+    @Operation(summary = "역할별 사용 가능한 API 권한 범위 조회", description = "USER 또는 ADMIN 역할에서 사용 가능한 API 권한 범위 목록을 카테고리별로 그룹핑하여 조회합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
@@ -189,16 +189,16 @@ class AuthController(
         role: AccountRole,
     ): ApiScopeGroupListResDto = queryApiScopeGroupService.execute(role)
 
-    @Operation(summary = "API Scope 단건 조회", description = "특정 API Scope의 상세 정보를 조회합니다.")
+    @Operation(summary = "API 권한 범위 단건 조회", description = "특정 API 권한 범위의 상세 정보를 조회합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
-            ApiResponse(responseCode = "404", description = "존재하지 않는 스코프", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "존재하지 않는 권한 범위", content = [Content()]),
         ],
     )
     @GetMapping("/scopes/{scopeName}")
     fun getApiScope(
-        @Parameter(description = "조회할 스코프 이름", example = "student:read", required = true)
+        @Parameter(description = "조회할 권한 범위 이름", example = "student:read", required = true)
         @PathVariable
         scopeName: String,
     ): ApiScopeResDto = queryApiScopeByScopeNameService.execute(scopeName)
