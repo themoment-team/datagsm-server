@@ -16,13 +16,13 @@ import team.themoment.sdk.exception.ExpectedException
 import java.util.UUID
 
 @Service
-@Transactional
 class CreateClientServiceImpl(
     private val currentUserProvider: CurrentUserProvider,
     private val passwordEncoder: PasswordEncoder,
     private val clientJpaRepository: ClientJpaRepository,
     private val getAvailableOauthScopesService: GetAvailableOauthScopesService,
 ) : CreateClientService {
+    @Transactional
     override fun execute(reqDto: CreateClientReqDto): CreateClientResDto {
         val availableScopes = getAvailableOauthScopesService.execute()
         val invalidScopes = reqDto.scopes.minus(availableScopes)

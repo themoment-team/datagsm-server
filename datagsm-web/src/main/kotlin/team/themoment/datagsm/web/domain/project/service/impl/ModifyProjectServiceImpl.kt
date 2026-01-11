@@ -14,12 +14,12 @@ import team.themoment.datagsm.web.domain.project.service.ModifyProjectService
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
-@Transactional
 class ModifyProjectServiceImpl(
     private val projectJpaRepository: ProjectJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
 ) : ModifyProjectService {
+    @Transactional
     override fun execute(
         projectId: Long,
         reqDto: ProjectReqDto,

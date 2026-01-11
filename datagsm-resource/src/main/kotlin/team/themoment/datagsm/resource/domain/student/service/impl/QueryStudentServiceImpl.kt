@@ -14,10 +14,10 @@ import team.themoment.datagsm.common.global.constant.SortDirection
 import team.themoment.datagsm.resource.domain.student.service.QueryStudentService
 
 @Service
-@Transactional(readOnly = true)
 class QueryStudentServiceImpl(
     private final val studentJpaRepository: StudentJpaRepository,
 ) : QueryStudentService {
+    @Transactional(readOnly = true)
     override fun execute(
         studentId: Long?,
         name: String?,

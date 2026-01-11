@@ -13,11 +13,11 @@ import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
-@Transactional
 class ModifyClientServiceImpl(
     private val clientJpaRepository: ClientJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
 ) : ModifyClientService {
+    @Transactional
     override fun execute(
         clientId: String,
         reqDto: ModifyClientReqDto,

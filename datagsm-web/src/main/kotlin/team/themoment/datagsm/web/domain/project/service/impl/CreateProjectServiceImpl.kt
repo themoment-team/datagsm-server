@@ -15,12 +15,12 @@ import team.themoment.datagsm.web.domain.project.service.CreateProjectService
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
-@Transactional
 class CreateProjectServiceImpl(
     private val projectJpaRepository: ProjectJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
 ) : CreateProjectService {
+    @Transactional
     override fun execute(projectReqDto: ProjectReqDto): ProjectResDto {
         if (projectJpaRepository.existsByName(projectReqDto.name)) {
             throw ExpectedException("이미 존재하는 프로젝트 이름입니다: ${projectReqDto.name}", HttpStatus.CONFLICT)

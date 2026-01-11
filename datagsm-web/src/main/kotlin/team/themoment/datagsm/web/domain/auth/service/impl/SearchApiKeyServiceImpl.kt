@@ -9,10 +9,10 @@ import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.web.domain.auth.service.SearchApiKeyService
 
 @Service
-@Transactional(readOnly = true)
 class SearchApiKeyServiceImpl(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
 ) : SearchApiKeyService {
+    @Transactional(readOnly = true)
     override fun execute(
         id: Long?,
         accountId: Long?,
