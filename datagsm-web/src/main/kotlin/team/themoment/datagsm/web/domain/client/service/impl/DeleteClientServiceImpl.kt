@@ -11,11 +11,11 @@ import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
-@Transactional
 class DeleteClientServiceImpl(
     private val clientJpaRepository: ClientJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
 ) : DeleteClientService {
+    @Transactional
     override fun execute(clientId: String) {
         val client =
             clientJpaRepository

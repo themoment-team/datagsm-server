@@ -13,10 +13,10 @@ import team.themoment.datagsm.common.global.constant.SortDirection
 import team.themoment.datagsm.web.domain.project.service.QueryProjectService
 
 @Service
-@Transactional(readOnly = true)
 class QueryProjectServiceImpl(
     private val projectJpaRepository: ProjectJpaRepository,
 ) : QueryProjectService {
+    @Transactional(readOnly = true)
     override fun execute(
         projectId: Long?,
         projectName: String?,

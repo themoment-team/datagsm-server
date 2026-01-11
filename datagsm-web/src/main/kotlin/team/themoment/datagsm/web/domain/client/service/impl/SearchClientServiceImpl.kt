@@ -9,10 +9,10 @@ import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepositor
 import team.themoment.datagsm.web.domain.client.service.SearchClientService
 
 @Service
-@Transactional(readOnly = true)
 class SearchClientServiceImpl(
     private val clientJpaRepository: ClientJpaRepository,
 ) : SearchClientService {
+    @Transactional(readOnly = true)
     override fun execute(
         clientName: String?,
         page: Int,

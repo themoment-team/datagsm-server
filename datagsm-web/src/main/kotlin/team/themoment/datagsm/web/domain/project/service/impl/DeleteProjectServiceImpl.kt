@@ -8,10 +8,10 @@ import team.themoment.datagsm.web.domain.project.service.DeleteProjectService
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
-@Transactional
 class DeleteProjectServiceImpl(
     private val projectJpaRepository: ProjectJpaRepository,
 ) : DeleteProjectService {
+    @Transactional
     override fun execute(projectId: Long) {
         val project =
             projectJpaRepository
