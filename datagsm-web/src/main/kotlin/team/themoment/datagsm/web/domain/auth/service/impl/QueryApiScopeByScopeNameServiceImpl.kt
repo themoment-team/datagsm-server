@@ -1,10 +1,10 @@
-package team.themoment.datagsm.resource.domain.auth.service.impl
+package team.themoment.datagsm.web.domain.auth.service.impl
 
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.domain.auth.dto.response.ApiScopeResDto
-import team.themoment.datagsm.resource.domain.auth.service.QueryApiScopeByScopeNameService
+import team.themoment.datagsm.web.domain.auth.service.QueryApiScopeByScopeNameService
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
