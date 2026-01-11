@@ -114,7 +114,7 @@ class ModifyStudentServiceTest :
                         res.grade shouldBe 3
                         res.classNum shouldBe 2
                         res.number shouldBe 15
-                        res.major shouldBe Major.AI
+                        res.major shouldBe Major.SW_DEVELOPMENT
 
                         verify(exactly = 1) { mockStudentRepository.findById(studentId) }
                         verify(exactly = 1) {

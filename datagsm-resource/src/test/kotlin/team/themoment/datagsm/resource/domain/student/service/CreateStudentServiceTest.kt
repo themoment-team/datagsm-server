@@ -97,7 +97,7 @@ class CreateStudentServiceTest :
                         res.grade shouldBe 2
                         res.classNum shouldBe 1
                         res.number shouldBe 10
-                        res.major shouldBe Major.AI
+                        res.major shouldBe Major.SW_DEVELOPMENT
 
                         verify(exactly = 1) { mockStudentRepository.existsByEmail(req.email) }
                         verify(exactly = 1) {
