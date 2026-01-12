@@ -2,6 +2,7 @@ package dependency
 
 import dependency.DependencyVersions.AWS_SDK_VERSION
 import dependency.DependencyVersions.BUCKET4J_VERSION
+import dependency.DependencyVersions.JACKSON_VERSION
 import dependency.DependencyVersions.JJWT_VERSION
 import dependency.DependencyVersions.KOTEST_VERSION
 import dependency.DependencyVersions.KOTLIN_COROUTINES_VERSION
@@ -73,10 +74,10 @@ object Dependencies {
     // Kotlin
     const val KOTLIN_REFLECT = "org.jetbrains.kotlin:kotlin-reflect"
     const val KOTLIN_COROUTINES = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${KOTLIN_COROUTINES_VERSION}"
-    const val JACKSON_KOTLIN = "com.fasterxml.jackson.module:jackson-module-kotlin"
+    const val JACKSON_KOTLIN = "tools.jackson.module:jackson-module-kotlin:${JACKSON_VERSION}"
 
     // Jackson
-    const val JACKSON_DATABIND = "com.fasterxml.jackson.core:jackson-databind"
+    const val JACKSON_DATABIND = "tools.jackson.core:jackson-databind"
 
     // AWS SDK
     const val AWS_CLOUDWATCH_LOGS = "software.amazon.awssdk:cloudwatchlogs"
