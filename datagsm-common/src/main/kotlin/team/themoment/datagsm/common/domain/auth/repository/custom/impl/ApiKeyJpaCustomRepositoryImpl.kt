@@ -10,13 +10,16 @@ import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.common.domain.auth.entity.QApiKey.Companion.apiKey
 import team.themoment.datagsm.common.domain.auth.repository.custom.ApiKeyJpaCustomRepository
 import team.themoment.datagsm.common.global.data.ApiKeyEnvironment
+import tools.jackson.databind.ObjectMapper
 import java.time.LocalDateTime
 
 @Repository
 class ApiKeyJpaCustomRepositoryImpl(
     private val jpaQueryFactory: JPAQueryFactory,
+    private val objectMapper: ObjectMapper,
     private val apiKeyEnvironment: ApiKeyEnvironment,
 ) : ApiKeyJpaCustomRepository {
+
     override fun searchApiKeyWithPaging(
         id: Long?,
         accountId: Long?,
@@ -26,10 +29,7 @@ class ApiKeyJpaCustomRepositoryImpl(
         pageable: Pageable,
     ): Page<ApiKey> {
         val now = LocalDateTime.now()
-        val renewalPeriodDays = apiKeyEnvironment.renewalPeriodDays
-        val renewalDeadline = now.minusDays(renewalPeriodDays)
-
-        val content =
+        val results =
             jpaQueryFactory
                 .selectFrom(apiKey)
                 .leftJoin(apiKey.account)
@@ -41,20 +41,18 @@ class ApiKeyJpaCustomRepositoryImpl(
                         Expressions.booleanTemplate(
                             "JSON_CONTAINS({0}, {1})",
                             apiKey.scopes,
-                            Expressions.constant("\"${scopeValue}\""),
+                            Expressions.constant(objectMapper.writeValueAsString(scopeValue)),
                         )
                     },
                     isExpired?.let {
                         if (it) apiKey.expiresAt.before(now) else apiKey.expiresAt.after(now)
                     },
                     isRenewable?.let {
-                        if (it) {
-                            apiKey.expiresAt.after(renewalDeadline)
-                        } else {
-                            apiKey.expiresAt.before(renewalDeadline)
-                        }
+                        val renewalCutoff = now.minusDays(apiKeyEnvironment.renewalPeriodDays)
+                        if (it) apiKey.expiresAt.after(renewalCutoff) else apiKey.expiresAt.before(renewalCutoff)
                     },
-                ).offset(pageable.offset)
+                )
+                .offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
 
@@ -69,21 +67,19 @@ class ApiKeyJpaCustomRepositoryImpl(
                         Expressions.booleanTemplate(
                             "JSON_CONTAINS({0}, {1})",
                             apiKey.scopes,
-                            Expressions.constant("\"${scopeValue}\""),
+                            Expressions.constant(objectMapper.writeValueAsString(scopeValue)),
                         )
                     },
                     isExpired?.let {
                         if (it) apiKey.expiresAt.before(now) else apiKey.expiresAt.after(now)
                     },
                     isRenewable?.let {
-                        if (it) {
-                            apiKey.expiresAt.after(renewalDeadline)
-                        } else {
-                            apiKey.expiresAt.before(renewalDeadline)
-                        }
+                        val renewalCutoff = now.minusDays(apiKeyEnvironment.renewalPeriodDays)
+                        if (it) apiKey.expiresAt.after(renewalCutoff) else apiKey.expiresAt.before(renewalCutoff)
                     },
                 )
 
-        return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
+        return PageableExecutionUtils.getPage(results, pageable) { countQuery.fetchOne() ?: 0L }
     }
 }
+
