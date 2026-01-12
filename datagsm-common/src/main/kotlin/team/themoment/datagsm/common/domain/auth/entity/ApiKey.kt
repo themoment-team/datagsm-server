@@ -41,7 +41,7 @@ class ApiKey {
     lateinit var account: AccountJpaEntity
 
     @Convert(converter = StringSetConverter::class)
-    @Column(name = "scopes", columnDefinition = "text", nullable = false)
+    @Column(name = "scopes", columnDefinition = "json", nullable = false)
     var scopes: Set<String> = emptySet()
 
     @Column(name = "description", length = 500)
