@@ -55,7 +55,7 @@ class AccountController(
     )
     @GetMapping("/email/check")
     fun checkEmail(
-        @Valid reqDto: EmailCodeReqDto,
+        @RequestBody @Valid reqDto: EmailCodeReqDto,
     ): CommonApiResponse<Nothing> {
         checkEmailService.execute(reqDto)
         return CommonApiResponse.success("유효한 코드 입니다.")
