@@ -23,4 +23,6 @@ object DependencyVersions {
     const val BUCKET4J_VERSION = "8.16.0"
 
     const val POI_VERSION = "5.5.1"
+
+    const val JACKSON_VERSION = "3.0.3"
 }
