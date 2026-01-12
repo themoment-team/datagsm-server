@@ -1,4 +1,4 @@
-package team.themoment.datagsm.authorization.global.security.aspect
+package team.themoment.datagsm.web.global.security.aspect
 
 import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.annotation.Aspect
@@ -6,8 +6,8 @@ import org.aspectj.lang.annotation.Before
 import org.aspectj.lang.reflect.MethodSignature
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
-import team.themoment.datagsm.authorization.global.security.annotation.EmailRateLimited
-import team.themoment.datagsm.authorization.global.security.service.EmailRateLimitService
+import team.themoment.datagsm.web.global.security.annotation.EmailRateLimited
+import team.themoment.datagsm.web.global.security.service.EmailRateLimitService
 import team.themoment.sdk.exception.ExpectedException
 import kotlin.reflect.full.memberProperties
 
@@ -16,7 +16,7 @@ import kotlin.reflect.full.memberProperties
 class EmailRateLimitedAspect(
     private val emailRateLimitService: EmailRateLimitService,
 ) {
-    @Before("@annotation(team.themoment.datagsm.global.security.annotation.EmailRateLimited)")
+    @Before("@annotation(team.themoment.datagsm.web.global.security.annotation.EmailRateLimited)")
     fun checkEmailRateLimit(joinPoint: JoinPoint) {
         val signature = joinPoint.signature as MethodSignature
         val method = signature.method

@@ -1,13 +1,13 @@
-package team.themoment.datagsm.authorization.global.security.service.impl
+package team.themoment.datagsm.web.global.security.service.impl
 
 import io.github.bucket4j.Bandwidth
 import io.github.bucket4j.BucketConfiguration
 import io.github.bucket4j.distributed.proxy.ProxyManager
 import org.springframework.stereotype.Service
-import team.themoment.datagsm.authorization.global.security.annotation.EmailRateLimitType
-import team.themoment.datagsm.authorization.global.security.service.EmailRateLimitService
 import team.themoment.datagsm.common.global.data.EmailRateLimitEnvironment
 import team.themoment.datagsm.common.global.dto.internal.RateLimitConsumeResult
+import team.themoment.datagsm.web.global.security.annotation.EmailRateLimitType
+import team.themoment.datagsm.web.global.security.service.EmailRateLimitService
 import java.time.Duration
 
 @Service
