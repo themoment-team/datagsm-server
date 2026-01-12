@@ -61,6 +61,16 @@ spring:
         default-capacity: 100
         default-refill-tokens: 100
         default-refill-duration-seconds: 60
+    email-rate-limit:
+      enabled: true
+      send:
+        capacity: 5
+        refill-tokens: 5
+        refill-duration-minutes: 10
+      check:
+        capacity: 10
+        refill-tokens: 10
+        refill-duration-minutes: 5
 server:
   port: 8080
   shutdown: graceful
