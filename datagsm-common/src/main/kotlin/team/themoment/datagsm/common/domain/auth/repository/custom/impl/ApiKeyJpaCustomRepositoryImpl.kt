@@ -1,5 +1,6 @@
 package team.themoment.datagsm.common.domain.auth.repository.custom.impl
 
+import com.querydsl.core.types.dsl.Expressions
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -36,7 +37,13 @@ class ApiKeyJpaCustomRepositoryImpl(
                 .where(
                     id?.let { apiKey.id.eq(it) },
                     accountId?.let { apiKey.account.id.eq(it) },
-                    scope?.let { apiKey._scopes.contains(it) },
+                    scope?.let { scopeValue ->
+                        Expressions.booleanTemplate(
+                            "JSON_CONTAINS({0}, {1})",
+                            apiKey.scopes,
+                            Expressions.constant("\"${scopeValue}\""),
+                        )
+                    },
                     isExpired?.let {
                         if (it) apiKey.expiresAt.before(now) else apiKey.expiresAt.after(now)
                     },
@@ -58,7 +65,13 @@ class ApiKeyJpaCustomRepositoryImpl(
                 .where(
                     id?.let { apiKey.id.eq(it) },
                     accountId?.let { apiKey.account.id.eq(it) },
-                    scope?.let { apiKey._scopes.contains(it) },
+                    scope?.let { scopeValue ->
+                        Expressions.booleanTemplate(
+                            "JSON_CONTAINS({0}, {1})",
+                            apiKey.scopes,
+                            Expressions.constant("\"${scopeValue}\""),
+                        )
+                    },
                     isExpired?.let {
                         if (it) apiKey.expiresAt.before(now) else apiKey.expiresAt.after(now)
                     },
