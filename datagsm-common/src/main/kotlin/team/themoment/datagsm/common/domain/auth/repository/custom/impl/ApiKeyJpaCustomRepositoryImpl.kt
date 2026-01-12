@@ -19,7 +19,6 @@ class ApiKeyJpaCustomRepositoryImpl(
     private val objectMapper: ObjectMapper,
     private val apiKeyEnvironment: ApiKeyEnvironment,
 ) : ApiKeyJpaCustomRepository {
-
     override fun searchApiKeyWithPaging(
         id: Long?,
         accountId: Long?,
@@ -51,8 +50,7 @@ class ApiKeyJpaCustomRepositoryImpl(
                         val renewalCutoff = now.minusDays(apiKeyEnvironment.renewalPeriodDays)
                         if (it) apiKey.expiresAt.after(renewalCutoff) else apiKey.expiresAt.before(renewalCutoff)
                     },
-                )
-                .offset(pageable.offset)
+                ).offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
 
@@ -82,4 +80,3 @@ class ApiKeyJpaCustomRepositoryImpl(
         return PageableExecutionUtils.getPage(results, pageable) { countQuery.fetchOne() ?: 0L }
     }
 }
-
