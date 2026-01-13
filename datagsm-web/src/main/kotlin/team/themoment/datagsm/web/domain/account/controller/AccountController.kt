@@ -53,9 +53,9 @@ class AccountController(
             ApiResponse(responseCode = "404", description = "인증 코드를 찾을 수 없음 / 코드 불일치", content = [Content()]),
         ],
     )
-    @GetMapping("/email/check")
+    @PostMapping("/email/check")
     fun checkEmail(
-        @Valid reqDto: EmailCodeReqDto,
+        @RequestBody @Valid reqDto: EmailCodeReqDto,
     ): CommonApiResponse<Nothing> {
         checkEmailService.execute(reqDto)
         return CommonApiResponse.success("유효한 코드 입니다.")
