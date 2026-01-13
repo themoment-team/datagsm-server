@@ -1,9 +1,9 @@
 package team.themoment.datagsm.common.global.converter
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
+import tools.jackson.core.type.TypeReference
+import tools.jackson.databind.ObjectMapper
 
 @Converter
 class StringSetConverter : AttributeConverter<Set<String>, String> {

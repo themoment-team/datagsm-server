@@ -1,10 +1,8 @@
 package team.themoment.datagsm.common.domain.auth.entity
 
-import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
-import jakarta.persistence.ElementCollection
+import jakarta.persistence.Convert
 import jakarta.persistence.Entity
-import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -13,6 +11,7 @@ import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.DynamicUpdate
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.common.global.converter.StringSetConverter
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -41,16 +40,9 @@ class ApiKey {
     @JoinColumn(name = "account_id", nullable = false, referencedColumnName = "id")
     lateinit var account: AccountJpaEntity
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-        name = "tb_api_key_scope",
-        joinColumns = [JoinColumn(name = "api_key_id")],
-    )
-    @Column(name = "scope")
-    private val _scopes: MutableSet<String> = mutableSetOf()
-
-    val scopes: Set<String>
-        get() = _scopes.toSet()
+    @Convert(converter = StringSetConverter::class)
+    @Column(name = "scopes", columnDefinition = "json", nullable = false)
+    var scopes: Set<String> = emptySet()
 
     @Column(name = "description", length = 500)
     var description: String? = null
@@ -65,8 +57,7 @@ class ApiKey {
     var rateLimitRefillDurationSeconds: Long = 60
 
     fun updateScopes(newScopes: Set<String>) {
-        _scopes.clear()
-        _scopes.addAll(newScopes)
+        scopes = newScopes
     }
 
     fun isExpired(): Boolean = LocalDateTime.now().isAfter(expiresAt)
