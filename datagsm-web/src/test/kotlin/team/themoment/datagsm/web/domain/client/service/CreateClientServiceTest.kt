@@ -7,6 +7,8 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
 import io.mockk.verify
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -15,8 +17,8 @@ import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.domain.client.dto.request.CreateClientReqDto
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
-import team.themoment.datagsm.web.domain.client.service.GetAvailableOauthScopesService
 import team.themoment.datagsm.web.domain.client.service.impl.CreateClientServiceImpl
+import team.themoment.datagsm.web.domain.client.util.ClientUtil
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 
@@ -26,15 +28,21 @@ class CreateClientServiceTest :
         val mockCurrentUserProvider = mockk<CurrentUserProvider>()
         val mockPasswordEncoder = mockk<PasswordEncoder>()
         val mockClientJpaRepository = mockk<ClientJpaRepository>()
-        val mockGetAvailableOauthScopesService = mockk<GetAvailableOauthScopesService>()
 
         val createClientService =
             CreateClientServiceImpl(
                 mockCurrentUserProvider,
                 mockPasswordEncoder,
                 mockClientJpaRepository,
-                mockGetAvailableOauthScopesService,
             )
+
+        beforeSpec {
+            mockkObject(ClientUtil)
+        }
+
+        afterSpec {
+            unmockkObject(ClientUtil)
+        }
 
         afterEach {
             clearAllMocks()
@@ -57,7 +65,7 @@ class CreateClientServiceTest :
                         )
 
                     beforeEach {
-                        every { mockGetAvailableOauthScopesService.execute() } returns
+                        every { ClientUtil.getAvailableOauthScopes() } returns
                             setOf("self:read", "student:read", "club:read")
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
@@ -74,7 +82,7 @@ class CreateClientServiceTest :
                         result.name shouldBe "Test OAuth Client"
                         result.redirectUrls shouldBe emptySet()
 
-                        verify(exactly = 1) { mockGetAvailableOauthScopesService.execute() }
+                        verify(exactly = 1) { ClientUtil.getAvailableOauthScopes() }
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
                         verify(exactly = 1) { mockPasswordEncoder.encode(any()) }
                         verify(exactly = 1) { mockClientJpaRepository.save(any()) }
@@ -89,7 +97,7 @@ class CreateClientServiceTest :
                         )
 
                     beforeEach {
-                        every { mockGetAvailableOauthScopesService.execute() } returns
+                        every { ClientUtil.getAvailableOauthScopes() } returns
                             setOf("self:read", "student:read", "club:read")
                     }
 
@@ -102,7 +110,7 @@ class CreateClientServiceTest :
                         exception.statusCode shouldBe HttpStatus.BAD_REQUEST
                         exception.message shouldBe "허용되지 않는 OAuth 권한이 포함되어 있습니다: [invalid:scope]"
 
-                        verify(exactly = 1) { mockGetAvailableOauthScopesService.execute() }
+                        verify(exactly = 1) { ClientUtil.getAvailableOauthScopes() }
                         verify(exactly = 0) { mockCurrentUserProvider.getCurrentAccount() }
                         verify(exactly = 0) { mockPasswordEncoder.encode(any()) }
                         verify(exactly = 0) { mockClientJpaRepository.save(any()) }
@@ -117,7 +125,7 @@ class CreateClientServiceTest :
                         )
 
                     beforeEach {
-                        every { mockGetAvailableOauthScopesService.execute() } returns
+                        every { ClientUtil.getAvailableOauthScopes() } returns
                             setOf("self:read", "student:read")
                     }
 
@@ -130,7 +138,7 @@ class CreateClientServiceTest :
                         exception.statusCode shouldBe HttpStatus.BAD_REQUEST
                         exception.message shouldBe "허용되지 않는 OAuth 권한이 포함되어 있습니다: [invalid:scope1, invalid:scope2]"
 
-                        verify(exactly = 1) { mockGetAvailableOauthScopesService.execute() }
+                        verify(exactly = 1) { ClientUtil.getAvailableOauthScopes() }
                         verify(exactly = 0) { mockClientJpaRepository.save(any()) }
                     }
                 }
@@ -144,7 +152,7 @@ class CreateClientServiceTest :
                     lateinit var savedClient: ClientJpaEntity
 
                     beforeEach {
-                        every { mockGetAvailableOauthScopesService.execute() } returns
+                        every { ClientUtil.getAvailableOauthScopes() } returns
                             setOf("self:read", "student:read")
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockPasswordEncoder.encode(any()) } returns "hashed_secret_value"
@@ -173,7 +181,7 @@ class CreateClientServiceTest :
                     lateinit var savedClient: ClientJpaEntity
 
                     beforeEach {
-                        every { mockGetAvailableOauthScopesService.execute() } returns
+                        every { ClientUtil.getAvailableOauthScopes() } returns
                             setOf("self:read")
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
@@ -202,7 +210,7 @@ class CreateClientServiceTest :
                     lateinit var savedClient: ClientJpaEntity
 
                     beforeEach {
-                        every { mockGetAvailableOauthScopesService.execute() } returns
+                        every { ClientUtil.getAvailableOauthScopes() } returns
                             setOf("self:read", "student:read", "club:read")
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
@@ -230,7 +238,7 @@ class CreateClientServiceTest :
                     lateinit var savedClient: ClientJpaEntity
 
                     beforeEach {
-                        every { mockGetAvailableOauthScopesService.execute() } returns
+                        every { ClientUtil.getAvailableOauthScopes() } returns
                             setOf("self:read")
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
@@ -259,7 +267,7 @@ class CreateClientServiceTest :
                         )
 
                     beforeEach {
-                        every { mockGetAvailableOauthScopesService.execute() } returns
+                        every { ClientUtil.getAvailableOauthScopes() } returns
                             setOf("self:read")
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
@@ -286,7 +294,7 @@ class CreateClientServiceTest :
                         )
 
                     beforeEach {
-                        every { mockGetAvailableOauthScopesService.execute() } returns
+                        every { ClientUtil.getAvailableOauthScopes() } returns
                             setOf("self:read", "student:read")
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"

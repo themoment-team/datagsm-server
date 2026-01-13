@@ -20,11 +20,10 @@ class CreateClientServiceImpl(
     private val currentUserProvider: CurrentUserProvider,
     private val passwordEncoder: PasswordEncoder,
     private val clientJpaRepository: ClientJpaRepository,
-    private val clientUtil: ClientUtil,
 ) : CreateClientService {
     @Transactional
     override fun execute(reqDto: CreateClientReqDto): CreateClientResDto {
-        val availableScopes = clientUtil.getAvailableOauthScopes()
+        val availableScopes = ClientUtil.getAvailableOauthScopes()
         val invalidScopes = reqDto.scopes.minus(availableScopes)
         if (invalidScopes.isNotEmpty()) throw ExpectedException("허용되지 않는 OAuth 권한이 포함되어 있습니다: $invalidScopes", HttpStatus.BAD_REQUEST)
         val scopes =

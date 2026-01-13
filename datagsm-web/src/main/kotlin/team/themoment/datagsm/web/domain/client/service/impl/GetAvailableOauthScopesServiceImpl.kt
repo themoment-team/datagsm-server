@@ -5,8 +5,6 @@ import team.themoment.datagsm.web.domain.client.service.GetAvailableOauthScopesS
 import team.themoment.datagsm.web.domain.client.util.ClientUtil
 
 @Service
-class GetAvailableOauthScopesServiceImpl(
-    val clientUtil: ClientUtil,
-) : GetAvailableOauthScopesService {
-    override fun execute(): Set<String> = clientUtil.getAvailableOauthScopes()
+class GetAvailableOauthScopesServiceImpl : GetAvailableOauthScopesService {
+    override fun execute(): Set<String> = ClientUtil.getAvailableOauthScopes()
 }
