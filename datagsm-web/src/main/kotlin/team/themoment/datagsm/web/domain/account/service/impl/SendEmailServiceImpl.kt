@@ -13,6 +13,7 @@ import team.themoment.datagsm.web.global.security.annotation.EmailRateLimitType
 import team.themoment.datagsm.web.global.security.annotation.EmailRateLimited
 import team.themoment.sdk.exception.ExpectedException
 import java.security.SecureRandom
+import kotlin.math.pow
 
 @Service
 class SendEmailServiceImpl(
@@ -22,6 +23,8 @@ class SendEmailServiceImpl(
 ) : SendEmailService {
     companion object {
         private val secureRandom = SecureRandom()
+        private const val EMAIL_CODE_LENGTH = 8
+        private val EMAIL_RANDOM_MAX = 10.0.pow(EMAIL_CODE_LENGTH).toInt()
     }
 
     @EmailRateLimited(type = EmailRateLimitType.SEND_EMAIL)
@@ -58,5 +61,5 @@ class SendEmailServiceImpl(
         }
     }
 
-    private fun generateCode(): String = secureRandom.nextInt(0, 100000000).toString().padStart(6, '0')
+    private fun generateCode(): String = secureRandom.nextInt(0, EMAIL_RANDOM_MAX).toString().padStart(EMAIL_CODE_LENGTH, '0')
 }
