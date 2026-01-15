@@ -1,4 +1,4 @@
-package team.themoment.datagsm.web.global.exception
+package team.themoment.datagsm.common.global.common.error
 
 import com.github.snowykte0426.peanut.butter.logging.logger
 import jakarta.validation.ConstraintViolationException
@@ -110,20 +110,26 @@ class GlobalExceptionHandler(
     }
 
     private fun methodArgumentNotValidExceptionToJson(ex: MethodArgumentNotValidException): String {
-        val globalResults = mutableMapOf<String, Any>()
-        val fieldResults = mutableMapOf<String, String?>()
+        val result = mutableMapOf<String, Any>()
+        val globalErrors = mutableListOf<String>()
+        val fieldErrors = mutableMapOf<String, String?>()
 
         ex.bindingResult.globalErrors.forEach { error ->
-            globalResults[ex.bindingResult.objectName] = error.defaultMessage ?: ""
+            globalErrors.add(error.defaultMessage ?: "")
         }
 
         ex.bindingResult.fieldErrors.forEach { error ->
-            fieldResults[error.field] = error.defaultMessage
+            fieldErrors[error.field] = error.defaultMessage
         }
 
-        globalResults[ex.bindingResult.objectName] = fieldResults
+        if (globalErrors.isNotEmpty()) {
+            result["globalErrors"] = globalErrors
+        }
+        if (fieldErrors.isNotEmpty()) {
+            result["fieldErrors"] = fieldErrors
+        }
 
-        return objectMapper.writeValueAsString(globalResults).replace("\"", "'")
+        return objectMapper.writeValueAsString(result)
     }
 
     private fun getCurrentRequestUri(): String =
