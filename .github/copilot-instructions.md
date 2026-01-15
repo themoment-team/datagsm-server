@@ -12,7 +12,7 @@ DataGSM is a Spring Boot REST API service providing school information (students
 - MySQL (main data), Redis (caching, sessions)
 - QueryDSL for complex queries, OpenFeign for external APIs
 - Jackson 3.0 for JSON processing
-- Kotest + MockK + JUnit 5 for testing
+- Kotest + MockK + JUnit 5 for testing (Given-When-Then style)
 
 ## Project Structure (Multi-module)
 
