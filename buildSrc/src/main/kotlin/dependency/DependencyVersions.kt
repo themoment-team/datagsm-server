@@ -16,7 +16,7 @@ object DependencyVersions {
     const val AWS_SDK_VERSION = "2.41.2"
 
     const val PEANUT_BUTTER_VERSION = "1.4.1"
-    const val THE_MOMENT_THE_SDK_VERSION = "1.0-RC1"
+    const val THE_MOMENT_THE_SDK_VERSION = "1.0"
 
     const val KOTLIN_COROUTINES_VERSION = "1.10.2"
 
