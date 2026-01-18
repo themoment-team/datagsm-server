@@ -29,11 +29,5 @@ object AcademicYearCalculator {
     }
 
     private fun calculateEndOfFebruary(year: Int): LocalDate =
-        if (isLeapYear(year)) {
-            LocalDate.of(year, 2, 29)
-        } else {
-            LocalDate.of(year, 2, 28)
-        }
-
-    private fun isLeapYear(year: Int): Boolean = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)
+        LocalDate.of(year, ACADEMIC_YEAR_START_MONTH, ACADEMIC_YEAR_START_DAY).minusDays(1)
 }
