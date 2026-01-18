@@ -13,7 +13,7 @@ class ApiKeyCleanupScheduler(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
     private val apiKeyEnvironment: ApiKeyEnvironment,
 ) {
-    @Scheduled(cron = "0 0 3 * * *")
+    @Scheduled(cron = "0 0 3 * * *", zone = "Asia/Seoul")
     @Transactional
     fun cleanupExpiredApiKeys() {
         val cutoffDate = LocalDateTime.now().minusDays(apiKeyEnvironment.renewalPeriodDays)

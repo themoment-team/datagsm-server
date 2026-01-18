@@ -10,7 +10,7 @@ import java.time.LocalDate
 class NeisMealSyncScheduler(
     private val syncMealService: SyncMealService,
 ) {
-    @Scheduled(cron = "0 0 2 * * *")
+    @Scheduled(cron = "0 0 2 * * *", zone = "Asia/Seoul")
     fun syncMealData() {
         val today = LocalDate.now()
         val nextYear = today.plusYears(1)
