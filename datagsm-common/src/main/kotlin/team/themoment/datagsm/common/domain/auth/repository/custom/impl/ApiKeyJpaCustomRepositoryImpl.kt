@@ -43,7 +43,7 @@ class ApiKeyJpaCustomRepositoryImpl(
                                 "JSON_CONTAINS({0}, {1})",
                                 apiKey.scopes,
                                 Expressions.constant(objectMapper.writeValueAsString(scopeValue)),
-                            ).eq(Integer.valueOf(1))
+                            ).eq(1)
                     },
                     isExpired?.let {
                         if (it) apiKey.expiresAt.before(now) else apiKey.expiresAt.after(now)
