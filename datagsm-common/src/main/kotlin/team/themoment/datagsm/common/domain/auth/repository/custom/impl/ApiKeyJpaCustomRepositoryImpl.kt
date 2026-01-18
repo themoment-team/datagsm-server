@@ -37,11 +37,13 @@ class ApiKeyJpaCustomRepositoryImpl(
                     id?.let { apiKey.id.eq(it) },
                     accountId?.let { apiKey.account.id.eq(it) },
                     scope?.let { scopeValue ->
-                        Expressions.booleanTemplate(
-                            "JSON_CONTAINS({0}, {1})",
-                            apiKey.scopes,
-                            Expressions.constant(objectMapper.writeValueAsString(scopeValue)),
-                        )
+                        Expressions
+                            .numberTemplate(
+                                Int::class.javaObjectType,
+                                "JSON_CONTAINS({0}, {1})",
+                                apiKey.scopes,
+                                Expressions.constant(objectMapper.writeValueAsString(scopeValue)),
+                            ).eq(Integer.valueOf(1))
                     },
                     isExpired?.let {
                         if (it) apiKey.expiresAt.before(now) else apiKey.expiresAt.after(now)
@@ -62,11 +64,13 @@ class ApiKeyJpaCustomRepositoryImpl(
                     id?.let { apiKey.id.eq(it) },
                     accountId?.let { apiKey.account.id.eq(it) },
                     scope?.let { scopeValue ->
-                        Expressions.booleanTemplate(
-                            "JSON_CONTAINS({0}, {1})",
-                            apiKey.scopes,
-                            Expressions.constant(objectMapper.writeValueAsString(scopeValue)),
-                        )
+                        Expressions
+                            .numberTemplate(
+                                Int::class.javaObjectType,
+                                "JSON_CONTAINS({0}, {1})",
+                                apiKey.scopes,
+                                Expressions.constant(objectMapper.writeValueAsString(scopeValue)),
+                            ).eq(Integer.valueOf(1))
                     },
                     isExpired?.let {
                         if (it) apiKey.expiresAt.before(now) else apiKey.expiresAt.after(now)
