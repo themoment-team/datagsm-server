@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.global.data.InternalJwtEnvironment
-import team.themoment.datagsm.web.global.security.authentication.type.AuthType
 import team.themoment.sdk.exception.ExpectedException
 import java.nio.charset.StandardCharsets
 import java.util.Date
@@ -34,7 +33,6 @@ class JwtProvider(
             .builder()
             .subject(email)
             .claim("role", role.name)
-            .claim("type", AuthType.INTERNAL_JWT.name)
             .issuedAt(now)
             .expiration(expiration)
             .signWith(secretKey)
@@ -71,15 +69,6 @@ class JwtProvider(
                 ?: throw ExpectedException("토큰에 역할 정보가 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
         return AccountRole.valueOf(roleName)
     }
-
-    fun getAuthTypeFromToken(token: String): AuthType {
-        val typeName =
-            parseClaims(token)["type"] as? String
-                ?: throw ExpectedException("토큰에 인증 타입이 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
-        return AuthType.valueOf(typeName)
-    }
-
-    fun getClientIdFromToken(token: String): String? = parseClaims(token)["clientId"] as? String
 
     fun extractToken(bearerToken: String?): String? =
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
