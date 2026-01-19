@@ -39,8 +39,11 @@ class ApiKeyAuthenticationFilter(
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "만료된 API Key입니다.")
                 return
             }
-            val scopeAuthorities = apiKey.scopes.map { ApiScope.fromString(it)!! }.toSet()
-
+            val scopeAuthorities = apiKey.scopes.mapNotNull { ApiScope.fromString(it) }.toSet()
+            if (scopeAuthorities.size != apiKey.scopes.size) {
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 scope를 포함한 API Key입니다.")
+                return
+            }
             val authentication =
                 ApiKeyAuthenticationToken(
                     ApiKeyPrincipal(
