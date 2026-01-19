@@ -29,9 +29,7 @@ class ReissueOauthTokenServiceImpl(
         }
 
         val email = jwtProvider.getEmailFromToken(refreshToken)
-        val clientId =
-            jwtProvider.getClientIdFromToken(refreshToken)
-                ?: throw ExpectedException("Refresh token에 clientId가 없습니다.", HttpStatus.UNAUTHORIZED)
+        val clientId = jwtProvider.getClientIdFromToken(refreshToken)
 
         val storedToken =
             oauthRefreshTokenRedisRepository
