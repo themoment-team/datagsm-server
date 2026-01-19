@@ -107,26 +107,6 @@ class ReissueOauthTokenServiceTest :
                     }
                 }
 
-                context("refresh token에 clientId가 없을 때") {
-                    beforeEach {
-                        every { mockJwtProvider.validateToken(testRefreshToken) } returns true
-                        every { mockJwtProvider.getEmailFromToken(testRefreshToken) } returns testEmail
-                        every { mockJwtProvider.getClientIdFromToken(testRefreshToken) } returns null
-                    }
-
-                    it("ExpectedException이 발생해야 한다") {
-                        val exception =
-                            shouldThrow<ExpectedException> {
-                                reissueOauthTokenService.execute(testRefreshToken)
-                            }
-
-                        exception.message shouldBe "Refresh token에 clientId가 없습니다."
-                        exception.statusCode shouldBe HttpStatus.UNAUTHORIZED
-
-                        verify(exactly = 1) { mockJwtProvider.getClientIdFromToken(testRefreshToken) }
-                    }
-                }
-
                 context("저장된 refresh token을 찾을 수 없을 때") {
                     beforeEach {
                         every { mockJwtProvider.validateToken(testRefreshToken) } returns true

@@ -6,14 +6,13 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
-import team.themoment.datagsm.web.global.security.authentication.CustomAuthenticationToken
-import team.themoment.datagsm.web.global.security.authentication.principal.PrincipalProvider
+import team.themoment.datagsm.web.global.security.authentication.WebUserAuthenticationToken
+import team.themoment.datagsm.web.global.security.authentication.principal.WebUserPrincipal
 import team.themoment.datagsm.web.global.security.config.AuthenticationPathConfig
 import team.themoment.datagsm.web.global.security.jwt.JwtProvider
 
 class JwtAuthenticationFilter(
     private val jwtProvider: JwtProvider,
-    private val principalProvider: PrincipalProvider,
 ) : OncePerRequestFilter() {
     private val pathMatcher = AntPathMatcher()
 
@@ -39,9 +38,11 @@ class JwtAuthenticationFilter(
         if (token != null && jwtProvider.validateToken(token)) {
             val authorities = listOf(jwtProvider.getRoleFromToken(token))
             val authentication =
-                CustomAuthenticationToken(
-                    principal = principalProvider.provideFromJwt(token),
-                    authorities = authorities,
+                WebUserAuthenticationToken(
+                    WebUserPrincipal(
+                        email = jwtProvider.getEmailFromToken(token),
+                    ),
+                    authorities,
                 )
 
             SecurityContextHolder.getContext().authentication = authentication

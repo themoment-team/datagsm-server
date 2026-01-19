@@ -4,17 +4,16 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
+import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
-import team.themoment.datagsm.resource.global.security.authentication.CustomAuthenticationToken
-import team.themoment.datagsm.resource.global.security.authentication.principal.PrincipalProvider
+import team.themoment.datagsm.resource.global.security.authentication.ApiKeyAuthenticationToken
+import team.themoment.datagsm.resource.global.security.authentication.principal.ApiKeyPrincipal
 import java.util.UUID
 
 class ApiKeyAuthenticationFilter(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
-    private val principalProvider: PrincipalProvider,
 ) : OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -40,12 +39,18 @@ class ApiKeyAuthenticationFilter(
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "만료된 API Key입니다.")
                 return
             }
-            val scopeAuthorities = apiKey.scopes.map { SimpleGrantedAuthority("SCOPE_$it") }
-
+            val scopeAuthorities = apiKey.scopes.mapNotNull { ApiScope.fromString(it) }.toSet()
+            if (scopeAuthorities.size != apiKey.scopes.size) {
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 scope를 포함한 API Key입니다.")
+                return
+            }
             val authentication =
-                CustomAuthenticationToken(
-                    principal = principalProvider.provideFromApiKey(apiKey),
-                    authorities = scopeAuthorities,
+                ApiKeyAuthenticationToken(
+                    ApiKeyPrincipal(
+                        email = apiKey.account.email,
+                        apiKey = apiKey,
+                    ),
+                    scopeAuthorities,
                 )
             SecurityContextHolder.getContext().authentication = authentication
         } catch (e: IllegalArgumentException) {
