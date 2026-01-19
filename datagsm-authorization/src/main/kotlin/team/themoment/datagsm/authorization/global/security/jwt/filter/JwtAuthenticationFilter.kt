@@ -5,13 +5,12 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
-import team.themoment.datagsm.authorization.global.security.authentication.CustomAuthenticationToken
-import team.themoment.datagsm.authorization.global.security.authentication.principal.PrincipalProvider
+import team.themoment.datagsm.authorization.global.security.authentication.OauthAuthenticationToken
+import team.themoment.datagsm.authorization.global.security.authentication.principal.OauthUserPrincipal
 import team.themoment.datagsm.authorization.global.security.jwt.JwtProvider
 
 class JwtAuthenticationFilter(
     private val jwtProvider: JwtProvider,
-    private val principalProvider: PrincipalProvider,
 ) : OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -26,11 +25,14 @@ class JwtAuthenticationFilter(
         val bearerToken = request.getHeader("Authorization")
         val token = jwtProvider.extractToken(bearerToken)
         if (token != null && jwtProvider.validateToken(token)) {
-            val authorities = listOf(jwtProvider.getRoleFromToken(token))
+            val scopes = jwtProvider.getScopesFromToken(token)
             val authentication =
-                CustomAuthenticationToken(
-                    principal = principalProvider.provideFromJwt(token),
-                    authorities = authorities,
+                OauthAuthenticationToken(
+                    OauthUserPrincipal(
+                        email = jwtProvider.getEmailFromToken(token),
+                        clientId = jwtProvider.getClientIdFromToken(token),
+                    ),
+                    scopes,
                 )
 
             SecurityContextHolder.getContext().authentication = authentication
