@@ -1,10 +1,12 @@
 package team.themoment.datagsm.common.domain.account.entity.constant
 
+import org.springframework.security.core.GrantedAuthority
+
 enum class ApiScope(
     val scope: String,
     val description: String,
     val accountRole: AccountRole?,
-) {
+) : GrantedAuthority {
     // Auth scopes
     AUTH_MANAGE("auth:manage", "API 키 관리 (생성/조회/수정/삭제)", null),
 
@@ -38,6 +40,8 @@ enum class ApiScope(
     // Client scopes
     CLIENT_MANAGE("client:manage", "클라이언트 관리 (생성/조회/수정/삭제)", AccountRole.ADMIN),
     ;
+
+    override fun getAuthority(): String = "SCOPE_$scope"
 
     val category: String
         get() = scope.substringBefore(':')
