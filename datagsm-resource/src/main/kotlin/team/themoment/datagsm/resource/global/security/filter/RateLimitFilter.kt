@@ -8,7 +8,7 @@ import org.springframework.http.MediaType
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
-import team.themoment.datagsm.resource.global.security.authentication.CustomAuthenticationToken
+import team.themoment.datagsm.resource.global.security.authentication.ApiKeyAuthenticationToken
 import team.themoment.datagsm.resource.global.security.provider.CurrentUserProvider
 import team.themoment.datagsm.resource.global.security.service.RateLimitService
 import team.themoment.sdk.response.CommonApiResponse
@@ -25,7 +25,7 @@ class RateLimitFilter(
         filterChain: FilterChain,
     ) {
         val authentication = SecurityContextHolder.getContext().authentication
-        if (authentication == null || authentication !is CustomAuthenticationToken) {
+        if (authentication == null || authentication !is ApiKeyAuthenticationToken) {
             filterChain.doFilter(request, response)
             return
         }
