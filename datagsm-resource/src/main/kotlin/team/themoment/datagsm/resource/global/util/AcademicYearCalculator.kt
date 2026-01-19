@@ -19,7 +19,7 @@ object AcademicYearCalculator {
         val academicYear = if (month < ACADEMIC_YEAR_START_MONTH) year - 1 else year
 
         val startDate = LocalDate.of(academicYear, ACADEMIC_YEAR_START_MONTH, ACADEMIC_YEAR_START_DAY)
-        val endDate = calculateEndOfFebruary(academicYear + 1)
+        val endDate = calculateEndOfAcademicSchedule(academicYear + 1)
 
         return AcademicYearPeriod(
             academicYear = academicYear,
@@ -28,6 +28,6 @@ object AcademicYearCalculator {
         )
     }
 
-    private fun calculateEndOfFebruary(year: Int): LocalDate =
+    private fun calculateEndOfAcademicSchedule(year: Int): LocalDate =
         LocalDate.of(year, ACADEMIC_YEAR_START_MONTH, ACADEMIC_YEAR_START_DAY).minusDays(1)
 }
