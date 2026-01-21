@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
+import team.themoment.datagsm.common.domain.auth.entity.constant.ApiKeyScope
 import team.themoment.datagsm.common.domain.student.dto.request.CreateStudentReqDto
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentListResDto
@@ -43,7 +43,7 @@ class StudentController(
             ApiResponse(responseCode = "200", description = "조회 성공"),
         ],
     )
-    @RequireScope(ApiScope.STUDENT_READ)
+    @RequireScope(ApiKeyScope.STUDENT_READ)
     @GetMapping
     fun getStudentInfo(
         @Parameter(description = "학생 ID") @RequestParam(required = false) studentId: Long?,
@@ -91,7 +91,7 @@ class StudentController(
             ApiResponse(responseCode = "409", description = "이미 존재하는 학생", content = [Content()]),
         ],
     )
-    @RequireScope(ApiScope.STUDENT_WRITE)
+    @RequireScope(ApiKeyScope.STUDENT_WRITE)
     @PostMapping
     fun createStudent(
         @RequestBody @Valid reqDto: CreateStudentReqDto,
@@ -105,7 +105,7 @@ class StudentController(
             ApiResponse(responseCode = "404", description = "학생을 찾을 수 없음", content = [Content()]),
         ],
     )
-    @RequireScope(ApiScope.STUDENT_WRITE)
+    @RequireScope(ApiKeyScope.STUDENT_WRITE)
     @PutMapping("/{studentId}")
     fun updateStudent(
         @Parameter(description = "학생 ID") @PathVariable studentId: Long,
