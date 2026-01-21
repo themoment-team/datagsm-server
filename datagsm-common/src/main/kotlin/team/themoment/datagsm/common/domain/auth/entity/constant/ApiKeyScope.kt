@@ -8,7 +8,6 @@ enum class ApiKeyScope(
     val description: String,
     val accountRole: AccountRole?,
 ) : GrantedAuthority {
-
     // Student scopes
     STUDENT_ALL("student:*", "학생 데이터 모든 권한", AccountRole.ADMIN),
     STUDENT_READ("student:read", "학생 데이터 조회", AccountRole.USER),
@@ -27,6 +26,7 @@ enum class ApiKeyScope(
     // NEIS scopes
     NEIS_ALL("neis:*", "NEIS 데이터 모든 권한", AccountRole.ADMIN),
     NEIS_READ("neis:read", "NEIS 데이터 조회", AccountRole.USER),
+    ;
 
     override fun getAuthority(): String = "SCOPE_$scope"
 
