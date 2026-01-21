@@ -14,9 +14,9 @@ import team.themoment.datagsm.authorization.domain.oauth.service.impl.ExchangeTo
 import team.themoment.datagsm.authorization.global.security.jwt.JwtProvider
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
-import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
+import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthTokenReqDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
@@ -72,7 +72,7 @@ class ExchangeTokenServiceTest :
                         ttl = 300L,
                     )
 
-                val testScopes = setOf(ApiScope.STUDENT_READ, ApiScope.CLUB_READ)
+                val testScopes = setOf("self:read")
 
                 val mockClient =
                     ClientJpaEntity().apply {
@@ -220,7 +220,7 @@ class ExchangeTokenServiceTest :
                                 testEmail,
                                 mockAccount.role,
                                 testClientId,
-                                testScopes,
+                                setOf(OAuthScope.SELF_READ),
                             )
                         } returns testAccessToken
                         every { mockJwtProvider.generateOauthRefreshToken(testEmail, testClientId) } returns testRefreshToken
@@ -247,7 +247,7 @@ class ExchangeTokenServiceTest :
                                 testEmail,
                                 mockAccount.role,
                                 testClientId,
-                                testScopes,
+                                setOf(OAuthScope.SELF_READ),
                             )
                         }
                         verify(exactly = 1) { mockJwtProvider.generateOauthRefreshToken(testEmail, testClientId) }
