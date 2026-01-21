@@ -8,6 +8,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
+import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.domain.client.dto.request.ModifyClientReqDto
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
@@ -55,6 +56,7 @@ class ModifyClientServiceTest :
                             name = "기존 클라이언트"
                             account = ownerAccount
                             redirectUrls = setOf("https://example.com")
+                            scopes = setOf(ApiScope.SELF_READ)
                         }
                 }
 
