@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.authorization.domain.oauth.service.ReissueOauthTokenService
 import team.themoment.datagsm.authorization.global.security.jwt.JwtProvider
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
+import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.oauth.dto.response.OauthTokenResDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisEntity
@@ -56,7 +57,8 @@ class ReissueOauthTokenServiceImpl(
                     ExpectedException("Oauth 클라이언트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
                 }
 
-        val newAccessToken = jwtProvider.generateOauthAccessToken(email, account.role, clientId, client.scopes)
+        val scopes = client.scopes.mapNotNull { OAuthScope.fromString(it) }.toSet()
+        val newAccessToken = jwtProvider.generateOauthAccessToken(email, account.role, clientId, scopes)
         val newRefreshToken = jwtProvider.generateOauthRefreshToken(email, clientId)
 
         oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(email, clientId)
