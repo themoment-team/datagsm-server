@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
-import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
+import team.themoment.datagsm.common.domain.auth.entity.constant.ApiKeyScope
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.resource.global.security.authentication.ApiKeyAuthenticationToken
 import team.themoment.datagsm.resource.global.security.authentication.principal.ApiKeyPrincipal
@@ -39,7 +39,7 @@ class ApiKeyAuthenticationFilter(
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "만료된 API Key입니다.")
                 return
             }
-            val scopeAuthorities = apiKey.scopes.mapNotNull { ApiScope.fromString(it) }.toSet()
+            val scopeAuthorities = apiKey.scopes.mapNotNull { ApiKeyScope.fromString(it) }.toSet()
             if (scopeAuthorities.size != apiKey.scopes.size) {
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 scope를 포함한 API Key입니다.")
                 return
