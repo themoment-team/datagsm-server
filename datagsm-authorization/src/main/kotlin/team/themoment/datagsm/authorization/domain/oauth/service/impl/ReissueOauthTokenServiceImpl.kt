@@ -59,7 +59,7 @@ class ReissueOauthTokenServiceImpl(
 
         val scopes = client.scopes.map { scopeString ->
             OAuthScope.fromString(scopeString)
-                ?: throw ExpectedException("Client에 유효하지 않은 scope가 포함되어 있습니다: $scopeString", HttpStatus.INTERNAL_SERVER_ERROR)
+                ?: throw ExpectedException("Client에 유효하지 않은 권한범위가 포함되어 있습니다: $scopeString", HttpStatus.INTERNAL_SERVER_ERROR)
         }.toSet()
         val newAccessToken = jwtProvider.generateOauthAccessToken(email, account.role, clientId, scopes)
         val newRefreshToken = jwtProvider.generateOauthRefreshToken(email, clientId)
