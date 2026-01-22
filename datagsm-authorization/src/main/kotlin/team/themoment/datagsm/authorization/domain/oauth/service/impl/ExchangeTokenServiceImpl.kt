@@ -48,7 +48,10 @@ class ExchangeTokenServiceImpl(
 
         oauthCodeRedisRepository.delete(oauthCodeRedisEntity)
 
-        val scopes = client.scopes.mapNotNull { OAuthScope.fromString(it) }.toSet()
+        val scopes = client.scopes.map { scopeString ->
+            OAuthScope.fromString(scopeString)
+                ?: throw ExpectedException("Client에 유효하지 않은 scope가 포함되어 있습니다: $scopeString", HttpStatus.INTERNAL_SERVER_ERROR)
+        }.toSet()
         val accessToken = jwtProvider.generateOauthAccessToken(account.email, account.role, client.id, scopes)
         val refreshToken = jwtProvider.generateOauthRefreshToken(account.email, client.id)
 
