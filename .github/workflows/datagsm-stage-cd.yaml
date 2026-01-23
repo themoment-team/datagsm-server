@@ -91,4 +91,3 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_INFORMATION_ALERT_CHANNEL_WEBHOOK }}
           color: 0xFFA500
-          title: "🚫 CD 취소됨"
