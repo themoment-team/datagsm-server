@@ -33,6 +33,7 @@ class SearchClientServiceImpl(
                         id = entity.id,
                         name = entity.name,
                         redirectUrl = entity.redirectUrls,
+                        scopes = entity.scopes,
                     )
                 },
         )
