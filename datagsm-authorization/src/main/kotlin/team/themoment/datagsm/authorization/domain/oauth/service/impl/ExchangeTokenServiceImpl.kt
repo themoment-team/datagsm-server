@@ -8,6 +8,7 @@ import team.themoment.datagsm.authorization.domain.oauth.service.ExchangeTokenSe
 import team.themoment.datagsm.authorization.global.security.jwt.JwtProvider
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
+import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthTokenReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.OauthTokenResDto
@@ -47,7 +48,13 @@ class ExchangeTokenServiceImpl(
 
         oauthCodeRedisRepository.delete(oauthCodeRedisEntity)
 
-        val accessToken = jwtProvider.generateOauthAccessToken(account.email, account.role, client.id, client.scopes)
+        val scopes =
+            client.scopes
+                .map { scopeString ->
+                    OAuthScope.fromString(scopeString)
+                        ?: throw ExpectedException("Client에 유효하지 않은 권한범위가 포함되어 있습니다: $scopeString", HttpStatus.INTERNAL_SERVER_ERROR)
+                }.toSet()
+        val accessToken = jwtProvider.generateOauthAccessToken(account.email, account.role, client.id, scopes)
         val refreshToken = jwtProvider.generateOauthRefreshToken(account.email, client.id)
 
         oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(account.email, client.id)

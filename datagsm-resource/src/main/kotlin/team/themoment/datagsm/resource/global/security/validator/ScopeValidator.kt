@@ -1,6 +1,6 @@
 package team.themoment.datagsm.resource.global.security.validator
 
-import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
+import team.themoment.datagsm.common.domain.auth.entity.constant.ApiKeyScope
 
 object ScopeValidator {
     /**
@@ -18,7 +18,7 @@ object ScopeValidator {
         userScopes: Set<String>,
         requiredScope: String,
     ): Boolean {
-        if (ApiScope.ALL_SCOPE in userScopes) return true
+        if (ApiKeyScope.ALL_SCOPE in userScopes) return true
 
         if (requiredScope in userScopes) return true
         val resource = requiredScope.substringBefore(':')

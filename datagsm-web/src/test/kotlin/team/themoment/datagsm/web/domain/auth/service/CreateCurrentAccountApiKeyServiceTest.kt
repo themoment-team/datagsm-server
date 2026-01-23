@@ -270,7 +270,6 @@ class CreateCurrentAccountApiKeyServiceTest :
                                     "club:write",
                                     "project:read",
                                     "project:write",
-                                    "admin:excel",
                                 ),
                             description = "Admin API 키",
                         )

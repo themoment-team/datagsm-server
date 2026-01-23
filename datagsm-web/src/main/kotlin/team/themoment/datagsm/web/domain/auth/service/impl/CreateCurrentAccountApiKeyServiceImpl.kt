@@ -4,10 +4,10 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
-import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.domain.auth.dto.request.CreateApiKeyReqDto
 import team.themoment.datagsm.common.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
+import team.themoment.datagsm.common.domain.auth.entity.constant.ApiKeyScope
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.common.global.data.ApiKeyEnvironment
 import team.themoment.datagsm.web.domain.auth.service.CreateCurrentAccountApiKeyService
@@ -31,7 +31,7 @@ class CreateCurrentAccountApiKeyServiceImpl(
 
         val isAdmin = account.role in setOf(AccountRole.ADMIN, AccountRole.ROOT)
 
-        val validScopes = if (isAdmin) ApiScope.getAllScopes() else ApiScope.READ_ONLY_SCOPES
+        val validScopes = if (isAdmin) ApiKeyScope.getAllScopes() else ApiKeyScope.READ_ONLY_SCOPES
         val invalidScopes = reqDto.scopes.filter { it !in validScopes }
         if (invalidScopes.isNotEmpty()) {
             throw ExpectedException(
