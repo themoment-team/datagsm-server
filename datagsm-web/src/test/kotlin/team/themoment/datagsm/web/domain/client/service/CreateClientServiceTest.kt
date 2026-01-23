@@ -13,7 +13,6 @@ import io.mockk.verify
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
-import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.domain.client.dto.request.CreateClientReqDto
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
@@ -61,12 +60,12 @@ class CreateClientServiceTest :
                     val reqDto =
                         CreateClientReqDto(
                             name = "Test OAuth Client",
-                            scopes = setOf("self:read", "student:read"),
+                            scopes = setOf("self:read"),
                         )
 
                     beforeEach {
                         every { ClientUtil.getAvailableOauthScopes() } returns
-                            setOf("self:read", "student:read", "club:read")
+                            setOf("self:read")
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
                         every { mockClientJpaRepository.save(any()) } answers {
@@ -98,7 +97,7 @@ class CreateClientServiceTest :
 
                     beforeEach {
                         every { ClientUtil.getAvailableOauthScopes() } returns
-                            setOf("self:read", "student:read", "club:read")
+                            setOf("self:read")
                     }
 
                     it("400 BAD_REQUEST 예외가 발생해야 한다") {
@@ -126,7 +125,7 @@ class CreateClientServiceTest :
 
                     beforeEach {
                         every { ClientUtil.getAvailableOauthScopes() } returns
-                            setOf("self:read", "student:read")
+                            setOf("self:read")
                     }
 
                     it("400 BAD_REQUEST 예외가 발생하고 모든 유효하지 않은 scope를 포함해야 한다") {
@@ -153,7 +152,7 @@ class CreateClientServiceTest :
 
                     beforeEach {
                         every { ClientUtil.getAvailableOauthScopes() } returns
-                            setOf("self:read", "student:read")
+                            setOf("self:read")
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockPasswordEncoder.encode(any()) } returns "hashed_secret_value"
                         every { mockClientJpaRepository.save(any()) } answers {
@@ -205,13 +204,13 @@ class CreateClientServiceTest :
                     val reqDto =
                         CreateClientReqDto(
                             name = "Test Client",
-                            scopes = setOf("self:read", "student:read"),
+                            scopes = setOf("self:read"),
                         )
                     lateinit var savedClient: ClientJpaEntity
 
                     beforeEach {
                         every { ClientUtil.getAvailableOauthScopes() } returns
-                            setOf("self:read", "student:read", "club:read")
+                            setOf("self:read")
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
                         every { mockClientJpaRepository.save(any()) } answers {
@@ -220,10 +219,10 @@ class CreateClientServiceTest :
                         }
                     }
 
-                    it("요청된 scope가 ApiScope enum으로 변환되어 저장되어야 한다") {
+                    it("요청된 scope가 String으로 저장되어야 한다") {
                         createClientService.execute(reqDto)
 
-                        savedClient.scopes shouldBe setOf(ApiScope.SELF_READ, ApiScope.STUDENT_READ)
+                        savedClient.scopes shouldBe setOf("self:read")
 
                         verify(exactly = 1) { mockClientJpaRepository.save(any()) }
                     }
@@ -295,7 +294,7 @@ class CreateClientServiceTest :
 
                     beforeEach {
                         every { ClientUtil.getAvailableOauthScopes() } returns
-                            setOf("self:read", "student:read")
+                            setOf("self:read")
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
                         every { mockClientJpaRepository.save(any()) } answers {

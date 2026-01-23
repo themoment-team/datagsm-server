@@ -407,7 +407,6 @@ class ModifyCurrentAccountApiKeyServiceTest :
                                     "club:write",
                                     "project:read",
                                     "project:write",
-                                    "admin:excel",
                                 ),
                             description = "Admin API 키 갱신",
                         )
@@ -431,7 +430,6 @@ class ModifyCurrentAccountApiKeyServiceTest :
                                     "club:write",
                                     "project:read",
                                     "project:write",
-                                    "admin:excel",
                                 ),
                             )
                         }

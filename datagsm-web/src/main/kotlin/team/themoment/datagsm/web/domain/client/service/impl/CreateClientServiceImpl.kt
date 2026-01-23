@@ -4,10 +4,10 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.domain.client.dto.request.CreateClientReqDto
 import team.themoment.datagsm.common.domain.client.dto.response.CreateClientResDto
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
+import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.web.domain.client.service.CreateClientService
 import team.themoment.datagsm.web.domain.client.util.ClientUtil
@@ -26,12 +26,11 @@ class CreateClientServiceImpl(
         val availableScopes = ClientUtil.getAvailableOauthScopes()
         val invalidScopes = reqDto.scopes.minus(availableScopes)
         if (invalidScopes.isNotEmpty()) throw ExpectedException("허용되지 않는 OAuth 권한이 포함되어 있습니다: $invalidScopes", HttpStatus.BAD_REQUEST)
-        val scopes =
-            reqDto.scopes
-                .map {
-                    ApiScope.fromString(it)
-                        ?: throw IllegalStateException("ApiScope는 허용된 $it 값을 포함하지 않습니다. See GetAvailableOauthScopesService")
-                }.toSet()
+
+        reqDto.scopes.forEach { scopeString ->
+            OAuthScope.fromString(scopeString)
+                ?: throw IllegalStateException("OAuthScope는 허용된 $scopeString 값을 포함하지 않습니다. See GetAvailableOauthScopesService")
+        }
 
         val currentAccount = currentUserProvider.getCurrentAccount()
 
@@ -44,7 +43,7 @@ class CreateClientServiceImpl(
                 name = reqDto.name
                 account = currentAccount
                 redirectUrls = emptySet()
-                this.scopes = scopes
+                scopes = reqDto.scopes
             }
         clientJpaRepository.save(client)
         return CreateClientResDto(

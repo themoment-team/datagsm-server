@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
+import team.themoment.datagsm.common.domain.auth.entity.constant.ApiKeyScope
 import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.common.domain.club.dto.response.ClubListResDto
 import team.themoment.datagsm.common.domain.club.dto.response.ClubResDto
@@ -44,7 +44,7 @@ class ClubController(
             ApiResponse(responseCode = "200", description = "조회 성공"),
         ],
     )
-    @RequireScope(ApiScope.CLUB_READ)
+    @RequireScope(ApiKeyScope.CLUB_READ)
     @GetMapping
     fun getClubInfo(
         @Parameter(description = "동아리 ID") @RequestParam(required = false) clubId: Long?,
@@ -66,7 +66,7 @@ class ClubController(
             ApiResponse(responseCode = "409", description = "이미 존재하는 동아리", content = [Content()]),
         ],
     )
-    @RequireScope(ApiScope.CLUB_WRITE)
+    @RequireScope(ApiKeyScope.CLUB_WRITE)
     @PostMapping
     fun createClub(
         @RequestBody @Valid clubReqDto: ClubReqDto,
@@ -80,7 +80,7 @@ class ClubController(
             ApiResponse(responseCode = "404", description = "동아리를 찾을 수 없음", content = [Content()]),
         ],
     )
-    @RequireScope(ApiScope.CLUB_WRITE)
+    @RequireScope(ApiKeyScope.CLUB_WRITE)
     @PutMapping("/{clubId}")
     fun updateClub(
         @Parameter(description = "동아리 ID") @PathVariable clubId: Long,
@@ -94,7 +94,7 @@ class ClubController(
             ApiResponse(responseCode = "404", description = "동아리를 찾을 수 없음", content = [Content()]),
         ],
     )
-    @RequireScope(ApiScope.CLUB_WRITE)
+    @RequireScope(ApiKeyScope.CLUB_WRITE)
     @DeleteMapping("/{clubId}")
     fun deleteClub(
         @Parameter(description = "동아리 ID") @PathVariable clubId: Long,

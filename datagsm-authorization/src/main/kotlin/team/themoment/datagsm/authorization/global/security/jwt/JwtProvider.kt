@@ -7,7 +7,7 @@ import io.jsonwebtoken.security.Keys
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
-import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
+import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.global.data.OauthJwtEnvironment
 import team.themoment.sdk.exception.ExpectedException
 import java.nio.charset.StandardCharsets
@@ -27,7 +27,7 @@ class JwtProvider(
         email: String,
         role: AccountRole,
         clientId: String,
-        scopes: Set<ApiScope>,
+        scopes: Set<OAuthScope>,
     ): String {
         val now = Date()
         val expiration = Date(now.time + jwtEnvironment.accessTokenExpiration)
@@ -72,14 +72,14 @@ class JwtProvider(
 
     fun getEmailFromToken(token: String): String = parseClaims(token).subject
 
-    fun getScopesFromToken(token: String): Set<ApiScope> {
+    fun getScopesFromToken(token: String): Set<OAuthScope> {
         val rawScopes =
             parseClaims(token)["scopes"] as? List<*>
                 ?: throw ExpectedException("토큰에 scope 권한 정보가 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
         val scopes =
             rawScopes
                 .map {
-                    runCatching { ApiScope.valueOf(it as String) }
+                    runCatching { OAuthScope.valueOf(it as String) }
                         .getOrElse {
                             throw ExpectedException("토큰에 잘못된 scope 권한 정보가 존재합니다.", HttpStatus.UNAUTHORIZED)
                         }
