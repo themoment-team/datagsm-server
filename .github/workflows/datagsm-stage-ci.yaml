@@ -4,11 +4,9 @@ on:
   pull_request:
     branches:
       - 'develop'
-      - 'cicd/run-workflows'
   push:
     branches:
       - 'develop'
-      - 'cicd/run-workflows'
   workflow_dispatch:
 
 jobs:
