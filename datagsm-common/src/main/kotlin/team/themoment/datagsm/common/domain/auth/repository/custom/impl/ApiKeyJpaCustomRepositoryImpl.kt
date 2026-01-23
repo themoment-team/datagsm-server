@@ -1,7 +1,7 @@
 package team.themoment.datagsm.common.domain.auth.repository.custom.impl
 
-import com.querydsl.core.types.dsl.Expressions
 import com.querydsl.jpa.impl.JPAQueryFactory
+import io.github.snowykte0426.querydsl.mysql.json.jpa.JPAJsonFunctions
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.support.PageableExecutionUtils
@@ -10,13 +10,11 @@ import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.common.domain.auth.entity.QApiKey.Companion.apiKey
 import team.themoment.datagsm.common.domain.auth.repository.custom.ApiKeyJpaCustomRepository
 import team.themoment.datagsm.common.global.data.ApiKeyEnvironment
-import tools.jackson.databind.ObjectMapper
 import java.time.LocalDateTime
 
 @Repository
 class ApiKeyJpaCustomRepositoryImpl(
     private val jpaQueryFactory: JPAQueryFactory,
-    private val objectMapper: ObjectMapper,
     private val apiKeyEnvironment: ApiKeyEnvironment,
 ) : ApiKeyJpaCustomRepository {
     override fun searchApiKeyWithPaging(
@@ -37,13 +35,10 @@ class ApiKeyJpaCustomRepositoryImpl(
                     id?.let { apiKey.id.eq(it) },
                     accountId?.let { apiKey.account.id.eq(it) },
                     scope?.let { scopeValue ->
-                        Expressions
-                            .numberTemplate(
-                                Int::class.javaObjectType,
-                                "JSON_CONTAINS({0}, {1})",
-                                apiKey.scopes,
-                                Expressions.constant(objectMapper.writeValueAsString(scopeValue)),
-                            ).eq(1)
+                        JPAJsonFunctions.jsonContainsString(
+                            apiKey.scopes,
+                            scopeValue,
+                        )
                     },
                     isExpired?.let {
                         if (it) apiKey.expiresAt.before(now) else apiKey.expiresAt.after(now)
@@ -64,13 +59,10 @@ class ApiKeyJpaCustomRepositoryImpl(
                     id?.let { apiKey.id.eq(it) },
                     accountId?.let { apiKey.account.id.eq(it) },
                     scope?.let { scopeValue ->
-                        Expressions
-                            .numberTemplate(
-                                Int::class.javaObjectType,
-                                "JSON_CONTAINS({0}, {1})",
-                                apiKey.scopes,
-                                Expressions.constant(objectMapper.writeValueAsString(scopeValue)),
-                            ).eq(1)
+                        JPAJsonFunctions.jsonContainsString(
+                            apiKey.scopes,
+                            scopeValue,
+                        )
                     },
                     isExpired?.let {
                         if (it) apiKey.expiresAt.before(now) else apiKey.expiresAt.after(now)
