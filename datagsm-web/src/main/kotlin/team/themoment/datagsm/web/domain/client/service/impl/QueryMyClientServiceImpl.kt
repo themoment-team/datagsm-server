@@ -24,7 +24,7 @@ class QueryMyClientServiceImpl(
                     id = client.id,
                     name = client.name,
                     redirectUrl = client.redirectUrls,
-                    scopes = client.scopes.map { it.scope }.toSet(),
+                    scopes = client.scopes,
                 )
             }
         return QueryMyClientResDto(

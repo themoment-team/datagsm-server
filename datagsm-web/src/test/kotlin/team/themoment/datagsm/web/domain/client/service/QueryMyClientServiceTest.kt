@@ -8,8 +8,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
-import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
+import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.web.domain.client.service.impl.QueryMyClientServiceImpl
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
@@ -44,7 +44,7 @@ class QueryMyClientServiceTest :
                             name = "나의 클라이언트"
                             account = currentAccount
                             redirectUrls = setOf("https://example.com")
-                            scopes = setOf(ApiScope.SELF_READ)
+                            scopes = setOf(OAuthScope.SELF_READ.scope)
                         }
 
                     beforeEach {
@@ -77,7 +77,7 @@ class QueryMyClientServiceTest :
                                 name = "클라이언트$index"
                                 account = currentAccount
                                 redirectUrls = setOf("https://example$index.com")
-                                scopes = setOf(ApiScope.SELF_READ)
+                                scopes = setOf(OAuthScope.SELF_READ.scope)
                             }
                         }
 
@@ -121,7 +121,7 @@ class QueryMyClientServiceTest :
                             name = "멀티 리다이렉트 클라이언트"
                             account = currentAccount
                             redirectUrls = setOf("https://url1.com", "https://url2.com", "https://url3.com")
-                            scopes = setOf(ApiScope.SELF_READ)
+                            scopes = setOf(OAuthScope.SELF_READ.scope)
                         }
 
                     val client2 =
@@ -131,7 +131,7 @@ class QueryMyClientServiceTest :
                             name = "단일 리다이렉트 클라이언트"
                             account = currentAccount
                             redirectUrls = setOf("https://single.com")
-                            scopes = setOf(ApiScope.SELF_READ)
+                            scopes = setOf(OAuthScope.SELF_READ.scope)
                         }
 
                     val client3 =
@@ -141,7 +141,7 @@ class QueryMyClientServiceTest :
                             name = "리다이렉트 없는 클라이언트"
                             account = currentAccount
                             redirectUrls = emptySet()
-                            scopes = setOf(ApiScope.SELF_READ)
+                            scopes = setOf(OAuthScope.SELF_READ.scope)
                         }
 
                     beforeEach {
@@ -174,7 +174,7 @@ class QueryMyClientServiceTest :
                             name = "관리자 클라이언트"
                             account = adminAccount
                             redirectUrls = emptySet()
-                            scopes = setOf(ApiScope.SELF_READ)
+                            scopes = setOf(OAuthScope.SELF_READ.scope)
                         }
 
                     beforeEach {

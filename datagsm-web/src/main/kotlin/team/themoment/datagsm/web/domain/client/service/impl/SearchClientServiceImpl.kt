@@ -33,7 +33,7 @@ class SearchClientServiceImpl(
                         id = entity.id,
                         name = entity.name,
                         redirectUrl = entity.redirectUrls,
-                        scopes = entity.scopes.map { it.scope }.toSet(),
+                        scopes = entity.scopes,
                     )
                 },
         )

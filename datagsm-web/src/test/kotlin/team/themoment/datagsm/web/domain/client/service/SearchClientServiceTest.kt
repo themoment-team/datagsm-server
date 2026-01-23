@@ -10,8 +10,8 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
-import team.themoment.datagsm.common.domain.account.entity.constant.ApiScope
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
+import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.web.domain.client.service.impl.SearchClientServiceImpl
 
@@ -43,7 +43,7 @@ class SearchClientServiceTest :
                         name = "테스트 클라이언트"
                         account = testAccount
                         redirectUrls = setOf("https://test.com")
-                        scopes = setOf(ApiScope.SELF_READ)
+                        scopes = setOf(OAuthScope.SELF_READ.scope)
                     }
 
                 context("클라이언트 이름으로 검색할 때") {
@@ -91,7 +91,7 @@ class SearchClientServiceTest :
                                 name = "클라이언트$index"
                                 account = testAccount
                                 redirectUrls = setOf("https://example$index.com")
-                                scopes = setOf(ApiScope.SELF_READ)
+                                scopes = setOf(OAuthScope.SELF_READ.scope)
                             }
                         }
 
@@ -153,7 +153,7 @@ class SearchClientServiceTest :
                                 name = "클라이언트$index"
                                 account = testAccount
                                 redirectUrls = emptySet()
-                                scopes = setOf(ApiScope.SELF_READ)
+                                scopes = setOf(OAuthScope.SELF_READ.scope)
                             }
                         }
 
@@ -192,7 +192,7 @@ class SearchClientServiceTest :
                                 name = "클라이언트$index"
                                 account = testAccount
                                 redirectUrls = emptySet()
-                                scopes = setOf(ApiScope.SELF_READ)
+                                scopes = setOf(OAuthScope.SELF_READ.scope)
                             }
                         }
 
@@ -231,7 +231,7 @@ class SearchClientServiceTest :
                                 name = "API 클라이언트"
                                 account = testAccount
                                 redirectUrls = emptySet()
-                                scopes = setOf(ApiScope.SELF_READ)
+                                scopes = setOf(OAuthScope.SELF_READ.scope)
                             },
                             ClientJpaEntity().apply {
                                 id = "client-2"
@@ -239,7 +239,7 @@ class SearchClientServiceTest :
                                 name = "API 서비스 클라이언트"
                                 account = testAccount
                                 redirectUrls = emptySet()
-                                scopes = setOf(ApiScope.SELF_READ)
+                                scopes = setOf(OAuthScope.SELF_READ.scope)
                             },
                         )
 
@@ -276,7 +276,7 @@ class SearchClientServiceTest :
                                 name = "클라이언트$index"
                                 account = testAccount
                                 redirectUrls = emptySet()
-                                scopes = setOf(ApiScope.SELF_READ)
+                                scopes = setOf(OAuthScope.SELF_READ.scope)
                             }
                         }
 
