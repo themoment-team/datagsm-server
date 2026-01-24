@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.common.domain.auth.dto.response.ApiScopeGroupListResDto
 import team.themoment.datagsm.common.domain.client.dto.request.CreateClientReqDto
 import team.themoment.datagsm.common.domain.client.dto.request.ModifyClientReqDto
 import team.themoment.datagsm.common.domain.client.dto.response.ClientListResDto
+import team.themoment.datagsm.common.domain.client.dto.response.OAuthScopeGroupListResDto
 import team.themoment.datagsm.web.domain.client.service.CreateClientService
 import team.themoment.datagsm.web.domain.client.service.DeleteClientService
 import team.themoment.datagsm.web.domain.client.service.GetAvailableOauthScopesService
@@ -117,5 +117,5 @@ class ClientController(
         ],
     )
     @GetMapping("/available-scopes")
-    fun getAvailableScopes(): ApiScopeGroupListResDto = getAvailableOauthScopesService.execute()
+    fun getAvailableScopes(): OAuthScopeGroupListResDto = getAvailableOauthScopesService.execute()
 }
