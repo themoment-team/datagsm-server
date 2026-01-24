@@ -47,7 +47,12 @@ class ClientController(
         ],
     )
     @GetMapping
-    fun getMyClient() = queryMyClientService.execute()
+    fun getMyClient(
+        @Parameter(description = "페이지 번호")
+        @RequestParam(required = false, defaultValue = "0") page: Int,
+        @Parameter(description = "페이지 크기")
+        @RequestParam(required = false, defaultValue = "100") size: Int,
+    ): ClientListResDto = queryMyClientService.execute(page, size)
 
     @Operation(summary = "어드민용 클라이언트 검색", description = "어드민이 등록된 클라이언트를 검색합니다.")
     @ApiResponses(

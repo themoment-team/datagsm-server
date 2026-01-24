@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
+import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.entity.QClientJpaEntity.Companion.clientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.custom.ClientJpaCustomRepository
@@ -33,6 +34,27 @@ class ClientJpaCustomRepositoryImpl(
                 .where(
                     name?.let { clientJpaEntity.name.startsWith(it) },
                 )
+
+        return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
+    }
+
+    override fun findAllByAccountWithPaging(
+        account: AccountJpaEntity,
+        pageable: Pageable,
+    ): Page<ClientJpaEntity> {
+        val content =
+            jpaQueryFactory
+                .selectFrom(clientJpaEntity)
+                .where(clientJpaEntity.account.eq(account))
+                .offset(pageable.offset)
+                .limit(pageable.pageSize.toLong())
+                .fetch()
+
+        val countQuery =
+            jpaQueryFactory
+                .select(clientJpaEntity.count())
+                .from(clientJpaEntity)
+                .where(clientJpaEntity.account.eq(account))
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
     }
