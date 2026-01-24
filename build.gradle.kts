@@ -1,123 +1,44 @@
 plugins {
-    id(plugin.Plugins.SPRING_BOOT) version plugin.PluginVersions.SPRING_BOOT_VERSION
-    id(plugin.Plugins.SPRING_DEPENDENCY_MANAGEMENT) version plugin.PluginVersions.SPRING_DEPENDENCY_MANAGEMENT_VERSION
-    id(plugin.Plugins.KSP) version plugin.PluginVersions.KSP_VERSION
     id(plugin.Plugins.KOTLIN_JVM) version plugin.PluginVersions.KOTLIN_VERSION
-    id(plugin.Plugins.KOTLIN_SPRING) version plugin.PluginVersions.KOTLIN_VERSION
-    id(plugin.Plugins.KOTLIN_JPA) version plugin.PluginVersions.KOTLIN_VERSION
-    id(plugin.Plugins.KOTLIN_ALLOPEN) version plugin.PluginVersions.KOTLIN_VERSION
-    id(plugin.Plugins.KOTEST) version plugin.PluginVersions.KOTEST_VERSION
-    id(plugin.Plugins.KTLINT) version plugin.PluginVersions.KTLINT_VERSION
-    idea
+    id(plugin.Plugins.SPRING_DEPENDENCY_MANAGEMENT) version plugin.PluginVersions.SPRING_DEPENDENCY_MANAGEMENT_VERSION
+    id(plugin.Plugins.KTLINT) version plugin.PluginVersions.KTLINT_VERSION apply false
 }
 
 group = "team.themoment"
-version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_24
+version = "v20260125.0"
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(24)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
-repositories {
-    mavenCentral()
-    maven { url = uri("https://jitpack.io") }
-}
+allprojects {
+    apply(plugin = plugin.Plugins.KTLINT)
 
-dependencies {
-    // Spring Starters
-    implementation(dependency.Dependencies.SPRING_WEB)
-    implementation(dependency.Dependencies.SPRING_VALIDATION)
-    implementation(dependency.Dependencies.SPRING_SECURITY)
-    implementation(dependency.Dependencies.SPRING_OAUTH2_CLIENT)
-    implementation(dependency.Dependencies.SPRINT_MAIL)
-    implementation(dependency.Dependencies.SPRING_OPENFEIGN)
-
-    // JWT
-    implementation(dependency.Dependencies.JJWT)
-    runtimeOnly(dependency.Dependencies.JJWT_IMPL)
-    runtimeOnly(dependency.Dependencies.JJWT_JACKSON)
-
-    // QueryDSL
-    implementation(dependency.Dependencies.QUERY_DSL)
-    ksp(dependency.Dependencies.QUERY_DSL_PROCESSOR)
-
-    // Jakarta EE
-    implementation(dependency.Dependencies.JAKARTA_PERSISTENCE_API)
-    implementation(dependency.Dependencies.JAKARTA_TRANSACTION_API)
-
-    // Spring Data
-    implementation(dependency.Dependencies.SPRING_DATA_JPA)
-    implementation(dependency.Dependencies.SPRING_DATA_REDIS)
-
-    // Development Tools
-    developmentOnly(dependency.Dependencies.SPRING_DOCKER_SUPPORT)
-
-    // Kotlin
-    implementation(dependency.Dependencies.JACKSON_KOTLIN)
-    implementation(dependency.Dependencies.KOTLIN_REFLECT)
-
-    // Database
-    runtimeOnly(dependency.Dependencies.MYSQL_CONNECTOR)
-
-    // Swagger
-    implementation(dependency.Dependencies.SWAGGER_UI)
-
-    // Testing
-    testImplementation(dependency.Dependencies.SPRING_TEST)
-    testImplementation(dependency.Dependencies.KOTLIN_JUNIT5)
-    testImplementation(dependency.Dependencies.KOTEST_ASSERTIONS)
-    testImplementation(dependency.Dependencies.KOTEST_RUNNER)
-    testImplementation(dependency.Dependencies.KOTEST_FRAMEWORK)
-    testImplementation(dependency.Dependencies.SPRING_SECURITY_TEST)
-    testRuntimeOnly(dependency.Dependencies.JUNIT_PLATFORM_LAUNCHER)
-    testImplementation(dependency.Dependencies.MOCKK)
-}
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict")
-    }
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
-
-idea {
-    module {
-        val kspMain = file("build/generated/ksp/main/kotlin")
-        sourceDirs.add(kspMain)
-        generatedSourceDirs.add(kspMain)
-    }
-}
-
-kotlin {
-    sourceSets.main {
-        kotlin.srcDirs("build/generated/ksp/main/kotlin")
-    }
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    dependsOn("kspKotlin")
-}
-
-ktlint {
-    filter {
-        exclude("**/build/**")
-        exclude {
-            projectDir
-                .toURI()
-                .relativize(it.file.toURI())
-                .path
-                .contains("/generated/")
+    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+        filter {
+            exclude("**/build/**")
+            exclude {
+                projectDir
+                    .toURI()
+                    .relativize(it.file.toURI())
+                    .path
+                    .contains("/generated/")
+            }
         }
+    }
+}
+
+tasks.whenTaskAdded {
+    if (name == "bootJar" || name == "jar") {
+        enabled = false
     }
 }
 
 dependencyManagement {
     imports {
-        mavenBom(plugin.Plugins.SPRING_CLOUD_DEPENDENCY_MANAGEMENT)
+        mavenBom(dependency.Dependencies.SPRING_CLOUD_BOM)
+        mavenBom(dependency.Dependencies.AWS_SDK_BOM)
     }
 }

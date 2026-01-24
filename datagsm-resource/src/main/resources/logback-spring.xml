@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration packagingData="true">
+  <timestamp key="timestamp" datePattern="yyyy-MM-dd-HH-mm-ssSSS"/>
+  <appender name="stage_aws_cloud_watch_log" class="team.themoment.datagsm.common.global.thirdparty.aws.cloudwatch.appender.CloudWatchAppender">
+    <layout>
+      <pattern>[%thread] [%date{yyyy-MM-dd HH:mm:ss.SSS,Asia/Seoul}] [%level] [%file:%line] - %msg%n</pattern>
+    </layout>
+    <logGroupName>datagsm-resource-stage-log</logGroupName>
+    <logStreamNamePrefix>[datagsm-resource]-</logStreamNamePrefix>
+    <region>ap-northeast-2</region>
+    <maxBatchSize>50</maxBatchSize>
+    <maxBatchTimeMillis>10000</maxBatchTimeMillis>
+    <maxBlockTimeMillis>5000</maxBlockTimeMillis>
+    <retentionTimeDays>30</retentionTimeDays>
+  </appender>
+  <appender name="prod_aws_cloud_watch_log" class="team.themoment.datagsm.common.global.thirdparty.aws.cloudwatch.appender.CloudWatchAppender">
+    <layout>
+      <pattern>[%thread] [%date{yyyy-MM-dd HH:mm:ss.SSS,Asia/Seoul}] [%level] [%file:%line] - %msg%n</pattern>
+    </layout>
+    <logGroupName>datagsm-resource-prod-log</logGroupName>
+    <logStreamNamePrefix>[datagsm-resource]-</logStreamNamePrefix>
+    <region>ap-northeast-2</region>
+    <maxBatchSize>50</maxBatchSize>
+    <maxBatchTimeMillis>10000</maxBatchTimeMillis>
+    <maxBlockTimeMillis>5000</maxBlockTimeMillis>
+    <retentionTimeDays>30</retentionTimeDays>
+  </appender>
+  <property name="CONSOLE_LOG_PATTERN" value="%highlight(%-5level) %date{yyyy-MM-dd HH:mm:ss.SSS,Asia/Seoul} [%thread] %cyan([%C{0} :: %M :: %L]) - %msg%n"/>
+  <appender name="console_log" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+    </encoder>
+  </appender>
+  <springProfile name="default">
+    <root level="INFO">
+      <appender-ref ref="console_log"/>
+    </root>
+  </springProfile>
+  <springProfile name="stage">
+    <root level="INFO">
+      <appender-ref ref="stage_aws_cloud_watch_log"/>
+    </root>
+  </springProfile>
+  <springProfile name="prod">
+    <root level="INFO">
+      <appender-ref ref="prod_aws_cloud_watch_log"/>
+    </root>
+  </springProfile>
+
+</configuration>

@@ -1,0 +1,85 @@
+spring:
+  application:
+    name: datagsm-resource
+  docker:
+    compose:
+      enabled: true
+      file: compose.local.yaml
+      lifecycle-management: start_and_stop
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/datagsm?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Seoul}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      database: 0
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+  cloud:
+    discord:
+      webhook:
+        url: ${DISCORD_EMERGENCY_ALERT_CHANNEL_WEBHOOK}
+    neis:
+      api:
+        key: ${NEIS_API_KEY}
+        office-code: ${NEIS_OFFICE_CODE:F10}
+        school-code: ${NEIS_SCHOOL_CODE:7380292}
+  security:
+    cors:
+      allowed-origins:
+        - ${CORS_ALLOWED_ORIGINS:*}
+    api-key:
+      expiration-days: 30
+      renewal-period-days: 15
+      admin-expiration-days: 365
+      rate-limit:
+        enabled: true
+        default-capacity: 100
+        default-refill-tokens: 100
+        default-refill-duration-seconds: 60
+server:
+  port: 8082
+  shutdown: graceful
+sdk:
+  logging:
+    enabled: true
+    not-logging-urls:
+      - "/v3/api-docs/**"
+      - "/swagger-ui/**"
+      - "/actuator/**"
+  response:
+    enabled: true
+    not-wrapping-urls:
+      - "/v3/api-docs/**"
+      - "/swagger-ui/**"
+      - "/actuator/**"
+  swagger:
+    enabled: true
+    title: "DataGSM Resource Server API"
+    description: "DataGSM Read-Only Resource API with API Key Authentication"
+    version: "v1"
+    group: "resource-api"
+    paths-to-match:
+      - "/v1/**"
+  exception:
+    enabled: false
+    use-english-message: false
+springdoc:
+  swagger-ui:
+    enabled: true
+logging:
+  config: classpath:logback-spring.xml
