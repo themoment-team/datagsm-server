@@ -1,15 +1,23 @@
 name: DataGSM prod CD workflow
 
 on:
-  push:
+  workflow_run:
+    workflows: ["DataGSM prod CI Workflow"]
+    types:
+      - completed
     branches:
       - 'master'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   CD:
     runs-on: ubuntu-latest
     environment: prod
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
@@ -75,3 +83,10 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_INFORMATION_ALERT_CHANNEL_WEBHOOK }}
           color: 0xFF4C4C
+
+      - name: CD Cancelled Notification
+        uses: sarisia/actions-status-discord@v1
+        if: cancelled()
+        with:
+          webhook: ${{ secrets.DISCORD_INFORMATION_ALERT_CHANNEL_WEBHOOK }}
+          color: 0xFFA500
