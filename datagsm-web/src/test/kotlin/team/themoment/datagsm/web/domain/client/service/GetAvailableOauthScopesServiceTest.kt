@@ -13,7 +13,7 @@ class GetAvailableOauthScopesServiceTest :
         describe("GetAvailableOauthScopesService 클래스의") {
             describe("execute 메서드는") {
                 context("호출할 때") {
-                    it("ApiScopeGroupListResDto 형식으로 반환해야 한다") {
+                    it("OAuthScopeGroupListResDto 형식으로 반환해야 한다") {
                         val result = getAvailableOauthScopesService.execute()
 
                         result shouldNotBe null
