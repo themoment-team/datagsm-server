@@ -6,6 +6,8 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
@@ -49,12 +51,18 @@ class QueryMyClientServiceTest :
 
                     beforeEach {
                         every { mockCurrentUserProvider.getCurrentAccount() } returns currentAccount
-                        every { mockClientRepository.findAllByAccount(currentAccount) } returns listOf(client)
+                        every {
+                            mockClientRepository.findAllByAccountWithPaging(
+                                currentAccount,
+                                PageRequest.of(0, 100),
+                            )
+                        } returns PageImpl(listOf(client), PageRequest.of(0, 100), 1)
                     }
 
                     it("소유한 클라이언트 목록이 반환되어야 한다") {
-                        val result = queryMyClientService.execute()
+                        val result = queryMyClientService.execute(page = 0, size = 100)
 
+                        result.totalPages shouldBe 1
                         result.totalElements shouldBe 1L
                         result.clients.size shouldBe 1
 
@@ -64,7 +72,12 @@ class QueryMyClientServiceTest :
                         clientRes.redirectUrl shouldBe listOf("https://example.com")
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
-                        verify(exactly = 1) { mockClientRepository.findAllByAccount(currentAccount) }
+                        verify(exactly = 1) {
+                            mockClientRepository.findAllByAccountWithPaging(
+                                currentAccount,
+                                PageRequest.of(0, 100),
+                            )
+                        }
                     }
                 }
 
@@ -83,12 +96,18 @@ class QueryMyClientServiceTest :
 
                     beforeEach {
                         every { mockCurrentUserProvider.getCurrentAccount() } returns currentAccount
-                        every { mockClientRepository.findAllByAccount(currentAccount) } returns clients
+                        every {
+                            mockClientRepository.findAllByAccountWithPaging(
+                                currentAccount,
+                                PageRequest.of(0, 100),
+                            )
+                        } returns PageImpl(clients, PageRequest.of(0, 100), 5)
                     }
 
                     it("모든 클라이언트가 반환되어야 한다") {
-                        val result = queryMyClientService.execute()
+                        val result = queryMyClientService.execute(page = 0, size = 100)
 
+                        result.totalPages shouldBe 1
                         result.totalElements shouldBe 5L
                         result.clients.size shouldBe 5
                         result.clients[0].name shouldBe "클라이언트1"
@@ -99,17 +118,28 @@ class QueryMyClientServiceTest :
                 context("현재 사용자가 소유한 클라이언트가 없을 때") {
                     beforeEach {
                         every { mockCurrentUserProvider.getCurrentAccount() } returns currentAccount
-                        every { mockClientRepository.findAllByAccount(currentAccount) } returns emptyList()
+                        every {
+                            mockClientRepository.findAllByAccountWithPaging(
+                                currentAccount,
+                                PageRequest.of(0, 100),
+                            )
+                        } returns PageImpl(emptyList(), PageRequest.of(0, 100), 0)
                     }
 
                     it("빈 결과가 반환되어야 한다") {
-                        val result = queryMyClientService.execute()
+                        val result = queryMyClientService.execute(page = 0, size = 100)
 
+                        result.totalPages shouldBe 0
                         result.totalElements shouldBe 0L
                         result.clients.size shouldBe 0
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
-                        verify(exactly = 1) { mockClientRepository.findAllByAccount(currentAccount) }
+                        verify(exactly = 1) {
+                            mockClientRepository.findAllByAccountWithPaging(
+                                currentAccount,
+                                PageRequest.of(0, 100),
+                            )
+                        }
                     }
                 }
 
@@ -146,12 +176,18 @@ class QueryMyClientServiceTest :
 
                     beforeEach {
                         every { mockCurrentUserProvider.getCurrentAccount() } returns currentAccount
-                        every { mockClientRepository.findAllByAccount(currentAccount) } returns listOf(client1, client2, client3)
+                        every {
+                            mockClientRepository.findAllByAccountWithPaging(
+                                currentAccount,
+                                PageRequest.of(0, 100),
+                            )
+                        } returns PageImpl(listOf(client1, client2, client3), PageRequest.of(0, 100), 3)
                     }
 
                     it("각 클라이언트의 redirect URL이 올바르게 반환되어야 한다") {
-                        val result = queryMyClientService.execute()
+                        val result = queryMyClientService.execute(page = 0, size = 100)
 
+                        result.totalPages shouldBe 1
                         result.clients.size shouldBe 3
                         result.clients[0].redirectUrl.size shouldBe 3
                         result.clients[1].redirectUrl.size shouldBe 1
@@ -179,14 +215,92 @@ class QueryMyClientServiceTest :
 
                     beforeEach {
                         every { mockCurrentUserProvider.getCurrentAccount() } returns adminAccount
-                        every { mockClientRepository.findAllByAccount(adminAccount) } returns listOf(adminClient)
+                        every {
+                            mockClientRepository.findAllByAccountWithPaging(
+                                adminAccount,
+                                PageRequest.of(0, 100),
+                            )
+                        } returns PageImpl(listOf(adminClient), PageRequest.of(0, 100), 1)
                     }
 
                     it("관리자가 소유한 클라이언트가 반환되어야 한다") {
-                        val result = queryMyClientService.execute()
+                        val result = queryMyClientService.execute(page = 0, size = 100)
 
+                        result.totalPages shouldBe 1
                         result.totalElements shouldBe 1L
                         result.clients[0].name shouldBe "관리자 클라이언트"
+                    }
+                }
+
+                context("페이지네이션으로 여러 페이지를 조회할 때") {
+                    val allClients =
+                        (1..25).map { index ->
+                            ClientJpaEntity().apply {
+                                id = "client-$index"
+                                secret = "secret-$index"
+                                name = "클라이언트$index"
+                                account = currentAccount
+                                redirectUrls = setOf("https://example$index.com")
+                                scopes = setOf(OAuthScope.SELF_READ.scope)
+                            }
+                        }
+
+                    val firstPageClients = allClients.take(10)
+                    val secondPageClients = allClients.drop(10).take(10)
+                    val thirdPageClients = allClients.drop(20).take(5)
+
+                    beforeEach {
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns currentAccount
+                        every {
+                            mockClientRepository.findAllByAccountWithPaging(
+                                currentAccount,
+                                PageRequest.of(0, 10),
+                            )
+                        } returns PageImpl(firstPageClients, PageRequest.of(0, 10), 25)
+
+                        every {
+                            mockClientRepository.findAllByAccountWithPaging(
+                                currentAccount,
+                                PageRequest.of(1, 10),
+                            )
+                        } returns PageImpl(secondPageClients, PageRequest.of(1, 10), 25)
+
+                        every {
+                            mockClientRepository.findAllByAccountWithPaging(
+                                currentAccount,
+                                PageRequest.of(2, 10),
+                            )
+                        } returns PageImpl(thirdPageClients, PageRequest.of(2, 10), 25)
+                    }
+
+                    it("첫 번째 페이지를 올바르게 반환해야 한다") {
+                        val result = queryMyClientService.execute(page = 0, size = 10)
+
+                        result.totalPages shouldBe 3
+                        result.totalElements shouldBe 25L
+                        result.clients.size shouldBe 10
+                        result.clients[0].name shouldBe "클라이언트1"
+                        result.clients[9].name shouldBe "클라이언트10"
+                    }
+
+                    it("두 번째 페이지를 올바르게 반환해야 한다") {
+                        val result = queryMyClientService.execute(page = 1, size = 10)
+
+                        result.totalPages shouldBe 3
+                        result.totalElements shouldBe 25L
+                        result.clients.size shouldBe 10
+                        result.clients[0].name shouldBe "클라이언트11"
+                        result.clients[9].name shouldBe "클라이언트20"
+                    }
+
+                    it("마지막 페이지를 올바르게 반환해야 한다") {
+                        val result = queryMyClientService.execute(page = 2, size = 10)
+
+                        result.totalPages shouldBe 3
+                        result.totalElements shouldBe 25L
+                        result.clients.size shouldBe 5
+                        result.clients[0].name shouldBe "클라이언트21"
+                        result.clients[4].name shouldBe "클라이언트25"
                     }
                 }
             }
