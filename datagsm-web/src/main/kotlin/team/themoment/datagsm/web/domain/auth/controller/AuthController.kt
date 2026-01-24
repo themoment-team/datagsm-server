@@ -182,7 +182,7 @@ class AuthController(
             ApiResponse(responseCode = "200", description = "조회 성공"),
         ],
     )
-    @GetMapping("/scopes")
+    @GetMapping("/available-scopes")
     fun getApiScopes(
         @Parameter(description = "계정 역할 (USER 또는 ADMIN)", required = true)
         @RequestParam
