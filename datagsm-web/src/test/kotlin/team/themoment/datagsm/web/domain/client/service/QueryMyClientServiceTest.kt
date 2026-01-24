@@ -233,8 +233,10 @@ class QueryMyClientServiceTest :
                 }
 
                 context("페이지네이션으로 여러 페이지를 조회할 때") {
+                    val totalElements = 25L
+                    val pageSize = 10
                     val allClients =
-                        (1..25).map { index ->
+                        (1..totalElements.toInt()).map { index ->
                             ClientJpaEntity().apply {
                                 id = "client-$index"
                                 secret = "secret-$index"
@@ -245,59 +247,59 @@ class QueryMyClientServiceTest :
                             }
                         }
 
-                    val firstPageClients = allClients.take(10)
-                    val secondPageClients = allClients.drop(10).take(10)
-                    val thirdPageClients = allClients.drop(20).take(5)
+                    val firstPageClients = allClients.take(pageSize)
+                    val secondPageClients = allClients.drop(pageSize).take(pageSize)
+                    val thirdPageClients = allClients.drop(pageSize * 2)
 
                     beforeEach {
                         every { mockCurrentUserProvider.getCurrentAccount() } returns currentAccount
                         every {
                             mockClientRepository.findAllByAccountWithPaging(
                                 currentAccount,
-                                PageRequest.of(0, 10),
+                                PageRequest.of(0, pageSize),
                             )
-                        } returns PageImpl(firstPageClients, PageRequest.of(0, 10), 25)
+                        } returns PageImpl(firstPageClients, PageRequest.of(0, pageSize), totalElements)
 
                         every {
                             mockClientRepository.findAllByAccountWithPaging(
                                 currentAccount,
-                                PageRequest.of(1, 10),
+                                PageRequest.of(1, pageSize),
                             )
-                        } returns PageImpl(secondPageClients, PageRequest.of(1, 10), 25)
+                        } returns PageImpl(secondPageClients, PageRequest.of(1, pageSize), totalElements)
 
                         every {
                             mockClientRepository.findAllByAccountWithPaging(
                                 currentAccount,
-                                PageRequest.of(2, 10),
+                                PageRequest.of(2, pageSize),
                             )
-                        } returns PageImpl(thirdPageClients, PageRequest.of(2, 10), 25)
+                        } returns PageImpl(thirdPageClients, PageRequest.of(2, pageSize), totalElements)
                     }
 
                     it("첫 번째 페이지를 올바르게 반환해야 한다") {
-                        val result = queryMyClientService.execute(page = 0, size = 10)
+                        val result = queryMyClientService.execute(page = 0, size = pageSize)
 
                         result.totalPages shouldBe 3
-                        result.totalElements shouldBe 25L
-                        result.clients.size shouldBe 10
+                        result.totalElements shouldBe totalElements
+                        result.clients.size shouldBe pageSize
                         result.clients[0].name shouldBe "클라이언트1"
                         result.clients[9].name shouldBe "클라이언트10"
                     }
 
                     it("두 번째 페이지를 올바르게 반환해야 한다") {
-                        val result = queryMyClientService.execute(page = 1, size = 10)
+                        val result = queryMyClientService.execute(page = 1, size = pageSize)
 
                         result.totalPages shouldBe 3
-                        result.totalElements shouldBe 25L
-                        result.clients.size shouldBe 10
+                        result.totalElements shouldBe totalElements
+                        result.clients.size shouldBe pageSize
                         result.clients[0].name shouldBe "클라이언트11"
                         result.clients[9].name shouldBe "클라이언트20"
                     }
 
                     it("마지막 페이지를 올바르게 반환해야 한다") {
-                        val result = queryMyClientService.execute(page = 2, size = 10)
+                        val result = queryMyClientService.execute(page = 2, size = pageSize)
 
                         result.totalPages shouldBe 3
-                        result.totalElements shouldBe 25L
+                        result.totalElements shouldBe totalElements
                         result.clients.size shouldBe 5
                         result.clients[0].name shouldBe "클라이언트21"
                         result.clients[4].name shouldBe "클라이언트25"
