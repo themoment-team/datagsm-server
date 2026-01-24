@@ -6,9 +6,6 @@ plugins {
     id(plugin.Plugins.SPRING_DEPENDENCY_MANAGEMENT) version plugin.PluginVersions.SPRING_DEPENDENCY_MANAGEMENT_VERSION
 }
 
-group = "team.themoment"
-version = "1.0.0"
-
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
