@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.client.dto.request.CreateClientReqDto
 import team.themoment.datagsm.common.domain.client.dto.request.ModifyClientReqDto
 import team.themoment.datagsm.common.domain.client.dto.response.ClientListResDto
+import team.themoment.datagsm.common.domain.client.dto.response.OAuthScopeGroupListResDto
 import team.themoment.datagsm.web.domain.client.service.CreateClientService
 import team.themoment.datagsm.web.domain.client.service.DeleteClientService
 import team.themoment.datagsm.web.domain.client.service.GetAvailableOauthScopesService
@@ -109,6 +110,12 @@ class ClientController(
         return CommonApiResponse.success("Client를 성공적으로 삭제했습니다.")
     }
 
+    @Operation(summary = "사용 가능한 OAuth 권한 범위 조회", description = "OAuth 클라이언트에서 사용 가능한 권한 범위 목록을 카테고리별로 그룹핑하여 조회합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "조회 성공"),
+        ],
+    )
     @GetMapping("/available-scopes")
-    fun getAvailableScopes(): Set<String> = getAvailableOauthScopesService.execute()
+    fun getAvailableScopes(): OAuthScopeGroupListResDto = getAvailableOauthScopesService.execute()
 }
