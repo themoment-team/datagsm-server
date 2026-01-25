@@ -229,8 +229,8 @@ class CreateClientServiceTest :
                     it("redirectUrls가 요청한 값으로 설정되어야 한다") {
                         val result = createClientService.execute(reqDto)
 
-                        savedClient.redirectUrls shouldBe setOf("https://example.com/callback", "https://app.example.com/oauth/callback")
-                        result.redirectUrls shouldBe setOf("https://example.com/callback", "https://app.example.com/oauth/callback")
+                        savedClient.redirectUrls shouldBe reqDto.redirectUrls
+                        result.redirectUrls shouldBe reqDto.redirectUrls
 
                         verify(exactly = 1) { mockClientJpaRepository.save(any()) }
                     }
