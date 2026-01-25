@@ -69,7 +69,27 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Make ZIP File
-        run: zip -r ./$GITHUB_SHA.zip .
+        run: |
+          mkdir -p deploy-package
+          mkdir -p deploy-package/datagsm-authorization/build/libs
+          mkdir -p deploy-package/datagsm-resource/build/libs
+          mkdir -p deploy-package/datagsm-web/build/libs
+
+          cp datagsm-authorization/build/libs/*.jar deploy-package/datagsm-authorization/build/libs/
+          cp datagsm-resource/build/libs/*.jar deploy-package/datagsm-resource/build/libs/
+          cp datagsm-web/build/libs/*.jar deploy-package/datagsm-web/build/libs/
+
+          cp datagsm-authorization/prod.dockerfile deploy-package/datagsm-authorization/
+          cp datagsm-resource/prod.dockerfile deploy-package/datagsm-resource/
+          cp datagsm-web/prod.dockerfile deploy-package/datagsm-web/
+
+          cp compose.prod.yaml deploy-package/
+          cp -r scripts deploy-package/
+          cp appspec.yml deploy-package/
+
+          cd deploy-package
+          zip -r ../$GITHUB_SHA.zip .
+          cd ..
         shell: bash
 
       - name: Upload to S3
