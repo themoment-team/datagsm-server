@@ -59,7 +59,7 @@ jobs:
         shell: bash
 
       - name: Build with Gradle
-        run : ./gradlew build -x test --parallel --build-cache
+        run: ./gradlew assemble
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v5
