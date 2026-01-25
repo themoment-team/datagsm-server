@@ -2,6 +2,7 @@ package team.themoment.datagsm.common.domain.student.repository.custom
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
@@ -48,4 +49,10 @@ interface StudentJpaCustomRepository {
     fun findStudentsByGrade(grade: Int): List<StudentJpaEntity>
 
     fun findAllStudents(): List<StudentJpaEntity>
+
+    fun findByMajorClubWithAccount(club: ClubJpaEntity): List<StudentJpaEntity>
+
+    fun findByJobClubWithAccount(club: ClubJpaEntity): List<StudentJpaEntity>
+
+    fun findByAutonomousClubWithAccount(club: ClubJpaEntity): List<StudentJpaEntity>
 }

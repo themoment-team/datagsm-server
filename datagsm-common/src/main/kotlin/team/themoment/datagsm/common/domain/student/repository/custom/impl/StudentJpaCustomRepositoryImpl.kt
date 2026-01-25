@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
+import team.themoment.datagsm.common.domain.account.entity.QAccountJpaEntity.Companion.accountJpaEntity
+import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.QStudentJpaEntity.Companion.studentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -38,6 +40,8 @@ class StudentJpaCustomRepositoryImpl(
         val content =
             jpaQueryFactory
                 .selectFrom(studentJpaEntity)
+                .innerJoin(accountJpaEntity)
+                .on(accountJpaEntity.student.id.eq(studentJpaEntity.id))
                 .where(
                     id?.let { studentJpaEntity.id.eq(it) },
                     name?.let { studentJpaEntity.name.contains(it) },
@@ -59,6 +63,8 @@ class StudentJpaCustomRepositoryImpl(
             jpaQueryFactory
                 .select(studentJpaEntity.count())
                 .from(studentJpaEntity)
+                .innerJoin(accountJpaEntity)
+                .on(accountJpaEntity.student.id.eq(studentJpaEntity.id))
                 .where(
                     id?.let { studentJpaEntity.id.eq(it) },
                     name?.let { studentJpaEntity.name.contains(it) },
@@ -211,4 +217,28 @@ class StudentJpaCustomRepositoryImpl(
                 studentJpaEntity.studentNumber.studentClass.asc(),
                 studentJpaEntity.studentNumber.studentNumber.asc(),
             ).fetch()
+
+    override fun findByMajorClubWithAccount(club: ClubJpaEntity): List<StudentJpaEntity> =
+        jpaQueryFactory
+            .selectFrom(studentJpaEntity)
+            .innerJoin(accountJpaEntity)
+            .on(accountJpaEntity.student.id.eq(studentJpaEntity.id))
+            .where(studentJpaEntity.majorClub.eq(club))
+            .fetch()
+
+    override fun findByJobClubWithAccount(club: ClubJpaEntity): List<StudentJpaEntity> =
+        jpaQueryFactory
+            .selectFrom(studentJpaEntity)
+            .innerJoin(accountJpaEntity)
+            .on(accountJpaEntity.student.id.eq(studentJpaEntity.id))
+            .where(studentJpaEntity.jobClub.eq(club))
+            .fetch()
+
+    override fun findByAutonomousClubWithAccount(club: ClubJpaEntity): List<StudentJpaEntity> =
+        jpaQueryFactory
+            .selectFrom(studentJpaEntity)
+            .innerJoin(accountJpaEntity)
+            .on(accountJpaEntity.student.id.eq(studentJpaEntity.id))
+            .where(studentJpaEntity.autonomousClub.eq(club))
+            .fetch()
 }
