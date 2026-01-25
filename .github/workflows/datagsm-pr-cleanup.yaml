@@ -1,4 +1,4 @@
-name: PR Cleanup
+name: DataGSM PR Cleanup Workflow
 
 on:
   pull_request:
@@ -18,7 +18,7 @@ jobs:
         run: |
           PR_NUMBER="${{ github.event.pull_request.number }}"
           LABEL="waiting for review:검토 대기"
-          
+
           echo "Removing label '$LABEL' from PR #$PR_NUMBER..."
           gh pr edit $PR_NUMBER --repo ${{ github.repository }} --remove-label "$LABEL" || true
           echo "Done."
