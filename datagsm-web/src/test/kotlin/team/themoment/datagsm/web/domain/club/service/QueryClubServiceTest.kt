@@ -119,8 +119,8 @@ class QueryClubServiceTest :
                                 sortDirection = any(),
                             )
                         } returns PageImpl(listOf(e1, e2))
-                        every { mockStudentRepository.findRegisteredStudentsByMajorClub(e1) } returns emptyList()
-                        every { mockStudentRepository.findRegisteredStudentsByMajorClub(e2) } returns emptyList()
+                        every { mockStudentRepository.findByMajorClub(e1) } returns emptyList()
+                        every { mockStudentRepository.findByMajorClub(e2) } returns emptyList()
                     }
 
                     it("조회된 엔티티들을 DTO로 매핑해 반환해야 한다") {
@@ -247,7 +247,7 @@ class QueryClubServiceTest :
                             val content = if (start >= all.size) emptyList() else all.subList(start, end)
                             PageImpl(content, pageable, all.size.toLong())
                         }
-                        every { mockStudentRepository.findRegisteredStudentsByMajorClub(any()) } returns emptyList()
+                        every { mockStudentRepository.findByMajorClub(any()) } returns emptyList()
                     }
 
                     it("알맞은 Page 결과가 반환된다") {
