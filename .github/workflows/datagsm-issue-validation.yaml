@@ -1,0 +1,47 @@
+name: DataGSM Issue Validation Workflow
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  validate-title:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Validate Issue Title
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const title = context.payload.issue.title;
+            const issueNumber = context.payload.issue.number;
+            const allowedScopes = [
+              'global', 'account', 'auth', 'client', 'club',
+              'neis', 'oauth', 'project', 'student',
+              'web', 'common', 'resource', 'authorization', 'ci/cd'
+            ];
+            const titlePattern = /^\[([^\]]+)\]\s+(.+)$/;
+            const match = title.match(titlePattern);
+
+            if (!match) {
+              core.setFailed('Invalid title format. Use [scope] title');
+              return;
+            }
+
+            const scopesPart = match[1];
+            const titlePart = match[2];
+
+            if (titlePart.includes(':')) {
+              core.setFailed('Colon (:) is not allowed in the title');
+              return;
+            }
+
+            const scopes = scopesPart.split(',').map(s => s.trim());
+            const invalidScopes = scopes.filter(scope => !allowedScopes.includes(scope));
+
+            if (invalidScopes.length > 0) {
+              core.setFailed(`Invalid scope(s): ${invalidScopes.join(', ')}`);
+              return;
+            }
