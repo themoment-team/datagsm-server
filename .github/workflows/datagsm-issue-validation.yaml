@@ -20,7 +20,7 @@ jobs:
             const allowedScopes = [
               'global', 'account', 'auth', 'client', 'club',
               'neis', 'oauth', 'project', 'student',
-              'web', 'common', 'resource', 'authorization'
+              'web', 'common', 'resource', 'authorization', 'ci/cd'
             ];
             const titlePattern = /^\[([^\]]+)\]\s+(.+)$/;
             const match = title.match(titlePattern);
