@@ -50,9 +50,9 @@ interface StudentJpaCustomRepository {
 
     fun findAllStudents(): List<StudentJpaEntity>
 
-    fun findByMajorClubWithAccount(club: ClubJpaEntity): List<StudentJpaEntity>
+    fun findRegisteredStudentsByMajorClub(club: ClubJpaEntity): List<StudentJpaEntity>
 
-    fun findByJobClubWithAccount(club: ClubJpaEntity): List<StudentJpaEntity>
+    fun findRegisteredStudentsByJobClub(club: ClubJpaEntity): List<StudentJpaEntity>
 
-    fun findByAutonomousClubWithAccount(club: ClubJpaEntity): List<StudentJpaEntity>
+    fun findRegisteredStudentsByAutonomousClub(club: ClubJpaEntity): List<StudentJpaEntity>
 }

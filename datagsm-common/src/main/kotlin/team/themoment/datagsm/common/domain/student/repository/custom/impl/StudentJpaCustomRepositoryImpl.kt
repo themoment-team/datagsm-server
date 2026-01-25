@@ -218,7 +218,7 @@ class StudentJpaCustomRepositoryImpl(
                 studentJpaEntity.studentNumber.studentNumber.asc(),
             ).fetch()
 
-    override fun findByMajorClubWithAccount(club: ClubJpaEntity): List<StudentJpaEntity> =
+    override fun findRegisteredStudentsByMajorClub(club: ClubJpaEntity): List<StudentJpaEntity> =
         jpaQueryFactory
             .selectFrom(studentJpaEntity)
             .innerJoin(accountJpaEntity)
@@ -226,7 +226,7 @@ class StudentJpaCustomRepositoryImpl(
             .where(studentJpaEntity.majorClub.eq(club))
             .fetch()
 
-    override fun findByJobClubWithAccount(club: ClubJpaEntity): List<StudentJpaEntity> =
+    override fun findRegisteredStudentsByJobClub(club: ClubJpaEntity): List<StudentJpaEntity> =
         jpaQueryFactory
             .selectFrom(studentJpaEntity)
             .innerJoin(accountJpaEntity)
@@ -234,7 +234,7 @@ class StudentJpaCustomRepositoryImpl(
             .where(studentJpaEntity.jobClub.eq(club))
             .fetch()
 
-    override fun findByAutonomousClubWithAccount(club: ClubJpaEntity): List<StudentJpaEntity> =
+    override fun findRegisteredStudentsByAutonomousClub(club: ClubJpaEntity): List<StudentJpaEntity> =
         jpaQueryFactory
             .selectFrom(studentJpaEntity)
             .innerJoin(accountJpaEntity)
