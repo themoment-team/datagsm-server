@@ -42,7 +42,7 @@ class CreateClientServiceImpl(
                 secret = passwordEncoder.encode(rawSecret).toString()
                 name = reqDto.name
                 account = currentAccount
-                redirectUrls = emptySet()
+                redirectUrls = reqDto.redirectUrls
                 scopes = reqDto.scopes
             }
         clientJpaRepository.save(client)
@@ -51,6 +51,7 @@ class CreateClientServiceImpl(
             clientSecret = rawSecret,
             name = client.name,
             redirectUrls = client.redirectUrls,
+            scopes = client.scopes,
         )
     }
 
