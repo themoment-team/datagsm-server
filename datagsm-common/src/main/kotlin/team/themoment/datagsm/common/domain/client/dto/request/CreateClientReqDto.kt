@@ -12,4 +12,9 @@ data class CreateClientReqDto(
     @field:Size(min = 1)
     @param:Schema(description = "Oauth Client에서 요청할 권한 목록", example = "[\"self:read\"]")
     val scopes: Set<String>,
+    @param:Schema(
+        description = "리다이렉트 URL 목록",
+        example = "[\"https://example.com/callback\", \"https://app.example.com/oauth/callback\"]",
+    )
+    val redirectUrls: Set<String>,
 )

@@ -11,4 +11,6 @@ data class CreateClientResDto(
     val name: String,
     @param:Schema(description = "리다이렉트 URL 목록", example = "[\"https://example.com/callback\"]")
     val redirectUrls: Set<String>,
+    @param:Schema(description = "OAuth 권한 범위 목록", example = "[\"self:read\", \"student:read\"]")
+    val scopes: Set<String>,
 )
