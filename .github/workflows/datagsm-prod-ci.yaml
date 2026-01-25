@@ -9,9 +9,111 @@ on:
       - 'master'
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  CI:
+  validate-title:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Validate PR Title
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            const prNumber = context.payload.pull_request.number;
+
+            // 허용된 scope 목록
+            const allowedScopes = [
+              'global', 'account', 'auth', 'client', 'club',
+              'neis', 'oauth', 'project', 'student',
+              'web', 'common', 'resource', 'authorization'
+            ];
+
+            // 제목 형식 검증: [scope] 제목 또는 [scope1, scope2] 제목
+            const titlePattern = /^\[([^\]]+)\]\s+(.+)$/;
+            const match = title.match(titlePattern);
+
+            if (!match) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: `❌ 제목 형식 오류: \`[scope] 제목\` 형식을 사용하세요`
+              });
+              core.setFailed('제목 형식 오류');
+              return;
+            }
+
+            const scopesPart = match[1];
+            const titlePart = match[2];
+
+            if (titlePart.includes(':')) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: `❌ 제목에 콜론(:)을 사용할 수 없습니다`
+              });
+              core.setFailed('제목에 콜론 사용');
+              return;
+            }
+
+            const scopes = scopesPart.split(',').map(s => s.trim());
+            const invalidScopes = scopes.filter(scope => !allowedScopes.includes(scope));
+
+            if (invalidScopes.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: `❌ 허용되지 않은 scope: ${invalidScopes.join(', ')}`
+              });
+              core.setFailed(`허용되지 않은 scope: ${invalidScopes.join(', ')}`);
+              return;
+            }
+
+
+  setup-pr-metadata:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Setup PR Metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+
+          # 라벨 추가
+          gh pr edit $PR_NUMBER --repo ${{ github.repository }} --add-label "waiting for review:검토 대기"
+
+          # 담당자 추가
+          gh pr edit $PR_NUMBER --repo ${{ github.repository }} --add-assignee "$PR_AUTHOR"
+
+          # 리뷰어 목록 (작성자 제외)
+          ALL_REVIEWERS="wwwcomcomcomcom,ZaMan-O,hongjm0912,snowykte0426"
+          REVIEWERS=$(echo "$ALL_REVIEWERS" | tr ',' '\n' | grep -v "^${PR_AUTHOR}$" | tr '\n' ',' | sed 's/,$//')
+
+          if [ -n "$REVIEWERS" ]; then
+            gh pr edit $PR_NUMBER --repo ${{ github.repository }} --add-reviewer "$REVIEWERS"
+          fi
+
+          echo "✅ PR 메타데이터 설정 완료"
+
+  build-and-test:
+    runs-on: ubuntu-latest
+    needs: [validate-title]
+    if: always() && (needs.validate-title.result == 'success' || needs.validate-title.result == 'skipped')
 
     steps:
       - name: Checkout Code
@@ -32,16 +134,35 @@ jobs:
       - name: Test with Gradle
         run: ./gradlew build --parallel --build-cache
 
-      - name: CI Success Notification
-        uses: sarisia/actions-status-discord@v1
-        if: success()
-        with:
-          webhook: ${{ secrets.DISCORD_INFORMATION_ALERT_CHANNEL_WEBHOOK }}
-          color: 0x4CAF50
+  notify:
+    runs-on: ubuntu-latest
+    needs: [validate-title, setup-pr-metadata, build-and-test]
+    if: always()
 
-      - name: CI Failure Notification
+    steps:
+      - name: Determine Status
+        id: status
+        run: |
+          if [[ "${{ needs.validate-title.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-and-test.result }}" == "failure" ]]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "color=0xFF4C4C" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.build-and-test.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "color=0x4CAF50" >> $GITHUB_OUTPUT
+          else
+            echo "status=cancelled" >> $GITHUB_OUTPUT
+            echo "color=0xFFA500" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Discord Notification
         uses: sarisia/actions-status-discord@v1
-        if: failure()
         with:
           webhook: ${{ secrets.DISCORD_INFORMATION_ALERT_CHANNEL_WEBHOOK }}
-          color: 0xFF4C4C
+          status: ${{ steps.status.outputs.status }}
+          color: ${{ steps.status.outputs.color }}
+          title: "DataGSM Prod CI"
+          description: |
+            **Validate Title:** ${{ needs.validate-title.result }}
+            **Setup Metadata:** ${{ needs.setup-pr-metadata.result }}
+            **Build & Test:** ${{ needs.build-and-test.result }}
