@@ -1,6 +1,5 @@
 package team.themoment.datagsm.web.global.security.jwt
 
-import com.github.snowykte0426.peanut.butter.logging.logger
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
@@ -9,6 +8,7 @@ import org.springframework.stereotype.Component
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.global.data.InternalJwtEnvironment
 import team.themoment.sdk.exception.ExpectedException
+import team.themoment.sdk.logging.logger.logger
 import java.nio.charset.StandardCharsets
 import java.util.Date
 import javax.crypto.SecretKey

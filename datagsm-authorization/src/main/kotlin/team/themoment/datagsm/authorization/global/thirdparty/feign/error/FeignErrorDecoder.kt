@@ -1,12 +1,12 @@
 package team.themoment.datagsm.authorization.global.thirdparty.feign.error
 
-import com.github.snowykte0426.peanut.butter.logging.logger
 import feign.FeignException
 import feign.Response
 import feign.codec.ErrorDecoder
 import org.springframework.http.HttpStatus
 import org.springframework.util.StreamUtils
 import team.themoment.sdk.exception.ExpectedException
+import team.themoment.sdk.logging.logger.logger
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 

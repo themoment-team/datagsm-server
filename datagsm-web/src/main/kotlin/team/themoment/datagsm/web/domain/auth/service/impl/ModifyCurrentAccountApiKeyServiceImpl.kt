@@ -1,6 +1,5 @@
 package team.themoment.datagsm.web.domain.auth.service.impl
 
-import com.github.snowykte0426.peanut.butter.logging.logger
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -13,6 +12,7 @@ import team.themoment.datagsm.common.global.data.ApiKeyEnvironment
 import team.themoment.datagsm.web.domain.auth.service.ModifyCurrentAccountApiKeyService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
+import team.themoment.sdk.logging.logger.logger
 import java.time.LocalDateTime
 import java.util.UUID
 

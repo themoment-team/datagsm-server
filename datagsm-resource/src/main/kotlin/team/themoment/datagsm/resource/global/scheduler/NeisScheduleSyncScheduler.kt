@@ -1,10 +1,10 @@
 package team.themoment.datagsm.resource.global.scheduler
 
-import com.github.snowykte0426.peanut.butter.logging.logger
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.resource.domain.neis.schedule.service.SyncScheduleService
 import team.themoment.datagsm.resource.global.util.AcademicYearCalculator
+import team.themoment.sdk.logging.logger.logger
 
 @Component
 class NeisScheduleSyncScheduler(
