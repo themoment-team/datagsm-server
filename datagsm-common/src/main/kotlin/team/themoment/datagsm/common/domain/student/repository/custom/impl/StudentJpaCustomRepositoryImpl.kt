@@ -40,8 +40,6 @@ class StudentJpaCustomRepositoryImpl(
         val content =
             jpaQueryFactory
                 .selectFrom(studentJpaEntity)
-                .innerJoin(accountJpaEntity)
-                .on(accountJpaEntity.student.id.eq(studentJpaEntity.id))
                 .where(
                     id?.let { studentJpaEntity.id.eq(it) },
                     name?.let { studentJpaEntity.name.contains(it) },
@@ -63,8 +61,6 @@ class StudentJpaCustomRepositoryImpl(
             jpaQueryFactory
                 .select(studentJpaEntity.count())
                 .from(studentJpaEntity)
-                .innerJoin(accountJpaEntity)
-                .on(accountJpaEntity.student.id.eq(studentJpaEntity.id))
                 .where(
                     id?.let { studentJpaEntity.id.eq(it) },
                     name?.let { studentJpaEntity.name.contains(it) },
@@ -217,6 +213,67 @@ class StudentJpaCustomRepositoryImpl(
                 studentJpaEntity.studentNumber.studentClass.asc(),
                 studentJpaEntity.studentNumber.studentNumber.asc(),
             ).fetch()
+
+    override fun searchRegisteredStudentsWithPaging(
+        id: Long?,
+        name: String?,
+        email: String?,
+        grade: Int?,
+        classNum: Int?,
+        number: Int?,
+        sex: Sex?,
+        role: StudentRole?,
+        dormitoryRoom: Int?,
+        isLeaveSchool: Boolean?,
+        pageable: Pageable,
+        sortBy: StudentSortBy?,
+        sortDirection: SortDirection,
+    ): Page<StudentJpaEntity> {
+        val orderSpecifier = createOrderSpecifier(sortBy, sortDirection)
+
+        val content =
+            jpaQueryFactory
+                .selectFrom(studentJpaEntity)
+                .innerJoin(accountJpaEntity)
+                .on(accountJpaEntity.student.id.eq(studentJpaEntity.id))
+                .where(
+                    id?.let { studentJpaEntity.id.eq(it) },
+                    name?.let { studentJpaEntity.name.contains(it) },
+                    email?.let { studentJpaEntity.email.contains(it) },
+                    grade?.let { studentJpaEntity.studentNumber.studentGrade.eq(it) },
+                    classNum?.let { studentJpaEntity.studentNumber.studentClass.eq(it) },
+                    number?.let { studentJpaEntity.studentNumber.studentNumber.eq(it) },
+                    sex?.let { studentJpaEntity.sex.eq(it) },
+                    role?.let { studentJpaEntity.role.eq(it) },
+                    dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
+                    isLeaveSchool?.let { studentJpaEntity.isLeaveSchool.eq(it) },
+                ).apply {
+                    orderSpecifier?.let { orderBy(*it) }
+                }.offset(pageable.offset)
+                .limit(pageable.pageSize.toLong())
+                .fetch()
+
+        val countQuery =
+            jpaQueryFactory
+                .select(studentJpaEntity.count())
+                .from(studentJpaEntity)
+                .innerJoin(accountJpaEntity)
+                .on(accountJpaEntity.student.id.eq(studentJpaEntity.id))
+                .where(
+                    id?.let { studentJpaEntity.id.eq(it) },
+                    name?.let { studentJpaEntity.name.contains(it) },
+                    email?.let { studentJpaEntity.email.contains(it) },
+                    grade?.let { studentJpaEntity.studentNumber.studentGrade.eq(it) },
+                    classNum?.let { studentJpaEntity.studentNumber.studentClass.eq(it) },
+                    number?.let { studentJpaEntity.studentNumber.studentNumber.eq(it) },
+                    sex?.let { studentJpaEntity.sex.eq(it) },
+                    role?.let { studentJpaEntity.role.eq(it) },
+                    dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
+                    isLeaveSchool?.let { studentJpaEntity.isLeaveSchool.eq(it) },
+                )
+
+        return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
+    }
 
     override fun findRegisteredStudentsByMajorClub(club: ClubJpaEntity): List<StudentJpaEntity> =
         jpaQueryFactory

@@ -50,6 +50,22 @@ interface StudentJpaCustomRepository {
 
     fun findAllStudents(): List<StudentJpaEntity>
 
+    fun searchRegisteredStudentsWithPaging(
+        id: Long?,
+        name: String?,
+        email: String?,
+        grade: Int?,
+        classNum: Int?,
+        number: Int?,
+        sex: Sex?,
+        role: StudentRole?,
+        dormitoryRoom: Int?,
+        isLeaveSchool: Boolean?,
+        pageable: Pageable,
+        sortBy: StudentSortBy?,
+        sortDirection: SortDirection,
+    ): Page<StudentJpaEntity>
+
     fun findRegisteredStudentsByMajorClub(club: ClubJpaEntity): List<StudentJpaEntity>
 
     fun findRegisteredStudentsByJobClub(club: ClubJpaEntity): List<StudentJpaEntity>
