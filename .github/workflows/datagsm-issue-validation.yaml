@@ -26,7 +26,7 @@ jobs:
             const match = title.match(titlePattern);
 
             if (!match) {
-              core.setFailed('제목 형식 오류');
+              core.setFailed('Invalid title format. Use [scope] title');
               return;
             }
 
@@ -34,7 +34,7 @@ jobs:
             const titlePart = match[2];
 
             if (titlePart.includes(':')) {
-              core.setFailed('제목에 콜론 사용');
+              core.setFailed('Colon (:) is not allowed in the title');
               return;
             }
 
@@ -42,6 +42,6 @@ jobs:
             const invalidScopes = scopes.filter(scope => !allowedScopes.includes(scope));
 
             if (invalidScopes.length > 0) {
-              core.setFailed(`허용되지 않은 scope: ${invalidScopes.join(', ')}`);
+              core.setFailed(`Invalid scope(s): ${invalidScopes.join(', ')}`);
               return;
             }
