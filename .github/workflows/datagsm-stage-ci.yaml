@@ -30,17 +30,11 @@ jobs:
             const allowedScopes = [
               'global', 'account', 'auth', 'client', 'club',
               'neis', 'oauth', 'project', 'student',
-              'web', 'common', 'resource', 'authorization'
+              'web', 'common', 'resource', 'authorization', 'ci/cd'
             ];
             const titlePattern = /^\[([^\]]+)\]\s+(.+)$/;
             const match = title.match(titlePattern);
             if (!match) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: prNumber,
-                body: `❌ 제목 형식 오류: \`[scope] 제목\` 형식을 사용하세요`
-              });
               core.setFailed('제목 형식 오류');
               return;
             }
@@ -49,24 +43,12 @@ jobs:
             const titlePart = match[2];
 
             if (titlePart.includes(':')) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: prNumber,
-                body: `❌ 제목에 콜론(:)을 사용할 수 없습니다`
-              });
               core.setFailed('제목에 콜론 사용');
               return;
             }
             const scopes = scopesPart.split(',').map(s => s.trim());
             const invalidScopes = scopes.filter(scope => !allowedScopes.includes(scope));
             if (invalidScopes.length > 0) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: prNumber,
-                body: `❌ 허용되지 않은 scope: ${invalidScopes.join(', ')}`
-              });
               core.setFailed(`허용되지 않은 scope: ${invalidScopes.join(', ')}`);
               return;
             }
