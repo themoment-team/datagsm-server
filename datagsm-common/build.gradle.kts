@@ -64,6 +64,7 @@ dependencies {
     // Custom Libraries
     api(dependency.Dependencies.THE_MOMENT_THE_SDK)
     api(dependency.Dependencies.PEANUT_BUTTER)
+    api(dependency.Dependencies.QUERY_DSL_JSON_EXTENSION)
 
     // Logging / AWS CloudWatch
     api(dependency.Dependencies.AWS_CLOUDWATCH_LOGS)

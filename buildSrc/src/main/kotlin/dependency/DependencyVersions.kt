@@ -9,6 +9,7 @@ object DependencyVersions {
     const val JJWT_VERSION = "0.13.0"
 
     const val QUERY_DSL_VERSION = "7.1"
+    const val QUERY_DSL_JSON_EXTENSION_VERSION = "0.1.1"
 
     const val SWAGGER_VERSION = "3.0.1"
 
