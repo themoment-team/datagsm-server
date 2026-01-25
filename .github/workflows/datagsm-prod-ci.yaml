@@ -22,44 +22,34 @@ jobs:
 
     steps:
       - name: Validate PR Title
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const title = context.payload.pull_request.title;
             const prNumber = context.payload.pull_request.number;
-
-            // 허용된 scope 목록
             const allowedScopes = [
               'global', 'account', 'auth', 'client', 'club',
               'neis', 'oauth', 'project', 'student',
               'web', 'common', 'resource', 'authorization', 'ci/cd'
             ];
-
-            // 제목 형식 검증: [scope] 제목 또는 [scope1, scope2] 제목
             const titlePattern = /^\[([^\]]+)\]\s+(.+)$/;
             const match = title.match(titlePattern);
-
             if (!match) {
               core.setFailed('제목 형식 오류');
               return;
             }
-
             const scopesPart = match[1];
             const titlePart = match[2];
-
             if (titlePart.includes(':')) {
               core.setFailed('제목에 콜론 사용');
               return;
             }
-
             const scopes = scopesPart.split(',').map(s => s.trim());
             const invalidScopes = scopes.filter(scope => !allowedScopes.includes(scope));
-
             if (invalidScopes.length > 0) {
               core.setFailed(`허용되지 않은 scope: ${invalidScopes.join(', ')}`);
               return;
             }
-
 
   setup-pr-metadata:
     if: github.event_name == 'pull_request'
@@ -75,22 +65,13 @@ jobs:
         run: |
           PR_NUMBER="${{ github.event.pull_request.number }}"
           PR_AUTHOR="${{ github.event.pull_request.user.login }}"
-
-          # 라벨 추가
           gh pr edit $PR_NUMBER --repo ${{ github.repository }} --add-label "waiting for review:검토 대기"
-
-          # 담당자 추가
           gh pr edit $PR_NUMBER --repo ${{ github.repository }} --add-assignee "$PR_AUTHOR"
-
-          # 리뷰어 목록 (작성자 제외)
           ALL_REVIEWERS="wwwcomcomcomcom,ZaMan-O,hongjm0912,snowykte0426"
           REVIEWERS=$(echo "$ALL_REVIEWERS" | tr ',' '\n' | grep -v "^${PR_AUTHOR}$" | tr '\n' ',' | sed 's/,$//')
-
           if [ -n "$REVIEWERS" ]; then
             gh pr edit $PR_NUMBER --repo ${{ github.repository }} --add-reviewer "$REVIEWERS"
           fi
-
-          echo "✅ PR 메타데이터 설정 완료"
 
   build-and-test:
     runs-on: ubuntu-latest
