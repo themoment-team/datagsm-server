@@ -23,7 +23,7 @@ import team.themoment.sdk.response.CommonApiResponse
 
 @Tag(name = "Account", description = "계정 관련 API")
 @RestController
-@RequestMapping("/v1/account")
+@RequestMapping("/v1/accounts")
 class AccountController(
     private val sendEmailService: SendEmailService,
     private val checkEmailService: CheckEmailService,

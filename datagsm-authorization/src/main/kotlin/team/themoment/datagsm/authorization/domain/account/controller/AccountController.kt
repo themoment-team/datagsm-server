@@ -9,7 +9,7 @@ import team.themoment.datagsm.common.domain.account.dto.response.GetMyInfoResDto
 
 @Tag(name = "Account", description = "계정 관련 API")
 @RestController
-@RequestMapping("/v1/account")
+@RequestMapping("/v1/accounts")
 class AccountController(
     private val getMyInfoService: GetMyInfoService,
 ) {
