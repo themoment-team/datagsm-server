@@ -32,10 +32,16 @@ jobs:
               'neis', 'oauth', 'project', 'student',
               'web', 'common', 'resource', 'authorization', 'ci/cd'
             ];
+            
+            const versionPattern = /^v\d{8}\.\d+$/;
+            if (versionPattern.test(title)) {
+              return;
+            }
+
             const titlePattern = /^\[([^\]]+)\]\s+(.+)$/;
             const match = title.match(titlePattern);
             if (!match) {
-              core.setFailed('Invalid title format. Use [scope] title');
+              core.setFailed('Invalid title format. Use [scope] title or vYYYYMMDD.n format');
               return;
             }
 

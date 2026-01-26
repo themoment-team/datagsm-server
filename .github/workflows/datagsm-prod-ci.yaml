@@ -32,28 +32,34 @@ jobs:
               'neis', 'oauth', 'project', 'student',
               'web', 'common', 'resource', 'authorization', 'ci/cd'
             ];
+
+            const versionPattern = /^v\d{8}\.\d+$/;
+            if (versionPattern.test(title)) {
+              return;
+            }
+
             const titlePattern = /^\[([^\]]+)\]\s+(.+)$/;
             const match = title.match(titlePattern);
-                        if (!match) {
-                          core.setFailed('Invalid title format. Use [scope] title');
-                          return;
-                        }
-            
-                        const scopesPart = match[1];
-                        const titlePart = match[2];
-            
-                        if (titlePart.includes(':')) {
-                          core.setFailed('Colon (:) is not allowed in the title');
-                          return;
-                        }
-            
-                        const scopes = scopesPart.split(',').map(s => s.trim());
-                        const invalidScopes = scopes.filter(scope => !allowedScopes.includes(scope));
-            
-                        if (invalidScopes.length > 0) {
-                          core.setFailed(`Invalid scope(s): ${invalidScopes.join(', ')}`);
-                          return;
-                        }
+            if (!match) {
+              core.setFailed('Invalid title format. Use [scope] title or vYYYYMMDD.n format');
+              return;
+            }
+
+            const scopesPart = match[1];
+            const titlePart = match[2];
+
+            if (titlePart.includes(':')) {
+              core.setFailed('Colon (:) is not allowed in the title');
+              return;
+            }
+
+            const scopes = scopesPart.split(',').map(s => s.trim());
+            const invalidScopes = scopes.filter(scope => !allowedScopes.includes(scope));
+
+            if (invalidScopes.length > 0) {
+              core.setFailed(`Invalid scope(s): ${invalidScopes.join(', ')}`);
+              return;
+            }
 
   setup-pr-metadata:
     if: github.event_name == 'pull_request'
