@@ -62,7 +62,7 @@ class AuthController(
             ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
         ],
     )
-    @PostMapping("/login")
+    @PostMapping("/signin")
     fun login(
         @RequestBody @Valid reqDto: LoginReqDto,
     ): TokenResDto = loginService.execute(reqDto)
@@ -90,7 +90,7 @@ class AuthController(
             ApiResponse(responseCode = "409", description = "이미 API 키가 존재함", content = [Content()]),
         ],
     )
-    @PostMapping("/api-key")
+    @PostMapping("/api-keys")
     fun createApiKey(
         @RequestBody @Valid reqDto: CreateApiKeyReqDto,
     ): ApiKeyResDto = createCurrentAccountApiKeyService.execute(reqDto)
@@ -103,7 +103,7 @@ class AuthController(
             ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
         ],
     )
-    @PutMapping("/api-key")
+    @PutMapping("/api-keys")
     fun modifyApiKey(
         @RequestBody @Valid reqDto: ModifyApiKeyReqDto,
     ): ApiKeyResDto = modifyCurrentAccountApiKeyService.execute(reqDto)
@@ -116,7 +116,7 @@ class AuthController(
             ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
         ],
     )
-    @DeleteMapping("/api-key")
+    @DeleteMapping("/api-keys")
     fun deleteApiKey(): CommonApiResponse<Nothing> {
         deleteCurrentAccountApiKeyService.execute()
         return CommonApiResponse.success("API 키가 삭제되었습니다.")
@@ -129,7 +129,7 @@ class AuthController(
             ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음", content = [Content()]),
         ],
     )
-    @DeleteMapping("/api-key/{id}")
+    @DeleteMapping("/api-keys/{id}")
     fun deleteApiKeyById(
         @Parameter(description = "삭제할 API 키 ID", required = true)
         @PathVariable
@@ -147,7 +147,7 @@ class AuthController(
             ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
         ],
     )
-    @GetMapping("/api-key")
+    @GetMapping("/api-keys")
     fun getApiKey(): ApiKeyResDto = queryCurrentAccountApiKeyService.execute()
 
     @Operation(summary = "API 키 검색", description = "필터 조건에 맞는 API 키를 검색합니다. API 키는 마스킹되어 반환됩니다.")
