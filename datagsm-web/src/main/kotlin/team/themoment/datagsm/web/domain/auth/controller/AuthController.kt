@@ -156,7 +156,7 @@ class AuthController(
             ApiResponse(responseCode = "200", description = "검색 성공"),
         ],
     )
-    @GetMapping("/api-keys/search")
+    @GetMapping("/api-keys")
     fun searchApiKeys(
         @Parameter(description = "API 키 ID") @RequestParam(required = false) id: Long?,
         @Parameter(description = "계정 ID") @RequestParam(required = false) accountId: Long?,
