@@ -182,7 +182,7 @@ class AuthController(
             ApiResponse(responseCode = "200", description = "조회 성공"),
         ],
     )
-    @GetMapping("/available-scopes")
+    @GetMapping("/api-keys/available-scopes")
     fun getApiScopes(
         @Parameter(description = "계정 역할 (USER 또는 ADMIN)", required = true)
         @RequestParam
@@ -196,7 +196,7 @@ class AuthController(
             ApiResponse(responseCode = "404", description = "존재하지 않는 권한 범위", content = [Content()]),
         ],
     )
-    @GetMapping("/scopes/{scopeName}")
+    @GetMapping("/api-keys/scopes/{scopeName}")
     fun getApiScope(
         @Parameter(description = "조회할 권한 범위 이름", example = "student:read", required = true)
         @PathVariable
