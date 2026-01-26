@@ -46,7 +46,7 @@ class ClientController(
             ApiResponse(responseCode = "401", description = "인증되지 않은 요청", content = [Content()]),
         ],
     )
-    @GetMapping
+    @GetMapping("/my")
     fun getMyClient(
         @Parameter(description = "페이지 번호")
         @RequestParam(required = false, defaultValue = "0") page: Int,
@@ -62,7 +62,7 @@ class ClientController(
             ApiResponse(responseCode = "403", description = "권한이 없는 요청", content = [Content()]),
         ],
     )
-    @GetMapping("/search")
+    @GetMapping
     fun searchClient(
         @Parameter(description = "클라이언트 이름") @RequestParam(required = false) clientName: String?,
         @Parameter(description = "페이지 번호") @RequestParam(required = false, defaultValue = "0") page: Int,
