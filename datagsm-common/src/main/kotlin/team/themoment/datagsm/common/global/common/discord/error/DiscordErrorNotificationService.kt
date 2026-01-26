@@ -1,6 +1,5 @@
 package team.themoment.datagsm.common.global.common.discord.error
 
-import com.github.snowykte0426.peanut.butter.logging.logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -13,6 +12,7 @@ import team.themoment.datagsm.common.global.common.discord.data.DiscordField
 import team.themoment.datagsm.common.global.common.discord.data.DiscordWebhookPayload
 import team.themoment.datagsm.common.global.common.discord.data.EmbedColor
 import team.themoment.datagsm.common.global.thirdparty.feign.discord.DiscordWebhookClient
+import team.themoment.sdk.logging.logger.logger
 import java.time.Instant
 
 @Profile("stage", "prod")

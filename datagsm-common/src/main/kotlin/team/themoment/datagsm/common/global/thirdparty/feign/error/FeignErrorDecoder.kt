@@ -1,12 +1,12 @@
-package team.themoment.datagsm.authorization.global.thirdparty.feign.error
+package team.themoment.datagsm.common.global.thirdparty.feign.error
 
-import com.github.snowykte0426.peanut.butter.logging.logger
 import feign.FeignException
 import feign.Response
 import feign.codec.ErrorDecoder
 import org.springframework.http.HttpStatus
 import org.springframework.util.StreamUtils
 import team.themoment.sdk.exception.ExpectedException
+import team.themoment.sdk.logging.logger.logger
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 
@@ -18,22 +18,26 @@ class FeignErrorDecoder : ErrorDecoder {
         val status = response.status()
 
         if (status >= 400) {
+            val request = response.request()
             val errorBody = extractErrorBody(response)
-            val headers = response.headers()
-            val url = response.request().url()
-            val httpMethod = response.request().httpMethod().name
 
             logger().error(
-                "Feign 클라이언트 오류 - 메서드: {}, HTTP 메서드: {}, URL: {}, 상태: {}, 이유: {}",
-                methodKey,
-                httpMethod,
-                url,
+                "Feign client error occurred while calling {} {} with status {} {}",
+                request.httpMethod().name,
+                request.url(),
                 status,
                 response.reason(),
             )
-            logger().error("응답 헤더: {}", headers)
-            logger().error("응답 본문: {}", errorBody)
-            logRequestDetails(response, methodKey)
+            logger().error("Request headers {}", request.headers())
+            try {
+                request.body()?.let {
+                    logger().error("Request body {}", String(it, StandardCharsets.UTF_8))
+                } ?: logger().error("Request body is empty")
+            } catch (e: Exception) {
+                logger().warn("Failed to log request body", e)
+            }
+            logger().error("Response headers {}", response.headers())
+            logger().error("Response body {}", errorBody)
 
             val (userMessage, httpStatus) =
                 when (status) {
@@ -58,30 +62,9 @@ class FeignErrorDecoder : ErrorDecoder {
         try {
             response.body()?.asInputStream()?.let {
                 StreamUtils.copyToString(it, StandardCharsets.UTF_8)
-            } ?: "응답 본문을 읽을 수 없습니다"
+            } ?: "Unable to read response body"
         } catch (e: IOException) {
-            logger().warn("오류 응답 본문을 읽는 데 실패했습니다", e)
-            "응답 본문을 읽을 수 없습니다"
+            logger().warn("Failed to read error response body", e)
+            "Unable to read response body"
         }
-
-    private fun logRequestDetails(
-        response: Response,
-        methodKey: String,
-    ) {
-        try {
-            val url = response.request().url()
-            val method = response.request().httpMethod().name
-            val requestHeaders = response.request().headers()
-
-            logger().error("요청 정보 - 메서드: {}, HTTP 메서드: {}, URL: {}", methodKey, method, url)
-            logger().error("요청 헤더: {}", requestHeaders)
-
-            response.request().body()?.let { body ->
-                val requestBody = String(body, StandardCharsets.UTF_8)
-                logger().error("요청 본문: {}", requestBody)
-            }
-        } catch (e: Exception) {
-            logger().warn("요청 상세 로깅에 실패했습니다", e)
-        }
-    }
 }

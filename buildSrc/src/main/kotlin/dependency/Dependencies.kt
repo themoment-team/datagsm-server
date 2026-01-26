@@ -7,8 +7,8 @@ import dependency.DependencyVersions.JJWT_VERSION
 import dependency.DependencyVersions.KOTEST_VERSION
 import dependency.DependencyVersions.KOTLIN_COROUTINES_VERSION
 import dependency.DependencyVersions.MOCKK_VERSION
-import dependency.DependencyVersions.PEANUT_BUTTER_VERSION
 import dependency.DependencyVersions.POI_VERSION
+import dependency.DependencyVersions.QUERY_DSL_JSON_EXTENSION_VERSION
 import dependency.DependencyVersions.QUERY_DSL_VERSION
 import dependency.DependencyVersions.SPRING_CLOUD_VERSION
 import dependency.DependencyVersions.SWAGGER_VERSION
@@ -52,6 +52,7 @@ object Dependencies {
     // QueryDSL
     const val QUERY_DSL = "io.github.openfeign.querydsl:querydsl-jpa:${QUERY_DSL_VERSION}"
     const val QUERY_DSL_PROCESSOR = "io.github.openfeign.querydsl:querydsl-ksp-codegen:${QUERY_DSL_VERSION}"
+    const val QUERY_DSL_JSON_EXTENSION = "io.github.snowykte0426:querydsl-mysql-json-jpa:${QUERY_DSL_JSON_EXTENSION_VERSION}"
 
     // Apache POI
     const val POI = "org.apache.poi:poi:${POI_VERSION}"
@@ -68,7 +69,6 @@ object Dependencies {
     const val SPRINGDOC_OPENAPI = "org.springdoc:springdoc-openapi-starter-webmvc-ui:${SWAGGER_VERSION}"
 
     // Custom Libraries
-    const val PEANUT_BUTTER = "com.github.snowykte0426:peanut-butter:${PEANUT_BUTTER_VERSION}"
     const val THE_MOMENT_THE_SDK = "com.github.themoment-team:the-sdk:${THE_MOMENT_THE_SDK_VERSION}"
 
     // Kotlin

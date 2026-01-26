@@ -1,11 +1,11 @@
 package team.themoment.datagsm.web.global.scheduler
 
-import com.github.snowykte0426.peanut.butter.logging.logger
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.common.global.data.ApiKeyEnvironment
+import team.themoment.sdk.logging.logger.logger
 import java.time.LocalDateTime
 
 @Component

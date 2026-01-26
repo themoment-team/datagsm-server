@@ -61,6 +61,7 @@ class CreateClientServiceTest :
                         CreateClientReqDto(
                             name = "Test OAuth Client",
                             scopes = setOf("self:read"),
+                            redirectUrls = emptySet(),
                         )
 
                     beforeEach {
@@ -80,6 +81,7 @@ class CreateClientServiceTest :
                         result.clientSecret shouldNotBe null
                         result.name shouldBe "Test OAuth Client"
                         result.redirectUrls shouldBe emptySet()
+                        result.scopes shouldBe setOf("self:read")
 
                         verify(exactly = 1) { ClientUtil.getAvailableOauthScopes() }
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
@@ -93,6 +95,7 @@ class CreateClientServiceTest :
                         CreateClientReqDto(
                             name = "Invalid Client",
                             scopes = setOf("self:read", "invalid:scope"),
+                            redirectUrls = emptySet(),
                         )
 
                     beforeEach {
@@ -121,6 +124,7 @@ class CreateClientServiceTest :
                         CreateClientReqDto(
                             name = "Invalid Client",
                             scopes = setOf("self:read", "invalid:scope1", "invalid:scope2"),
+                            redirectUrls = emptySet(),
                         )
 
                     beforeEach {
@@ -147,6 +151,7 @@ class CreateClientServiceTest :
                         CreateClientReqDto(
                             name = "Test Client",
                             scopes = setOf("self:read"),
+                            redirectUrls = emptySet(),
                         )
                     lateinit var savedClient: ClientJpaEntity
 
@@ -176,6 +181,7 @@ class CreateClientServiceTest :
                         CreateClientReqDto(
                             name = "Test Client",
                             scopes = setOf("self:read"),
+                            redirectUrls = emptySet(),
                         )
                     lateinit var savedClient: ClientJpaEntity
 
@@ -200,11 +206,42 @@ class CreateClientServiceTest :
                     }
                 }
 
+                context("클라이언트 생성 시 redirectUrls를 포함할 때") {
+                    val reqDto =
+                        CreateClientReqDto(
+                            name = "Test Client with URLs",
+                            scopes = setOf("self:read"),
+                            redirectUrls = setOf("https://example.com/callback", "https://app.example.com/oauth/callback"),
+                        )
+                    lateinit var savedClient: ClientJpaEntity
+
+                    beforeEach {
+                        every { ClientUtil.getAvailableOauthScopes() } returns
+                            setOf("self:read")
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
+                        every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
+                        every { mockClientJpaRepository.save(any()) } answers {
+                            savedClient = firstArg<ClientJpaEntity>()
+                            savedClient
+                        }
+                    }
+
+                    it("redirectUrls가 요청한 값으로 설정되어야 한다") {
+                        val result = createClientService.execute(reqDto)
+
+                        savedClient.redirectUrls shouldBe reqDto.redirectUrls
+                        result.redirectUrls shouldBe reqDto.redirectUrls
+
+                        verify(exactly = 1) { mockClientJpaRepository.save(any()) }
+                    }
+                }
+
                 context("클라이언트 생성 시 scope가 ApiScope enum으로 변환될 때") {
                     val reqDto =
                         CreateClientReqDto(
                             name = "Test Client",
                             scopes = setOf("self:read"),
+                            redirectUrls = emptySet(),
                         )
                     lateinit var savedClient: ClientJpaEntity
 
@@ -233,6 +270,7 @@ class CreateClientServiceTest :
                         CreateClientReqDto(
                             name = "Test Client",
                             scopes = setOf("self:read"),
+                            redirectUrls = emptySet(),
                         )
                     lateinit var savedClient: ClientJpaEntity
 
@@ -263,6 +301,7 @@ class CreateClientServiceTest :
                         CreateClientReqDto(
                             name = "UUID Test Client",
                             scopes = setOf("self:read"),
+                            redirectUrls = emptySet(),
                         )
 
                     beforeEach {
@@ -290,6 +329,7 @@ class CreateClientServiceTest :
                         CreateClientReqDto(
                             name = "Empty Scope Client",
                             scopes = emptySet(),
+                            redirectUrls = emptySet(),
                         )
 
                     beforeEach {

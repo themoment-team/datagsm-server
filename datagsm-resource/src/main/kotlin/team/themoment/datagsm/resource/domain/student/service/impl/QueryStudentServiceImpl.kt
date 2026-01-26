@@ -35,7 +35,7 @@ class QueryStudentServiceImpl(
         sortDirection: SortDirection,
     ): StudentListResDto {
         val studentPage =
-            studentJpaRepository.searchStudentsWithPaging(
+            studentJpaRepository.searchRegisteredStudentsWithPaging(
                 id = studentId,
                 name = name,
                 email = email,

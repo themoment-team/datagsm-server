@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
+import org.hibernate.validator.constraints.URL
 
 data class OauthCodeReqDto(
     @field:NotBlank(message = "이메일은 필수입니다.")
@@ -19,6 +20,7 @@ data class OauthCodeReqDto(
     @param:Schema(description = "클라이언트 ID", example = "client-123")
     val clientId: String,
     @field:NotBlank(message = "Redirect URL은 필수입니다.")
+    @field:URL(message = "Redirect URL 형식이 올바르지 않습니다.")
     @param:Schema(description = "리다이렉트 URL", example = "https://example.com/callback")
     val redirectUrl: String,
 )
