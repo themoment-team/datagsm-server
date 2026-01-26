@@ -7,7 +7,6 @@ import dependency.DependencyVersions.JJWT_VERSION
 import dependency.DependencyVersions.KOTEST_VERSION
 import dependency.DependencyVersions.KOTLIN_COROUTINES_VERSION
 import dependency.DependencyVersions.MOCKK_VERSION
-import dependency.DependencyVersions.PEANUT_BUTTER_VERSION
 import dependency.DependencyVersions.POI_VERSION
 import dependency.DependencyVersions.QUERY_DSL_JSON_EXTENSION_VERSION
 import dependency.DependencyVersions.QUERY_DSL_VERSION
@@ -70,7 +69,6 @@ object Dependencies {
     const val SPRINGDOC_OPENAPI = "org.springdoc:springdoc-openapi-starter-webmvc-ui:${SWAGGER_VERSION}"
 
     // Custom Libraries
-    const val PEANUT_BUTTER = "com.github.snowykte0426:peanut-butter:${PEANUT_BUTTER_VERSION}"
     const val THE_MOMENT_THE_SDK = "com.github.themoment-team:the-sdk:${THE_MOMENT_THE_SDK_VERSION}"
 
     // Kotlin

@@ -1,6 +1,5 @@
 package team.themoment.datagsm.common.global.common.error
 
-import com.github.snowykte0426.peanut.butter.logging.logger
 import jakarta.validation.ConstraintViolationException
 import org.springframework.core.env.Environment
 import org.springframework.http.HttpStatus
@@ -17,6 +16,7 @@ import org.springframework.web.servlet.NoHandlerFoundException
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import team.themoment.datagsm.common.global.common.discord.error.DiscordErrorNotificationService
 import team.themoment.sdk.exception.ExpectedException
+import team.themoment.sdk.logging.logger.logger
 import team.themoment.sdk.response.CommonApiResponse
 import tools.jackson.databind.ObjectMapper
 import java.net.URLDecoder
