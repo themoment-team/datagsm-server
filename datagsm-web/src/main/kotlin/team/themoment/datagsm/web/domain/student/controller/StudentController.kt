@@ -164,8 +164,5 @@ class StudentController(
         ],
     )
     @PostMapping("/graduate/third-grade")
-    fun graduateThirdGradeStudents(): GraduateStudentResDto {
-        val count = graduateThirdGradeStudentsService.execute()
-        return GraduateStudentResDto(graduatedCount = count)
-    }
+    fun graduateThirdGradeStudents(): GraduateStudentResDto = graduateThirdGradeStudentsService.execute()
 }

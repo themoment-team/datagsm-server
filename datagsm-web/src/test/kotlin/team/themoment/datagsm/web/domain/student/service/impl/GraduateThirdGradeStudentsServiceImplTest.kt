@@ -60,10 +60,10 @@ class GraduateThirdGradeStudentsServiceImplTest :
             every { studentJpaRepository.findStudentsByGrade(3) } returns thirdGradeStudents
 
             When("모든 3학년 학생을 졸업 처리하면") {
-                val count = graduateThirdGradeStudentsService.execute()
+                val result = graduateThirdGradeStudentsService.execute()
 
                 Then("졸업 처리된 학생 수가 반환된다") {
-                    count shouldBe 3
+                    result.graduatedCount shouldBe 3
                 }
 
                 Then("모든 학생의 정보가 졸업생으로 변경된다") {
@@ -85,10 +85,10 @@ class GraduateThirdGradeStudentsServiceImplTest :
             every { studentJpaRepository.findStudentsByGrade(3) } returns emptyList()
 
             When("모든 3학년 학생을 졸업 처리하면") {
-                val count = graduateThirdGradeStudentsService.execute()
+                val result = graduateThirdGradeStudentsService.execute()
 
                 Then("졸업 처리된 학생 수가 0이다") {
-                    count shouldBe 0
+                    result.graduatedCount shouldBe 0
                 }
             }
         }
