@@ -36,8 +36,8 @@ class CreateStudentExcelServiceImpl(
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     }
 
-    override fun execute(): ResponseEntity<ByteArray> {
-        val data: List<ExcelRowDto> = getStudentData()
+    override fun execute(includeGraduates: Boolean): ResponseEntity<ByteArray> {
+        val data: List<ExcelRowDto> = getStudentData(includeGraduates)
         val workbook = XSSFWorkbook()
 
         data.forEachIndexed { idx, excelRowDto ->
@@ -103,10 +103,20 @@ class CreateStudentExcelServiceImpl(
             .body(byteArrayFile)
     }
 
-    private fun getStudentData(): List<ExcelRowDto> {
+    private fun getStudentData(includeGraduates: Boolean): List<ExcelRowDto> {
         val data = mutableListOf<ExcelRowDto>()
         for (i: Int in 1..3) {
-            val list = studentJpaRepository.findStudentsByGrade(i)
+            val list =
+                studentJpaRepository.findStudentsByGrade(i).let { students ->
+                    if (includeGraduates) {
+                        students
+                    } else {
+                        students.filter {
+                            it.role !=
+                                team.themoment.datagsm.common.domain.student.entity.constant.StudentRole.GRADUATE
+                        }
+                    }
+                }
             val excelRowDto =
                 ExcelRowDto(
                     excelRows =
