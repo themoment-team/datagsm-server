@@ -52,6 +52,7 @@ class StudentJpaCustomRepositoryImpl(
                     role?.let { studentJpaEntity.role.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
                     isLeaveSchool?.let { studentJpaEntity.isLeaveSchool.eq(it) },
+                    if (!includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
                 ).apply {
                     orderSpecifier?.let { orderBy(*it) }
                 }.offset(pageable.offset)

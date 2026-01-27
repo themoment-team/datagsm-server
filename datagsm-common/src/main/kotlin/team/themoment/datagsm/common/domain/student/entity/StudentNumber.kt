@@ -23,10 +23,10 @@ class StudentNumber {
     }
 
     val fullStudentNumber: Int?
-        get() =
-            if (studentGrade != null && studentClass != null && studentNumber != null) {
-                studentGrade!! * 1000 + studentClass!! * 100 + studentNumber!!
-            } else {
-                null
-            }
+        get() {
+            val grade = studentGrade ?: return null
+            val classNum = studentClass ?: return null
+            val number = studentNumber ?: return null
+            return grade * 1000 + classNum * 100 + number
+        }
 }
