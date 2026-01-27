@@ -110,7 +110,7 @@ class CreateClubExcelServiceImpl(
             val clubNames = clubs.map { it.name }
             val clubLeaders =
                 clubs.map { club ->
-                    "${club.leader.studentNumber.fullStudentNumber} ${club.leader.name}"
+                    "${club.leader.studentNumber?.fullStudentNumber} ${club.leader.name}"
                 }
             ExcelRowDto(clubName = clubNames, clubLeader = clubLeaders, clubType = clubType)
         }

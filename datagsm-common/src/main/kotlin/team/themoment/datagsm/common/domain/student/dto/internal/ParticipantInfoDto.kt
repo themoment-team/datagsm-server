@@ -12,9 +12,9 @@ data class ParticipantInfoDto(
     @param:Schema(description = "학생 이메일", example = "s24080@gsm.hs.kr")
     val email: String,
     @param:Schema(description = "학번", example = "1201")
-    val studentNumber: Int,
+    val studentNumber: Int?,
     @param:Schema(description = "학과", example = "SW_DEVELOPMENT", allowableValues = ["SW_DEVELOPMENT", "SMART_IOT", "AI"])
-    val major: Major,
+    val major: Major?,
     @param:Schema(description = "성별", example = "MAN")
     val sex: Sex,
 )

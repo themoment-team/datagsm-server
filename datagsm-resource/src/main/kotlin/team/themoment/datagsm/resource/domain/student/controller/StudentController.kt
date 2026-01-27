@@ -56,6 +56,7 @@ class StudentController(
         @Parameter(description = "역할") @RequestParam(required = false) role: StudentRole?,
         @Parameter(description = "기숙사 호실") @RequestParam(required = false) dormitoryRoom: Int?,
         @Parameter(description = "자퇴 여부") @RequestParam(required = false) isLeaveSchool: Boolean?,
+        @Parameter(description = "졸업생 포함 여부") @RequestParam(required = false, defaultValue = "false") includeGraduates: Boolean,
         @Parameter(description = "페이지 번호") @RequestParam(required = false, defaultValue = "0") page: Int,
         @Parameter(description = "페이지 크기") @RequestParam(required = false, defaultValue = "300") size: Int,
         @Parameter(
@@ -76,6 +77,7 @@ class StudentController(
             role,
             dormitoryRoom,
             isLeaveSchool,
+            includeGraduates,
             page,
             size,
             sortBy,

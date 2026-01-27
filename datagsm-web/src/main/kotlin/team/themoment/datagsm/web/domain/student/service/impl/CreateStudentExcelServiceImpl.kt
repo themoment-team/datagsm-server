@@ -60,9 +60,9 @@ class CreateStudentExcelServiceImpl(
                 val row = sheet.createRow(rowIndex + 1)
 
                 row.createCell(NAME_COL_IDX).setCellValue(columnDto.name)
-                row.createCell(STUDENT_NUMBER_COL_IDX).setCellValue(columnDto.number.toString())
+                row.createCell(STUDENT_NUMBER_COL_IDX).setCellValue(columnDto.number?.toString() ?: "")
                 row.createCell(EMAIL_COL_IDX).setCellValue(columnDto.email)
-                row.createCell(MAJOR_COL_IDX).setCellValue(columnDto.major.value)
+                row.createCell(MAJOR_COL_IDX).setCellValue(columnDto.major?.value ?: "")
                 row.createCell(MAJOR_CLUB_COL_IDX).setCellValue(columnDto.majorClub ?: "")
                 row.createCell(JOB_CLUB_COL_IDX).setCellValue(columnDto.jobClub ?: "")
                 row.createCell(AUTONOMOUS_COL_IDX).setCellValue(columnDto.autonomousClub ?: "")
@@ -113,7 +113,7 @@ class CreateStudentExcelServiceImpl(
                         list.map { student ->
                             ExcelColumnDto(
                                 name = student.name,
-                                number = student.studentNumber.fullStudentNumber,
+                                number = student.studentNumber?.fullStudentNumber,
                                 email = student.email,
                                 major = student.major,
                                 majorClub = student.majorClub?.name,

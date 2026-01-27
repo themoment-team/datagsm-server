@@ -56,7 +56,7 @@ class ModifyClubServiceImpl(
                     id = newLeader.id!!,
                     name = newLeader.name,
                     email = newLeader.email,
-                    studentNumber = newLeader.studentNumber.fullStudentNumber,
+                    studentNumber = newLeader.studentNumber?.fullStudentNumber,
                     major = newLeader.major,
                     sex = newLeader.sex,
                 ),
@@ -68,7 +68,7 @@ class ModifyClubServiceImpl(
                             id = student.id!!,
                             name = student.name,
                             email = student.email,
-                            studentNumber = student.studentNumber.fullStudentNumber,
+                            studentNumber = student.studentNumber?.fullStudentNumber,
                             major = student.major,
                             sex = student.sex,
                         )

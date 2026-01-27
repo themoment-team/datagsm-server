@@ -80,7 +80,7 @@ class QueryClubServiceImpl(
             id = this.id!!,
             name = this.name,
             email = this.email,
-            studentNumber = this.studentNumber.fullStudentNumber,
+            studentNumber = this.studentNumber?.fullStudentNumber,
             major = this.major,
             sex = this.sex,
         )

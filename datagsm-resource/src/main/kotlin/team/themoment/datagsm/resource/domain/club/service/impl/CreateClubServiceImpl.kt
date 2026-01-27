@@ -49,7 +49,7 @@ class CreateClubServiceImpl(
                     id = leader.id!!,
                     name = leader.name,
                     email = leader.email,
-                    studentNumber = leader.studentNumber.fullStudentNumber,
+                    studentNumber = leader.studentNumber?.fullStudentNumber,
                     major = leader.major,
                     sex = leader.sex,
                 ),

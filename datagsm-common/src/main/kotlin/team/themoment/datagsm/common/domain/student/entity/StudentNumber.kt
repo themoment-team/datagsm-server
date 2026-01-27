@@ -5,23 +5,28 @@ import jakarta.persistence.Embeddable
 
 @Embeddable
 class StudentNumber {
-    @field:Column(name = "student_grade", nullable = false)
-    var studentGrade: Int = 0
+    @field:Column(name = "student_grade", nullable = true)
+    var studentGrade: Int? = null
 
-    @field:Column(name = "student_class", nullable = false)
-    var studentClass: Int = 0
+    @field:Column(name = "student_class", nullable = true)
+    var studentClass: Int? = null
 
-    @field:Column(name = "student_number", nullable = false)
-    var studentNumber: Int = 0
+    @field:Column(name = "student_number", nullable = true)
+    var studentNumber: Int? = null
 
     constructor()
 
-    constructor(grade: Int, classNum: Int, number: Int) {
+    constructor(grade: Int?, classNum: Int?, number: Int?) {
         this.studentGrade = grade
         this.studentClass = classNum
         this.studentNumber = number
     }
 
-    val fullStudentNumber: Int
-        get() = studentGrade * 1000 + studentClass * 100 + studentNumber
+    val fullStudentNumber: Int?
+        get() =
+            if (studentGrade != null && studentClass != null && studentNumber != null) {
+                studentGrade!! * 1000 + studentClass!! * 100 + studentNumber!!
+            } else {
+                null
+            }
 }

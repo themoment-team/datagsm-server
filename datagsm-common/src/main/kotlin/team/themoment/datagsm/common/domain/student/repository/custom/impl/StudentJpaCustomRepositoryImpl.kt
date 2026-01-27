@@ -31,6 +31,7 @@ class StudentJpaCustomRepositoryImpl(
         role: StudentRole?,
         dormitoryRoom: Int?,
         isLeaveSchool: Boolean?,
+        includeGraduates: Boolean,
         pageable: Pageable,
         sortBy: StudentSortBy?,
         sortDirection: SortDirection,
@@ -72,6 +73,7 @@ class StudentJpaCustomRepositoryImpl(
                     role?.let { studentJpaEntity.role.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
                     isLeaveSchool?.let { studentJpaEntity.isLeaveSchool.eq(it) },
+                    if (!includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
                 )
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
@@ -225,6 +227,7 @@ class StudentJpaCustomRepositoryImpl(
         role: StudentRole?,
         dormitoryRoom: Int?,
         isLeaveSchool: Boolean?,
+        includeGraduates: Boolean,
         pageable: Pageable,
         sortBy: StudentSortBy?,
         sortDirection: SortDirection,
@@ -247,6 +250,7 @@ class StudentJpaCustomRepositoryImpl(
                     role?.let { studentJpaEntity.role.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
                     isLeaveSchool?.let { studentJpaEntity.isLeaveSchool.eq(it) },
+                    if (!includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
                 ).apply {
                     orderSpecifier?.let { orderBy(*it) }
                 }.offset(pageable.offset)
@@ -270,6 +274,7 @@ class StudentJpaCustomRepositoryImpl(
                     role?.let { studentJpaEntity.role.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
                     isLeaveSchool?.let { studentJpaEntity.isLeaveSchool.eq(it) },
+                    if (!includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
                 )
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }

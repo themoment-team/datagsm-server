@@ -18,6 +18,7 @@ interface QueryStudentService {
         role: StudentRole?,
         dormitoryRoom: Int?,
         isLeaveSchool: Boolean?,
+        includeGraduates: Boolean = false,
         page: Int,
         size: Int,
         sortBy: StudentSortBy? = null,
