@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.common.domain.student.dto.request.CreateStudentReqDto
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentReqDto
+import team.themoment.datagsm.common.domain.student.dto.response.GraduateStudentResDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentListResDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -126,7 +127,9 @@ class StudentController(
         ],
     )
     @GetMapping("/excel/download")
-    fun downloadStudentExcel(): ResponseEntity<ByteArray> = createStudentExcelService.execute()
+    fun downloadStudentExcel(
+        @Parameter(description = "졸업생 포함 여부") @RequestParam(required = false, defaultValue = "false") includeGraduates: Boolean,
+    ): ResponseEntity<ByteArray> = createStudentExcelService.execute(includeGraduates)
 
     @Operation(summary = "학생 정보 엑셀 업로드", description = "학생 정보가 담긴 엑셀을 받아 수정 또는 저장을 진행합니다.")
     @ApiResponses(
@@ -161,8 +164,8 @@ class StudentController(
         ],
     )
     @PostMapping("/graduate/third-grade")
-    fun graduateThirdGradeStudents(): Map<String, Int> {
+    fun graduateThirdGradeStudents(): GraduateStudentResDto {
         val count = graduateThirdGradeStudentsService.execute()
-        return mapOf("graduatedCount" to count)
+        return GraduateStudentResDto(graduatedCount = count)
     }
 }
