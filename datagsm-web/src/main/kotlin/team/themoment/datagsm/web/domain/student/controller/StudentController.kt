@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.common.domain.student.dto.request.CreateStudentReqDto
-import team.themoment.datagsm.common.domain.student.dto.request.GraduateStudentsReqDto
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentListResDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
@@ -28,7 +27,8 @@ import team.themoment.datagsm.common.domain.student.entity.constant.StudentSortB
 import team.themoment.datagsm.common.global.constant.SortDirection
 import team.themoment.datagsm.web.domain.student.service.CreateStudentExcelService
 import team.themoment.datagsm.web.domain.student.service.CreateStudentService
-import team.themoment.datagsm.web.domain.student.service.GraduateStudentsService
+import team.themoment.datagsm.web.domain.student.service.GraduateStudentService
+import team.themoment.datagsm.web.domain.student.service.GraduateThirdGradeStudentsService
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentExcelService
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentService
 import team.themoment.datagsm.web.domain.student.service.QueryStudentService
@@ -42,7 +42,8 @@ class StudentController(
     private final val modifyStudentService: ModifyStudentService,
     private final val createStudentExcelService: CreateStudentExcelService,
     private final val modifyStudentExcelService: ModifyStudentExcelService,
-    private final val graduateStudentsService: GraduateStudentsService,
+    private final val graduateStudentService: GraduateStudentService,
+    private final val graduateThirdGradeStudentsService: GraduateThirdGradeStudentsService,
 ) {
     @Operation(summary = "학생 정보 조회", description = "필터 조건에 맞는 학생 정보를 조회합니다.")
     @ApiResponses(
@@ -139,19 +140,29 @@ class StudentController(
         @RequestParam("file") file: MultipartFile,
     ) = modifyStudentExcelService.execute(file)
 
-    @Operation(summary = "학생 졸업 처리", description = "선택한 학생들을 졸업생으로 전환합니다.")
+    @Operation(summary = "특정 학생 졸업 처리", description = "지정한 학생 한 명을 졸업생으로 전환합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "졸업 처리 성공"),
-            ApiResponse(responseCode = "400", description = "잘못된 요청", content = [Content()]),
             ApiResponse(responseCode = "404", description = "학생을 찾을 수 없음", content = [Content()]),
         ],
     )
-    @PostMapping("/graduate")
-    fun graduateStudents(
-        @RequestBody @Valid reqDto: GraduateStudentsReqDto,
-    ): Map<String, Int> {
-        val count = graduateStudentsService.execute(reqDto)
+    @PostMapping("/{studentId}/graduate")
+    fun graduateStudent(
+        @Parameter(description = "학생 ID") @PathVariable studentId: Long,
+    ) {
+        graduateStudentService.execute(studentId)
+    }
+
+    @Operation(summary = "모든 3학년 학생 졸업 처리", description = "모든 3학년 학생들을 졸업생으로 일괄 전환합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "졸업 처리 성공"),
+        ],
+    )
+    @PostMapping("/graduate/third-grade")
+    fun graduateThirdGradeStudents(): Map<String, Int> {
+        val count = graduateThirdGradeStudentsService.execute()
         return mapOf("graduatedCount" to count)
     }
 }
