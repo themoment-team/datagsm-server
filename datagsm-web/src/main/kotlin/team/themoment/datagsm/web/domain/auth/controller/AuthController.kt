@@ -129,13 +129,13 @@ class AuthController(
             ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음", content = [Content()]),
         ],
     )
-    @DeleteMapping("/api-keys/{id}")
+    @DeleteMapping("/api-keys/{apiKeyId}")
     fun deleteApiKeyById(
         @Parameter(description = "삭제할 API 키 ID", required = true)
         @PathVariable
-        id: Long,
+        apiKeyId: Long,
     ): CommonApiResponse<Nothing> {
-        deleteApiKeyByIdService.execute(id)
+        deleteApiKeyByIdService.execute(apiKeyId)
         return CommonApiResponse.success("API 키가 삭제되었습니다.")
     }
 
