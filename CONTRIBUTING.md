@@ -199,7 +199,7 @@ feat/*, fix/*, refactor/*, ci/cd/*
 # 새 기능 개발
 git checkout develop
 git pull origin develop
-git checkout -b feature/add-meal-api
+git checkout -b feat/add-meal-api
 
 # 버그 수정
 git checkout -b fix/student-search-error
