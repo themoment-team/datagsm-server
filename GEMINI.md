@@ -97,6 +97,6 @@ Use the following slash commands for common tasks:
 
 ## Notes
 
-- This project uses Java 24 for Gradle builds
+- This project uses Java 25 for Gradle builds
 - Always check `.gitignore` and `.geminiignore` when suggesting file changes
 - When analyzing code, consider the multi-module structure
