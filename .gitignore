@@ -46,3 +46,6 @@ out/
 /datagsm-resource/src/main/resources/application-prod.yml
 /datagsm-web/src/main/resources/application-stage.yml
 /datagsm-web/src/main/resources/application-prod.yml
+
+### LLM Outputs ###
+PR_BODY.md

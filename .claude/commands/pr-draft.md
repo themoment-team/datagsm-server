@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(git log:*), Bash(git diff:*), Bash(git branch:*), Bash(gh pr:*), Read, Write
+allowed-tools: Bash(git log:*), Bash(git diff:*), Bash(git branch:*), Read, Write
 description: Generate PR body and title suggestions
 ---
 
@@ -9,19 +9,32 @@ description: Generate PR body and title suggestions
 - Commits diff from develop: !`git log develop..HEAD --oneline`
 - File changes stats from develop: !`git diff develop...HEAD --stat`
 - Detailed changes from develop: !`git diff develop...HEAD`
-- Recent PR title conventions: !`gh pr list --limit 10 --json title,headRefName --jq '.[] | "\(.headRefName): \(.title)"'`
-- PR template: !`cat .github/PULL_REQUEST_TEMPLATE.md`
+- PR template: Read `.github/PULL_REQUEST_TEMPLATE.md` file
+
+## PR Title Convention
+
+This project uses the following PR title format: `[scope] description`
+
+**Available Scopes:**
+- Domain names: auth, account, student, club, project, neis, client, oauth
+- Module names: web, authorization, resource, common
+- Others: ci/cd, global
+
+**Recent PR Title Examples:**
+- `[global] 기여자 지침 문서 추가`
+- `[global] 올바르지 않은 공개 API 경로 설정 수정`
+- `[student] 졸업생 전환 및 저장 기능 구현`
+- `[ci/cd] CD 파이프라인 ZIP 패키징 및 빌드 최적화`
+- `[client] 클라이언트 조회 시 페이지네이션 파라미터 추가`
 
 ## Your task
 
 Based on the above information, perform the following tasks:
 
 1. **PR Title Suggestions**:
-   - Suggest 3 appropriate titles based on recent PR title conventions
+   - Suggest 3 appropriate titles based on the convention above
    - Format: `[scope] description`
-   - Scopes: ONLY domain names (auth, account, student, club, project, neis, client, oauth) OR module names (web, authorization, resource, common) OR ci/cd OR global
    - Description: Korean, clear and concise
-   - Examples: `[global] 기여자 지침 문서 추가`, `[ci/cd] CD 파이프라인 최적화`, `[student] 졸업생 전환 및 저장 기능 구현`
    - No emojis
 
 2. **PR Body**:
