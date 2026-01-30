@@ -598,22 +598,6 @@ open build/reports/tests/test/index.html
 ./gradlew :datagsm-authorization:build
 ```
 
-### 서버 실행
-
-```bash
-# 인증 서버 (포트: 8081)
-./gradlew :datagsm-authorization:bootRun
-
-# 리소스 서버 (포트: 8082)
-./gradlew :datagsm-resource:bootRun
-
-# 웹 서버
-./gradlew :datagsm-web:bootRun
-
-# 프로덕션 빌드 실행
-java -jar datagsm-authorization/build/libs/datagsm-authorization-*.jar
-```
-
 ### 환경별 실행
 
 ```bash
