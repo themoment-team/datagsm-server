@@ -33,7 +33,7 @@ Based on the above information, perform the following tasks:
    - Be clear and specific
 
 3. **Save to file**:
-   - Save the content to `/Users/snowykte/Programming/datagsm-server/PR_BODY.md`
+   - Save the content to `PR_BODY.md`
    - Overwrite if file already exists
 
 4. **Output format**:
