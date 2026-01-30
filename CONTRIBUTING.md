@@ -754,17 +754,22 @@ docker-compose -f compose.local.yaml up -d
 
 서버 실행 시 환경 변수 오류가 발생하면:
 
+**Unix/macOS**
 ```bash
 # 필수 환경 변수 확인
 echo $JWT_SECRET_KEY
-echo $NEIS_API_KEY
-echo $MAIL_USERNAME
 
-# 환경 변수 설정 (Unix/macOS)
+# 환경 변수 설정
 export JWT_SECRET_KEY="your-secret-key"
+```
 
-# 환경 변수 설정 (Windows)
-set JWT_SECRET_KEY=your-secret-key
+**Windows (PowerShell)**
+```powershell
+# 필수 환경 변수 확인
+echo $env:JWT_SECRET_KEY
+
+# 환경 변수 설정
+$env:JWT_SECRET_KEY="your-secret-key"
 ```
 
 ## 도움이 필요하신가요?
