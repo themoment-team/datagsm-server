@@ -146,7 +146,7 @@ team.themoment.datagsm.{module}/
     └── common/                    # 공통 유틸리티
 ```
 
-## 개발 환경 설정
+## IDE 및 빌드 설정
 
 ### IntelliJ IDEA 설정
 
