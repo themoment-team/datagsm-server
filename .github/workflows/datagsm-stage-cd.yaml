@@ -47,6 +47,7 @@ jobs:
           mkdir -p ./datagsm-authorization/src/main/resources
           mkdir -p ./datagsm-web/src/main/resources
           mkdir -p ./datagsm-resource/src/main/resources
+          mkdir -p ./datagsm-userinfo/src/main/resources
 
           touch ./datagsm-authorization/src/main/resources/application-stage.yml
           echo "${{ secrets.STAGE_AUTHORIZATION_APPLICATION_YAML }}" > ./datagsm-authorization/src/main/resources/application-stage.yml
@@ -56,6 +57,9 @@ jobs:
 
           touch ./datagsm-resource/src/main/resources/application-stage.yml
           echo "${{ secrets.STAGE_RESOURCE_APPLICATION_YAML }}" > ./datagsm-resource/src/main/resources/application-stage.yml
+
+          touch ./datagsm-userinfo/src/main/resources/application-stage.yml
+          echo "${{ secrets.STAGE_USERINFO_APPLICATION_YAML }}" > ./datagsm-userinfo/src/main/resources/application-stage.yml
         shell: bash
 
       - name: Build with Gradle
@@ -74,14 +78,17 @@ jobs:
           mkdir -p deploy-package/datagsm-authorization/build/libs
           mkdir -p deploy-package/datagsm-resource/build/libs
           mkdir -p deploy-package/datagsm-web/build/libs
+          mkdir -p deploy-package/datagsm-userinfo/build/libs
 
           cp datagsm-authorization/build/libs/*.jar deploy-package/datagsm-authorization/build/libs/
           cp datagsm-resource/build/libs/*.jar deploy-package/datagsm-resource/build/libs/
           cp datagsm-web/build/libs/*.jar deploy-package/datagsm-web/build/libs/
+          cp datagsm-userinfo/build/libs/*.jar deploy-package/datagsm-userinfo/build/libs/
 
           cp datagsm-authorization/stage.dockerfile deploy-package/datagsm-authorization/
           cp datagsm-resource/stage.dockerfile deploy-package/datagsm-resource/
           cp datagsm-web/stage.dockerfile deploy-package/datagsm-web/
+          cp datagsm-userinfo/stage.dockerfile deploy-package/datagsm-userinfo/
 
           cp compose.stage.yaml deploy-package/
           cp -r scripts deploy-package/
