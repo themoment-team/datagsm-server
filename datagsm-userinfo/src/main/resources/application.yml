@@ -1,11 +1,6 @@
 spring:
   application:
     name: datagsm-userinfo
-  docker:
-    compose:
-      enabled: true
-      file: compose.local.yaml
-      lifecycle-management: start_and_stop
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/datagsm?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Seoul}
     username: ${DB_USERNAME:root}
@@ -29,8 +24,6 @@ spring:
         - ${CORS_ALLOWED_ORIGINS:*}
     oauth-jwt:
       secret: ${JWT_SECRET_KEY}
-      access-token-expiration: ${OAUTH_ACCESS_TOKEN_EXPIRATION:3600000}
-      refresh-token-expiration: ${OAUTH_REFRESH_TOKEN_EXPIRATION:2592000000}
 server:
   port: 8083
   shutdown: graceful
