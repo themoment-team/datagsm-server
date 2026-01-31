@@ -18,14 +18,14 @@ data class ExcelColumnDto(
     @field:Min(1101)
     @field:Max(3418)
     @param:Schema(description = "학번", example = "1101", minimum = "1101", maximum = "3418")
-    val number: Int,
+    val number: Int?,
     @field:Size(max = 50)
     @field:NotBlank
     @field:Email
     @param:Schema(description = "이메일", example = "student@gsm.hs.kr", maxLength = 50)
     val email: String,
     @param:Schema(description = "학과", example = "SW개발과")
-    val major: Major,
+    val major: Major?,
     @field:Size(max = 50)
     @param:Schema(description = "전공동아리", example = "더모먼트", maxLength = 50)
     val majorClub: String?,

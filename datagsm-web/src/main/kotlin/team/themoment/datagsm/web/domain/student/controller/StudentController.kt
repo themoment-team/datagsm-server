@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.common.domain.student.dto.request.CreateStudentReqDto
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentReqDto
+import team.themoment.datagsm.common.domain.student.dto.response.GraduateStudentResDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentListResDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -27,6 +28,8 @@ import team.themoment.datagsm.common.domain.student.entity.constant.StudentSortB
 import team.themoment.datagsm.common.global.constant.SortDirection
 import team.themoment.datagsm.web.domain.student.service.CreateStudentExcelService
 import team.themoment.datagsm.web.domain.student.service.CreateStudentService
+import team.themoment.datagsm.web.domain.student.service.GraduateStudentService
+import team.themoment.datagsm.web.domain.student.service.GraduateThirdGradeStudentsService
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentExcelService
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentService
 import team.themoment.datagsm.web.domain.student.service.QueryStudentService
@@ -40,6 +43,8 @@ class StudentController(
     private final val modifyStudentService: ModifyStudentService,
     private final val createStudentExcelService: CreateStudentExcelService,
     private final val modifyStudentExcelService: ModifyStudentExcelService,
+    private final val graduateStudentService: GraduateStudentService,
+    private final val graduateThirdGradeStudentsService: GraduateThirdGradeStudentsService,
 ) {
     @Operation(summary = "학생 정보 조회", description = "필터 조건에 맞는 학생 정보를 조회합니다.")
     @ApiResponses(
@@ -59,6 +64,7 @@ class StudentController(
         @Parameter(description = "역할") @RequestParam(required = false) role: StudentRole?,
         @Parameter(description = "기숙사 호실") @RequestParam(required = false) dormitoryRoom: Int?,
         @Parameter(description = "자퇴 여부") @RequestParam(required = false) isLeaveSchool: Boolean?,
+        @Parameter(description = "졸업생 포함 여부") @RequestParam(required = false, defaultValue = "false") includeGraduates: Boolean,
         @Parameter(description = "페이지 번호") @RequestParam(required = false, defaultValue = "0") page: Int,
         @Parameter(description = "페이지 크기") @RequestParam(required = false, defaultValue = "300") size: Int,
         @Parameter(
@@ -79,6 +85,7 @@ class StudentController(
             role,
             dormitoryRoom,
             isLeaveSchool,
+            includeGraduates,
             page,
             size,
             sortBy,
@@ -120,7 +127,9 @@ class StudentController(
         ],
     )
     @GetMapping("/excel/download")
-    fun downloadStudentExcel(): ResponseEntity<ByteArray> = createStudentExcelService.execute()
+    fun downloadStudentExcel(
+        @Parameter(description = "졸업생 포함 여부") @RequestParam(required = false, defaultValue = "false") includeGraduates: Boolean,
+    ): ResponseEntity<ByteArray> = createStudentExcelService.execute(includeGraduates)
 
     @Operation(summary = "학생 정보 엑셀 업로드", description = "학생 정보가 담긴 엑셀을 받아 수정 또는 저장을 진행합니다.")
     @ApiResponses(
@@ -133,4 +142,27 @@ class StudentController(
     fun uploadStudentExcel(
         @RequestParam("file") file: MultipartFile,
     ) = modifyStudentExcelService.execute(file)
+
+    @Operation(summary = "특정 학생 졸업 처리", description = "지정한 학생 한 명을 졸업생으로 전환합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "졸업 처리 성공"),
+            ApiResponse(responseCode = "404", description = "학생을 찾을 수 없음", content = [Content()]),
+        ],
+    )
+    @PostMapping("/{studentId}/graduate")
+    fun graduateStudent(
+        @Parameter(description = "학생 ID") @PathVariable studentId: Long,
+    ) {
+        graduateStudentService.execute(studentId)
+    }
+
+    @Operation(summary = "모든 3학년 학생 졸업 처리", description = "모든 3학년 학생들을 졸업생으로 일괄 전환합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "졸업 처리 성공"),
+        ],
+    )
+    @PostMapping("/graduate/third-grade")
+    fun graduateThirdGradeStudents(): GraduateStudentResDto = graduateThirdGradeStudentsService.execute()
 }

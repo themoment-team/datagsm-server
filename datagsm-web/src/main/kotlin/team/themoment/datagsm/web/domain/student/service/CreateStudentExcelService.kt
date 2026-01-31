@@ -3,5 +3,5 @@ package team.themoment.datagsm.web.domain.student.service
 import org.springframework.http.ResponseEntity
 
 interface CreateStudentExcelService {
-    fun execute(): ResponseEntity<ByteArray>
+    fun execute(includeGraduates: Boolean = false): ResponseEntity<ByteArray>
 }

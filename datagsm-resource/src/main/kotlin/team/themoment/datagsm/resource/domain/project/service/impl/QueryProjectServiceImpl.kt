@@ -52,7 +52,7 @@ class QueryProjectServiceImpl(
                                     id = student.id!!,
                                     name = student.name,
                                     email = student.email,
-                                    studentNumber = student.studentNumber.fullStudentNumber,
+                                    studentNumber = student.studentNumber?.fullStudentNumber,
                                     major = student.major,
                                     sex = student.sex,
                                 )

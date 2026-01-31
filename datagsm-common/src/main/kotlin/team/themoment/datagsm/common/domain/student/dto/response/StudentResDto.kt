@@ -16,15 +16,15 @@ data class StudentResDto(
     @param:Schema(description = "이메일", example = "student@gsm.hs.kr")
     val email: String,
     @param:Schema(description = "학년", example = "1")
-    val grade: Int,
+    val grade: Int?,
     @param:Schema(description = "반", example = "1")
-    val classNum: Int,
+    val classNum: Int?,
     @param:Schema(description = "번호", example = "1")
-    val number: Int,
+    val number: Int?,
     @param:Schema(description = "학번", example = "1101")
-    val studentNumber: Int,
+    val studentNumber: Int?,
     @param:Schema(description = "전공", example = "SW_DEVELOPMENT", allowableValues = ["SW_DEVELOPMENT", "SMART_IOT", "AI"])
-    val major: Major,
+    val major: Major?,
     @param:Schema(description = "역할", example = "GENERAL_STUDENT")
     val role: StudentRole,
     @param:Schema(description = "기숙사 층", example = "3")
