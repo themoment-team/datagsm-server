@@ -53,16 +53,6 @@ Each module follows: `controller/`, `service/`, `repository/`, `entity/`, `dto/`
 - **Entity vs DTO**: Separate Entity and DTO clearly
 - **Comments**: Do NOT add excessive comments - only where logic is not self-evident
 
-### Commit & PR Conventions
-
-**Commit Message Format**: `type(scope): description`
-- Types: add/update/fix/refactor/test/docs/merge
-- Scopes: ONLY domain names (auth, account, student, club, project, neis, client, oauth) OR module names (web, oauth-authorization, openapi, oauth-userinfo, common) OR global
-- Description: Korean, lowercase start, no period, avoid noun-ending style
-
-**PR Title Format**: `[scope] description`
-- Examples: `[global] 기여자 지침 문서 추가`, `[student] 졸업생 전환 및 저장 기능 구현`
-
 ## Key Practices
 
 ### Security

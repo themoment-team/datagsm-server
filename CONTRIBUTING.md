@@ -243,13 +243,18 @@ git checkout -b refactor/optimize-club-query
 
 ### Scope
 
-모듈 및 도메인 기반으로 scope를 지정합니다:
-
-**모듈 레벨:**
-- `authorization`, `userinfo`, `resource`, `web`, `global`
+**기본 원칙: 도메인명을 우선 사용하고, 모듈명은 횡단관심사에서만 사용**합니다.
 
 **도메인 레벨:**
 - `auth`, `account`, `oauth`, `club`, `student`, `neis`, `project`, `client`
+- 특정 기능이나 도메인에 관련된 변경사항에 사용
+
+**모듈 레벨 (횡단관심사만):**
+- `authorization`, `userinfo`, `resource`, `web`, `common`, `global`
+- 여러 모듈에 걸친 변경사항이나 공통 설정, 보안, 유틸리티 등에만 사용
+
+**기타:**
+- `ci/cd` - CI/CD 파이프라인 관련 변경
 
 ### 예시
 
@@ -286,8 +291,13 @@ vYYYYMMDD.n (릴리즈용)
 ```
 
 **유효한 Scope:**
-- `global`, `account`, `auth`, `client`, `club`, `neis`, `oauth`, `project`, `student`
-- `web`, `resource`, `authorization`, `userinfo`, `ci/cd`
+- **도메인명 (기본 사용)**: `auth`, `account`, `client`, `club`, `neis`, `oauth`, `project`, `student`
+- **모듈명 (횡단관심사만)**: `web`, `resource`, `authorization`, `userinfo`, `common`
+- **기타**: `global`, `ci/cd`
+
+**Scope 선택 규칙:**
+- 특정 기능 변경: 도메인명 사용
+- 여러 모듈에 걸친 변경이나 공통 설정/보안/유틸리티: 모듈명 또는 global 사용
 
 **예시:**
 ```

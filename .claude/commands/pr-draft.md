@@ -16,9 +16,13 @@ description: Generate PR body and title suggestions
 This project uses the following PR title format: `[scope] description`
 
 **Available Scopes:**
-- Domain names: auth, account, student, club, project, neis, client, oauth
-- Module names: web, authorization, resource, userinfo
-- Others: ci/cd, global
+- **Primary**: Domain names - auth, account, student, club, project, neis, client, oauth
+- **Cross-cutting concerns only**: Module names - web, authorization, resource, userinfo, common
+- **Others**: ci/cd, global
+
+**Scope Selection Rule:**
+- Use domain names by default for feature-specific changes
+- Only use module names or global when changes affect multiple modules or cross-cutting concerns (e.g., config, security, common utilities)
 
 **Recent PR Title Examples:**
 - `[global] 기여자 지침 문서 추가`
