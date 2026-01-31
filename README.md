@@ -11,8 +11,8 @@ DataGSM은 광주소프트웨어마이스터고등학교의 학생, 동아리, �
 | **datagsm-common**              | 공통 Entity, DTO, Repository, Health API | -    |
 | **datagsm-oauth-authorization** | OAuth2 인증 서버                           | 8081 |
 | **datagsm-oauth-userinfo**      | OAuth2 UserInfo API                    | 8083 |
-| **datagsm-openapi**             | 리소스 API (학생, 동아리, NEIS)                | 8082 |
-| **datagsm-web**                 | 관리자 웹 API                              | 8080 |
+| **datagsm-openapi**             | 리소스 API (학생, 동아리, NEIS 등)              | 8082 |
+| **datagsm-web**                 | DataGSM 웹 서비스 API                      | 8080 |
 
 ## 문서
 
