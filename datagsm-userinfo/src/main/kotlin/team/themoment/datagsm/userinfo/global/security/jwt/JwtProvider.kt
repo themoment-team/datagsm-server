@@ -15,7 +15,7 @@ import javax.crypto.SecretKey
 
 @Component
 class JwtProvider(
-    private val jwtEnvironment: OauthJwtEnvironment,
+    jwtEnvironment: OauthJwtEnvironment,
 ) {
     private val secretKey: SecretKey =
         Keys.hmacShaKeyFor(
