@@ -20,6 +20,7 @@ DataGSM is a Spring Boot REST API service providing school information (students
 - `datagsm-authorization/`: OAuth2 authentication server
 - `datagsm-resource/`: Resource API server (students, clubs, NEIS)
 - `datagsm-web/`: Admin web API server (Excel processing)
+- `datagsm-userinfo/`: OAuth2 User info API server (profile, roles)
 - Each module: `controller/`, `service/`, `repository/`, `entity/`, `dto/`
 
 ## Commands

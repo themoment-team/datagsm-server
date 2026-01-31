@@ -25,3 +25,12 @@ services:
     ports:
       - "8082:8082"
     restart: unless-stopped
+
+  datagsm-userinfo:
+    build:
+      context: ./datagsm-userinfo
+      dockerfile: prod.dockerfile
+    container_name: datagsm-userinfo-prod
+    ports:
+      - "8083:8083"
+    restart: unless-stopped
