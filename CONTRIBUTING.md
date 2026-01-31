@@ -86,7 +86,7 @@ export MAIL_PASSWORD="your-app-password"
 # OAuth UserInfo 서버 (포트: 8083)
 ./gradlew :datagsm-oauth-userinfo:bootRun
 
-# 웹 서버
+# 웹 서버 (포트: 8080)
 ./gradlew :datagsm-web:bootRun
 ```
 
@@ -121,13 +121,13 @@ datagsm-server/
 
 ### 모듈별 역할
 
-| 모듈                             | 역할                                | 의존성            |
-|--------------------------------|-----------------------------------|----------------|
-| **datagsm-common**             | 공통 Entity, DTO, Repository, 예외 처리 | -              |
+| 모듈                              | 역할                                | 의존성            |
+|---------------------------------|-----------------------------------|----------------|
+| **datagsm-common**              | 공통 Entity, DTO, Repository, 예외 처리 | -              |
 | **datagsm-oauth-authorization** | DataGSM OAuth 제공                  | datagsm-common |
-| **datagsm-oauth-userinfo**     | DataGSM OAuth UserInfo 제공         | datagsm-common |
-| **datagsm-openapi**            | DataGSM OpenAPI 제공                | datagsm-common |
-| **datagsm-web**                | DataGSM Web 서비스 전용 API 제공         | datagsm-common |
+| **datagsm-oauth-userinfo**      | DataGSM OAuth UserInfo 제공         | datagsm-common |
+| **datagsm-openapi**             | DataGSM OpenAPI 제공                | datagsm-common |
+| **datagsm-web**                 | DataGSM Web 서비스 전용 API 제공         | datagsm-common |
 
 ### 패키지 구조
 
@@ -242,7 +242,7 @@ git checkout -b refactor/optimize-club-query
 모듈 및 도메인 기반으로 scope를 지정합니다:
 
 **모듈 레벨:**
-- `common`, `authorization`, `resource`, `web`, `global`
+- `authorization`, `userinfo`, `resource`, `web`, `global`
 
 **도메인 레벨:**
 - `auth`, `account`, `oauth`, `club`, `student`, `neis`, `project`, `client`
@@ -283,7 +283,7 @@ vYYYYMMDD.n (릴리즈용)
 
 **유효한 Scope:**
 - `global`, `account`, `auth`, `client`, `club`, `neis`, `oauth`, `project`, `student`
-- `web`, `common`, `resource`, `authorization`, `ci/cd`
+- `web`, `resource`, `authorization`, `userinfo`, `ci/cd`
 
 **예시:**
 ```
@@ -621,6 +621,8 @@ java -jar app.jar --spring.profiles.active=prod
 
 - **Authorization**: http://localhost:8081/swagger-ui/index.html
 - **Resource**: http://localhost:8082/swagger-ui/index.html
+- **UserInfo**: http://localhost:8083/swagger-ui/index.html
+- **Web**: http://localhost:8080/swagger-ui/index.html
 
 ## CI/CD 파이프라인
 
