@@ -77,11 +77,14 @@ export MAIL_PASSWORD="your-app-password"
 4. **서버 실행**
 
 ```bash
-# 인증 서버 (포트: 8081)
-./gradlew :datagsm-authorization:bootRun
+# OAuth 인증 서버 (포트: 8081)
+./gradlew :datagsm-oauth-authorization:bootRun
 
-# 리소스 서버 (포트: 8082)
-./gradlew :datagsm-resource:bootRun
+# OpenAPI 서버 (포트: 8082)
+./gradlew :datagsm-openapi:bootRun
+
+# OAuth UserInfo 서버 (포트: 8083)
+./gradlew :datagsm-oauth-userinfo:bootRun
 
 # 웹 서버
 ./gradlew :datagsm-web:bootRun
@@ -93,21 +96,21 @@ DataGSM은 멀티 모듈 프로젝트로 구성되어 있습니다:
 
 ```
 datagsm-server/
-├── datagsm-common/          # 공유 라이브러리
-│   ├── domain/             # Entity, Repository
-│   ├── dto/                # 공통 DTO
-│   └── global/             # Config, Exception Handling
-├── datagsm-authorization/   # OAuth2 인증 서버 (포트: 8081)
+├── datagsm-common/              # 공유 라이브러리
+│   ├── domain/                 # Entity, Repository
+│   ├── dto/                    # 공통 DTO
+│   └── global/                 # Config, Exception Handling
+├── datagsm-oauth-authorization/ # OAuth2 인증 서버 (포트: 8081)
 │   └── domain/
-│       ├── account/        # 계정 관리
-│       ├── auth/           # 인증 (API Key)
-│       └── oauth/          # OAuth2
-├── datagsm-resource/        # 리소스 API 서버 (포트: 8082)
+│       ├── account/            # 계정 관리
+│       ├── auth/               # 인증 (API Key)
+│       └── oauth/              # OAuth2
+├── datagsm-openapi/            # 리소스 API 서버 (포트: 8082)
 │   └── domain/
-│       ├── club/           # 동아리
-│       ├── student/        # 학생
-│       ├── neis/           # NEIS 연동 (급식, 일정)
-│       └── project/        # 프로젝트
+│       ├── club/               # 동아리
+│       ├── student/            # 학생
+│       ├── neis/               # NEIS 연동 (급식, 일정)
+│       └── project/            # 프로젝트
 └── datagsm-web/            # 관리자 웹 API
     └── domain/
         └── excel/          # Excel 처리
@@ -115,12 +118,13 @@ datagsm-server/
 
 ### 모듈별 역할
 
-| 모듈                        | 역할                                | 의존성            |
-|---------------------------|-----------------------------------|----------------|
-| **datagsm-common**        | 공통 Entity, DTO, Repository, 예외 처리 | -              |
-| **datagsm-authorization** | DataGSM OAuth 제공                  | datagsm-common |
-| **datagsm-resource**      | DataGSM OpenAPI 제공                | datagsm-common |
-| **datagsm-web**           | DataGSM Web 서비스 전용 API 제공         | datagsm-common |
+| 모듈                             | 역할                                | 의존성            |
+|--------------------------------|-----------------------------------|----------------|
+| **datagsm-common**             | 공통 Entity, DTO, Repository, 예외 처리 | -              |
+| **datagsm-oauth-authorization** | DataGSM OAuth 제공                  | datagsm-common |
+| **datagsm-oauth-userinfo**     | DataGSM OAuth UserInfo 제공         | datagsm-common |
+| **datagsm-openapi**            | DataGSM OpenAPI 제공                | datagsm-common |
+| **datagsm-web**                | DataGSM Web 서비스 전용 API 제공         | datagsm-common |
 
 ### 패키지 구조
 
@@ -571,7 +575,7 @@ verify(exactly = 0) { mockRepository.delete(any()) }
 ./gradlew test
 
 # 특정 모듈 테스트
-./gradlew :datagsm-authorization:test
+./gradlew :datagsm-oauth-authorization:test
 
 # 특정 테스트 클래스 실행
 ./gradlew test --tests "CreateClubServiceTest"
@@ -595,14 +599,14 @@ open build/reports/tests/test/index.html
 ./gradlew build -x test
 
 # 특정 모듈 빌드
-./gradlew :datagsm-authorization:build
+./gradlew :datagsm-oauth-authorization:build
 ```
 
 ### 환경별 실행
 
 ```bash
 # 개발 환경
-./gradlew :datagsm-authorization:bootRun --args='--spring.profiles.active=dev'
+./gradlew :datagsm-oauth-authorization:bootRun --args='--spring.profiles.active=dev'
 
 # 프로덕션 환경
 java -jar app.jar --spring.profiles.active=prod
