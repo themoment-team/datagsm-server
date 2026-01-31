@@ -1,6 +1,11 @@
 spring:
   application:
     name: datagsm-userinfo
+  docker:
+    compose:
+      enabled: true
+      file: compose.local.yaml
+      lifecycle-management: start_and_stop
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/datagsm?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Seoul}
     username: ${DB_USERNAME:root}
