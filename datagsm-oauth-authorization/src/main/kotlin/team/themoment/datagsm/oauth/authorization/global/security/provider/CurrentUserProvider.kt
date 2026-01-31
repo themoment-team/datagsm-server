@@ -1,13 +1,13 @@
-package team.themoment.datagsm.authorization.global.security.provider
+package team.themoment.datagsm.oauth.authorization.global.security.provider
 
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
-import team.themoment.datagsm.authorization.global.security.authentication.OauthAuthenticationToken
-import team.themoment.datagsm.authorization.global.security.authentication.principal.OauthUserPrincipal
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
+import team.themoment.datagsm.oauth.authorization.global.security.authentication.OauthAuthenticationToken
+import team.themoment.datagsm.oauth.authorization.global.security.authentication.principal.OauthUserPrincipal
 import team.themoment.sdk.exception.ExpectedException
 
 @Component

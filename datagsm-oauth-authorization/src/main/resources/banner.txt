@@ -4,4 +4,4 @@ ${AnsiColor.BRIGHT_GREEN}   | | | |/ _` | __/ _` || |  _\___ \| |\/| |
 ${AnsiColor.BRIGHT_CYAN}   | |_| | (_| | || (_| || |_| |___) | |  | |
 ${AnsiColor.BRIGHT_BLUE}   |____/ \__,_|\__\__,_| \____|____/|_|  |_|
 
-${AnsiColor.BRIGHT_MAGENTA}   :: DataGSM Authorization Server ::   ${AnsiColor.DEFAULT}
+${AnsiColor.BRIGHT_MAGENTA}   :: DataGSM OAuth Authorization Server ::   ${AnsiColor.DEFAULT}

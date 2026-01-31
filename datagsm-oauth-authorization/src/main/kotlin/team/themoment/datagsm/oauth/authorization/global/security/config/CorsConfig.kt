@@ -1,4 +1,4 @@
-package team.themoment.datagsm.authorization.global.security.config
+package team.themoment.datagsm.oauth.authorization.global.security.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

@@ -1,11 +1,9 @@
-package team.themoment.datagsm.authorization.domain.oauth.service.impl
+package team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl
 
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.authorization.domain.oauth.service.ExchangeTokenService
-import team.themoment.datagsm.authorization.global.security.jwt.JwtProvider
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
@@ -16,6 +14,8 @@ import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisE
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
 import team.themoment.datagsm.common.global.data.OauthJwtEnvironment
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.ExchangeTokenService
+import team.themoment.datagsm.oauth.authorization.global.security.jwt.JwtProvider
 import team.themoment.sdk.exception.ExpectedException
 
 @Service

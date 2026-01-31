@@ -1,6 +1,6 @@
 spring:
   application:
-    name: datagsm-authorization
+    name: datagsm-oauth-authorization
   docker:
     compose:
       enabled: true

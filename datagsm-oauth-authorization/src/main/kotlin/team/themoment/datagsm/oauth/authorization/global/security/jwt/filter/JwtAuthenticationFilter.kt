@@ -1,13 +1,13 @@
-package team.themoment.datagsm.authorization.global.security.jwt.filter
+package team.themoment.datagsm.oauth.authorization.global.security.jwt.filter
 
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
-import team.themoment.datagsm.authorization.global.security.authentication.OauthAuthenticationToken
-import team.themoment.datagsm.authorization.global.security.authentication.principal.OauthUserPrincipal
-import team.themoment.datagsm.authorization.global.security.jwt.JwtProvider
+import team.themoment.datagsm.oauth.authorization.global.security.authentication.OauthAuthenticationToken
+import team.themoment.datagsm.oauth.authorization.global.security.authentication.principal.OauthUserPrincipal
+import team.themoment.datagsm.oauth.authorization.global.security.jwt.JwtProvider
 
 class JwtAuthenticationFilter(
     private val jwtProvider: JwtProvider,

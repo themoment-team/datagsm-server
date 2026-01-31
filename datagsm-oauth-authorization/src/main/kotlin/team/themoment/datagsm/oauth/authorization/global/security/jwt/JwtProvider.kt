@@ -1,4 +1,4 @@
-package team.themoment.datagsm.authorization.global.security.jwt
+package team.themoment.datagsm.oauth.authorization.global.security.jwt
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts

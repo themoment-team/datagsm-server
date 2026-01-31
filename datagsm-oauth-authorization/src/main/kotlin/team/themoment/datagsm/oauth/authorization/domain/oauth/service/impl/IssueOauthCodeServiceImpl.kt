@@ -1,10 +1,9 @@
-package team.themoment.datagsm.authorization.domain.oauth.service.impl
+package team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl
 
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.authorization.domain.oauth.service.IssueOauthCodeService
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
@@ -14,6 +13,7 @@ import team.themoment.datagsm.common.domain.oauth.dto.response.OauthCodeResDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueOauthCodeService
 import team.themoment.sdk.exception.ExpectedException
 import java.security.SecureRandom
 import java.util.Base64

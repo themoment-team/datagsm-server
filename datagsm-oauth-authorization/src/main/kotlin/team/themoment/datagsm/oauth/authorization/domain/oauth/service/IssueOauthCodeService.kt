@@ -1,4 +1,4 @@
-package team.themoment.datagsm.authorization.domain.oauth.service
+package team.themoment.datagsm.oauth.authorization.domain.oauth.service
 
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthCodeReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.OauthCodeResDto

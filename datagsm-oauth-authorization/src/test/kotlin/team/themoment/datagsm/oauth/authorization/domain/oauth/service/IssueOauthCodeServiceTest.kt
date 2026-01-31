@@ -1,4 +1,4 @@
-package team.themoment.datagsm.authorization.domain.oauth.service
+package team.themoment.datagsm.oauth.authorization.domain.oauth.service
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
@@ -11,7 +11,6 @@ import io.mockk.slot
 import io.mockk.verify
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
-import team.themoment.datagsm.authorization.domain.oauth.service.impl.IssueOauthCodeServiceImpl
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
@@ -20,6 +19,7 @@ import team.themoment.datagsm.common.domain.oauth.dto.request.OauthCodeReqDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl.IssueOauthCodeServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 

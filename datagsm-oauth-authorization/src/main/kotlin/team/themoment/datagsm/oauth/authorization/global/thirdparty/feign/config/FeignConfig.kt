@@ -1,4 +1,4 @@
-package team.themoment.datagsm.authorization.global.thirdparty.feign.config
+package team.themoment.datagsm.oauth.authorization.global.thirdparty.feign.config
 
 import org.springframework.cloud.openfeign.EnableFeignClients
 import org.springframework.context.annotation.Bean

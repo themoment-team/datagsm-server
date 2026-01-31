@@ -6,8 +6,8 @@ WORKDIR /datagsm-server
 
 ARG JAR_FILE=build/libs/*.jar
 
-COPY ${JAR_FILE} datagsm-authorization.jar
+COPY ${JAR_FILE} datagsm-oauth-authorization.jar
 
 RUN ln -snf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
 
-ENTRYPOINT ["sh", "-c", "exec java -Dspring.profiles.active=prod -jar datagsm-authorization.jar"]
+ENTRYPOINT ["sh", "-c", "exec java -Dspring.profiles.active=prod -jar datagsm-oauth-authorization.jar"]

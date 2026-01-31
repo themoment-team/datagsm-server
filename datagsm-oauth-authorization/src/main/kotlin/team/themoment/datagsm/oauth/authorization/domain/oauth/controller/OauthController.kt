@@ -1,4 +1,4 @@
-package team.themoment.datagsm.authorization.domain.oauth.controller
+package team.themoment.datagsm.oauth.authorization.domain.oauth.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.authorization.domain.oauth.service.ExchangeTokenService
-import team.themoment.datagsm.authorization.domain.oauth.service.IssueOauthCodeService
-import team.themoment.datagsm.authorization.domain.oauth.service.ReissueOauthTokenService
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthCodeReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthTokenReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.request.RefreshOauthTokenReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.OauthCodeResDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.OauthTokenResDto
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.ExchangeTokenService
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueOauthCodeService
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.ReissueOauthTokenService
 
 @Tag(name = "OAuth", description = "OAuth2 Authorization Server API")
 @RestController

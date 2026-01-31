@@ -5,8 +5,8 @@
     <layout>
       <pattern>[%thread] [%date{yyyy-MM-dd HH:mm:ss.SSS,Asia/Seoul}] [%level] [%file:%line] - %msg%n</pattern>
     </layout>
-    <logGroupName>datagsm-authorization-stage-log</logGroupName>
-    <logStreamNamePrefix>[datagsm-authorization]-</logStreamNamePrefix>
+    <logGroupName>datagsm-oauth-authorization-stage-log</logGroupName>
+    <logStreamNamePrefix>[datagsm-oauth-authorization]-</logStreamNamePrefix>
     <region>ap-northeast-2</region>
     <maxBatchSize>50</maxBatchSize>
     <maxBatchTimeMillis>10000</maxBatchTimeMillis>
@@ -17,8 +17,8 @@
     <layout>
       <pattern>[%thread] [%date{yyyy-MM-dd HH:mm:ss.SSS,Asia/Seoul}] [%level] [%file:%line] - %msg%n</pattern>
     </layout>
-    <logGroupName>datagsm-authorization-prod-log</logGroupName>
-    <logStreamNamePrefix>[datagsm-authorization]-</logStreamNamePrefix>
+    <logGroupName>datagsm-oauth-authorization-prod-log</logGroupName>
+    <logStreamNamePrefix>[datagsm-oauth-authorization]-</logStreamNamePrefix>
     <region>ap-northeast-2</region>
     <maxBatchSize>50</maxBatchSize>
     <maxBatchTimeMillis>10000</maxBatchTimeMillis>
