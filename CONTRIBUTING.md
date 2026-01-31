@@ -111,9 +111,12 @@ datagsm-server/
 │       ├── student/            # 학생
 │       ├── neis/               # NEIS 연동 (급식, 일정)
 │       └── project/            # 프로젝트
-└── datagsm-web/            # 관리자 웹 API
+├── datagsm-oauth-userinfo/     # OAuth2 UserInfo 서버 (포트: 8083)
+│   └── domain/
+│       └── userinfo/           # UserInfo API
+└── datagsm-web/                # 관리자 웹 API (포트: 8080)
     └── domain/
-        └── excel/          # Excel 처리
+        └── excel/              # Excel 처리
 ```
 
 ### 모듈별 역할

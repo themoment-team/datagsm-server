@@ -35,6 +35,7 @@ Each module follows: `controller/`, `service/`, `repository/`, `entity/`, `dto/`
 - Run: `./gradlew :datagsm-oauth-authorization:bootRun`
 - Run: `./gradlew :datagsm-openapi:bootRun`
 - Run: `./gradlew :datagsm-oauth-userinfo:bootRun`
+- Run: `./gradlew :datagsm-web:bootRun`
 
 ## Coding Conventions
 

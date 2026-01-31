@@ -22,6 +22,7 @@ School information API server for Gwangju Software Meister High School (students
 - Run: `./gradlew :datagsm-oauth-authorization:bootRun`
 - Run: `./gradlew :datagsm-openapi:bootRun`
 - Run: `./gradlew :datagsm-oauth-userinfo:bootRun`
+- Run: `./gradlew :datagsm-web:bootRun`
 
 ## Tech Stack
 
