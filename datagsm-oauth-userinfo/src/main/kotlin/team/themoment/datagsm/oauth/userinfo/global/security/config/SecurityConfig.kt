@@ -1,4 +1,4 @@
-package team.themoment.datagsm.userinfo.global.security.config
+package team.themoment.datagsm.oauth.userinfo.global.security.config
 
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
@@ -14,9 +14,9 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfigurationSource
-import team.themoment.datagsm.userinfo.global.security.handler.CustomAuthenticationEntryPoint
-import team.themoment.datagsm.userinfo.global.security.jwt.JwtProvider
-import team.themoment.datagsm.userinfo.global.security.jwt.filter.JwtAuthenticationFilter
+import team.themoment.datagsm.oauth.userinfo.global.security.handler.CustomAuthenticationEntryPoint
+import team.themoment.datagsm.oauth.userinfo.global.security.jwt.JwtProvider
+import team.themoment.datagsm.oauth.userinfo.global.security.jwt.filter.JwtAuthenticationFilter
 
 @Configuration
 @EnableWebSecurity

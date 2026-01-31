@@ -1,4 +1,4 @@
-package team.themoment.datagsm.userinfo.domain.userinfo.controller
+package team.themoment.datagsm.oauth.userinfo.domain.userinfo.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -6,7 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.account.dto.response.GetMyInfoResDto
-import team.themoment.datagsm.userinfo.domain.userinfo.service.GetUserInfoService
+import team.themoment.datagsm.oauth.userinfo.domain.userinfo.service.GetUserInfoService
 
 @Tag(name = "UserInfo", description = "OAuth2 UserInfo 엔드포인트")
 @RestController

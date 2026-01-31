@@ -1,4 +1,4 @@
-package team.themoment.datagsm.userinfo.global.security.jwt
+package team.themoment.datagsm.oauth.userinfo.global.security.jwt
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
@@ -8,8 +8,8 @@ import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.global.data.OauthJwtEnvironment
-import team.themoment.datagsm.userinfo.global.security.authentication.OauthAuthenticationToken
-import team.themoment.datagsm.userinfo.global.security.authentication.principal.OauthUserPrincipal
+import team.themoment.datagsm.oauth.userinfo.global.security.authentication.OauthAuthenticationToken
+import team.themoment.datagsm.oauth.userinfo.global.security.authentication.principal.OauthUserPrincipal
 import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.logging.logger.logger
 import java.nio.charset.StandardCharsets

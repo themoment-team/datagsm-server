@@ -1,4 +1,4 @@
-package team.themoment.datagsm.userinfo.global.security.handler
+package team.themoment.datagsm.oauth.userinfo.global.security.handler
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

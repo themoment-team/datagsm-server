@@ -1,13 +1,13 @@
-package team.themoment.datagsm.userinfo
+package team.themoment.datagsm.oauth.userinfo
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication(
-    scanBasePackages = ["team.themoment.datagsm.userinfo", "team.themoment.datagsm.common"],
+    scanBasePackages = ["team.themoment.datagsm.oauth.userinfo", "team.themoment.datagsm.common"],
 )
-class DatagsmUserInfoApplication
+class DatagsmOauthUserInfoApplication
 
 fun main(args: Array<String>) {
-    runApplication<DatagsmUserInfoApplication>(*args)
+    runApplication<DatagsmOauthUserInfoApplication>(*args)
 }

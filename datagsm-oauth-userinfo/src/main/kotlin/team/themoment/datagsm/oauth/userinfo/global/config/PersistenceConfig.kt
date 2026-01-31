@@ -1,4 +1,4 @@
-package team.themoment.datagsm.userinfo.global.config
+package team.themoment.datagsm.oauth.userinfo.global.config
 
 import org.springframework.boot.persistence.autoconfigure.EntityScan
 import org.springframework.context.annotation.Configuration

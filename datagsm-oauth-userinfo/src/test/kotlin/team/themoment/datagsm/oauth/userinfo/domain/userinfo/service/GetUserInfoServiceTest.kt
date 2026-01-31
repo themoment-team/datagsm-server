@@ -1,4 +1,4 @@
-package team.themoment.datagsm.userinfo.domain.userinfo.service
+package team.themoment.datagsm.oauth.userinfo.domain.userinfo.service
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
@@ -8,8 +8,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
-import team.themoment.datagsm.userinfo.domain.userinfo.service.impl.GetUserInfoServiceImpl
-import team.themoment.datagsm.userinfo.global.security.provider.CurrentUserProvider
+import team.themoment.datagsm.oauth.userinfo.domain.userinfo.service.impl.GetUserInfoServiceImpl
+import team.themoment.datagsm.oauth.userinfo.global.security.provider.CurrentUserProvider
 
 class GetUserInfoServiceTest :
     DescribeSpec({

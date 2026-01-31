@@ -1,4 +1,4 @@
-package team.themoment.datagsm.userinfo.global.security.authentication.principal
+package team.themoment.datagsm.oauth.userinfo.global.security.authentication.principal
 
 import org.springframework.security.core.AuthenticatedPrincipal
 

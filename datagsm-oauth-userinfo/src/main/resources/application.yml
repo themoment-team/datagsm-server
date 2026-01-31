@@ -1,6 +1,6 @@
 spring:
   application:
-    name: datagsm-userinfo
+    name: datagsm-oauth-userinfo
   docker:
     compose:
       enabled: true
@@ -49,19 +49,17 @@ sdk:
     not-logging-urls:
       - "/v3/api-docs/**"
       - "/swagger-ui/**"
-      - "/actuator/**"
   response:
     enabled: true
     not-wrapping-urls:
       - "/v3/api-docs/**"
       - "/swagger-ui/**"
-      - "/actuator/**"
   swagger:
     enabled: true
-    title: "DataGSM UserInfo Server API"
+    title: "DataGSM OAuth UserInfo Server API"
     description: "OAuth 2.0 UserInfo Endpoint"
     version: "v1"
-    group: "userinfo-api"
+    group: "oauth-userinfo-api"
     paths-to-match:
       - "/userinfo"
   exception:

@@ -1,4 +1,4 @@
-package team.themoment.datagsm.userinfo.domain.userinfo.service.impl
+package team.themoment.datagsm.oauth.userinfo.domain.userinfo.service.impl
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -6,8 +6,8 @@ import team.themoment.datagsm.common.domain.account.dto.response.GetMyInfoResDto
 import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
-import team.themoment.datagsm.userinfo.domain.userinfo.service.GetUserInfoService
-import team.themoment.datagsm.userinfo.global.security.provider.CurrentUserProvider
+import team.themoment.datagsm.oauth.userinfo.domain.userinfo.service.GetUserInfoService
+import team.themoment.datagsm.oauth.userinfo.global.security.provider.CurrentUserProvider
 
 @Service
 class GetUserInfoServiceImpl(

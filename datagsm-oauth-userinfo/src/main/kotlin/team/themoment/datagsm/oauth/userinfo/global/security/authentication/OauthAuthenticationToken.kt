@@ -1,8 +1,8 @@
-package team.themoment.datagsm.userinfo.global.security.authentication
+package team.themoment.datagsm.oauth.userinfo.global.security.authentication
 
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
-import team.themoment.datagsm.userinfo.global.security.authentication.principal.OauthUserPrincipal
+import team.themoment.datagsm.oauth.userinfo.global.security.authentication.principal.OauthUserPrincipal
 
 class OauthAuthenticationToken : AbstractAuthenticationToken {
     private val principal: OauthUserPrincipal
