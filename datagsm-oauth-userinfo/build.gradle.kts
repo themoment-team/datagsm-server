@@ -19,6 +19,10 @@ dependencyManagement {
     }
 }
 
+configurations.all {
+    exclude(group = "org.bouncycastle")
+}
+
 dependencies {
     // Common Module
     implementation(project(":datagsm-common"))
