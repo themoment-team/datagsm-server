@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.neis.schedule.service
+package team.themoment.datagsm.openapi.domain.neis.schedule.service
 
 import team.themoment.datagsm.common.domain.neis.dto.schedule.response.ScheduleResDto
 import java.time.LocalDate

@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.project.service.impl
+package team.themoment.datagsm.openapi.domain.project.service.impl
 
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -10,7 +10,7 @@ import team.themoment.datagsm.common.domain.project.entity.constant.ProjectSortB
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.global.constant.SortDirection
-import team.themoment.datagsm.resource.domain.project.service.QueryProjectService
+import team.themoment.datagsm.openapi.domain.project.service.QueryProjectService
 
 @Service
 @Transactional(readOnly = true)

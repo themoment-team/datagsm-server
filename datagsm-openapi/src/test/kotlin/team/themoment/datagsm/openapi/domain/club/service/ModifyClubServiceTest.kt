@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.club.service
+package team.themoment.datagsm.openapi.domain.club.service
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
@@ -15,7 +15,7 @@ import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.resource.domain.club.service.impl.ModifyClubServiceImpl
+import team.themoment.datagsm.openapi.domain.club.service.impl.ModifyClubServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 
 class ModifyClubServiceTest :

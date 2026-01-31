@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.global.security.service
+package team.themoment.datagsm.openapi.global.security.service
 
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.common.global.dto.internal.RateLimitConsumeResult

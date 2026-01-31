@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.student.service.impl
+package team.themoment.datagsm.openapi.domain.student.service.impl
 
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -12,7 +12,7 @@ import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.resource.domain.student.service.CreateStudentService
+import team.themoment.datagsm.openapi.domain.student.service.CreateStudentService
 import team.themoment.sdk.exception.ExpectedException
 
 @Service

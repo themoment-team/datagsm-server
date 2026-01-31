@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.project.service
+package team.themoment.datagsm.openapi.domain.project.service
 
 import team.themoment.datagsm.common.domain.project.dto.response.ProjectListResDto
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectSortBy

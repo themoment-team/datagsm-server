@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.neis.meal.service.impl
+package team.themoment.datagsm.openapi.domain.neis.meal.service.impl
 
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
@@ -8,8 +8,8 @@ import team.themoment.datagsm.common.domain.neis.meal.entity.MealRedisEntity
 import team.themoment.datagsm.common.domain.neis.meal.entity.constant.MealType
 import team.themoment.datagsm.common.domain.neis.meal.repository.MealRedisRepository
 import team.themoment.datagsm.common.global.data.NeisEnvironment
-import team.themoment.datagsm.resource.domain.neis.meal.service.SyncMealService
-import team.themoment.datagsm.resource.global.thirdparty.feign.neis.NeisApiClient
+import team.themoment.datagsm.openapi.domain.neis.meal.service.SyncMealService
+import team.themoment.datagsm.openapi.global.thirdparty.feign.neis.NeisApiClient
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 

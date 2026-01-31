@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.club.service.impl
+package team.themoment.datagsm.openapi.domain.club.service.impl
 
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -13,7 +13,7 @@ import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfo
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.common.global.constant.SortDirection
-import team.themoment.datagsm.resource.domain.club.service.QueryClubService
+import team.themoment.datagsm.openapi.domain.club.service.QueryClubService
 
 @Service
 @Transactional

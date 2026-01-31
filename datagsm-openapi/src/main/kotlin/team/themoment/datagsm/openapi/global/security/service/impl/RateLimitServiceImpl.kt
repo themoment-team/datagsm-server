@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.global.security.service.impl
+package team.themoment.datagsm.openapi.global.security.service.impl
 
 import io.github.bucket4j.Bandwidth
 import io.github.bucket4j.BucketConfiguration
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.common.global.data.ApiKeyEnvironment
 import team.themoment.datagsm.common.global.dto.internal.RateLimitConsumeResult
-import team.themoment.datagsm.resource.global.security.service.RateLimitService
+import team.themoment.datagsm.openapi.global.security.service.RateLimitService
 import java.time.Duration
 
 @Service

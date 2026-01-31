@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.club.service
+package team.themoment.datagsm.openapi.domain.club.service
 
 import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.common.domain.club.dto.response.ClubResDto

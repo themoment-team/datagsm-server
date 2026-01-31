@@ -1,6 +1,6 @@
 spring:
   application:
-    name: datagsm-resource
+    name: datagsm-openapi
   docker:
     compose:
       enabled: true
@@ -60,19 +60,17 @@ sdk:
     not-logging-urls:
       - "/v3/api-docs/**"
       - "/swagger-ui/**"
-      - "/actuator/**"
   response:
     enabled: true
     not-wrapping-urls:
       - "/v3/api-docs/**"
       - "/swagger-ui/**"
-      - "/actuator/**"
   swagger:
     enabled: true
-    title: "DataGSM Resource Server API"
+    title: "DataGSM OpenAPI Server API"
     description: "DataGSM Read-Only Resource API with API Key Authentication"
     version: "v1"
-    group: "resource-api"
+    group: "openapi-api"
     paths-to-match:
       - "/v1/**"
   exception:

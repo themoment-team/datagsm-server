@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.health
+package team.themoment.datagsm.openapi.domain.health
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse

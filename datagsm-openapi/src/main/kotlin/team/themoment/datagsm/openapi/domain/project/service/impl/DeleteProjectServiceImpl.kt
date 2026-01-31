@@ -1,11 +1,11 @@
-package team.themoment.datagsm.resource.domain.project.service.impl
+package team.themoment.datagsm.openapi.domain.project.service.impl
 
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
-import team.themoment.datagsm.resource.domain.project.service.DeleteProjectService
+import team.themoment.datagsm.openapi.domain.project.service.DeleteProjectService
 import team.themoment.sdk.exception.ExpectedException
 
 @Service

@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.neis.meal.service
+package team.themoment.datagsm.openapi.domain.neis.meal.service
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.mockk.clearAllMocks
@@ -11,8 +11,8 @@ import team.themoment.datagsm.common.domain.neis.dto.internal.NeisMealApiRespons
 import team.themoment.datagsm.common.domain.neis.meal.entity.MealRedisEntity
 import team.themoment.datagsm.common.domain.neis.meal.repository.MealRedisRepository
 import team.themoment.datagsm.common.global.data.NeisEnvironment
-import team.themoment.datagsm.resource.domain.neis.meal.service.impl.SyncMealServiceImpl
-import team.themoment.datagsm.resource.global.thirdparty.feign.neis.NeisApiClient
+import team.themoment.datagsm.openapi.domain.neis.meal.service.impl.SyncMealServiceImpl
+import team.themoment.datagsm.openapi.global.thirdparty.feign.neis.NeisApiClient
 import java.time.LocalDate
 
 class SyncMealServiceTest :

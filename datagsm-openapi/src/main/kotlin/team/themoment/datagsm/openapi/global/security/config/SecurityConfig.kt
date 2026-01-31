@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.global.security.config
+package team.themoment.datagsm.openapi.global.security.config
 
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
@@ -16,11 +16,11 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfigurationSource
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
-import team.themoment.datagsm.resource.global.security.filter.ApiKeyAuthenticationFilter
-import team.themoment.datagsm.resource.global.security.filter.RateLimitFilter
-import team.themoment.datagsm.resource.global.security.handler.CustomAuthenticationEntryPoint
-import team.themoment.datagsm.resource.global.security.provider.CurrentUserProvider
-import team.themoment.datagsm.resource.global.security.service.RateLimitService
+import team.themoment.datagsm.openapi.global.security.filter.ApiKeyAuthenticationFilter
+import team.themoment.datagsm.openapi.global.security.filter.RateLimitFilter
+import team.themoment.datagsm.openapi.global.security.handler.CustomAuthenticationEntryPoint
+import team.themoment.datagsm.openapi.global.security.provider.CurrentUserProvider
+import team.themoment.datagsm.openapi.global.security.service.RateLimitService
 import tools.jackson.databind.ObjectMapper
 
 @Configuration

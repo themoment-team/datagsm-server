@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.student.controller
+package team.themoment.datagsm.openapi.domain.student.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -24,10 +24,10 @@ import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentSortBy
 import team.themoment.datagsm.common.global.constant.SortDirection
-import team.themoment.datagsm.resource.domain.student.service.CreateStudentService
-import team.themoment.datagsm.resource.domain.student.service.ModifyStudentService
-import team.themoment.datagsm.resource.domain.student.service.QueryStudentService
-import team.themoment.datagsm.resource.global.security.annotation.RequireScope
+import team.themoment.datagsm.openapi.domain.student.service.CreateStudentService
+import team.themoment.datagsm.openapi.domain.student.service.ModifyStudentService
+import team.themoment.datagsm.openapi.domain.student.service.QueryStudentService
+import team.themoment.datagsm.openapi.global.security.annotation.RequireScope
 
 @Tag(name = "Student", description = "학생 관련 API")
 @RestController

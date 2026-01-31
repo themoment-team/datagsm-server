@@ -1,9 +1,9 @@
-package team.themoment.datagsm.resource.domain.neis.schedule.service.impl
+package team.themoment.datagsm.openapi.domain.neis.schedule.service.impl
 
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.neis.dto.schedule.response.ScheduleResDto
 import team.themoment.datagsm.common.domain.neis.schedule.repository.ScheduleRedisRepository
-import team.themoment.datagsm.resource.domain.neis.schedule.service.SearchScheduleService
+import team.themoment.datagsm.openapi.domain.neis.schedule.service.SearchScheduleService
 import java.time.LocalDate
 
 @Service

@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.global.config
+package team.themoment.datagsm.openapi.global.config
 
 import org.springframework.boot.persistence.autoconfigure.EntityScan
 import org.springframework.context.annotation.Configuration

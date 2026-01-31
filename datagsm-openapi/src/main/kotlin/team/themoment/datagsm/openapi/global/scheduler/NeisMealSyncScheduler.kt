@@ -1,9 +1,9 @@
-package team.themoment.datagsm.resource.global.scheduler
+package team.themoment.datagsm.openapi.global.scheduler
 
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import team.themoment.datagsm.resource.domain.neis.meal.service.SyncMealService
-import team.themoment.datagsm.resource.global.util.AcademicYearCalculator
+import team.themoment.datagsm.openapi.domain.neis.meal.service.SyncMealService
+import team.themoment.datagsm.openapi.global.util.AcademicYearCalculator
 import team.themoment.sdk.logging.logger.logger
 
 @Component

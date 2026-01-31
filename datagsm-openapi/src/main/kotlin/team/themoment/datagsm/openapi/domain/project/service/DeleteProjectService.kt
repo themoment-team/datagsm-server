@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.project.service
+package team.themoment.datagsm.openapi.domain.project.service
 
 interface DeleteProjectService {
     fun execute(projectId: Long)

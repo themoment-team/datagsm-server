@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.club.controller
+package team.themoment.datagsm.openapi.domain.club.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -23,11 +23,11 @@ import team.themoment.datagsm.common.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubSortBy
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.global.constant.SortDirection
-import team.themoment.datagsm.resource.domain.club.service.CreateClubService
-import team.themoment.datagsm.resource.domain.club.service.DeleteClubService
-import team.themoment.datagsm.resource.domain.club.service.ModifyClubService
-import team.themoment.datagsm.resource.domain.club.service.QueryClubService
-import team.themoment.datagsm.resource.global.security.annotation.RequireScope
+import team.themoment.datagsm.openapi.domain.club.service.CreateClubService
+import team.themoment.datagsm.openapi.domain.club.service.DeleteClubService
+import team.themoment.datagsm.openapi.domain.club.service.ModifyClubService
+import team.themoment.datagsm.openapi.domain.club.service.QueryClubService
+import team.themoment.datagsm.openapi.global.security.annotation.RequireScope
 
 @Tag(name = "Club", description = "동아리 관련 API")
 @RestController

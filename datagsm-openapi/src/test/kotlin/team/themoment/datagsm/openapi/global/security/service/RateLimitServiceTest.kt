@@ -1,11 +1,11 @@
-package team.themoment.datagsm.resource.global.security.service
+package team.themoment.datagsm.openapi.global.security.service
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.common.global.data.ApiKeyEnvironment
-import team.themoment.datagsm.resource.global.security.service.impl.RateLimitServiceImpl
+import team.themoment.datagsm.openapi.global.security.service.impl.RateLimitServiceImpl
 import java.util.UUID
 
 class RateLimitServiceTest :

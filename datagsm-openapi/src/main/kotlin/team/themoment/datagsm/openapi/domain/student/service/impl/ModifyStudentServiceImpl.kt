@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.student.service.impl
+package team.themoment.datagsm.openapi.domain.student.service.impl
 
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
@@ -12,7 +12,7 @@ import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.resource.domain.student.service.ModifyStudentService
+import team.themoment.datagsm.openapi.domain.student.service.ModifyStudentService
 import team.themoment.sdk.exception.ExpectedException
 
 @Service

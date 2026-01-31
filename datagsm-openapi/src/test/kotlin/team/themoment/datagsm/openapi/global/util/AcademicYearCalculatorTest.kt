@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.global.util
+package team.themoment.datagsm.openapi.global.util
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe

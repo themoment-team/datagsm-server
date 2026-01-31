@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.global.security.handler
+package team.themoment.datagsm.openapi.global.security.handler
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

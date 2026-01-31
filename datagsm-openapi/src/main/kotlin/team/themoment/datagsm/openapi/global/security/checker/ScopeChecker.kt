@@ -1,8 +1,8 @@
-package team.themoment.datagsm.resource.global.security.checker
+package team.themoment.datagsm.openapi.global.security.checker
 
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
-import team.themoment.datagsm.resource.global.security.validator.ScopeValidator
+import team.themoment.datagsm.openapi.global.security.validator.ScopeValidator
 
 @Component("scopeChecker")
 class ScopeChecker {

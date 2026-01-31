@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.neis.meal.service
+package team.themoment.datagsm.openapi.domain.neis.meal.service
 
 import java.time.LocalDate
 

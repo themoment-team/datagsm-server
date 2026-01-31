@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.club.service
+package team.themoment.datagsm.openapi.domain.club.service
 
 interface DeleteClubService {
     fun execute(clubId: Long)

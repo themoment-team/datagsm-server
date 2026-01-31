@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.global.security.aspect
+package team.themoment.datagsm.openapi.global.security.aspect
 
 import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.annotation.Aspect
@@ -7,8 +7,8 @@ import org.aspectj.lang.reflect.MethodSignature
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
-import team.themoment.datagsm.resource.global.security.annotation.RequireScope
-import team.themoment.datagsm.resource.global.security.checker.ScopeChecker
+import team.themoment.datagsm.openapi.global.security.annotation.RequireScope
+import team.themoment.datagsm.openapi.global.security.checker.ScopeChecker
 
 @Aspect
 @Component

@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.student.service.impl
+package team.themoment.datagsm.openapi.domain.student.service.impl
 
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -11,7 +11,7 @@ import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentSortBy
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.common.global.constant.SortDirection
-import team.themoment.datagsm.resource.domain.student.service.QueryStudentService
+import team.themoment.datagsm.openapi.domain.student.service.QueryStudentService
 
 @Service
 class QueryStudentServiceImpl(

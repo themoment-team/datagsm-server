@@ -1,13 +1,13 @@
-package team.themoment.datagsm.resource
+package team.themoment.datagsm.openapi
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication(
-    scanBasePackages = ["team.themoment.datagsm.resource", "team.themoment.datagsm.common"],
+    scanBasePackages = ["team.themoment.datagsm.openapi", "team.themoment.datagsm.common"],
 )
-class DatagsmResourceApplication
+class DatagsmOpenApiApplication
 
 fun main(args: Array<String>) {
-    runApplication<DatagsmResourceApplication>(*args)
+    runApplication<DatagsmOpenApiApplication>(*args)
 }

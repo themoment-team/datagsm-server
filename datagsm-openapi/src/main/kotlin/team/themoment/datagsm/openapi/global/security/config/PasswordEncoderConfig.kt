@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.global.security.config
+package team.themoment.datagsm.openapi.global.security.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

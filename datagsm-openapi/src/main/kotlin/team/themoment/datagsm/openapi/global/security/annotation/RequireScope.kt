@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.global.security.annotation
+package team.themoment.datagsm.openapi.global.security.annotation
 
 import team.themoment.datagsm.common.domain.auth.entity.constant.ApiKeyScope
 

@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.global.security.authentication.principal
+package team.themoment.datagsm.openapi.global.security.authentication.principal
 
 import org.springframework.security.core.AuthenticatedPrincipal
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey

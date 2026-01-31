@@ -1,8 +1,8 @@
-package team.themoment.datagsm.resource.global.security.authentication
+package team.themoment.datagsm.openapi.global.security.authentication
 
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import team.themoment.datagsm.common.domain.auth.entity.constant.ApiKeyScope
-import team.themoment.datagsm.resource.global.security.authentication.principal.ApiKeyPrincipal
+import team.themoment.datagsm.openapi.global.security.authentication.principal.ApiKeyPrincipal
 
 class ApiKeyAuthenticationToken : AbstractAuthenticationToken {
     private val principal: ApiKeyPrincipal

@@ -5,8 +5,8 @@
     <layout>
       <pattern>[%thread] [%date{yyyy-MM-dd HH:mm:ss.SSS,Asia/Seoul}] [%level] [%file:%line] - %msg%n</pattern>
     </layout>
-    <logGroupName>datagsm-resource-stage-log</logGroupName>
-    <logStreamNamePrefix>[datagsm-resource]-</logStreamNamePrefix>
+    <logGroupName>datagsm-openapi-stage-log</logGroupName>
+    <logStreamNamePrefix>[datagsm-openapi]-</logStreamNamePrefix>
     <region>ap-northeast-2</region>
     <maxBatchSize>50</maxBatchSize>
     <maxBatchTimeMillis>10000</maxBatchTimeMillis>
@@ -17,8 +17,8 @@
     <layout>
       <pattern>[%thread] [%date{yyyy-MM-dd HH:mm:ss.SSS,Asia/Seoul}] [%level] [%file:%line] - %msg%n</pattern>
     </layout>
-    <logGroupName>datagsm-resource-prod-log</logGroupName>
-    <logStreamNamePrefix>[datagsm-resource]-</logStreamNamePrefix>
+    <logGroupName>datagsm-openapi-prod-log</logGroupName>
+    <logStreamNamePrefix>[datagsm-openapi]-</logStreamNamePrefix>
     <region>ap-northeast-2</region>
     <maxBatchSize>50</maxBatchSize>
     <maxBatchTimeMillis>10000</maxBatchTimeMillis>

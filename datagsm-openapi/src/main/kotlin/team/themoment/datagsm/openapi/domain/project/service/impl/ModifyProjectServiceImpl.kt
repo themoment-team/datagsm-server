@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.project.service.impl
+package team.themoment.datagsm.openapi.domain.project.service.impl
 
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
@@ -11,7 +11,7 @@ import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.resource.domain.project.service.ModifyProjectService
+import team.themoment.datagsm.openapi.domain.project.service.ModifyProjectService
 import team.themoment.sdk.exception.ExpectedException
 
 @Service

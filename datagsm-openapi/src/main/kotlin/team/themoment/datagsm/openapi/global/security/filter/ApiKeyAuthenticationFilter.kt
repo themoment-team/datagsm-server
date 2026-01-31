@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.global.security.filter
+package team.themoment.datagsm.openapi.global.security.filter
 
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -8,8 +8,8 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 import team.themoment.datagsm.common.domain.auth.entity.constant.ApiKeyScope
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
-import team.themoment.datagsm.resource.global.security.authentication.ApiKeyAuthenticationToken
-import team.themoment.datagsm.resource.global.security.authentication.principal.ApiKeyPrincipal
+import team.themoment.datagsm.openapi.global.security.authentication.ApiKeyAuthenticationToken
+import team.themoment.datagsm.openapi.global.security.authentication.principal.ApiKeyPrincipal
 import java.util.UUID
 
 class ApiKeyAuthenticationFilter(

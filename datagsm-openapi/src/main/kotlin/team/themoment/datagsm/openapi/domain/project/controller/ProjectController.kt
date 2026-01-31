@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.project.controller
+package team.themoment.datagsm.openapi.domain.project.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -22,11 +22,11 @@ import team.themoment.datagsm.common.domain.project.dto.response.ProjectListResD
 import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectSortBy
 import team.themoment.datagsm.common.global.constant.SortDirection
-import team.themoment.datagsm.resource.domain.project.service.CreateProjectService
-import team.themoment.datagsm.resource.domain.project.service.DeleteProjectService
-import team.themoment.datagsm.resource.domain.project.service.ModifyProjectService
-import team.themoment.datagsm.resource.domain.project.service.QueryProjectService
-import team.themoment.datagsm.resource.global.security.annotation.RequireScope
+import team.themoment.datagsm.openapi.domain.project.service.CreateProjectService
+import team.themoment.datagsm.openapi.domain.project.service.DeleteProjectService
+import team.themoment.datagsm.openapi.domain.project.service.ModifyProjectService
+import team.themoment.datagsm.openapi.domain.project.service.QueryProjectService
+import team.themoment.datagsm.openapi.global.security.annotation.RequireScope
 
 @Tag(name = "Project", description = "프로젝트 관련 API")
 @RestController

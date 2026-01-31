@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.student.service
+package team.themoment.datagsm.openapi.domain.student.service
 
 import team.themoment.datagsm.common.domain.student.dto.response.StudentListResDto
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex

@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.global.security.checker
+package team.themoment.datagsm.openapi.global.security.checker
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe

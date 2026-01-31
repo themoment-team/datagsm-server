@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.neis.meal.service
+package team.themoment.datagsm.openapi.domain.neis.meal.service
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
@@ -9,7 +9,7 @@ import io.mockk.verify
 import team.themoment.datagsm.common.domain.neis.meal.entity.MealRedisEntity
 import team.themoment.datagsm.common.domain.neis.meal.entity.constant.MealType
 import team.themoment.datagsm.common.domain.neis.meal.repository.MealRedisRepository
-import team.themoment.datagsm.resource.domain.neis.meal.service.impl.SearchMealServiceImpl
+import team.themoment.datagsm.openapi.domain.neis.meal.service.impl.SearchMealServiceImpl
 import java.time.LocalDate
 
 class SearchMealServiceTest :

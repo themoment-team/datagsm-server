@@ -1,9 +1,9 @@
-package team.themoment.datagsm.resource.domain.neis.meal.service.impl
+package team.themoment.datagsm.openapi.domain.neis.meal.service.impl
 
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.neis.dto.meal.response.MealResDto
 import team.themoment.datagsm.common.domain.neis.meal.repository.MealRedisRepository
-import team.themoment.datagsm.resource.domain.neis.meal.service.SearchMealService
+import team.themoment.datagsm.openapi.domain.neis.meal.service.SearchMealService
 import java.time.LocalDate
 
 @Service

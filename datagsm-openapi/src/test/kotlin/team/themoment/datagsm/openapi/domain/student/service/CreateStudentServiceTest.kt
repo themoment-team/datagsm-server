@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.student.service
+package team.themoment.datagsm.openapi.domain.student.service
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
@@ -13,7 +13,7 @@ import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.resource.domain.student.service.impl.CreateStudentServiceImpl
+import team.themoment.datagsm.openapi.domain.student.service.impl.CreateStudentServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 
 class CreateStudentServiceTest :

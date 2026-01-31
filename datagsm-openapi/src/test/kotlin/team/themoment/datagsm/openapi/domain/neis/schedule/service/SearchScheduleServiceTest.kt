@@ -1,4 +1,4 @@
-package team.themoment.datagsm.resource.domain.neis.schedule.service
+package team.themoment.datagsm.openapi.domain.neis.schedule.service
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
@@ -8,7 +8,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.neis.schedule.entity.ScheduleRedisEntity
 import team.themoment.datagsm.common.domain.neis.schedule.repository.ScheduleRedisRepository
-import team.themoment.datagsm.resource.domain.neis.schedule.service.impl.SearchScheduleServiceImpl
+import team.themoment.datagsm.openapi.domain.neis.schedule.service.impl.SearchScheduleServiceImpl
 import java.time.LocalDate
 
 class SearchScheduleServiceTest :
