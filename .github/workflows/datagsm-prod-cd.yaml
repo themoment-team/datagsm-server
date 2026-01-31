@@ -44,18 +44,22 @@ jobs:
 
       - name: Make YML Files
         run: |
-          mkdir -p ./datagsm-authorization/src/main/resources
+          mkdir -p ./datagsm-oauth-authorization/src/main/resources
           mkdir -p ./datagsm-web/src/main/resources
-          mkdir -p ./datagsm-resource/src/main/resources
+          mkdir -p ./datagsm-openapi/src/main/resources
+          mkdir -p ./datagsm-oauth-userinfo/src/main/resources
 
-          touch ./datagsm-authorization/src/main/resources/application-prod.yml
-          echo "${{ secrets.PROD_AUTHORIZATION_APPLICATION_YAML }}" > ./datagsm-authorization/src/main/resources/application-prod.yml
+          touch ./datagsm-oauth-authorization/src/main/resources/application-prod.yml
+          echo "${{ secrets.PROD_OAUTH_AUTHORIZATION_APPLICATION_YAML }}" > ./datagsm-oauth-authorization/src/main/resources/application-prod.yml
 
           touch ./datagsm-web/src/main/resources/application-prod.yml
           echo "${{ secrets.PROD_WEB_APPLICATION_YAML }}" > ./datagsm-web/src/main/resources/application-prod.yml
 
-          touch ./datagsm-resource/src/main/resources/application-prod.yml
-          echo "${{ secrets.PROD_RESOURCE_APPLICATION_YAML }}" > ./datagsm-resource/src/main/resources/application-prod.yml
+          touch ./datagsm-openapi/src/main/resources/application-prod.yml
+          echo "${{ secrets.PROD_OPENAPI_APPLICATION_YAML }}" > ./datagsm-openapi/src/main/resources/application-prod.yml
+
+          touch ./datagsm-oauth-userinfo/src/main/resources/application-prod.yml
+          echo "${{ secrets.PROD_OAUTH_USERINFO_APPLICATION_YAML }}" > ./datagsm-oauth-userinfo/src/main/resources/application-prod.yml
         shell: bash
 
       - name: Build with Gradle
@@ -71,17 +75,20 @@ jobs:
       - name: Make ZIP File
         run: |
           mkdir -p deploy-package
-          mkdir -p deploy-package/datagsm-authorization/build/libs
-          mkdir -p deploy-package/datagsm-resource/build/libs
+          mkdir -p deploy-package/datagsm-oauth-authorization/build/libs
+          mkdir -p deploy-package/datagsm-openapi/build/libs
           mkdir -p deploy-package/datagsm-web/build/libs
+          mkdir -p deploy-package/datagsm-oauth-userinfo/build/libs
 
-          cp datagsm-authorization/build/libs/*.jar deploy-package/datagsm-authorization/build/libs/
-          cp datagsm-resource/build/libs/*.jar deploy-package/datagsm-resource/build/libs/
+          cp datagsm-oauth-authorization/build/libs/*.jar deploy-package/datagsm-oauth-authorization/build/libs/
+          cp datagsm-openapi/build/libs/*.jar deploy-package/datagsm-openapi/build/libs/
           cp datagsm-web/build/libs/*.jar deploy-package/datagsm-web/build/libs/
+          cp datagsm-oauth-userinfo/build/libs/*.jar deploy-package/datagsm-oauth-userinfo/build/libs/
 
-          cp datagsm-authorization/prod.dockerfile deploy-package/datagsm-authorization/
-          cp datagsm-resource/prod.dockerfile deploy-package/datagsm-resource/
+          cp datagsm-oauth-authorization/prod.dockerfile deploy-package/datagsm-oauth-authorization/
+          cp datagsm-openapi/prod.dockerfile deploy-package/datagsm-openapi/
           cp datagsm-web/prod.dockerfile deploy-package/datagsm-web/
+          cp datagsm-oauth-userinfo/prod.dockerfile deploy-package/datagsm-oauth-userinfo/
 
           cp compose.prod.yaml deploy-package/
           cp -r scripts deploy-package/

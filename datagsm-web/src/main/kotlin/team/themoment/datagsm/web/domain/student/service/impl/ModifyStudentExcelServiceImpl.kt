@@ -73,7 +73,8 @@ class ModifyStudentExcelServiceImpl(
         val existingStudents =
             studentJpaRepository
                 .findAllStudents()
-                .associateBy { it.studentNumber.fullStudentNumber }
+                .filter { it.studentNumber?.fullStudentNumber != null }
+                .associateBy { it.studentNumber?.fullStudentNumber!! }
 
         val dbStudentNumbers = existingStudents.keys
         val excelStudentNumbers = studentNumbers.toSet()
@@ -123,30 +124,32 @@ class ModifyStudentExcelServiceImpl(
             }
 
         val studentsToSave =
-            excelData.map { dto ->
-                existingStudents.getValue(dto.number).also { student ->
-                    student.name = dto.name
-                    student.email = "TEMP_${dto.number}"
-                    student.major = dto.major
-                    student.majorClub =
-                        dto.majorClub?.let { clubName ->
-                            existingMajorClubs[clubName]
-                                ?: throw ExpectedException("존재하지 않는 전공동아리입니다.", HttpStatus.BAD_REQUEST)
-                        }
-                    student.jobClub =
-                        dto.jobClub?.let { clubName ->
-                            existingJobClubs[clubName]
-                                ?: throw ExpectedException("존재하지 않는 취업동아리입니다.", HttpStatus.BAD_REQUEST)
-                        }
-                    student.autonomousClub =
-                        dto.autonomousClub?.let { clubName ->
-                            existingAutonomousClubs[clubName]
-                                ?: throw ExpectedException("존재하지 않는 창체동아리입니다.", HttpStatus.BAD_REQUEST)
-                        }
-                    student.dormitoryRoomNumber = getDormitoryEmbedded(dto.dormitoryRoomNumber)
-                    student.role = dto.role
-                    student.isLeaveSchool = dto.isLeaveSchool
-                    student.sex = dto.sex
+            excelData.mapNotNull { dto ->
+                dto.number?.let { number ->
+                    existingStudents.getValue(number).also { student ->
+                        student.name = dto.name
+                        student.email = "TEMP_${dto.number}"
+                        student.major = dto.major
+                        student.majorClub =
+                            dto.majorClub?.let { clubName ->
+                                existingMajorClubs[clubName]
+                                    ?: throw ExpectedException("존재하지 않는 전공동아리입니다.", HttpStatus.BAD_REQUEST)
+                            }
+                        student.jobClub =
+                            dto.jobClub?.let { clubName ->
+                                existingJobClubs[clubName]
+                                    ?: throw ExpectedException("존재하지 않는 취업동아리입니다.", HttpStatus.BAD_REQUEST)
+                            }
+                        student.autonomousClub =
+                            dto.autonomousClub?.let { clubName ->
+                                existingAutonomousClubs[clubName]
+                                    ?: throw ExpectedException("존재하지 않는 창체동아리입니다.", HttpStatus.BAD_REQUEST)
+                            }
+                        student.dormitoryRoomNumber = getDormitoryEmbedded(dto.dormitoryRoomNumber)
+                        student.role = dto.role
+                        student.isLeaveSchool = dto.isLeaveSchool
+                        student.sex = dto.sex
+                    }
                 }
             }
         studentJpaRepository.flush()

@@ -39,14 +39,14 @@ class StudentJpaEntity {
     lateinit var name: String
 
     @field:Embedded
-    lateinit var studentNumber: StudentNumber
+    var studentNumber: StudentNumber? = null
 
     @field:Column(name = "email", nullable = false, unique = true, length = 25)
     lateinit var email: String
 
-    @field:Column(name = "major", nullable = false)
+    @field:Column(name = "major", nullable = true)
     @field:Enumerated(EnumType.STRING)
-    lateinit var major: Major
+    var major: Major? = null
 
     @field:JoinColumn(name = "major_club_id", nullable = true, referencedColumnName = "id")
     @field:ManyToOne(optional = true)

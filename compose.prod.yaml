@@ -8,20 +8,29 @@ services:
       - "8080:8080"
     restart: unless-stopped
 
-  datagsm-authorization:
+  datagsm-oauth-authorization:
     build:
-      context: ./datagsm-authorization
+      context: ./datagsm-oauth-authorization
       dockerfile: prod.dockerfile
-    container_name: datagsm-auth-prod
+    container_name: datagsm-oauth-authorization-prod
     ports:
       - "8081:8081"
     restart: unless-stopped
 
-  datagsm-resource:
+  datagsm-openapi:
     build:
-      context: ./datagsm-resource
+      context: ./datagsm-openapi
       dockerfile: prod.dockerfile
-    container_name: datagsm-resource-prod
+    container_name: datagsm-openapi-prod
     ports:
       - "8082:8082"
+    restart: unless-stopped
+
+  datagsm-oauth-userinfo:
+    build:
+      context: ./datagsm-oauth-userinfo
+      dockerfile: prod.dockerfile
+    container_name: datagsm-oauth-userinfo-prod
+    ports:
+      - "8083:8083"
     restart: unless-stopped

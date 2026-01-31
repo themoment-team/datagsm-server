@@ -50,8 +50,8 @@ class SecurityConfig(
                         "/v1/projects/**",
                         "/v1/clubs/**",
                         "/v1/clients/search",
-                        "/v1/auth/api-keys/search",
-                        "/v1/auth/api-key/*",
+                        "/v1/auth/api-keys",
+                        "/v1/auth/api-key/{apiKeyId}",
                     ).hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
                     .anyRequest()
                     .authenticated()
