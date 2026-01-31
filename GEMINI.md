@@ -18,11 +18,11 @@ DataGSM is a Spring Boot REST API service providing school information (students
 
 ```
 datagsm-server/
-├── datagsm-common/       # Shared library (Entity, DTO, Repository, Config)
-├── datagsm-authorization/ # OAuth2 authentication server
-├── datagsm-userinfo/      # OAuth2 User info API server (profile, roles)
-├── datagsm-resource/      # Resource API server (students, clubs, NEIS)
-└── datagsm-web/           # Admin web API server (Excel processing)
+├── datagsm-common/            # Shared library (Entity, DTO, Repository, Config)
+├── datagsm-oauth-authorization/ # OAuth2 authentication server
+├── datagsm-oauth-userinfo/    # OAuth2 User info API server (profile, roles)
+├── datagsm-openapi/           # Resource API server (students, clubs, NEIS)
+└── datagsm-web/               # Admin web API server (Excel processing)
 ```
 
 Each module follows: `controller/`, `service/`, `repository/`, `entity/`, `dto/`
@@ -32,7 +32,10 @@ Each module follows: `controller/`, `service/`, `repository/`, `entity/`, `dto/`
 - Build: `./gradlew build`
 - Test: `./gradlew test`
 - Format: `./gradlew ktlintFormat`
-- Run: `./gradlew :datagsm-{module}:bootRun`
+- Run: `./gradlew :datagsm-oauth-authorization:bootRun`
+- Run: `./gradlew :datagsm-openapi:bootRun`
+- Run: `./gradlew :datagsm-oauth-userinfo:bootRun`
+- Run: `./gradlew :datagsm-web:bootRun`
 
 ## Coding Conventions
 
@@ -52,7 +55,7 @@ Each module follows: `controller/`, `service/`, `repository/`, `entity/`, `dto/`
 
 **Commit Message Format**: `type(scope): description`
 - Types: add/update/fix/refactor/test/docs/merge
-- Scopes: ONLY domain names (auth, account, student, club, project, neis, client, oauth) OR module names (web, authorization, resource, common) OR global
+- Scopes: ONLY domain names (auth, account, student, club, project, neis, client, oauth) OR module names (web, oauth-authorization, openapi, oauth-userinfo, common) OR global
 - Description: Korean, lowercase start, no period, avoid noun-ending style
 
 **PR Title Format**: `[scope] description`
