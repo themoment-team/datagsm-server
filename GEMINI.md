@@ -18,7 +18,7 @@ DataGSM is a Spring Boot REST API service providing school information (students
 
 ```
 datagsm-server/
-├── datagsm-common/            # Shared library (Entity, DTO, Repository, Config)
+├── datagsm-common/            # Shared library (Entity, DTO, Repository, Config, Health API)
 ├── datagsm-oauth-authorization/ # OAuth2 authentication server
 ├── datagsm-oauth-userinfo/    # OAuth2 User info API server (profile, roles)
 ├── datagsm-openapi/           # Resource API server (students, clubs, NEIS)
@@ -26,6 +26,8 @@ datagsm-server/
 ```
 
 Each module follows: `controller/`, `service/`, `repository/`, `entity/`, `dto/`
+
+**Note**: `/v1/health` endpoint is provided by `HealthController` in `datagsm-common/global/controller/` and is shared across all modules.
 
 ## Commands
 
