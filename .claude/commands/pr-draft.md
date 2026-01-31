@@ -17,7 +17,7 @@ This project uses the following PR title format: `[scope] description`
 
 **Available Scopes:**
 - Domain names: auth, account, student, club, project, neis, client, oauth
-- Module names: web, authorization, resource, common
+- Module names: web, authorization, resource, userinfo
 - Others: ci/cd, global
 
 **Recent PR Title Examples:**

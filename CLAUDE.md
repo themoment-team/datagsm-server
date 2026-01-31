@@ -10,6 +10,7 @@ School information API server for Gwangju Software Meister High School (students
 
 - datagsm-common: Shared Entity/DTO/Repository
 - datagsm-authorization: OAuth2 authentication, account management
+- datagsm-userinfo: OAuth2 user info API (profile, roles)
 - datagsm-resource: Resource API (students, clubs, NEIS integration)
 - datagsm-web: Admin web API (including Excel processing)
 
