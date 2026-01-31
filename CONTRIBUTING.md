@@ -99,7 +99,8 @@ datagsm-server/
 ├── datagsm-common/              # 공유 라이브러리
 │   ├── domain/                 # Entity, Repository
 │   ├── dto/                    # 공통 DTO
-│   └── global/                 # Config, Exception Handling
+│   └── global/                 # Config, Exception Handling, Health API
+│       └── controller/         # 공통 Controller (Health)
 ├── datagsm-oauth-authorization/ # OAuth2 인증 서버 (포트: 8081)
 │   └── domain/
 │       ├── account/            # 계정 관리
@@ -121,13 +122,13 @@ datagsm-server/
 
 ### 모듈별 역할
 
-| 모듈                              | 역할                                | 의존성            |
-|---------------------------------|-----------------------------------|----------------|
-| **datagsm-common**              | 공통 Entity, DTO, Repository, 예외 처리 | -              |
-| **datagsm-oauth-authorization** | DataGSM OAuth 제공                  | datagsm-common |
-| **datagsm-oauth-userinfo**      | DataGSM OAuth UserInfo 제공         | datagsm-common |
-| **datagsm-openapi**             | DataGSM OpenAPI 제공                | datagsm-common |
-| **datagsm-web**                 | DataGSM Web 서비스 전용 API 제공         | datagsm-common |
+| 모듈                              | 역할                                               | 의존성            |
+|---------------------------------|--------------------------------------------------|----------------|
+| **datagsm-common**              | 공통 Entity, DTO, Repository, 예외 처리, Health API 제공 | -              |
+| **datagsm-oauth-authorization** | DataGSM OAuth 제공                                 | datagsm-common |
+| **datagsm-oauth-userinfo**      | DataGSM OAuth UserInfo 제공                        | datagsm-common |
+| **datagsm-openapi**             | DataGSM OpenAPI 제공                               | datagsm-common |
+| **datagsm-web**                 | DataGSM Web 서비스 전용 API 제공                        | datagsm-common |
 
 ### 패키지 구조
 
@@ -150,8 +151,11 @@ team.themoment.datagsm.{module}/
 └── global/
     ├── config/                    # Spring Configuration
     ├── security/                  # Security, JWT
+    ├── controller/                # 공통 Controller (common 모듈만)
     └── common/                    # 공통 유틸리티
 ```
+
+**참고**: `/v1/health` 엔드포인트는 모든 모듈에서 공통으로 사용되며, `datagsm-common` 모듈의 `HealthController`에 정의되어 있습니다.
 
 ## IDE 및 빌드 설정
 
