@@ -57,10 +57,14 @@ Each module follows: `controller/`, `service/`, `repository/`, `entity/`, `dto/`
 
 **Commit Message Format**: `type(scope): description`
 - Types: add/update/fix/refactor/test/docs/merge
-- Scopes: ONLY domain names (auth, account, student, club, project, neis, client, oauth) OR module names (web, oauth-authorization, openapi, oauth-userinfo, common) OR global
+- Scopes:
+  - **Primary**: Domain names (auth, account, student, club, project, neis, client, oauth)
+  - **Cross-cutting concerns only**: Module names (web, authorization, userinfo, resource, common) or global
+  - Use domain names by default. Only use module names when changes affect multiple modules or cross-cutting concerns.
 - Description: Korean, lowercase start, no period, avoid noun-ending style
 
 **PR Title Format**: `[scope] description`
+- Scope: Use domain names (auth, account, student, club, etc.) by default. Only use module names (web, authorization, etc.) or global for cross-cutting concerns.
 - Examples: `[global] 기여자 지침 문서 추가`, `[student] 졸업생 전환 및 저장 기능 구현`
 
 ## Key Practices
