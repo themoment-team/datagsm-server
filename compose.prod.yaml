@@ -12,7 +12,7 @@ services:
     build:
       context: ./datagsm-oauth-authorization
       dockerfile: prod.dockerfile
-    container_name: datagsm-oauth-auth-prod
+    container_name: datagsm-oauth-authorization-prod
     ports:
       - "8081:8081"
     restart: unless-stopped
