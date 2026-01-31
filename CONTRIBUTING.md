@@ -249,7 +249,7 @@ git checkout -b refactor/optimize-club-query
 - `auth`, `account`, `oauth`, `club`, `student`, `neis`, `project`, `client`
 - 특정 기능이나 도메인에 관련된 변경사항에 사용
 
-**모듈 레벨횡단관심사만:**
+**모듈 레벨 (횡단관심사만):**
 - `authorization`, `userinfo`, `resource`, `web`, `common`, `global`
 - 여러 모듈에 걸친 변경사항이나 공통 설정, 보안, 유틸리티 등에만 사용
 
