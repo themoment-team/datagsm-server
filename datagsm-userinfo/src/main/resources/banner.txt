@@ -1,0 +1,7 @@
+${AnsiColor.BRIGHT_RED}    ____        _          ____ ____  __  __
+${AnsiColor.BRIGHT_YELLOW}   |  _ \  __ _| |_ __ _  / ___/ ___||  \/  |
+${AnsiColor.BRIGHT_GREEN}   | | | |/ _` | __/ _` || |  _\___ \| |\/| |
+${AnsiColor.BRIGHT_CYAN}   | |_| | (_| | || (_| || |_| |___) | |  | |
+${AnsiColor.BRIGHT_BLUE}   |____/ \__,_|\__\__,_| \____|____/|_|  |_|
+
+${AnsiColor.BRIGHT_MAGENTA}   :: DataGSM UserInfo Server ::   ${AnsiColor.DEFAULT}
