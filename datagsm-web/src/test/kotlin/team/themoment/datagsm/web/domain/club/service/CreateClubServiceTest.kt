@@ -10,7 +10,7 @@ import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -65,11 +65,11 @@ class CreateClubServiceTest :
                             type = ClubType.AUTONOMOUS_CLUB,
                             leaderId = 100L,
                         )
-                    lateinit var mockLeader: StudentJpaEntity
+                    lateinit var mockLeader: EnrolledStudent
 
                     beforeEach {
                         mockLeader =
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 this.id = 100L
                                 this.name = "부장이름"
                                 this.email = "leader@gsm.hs.kr"

@@ -9,7 +9,7 @@ import io.mockk.verify
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -53,7 +53,7 @@ class DeleteClubServiceTest :
 
                     beforeEach {
                         val leader =
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 this.id = 100L
                                 this.name = "부장"
                                 this.email = "leader@gsm.hs.kr"

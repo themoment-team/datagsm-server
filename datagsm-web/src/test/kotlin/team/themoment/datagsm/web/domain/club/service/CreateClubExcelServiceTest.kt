@@ -13,7 +13,7 @@ import org.springframework.http.HttpStatus
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -43,7 +43,7 @@ class CreateClubExcelServiceTest :
 
                 context("정상적인 동아리 데이터로 Excel을 생성할 때") {
                     val majorClubLeader =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             id = 1L
                             name = "김철수"
                             studentNumber = StudentNumber(2, 4, 4)
@@ -53,7 +53,7 @@ class CreateClubExcelServiceTest :
                         }
 
                     val jobClubLeader =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             id = 2L
                             name = "이영희"
                             studentNumber = StudentNumber(2, 3, 5)
@@ -63,7 +63,7 @@ class CreateClubExcelServiceTest :
                         }
 
                     val autonomousClubLeader =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             id = 3L
                             name = "박민수"
                             studentNumber = StudentNumber(1, 2, 10)
@@ -170,7 +170,7 @@ class CreateClubExcelServiceTest :
                 context("다수의 동아리가 있을 때") {
                     val leaders =
                         (1..5).map { idx ->
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 id = idx.toLong()
                                 name = "학생$idx"
                                 studentNumber = StudentNumber(2, 1, idx)
@@ -214,7 +214,7 @@ class CreateClubExcelServiceTest :
 
                 context("각 타입별로 다른 개수의 동아리가 있을 때") {
                     val majorLeader =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             id = 1L
                             name = "전공부장"
                             studentNumber = StudentNumber(2, 1, 1)
@@ -225,7 +225,7 @@ class CreateClubExcelServiceTest :
 
                     val jobLeaders =
                         (1..3).map { idx ->
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 id = idx.toLong() + 1
                                 name = "취업부장$idx"
                                 studentNumber = StudentNumber(2, 2, idx)

@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -74,11 +74,11 @@ class QueryClubServiceTest :
 
                     lateinit var e1: ClubJpaEntity
                     lateinit var e2: ClubJpaEntity
-                    lateinit var leader1: StudentJpaEntity
-                    lateinit var leader2: StudentJpaEntity
+                    lateinit var leader1: EnrolledStudent
+                    lateinit var leader2: EnrolledStudent
                     beforeEach {
                         leader1 =
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 this.id = 10L
                                 this.name = "Leader1"
                                 this.email = "leader1@gsm.hs.kr"
@@ -87,7 +87,7 @@ class QueryClubServiceTest :
                                 this.sex = Sex.MAN
                             }
                         leader2 =
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 this.id = 20L
                                 this.name = "Leader2"
                                 this.email = "leader2@gsm.hs.kr"
@@ -151,15 +151,15 @@ class QueryClubServiceTest :
                     lateinit var e3: ClubJpaEntity
                     lateinit var e4: ClubJpaEntity
                     lateinit var e5: ClubJpaEntity
-                    lateinit var leader1: StudentJpaEntity
-                    lateinit var leader2: StudentJpaEntity
-                    lateinit var leader3: StudentJpaEntity
-                    lateinit var leader4: StudentJpaEntity
-                    lateinit var leader5: StudentJpaEntity
+                    lateinit var leader1: EnrolledStudent
+                    lateinit var leader2: EnrolledStudent
+                    lateinit var leader3: EnrolledStudent
+                    lateinit var leader4: EnrolledStudent
+                    lateinit var leader5: EnrolledStudent
 
                     beforeEach {
                         leader1 =
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 this.id = 10L
                                 this.name = "L1"
                                 this.email = "l1@gsm.hs.kr"
@@ -168,7 +168,7 @@ class QueryClubServiceTest :
                                 this.sex = Sex.MAN
                             }
                         leader2 =
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 this.id = 20L
                                 this.name = "L2"
                                 this.email = "l2@gsm.hs.kr"
@@ -177,7 +177,7 @@ class QueryClubServiceTest :
                                 this.sex = Sex.MAN
                             }
                         leader3 =
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 this.id = 30L
                                 this.name = "L3"
                                 this.email = "l3@gsm.hs.kr"
@@ -186,7 +186,7 @@ class QueryClubServiceTest :
                                 this.sex = Sex.MAN
                             }
                         leader4 =
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 this.id = 40L
                                 this.name = "L4"
                                 this.email = "l4@gsm.hs.kr"
@@ -195,7 +195,7 @@ class QueryClubServiceTest :
                                 this.sex = Sex.MAN
                             }
                         leader5 =
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 this.id = 50L
                                 this.name = "L5"
                                 this.email = "l5@gsm.hs.kr"

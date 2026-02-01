@@ -10,7 +10,7 @@ import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -36,11 +36,11 @@ class ModifyClubServiceTest :
             describe("execute 메서드는") {
                 val clubId = 1L
                 lateinit var existing: ClubJpaEntity
-                lateinit var oldLeader: StudentJpaEntity
+                lateinit var oldLeader: EnrolledStudent
 
                 beforeEach {
                     oldLeader =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             this.id = 10L
                             this.name = "기존부장"
                             this.email = "old@gsm.hs.kr"
@@ -64,11 +64,11 @@ class ModifyClubServiceTest :
                             type = ClubType.JOB_CLUB,
                             leaderId = 20L,
                         )
-                    lateinit var newLeader: StudentJpaEntity
+                    lateinit var newLeader: EnrolledStudent
 
                     beforeEach {
                         newLeader =
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 this.id = 20L
                                 this.name = "새부장"
                                 this.email = "new@gsm.hs.kr"

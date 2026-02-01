@@ -14,7 +14,7 @@ import org.springframework.mock.web.MockMultipartFile
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -82,7 +82,7 @@ class ModifyClubExcelServiceTest :
                         )
 
                     val leader1 =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             id = 1L
                             name = "김철수"
                             studentNumber = StudentNumber(2, 4, 4)
@@ -92,7 +92,7 @@ class ModifyClubExcelServiceTest :
                         }
 
                     val leader2 =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             id = 2L
                             name = "이영희"
                             studentNumber = StudentNumber(2, 3, 5)
@@ -102,7 +102,7 @@ class ModifyClubExcelServiceTest :
                         }
 
                     val leader3 =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             id = 3L
                             name = "박민수"
                             studentNumber = StudentNumber(1, 2, 10)
@@ -490,7 +490,7 @@ class ModifyClubExcelServiceTest :
                         }
 
                     val newLeader =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             id = 1L
                             name = "김철수"
                             studentNumber = StudentNumber(2, 4, 4)
