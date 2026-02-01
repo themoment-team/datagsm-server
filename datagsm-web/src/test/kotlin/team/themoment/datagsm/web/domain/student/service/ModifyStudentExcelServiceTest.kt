@@ -12,7 +12,7 @@ import org.springframework.mock.web.MockMultipartFile
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -109,7 +109,7 @@ class ModifyStudentExcelServiceTest :
                         )
 
                     val existingStudent =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             id = 1L
                             name = "기존이름"
                             studentNumber = StudentNumber(1, 1, 1)
@@ -435,12 +435,12 @@ class ModifyStudentExcelServiceTest :
                         )
 
                     val student1 =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             studentNumber = StudentNumber(1, 1, 1)
                         }
 
                     val student2 =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             studentNumber = StudentNumber(2, 2, 2)
                         }
 
@@ -470,7 +470,7 @@ class ModifyStudentExcelServiceTest :
                         )
 
                     val existingStudent =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             studentNumber = StudentNumber(1, 1, 1)
                         }
 

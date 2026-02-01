@@ -4,10 +4,12 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
+import team.themoment.datagsm.common.domain.student.entity.NonEnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -18,13 +20,13 @@ import java.util.Optional
 
 class GraduateStudentServiceImplTest :
     BehaviorSpec({
-        val studentJpaRepository = mockk<StudentJpaRepository>()
+        val studentJpaRepository = mockk<StudentJpaRepository>(relaxed = true)
         val graduateStudentService = GraduateStudentServiceImpl(studentJpaRepository)
 
         Given("3학년 학생이 존재하는 경우") {
             val studentId = 1L
             val student =
-                StudentJpaEntity().apply {
+                EnrolledStudent().apply {
                     id = studentId
                     name = "홍길동"
                     email = "hong@gsm.hs.kr"
@@ -40,11 +42,12 @@ class GraduateStudentServiceImplTest :
             When("해당 학생을 졸업 처리하면") {
                 graduateStudentService.execute(studentId)
 
-                Then("학생 정보가 졸업생으로 변경된다") {
-                    student.role shouldBe StudentRole.GRADUATE
-                    student.major shouldBe null
-                    student.studentNumber shouldBe null
-                    student.dormitoryRoomNumber shouldBe null
+                Then("기존 EnrolledStudent가 삭제된다") {
+                    verify(exactly = 1) { studentJpaRepository.delete(student) }
+                }
+
+                Then("NonEnrolledStudent가 생성되어 저장된다") {
+                    verify(exactly = 1) { studentJpaRepository.save(ofType<NonEnrolledStudent>()) }
                 }
 
                 Then("Repository의 findById가 호출된다") {

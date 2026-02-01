@@ -13,7 +13,7 @@ import org.springframework.http.HttpStatus
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -72,7 +72,7 @@ class CreateStudentExcelServiceTest :
 
                     val grade1Students =
                         listOf(
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 id = 1L
                                 name = "홍길동"
                                 studentNumber = StudentNumber(1, 1, 1)
@@ -90,7 +90,7 @@ class CreateStudentExcelServiceTest :
 
                     val grade2Students =
                         listOf(
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 id = 2L
                                 name = "김철수"
                                 studentNumber = StudentNumber(2, 2, 5)
@@ -108,7 +108,7 @@ class CreateStudentExcelServiceTest :
 
                     val grade3Students =
                         listOf(
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 id = 3L
                                 name = "이영희"
                                 studentNumber = StudentNumber(3, 3, 10)
@@ -231,7 +231,7 @@ class CreateStudentExcelServiceTest :
                 context("다수의 학생이 있을 때") {
                     val students =
                         (1..30).map { idx ->
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 id = idx.toLong()
                                 name = "학생$idx"
                                 studentNumber = StudentNumber(2, 1, idx)
@@ -293,7 +293,7 @@ class CreateStudentExcelServiceTest :
                 context("각 학년별로 다른 수의 학생이 있을 때") {
                     val grade1Students =
                         (1..5).map { idx ->
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 id = idx.toLong()
                                 name = "1학년학생$idx"
                                 studentNumber = StudentNumber(1, 1, idx)
@@ -307,7 +307,7 @@ class CreateStudentExcelServiceTest :
 
                     val grade2Students =
                         (1..10).map { idx ->
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 id = (idx + 5).toLong()
                                 name = "2학년학생$idx"
                                 studentNumber = StudentNumber(2, 1, idx)
@@ -321,7 +321,7 @@ class CreateStudentExcelServiceTest :
 
                     val grade3Students =
                         (1..3).map { idx ->
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 id = (idx + 15).toLong()
                                 name = "3학년학생$idx"
                                 studentNumber = StudentNumber(3, 1, idx)

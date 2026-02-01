@@ -11,7 +11,7 @@ import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -38,11 +38,11 @@ class ModifyStudentServiceTest :
             describe("execute 메서드는") {
 
                 val studentId = 1L
-                lateinit var existingStudent: StudentJpaEntity
+                lateinit var existingStudent: EnrolledStudent
 
                 beforeEach {
                     existingStudent =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             this.id = studentId
                             name = "기존학생"
                             sex = Sex.MAN

@@ -8,7 +8,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.request.CreateStudentReqDto
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
@@ -83,7 +83,7 @@ class CreateStudentServiceTest :
                             )
                         } returns false
                         every { mockStudentRepository.save(any()) } answers {
-                            val entity = firstArg<StudentJpaEntity>()
+                            val entity = firstArg<EnrolledStudent>()
                             entity.apply { this.id = 100L }
                         }
                     }

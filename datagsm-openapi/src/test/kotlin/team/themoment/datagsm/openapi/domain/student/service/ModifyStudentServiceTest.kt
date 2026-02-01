@@ -8,7 +8,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentReqDto
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -74,11 +74,11 @@ class ModifyStudentServiceTest :
                             role = StudentRole.GENERAL_STUDENT,
                             isLeaveSchool = false,
                         )
-                    lateinit var existingStudent: StudentJpaEntity
+                    lateinit var existingStudent: EnrolledStudent
 
                     beforeEach {
                         existingStudent =
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 this.id = studentId
                                 this.name = "기존이름"
                                 this.sex = Sex.MAN

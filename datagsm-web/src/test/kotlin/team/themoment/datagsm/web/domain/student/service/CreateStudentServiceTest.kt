@@ -12,7 +12,7 @@ import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.request.CreateStudentReqDto
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -50,7 +50,7 @@ class CreateStudentServiceTest :
                         )
 
                     val savedStudent =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             id = 1L
                             name = createRequest.name
                             sex = createRequest.sex
@@ -117,7 +117,7 @@ class CreateStudentServiceTest :
                         )
 
                     val savedStudent =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             id = 2L
                             name = createRequest.name
                             sex = createRequest.sex
@@ -276,7 +276,7 @@ class CreateStudentServiceTest :
                         )
 
                     val savedStudent =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             id = 1L
                             name = createRequest.name
                             sex = createRequest.sex
@@ -324,7 +324,7 @@ class CreateStudentServiceTest :
                         )
 
                     val savedStudent =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             id = 2L
                             name = createRequest.name
                             sex = createRequest.sex
@@ -372,7 +372,7 @@ class CreateStudentServiceTest :
                         )
 
                     val savedStudent =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             id = 4L
                             name = createRequest.name
                             sex = createRequest.sex
@@ -442,7 +442,7 @@ class CreateStudentServiceTest :
                         )
 
                     val savedStudent =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             id = 1L
                             name = createRequest.name
                             sex = createRequest.sex

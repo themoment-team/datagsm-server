@@ -9,7 +9,7 @@ import io.mockk.verify
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -32,7 +32,7 @@ class QueryStudentServiceTest :
             describe("execute 메서드는") {
 
                 val testStudent =
-                    StudentJpaEntity().apply {
+                    EnrolledStudent().apply {
                         id = 1L
                         name = "홍길동"
                         sex = Sex.MAN
@@ -212,7 +212,7 @@ class QueryStudentServiceTest :
                 context("페이지네이션으로 여러 학생을 조회할 때") {
                     val students =
                         (1..50).map { index ->
-                            StudentJpaEntity().apply {
+                            EnrolledStudent().apply {
                                 id = index.toLong()
                                 name = "학생$index"
                                 sex = if (index % 2 == 0) Sex.WOMAN else Sex.MAN

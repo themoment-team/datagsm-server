@@ -3,10 +3,12 @@ package team.themoment.datagsm.web.domain.student.service.impl
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
+import team.themoment.datagsm.common.domain.student.entity.NonEnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -15,12 +17,12 @@ import team.themoment.datagsm.common.domain.student.repository.StudentJpaReposit
 
 class GraduateThirdGradeStudentsServiceImplTest :
     BehaviorSpec({
-        val studentJpaRepository = mockk<StudentJpaRepository>()
+        val studentJpaRepository = mockk<StudentJpaRepository>(relaxed = true)
         val graduateThirdGradeStudentsService = GraduateThirdGradeStudentsServiceImpl(studentJpaRepository)
 
         Given("3학년 학생들이 존재하는 경우") {
             val student1 =
-                StudentJpaEntity().apply {
+                EnrolledStudent().apply {
                     id = 1L
                     name = "학생1"
                     email = "student1@gsm.hs.kr"
@@ -32,7 +34,7 @@ class GraduateThirdGradeStudentsServiceImplTest :
                 }
 
             val student2 =
-                StudentJpaEntity().apply {
+                EnrolledStudent().apply {
                     id = 2L
                     name = "학생2"
                     email = "student2@gsm.hs.kr"
@@ -44,7 +46,7 @@ class GraduateThirdGradeStudentsServiceImplTest :
                 }
 
             val student3 =
-                StudentJpaEntity().apply {
+                EnrolledStudent().apply {
                     id = 3L
                     name = "학생3"
                     email = "student3@gsm.hs.kr"
@@ -58,6 +60,8 @@ class GraduateThirdGradeStudentsServiceImplTest :
             val thirdGradeStudents = listOf(student1, student2, student3)
 
             every { studentJpaRepository.findStudentsByGrade(3) } returns thirdGradeStudents
+            justRun { studentJpaRepository.deleteAll(any<List<EnrolledStudent>>()) }
+            every { studentJpaRepository.saveAll(any<List<NonEnrolledStudent>>()) } returns emptyList()
 
             When("모든 3학년 학생을 졸업 처리하면") {
                 val result = graduateThirdGradeStudentsService.execute()
@@ -66,12 +70,15 @@ class GraduateThirdGradeStudentsServiceImplTest :
                     result.graduatedCount shouldBe 3
                 }
 
-                Then("모든 학생의 정보가 졸업생으로 변경된다") {
-                    thirdGradeStudents.forEach { student ->
-                        student.role shouldBe StudentRole.GRADUATE
-                        student.major shouldBe null
-                        student.studentNumber shouldBe null
-                        student.dormitoryRoomNumber shouldBe null
+                Then("기존 EnrolledStudent들이 삭제되고 NonEnrolledStudent들이 생성된다") {
+                    verify(exactly = 1) { studentJpaRepository.deleteAll(thirdGradeStudents) }
+                    verify(exactly = 1) {
+                        studentJpaRepository.saveAll(
+                            match<List<NonEnrolledStudent>> { list ->
+                                list.size == 3 &&
+                                    list.all { it.role == StudentRole.GRADUATE }
+                            },
+                        )
                     }
                 }
 
@@ -83,6 +90,8 @@ class GraduateThirdGradeStudentsServiceImplTest :
 
         Given("3학년 학생이 없는 경우") {
             every { studentJpaRepository.findStudentsByGrade(3) } returns emptyList()
+            justRun { studentJpaRepository.deleteAll(any<List<EnrolledStudent>>()) }
+            every { studentJpaRepository.saveAll(any<List<NonEnrolledStudent>>()) } returns emptyList()
 
             When("모든 3학년 학생을 졸업 처리하면") {
                 val result = graduateThirdGradeStudentsService.execute()
