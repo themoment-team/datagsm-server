@@ -12,7 +12,7 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.DynamicUpdate
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.BaseStudent
 
 @Table(name = "tb_club")
 @Entity
@@ -32,5 +32,5 @@ class ClubJpaEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "leader_id", nullable = false, referencedColumnName = "id")
-    lateinit var leader: StudentJpaEntity
+    lateinit var leader: BaseStudent
 }

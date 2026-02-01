@@ -14,7 +14,7 @@ import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.DynamicUpdate
 import org.hibernate.annotations.UpdateTimestamp
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.BaseStudent
 import java.time.LocalDateTime
 
 @Table(name = "tb_account")
@@ -38,7 +38,7 @@ class AccountJpaEntity {
 
     @OneToOne
     @JoinColumn(name = "student_id", nullable = true, referencedColumnName = "id")
-    var student: StudentJpaEntity? = null
+    var student: BaseStudent? = null
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

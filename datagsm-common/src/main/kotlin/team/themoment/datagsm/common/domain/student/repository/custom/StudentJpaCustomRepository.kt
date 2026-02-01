@@ -3,7 +3,8 @@ package team.themoment.datagsm.common.domain.student.repository.custom
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.BaseStudent
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentSortBy
@@ -25,7 +26,7 @@ interface StudentJpaCustomRepository {
         pageable: Pageable,
         sortBy: StudentSortBy?,
         sortDirection: SortDirection,
-    ): Page<StudentJpaEntity>
+    ): Page<BaseStudent>
 
     fun existsByEmail(email: String): Boolean
 
@@ -47,9 +48,9 @@ interface StudentJpaCustomRepository {
         id: Long,
     ): Boolean
 
-    fun findStudentsByGrade(grade: Int): List<StudentJpaEntity>
+    fun findStudentsByGrade(grade: Int): List<EnrolledStudent>
 
-    fun findAllStudents(): List<StudentJpaEntity>
+    fun findAllStudents(): List<BaseStudent>
 
     fun searchRegisteredStudentsWithPaging(
         id: Long?,
@@ -66,11 +67,11 @@ interface StudentJpaCustomRepository {
         pageable: Pageable,
         sortBy: StudentSortBy?,
         sortDirection: SortDirection,
-    ): Page<StudentJpaEntity>
+    ): Page<BaseStudent>
 
-    fun findRegisteredStudentsByMajorClub(club: ClubJpaEntity): List<StudentJpaEntity>
+    fun findRegisteredStudentsByMajorClub(club: ClubJpaEntity): List<EnrolledStudent>
 
-    fun findRegisteredStudentsByJobClub(club: ClubJpaEntity): List<StudentJpaEntity>
+    fun findRegisteredStudentsByJobClub(club: ClubJpaEntity): List<EnrolledStudent>
 
-    fun findRegisteredStudentsByAutonomousClub(club: ClubJpaEntity): List<StudentJpaEntity>
+    fun findRegisteredStudentsByAutonomousClub(club: ClubJpaEntity): List<EnrolledStudent>
 }

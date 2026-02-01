@@ -12,7 +12,7 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.DynamicUpdate
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.BaseStudent
 
 @Table(name = "tb_project")
 @Entity
@@ -39,5 +39,5 @@ class ProjectJpaEntity {
         joinColumns = [JoinColumn(name = "project_id")],
         inverseJoinColumns = [JoinColumn(name = "student_id")],
     )
-    var participants: MutableSet<StudentJpaEntity> = mutableSetOf()
+    var participants: MutableSet<BaseStudent> = mutableSetOf()
 }
