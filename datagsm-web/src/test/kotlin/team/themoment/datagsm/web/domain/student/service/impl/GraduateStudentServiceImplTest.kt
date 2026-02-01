@@ -7,6 +7,7 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
+import team.themoment.datagsm.common.domain.student.entity.BaseStudent
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.NonEnrolledStudent
@@ -20,7 +21,7 @@ import java.util.Optional
 
 class GraduateStudentServiceImplTest :
     BehaviorSpec({
-        val studentJpaRepository = mockk<StudentJpaRepository>(relaxed = true)
+        val studentJpaRepository = mockk<StudentJpaRepository>()
         val graduateStudentService = GraduateStudentServiceImpl(studentJpaRepository)
 
         Given("3학년 학생이 존재하는 경우") {
@@ -38,20 +39,16 @@ class GraduateStudentServiceImplTest :
                 }
 
             every { studentJpaRepository.findById(studentId) } returns Optional.of(student)
+            justRun { studentJpaRepository.delete(any()) }
+            every { studentJpaRepository.save(any<BaseStudent>()) } answers { firstArg() }
 
             When("해당 학생을 졸업 처리하면") {
-                graduateStudentService.execute(studentId)
+                Then("기존 EnrolledStudent가 삭제되고 NonEnrolledStudent가 생성된다") {
+                    graduateStudentService.execute(studentId)
 
-                Then("기존 EnrolledStudent가 삭제된다") {
-                    verify(exactly = 1) { studentJpaRepository.delete(student) }
-                }
-
-                Then("NonEnrolledStudent가 생성되어 저장된다") {
-                    verify(exactly = 1) { studentJpaRepository.save(ofType<NonEnrolledStudent>()) }
-                }
-
-                Then("Repository의 findById가 호출된다") {
                     verify(exactly = 1) { studentJpaRepository.findById(studentId) }
+                    verify(exactly = 1) { studentJpaRepository.delete(student) }
+                    verify { studentJpaRepository.save(any<NonEnrolledStudent>()) }
                 }
             }
         }

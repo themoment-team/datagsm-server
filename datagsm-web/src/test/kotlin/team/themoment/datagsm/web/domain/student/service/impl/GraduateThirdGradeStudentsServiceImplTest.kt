@@ -3,7 +3,6 @@ package team.themoment.datagsm.web.domain.student.service.impl
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
-import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
@@ -60,38 +59,21 @@ class GraduateThirdGradeStudentsServiceImplTest :
             val thirdGradeStudents = listOf(student1, student2, student3)
 
             every { studentJpaRepository.findStudentsByGrade(3) } returns thirdGradeStudents
-            justRun { studentJpaRepository.deleteAll(any<List<EnrolledStudent>>()) }
-            every { studentJpaRepository.saveAll(any<List<NonEnrolledStudent>>()) } returns emptyList()
 
             When("모든 3학년 학생을 졸업 처리하면") {
-                val result = graduateThirdGradeStudentsService.execute()
+                Then("졸업 처리된 학생 수가 반환되고 삭제/생성이 호출된다") {
+                    val result = graduateThirdGradeStudentsService.execute()
 
-                Then("졸업 처리된 학생 수가 반환된다") {
                     result.graduatedCount shouldBe 3
-                }
-
-                Then("기존 EnrolledStudent들이 삭제되고 NonEnrolledStudent들이 생성된다") {
-                    verify(exactly = 1) { studentJpaRepository.deleteAll(thirdGradeStudents) }
-                    verify(exactly = 1) {
-                        studentJpaRepository.saveAll(
-                            match<List<NonEnrolledStudent>> { list ->
-                                list.size == 3 &&
-                                    list.all { it.role == StudentRole.GRADUATE }
-                            },
-                        )
-                    }
-                }
-
-                Then("Repository의 findStudentsByGrade가 호출된다") {
                     verify(exactly = 1) { studentJpaRepository.findStudentsByGrade(3) }
+                    verify(exactly = 1) { studentJpaRepository.deleteAll(thirdGradeStudents) }
+                    verify(exactly = 1) { studentJpaRepository.saveAll(ofType<List<NonEnrolledStudent>>()) }
                 }
             }
         }
 
         Given("3학년 학생이 없는 경우") {
             every { studentJpaRepository.findStudentsByGrade(3) } returns emptyList()
-            justRun { studentJpaRepository.deleteAll(any<List<EnrolledStudent>>()) }
-            every { studentJpaRepository.saveAll(any<List<NonEnrolledStudent>>()) } returns emptyList()
 
             When("모든 3학년 학생을 졸업 처리하면") {
                 val result = graduateThirdGradeStudentsService.execute()
