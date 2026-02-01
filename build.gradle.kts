@@ -28,6 +28,10 @@ allprojects {
             }
         }
     }
+
+    configurations.all {
+        exclude(group = "org.bouncycastle")
+    }
 }
 
 tasks.whenTaskAdded {
