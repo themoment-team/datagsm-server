@@ -10,7 +10,8 @@ import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.BaseStudent
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.openapi.domain.club.service.ModifyClubService
 import team.themoment.sdk.exception.ExpectedException
@@ -56,8 +57,8 @@ class ModifyClubServiceImpl(
                     id = newLeader.id!!,
                     name = newLeader.name,
                     email = newLeader.email,
-                    studentNumber = newLeader.studentNumber?.fullStudentNumber,
-                    major = newLeader.major,
+                    studentNumber = (newLeader as? EnrolledStudent)?.studentNumber?.fullStudentNumber,
+                    major = (newLeader as? EnrolledStudent)?.major,
                     sex = newLeader.sex,
                 ),
             participants =
@@ -68,15 +69,15 @@ class ModifyClubServiceImpl(
                             id = student.id!!,
                             name = student.name,
                             email = student.email,
-                            studentNumber = student.studentNumber?.fullStudentNumber,
-                            major = student.major,
+                            studentNumber = (student as? EnrolledStudent)?.studentNumber?.fullStudentNumber,
+                            major = (student as? EnrolledStudent)?.major,
                             sex = student.sex,
                         )
                     },
         )
     }
 
-    private fun getParticipantsByClubType(club: ClubJpaEntity): List<StudentJpaEntity> =
+    private fun getParticipantsByClubType(club: ClubJpaEntity): List<BaseStudent> =
         when (club.type) {
             ClubType.MAJOR_CLUB -> studentJpaRepository.findByMajorClub(club)
             ClubType.JOB_CLUB -> studentJpaRepository.findByJobClub(club)

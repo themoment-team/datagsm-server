@@ -8,7 +8,7 @@ import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.request.CreateStudentReqDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
@@ -34,7 +34,7 @@ class CreateStudentServiceImpl(
         }
 
         val studentEntity =
-            StudentJpaEntity().apply {
+            EnrolledStudent().apply {
                 name = reqDto.name
                 sex = reqDto.sex
                 email = reqDto.email
@@ -71,10 +71,10 @@ class CreateStudentServiceImpl(
             name = savedStudent.name,
             sex = savedStudent.sex,
             email = savedStudent.email,
-            grade = savedStudent.studentNumber?.studentGrade,
-            classNum = savedStudent.studentNumber?.studentClass,
-            number = savedStudent.studentNumber?.studentNumber,
-            studentNumber = savedStudent.studentNumber?.fullStudentNumber,
+            grade = savedStudent.studentNumber.studentGrade,
+            classNum = savedStudent.studentNumber.studentClass,
+            number = savedStudent.studentNumber.studentNumber,
+            studentNumber = savedStudent.studentNumber.fullStudentNumber,
             major = savedStudent.major,
             role = savedStudent.role,
             dormitoryFloor = savedStudent.dormitoryRoomNumber?.dormitoryRoomFloor,

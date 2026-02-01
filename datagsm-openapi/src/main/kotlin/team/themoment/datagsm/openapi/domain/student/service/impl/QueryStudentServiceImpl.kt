@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentListResDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentSortBy
@@ -58,24 +59,53 @@ class QueryStudentServiceImpl(
             totalPages = studentPage.totalPages,
             students =
                 studentPage.content.map { entity ->
-                    StudentResDto(
-                        id = entity.id!!,
-                        name = entity.name,
-                        sex = entity.sex,
-                        email = entity.email,
-                        grade = entity.studentNumber?.studentGrade,
-                        classNum = entity.studentNumber?.studentClass,
-                        number = entity.studentNumber?.studentNumber,
-                        studentNumber = entity.studentNumber?.fullStudentNumber,
-                        major = entity.major,
-                        role = entity.role,
-                        dormitoryFloor = entity.dormitoryRoomNumber?.dormitoryRoomFloor,
-                        dormitoryRoom = entity.dormitoryRoomNumber?.dormitoryRoomNumber,
-                        isLeaveSchool = entity.isLeaveSchool,
-                        majorClub = entity.majorClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
-                        jobClub = entity.jobClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
-                        autonomousClub = entity.autonomousClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
-                    )
+                    when (entity) {
+                        is EnrolledStudent ->
+                            StudentResDto(
+                                id = entity.id!!,
+                                name = entity.name,
+                                sex = entity.sex,
+                                email = entity.email,
+                                grade = entity.studentNumber.studentGrade,
+                                classNum = entity.studentNumber.studentClass,
+                                number = entity.studentNumber.studentNumber,
+                                studentNumber = entity.studentNumber.fullStudentNumber,
+                                major = entity.major,
+                                role = entity.role,
+                                dormitoryFloor = entity.dormitoryRoomNumber?.dormitoryRoomFloor,
+                                dormitoryRoom = entity.dormitoryRoomNumber?.dormitoryRoomNumber,
+                                isLeaveSchool = entity.isLeaveSchool,
+                                majorClub = entity.majorClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
+                                jobClub = entity.jobClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
+                                autonomousClub =
+                                    entity.autonomousClub?.let {
+                                        ClubSummaryDto(
+                                            id = it.id!!,
+                                            name = it.name,
+                                            type = it.type,
+                                        )
+                                    },
+                            )
+                        else ->
+                            StudentResDto(
+                                id = entity.id!!,
+                                name = entity.name,
+                                sex = entity.sex,
+                                email = entity.email,
+                                grade = null,
+                                classNum = null,
+                                number = null,
+                                studentNumber = null,
+                                major = null,
+                                role = entity.role,
+                                dormitoryFloor = null,
+                                dormitoryRoom = null,
+                                isLeaveSchool = entity.isLeaveSchool,
+                                majorClub = null,
+                                jobClub = null,
+                                autonomousClub = null,
+                            )
+                    }
                 },
         )
     }

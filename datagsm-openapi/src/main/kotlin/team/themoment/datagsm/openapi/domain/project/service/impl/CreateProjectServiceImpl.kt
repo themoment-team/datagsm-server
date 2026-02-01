@@ -11,6 +11,8 @@ import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
+import team.themoment.datagsm.common.domain.student.entity.BaseStudent
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.openapi.domain.project.service.CreateProjectService
 import team.themoment.sdk.exception.ExpectedException
@@ -35,7 +37,7 @@ class CreateProjectServiceImpl(
                     HttpStatus.NOT_FOUND,
                 )
 
-        val participants =
+        val participants: MutableSet<BaseStudent> =
             if (projectReqDto.participantIds.isNotEmpty()) {
                 val foundStudents = studentJpaRepository.findAllById(projectReqDto.participantIds).toMutableSet()
                 val foundIds = foundStudents.map { it.id }.toSet()
@@ -76,8 +78,8 @@ class CreateProjectServiceImpl(
                         id = student.id!!,
                         name = student.name,
                         email = student.email,
-                        studentNumber = student.studentNumber?.fullStudentNumber,
-                        major = student.major,
+                        studentNumber = (student as? EnrolledStudent)?.studentNumber?.fullStudentNumber,
+                        major = (student as? EnrolledStudent)?.major,
                         sex = student.sex,
                     )
                 },

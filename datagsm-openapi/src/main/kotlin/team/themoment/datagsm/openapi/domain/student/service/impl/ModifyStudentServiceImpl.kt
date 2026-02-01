@@ -9,6 +9,7 @@ import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
@@ -29,6 +30,10 @@ class ModifyStudentServiceImpl(
             studentJpaRepository
                 .findByIdOrNull(studentId)
                 ?: throw ExpectedException("학생을 찾을 수 없습니다. studentId: $studentId", HttpStatus.NOT_FOUND)
+
+        if (student !is EnrolledStudent) {
+            throw ExpectedException("재학생만 수정 가능합니다.", HttpStatus.BAD_REQUEST)
+        }
         if (studentJpaRepository.existsByStudentEmailAndNotId(reqDto.email, studentId)) {
             throw ExpectedException("이미 존재하는 이메일입니다: ${reqDto.email}", HttpStatus.CONFLICT)
         }
@@ -79,10 +84,10 @@ class ModifyStudentServiceImpl(
             name = student.name,
             sex = student.sex,
             email = student.email,
-            grade = student.studentNumber?.studentGrade,
-            classNum = student.studentNumber?.studentClass,
-            number = student.studentNumber?.studentNumber,
-            studentNumber = student.studentNumber?.fullStudentNumber,
+            grade = student.studentNumber.studentGrade,
+            classNum = student.studentNumber.studentClass,
+            number = student.studentNumber.studentNumber,
+            studentNumber = student.studentNumber.fullStudentNumber,
             major = student.major,
             role = student.role,
             dormitoryFloor = student.dormitoryRoomNumber?.dormitoryRoomFloor,
