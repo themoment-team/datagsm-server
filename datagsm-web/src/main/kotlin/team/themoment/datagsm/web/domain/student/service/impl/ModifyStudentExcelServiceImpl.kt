@@ -12,6 +12,7 @@ import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelColumnDto
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelRowDto
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
@@ -73,8 +74,8 @@ class ModifyStudentExcelServiceImpl(
         val existingStudents =
             studentJpaRepository
                 .findAllStudents()
-                .filter { it.studentNumber?.fullStudentNumber != null }
-                .associateBy { it.studentNumber?.fullStudentNumber!! }
+                .filterIsInstance<EnrolledStudent>()
+                .associateBy { it.studentNumber.fullStudentNumber }
 
         val dbStudentNumbers = existingStudents.keys
         val excelStudentNumbers = studentNumbers.toSet()
@@ -129,7 +130,7 @@ class ModifyStudentExcelServiceImpl(
                     existingStudents.getValue(number).also { student ->
                         student.name = dto.name
                         student.email = "TEMP_${dto.number}"
-                        student.major = dto.major
+                        dto.major?.let { student.major = it }
                         student.majorClub =
                             dto.majorClub?.let { clubName ->
                                 existingMajorClubs[clubName]

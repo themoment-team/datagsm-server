@@ -11,7 +11,7 @@ import team.themoment.datagsm.common.domain.club.dto.internal.ExcelRowDto
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.club.service.ModifyClubExcelService
 import team.themoment.sdk.exception.ExpectedException
@@ -83,7 +83,7 @@ class ModifyClubExcelServiceImpl(
         return CommonApiResponse.success("엑셀 업로드 성공")
     }
 
-    private fun parseAndFindLeader(leaderInfo: String?): StudentJpaEntity {
+    private fun parseAndFindLeader(leaderInfo: String?): EnrolledStudent {
         if (leaderInfo.isNullOrBlank()) {
             throw ExpectedException(
                 "동아리 부장 정보가 비어있습니다.",

@@ -10,7 +10,8 @@ import team.themoment.datagsm.common.domain.club.entity.constant.ClubSortBy
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.BaseStudent
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.common.global.constant.SortDirection
 import team.themoment.datagsm.web.domain.club.service.QueryClubService
@@ -68,20 +69,30 @@ class QueryClubServiceImpl(
         )
     }
 
-    private fun getParticipantsByClubType(club: ClubJpaEntity): List<StudentJpaEntity> =
+    private fun getParticipantsByClubType(club: ClubJpaEntity): List<EnrolledStudent> =
         when (club.type) {
             ClubType.MAJOR_CLUB -> studentJpaRepository.findByMajorClub(club)
             ClubType.JOB_CLUB -> studentJpaRepository.findByJobClub(club)
             ClubType.AUTONOMOUS_CLUB -> studentJpaRepository.findByAutonomousClub(club)
         }
 
-    private fun StudentJpaEntity.toParticipantInfoDto() =
+    private fun EnrolledStudent.toParticipantInfoDto() =
         ParticipantInfoDto(
             id = this.id!!,
             name = this.name,
             email = this.email,
-            studentNumber = this.studentNumber?.fullStudentNumber,
+            studentNumber = this.studentNumber.fullStudentNumber,
             major = this.major,
+            sex = this.sex,
+        )
+
+    private fun BaseStudent.toParticipantInfoDto() =
+        ParticipantInfoDto(
+            id = this.id!!,
+            name = this.name,
+            email = this.email,
+            studentNumber = (this as? EnrolledStudent)?.studentNumber?.fullStudentNumber,
+            major = (this as? EnrolledStudent)?.major,
             sex = this.sex,
         )
 }

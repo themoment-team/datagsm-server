@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.dto.internal.ExcelRowDto
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.web.domain.club.service.CreateClubExcelService
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
@@ -110,7 +111,8 @@ class CreateClubExcelServiceImpl(
             val clubNames = clubs.map { it.name }
             val clubLeaders =
                 clubs.map { club ->
-                    club.leader.studentNumber
+                    (club.leader as? EnrolledStudent)
+                        ?.studentNumber
                         ?.fullStudentNumber
                         ?.let { "$it " }
                         .orEmpty() + club.leader.name

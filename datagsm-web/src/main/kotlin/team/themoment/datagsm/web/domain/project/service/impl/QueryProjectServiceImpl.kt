@@ -9,6 +9,7 @@ import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectSortBy
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.global.constant.SortDirection
 import team.themoment.datagsm.web.domain.project.service.QueryProjectService
 
@@ -52,8 +53,8 @@ class QueryProjectServiceImpl(
                                     id = student.id!!,
                                     name = student.name,
                                     email = student.email,
-                                    studentNumber = student.studentNumber?.fullStudentNumber,
-                                    major = student.major,
+                                    studentNumber = (student as? EnrolledStudent)?.studentNumber?.fullStudentNumber,
+                                    major = (student as? EnrolledStudent)?.major,
                                     sex = student.sex,
                                 )
                             },

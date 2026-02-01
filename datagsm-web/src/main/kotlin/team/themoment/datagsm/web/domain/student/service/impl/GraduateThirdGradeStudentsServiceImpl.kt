@@ -3,6 +3,7 @@ package team.themoment.datagsm.web.domain.student.service.impl
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.student.dto.response.GraduateStudentResDto
+import team.themoment.datagsm.common.domain.student.entity.NonEnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.student.service.GraduateThirdGradeStudentsService
@@ -15,15 +16,20 @@ class GraduateThirdGradeStudentsServiceImpl(
     override fun execute(): GraduateStudentResDto {
         val thirdGradeStudents = studentJpaRepository.findStudentsByGrade(3)
 
-        thirdGradeStudents.forEach { student ->
-            student.role = StudentRole.GRADUATE
-            student.major = null
-            student.studentNumber = null
-            student.dormitoryRoomNumber = null
-            student.majorClub = null
-            student.jobClub = null
-            student.autonomousClub = null
-        }
+        val nonEnrolledStudents =
+            thirdGradeStudents.map { student ->
+                NonEnrolledStudent().apply {
+                    id = student.id
+                    name = student.name
+                    email = student.email
+                    sex = student.sex
+                    role = StudentRole.GRADUATE
+                    isLeaveSchool = student.isLeaveSchool
+                }
+            }
+
+        studentJpaRepository.deleteAll(thirdGradeStudents)
+        studentJpaRepository.saveAll(nonEnrolledStudents)
 
         return GraduateStudentResDto(graduatedCount = thirdGradeStudents.size)
     }

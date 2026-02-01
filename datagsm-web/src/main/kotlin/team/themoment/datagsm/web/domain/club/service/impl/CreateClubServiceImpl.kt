@@ -9,6 +9,7 @@ import team.themoment.datagsm.common.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.club.service.CreateClubService
 import team.themoment.sdk.exception.ExpectedException
@@ -49,8 +50,8 @@ class CreateClubServiceImpl(
                     id = leader.id!!,
                     name = leader.name,
                     email = leader.email,
-                    studentNumber = leader.studentNumber?.fullStudentNumber,
-                    major = leader.major,
+                    studentNumber = (leader as? EnrolledStudent)?.studentNumber?.fullStudentNumber,
+                    major = (leader as? EnrolledStudent)?.major,
                     sex = leader.sex,
                 ),
             participants = emptyList(),

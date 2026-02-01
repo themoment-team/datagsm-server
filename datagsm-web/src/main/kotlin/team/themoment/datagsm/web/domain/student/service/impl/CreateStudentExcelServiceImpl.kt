@@ -123,7 +123,7 @@ class CreateStudentExcelServiceImpl(
                         list.map { student ->
                             ExcelColumnDto(
                                 name = student.name,
-                                number = student.studentNumber?.fullStudentNumber,
+                                number = student.studentNumber.fullStudentNumber,
                                 email = student.email,
                                 major = student.major,
                                 majorClub = student.majorClub?.name,
