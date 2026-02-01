@@ -12,7 +12,7 @@ import team.themoment.datagsm.common.domain.account.entity.RefreshTokenRedisEnti
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.auth.repository.RefreshTokenRedisRepository
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.global.data.InternalJwtEnvironment
 import team.themoment.datagsm.web.domain.auth.service.impl.ReissueTokenServiceImpl
@@ -202,7 +202,7 @@ class ReissueTokenServiceTest :
                         )
 
                     val student =
-                        StudentJpaEntity().apply {
+                        EnrolledStudent().apply {
                             id = 1L
                             this.email = email
                             role = StudentRole.STUDENT_COUNCIL
