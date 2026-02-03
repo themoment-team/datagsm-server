@@ -7,7 +7,7 @@ import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.BaseStudent
 import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.repository.custom.StudentJpaCustomRepository
-import java.util.Optional
+import java.util.*
 
 interface StudentJpaRepository :
     JpaRepository<BaseStudent, Long>,
@@ -27,7 +27,7 @@ interface StudentJpaRepository :
         name: String,
     ): EnrolledStudent?
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(
         value = """
             UPDATE tb_student
@@ -48,7 +48,7 @@ interface StudentJpaRepository :
     )
     fun graduateStudentById(studentId: Long): Int
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(
         value = """
             UPDATE tb_student
@@ -69,7 +69,7 @@ interface StudentJpaRepository :
     )
     fun graduateStudentsByIds(studentIds: List<Long>): Int
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(
         value = """
             UPDATE tb_student
