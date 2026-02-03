@@ -6,20 +6,17 @@ import org.springframework.http.HttpMethod
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
-import team.themoment.datagsm.common.global.data.CorsEnvironment
 
 @Configuration
-class CorsConfig(
-    private val corsEnvironment: CorsEnvironment,
-) {
+class CorsConfig {
     @Bean
     fun configure(): CorsConfigurationSource {
         val configuration =
             CorsConfiguration().apply {
-                allowedOrigins = corsEnvironment.allowedOrigins
+                allowedOrigins = listOf("*")
                 allowedMethods = HttpMethod.values().map(HttpMethod::name)
                 addAllowedHeader("*")
-                allowCredentials = true
+                allowCredentials = false
             }
 
         return UrlBasedCorsConfigurationSource().apply {
