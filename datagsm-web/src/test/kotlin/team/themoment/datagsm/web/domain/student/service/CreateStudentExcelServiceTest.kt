@@ -83,7 +83,6 @@ class CreateStudentExcelServiceTest :
                                 this.autonomousClub = autonomousClub
                                 dormitoryRoomNumber = DormitoryRoomNumber(301)
                                 role = StudentRole.GENERAL_STUDENT
-                                isLeaveSchool = false
                                 sex = Sex.MAN
                             },
                         )
@@ -101,7 +100,6 @@ class CreateStudentExcelServiceTest :
                                 this.autonomousClub = null
                                 dormitoryRoomNumber = null
                                 role = StudentRole.STUDENT_COUNCIL
-                                isLeaveSchool = false
                                 sex = Sex.MAN
                             },
                         )
@@ -119,7 +117,6 @@ class CreateStudentExcelServiceTest :
                                 this.autonomousClub = null
                                 dormitoryRoomNumber = DormitoryRoomNumber(401)
                                 role = StudentRole.DORMITORY_MANAGER
-                                isLeaveSchool = true
                                 sex = Sex.WOMAN
                             },
                         )
@@ -242,7 +239,6 @@ class CreateStudentExcelServiceTest :
                                 autonomousClub = null
                                 dormitoryRoomNumber = DormitoryRoomNumber(200 + idx)
                                 role = StudentRole.GENERAL_STUDENT
-                                isLeaveSchool = false
                                 sex = if (idx % 2 == 0) Sex.WOMAN else Sex.MAN
                             }
                         }
@@ -300,7 +296,6 @@ class CreateStudentExcelServiceTest :
                                 email = "g1s$idx@gsm.hs.kr"
                                 major = Major.SW_DEVELOPMENT
                                 role = StudentRole.GENERAL_STUDENT
-                                isLeaveSchool = false
                                 sex = Sex.MAN
                             }
                         }
@@ -314,7 +309,6 @@ class CreateStudentExcelServiceTest :
                                 email = "g2s$idx@gsm.hs.kr"
                                 major = Major.AI
                                 role = StudentRole.GENERAL_STUDENT
-                                isLeaveSchool = false
                                 sex = Sex.WOMAN
                             }
                         }
@@ -328,7 +322,6 @@ class CreateStudentExcelServiceTest :
                                 email = "g3s$idx@gsm.hs.kr"
                                 major = Major.SMART_IOT
                                 role = StudentRole.GENERAL_STUDENT
-                                isLeaveSchool = false
                                 sex = Sex.MAN
                             }
                         }

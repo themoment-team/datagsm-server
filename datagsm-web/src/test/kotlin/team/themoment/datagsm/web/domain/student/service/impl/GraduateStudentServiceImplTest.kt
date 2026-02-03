@@ -4,13 +4,10 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
-import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
-import team.themoment.datagsm.common.domain.student.entity.BaseStudent
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
-import team.themoment.datagsm.common.domain.student.entity.NonEnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -39,16 +36,14 @@ class GraduateStudentServiceImplTest :
                 }
 
             every { studentJpaRepository.findById(studentId) } returns Optional.of(student)
-            justRun { studentJpaRepository.delete(any()) }
-            every { studentJpaRepository.save(any<BaseStudent>()) } answers { firstArg() }
+            every { studentJpaRepository.graduateStudentById(studentId) } returns 1
 
             When("해당 학생을 졸업 처리하면") {
-                Then("기존 EnrolledStudent가 삭제되고 NonEnrolledStudent가 생성된다") {
+                Then("네이티브 쿼리로 졸업 처리가 된다") {
                     graduateStudentService.execute(studentId)
 
                     verify(exactly = 1) { studentJpaRepository.findById(studentId) }
-                    verify(exactly = 1) { studentJpaRepository.delete(student) }
-                    verify { studentJpaRepository.save(any<NonEnrolledStudent>()) }
+                    verify(exactly = 1) { studentJpaRepository.graduateStudentById(studentId) }
                 }
             }
         }

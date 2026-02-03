@@ -116,7 +116,6 @@ class ModifyStudentExcelServiceTest :
                             email = "old@gsm.hs.kr"
                             major = Major.AI
                             role = StudentRole.GENERAL_STUDENT
-                            isLeaveSchool = false
                             sex = Sex.WOMAN
                         }
 

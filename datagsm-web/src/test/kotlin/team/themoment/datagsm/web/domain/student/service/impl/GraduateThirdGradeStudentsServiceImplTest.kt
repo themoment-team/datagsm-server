@@ -7,7 +7,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
-import team.themoment.datagsm.common.domain.student.entity.NonEnrolledStudent
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -59,21 +58,22 @@ class GraduateThirdGradeStudentsServiceImplTest :
             val thirdGradeStudents = listOf(student1, student2, student3)
 
             every { studentJpaRepository.findStudentsByGrade(3) } returns thirdGradeStudents
+            every { studentJpaRepository.graduateStudentsByIds(listOf(1L, 2L, 3L)) } returns 3
 
             When("모든 3학년 학생을 졸업 처리하면") {
-                Then("졸업 처리된 학생 수가 반환되고 삭제/생성이 호출된다") {
+                Then("졸업 처리된 학생 수가 반환되고 네이티브 쿼리가 호출된다") {
                     val result = graduateThirdGradeStudentsService.execute()
 
                     result.graduatedCount shouldBe 3
                     verify(exactly = 1) { studentJpaRepository.findStudentsByGrade(3) }
-                    verify(exactly = 1) { studentJpaRepository.deleteAll(thirdGradeStudents) }
-                    verify(exactly = 1) { studentJpaRepository.saveAll(ofType<List<NonEnrolledStudent>>()) }
+                    verify(exactly = 1) { studentJpaRepository.graduateStudentsByIds(listOf(1L, 2L, 3L)) }
                 }
             }
         }
 
         Given("3학년 학생이 없는 경우") {
             every { studentJpaRepository.findStudentsByGrade(3) } returns emptyList()
+            every { studentJpaRepository.graduateStudentsByIds(emptyList()) } returns 0
 
             When("모든 3학년 학생을 졸업 처리하면") {
                 val result = graduateThirdGradeStudentsService.execute()

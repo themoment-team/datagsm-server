@@ -43,7 +43,6 @@ class ModifyStudentServiceTest :
                             classNum = 1,
                             number = 5,
                             role = StudentRole.GENERAL_STUDENT,
-                            isLeaveSchool = false,
                         )
 
                     beforeEach {
@@ -72,7 +71,6 @@ class ModifyStudentServiceTest :
                             classNum = 2,
                             number = 15,
                             role = StudentRole.GENERAL_STUDENT,
-                            isLeaveSchool = false,
                         )
                     lateinit var existingStudent: EnrolledStudent
 

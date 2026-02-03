@@ -41,7 +41,6 @@ class QueryStudentServiceTest :
                         major = Major.SW_DEVELOPMENT
                         role = StudentRole.GENERAL_STUDENT
                         dormitoryRoomNumber = DormitoryRoomNumber(101)
-                        isLeaveSchool = false
                     }
 
                 context("존재하는 학생 ID로 검색할 때") {
@@ -57,7 +56,6 @@ class QueryStudentServiceTest :
                                 sex = null,
                                 role = null,
                                 dormitoryRoom = null,
-                                isLeaveSchool = false,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -77,7 +75,6 @@ class QueryStudentServiceTest :
                                 sex = null,
                                 role = null,
                                 dormitoryRoom = null,
-                                isLeaveSchool = false,
                                 page = 0,
                                 size = 20,
                             )
@@ -99,7 +96,6 @@ class QueryStudentServiceTest :
                         student.role shouldBe StudentRole.GENERAL_STUDENT
                         student.dormitoryRoom shouldBe 101
                         student.dormitoryFloor shouldBe 1
-                        student.isLeaveSchool shouldBe false
 
                         verify(exactly = 1) {
                             mockStudentRepository.searchStudentsWithPaging(
@@ -112,7 +108,6 @@ class QueryStudentServiceTest :
                                 sex = null,
                                 role = null,
                                 dormitoryRoom = null,
-                                isLeaveSchool = false,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -134,7 +129,6 @@ class QueryStudentServiceTest :
                                 sex = Sex.MAN,
                                 role = null,
                                 dormitoryRoom = null,
-                                isLeaveSchool = false,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -154,7 +148,6 @@ class QueryStudentServiceTest :
                                 sex = Sex.MAN,
                                 role = null,
                                 dormitoryRoom = null,
-                                isLeaveSchool = false,
                                 page = 0,
                                 size = 20,
                             )
@@ -178,7 +171,6 @@ class QueryStudentServiceTest :
                                 sex = null,
                                 role = null,
                                 dormitoryRoom = null,
-                                isLeaveSchool = false,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -198,7 +190,6 @@ class QueryStudentServiceTest :
                                 sex = null,
                                 role = null,
                                 dormitoryRoom = null,
-                                isLeaveSchool = false,
                                 page = 0,
                                 size = 20,
                             )
@@ -221,7 +212,6 @@ class QueryStudentServiceTest :
                                 major = Major.SW_DEVELOPMENT
                                 role = StudentRole.GENERAL_STUDENT
                                 dormitoryRoomNumber = DormitoryRoomNumber(100 + index)
-                                isLeaveSchool = false
                             }
                         }
 
@@ -238,7 +228,6 @@ class QueryStudentServiceTest :
                                 sex = null,
                                 role = null,
                                 dormitoryRoom = null,
-                                isLeaveSchool = false,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -258,7 +247,6 @@ class QueryStudentServiceTest :
                                 sex = null,
                                 role = null,
                                 dormitoryRoom = null,
-                                isLeaveSchool = false,
                                 page = 0,
                                 size = 20,
                             )

@@ -51,7 +51,6 @@ class ModifyStudentServiceTest :
                             major = Major.SW_DEVELOPMENT
                             role = StudentRole.GENERAL_STUDENT
                             dormitoryRoomNumber = DormitoryRoomNumber(201)
-                            isLeaveSchool = false
                         }
                 }
 
@@ -66,7 +65,6 @@ class ModifyStudentServiceTest :
                             number = 5,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
-                            isLeaveSchool = false,
                         )
 
                     beforeEach {
@@ -98,7 +96,6 @@ class ModifyStudentServiceTest :
                             number = 5,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
-                            isLeaveSchool = false,
                         )
 
                     beforeEach {
@@ -126,7 +123,6 @@ class ModifyStudentServiceTest :
                             number = 5,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
-                            isLeaveSchool = false,
                         )
 
                     beforeEach {
@@ -155,7 +151,6 @@ class ModifyStudentServiceTest :
                             number = 10,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
-                            isLeaveSchool = false,
                         )
 
                     beforeEach {
@@ -185,7 +180,6 @@ class ModifyStudentServiceTest :
                             number = 1,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
-                            isLeaveSchool = false,
                         )
 
                     beforeEach {
@@ -213,7 +207,6 @@ class ModifyStudentServiceTest :
                             number = 1,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
-                            isLeaveSchool = false,
                         )
 
                     beforeEach {
@@ -243,7 +236,6 @@ class ModifyStudentServiceTest :
                             number = 5,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = null,
-                            isLeaveSchool = false,
                         )
 
                     beforeEach {
@@ -284,7 +276,6 @@ class ModifyStudentServiceTest :
                             number = 5,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
-                            isLeaveSchool = false,
                             majorClubId = 10L,
                             jobClubId = 20L,
                         )
@@ -319,7 +310,6 @@ class ModifyStudentServiceTest :
                             number = 5,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
-                            isLeaveSchool = false,
                             majorClubId = null,
                             jobClubId = null,
                             autonomousClubId = null,
@@ -357,7 +347,6 @@ class ModifyStudentServiceTest :
                             number = 5,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
-                            isLeaveSchool = false,
                             majorClubId = 999L,
                         )
 
