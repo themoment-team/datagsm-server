@@ -12,5 +12,4 @@ enum class StudentSortBy {
     ROLE,
     SEX,
     DORMITORY_ROOM,
-    IS_LEAVE_SCHOOL,
 }

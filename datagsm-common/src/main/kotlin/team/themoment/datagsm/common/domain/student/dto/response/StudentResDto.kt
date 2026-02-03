@@ -31,8 +31,6 @@ data class StudentResDto(
     val dormitoryFloor: Int?,
     @param:Schema(description = "기숙사 호실", example = "301")
     val dormitoryRoom: Int?,
-    @param:Schema(description = "자퇴 여부", example = "false")
-    val isLeaveSchool: Boolean,
     @param:Schema(description = "전공 동아리")
     val majorClub: ClubSummaryDto?,
     @param:Schema(description = "취업 동아리")

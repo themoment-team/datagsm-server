@@ -58,7 +58,6 @@ class ModifyStudentServiceImpl(
         student.studentNumber = StudentNumber(reqDto.grade, reqDto.classNum, reqDto.number)
         student.major = major
         student.role = reqDto.role
-        student.isLeaveSchool = reqDto.isLeaveSchool
         student.dormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
         val clubIds = listOfNotNull(reqDto.majorClubId, reqDto.jobClubId, reqDto.autonomousClubId)
         val clubs =
@@ -92,7 +91,6 @@ class ModifyStudentServiceImpl(
             role = student.role,
             dormitoryFloor = student.dormitoryRoomNumber?.dormitoryRoomFloor,
             dormitoryRoom = student.dormitoryRoomNumber?.dormitoryRoomNumber,
-            isLeaveSchool = student.isLeaveSchool,
             majorClub = student.majorClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             jobClub = student.jobClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             autonomousClub = student.autonomousClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },

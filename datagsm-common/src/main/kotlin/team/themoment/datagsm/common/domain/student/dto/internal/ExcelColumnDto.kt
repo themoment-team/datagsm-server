@@ -41,8 +41,6 @@ data class ExcelColumnDto(
     val dormitoryRoomNumber: Int?,
     @param:Schema(description = "소속", example = "학생회")
     val role: StudentRole,
-    @param:Schema(description = "자퇴 여부", example = "true")
-    val isLeaveSchool: Boolean,
     @param:Schema(description = "성별", example = "남")
     val sex: Sex,
 )

@@ -40,7 +40,4 @@ abstract class BaseStudent {
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     var role: StudentRole = StudentRole.GENERAL_STUDENT
-
-    @Column(name = "is_leave_school", nullable = false)
-    var isLeaveSchool: Boolean = false
 }

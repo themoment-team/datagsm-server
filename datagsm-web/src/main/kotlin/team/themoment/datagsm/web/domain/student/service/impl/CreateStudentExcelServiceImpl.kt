@@ -30,8 +30,7 @@ class CreateStudentExcelServiceImpl(
         private const val AUTONOMOUS_COL_IDX = 6
         private const val DORMITORY_ROOM_NUMBER_COL_IDX = 7
         private const val STUDENT_ROLE_COL_IDX = 8
-        private const val IS_SCHOOL_LEAVE_COL_IDX = 9
-        private const val SEX_COL_IDX = 10
+        private const val SEX_COL_IDX = 9
 
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     }
@@ -53,7 +52,6 @@ class CreateStudentExcelServiceImpl(
             headerRow.createCell(AUTONOMOUS_COL_IDX).setCellValue("창체동아리")
             headerRow.createCell(DORMITORY_ROOM_NUMBER_COL_IDX).setCellValue("호실")
             headerRow.createCell(STUDENT_ROLE_COL_IDX).setCellValue("소속")
-            headerRow.createCell(IS_SCHOOL_LEAVE_COL_IDX).setCellValue("자퇴 여부")
             headerRow.createCell(SEX_COL_IDX).setCellValue("성별")
 
             excelRowDto.excelRows.forEachIndexed { rowIndex, columnDto ->
@@ -70,7 +68,6 @@ class CreateStudentExcelServiceImpl(
                     .createCell(DORMITORY_ROOM_NUMBER_COL_IDX)
                     .setCellValue(columnDto.dormitoryRoomNumber?.toString() ?: "")
                 row.createCell(STUDENT_ROLE_COL_IDX).setCellValue(columnDto.role.value)
-                row.createCell(IS_SCHOOL_LEAVE_COL_IDX).setCellValue(if (columnDto.isLeaveSchool) "O" else "X")
                 row.createCell(SEX_COL_IDX).setCellValue(columnDto.sex.value)
             }
         }
@@ -131,7 +128,6 @@ class CreateStudentExcelServiceImpl(
                                 autonomousClub = student.autonomousClub?.name,
                                 dormitoryRoomNumber = student.dormitoryRoomNumber?.dormitoryRoomNumber,
                                 role = student.role,
-                                isLeaveSchool = student.isLeaveSchool,
                                 sex = student.sex,
                             )
                         },
