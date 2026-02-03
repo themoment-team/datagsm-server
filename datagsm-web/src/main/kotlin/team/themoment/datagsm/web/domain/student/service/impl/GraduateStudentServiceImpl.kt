@@ -4,8 +4,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
-import team.themoment.datagsm.common.domain.student.entity.NonEnrolledStudent
-import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.student.service.GraduateStudentService
 import team.themoment.sdk.exception.ExpectedException
@@ -25,17 +23,9 @@ class GraduateStudentServiceImpl(
             throw ExpectedException("이미 재학생이 아닙니다.", HttpStatus.BAD_REQUEST)
         }
 
-        val nonEnrolledStudent =
-            NonEnrolledStudent().apply {
-                id = student.id
-                name = student.name
-                email = student.email
-                sex = student.sex
-                role = StudentRole.GRADUATE
-                isLeaveSchool = student.isLeaveSchool
-            }
-
-        studentJpaRepository.delete(student)
-        studentJpaRepository.save(nonEnrolledStudent)
+        val updatedCount = studentJpaRepository.graduateStudentById(studentId)
+        if (updatedCount == 0) {
+            throw ExpectedException("졸업 처리에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR)
+        }
     }
 }
