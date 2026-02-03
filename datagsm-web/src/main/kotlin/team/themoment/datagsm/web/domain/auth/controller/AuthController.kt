@@ -18,23 +18,18 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.auth.dto.request.CreateApiKeyReqDto
-import team.themoment.datagsm.common.domain.auth.dto.request.LoginReqDto
 import team.themoment.datagsm.common.domain.auth.dto.request.ModifyApiKeyReqDto
-import team.themoment.datagsm.common.domain.auth.dto.request.RefreshTokenReqDto
 import team.themoment.datagsm.common.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.common.domain.auth.dto.response.ApiKeySearchResDto
 import team.themoment.datagsm.common.domain.auth.dto.response.ApiScopeGroupListResDto
 import team.themoment.datagsm.common.domain.auth.dto.response.ApiScopeResDto
-import team.themoment.datagsm.common.domain.auth.dto.response.TokenResDto
 import team.themoment.datagsm.web.domain.auth.service.CreateCurrentAccountApiKeyService
 import team.themoment.datagsm.web.domain.auth.service.DeleteApiKeyByIdService
 import team.themoment.datagsm.web.domain.auth.service.DeleteCurrentAccountApiKeyService
-import team.themoment.datagsm.web.domain.auth.service.LoginService
 import team.themoment.datagsm.web.domain.auth.service.ModifyCurrentAccountApiKeyService
 import team.themoment.datagsm.web.domain.auth.service.QueryApiScopeByScopeNameService
 import team.themoment.datagsm.web.domain.auth.service.QueryApiScopeGroupService
 import team.themoment.datagsm.web.domain.auth.service.QueryCurrentAccountApiKeyService
-import team.themoment.datagsm.web.domain.auth.service.ReissueTokenService
 import team.themoment.datagsm.web.domain.auth.service.SearchApiKeyService
 import team.themoment.sdk.response.CommonApiResponse
 
@@ -49,38 +44,8 @@ class AuthController(
     private val queryCurrentAccountApiKeyService: QueryCurrentAccountApiKeyService,
     private val queryApiScopeByScopeNameService: QueryApiScopeByScopeNameService,
     private val queryApiScopeGroupService: QueryApiScopeGroupService,
-    private val reissueTokenService: ReissueTokenService,
     private val searchApiKeyService: SearchApiKeyService,
-    private val loginService: LoginService,
 ) {
-    @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인하여 JWT 토큰을 발급받습니다.")
-    @ApiResponses(
-        value = [
-            ApiResponse(responseCode = "200", description = "로그인 성공"),
-            ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
-            ApiResponse(responseCode = "401", description = "비밀번호 불일치", content = [Content()]),
-            ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
-        ],
-    )
-    @PostMapping("/signin")
-    fun login(
-        @RequestBody @Valid reqDto: LoginReqDto,
-    ): TokenResDto = loginService.execute(reqDto)
-
-    @Operation(summary = "토큰 재발급", description = "Refresh Token으로 Access Token을 재발급받습니다.")
-    @ApiResponses(
-        value = [
-            ApiResponse(responseCode = "200", description = "재발급 성공"),
-            ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
-            ApiResponse(responseCode = "401", description = "저장된 토큰을 찾을 수 없음 / 토큰 불일치", content = [Content()]),
-            ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
-        ],
-    )
-    @PutMapping("/refresh")
-    fun refreshToken(
-        @RequestBody @Valid reqDto: RefreshTokenReqDto,
-    ): TokenResDto = reissueTokenService.execute(reqDto.refreshToken)
-
     @Operation(summary = "API 키 생성", description = "새로운 API 키를 생성합니다. scope를 지정하여 세부 권한을 설정할 수 있습니다.")
     @ApiResponses(
         value = [
