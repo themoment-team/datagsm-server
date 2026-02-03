@@ -8,7 +8,7 @@ Create Git commits following these rules:
     - Types: add/update/fix/refactor/test/docs/merge
     - Scopes:
         - **Primary**: Domain names (auth, account, student, club, project, neis, client, oauth)
-        - **Cross-cutting concerns only**: Module names (web, authorization, userinfo, resource, common) or global
+        - **Cross-cutting concerns only**: Module names (web, oauth, openapi) or global
         - Use domain names by default. Only use module names when changes affect multiple modules or cross-cutting concerns.
     - Description: Korean, lowercase start, no period, avoid noun-ending style (e.g., "~ 추가", "~ 수정")
 - Use subject line only (no commit body)
