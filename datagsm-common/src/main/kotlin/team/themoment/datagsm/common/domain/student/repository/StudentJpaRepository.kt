@@ -7,7 +7,7 @@ import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.BaseStudent
 import team.themoment.datagsm.common.domain.student.entity.EnrolledStudent
 import team.themoment.datagsm.common.domain.student.repository.custom.StudentJpaCustomRepository
-import java.util.*
+import java.util.Optional
 
 interface StudentJpaRepository :
     JpaRepository<BaseStudent, Long>,
