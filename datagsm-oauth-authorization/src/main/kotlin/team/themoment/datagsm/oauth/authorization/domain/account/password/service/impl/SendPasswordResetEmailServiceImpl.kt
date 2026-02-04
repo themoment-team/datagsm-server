@@ -1,6 +1,7 @@
 package team.themoment.datagsm.oauth.authorization.domain.account.password.service.impl
 
 import org.springframework.http.HttpStatus
+import org.springframework.mail.MailException
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.Service
@@ -59,7 +60,7 @@ class SendPasswordResetEmailServiceImpl(
             }
         try {
             javaMailSender.send(message)
-        } catch (e: Exception) {
+        } catch (e: MailException) {
             throw RuntimeException("Email 전송에 실패했습니다.", e)
         }
     }
