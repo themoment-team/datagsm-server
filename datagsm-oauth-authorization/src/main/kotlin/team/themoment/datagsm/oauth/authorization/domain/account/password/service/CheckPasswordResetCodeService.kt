@@ -1,4 +1,4 @@
-package team.themoment.datagsm.oauth.authorization.domain.password.service
+package team.themoment.datagsm.oauth.authorization.domain.account.password.service
 
 import team.themoment.datagsm.common.domain.account.dto.request.VerifyPasswordResetCodeReqDto
 

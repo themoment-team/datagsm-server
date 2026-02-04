@@ -1,4 +1,4 @@
-package team.themoment.datagsm.oauth.authorization.domain.password.controller
+package team.themoment.datagsm.oauth.authorization.domain.account.password.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.account.dto.request.ChangePasswordReqDto
 import team.themoment.datagsm.common.domain.account.dto.request.SendPasswordResetEmailReqDto
 import team.themoment.datagsm.common.domain.account.dto.request.VerifyPasswordResetCodeReqDto
-import team.themoment.datagsm.oauth.authorization.domain.password.service.CheckPasswordResetCodeService
-import team.themoment.datagsm.oauth.authorization.domain.password.service.ModifyPasswordService
-import team.themoment.datagsm.oauth.authorization.domain.password.service.SendPasswordResetEmailService
+import team.themoment.datagsm.oauth.authorization.domain.account.password.service.CheckPasswordResetCodeService
+import team.themoment.datagsm.oauth.authorization.domain.account.password.service.ModifyPasswordService
+import team.themoment.datagsm.oauth.authorization.domain.account.password.service.SendPasswordResetEmailService
 
-@Tag(name = "Password", description = "비밀번호 재설정 API")
+@Tag(name = "Account Password", description = "계정 비밀번호 재설정 API")
 @RestController
-@RequestMapping("/v1/password")
+@RequestMapping("/v1/account/password")
 class PasswordController(
     private val sendPasswordResetEmailService: SendPasswordResetEmailService,
     private val checkPasswordResetCodeService: CheckPasswordResetCodeService,

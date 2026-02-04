@@ -1,10 +1,10 @@
-package team.themoment.datagsm.oauth.authorization.domain.password.service.impl
+package team.themoment.datagsm.oauth.authorization.domain.account.password.service.impl
 
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.account.dto.request.VerifyPasswordResetCodeReqDto
 import team.themoment.datagsm.common.domain.account.repository.PasswordResetCodeRedisRepository
-import team.themoment.datagsm.oauth.authorization.domain.password.service.CheckPasswordResetCodeService
+import team.themoment.datagsm.oauth.authorization.domain.account.password.service.CheckPasswordResetCodeService
 import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimitType
 import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimited
 import team.themoment.sdk.exception.ExpectedException

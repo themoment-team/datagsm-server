@@ -1,4 +1,4 @@
-package team.themoment.datagsm.oauth.authorization.domain.password.service.impl
+package team.themoment.datagsm.oauth.authorization.domain.account.password.service.impl
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
