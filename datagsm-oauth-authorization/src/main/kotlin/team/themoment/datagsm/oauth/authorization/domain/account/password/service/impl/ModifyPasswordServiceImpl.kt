@@ -49,6 +49,6 @@ class ModifyPasswordServiceImpl(
         passwordResetCodeRedisRepository.deleteById(reqDto.email)
 
         val tokens = oauthRefreshTokenRedisRepository.findAllByEmail(reqDto.email)
-        tokens.forEach { oauthRefreshTokenRedisRepository.delete(it) }
+        oauthRefreshTokenRedisRepository.deleteAll(tokens)
     }
 }

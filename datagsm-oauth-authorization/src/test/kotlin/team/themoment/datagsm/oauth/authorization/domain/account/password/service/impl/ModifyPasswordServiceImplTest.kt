@@ -189,6 +189,7 @@ class ModifyPasswordServiceImplTest :
             every { passwordEncoder.encode(newPassword) } returns "hashedNewPassword"
             every { accountJpaRepository.save(any()) } returns account
             every { oauthRefreshTokenRedisRepository.findAllByEmail(email) } returns listOf(token1, token2)
+            every { oauthRefreshTokenRedisRepository.deleteAll(any<Iterable<OauthRefreshTokenRedisEntity>>()) } returns Unit
 
             When("새 비밀번호로 변경하면") {
                 service.execute(reqDto)
@@ -197,8 +198,7 @@ class ModifyPasswordServiceImplTest :
                     account.password shouldBe "hashedNewPassword"
                     verify(exactly = 1) { accountJpaRepository.save(account) }
                     verify(exactly = 1) { passwordResetCodeRedisRepository.deleteById(email) }
-                    verify(exactly = 1) { oauthRefreshTokenRedisRepository.delete(token1) }
-                    verify(exactly = 1) { oauthRefreshTokenRedisRepository.delete(token2) }
+                    verify(exactly = 1) { oauthRefreshTokenRedisRepository.deleteAll(any<Iterable<OauthRefreshTokenRedisEntity>>()) }
                     verify(exactly = 1) { passwordEncoder.encode(newPassword) }
                     verify(exactly = 1) { passwordEncoder.matches(newPassword, "hashedOldPassword") }
                 }
