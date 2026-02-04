@@ -15,12 +15,6 @@ class PasswordResetRateLimitServiceImpl(
     private val proxyManager: ProxyManager<String>,
     private val passwordResetRateLimitEnvironment: PasswordResetRateLimitEnvironment,
 ) : PasswordResetRateLimitService {
-    companion object {
-        private const val SEND_EMAIL_BUCKET_PREFIX = "rate_limit:password_reset:send:"
-        private const val CHECK_CODE_BUCKET_PREFIX = "rate_limit:password_reset:check:"
-        private const val MODIFY_PASSWORD_BUCKET_PREFIX = "rate_limit:password_reset:modify:"
-    }
-
     override fun tryConsume(
         email: String,
         type: PasswordResetRateLimitType,
@@ -33,7 +27,7 @@ class PasswordResetRateLimitServiceImpl(
 
         val bucket =
             proxyManager.builder().build(
-                "${getBucketPrefix(type)}$email",
+                "${type.bucketPrefix}$email",
             ) { createBucketConfiguration(config) }
         val probe = bucket.tryConsumeAndReturnRemaining(1)
         return RateLimitConsumeResult(
@@ -48,13 +42,6 @@ class PasswordResetRateLimitServiceImpl(
             PasswordResetRateLimitType.SEND_EMAIL -> passwordResetRateLimitEnvironment.send
             PasswordResetRateLimitType.CHECK_CODE -> passwordResetRateLimitEnvironment.verify
             PasswordResetRateLimitType.MODIFY_PASSWORD -> passwordResetRateLimitEnvironment.change
-        }
-
-    private fun getBucketPrefix(type: PasswordResetRateLimitType): String =
-        when (type) {
-            PasswordResetRateLimitType.SEND_EMAIL -> SEND_EMAIL_BUCKET_PREFIX
-            PasswordResetRateLimitType.CHECK_CODE -> CHECK_CODE_BUCKET_PREFIX
-            PasswordResetRateLimitType.MODIFY_PASSWORD -> MODIFY_PASSWORD_BUCKET_PREFIX
         }
 
     private fun createDisabledResult(capacity: Long) =

@@ -6,8 +6,10 @@ annotation class PasswordResetRateLimited(
     val type: PasswordResetRateLimitType,
 )
 
-enum class PasswordResetRateLimitType {
-    SEND_EMAIL,
-    CHECK_CODE,
-    MODIFY_PASSWORD,
+enum class PasswordResetRateLimitType(
+    val bucketPrefix: String,
+) {
+    SEND_EMAIL("rate_limit:password_reset:send:"),
+    CHECK_CODE("rate_limit:password_reset:check:"),
+    MODIFY_PASSWORD("rate_limit:password_reset:modify:"),
 }
