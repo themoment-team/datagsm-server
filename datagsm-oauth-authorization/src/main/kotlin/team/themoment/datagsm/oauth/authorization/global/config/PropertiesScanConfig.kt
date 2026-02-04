@@ -6,6 +6,7 @@ import team.themoment.datagsm.common.global.data.ApiKeyEnvironment
 import team.themoment.datagsm.common.global.data.CorsEnvironment
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.common.global.data.OauthJwtEnvironment
+import team.themoment.datagsm.common.global.data.PasswordResetRateLimitEnvironment
 
 @Configuration
 @EnableConfigurationProperties(
@@ -13,5 +14,6 @@ import team.themoment.datagsm.common.global.data.OauthJwtEnvironment
     CorsEnvironment::class,
     OauthJwtEnvironment::class,
     OauthEnvironment::class,
+    PasswordResetRateLimitEnvironment::class,
 )
 class PropertiesScanConfig
