@@ -250,7 +250,7 @@ git checkout -b refactor/optimize-club-query
 - 특정 기능이나 도메인에 관련된 변경사항에 사용
 
 **모듈 레벨 (횡단관심사만):**
-- `authorization`, `userinfo`, `resource`, `web`, `common`, `global`
+- `web`, `oauth`, `openapi`, `global`
 - 여러 모듈에 걸친 변경사항이나 공통 설정, 보안, 유틸리티 등에만 사용
 
 **기타:**
@@ -292,7 +292,7 @@ vYYYYMMDD.n (릴리즈용)
 
 **유효한 Scope:**
 - **도메인명 (기본 사용)**: `auth`, `account`, `client`, `club`, `neis`, `oauth`, `project`, `student`
-- **모듈명 (횡단관심사만)**: `web`, `resource`, `authorization`, `userinfo`, `common`
+- **모듈명 (횡단관심사만)**: `web`, `oauth`, `openapi`, `global`
 - **기타**: `global`, `ci/cd`
 
 **Scope 선택 규칙:**
