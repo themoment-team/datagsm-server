@@ -1,5 +1,6 @@
 package team.themoment.datagsm.web.domain.student.service.impl
 
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -15,9 +16,8 @@ class GraduateStudentServiceImpl(
     @Transactional
     override fun execute(studentId: Long) {
         val student =
-            studentJpaRepository.findById(studentId).orElseThrow {
-                ExpectedException("학생을 찾을 수 없습니다. ID: $studentId", HttpStatus.NOT_FOUND)
-            }
+            studentJpaRepository.findByIdOrNull(studentId)
+                ?: throw ExpectedException("학생을 찾을 수 없습니다. ID: $studentId", HttpStatus.NOT_FOUND)
 
         student.role = StudentRole.GRADUATE
         student.major = null
