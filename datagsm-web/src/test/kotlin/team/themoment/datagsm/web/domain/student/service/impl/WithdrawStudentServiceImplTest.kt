@@ -41,7 +41,7 @@ class WithdrawStudentServiceImplTest :
                 withdrawStudentService.execute(studentId)
 
                 Then("학생 정보가 자퇴생으로 변경된다") {
-                    student.role shouldBe StudentRole.LEAVE_SCHOOL
+                    student.role shouldBe StudentRole.WITHDRAWN
                     student.major shouldBe null
                     student.studentNumber shouldBe null
                     student.dormitoryRoomNumber shouldBe null

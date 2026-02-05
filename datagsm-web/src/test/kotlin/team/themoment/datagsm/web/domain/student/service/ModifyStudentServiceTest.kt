@@ -398,7 +398,7 @@ class ModifyStudentServiceTest :
                     }
                 }
 
-                context("role을 LEAVE_SCHOOL로 변경 시도할 때") {
+                context("role을 WITHDRAWN로 변경 시도할 때") {
                     val updateRequest =
                         UpdateStudentReqDto(
                             name = "학생",
@@ -407,7 +407,7 @@ class ModifyStudentServiceTest :
                             grade = 2,
                             classNum = 1,
                             number = 5,
-                            role = StudentRole.LEAVE_SCHOOL,
+                            role = StudentRole.WITHDRAWN,
                             dormitoryRoomNumber = 201,
                         )
 
