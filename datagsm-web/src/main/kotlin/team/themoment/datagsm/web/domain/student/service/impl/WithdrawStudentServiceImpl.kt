@@ -19,12 +19,14 @@ class WithdrawStudentServiceImpl(
                 ExpectedException("학생을 찾을 수 없습니다. ID: $studentId", HttpStatus.NOT_FOUND)
             }
 
-        student.role = StudentRole.WITHDRAWN
-        student.major = null
-        student.studentNumber = null
-        student.dormitoryRoomNumber = null
-        student.majorClub = null
-        student.jobClub = null
-        student.autonomousClub = null
+        student.apply {
+            role = StudentRole.WITHDRAWN
+            major = null
+            studentNumber = null
+            dormitoryRoomNumber = null
+            majorClub = null
+            jobClub = null
+            autonomousClub = null
+        }
     }
 }
