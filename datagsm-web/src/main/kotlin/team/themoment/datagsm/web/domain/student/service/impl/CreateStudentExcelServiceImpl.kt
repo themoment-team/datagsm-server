@@ -54,7 +54,7 @@ class CreateStudentExcelServiceImpl(
             headerRow.createCell(STUDENT_ROLE_COL_IDX).setCellValue("소속")
             headerRow.createCell(SEX_COL_IDX).setCellValue("성별")
 
-            excelRowDto.excelRows.forEachIndexed { rowIndex, columnDto ->
+            excelRowDto.columns.forEachIndexed { rowIndex, columnDto ->
                 val row = sheet.createRow(rowIndex + 1)
 
                 row.createCell(NAME_COL_IDX).setCellValue(columnDto.name)
@@ -116,7 +116,7 @@ class CreateStudentExcelServiceImpl(
                 }
             val excelRowDto =
                 ExcelRowDto(
-                    excelRows =
+                    columns =
                         list.map { student ->
                             ExcelColumnDto(
                                 name = student.name,
@@ -134,6 +134,6 @@ class CreateStudentExcelServiceImpl(
                 )
             data.add(excelRowDto)
         }
-        return data.toList()
+        return data
     }
 }

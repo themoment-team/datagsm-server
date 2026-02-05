@@ -28,7 +28,7 @@ class ModifyStudentExcelServiceImpl(
     private val dataFormatter = DataFormatter()
 
     override fun execute(file: MultipartFile): CommonApiResponse<Nothing> {
-        val excelData: List<ExcelColumnDto> = queryExcelData(file).flatMap { it.excelRows }
+        val excelData: List<ExcelColumnDto> = queryExcelData(file).flatMap { it.columns }
         val studentNumbers =
             excelData
                 .sortedBy { it.number }
@@ -166,7 +166,7 @@ class ModifyStudentExcelServiceImpl(
                 when (file.originalFilename?.substringAfterLast(".")) {
                     "xlsx" -> XSSFWorkbook(inputStream)
                     "xls" -> HSSFWorkbook(inputStream)
-                    else -> throw IllegalArgumentException("지원하지 않는 파일 형식입니다.")
+                    else -> throw ExpectedException("지원하지 않는 파일 형식입니다.", HttpStatus.BAD_REQUEST)
                 }
             }
 
