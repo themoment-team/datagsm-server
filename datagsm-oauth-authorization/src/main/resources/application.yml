@@ -58,6 +58,20 @@ spring:
         default-refill-duration-seconds: 60
     oauth:
       code-expiration-seconds: ${OAUTH_CODE_EXPIRATION:300}
+    password-reset-rate-limit:
+      enabled: true
+      send:
+        capacity: 3
+        refill-tokens: 3
+        refill-duration-minutes: 10
+      verify:
+        capacity: 5
+        refill-tokens: 5
+        refill-duration-minutes: 10
+      change:
+        capacity: 3
+        refill-tokens: 3
+        refill-duration-minutes: 60
 server:
   port: 8081
   shutdown: graceful

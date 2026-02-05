@@ -14,4 +14,6 @@ interface OauthRefreshTokenRedisRepository : CrudRepository<OauthRefreshTokenRed
         email: String,
         clientId: String,
     )
+
+    fun findAllByEmail(email: String): List<OauthRefreshTokenRedisEntity>
 }
