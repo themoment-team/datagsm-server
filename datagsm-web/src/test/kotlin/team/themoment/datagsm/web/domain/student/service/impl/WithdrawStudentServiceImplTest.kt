@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
@@ -23,6 +24,7 @@ class WithdrawStudentServiceImplTest :
 
         Given("일반 학생이 존재하는 경우") {
             val studentId = 1L
+            val mockClub = mockk<ClubJpaEntity>()
             val student =
                 StudentJpaEntity().apply {
                     id = studentId
@@ -33,6 +35,9 @@ class WithdrawStudentServiceImplTest :
                     studentNumber = StudentNumber(2, 1, 1)
                     major = Major.SW_DEVELOPMENT
                     dormitoryRoomNumber = DormitoryRoomNumber(301)
+                    majorClub = mockClub
+                    jobClub = mockClub
+                    autonomousClub = mockClub
                 }
 
             every { studentJpaRepository.findById(studentId) } returns Optional.of(student)
@@ -45,6 +50,9 @@ class WithdrawStudentServiceImplTest :
                     student.major shouldBe null
                     student.studentNumber shouldBe null
                     student.dormitoryRoomNumber shouldBe null
+                    student.majorClub shouldBe null
+                    student.jobClub shouldBe null
+                    student.autonomousClub shouldBe null
                 }
 
                 Then("Repository의 findById가 호출된다") {
