@@ -60,7 +60,6 @@ class CreateStudentServiceTest :
                             major = Major.SW_DEVELOPMENT
                             role = createRequest.role
                             dormitoryRoomNumber = DormitoryRoomNumber(createRequest.dormitoryRoomNumber)
-                            isLeaveSchool = false
                         }
 
                     beforeEach {
@@ -89,7 +88,6 @@ class CreateStudentServiceTest :
                         result.role shouldBe StudentRole.GENERAL_STUDENT
                         result.dormitoryFloor shouldBe 2
                         result.dormitoryRoom shouldBe 205
-                        result.isLeaveSchool shouldBe false
 
                         verify(exactly = 1) { mockStudentRepository.existsByEmail(createRequest.email) }
                         verify(exactly = 1) {
@@ -127,7 +125,6 @@ class CreateStudentServiceTest :
                             major = Major.SMART_IOT
                             role = createRequest.role
                             dormitoryRoomNumber = DormitoryRoomNumber(createRequest.dormitoryRoomNumber)
-                            isLeaveSchool = false
                         }
 
                     beforeEach {
@@ -286,7 +283,6 @@ class CreateStudentServiceTest :
                             major = Major.SW_DEVELOPMENT
                             role = createRequest.role
                             dormitoryRoomNumber = DormitoryRoomNumber(createRequest.dormitoryRoomNumber)
-                            isLeaveSchool = false
                         }
 
                     beforeEach {
@@ -334,7 +330,6 @@ class CreateStudentServiceTest :
                             major = Major.SW_DEVELOPMENT
                             role = createRequest.role
                             dormitoryRoomNumber = DormitoryRoomNumber(createRequest.dormitoryRoomNumber)
-                            isLeaveSchool = false
                         }
 
                     beforeEach {
@@ -382,7 +377,6 @@ class CreateStudentServiceTest :
                             major = Major.AI
                             role = createRequest.role
                             dormitoryRoomNumber = DormitoryRoomNumber(createRequest.dormitoryRoomNumber)
-                            isLeaveSchool = false
                         }
 
                     beforeEach {
@@ -452,7 +446,6 @@ class CreateStudentServiceTest :
                             major = Major.SW_DEVELOPMENT
                             role = createRequest.role
                             dormitoryRoomNumber = DormitoryRoomNumber(createRequest.dormitoryRoomNumber)
-                            isLeaveSchool = false
                             this.majorClub = majorClub
                             this.jobClub = jobClub
                             this.autonomousClub = autonomousClub

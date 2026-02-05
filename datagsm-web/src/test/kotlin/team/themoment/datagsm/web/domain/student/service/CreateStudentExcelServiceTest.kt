@@ -31,8 +31,7 @@ private const val JOB_CLUB_COL_IDX = 5
 private const val AUTONOMOUS_COL_IDX = 6
 private const val DORMITORY_ROOM_NUMBER_COL_IDX = 7
 private const val STUDENT_ROLE_COL_IDX = 8
-private const val IS_SCHOOL_LEAVE_COL_IDX = 9
-private const val SEX_COL_IDX = 10
+private const val SEX_COL_IDX = 9
 
 class CreateStudentExcelServiceTest :
     DescribeSpec({
@@ -83,7 +82,6 @@ class CreateStudentExcelServiceTest :
                                 this.autonomousClub = autonomousClub
                                 dormitoryRoomNumber = DormitoryRoomNumber(301)
                                 role = StudentRole.GENERAL_STUDENT
-                                isLeaveSchool = false
                                 sex = Sex.MAN
                             },
                         )
@@ -101,7 +99,6 @@ class CreateStudentExcelServiceTest :
                                 this.autonomousClub = null
                                 dormitoryRoomNumber = null
                                 role = StudentRole.STUDENT_COUNCIL
-                                isLeaveSchool = false
                                 sex = Sex.MAN
                             },
                         )
@@ -119,7 +116,6 @@ class CreateStudentExcelServiceTest :
                                 this.autonomousClub = null
                                 dormitoryRoomNumber = DormitoryRoomNumber(401)
                                 role = StudentRole.DORMITORY_MANAGER
-                                isLeaveSchool = true
                                 sex = Sex.WOMAN
                             },
                         )
@@ -164,7 +160,6 @@ class CreateStudentExcelServiceTest :
                         header1.getCell(AUTONOMOUS_COL_IDX).stringCellValue shouldBe "창체동아리"
                         header1.getCell(DORMITORY_ROOM_NUMBER_COL_IDX).stringCellValue shouldBe "호실"
                         header1.getCell(STUDENT_ROLE_COL_IDX).stringCellValue shouldBe "소속"
-                        header1.getCell(IS_SCHOOL_LEAVE_COL_IDX).stringCellValue shouldBe "자퇴 여부"
                         header1.getCell(SEX_COL_IDX).stringCellValue shouldBe "성별"
 
                         val data1 = sheet1.getRow(1)
@@ -177,7 +172,6 @@ class CreateStudentExcelServiceTest :
                         data1.getCell(AUTONOMOUS_COL_IDX).stringCellValue shouldBe "창체동아리B"
                         data1.getCell(DORMITORY_ROOM_NUMBER_COL_IDX).stringCellValue shouldBe "301"
                         data1.getCell(STUDENT_ROLE_COL_IDX).stringCellValue shouldBe "일반학생"
-                        data1.getCell(IS_SCHOOL_LEAVE_COL_IDX).stringCellValue shouldBe "X"
                         data1.getCell(SEX_COL_IDX).stringCellValue shouldBe "남자"
 
                         // 2학년 시트 검증 (동아리 없음)
@@ -190,11 +184,9 @@ class CreateStudentExcelServiceTest :
                         data2.getCell(DORMITORY_ROOM_NUMBER_COL_IDX).stringCellValue shouldBe ""
                         data2.getCell(STUDENT_ROLE_COL_IDX).stringCellValue shouldBe "학생회"
 
-                        // 3학년 시트 검증 (자퇴 학생)
                         val sheet3 = workbook.getSheetAt(2)
                         val data3 = sheet3.getRow(1)
                         data3.getCell(NAME_COL_IDX).stringCellValue shouldBe "이영희"
-                        data3.getCell(IS_SCHOOL_LEAVE_COL_IDX).stringCellValue shouldBe "O"
                         data3.getCell(SEX_COL_IDX).stringCellValue shouldBe "여자"
 
                         workbook.close()
@@ -242,7 +234,6 @@ class CreateStudentExcelServiceTest :
                                 autonomousClub = null
                                 dormitoryRoomNumber = DormitoryRoomNumber(200 + idx)
                                 role = StudentRole.GENERAL_STUDENT
-                                isLeaveSchool = false
                                 sex = if (idx % 2 == 0) Sex.WOMAN else Sex.MAN
                             }
                         }
@@ -300,7 +291,6 @@ class CreateStudentExcelServiceTest :
                                 email = "g1s$idx@gsm.hs.kr"
                                 major = Major.SW_DEVELOPMENT
                                 role = StudentRole.GENERAL_STUDENT
-                                isLeaveSchool = false
                                 sex = Sex.MAN
                             }
                         }
@@ -314,7 +304,6 @@ class CreateStudentExcelServiceTest :
                                 email = "g2s$idx@gsm.hs.kr"
                                 major = Major.AI
                                 role = StudentRole.GENERAL_STUDENT
-                                isLeaveSchool = false
                                 sex = Sex.WOMAN
                             }
                         }
@@ -328,7 +317,6 @@ class CreateStudentExcelServiceTest :
                                 email = "g3s$idx@gsm.hs.kr"
                                 major = Major.SMART_IOT
                                 role = StudentRole.GENERAL_STUDENT
-                                isLeaveSchool = false
                                 sex = Sex.MAN
                             }
                         }
