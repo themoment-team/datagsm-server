@@ -33,9 +33,9 @@ import team.themoment.datagsm.openapi.global.security.annotation.RequireScope
 @RestController
 @RequestMapping("/v1/students")
 class StudentController(
-    private final val queryStudentService: QueryStudentService,
-    private final val createStudentService: CreateStudentService,
-    private final val modifyStudentService: ModifyStudentService,
+    private val queryStudentService: QueryStudentService,
+    private val createStudentService: CreateStudentService,
+    private val modifyStudentService: ModifyStudentService,
 ) {
     @Operation(summary = "학생 정보 조회", description = "필터 조건에 맞는 학생 정보를 조회합니다.")
     @ApiResponses(

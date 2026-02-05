@@ -324,13 +324,14 @@ class ModifyStudentExcelServiceTest :
                             "dummy content".toByteArray(),
                         )
 
-                    it("IllegalArgumentException이 발생해야 한다") {
+                    it("ExpectedException이 발생해야 한다") {
                         val exception =
-                            shouldThrow<IllegalArgumentException> {
+                            shouldThrow<ExpectedException> {
                                 modifyStudentExcelService.execute(file)
                             }
 
                         exception.message shouldBe "지원하지 않는 파일 형식입니다."
+                        exception.statusCode shouldBe HttpStatus.UNSUPPORTED_MEDIA_TYPE
                     }
                 }
 

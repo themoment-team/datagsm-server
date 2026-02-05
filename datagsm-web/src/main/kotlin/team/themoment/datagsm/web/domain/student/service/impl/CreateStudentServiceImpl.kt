@@ -18,8 +18,8 @@ import team.themoment.sdk.exception.ExpectedException
 @Service
 @Transactional
 class CreateStudentServiceImpl(
-    private final val studentJpaRepository: StudentJpaRepository,
-    private final val clubJpaRepository: ClubJpaRepository,
+    private val studentJpaRepository: StudentJpaRepository,
+    private val clubJpaRepository: ClubJpaRepository,
 ) : CreateStudentService {
     override fun execute(reqDto: CreateStudentReqDto): StudentResDto {
         if (studentJpaRepository.existsByEmail(reqDto.email)) {

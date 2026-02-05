@@ -18,8 +18,8 @@ import team.themoment.sdk.exception.ExpectedException
 @Service
 @Transactional
 class ModifyStudentServiceImpl(
-    private final val studentJpaRepository: StudentJpaRepository,
-    private final val clubJpaRepository: ClubJpaRepository,
+    private val studentJpaRepository: StudentJpaRepository,
+    private val clubJpaRepository: ClubJpaRepository,
 ) : ModifyStudentService {
     override fun execute(
         studentId: Long,
