@@ -6,8 +6,6 @@ object AuthenticationPathConfig {
      */
     val PUBLIC_PATHS =
         listOf(
-            "/v1/auth/signin",
-            "/v1/auth/refresh",
             "/v1/accounts/email/send",
             "/v1/accounts/email/check",
             "/v1/accounts/signup",
