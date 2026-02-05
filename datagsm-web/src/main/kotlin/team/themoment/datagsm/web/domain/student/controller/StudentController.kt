@@ -39,14 +39,14 @@ import team.themoment.datagsm.web.domain.student.service.WithdrawStudentService
 @RestController
 @RequestMapping("/v1/students")
 class StudentController(
-    private final val queryStudentService: QueryStudentService,
-    private final val createStudentService: CreateStudentService,
-    private final val modifyStudentService: ModifyStudentService,
-    private final val createStudentExcelService: CreateStudentExcelService,
-    private final val modifyStudentExcelService: ModifyStudentExcelService,
-    private final val graduateStudentService: GraduateStudentService,
-    private final val graduateThirdGradeStudentsService: GraduateThirdGradeStudentsService,
-    private final val withdrawStudentService: WithdrawStudentService,
+    private val queryStudentService: QueryStudentService,
+    private val createStudentService: CreateStudentService,
+    private val modifyStudentService: ModifyStudentService,
+    private val createStudentExcelService: CreateStudentExcelService,
+    private val modifyStudentExcelService: ModifyStudentExcelService,
+    private val graduateStudentService: GraduateStudentService,
+    private val graduateThirdGradeStudentsService: GraduateThirdGradeStudentsService,
+    private val withdrawStudentService: WithdrawStudentService,
 ) {
     @Operation(summary = "학생 정보 조회", description = "필터 조건에 맞는 학생 정보를 조회합니다.")
     @ApiResponses(

@@ -15,7 +15,7 @@ import team.themoment.datagsm.openapi.domain.student.service.QueryStudentService
 
 @Service
 class QueryStudentServiceImpl(
-    private final val studentJpaRepository: StudentJpaRepository,
+    private val studentJpaRepository: StudentJpaRepository,
 ) : QueryStudentService {
     @Transactional(readOnly = true)
     override fun execute(

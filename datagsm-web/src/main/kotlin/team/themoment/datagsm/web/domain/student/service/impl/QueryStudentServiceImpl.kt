@@ -16,7 +16,7 @@ import team.themoment.datagsm.web.domain.student.service.QueryStudentService
 @Service
 @Transactional(readOnly = true)
 class QueryStudentServiceImpl(
-    private final val studentJpaRepository: StudentJpaRepository,
+    private val studentJpaRepository: StudentJpaRepository,
 ) : QueryStudentService {
     override fun execute(
         studentId: Long?,
