@@ -147,7 +147,6 @@ class ModifyStudentExcelServiceImpl(
                             }
                         student.dormitoryRoomNumber = getDormitoryEmbedded(dto.dormitoryRoomNumber)
                         student.role = dto.role
-                        student.isLeaveSchool = dto.isLeaveSchool
                         student.sex = dto.sex
                     }
                 }
@@ -209,19 +208,8 @@ class ModifyStudentExcelServiceImpl(
                                             "${row.rowNum + 1}행: 소속은 '일반학생', '기숙사자치위원회', '학생회'여야 합니다.",
                                             HttpStatus.BAD_REQUEST,
                                         ),
-                                isLeaveSchool =
-                                    when (getRequiredString(row, 9, "자퇴 여부").uppercase()) {
-                                        "O" -> true
-
-                                        "X" -> false
-
-                                        else -> throw ExpectedException(
-                                            "${row.rowNum + 1}행: 자퇴 여부는 O 또는 X여야 합니다.",
-                                            HttpStatus.BAD_REQUEST,
-                                        )
-                                    },
                                 sex =
-                                    Sex.fromSex(getRequiredString(row, 10, "성별"))
+                                    Sex.fromSex(getRequiredString(row, 9, "성별"))
                                         ?: throw ExpectedException(
                                             "${row.rowNum + 1}행: 성별은 '남자' 또는 '여자'여야 합니다.",
                                             HttpStatus.BAD_REQUEST,

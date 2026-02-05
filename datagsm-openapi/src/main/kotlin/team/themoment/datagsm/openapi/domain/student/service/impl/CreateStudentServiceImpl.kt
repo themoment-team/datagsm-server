@@ -79,7 +79,6 @@ class CreateStudentServiceImpl(
             role = savedStudent.role,
             dormitoryFloor = savedStudent.dormitoryRoomNumber?.dormitoryRoomFloor,
             dormitoryRoom = savedStudent.dormitoryRoomNumber?.dormitoryRoomNumber,
-            isLeaveSchool = savedStudent.isLeaveSchool,
             majorClub = savedStudent.majorClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             jobClub = savedStudent.jobClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             autonomousClub = savedStudent.autonomousClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },

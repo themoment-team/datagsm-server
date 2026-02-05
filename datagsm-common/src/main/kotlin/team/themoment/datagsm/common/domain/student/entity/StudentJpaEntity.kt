@@ -67,9 +67,6 @@ class StudentJpaEntity {
     @field:Enumerated(EnumType.STRING)
     var role: StudentRole = StudentRole.GENERAL_STUDENT
 
-    @field:Column(name = "is_leave_school", nullable = false)
-    var isLeaveSchool: Boolean = false
-
     @field:Column(name = "sex", nullable = false)
     @field:Enumerated(EnumType.STRING)
     lateinit var sex: Sex

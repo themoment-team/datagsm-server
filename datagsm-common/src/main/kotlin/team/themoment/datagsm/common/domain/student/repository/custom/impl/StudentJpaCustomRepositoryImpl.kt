@@ -30,7 +30,6 @@ class StudentJpaCustomRepositoryImpl(
         sex: Sex?,
         role: StudentRole?,
         dormitoryRoom: Int?,
-        isLeaveSchool: Boolean?,
         includeGraduates: Boolean,
         pageable: Pageable,
         sortBy: StudentSortBy?,
@@ -51,7 +50,6 @@ class StudentJpaCustomRepositoryImpl(
                     sex?.let { studentJpaEntity.sex.eq(it) },
                     role?.let { studentJpaEntity.role.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
-                    isLeaveSchool?.let { studentJpaEntity.isLeaveSchool.eq(it) },
                     if (!includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
                 ).apply {
                     orderSpecifier?.let { orderBy(*it) }
@@ -73,7 +71,6 @@ class StudentJpaCustomRepositoryImpl(
                     sex?.let { studentJpaEntity.sex.eq(it) },
                     role?.let { studentJpaEntity.role.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
-                    isLeaveSchool?.let { studentJpaEntity.isLeaveSchool.eq(it) },
                     if (!includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
                 )
 
@@ -129,7 +126,6 @@ class StudentJpaCustomRepositoryImpl(
                         StudentSortBy.MAJOR -> studentJpaEntity.major
                         StudentSortBy.ROLE -> studentJpaEntity.role
                         StudentSortBy.SEX -> studentJpaEntity.sex
-                        StudentSortBy.IS_LEAVE_SCHOOL -> studentJpaEntity.isLeaveSchool
                     }
                 arrayOf(
                     when (sortDirection) {
@@ -227,7 +223,6 @@ class StudentJpaCustomRepositoryImpl(
         sex: Sex?,
         role: StudentRole?,
         dormitoryRoom: Int?,
-        isLeaveSchool: Boolean?,
         includeGraduates: Boolean,
         pageable: Pageable,
         sortBy: StudentSortBy?,
@@ -250,7 +245,6 @@ class StudentJpaCustomRepositoryImpl(
                     sex?.let { studentJpaEntity.sex.eq(it) },
                     role?.let { studentJpaEntity.role.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
-                    isLeaveSchool?.let { studentJpaEntity.isLeaveSchool.eq(it) },
                     if (!includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
                 ).apply {
                     orderSpecifier?.let { orderBy(*it) }
@@ -274,7 +268,6 @@ class StudentJpaCustomRepositoryImpl(
                     sex?.let { studentJpaEntity.sex.eq(it) },
                     role?.let { studentJpaEntity.role.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
-                    isLeaveSchool?.let { studentJpaEntity.isLeaveSchool.eq(it) },
                     if (!includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
                 )
 
