@@ -8,10 +8,7 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories
-import org.springframework.data.redis.serializer.RedisSerializer
 import org.springframework.data.redis.serializer.StringRedisSerializer
-import tools.jackson.databind.json.JsonMapper
-import tools.jackson.module.kotlin.kotlinModule
 
 @Configuration
 @EnableRedisRepositories(basePackages = ["team.themoment.datagsm.common.domain"])
@@ -35,32 +32,7 @@ class RedisConfig {
     }
 
     @Bean
-    fun redisTemplate(): RedisTemplate<String, Any> {
-        val jsonMapper =
-            JsonMapper
-                .builder()
-                .addModule(kotlinModule())
-                .build()
-
-        val jsonSerializer =
-            object : RedisSerializer<Any> {
-                override fun serialize(value: Any?): ByteArray = jsonMapper.writeValueAsBytes(value)
-
-                override fun deserialize(bytes: ByteArray?): Any? = bytes?.let { jsonMapper.readValue(it, Any::class.java) }
-            }
-
-        return RedisTemplate<String, Any>().apply {
-            connectionFactory = redisConnectionFactory()
-            keySerializer = StringRedisSerializer()
-            hashKeySerializer = StringRedisSerializer()
-            valueSerializer = jsonSerializer
-            hashValueSerializer = jsonSerializer
-            afterPropertiesSet()
-        }
-    }
-
-    @Bean
-    fun indexRedisTemplate(): RedisTemplate<String, String> =
+    fun redisTemplate(): RedisTemplate<String, String> =
         RedisTemplate<String, String>().apply {
             connectionFactory = redisConnectionFactory()
             keySerializer = StringRedisSerializer()

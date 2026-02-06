@@ -11,8 +11,7 @@ import java.time.LocalDate
 
 @Repository
 class MealRedisCustomRepositoryImpl(
-    private val redisTemplate: RedisTemplate<String, Any>,
-    private val indexRedisTemplate: RedisTemplate<String, String>,
+    private val redisTemplate: RedisTemplate<String, String>,
 ) : MealRedisCustomRepository {
     private val jsonMapper =
         JsonMapper
@@ -49,7 +48,7 @@ class MealRedisCustomRepositoryImpl(
 
         while (!currentDate.isAfter(to)) {
             val indexKey = "meal:date:$currentDate"
-            val dateIds = indexRedisTemplate.opsForSet().members(indexKey)
+            val dateIds = redisTemplate.opsForSet().members(indexKey)
             dateIds?.forEach { id -> ids.add(id) }
             currentDate = currentDate.plusDays(1)
         }
@@ -62,7 +61,7 @@ class MealRedisCustomRepositoryImpl(
 
         return ids.mapNotNull { id ->
             val key = "meal:$id"
-            val hash = indexRedisTemplate.opsForHash<String, String>().entries(key)
+            val hash = redisTemplate.opsForHash<String, String>().entries(key)
             if (hash.isEmpty()) null else convertHashToEntity(hash)
         }
     }
