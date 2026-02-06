@@ -10,10 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.common.domain.auth.entity.constant.ApiKeyScope
 import team.themoment.datagsm.common.domain.neis.dto.meal.response.MealResDto
 import team.themoment.datagsm.openapi.domain.neis.meal.service.SearchMealService
-import team.themoment.datagsm.openapi.global.security.annotation.RequireScope
 import java.time.LocalDate
 
 @Tag(name = "Meal", description = "급식 정보 조회 API")
@@ -39,7 +37,7 @@ class MealController(
             ),
         ],
     )
-    //@RequireScope(ApiKeyScope.NEIS_READ)
+    // @RequireScope(ApiKeyScope.NEIS_READ)
     @GetMapping
     fun searchMeals(
         @RequestParam(required = false)
