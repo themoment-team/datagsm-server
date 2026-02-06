@@ -2,7 +2,6 @@ plugins {
     id(plugin.Plugins.KOTLIN_JVM)
     id(plugin.Plugins.KOTLIN_SPRING)
     id(plugin.Plugins.KOTLIN_JPA)
-    id(plugin.Plugins.KOTLIN_ALLOPEN)
     id(plugin.Plugins.SPRING_DEPENDENCY_MANAGEMENT)
     id(plugin.Plugins.KSP)
 }
