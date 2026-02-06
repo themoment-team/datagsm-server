@@ -17,6 +17,7 @@ import org.springframework.web.cors.CorsConfigurationSource
 import team.themoment.datagsm.oauth.authorization.global.security.handler.CustomAuthenticationEntryPoint
 import team.themoment.datagsm.oauth.authorization.global.security.jwt.JwtProvider
 import team.themoment.datagsm.oauth.authorization.global.security.jwt.filter.JwtAuthenticationFilter
+import tools.jackson.databind.ObjectMapper
 
 @Configuration
 @EnableWebSecurity
@@ -25,6 +26,7 @@ class SecurityConfig(
     @param:Qualifier("configure") private val corsConfigurationSource: CorsConfigurationSource,
     private val jwtProvider: JwtProvider,
     private val customAuthenticationEntryPoint: CustomAuthenticationEntryPoint,
+    private val objectMapper: ObjectMapper,
 ) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -37,7 +39,7 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .exceptionHandling { it.authenticationEntryPoint(customAuthenticationEntryPoint) }
             .addFilterBefore(
-                JwtAuthenticationFilter(jwtProvider),
+                JwtAuthenticationFilter(jwtProvider, objectMapper),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).authorizeHttpRequests {
                 it.anyRequest().permitAll()

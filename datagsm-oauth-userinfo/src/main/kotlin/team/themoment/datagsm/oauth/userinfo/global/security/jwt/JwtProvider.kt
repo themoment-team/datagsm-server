@@ -1,6 +1,7 @@
 package team.themoment.datagsm.oauth.userinfo.global.security.jwt
 
 import io.jsonwebtoken.Claims
+import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.springframework.http.HttpStatus
@@ -11,7 +12,6 @@ import team.themoment.datagsm.common.global.data.OauthJwtEnvironment
 import team.themoment.datagsm.oauth.userinfo.global.security.authentication.OauthAuthenticationToken
 import team.themoment.datagsm.oauth.userinfo.global.security.authentication.principal.OauthUserPrincipal
 import team.themoment.sdk.exception.ExpectedException
-import team.themoment.sdk.logging.logger.logger
 import java.nio.charset.StandardCharsets
 import java.util.Date
 import javax.crypto.SecretKey
@@ -32,25 +32,21 @@ class JwtProvider(
             null
         }
 
-    fun getAuthentication(token: String): Authentication? =
-        try {
-            val claims = parseClaims(token)
-            if (claims.expiration?.before(Date()) == true) {
-                return null
-            }
-
-            val scopes = getScopesFromClaims(claims)
-            val email = claims.subject
-            val clientId = getClientIdFromClaims(claims)
-
-            OauthAuthenticationToken(
-                OauthUserPrincipal(email, clientId),
-                scopes,
-            )
-        } catch (e: Exception) {
-            logger().warn("Invalid JWT: {}", e.message)
-            null
+    fun getAuthentication(token: String): Authentication {
+        val claims = parseClaims(token)
+        if (claims.expiration?.before(Date()) == true) {
+            throw ExpiredJwtException(null, claims, "JWT token has expired")
         }
+
+        val scopes = getScopesFromClaims(claims)
+        val email = claims.subject
+        val clientId = getClientIdFromClaims(claims)
+
+        return OauthAuthenticationToken(
+            OauthUserPrincipal(email, clientId),
+            scopes,
+        )
+    }
 
     private fun getScopesFromClaims(claims: Claims): Set<OAuthScope> {
         val rawScopes =
