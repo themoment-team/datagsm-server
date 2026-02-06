@@ -2,6 +2,7 @@ package team.themoment.datagsm.common.domain.neis.meal.entity
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.redis.core.RedisHash
+import org.springframework.data.redis.core.index.Indexed
 import team.themoment.datagsm.common.domain.neis.meal.entity.constant.MealType
 import java.time.LocalDate
 
@@ -13,6 +14,7 @@ data class MealRedisEntity(
     val schoolName: String,
     val officeCode: String,
     val officeName: String,
+    @Indexed
     val date: LocalDate,
     val type: MealType,
     val menu: List<String>,

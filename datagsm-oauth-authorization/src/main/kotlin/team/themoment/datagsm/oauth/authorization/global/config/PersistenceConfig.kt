@@ -11,10 +11,6 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
         "team.themoment.datagsm.common.domain",
     ],
 )
-@EnableRedisRepositories(
-    basePackages = [
-        "team.themoment.datagsm.common.domain",
-    ],
-)
+@EnableRedisRepositories(basePackages = ["team.themoment.datagsm.common.domain"])
 @EntityScan(basePackages = ["team.themoment.datagsm.common.domain"])
 class PersistenceConfig

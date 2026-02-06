@@ -18,9 +18,12 @@ class SearchMealServiceImpl(
         val meals =
             when {
                 date != null -> mealRedisRepository.findByDate(date)
-                fromDate != null && toDate != null -> mealRedisRepository.findByDateBetween(fromDate, toDate)
-                fromDate != null -> mealRedisRepository.findByDateGreaterThanEqual(fromDate)
-                toDate != null -> mealRedisRepository.findByDateLessThanEqual(toDate)
+                fromDate != null && toDate != null ->
+                    mealRedisRepository.findByDateBetween(fromDate, toDate)
+                fromDate != null ->
+                    mealRedisRepository.findByDateGreaterThanEqual(fromDate)
+                toDate != null ->
+                    mealRedisRepository.findByDateLessThanEqual(toDate)
                 else -> mealRedisRepository.findAll().toList()
             }
 
