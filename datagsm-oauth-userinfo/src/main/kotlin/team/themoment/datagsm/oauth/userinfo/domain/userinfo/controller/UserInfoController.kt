@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.account.dto.response.GetMyInfoResDto
 import team.themoment.datagsm.oauth.userinfo.domain.userinfo.service.GetUserInfoService
 
-@Tag(name = "UserInfo", description = "OAuth2 UserInfo 엔드포인트")
+@Tag(name = "UserInfo", description = "OAuth 사용자 정보 관련 API")
 @RestController
 class UserInfoController(
     private val getUserInfoService: GetUserInfoService,

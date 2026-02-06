@@ -20,7 +20,7 @@ import team.themoment.datagsm.oauth.authorization.domain.oauth.service.ExchangeT
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueOauthCodeService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.ReissueOauthTokenService
 
-@Tag(name = "OAuth", description = "OAuth2 Authorization Server API")
+@Tag(name = "OAuth", description = "OAuth 인증 관련 API")
 @RestController
 @RequestMapping("/v1/oauth")
 class OauthController(
