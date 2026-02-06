@@ -61,32 +61,28 @@ class ScheduleRedisCustomRepositoryImpl(
 
         return ids.mapNotNull { id ->
             val key = "schedule:$id"
-            val hash = redisTemplate.opsForHash<String, Any>().entries(key)
+            val hash = indexRedisTemplate.opsForHash<String, String>().entries(key)
             if (hash.isEmpty()) null else convertHashToEntity(hash)
         }
     }
 
-    private fun convertHashToEntity(hash: Map<String, Any>): ScheduleRedisEntity =
+    private fun convertHashToEntity(hash: Map<String, String>): ScheduleRedisEntity =
         ScheduleRedisEntity(
-            id = hash["id"]?.toString() ?: "",
-            schoolCode = hash["schoolCode"]?.toString() ?: "",
-            schoolName = hash["schoolName"]?.toString() ?: "",
-            officeCode = hash["officeCode"]?.toString() ?: "",
-            officeName = hash["officeName"]?.toString() ?: "",
-            date = LocalDate.parse(hash["date"]?.toString() ?: LocalDate.now().toString()),
-            academicYear = hash["academicYear"]?.toString() ?: "",
-            eventName = hash["eventName"]?.toString() ?: "",
-            eventContent = hash["eventContent"]?.toString(),
-            dayCategory = hash["dayCategory"]?.toString(),
-            schoolCourseType = hash["schoolCourseType"]?.toString(),
-            dayNightType = hash["dayNightType"]?.toString(),
+            id = hash["id"] ?: "",
+            schoolCode = hash["schoolCode"] ?: "",
+            schoolName = hash["schoolName"] ?: "",
+            officeCode = hash["officeCode"] ?: "",
+            officeName = hash["officeName"] ?: "",
+            date = LocalDate.parse(hash["date"] ?: LocalDate.now().toString()),
+            academicYear = hash["academicYear"] ?: "",
+            eventName = hash["eventName"] ?: "",
+            eventContent = hash["eventContent"],
+            dayCategory = hash["dayCategory"],
+            schoolCourseType = hash["schoolCourseType"],
+            dayNightType = hash["dayNightType"],
             targetGrades =
                 hash["targetGrades"]?.let {
-                    when (it) {
-                        is String -> jsonMapper.readValue(it, object : TypeReference<List<Int>>() {})
-                        is List<*> -> it.filterIsInstance<Int>()
-                        else -> emptyList()
-                    }
+                    jsonMapper.readValue(it, object : TypeReference<List<Int>>() {})
                 } ?: emptyList(),
         )
 }

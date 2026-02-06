@@ -62,39 +62,31 @@ class MealRedisCustomRepositoryImpl(
 
         return ids.mapNotNull { id ->
             val key = "meal:$id"
-            val hash = redisTemplate.opsForHash<String, Any>().entries(key)
+            val hash = indexRedisTemplate.opsForHash<String, String>().entries(key)
             if (hash.isEmpty()) null else convertHashToEntity(hash)
         }
     }
 
-    private fun convertHashToEntity(hash: Map<String, Any>): MealRedisEntity =
+    private fun convertHashToEntity(hash: Map<String, String>): MealRedisEntity =
         MealRedisEntity(
-            id = hash["id"]?.toString() ?: "",
-            schoolCode = hash["schoolCode"]?.toString() ?: "",
-            schoolName = hash["schoolName"]?.toString() ?: "",
-            officeCode = hash["officeCode"]?.toString() ?: "",
-            officeName = hash["officeName"]?.toString() ?: "",
-            date = LocalDate.parse(hash["date"]?.toString() ?: LocalDate.now().toString()),
-            type = MealType.valueOf(hash["type"]?.toString() ?: "LUNCH"),
+            id = hash["id"] ?: "",
+            schoolCode = hash["schoolCode"] ?: "",
+            schoolName = hash["schoolName"] ?: "",
+            officeCode = hash["officeCode"] ?: "",
+            officeName = hash["officeName"] ?: "",
+            date = LocalDate.parse(hash["date"] ?: LocalDate.now().toString()),
+            type = MealType.valueOf(hash["type"] ?: "LUNCH"),
             menu =
                 hash["menu"]?.let {
-                    when (it) {
-                        is String -> jsonMapper.readValue(it, object : TypeReference<List<String>>() {})
-                        is List<*> -> it.filterIsInstance<String>()
-                        else -> emptyList()
-                    }
+                    jsonMapper.readValue(it, object : TypeReference<List<String>>() {})
                 } ?: emptyList(),
             allergyInfo =
                 hash["allergyInfo"]?.let {
-                    when (it) {
-                        is String -> jsonMapper.readValue(it, object : TypeReference<List<String>>() {})
-                        is List<*> -> it.filterIsInstance<String>()
-                        else -> null
-                    }
+                    jsonMapper.readValue(it, object : TypeReference<List<String>>() {})
                 },
-            calories = hash["calories"]?.toString(),
-            originInfo = hash["originInfo"]?.toString(),
-            nutritionInfo = hash["nutritionInfo"]?.toString(),
-            serveCount = hash["serveCount"]?.toString()?.toIntOrNull(),
+            calories = hash["calories"],
+            originInfo = hash["originInfo"],
+            nutritionInfo = hash["nutritionInfo"],
+            serveCount = hash["serveCount"]?.toIntOrNull(),
         )
 }
