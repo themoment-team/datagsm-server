@@ -1,24 +1,23 @@
 package team.themoment.datagsm.common.domain.neis.meal.repository
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.neis.meal.entity.MealRedisEntity
 import team.themoment.datagsm.common.domain.neis.meal.entity.constant.MealType
+import tools.jackson.core.type.TypeReference
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.kotlinModule
 import java.time.LocalDate
 
 @Repository
 class MealRedisCustomRepositoryImpl(
     private val redisTemplate: RedisTemplate<String, Any>,
 ) : MealRedisCustomRepository {
-    private val objectMapper =
-        ObjectMapper().apply {
-            registerModule(JavaTimeModule())
-            registerKotlinModule()
-        }
+    private val jsonMapper =
+        JsonMapper
+            .builder()
+            .addModule(kotlinModule())
+            .build()
 
     override fun findByDateBetween(
         from: LocalDate,
@@ -79,7 +78,7 @@ class MealRedisCustomRepositoryImpl(
             menu =
                 hash["menu"]?.let {
                     when (it) {
-                        is String -> objectMapper.readValue(it, object : TypeReference<List<String>>() {})
+                        is String -> jsonMapper.readValue(it, object : TypeReference<List<String>>() {})
                         is List<*> -> it.filterIsInstance<String>()
                         else -> emptyList()
                     }
@@ -87,7 +86,7 @@ class MealRedisCustomRepositoryImpl(
             allergyInfo =
                 hash["allergyInfo"]?.let {
                     when (it) {
-                        is String -> objectMapper.readValue(it, object : TypeReference<List<String>>() {})
+                        is String -> jsonMapper.readValue(it, object : TypeReference<List<String>>() {})
                         is List<*> -> it.filterIsInstance<String>()
                         else -> null
                     }

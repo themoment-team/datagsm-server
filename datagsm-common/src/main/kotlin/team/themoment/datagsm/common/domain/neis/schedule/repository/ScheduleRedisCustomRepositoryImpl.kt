@@ -1,23 +1,22 @@
 package team.themoment.datagsm.common.domain.neis.schedule.repository
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.neis.schedule.entity.ScheduleRedisEntity
+import tools.jackson.core.type.TypeReference
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.kotlinModule
 import java.time.LocalDate
 
 @Repository
 class ScheduleRedisCustomRepositoryImpl(
     private val redisTemplate: RedisTemplate<String, Any>,
 ) : ScheduleRedisCustomRepository {
-    private val objectMapper =
-        ObjectMapper().apply {
-            registerModule(JavaTimeModule())
-            registerKotlinModule()
-        }
+    private val jsonMapper =
+        JsonMapper
+            .builder()
+            .addModule(kotlinModule())
+            .build()
 
     override fun findByDateBetween(
         from: LocalDate,
@@ -83,7 +82,7 @@ class ScheduleRedisCustomRepositoryImpl(
             targetGrades =
                 hash["targetGrades"]?.let {
                     when (it) {
-                        is String -> objectMapper.readValue(it, object : TypeReference<List<Int>>() {})
+                        is String -> jsonMapper.readValue(it, object : TypeReference<List<Int>>() {})
                         is List<*> -> it.filterIsInstance<Int>()
                         else -> emptyList()
                     }

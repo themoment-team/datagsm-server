@@ -1,11 +1,5 @@
 package team.themoment.datagsm.common.global.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
-import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -16,6 +10,10 @@ import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories
 import org.springframework.data.redis.serializer.RedisSerializer
 import org.springframework.data.redis.serializer.StringRedisSerializer
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator
+import tools.jackson.databind.jsontype.PolymorphicTypeValidator
+import tools.jackson.module.kotlin.kotlinModule
 
 @Configuration
 @EnableRedisRepositories(basePackages = ["team.themoment.datagsm.common.domain"])
@@ -39,28 +37,28 @@ class RedisConfig {
     }
 
     @Bean
-    fun objectMapper(): ObjectMapper {
+    fun jsonMapper(): JsonMapper {
         val typeValidator: PolymorphicTypeValidator =
             BasicPolymorphicTypeValidator
                 .builder()
                 .allowIfBaseType(Any::class.java)
                 .build()
 
-        return ObjectMapper().apply {
-            registerModule(JavaTimeModule())
-            registerKotlinModule()
-            disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            activateDefaultTyping(typeValidator, ObjectMapper.DefaultTyping.NON_FINAL)
-        }
+        return JsonMapper
+            .builder()
+            .addModule(kotlinModule())
+            .polymorphicTypeValidator(typeValidator)
+            .activateDefaultTyping(typeValidator)
+            .build()
     }
 
     @Bean
-    fun redisTemplate(objectMapper: ObjectMapper): RedisTemplate<String, Any> {
+    fun redisTemplate(jsonMapper: JsonMapper): RedisTemplate<String, Any> {
         val jsonSerializer =
             object : RedisSerializer<Any> {
-                override fun serialize(value: Any?): ByteArray = objectMapper.writeValueAsBytes(value)
+                override fun serialize(value: Any?): ByteArray = jsonMapper.writeValueAsBytes(value)
 
-                override fun deserialize(bytes: ByteArray?): Any? = bytes?.let { objectMapper.readValue(it, Any::class.java) }
+                override fun deserialize(bytes: ByteArray?): Any? = bytes?.let { jsonMapper.readValue(it, Any::class.java) }
             }
 
         return RedisTemplate<String, Any>().apply {
