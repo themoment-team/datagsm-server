@@ -39,7 +39,7 @@ class MealController(
             ),
         ],
     )
-    @RequireScope(ApiKeyScope.NEIS_READ)
+    //@RequireScope(ApiKeyScope.NEIS_READ)
     @GetMapping
     fun searchMeals(
         @RequestParam(required = false)
