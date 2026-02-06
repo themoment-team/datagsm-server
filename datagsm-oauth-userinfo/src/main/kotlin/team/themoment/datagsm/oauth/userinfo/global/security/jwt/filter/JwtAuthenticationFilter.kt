@@ -46,12 +46,7 @@ class JwtAuthenticationFilter(
 
         try {
             val authentication = jwtProvider.getAuthentication(token)
-            if (authentication != null) {
-                SecurityContextHolder.getContext().authentication = authentication
-            } else {
-                SecurityFilterResponseUtil.sendErrorResponse(response, objectMapper, "유효하지 않거나 만료된 토큰입니다.")
-                return
-            }
+            SecurityContextHolder.getContext().authentication = authentication
         } catch (_: ExpiredJwtException) {
             SecurityFilterResponseUtil.sendErrorResponse(response, objectMapper, "만료된 토큰입니다.")
             return

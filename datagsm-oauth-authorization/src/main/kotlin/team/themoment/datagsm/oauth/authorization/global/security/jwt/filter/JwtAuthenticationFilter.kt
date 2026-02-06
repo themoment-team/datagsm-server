@@ -47,18 +47,13 @@ class JwtAuthenticationFilter(
         }
 
         try {
-            if (!jwtProvider.validateToken(token)) {
-                SecurityFilterResponseUtil.sendErrorResponse(response, objectMapper, "유효하지 않은 토큰입니다.")
-                return
-            }
-
+            val email = jwtProvider.getEmailFromToken(token)
+            val clientId = jwtProvider.getClientIdFromToken(token)
             val scopes = jwtProvider.getScopesFromToken(token)
+
             val authentication =
                 OauthAuthenticationToken(
-                    OauthUserPrincipal(
-                        email = jwtProvider.getEmailFromToken(token),
-                        clientId = jwtProvider.getClientIdFromToken(token),
-                    ),
+                    OauthUserPrincipal(email, clientId),
                     scopes,
                 )
 
