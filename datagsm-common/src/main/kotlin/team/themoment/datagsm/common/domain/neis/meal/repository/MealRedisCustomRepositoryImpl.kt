@@ -28,13 +28,13 @@ class MealRedisCustomRepositoryImpl(
     }
 
     override fun findByDateGreaterThanEqual(fromDate: LocalDate): List<MealRedisEntity> {
-        val toDate = fromDate.plusDays(30)
+        val toDate = fromDate.plusYears(1)
         val ids = collectIdsByDateRange(fromDate, toDate)
         return findEntitiesByIds(ids)
     }
 
     override fun findByDateLessThanEqual(toDate: LocalDate): List<MealRedisEntity> {
-        val fromDate = toDate.minusDays(30)
+        val fromDate = toDate.minusYears(1)
         val ids = collectIdsByDateRange(fromDate, toDate)
         return findEntitiesByIds(ids)
     }

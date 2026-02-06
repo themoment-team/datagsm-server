@@ -27,13 +27,13 @@ class ScheduleRedisCustomRepositoryImpl(
     }
 
     override fun findByDateGreaterThanEqual(fromDate: LocalDate): List<ScheduleRedisEntity> {
-        val toDate = fromDate.plusDays(30)
+        val toDate = fromDate.plusYears(1)
         val ids = collectIdsByDateRange(fromDate, toDate)
         return findEntitiesByIds(ids)
     }
 
     override fun findByDateLessThanEqual(toDate: LocalDate): List<ScheduleRedisEntity> {
-        val fromDate = toDate.minusDays(30)
+        val fromDate = toDate.minusYears(1)
         val ids = collectIdsByDateRange(fromDate, toDate)
         return findEntitiesByIds(ids)
     }
