@@ -12,6 +12,7 @@ import team.themoment.datagsm.common.domain.account.dto.request.SendPasswordRese
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.account.repository.PasswordResetCodeRedisRepository
+import team.themoment.datagsm.oauth.authorization.domain.account.service.impl.SendPasswordResetEmailServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 

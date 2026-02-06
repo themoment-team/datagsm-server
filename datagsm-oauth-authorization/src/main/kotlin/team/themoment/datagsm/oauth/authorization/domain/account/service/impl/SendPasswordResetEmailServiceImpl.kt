@@ -1,4 +1,4 @@
-package team.themoment.datagsm.oauth.authorization.domain.account.password.service.impl
+package team.themoment.datagsm.oauth.authorization.domain.account.service.impl
 
 import org.springframework.http.HttpStatus
 import org.springframework.mail.MailException
@@ -9,7 +9,7 @@ import team.themoment.datagsm.common.domain.account.dto.request.SendPasswordRese
 import team.themoment.datagsm.common.domain.account.entity.PasswordResetCodeRedisEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.account.repository.PasswordResetCodeRedisRepository
-import team.themoment.datagsm.oauth.authorization.domain.account.password.service.SendPasswordResetEmailService
+import team.themoment.datagsm.oauth.authorization.domain.account.service.SendPasswordResetEmailService
 import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimitType
 import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimited
 import team.themoment.sdk.exception.ExpectedException
