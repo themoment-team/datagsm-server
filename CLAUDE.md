@@ -8,11 +8,13 @@ School information API server for Gwangju Software Meister High School (students
 
 ## Module Structure
 
-- datagsm-common: Shared Entity/DTO/Repository
+- datagsm-common: Shared Entity/DTO/Repository, Health API
 - datagsm-oauth-authorization: OAuth2 authentication, account management
 - datagsm-oauth-userinfo: OAuth2 user info API (profile, roles)
 - datagsm-openapi: Resource API (students, clubs, NEIS integration)
 - datagsm-web: Admin web API (including Excel processing)
+
+**Note**: `/v1/health` endpoint is provided by `HealthController` in `datagsm-common` module and is shared across all modules.
 
 ## Commands
 

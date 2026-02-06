@@ -8,13 +8,11 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 @Configuration
 @EnableJpaRepositories(
     basePackages = [
-        "team.themoment.datagsm.resource.domain",
         "team.themoment.datagsm.common.domain",
     ],
 )
 @EnableRedisRepositories(
     basePackages = [
-        "team.themoment.datagsm.resource.domain",
         "team.themoment.datagsm.common.domain",
     ],
 )

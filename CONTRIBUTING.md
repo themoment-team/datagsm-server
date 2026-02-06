@@ -99,7 +99,8 @@ datagsm-server/
 ├── datagsm-common/              # 공유 라이브러리
 │   ├── domain/                 # Entity, Repository
 │   ├── dto/                    # 공통 DTO
-│   └── global/                 # Config, Exception Handling
+│   └── global/                 # Config, Exception Handling, Health API
+│       └── controller/         # 공통 Controller (Health)
 ├── datagsm-oauth-authorization/ # OAuth2 인증 서버 (포트: 8081)
 │   └── domain/
 │       ├── account/            # 계정 관리
@@ -121,13 +122,13 @@ datagsm-server/
 
 ### 모듈별 역할
 
-| 모듈                              | 역할                                | 의존성            |
-|---------------------------------|-----------------------------------|----------------|
-| **datagsm-common**              | 공통 Entity, DTO, Repository, 예외 처리 | -              |
-| **datagsm-oauth-authorization** | DataGSM OAuth 제공                  | datagsm-common |
-| **datagsm-oauth-userinfo**      | DataGSM OAuth UserInfo 제공         | datagsm-common |
-| **datagsm-openapi**             | DataGSM OpenAPI 제공                | datagsm-common |
-| **datagsm-web**                 | DataGSM Web 서비스 전용 API 제공         | datagsm-common |
+| 모듈                              | 역할                                               | 의존성            |
+|---------------------------------|--------------------------------------------------|----------------|
+| **datagsm-common**              | 공통 Entity, DTO, Repository, 예외 처리, Health API 제공 | -              |
+| **datagsm-oauth-authorization** | DataGSM OAuth 제공                                 | datagsm-common |
+| **datagsm-oauth-userinfo**      | DataGSM OAuth UserInfo 제공                        | datagsm-common |
+| **datagsm-openapi**             | DataGSM OpenAPI 제공                               | datagsm-common |
+| **datagsm-web**                 | DataGSM Web 서비스 전용 API 제공                        | datagsm-common |
 
 ### 패키지 구조
 
@@ -150,8 +151,11 @@ team.themoment.datagsm.{module}/
 └── global/
     ├── config/                    # Spring Configuration
     ├── security/                  # Security, JWT
+    ├── controller/                # 공통 Controller (common 모듈만)
     └── common/                    # 공통 유틸리티
 ```
+
+**참고**: `/v1/health` 엔드포인트는 모든 모듈에서 공통으로 사용되며, `datagsm-common` 모듈의 `HealthController`에 정의되어 있습니다.
 
 ## IDE 및 빌드 설정
 
@@ -239,13 +243,18 @@ git checkout -b refactor/optimize-club-query
 
 ### Scope
 
-모듈 및 도메인 기반으로 scope를 지정합니다:
-
-**모듈 레벨:**
-- `authorization`, `userinfo`, `resource`, `web`, `global`
+**기본 원칙: 도메인명을 우선 사용하고, 모듈명은 횡단관심사에서만 사용**합니다.
 
 **도메인 레벨:**
 - `auth`, `account`, `oauth`, `club`, `student`, `neis`, `project`, `client`
+- 특정 기능이나 도메인에 관련된 변경사항에 사용
+
+**모듈 레벨 (횡단관심사만):**
+- `web`, `oauth`, `openapi`, `global`
+- 여러 모듈에 걸친 변경사항이나 공통 설정, 보안, 유틸리티 등에만 사용
+
+**기타:**
+- `ci/cd` - CI/CD 파이프라인 관련 변경
 
 ### 예시
 
@@ -282,8 +291,13 @@ vYYYYMMDD.n (릴리즈용)
 ```
 
 **유효한 Scope:**
-- `global`, `account`, `auth`, `client`, `club`, `neis`, `oauth`, `project`, `student`
-- `web`, `resource`, `authorization`, `userinfo`, `ci/cd`
+- **도메인명 (기본 사용)**: `auth`, `account`, `client`, `club`, `neis`, `oauth`, `project`, `student`
+- **모듈명 (횡단관심사만)**: `web`, `oauth`, `openapi`, `global`
+- **기타**: `global`, `ci/cd`
+
+**Scope 선택 규칙:**
+- 특정 기능 변경: 도메인명 사용
+- 여러 모듈에 걸친 변경이나 공통 설정/보안/유틸리티: 모듈명 또는 global 사용
 
 **예시:**
 ```

@@ -13,7 +13,6 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 )
 @EnableRedisRepositories(
     basePackages = [
-        "team.themoment.datagsm.authorization.domain",
         "team.themoment.datagsm.common.domain",
     ],
 )

@@ -18,7 +18,7 @@ DataGSM is a Spring Boot REST API service providing school information (students
 
 ```
 datagsm-server/
-├── datagsm-common/            # Shared library (Entity, DTO, Repository, Config)
+├── datagsm-common/            # Shared library (Entity, DTO, Repository, Config, Health API)
 ├── datagsm-oauth-authorization/ # OAuth2 authentication server
 ├── datagsm-oauth-userinfo/    # OAuth2 User info API server (profile, roles)
 ├── datagsm-openapi/           # Resource API server (students, clubs, NEIS)
@@ -26,6 +26,8 @@ datagsm-server/
 ```
 
 Each module follows: `controller/`, `service/`, `repository/`, `entity/`, `dto/`
+
+**Note**: `/v1/health` endpoint is provided by `HealthController` in `datagsm-common/global/controller/` and is shared across all modules.
 
 ## Commands
 
@@ -50,16 +52,6 @@ Each module follows: `controller/`, `service/`, `repository/`, `entity/`, `dto/`
 - **Dependency Injection**: Always use constructor injection
 - **Entity vs DTO**: Separate Entity and DTO clearly
 - **Comments**: Do NOT add excessive comments - only where logic is not self-evident
-
-### Commit & PR Conventions
-
-**Commit Message Format**: `type(scope): description`
-- Types: add/update/fix/refactor/test/docs/merge
-- Scopes: ONLY domain names (auth, account, student, club, project, neis, client, oauth) OR module names (web, oauth-authorization, openapi, oauth-userinfo, common) OR global
-- Description: Korean, lowercase start, no period, avoid noun-ending style
-
-**PR Title Format**: `[scope] description`
-- Examples: `[global] 기여자 지침 문서 추가`, `[student] 졸업생 전환 및 저장 기능 구현`
 
 ## Key Practices
 

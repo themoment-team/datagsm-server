@@ -18,11 +18,11 @@ import javax.crypto.SecretKey
 
 @Component
 class JwtProvider(
-    jwtEnvironment: OauthJwtEnvironment,
+    oauthJwtEnvironment: OauthJwtEnvironment,
 ) {
     private val secretKey: SecretKey =
         Keys.hmacShaKeyFor(
-            jwtEnvironment.secret.toByteArray(StandardCharsets.UTF_8),
+            oauthJwtEnvironment.secret.toByteArray(StandardCharsets.UTF_8),
         )
 
     fun extractToken(bearerToken: String?): String? =

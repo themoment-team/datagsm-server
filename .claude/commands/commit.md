@@ -6,7 +6,10 @@ Create Git commits following these rules:
 
 - Follow commit message format: `type(scope): description`
     - Types: add/update/fix/refactor/test/docs/merge
-    - Scopes: ONLY domain names (auth, account, student, club, project, neis, client, oauth) OR module names (web, authorization, userinfo, resource) OR global. No other scopes allowed.
+    - Scopes:
+        - **Primary**: Domain names (auth, account, student, club, project, neis, client, oauth)
+        - **Cross-cutting concerns only**: Module names (web, oauth, openapi) or global
+        - Use domain names by default. Only use module names when changes affect multiple modules or cross-cutting concerns.
     - Description: Korean, lowercase start, no period, avoid noun-ending style (e.g., "~ 추가", "~ 수정")
 - Use subject line only (no commit body)
 - Do NOT add Claude as co-author

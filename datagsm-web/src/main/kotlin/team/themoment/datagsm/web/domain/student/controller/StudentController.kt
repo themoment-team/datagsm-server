@@ -33,18 +33,20 @@ import team.themoment.datagsm.web.domain.student.service.GraduateThirdGradeStude
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentExcelService
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentService
 import team.themoment.datagsm.web.domain.student.service.QueryStudentService
+import team.themoment.datagsm.web.domain.student.service.WithdrawStudentService
 
 @Tag(name = "Student", description = "학생 관련 API")
 @RestController
 @RequestMapping("/v1/students")
 class StudentController(
-    private final val queryStudentService: QueryStudentService,
-    private final val createStudentService: CreateStudentService,
-    private final val modifyStudentService: ModifyStudentService,
-    private final val createStudentExcelService: CreateStudentExcelService,
-    private final val modifyStudentExcelService: ModifyStudentExcelService,
-    private final val graduateStudentService: GraduateStudentService,
-    private final val graduateThirdGradeStudentsService: GraduateThirdGradeStudentsService,
+    private val queryStudentService: QueryStudentService,
+    private val createStudentService: CreateStudentService,
+    private val modifyStudentService: ModifyStudentService,
+    private val createStudentExcelService: CreateStudentExcelService,
+    private val modifyStudentExcelService: ModifyStudentExcelService,
+    private val graduateStudentService: GraduateStudentService,
+    private val graduateThirdGradeStudentsService: GraduateThirdGradeStudentsService,
+    private val withdrawStudentService: WithdrawStudentService,
 ) {
     @Operation(summary = "학생 정보 조회", description = "필터 조건에 맞는 학생 정보를 조회합니다.")
     @ApiResponses(
@@ -63,14 +65,13 @@ class StudentController(
         @Parameter(description = "성별") @RequestParam(required = false) sex: Sex?,
         @Parameter(description = "역할") @RequestParam(required = false) role: StudentRole?,
         @Parameter(description = "기숙사 호실") @RequestParam(required = false) dormitoryRoom: Int?,
-        @Parameter(description = "자퇴 여부") @RequestParam(required = false) isLeaveSchool: Boolean?,
         @Parameter(description = "졸업생 포함 여부") @RequestParam(required = false, defaultValue = "false") includeGraduates: Boolean,
         @Parameter(description = "페이지 번호") @RequestParam(required = false, defaultValue = "0") page: Int,
         @Parameter(description = "페이지 크기") @RequestParam(required = false, defaultValue = "300") size: Int,
         @Parameter(
             description =
                 "정렬 기준 (ID, NAME, EMAIL, STUDENT_NUMBER, GRADE, CLASS_NUM, NUMBER, MAJOR, ROLE, SEX, " +
-                    "DORMITORY_ROOM, IS_LEAVE_SCHOOL)",
+                    "DORMITORY_ROOM)",
         ) @RequestParam(required = false) sortBy: StudentSortBy?,
         @Parameter(description = "정렬 방향 (ASC, DESC)") @RequestParam(required = false, defaultValue = "ASC") sortDirection: SortDirection,
     ): StudentListResDto =
@@ -84,7 +85,6 @@ class StudentController(
             sex,
             role,
             dormitoryRoom,
-            isLeaveSchool,
             includeGraduates,
             page,
             size,
@@ -165,4 +165,18 @@ class StudentController(
     )
     @PostMapping("/graduate/third-grade")
     fun graduateThirdGradeStudents(): GraduateStudentResDto = graduateThirdGradeStudentsService.execute()
+
+    @Operation(summary = "특정 학생 자퇴 처리", description = "지정한 학생 한 명을 자퇴생으로 전환합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "자퇴 처리 성공"),
+            ApiResponse(responseCode = "404", description = "학생을 찾을 수 없음", content = [Content()]),
+        ],
+    )
+    @PostMapping("/{studentId}/withdraw")
+    fun withdrawStudent(
+        @Parameter(description = "학생 ID") @PathVariable studentId: Long,
+    ) {
+        withdrawStudentService.execute(studentId)
+    }
 }

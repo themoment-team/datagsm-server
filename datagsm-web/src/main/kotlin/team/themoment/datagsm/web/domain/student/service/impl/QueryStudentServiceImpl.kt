@@ -16,7 +16,7 @@ import team.themoment.datagsm.web.domain.student.service.QueryStudentService
 @Service
 @Transactional(readOnly = true)
 class QueryStudentServiceImpl(
-    private final val studentJpaRepository: StudentJpaRepository,
+    private val studentJpaRepository: StudentJpaRepository,
 ) : QueryStudentService {
     override fun execute(
         studentId: Long?,
@@ -28,7 +28,6 @@ class QueryStudentServiceImpl(
         sex: Sex?,
         role: StudentRole?,
         dormitoryRoom: Int?,
-        isLeaveSchool: Boolean?,
         includeGraduates: Boolean,
         page: Int,
         size: Int,
@@ -46,7 +45,6 @@ class QueryStudentServiceImpl(
                 sex = sex,
                 role = role,
                 dormitoryRoom = dormitoryRoom,
-                isLeaveSchool = isLeaveSchool,
                 includeGraduates = includeGraduates,
                 pageable = PageRequest.of(page, size),
                 sortBy = sortBy,
@@ -71,7 +69,6 @@ class QueryStudentServiceImpl(
                         role = entity.role,
                         dormitoryFloor = entity.dormitoryRoomNumber?.dormitoryRoomFloor,
                         dormitoryRoom = entity.dormitoryRoomNumber?.dormitoryRoomNumber,
-                        isLeaveSchool = entity.isLeaveSchool,
                         majorClub = entity.majorClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
                         jobClub = entity.jobClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
                         autonomousClub = entity.autonomousClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },

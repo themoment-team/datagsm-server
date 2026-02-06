@@ -10,6 +10,7 @@ import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
+import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentService
 import team.themoment.sdk.exception.ExpectedException
@@ -17,8 +18,8 @@ import team.themoment.sdk.exception.ExpectedException
 @Service
 @Transactional
 class ModifyStudentServiceImpl(
-    private final val studentJpaRepository: StudentJpaRepository,
-    private final val clubJpaRepository: ClubJpaRepository,
+    private val studentJpaRepository: StudentJpaRepository,
+    private val clubJpaRepository: ClubJpaRepository,
 ) : ModifyStudentService {
     override fun execute(
         studentId: Long,
@@ -46,13 +47,18 @@ class ModifyStudentServiceImpl(
         val major =
             Major.fromClassNum(reqDto.classNum)
                 ?: throw ExpectedException("유효하지 않은 학급입니다: ${reqDto.classNum}", HttpStatus.BAD_REQUEST)
+        if (reqDto.role == StudentRole.GRADUATE || reqDto.role == StudentRole.WITHDRAWN) {
+            throw ExpectedException(
+                "졸업생이나 자퇴생으로의 role 변경은 전용 API를 사용해야 합니다.",
+                HttpStatus.BAD_REQUEST,
+            )
+        }
         student.name = reqDto.name
         student.sex = reqDto.sex
         student.email = reqDto.email
         student.studentNumber = StudentNumber(reqDto.grade, reqDto.classNum, reqDto.number)
         student.major = major
         student.role = reqDto.role
-        student.isLeaveSchool = reqDto.isLeaveSchool
         student.dormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
         val clubIds = listOfNotNull(reqDto.majorClubId, reqDto.jobClubId, reqDto.autonomousClubId)
         val clubs =
@@ -86,7 +92,6 @@ class ModifyStudentServiceImpl(
             role = student.role,
             dormitoryFloor = student.dormitoryRoomNumber?.dormitoryRoomFloor,
             dormitoryRoom = student.dormitoryRoomNumber?.dormitoryRoomNumber,
-            isLeaveSchool = student.isLeaveSchool,
             majorClub = student.majorClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             jobClub = student.jobClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             autonomousClub = student.autonomousClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },

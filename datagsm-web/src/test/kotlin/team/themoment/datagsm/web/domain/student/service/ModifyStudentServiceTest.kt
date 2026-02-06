@@ -51,7 +51,6 @@ class ModifyStudentServiceTest :
                             major = Major.SW_DEVELOPMENT
                             role = StudentRole.GENERAL_STUDENT
                             dormitoryRoomNumber = DormitoryRoomNumber(201)
-                            isLeaveSchool = false
                         }
                 }
 
@@ -66,7 +65,6 @@ class ModifyStudentServiceTest :
                             number = 5,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
-                            isLeaveSchool = false,
                         )
 
                     beforeEach {
@@ -98,7 +96,6 @@ class ModifyStudentServiceTest :
                             number = 5,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
-                            isLeaveSchool = false,
                         )
 
                     beforeEach {
@@ -126,7 +123,6 @@ class ModifyStudentServiceTest :
                             number = 5,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
-                            isLeaveSchool = false,
                         )
 
                     beforeEach {
@@ -155,7 +151,6 @@ class ModifyStudentServiceTest :
                             number = 10,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
-                            isLeaveSchool = false,
                         )
 
                     beforeEach {
@@ -185,7 +180,6 @@ class ModifyStudentServiceTest :
                             number = 1,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
-                            isLeaveSchool = false,
                         )
 
                     beforeEach {
@@ -213,7 +207,6 @@ class ModifyStudentServiceTest :
                             number = 1,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
-                            isLeaveSchool = false,
                         )
 
                     beforeEach {
@@ -243,7 +236,6 @@ class ModifyStudentServiceTest :
                             number = 5,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = null,
-                            isLeaveSchool = false,
                         )
 
                     beforeEach {
@@ -284,7 +276,6 @@ class ModifyStudentServiceTest :
                             number = 5,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
-                            isLeaveSchool = false,
                             majorClubId = 10L,
                             jobClubId = 20L,
                         )
@@ -319,7 +310,6 @@ class ModifyStudentServiceTest :
                             number = 5,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
-                            isLeaveSchool = false,
                             majorClubId = null,
                             jobClubId = null,
                             autonomousClubId = null,
@@ -357,7 +347,6 @@ class ModifyStudentServiceTest :
                             number = 5,
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
-                            isLeaveSchool = false,
                             majorClubId = 999L,
                         )
 
@@ -377,6 +366,90 @@ class ModifyStudentServiceTest :
                         exception.message shouldBe "전공 동아리를 찾을 수 없습니다."
 
                         verify(exactly = 1) { mockClubRepository.findAllById(listOf(999L)) }
+                    }
+                }
+
+                context("role을 GRADUATE로 변경 시도할 때") {
+                    val updateRequest =
+                        UpdateStudentReqDto(
+                            name = "학생",
+                            sex = Sex.MAN,
+                            email = "existing@gsm.hs.kr",
+                            grade = 2,
+                            classNum = 1,
+                            number = 5,
+                            role = StudentRole.GRADUATE,
+                            dormitoryRoomNumber = 201,
+                        )
+
+                    beforeEach {
+                        every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
+                        every { mockStudentRepository.existsByStudentEmailAndNotId("existing@gsm.hs.kr", studentId) } returns false
+                        every { mockStudentRepository.existsByStudentNumberAndNotId(2, 1, 5, studentId) } returns false
+                    }
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                modifyStudentService.execute(studentId, updateRequest)
+                            }
+
+                        exception.message shouldBe "졸업생이나 자퇴생으로의 role 변경은 전용 API를 사용해야 합니다."
+                    }
+                }
+
+                context("role을 WITHDRAWN로 변경 시도할 때") {
+                    val updateRequest =
+                        UpdateStudentReqDto(
+                            name = "학생",
+                            sex = Sex.MAN,
+                            email = "existing@gsm.hs.kr",
+                            grade = 2,
+                            classNum = 1,
+                            number = 5,
+                            role = StudentRole.WITHDRAWN,
+                            dormitoryRoomNumber = 201,
+                        )
+
+                    beforeEach {
+                        every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
+                        every { mockStudentRepository.existsByStudentEmailAndNotId("existing@gsm.hs.kr", studentId) } returns false
+                        every { mockStudentRepository.existsByStudentNumberAndNotId(2, 1, 5, studentId) } returns false
+                    }
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                modifyStudentService.execute(studentId, updateRequest)
+                            }
+
+                        exception.message shouldBe "졸업생이나 자퇴생으로의 role 변경은 전용 API를 사용해야 합니다."
+                    }
+                }
+
+                context("role을 STUDENT_COUNCIL로 변경할 때") {
+                    val updateRequest =
+                        UpdateStudentReqDto(
+                            name = "학생",
+                            sex = Sex.MAN,
+                            email = "existing@gsm.hs.kr",
+                            grade = 2,
+                            classNum = 1,
+                            number = 5,
+                            role = StudentRole.STUDENT_COUNCIL,
+                            dormitoryRoomNumber = 201,
+                        )
+
+                    beforeEach {
+                        every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
+                        every { mockStudentRepository.existsByStudentEmailAndNotId("existing@gsm.hs.kr", studentId) } returns false
+                        every { mockStudentRepository.existsByStudentNumberAndNotId(2, 1, 5, studentId) } returns false
+                    }
+
+                    it("role이 성공적으로 변경되어야 한다") {
+                        val result = modifyStudentService.execute(studentId, updateRequest)
+
+                        result.role shouldBe StudentRole.STUDENT_COUNCIL
                     }
                 }
             }

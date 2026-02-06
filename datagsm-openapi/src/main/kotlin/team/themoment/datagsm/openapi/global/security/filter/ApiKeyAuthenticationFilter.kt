@@ -53,7 +53,7 @@ class ApiKeyAuthenticationFilter(
                     scopeAuthorities,
                 )
             SecurityContextHolder.getContext().authentication = authentication
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             response.sendError(HttpStatus.UNAUTHORIZED.value(), "잘못된 형식의 API Key입니다.")
             return
         }

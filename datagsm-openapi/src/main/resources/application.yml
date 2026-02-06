@@ -39,9 +39,6 @@ spring:
         office-code: ${NEIS_OFFICE_CODE:F10}
         school-code: ${NEIS_SCHOOL_CODE:7380292}
   security:
-    cors:
-      allowed-origins:
-        - ${CORS_ALLOWED_ORIGINS:*}
     api-key:
       expiration-days: 30
       renewal-period-days: 15

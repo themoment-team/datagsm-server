@@ -1,4 +1,4 @@
-package team.themoment.datagsm.oauth.authorization.domain.health
+package team.themoment.datagsm.common.global.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse

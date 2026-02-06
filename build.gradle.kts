@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "team.themoment"
-version = "v20260201.0"
+version = "v20260206.0"
 
 java {
     toolchain {
@@ -27,6 +27,10 @@ allprojects {
                     .contains("/generated/")
             }
         }
+    }
+
+    configurations.all {
+        exclude(group = "org.bouncycastle")
     }
 }
 

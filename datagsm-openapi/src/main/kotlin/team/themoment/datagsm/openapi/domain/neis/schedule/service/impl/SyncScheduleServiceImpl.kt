@@ -101,18 +101,16 @@ class SyncScheduleServiceImpl(
         grade4Yn: String?,
         grade5Yn: String?,
         grade6Yn: String?,
-    ): List<Int> {
-        val grades = mutableListOf<Int>()
-
-        if (grade1Yn == "Y") grades.add(1)
-        if (grade2Yn == "Y") grades.add(2)
-        if (grade3Yn == "Y") grades.add(3)
-        if (grade4Yn == "Y") grades.add(4)
-        if (grade5Yn == "Y") grades.add(5)
-        if (grade6Yn == "Y") grades.add(6)
-
-        return grades.toList()
-    }
+    ): List<Int> =
+        listOf(
+            1 to grade1Yn,
+            2 to grade2Yn,
+            3 to grade3Yn,
+            4 to grade4Yn,
+            5 to grade5Yn,
+            6 to grade6Yn,
+        ).filter { it.second == "Y" }
+            .map { it.first }
 
     companion object {
         private val DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd")

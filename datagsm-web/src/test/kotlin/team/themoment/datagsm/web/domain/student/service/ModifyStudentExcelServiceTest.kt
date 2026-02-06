@@ -31,8 +31,7 @@ private const val JOB_CLUB_COL_IDX = 5
 private const val AUTONOMOUS_COL_IDX = 6
 private const val DORMITORY_ROOM_NUMBER_COL_IDX = 7
 private const val STUDENT_ROLE_COL_IDX = 8
-private const val IS_SCHOOL_LEAVE_COL_IDX = 9
-private const val SEX_COL_IDX = 10
+private const val SEX_COL_IDX = 9
 
 class ModifyStudentExcelServiceTest :
     DescribeSpec({
@@ -61,7 +60,6 @@ class ModifyStudentExcelServiceTest :
             header1.createCell(AUTONOMOUS_COL_IDX).setCellValue("창체동아리")
             header1.createCell(DORMITORY_ROOM_NUMBER_COL_IDX).setCellValue("호실")
             header1.createCell(STUDENT_ROLE_COL_IDX).setCellValue("소속")
-            header1.createCell(IS_SCHOOL_LEAVE_COL_IDX).setCellValue("자퇴 여부")
             header1.createCell(SEX_COL_IDX).setCellValue("성별")
 
             val data1 = sheet1.createRow(1)
@@ -74,18 +72,17 @@ class ModifyStudentExcelServiceTest :
             data1.createCell(AUTONOMOUS_COL_IDX).setCellValue("창체동아리B")
             data1.createCell(DORMITORY_ROOM_NUMBER_COL_IDX).setCellValue("301")
             data1.createCell(STUDENT_ROLE_COL_IDX).setCellValue("일반학생")
-            data1.createCell(IS_SCHOOL_LEAVE_COL_IDX).setCellValue("X")
             data1.createCell(SEX_COL_IDX).setCellValue("남자")
 
             val sheet2 = workbook.createSheet("2학년")
             val header2 = sheet2.createRow(0)
-            for (i in 0..10) {
+            for (i in 0..9) {
                 header2.createCell(i).setCellValue(header1.getCell(i).stringCellValue)
             }
 
             val sheet3 = workbook.createSheet("3학년")
             val header3 = sheet3.createRow(0)
-            for (i in 0..10) {
+            for (i in 0..9) {
                 header3.createCell(i).setCellValue(header1.getCell(i).stringCellValue)
             }
 
@@ -116,7 +113,6 @@ class ModifyStudentExcelServiceTest :
                             email = "old@gsm.hs.kr"
                             major = Major.AI
                             role = StudentRole.GENERAL_STUDENT
-                            isLeaveSchool = false
                             sex = Sex.WOMAN
                         }
 
@@ -192,8 +188,7 @@ class ModifyStudentExcelServiceTest :
                     row1.createCell(2).setCellValue("s1@gsm.hs.kr")
                     row1.createCell(3).setCellValue("SW개발과")
                     row1.createCell(8).setCellValue("일반학생")
-                    row1.createCell(9).setCellValue("X")
-                    row1.createCell(10).setCellValue("남자")
+                    row1.createCell(9).setCellValue("남자")
 
                     val row2 = sheet1.createRow(2)
                     row2.createCell(0).setCellValue("학생2")
@@ -201,8 +196,7 @@ class ModifyStudentExcelServiceTest :
                     row2.createCell(2).setCellValue("s2@gsm.hs.kr")
                     row2.createCell(3).setCellValue("SW개발과")
                     row2.createCell(8).setCellValue("일반학생")
-                    row2.createCell(9).setCellValue("X")
-                    row2.createCell(10).setCellValue("남자")
+                    row2.createCell(9).setCellValue("남자")
 
                     workbook.createSheet("2학년")
                     workbook.createSheet("3학년")
@@ -256,8 +250,7 @@ class ModifyStudentExcelServiceTest :
                     row1.createCell(2).setCellValue("duplicate@gsm.hs.kr")
                     row1.createCell(3).setCellValue("SW개발과")
                     row1.createCell(8).setCellValue("일반학생")
-                    row1.createCell(9).setCellValue("X")
-                    row1.createCell(10).setCellValue("남자")
+                    row1.createCell(9).setCellValue("남자")
 
                     val row2 = sheet1.createRow(2)
                     row2.createCell(0).setCellValue("학생2")
@@ -265,8 +258,7 @@ class ModifyStudentExcelServiceTest :
                     row2.createCell(2).setCellValue("duplicate@gsm.hs.kr")
                     row2.createCell(3).setCellValue("SW개발과")
                     row2.createCell(8).setCellValue("일반학생")
-                    row2.createCell(9).setCellValue("X")
-                    row2.createCell(10).setCellValue("남자")
+                    row2.createCell(9).setCellValue("남자")
 
                     workbook.createSheet("2학년")
                     workbook.createSheet("3학년")
@@ -332,13 +324,14 @@ class ModifyStudentExcelServiceTest :
                             "dummy content".toByteArray(),
                         )
 
-                    it("IllegalArgumentException이 발생해야 한다") {
+                    it("ExpectedException이 발생해야 한다") {
                         val exception =
-                            shouldThrow<IllegalArgumentException> {
+                            shouldThrow<ExpectedException> {
                                 modifyStudentExcelService.execute(file)
                             }
 
                         exception.message shouldBe "지원하지 않는 파일 형식입니다."
+                        exception.statusCode shouldBe HttpStatus.UNSUPPORTED_MEDIA_TYPE
                     }
                 }
 
@@ -519,8 +512,7 @@ class ModifyStudentExcelServiceTest :
                     row1.createCell(2).setCellValue("hong@gsm.hs.kr")
                     row1.createCell(3).setCellValue("잘못된학과")
                     row1.createCell(8).setCellValue("일반학생")
-                    row1.createCell(9).setCellValue("X")
-                    row1.createCell(10).setCellValue("남자")
+                    row1.createCell(9).setCellValue("남자")
 
                     workbook.createSheet("2학년")
                     workbook.createSheet("3학년")
@@ -574,8 +566,7 @@ class ModifyStudentExcelServiceTest :
                     row1.createCell(2).setCellValue("hong@gsm.hs.kr")
                     row1.createCell(3).setCellValue("SW개발과")
                     row1.createCell(8).setCellValue("잘못된소속")
-                    row1.createCell(9).setCellValue("X")
-                    row1.createCell(10).setCellValue("남자")
+                    row1.createCell(9).setCellValue("남자")
 
                     workbook.createSheet("2학년")
                     workbook.createSheet("3학년")
@@ -603,61 +594,6 @@ class ModifyStudentExcelServiceTest :
                     }
                 }
 
-                context("잘못된 자퇴 여부 값일 때") {
-                    val workbook = XSSFWorkbook()
-                    val sheet1 = workbook.createSheet("1학년")
-                    val header = sheet1.createRow(0)
-                    val headerLabels =
-                        listOf(
-                            "학생명",
-                            "학번",
-                            "이메일",
-                            "학과",
-                            "전공동아리",
-                            "취업동아리",
-                            "창체동아리",
-                            "호실",
-                            "소속",
-                            "자퇴 여부",
-                            "성별",
-                        )
-                    headerLabels.forEachIndexed { idx, label -> header.createCell(idx).setCellValue(label) }
-
-                    val row1 = sheet1.createRow(1)
-                    row1.createCell(0).setCellValue("홍길동")
-                    row1.createCell(1).setCellValue("1101")
-                    row1.createCell(2).setCellValue("hong@gsm.hs.kr")
-                    row1.createCell(3).setCellValue("SW개발과")
-                    row1.createCell(8).setCellValue("일반학생")
-                    row1.createCell(9).setCellValue("YES")
-                    row1.createCell(10).setCellValue("남자")
-
-                    workbook.createSheet("2학년")
-                    workbook.createSheet("3학년")
-
-                    val output = ByteArrayOutputStream()
-                    workbook.write(output)
-                    workbook.close()
-
-                    val file =
-                        MockMultipartFile(
-                            "file",
-                            "students.xlsx",
-                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            output.toByteArray(),
-                        )
-
-                    it("ExpectedException이 발생해야 한다") {
-                        val exception =
-                            shouldThrow<ExpectedException> {
-                                modifyStudentExcelService.execute(file)
-                            }
-
-                        exception.message shouldContain "자퇴 여부는 O 또는 X여야 합니다"
-                        exception.statusCode shouldBe HttpStatus.BAD_REQUEST
-                    }
-                }
-
                 context("잘못된 성별 값일 때") {
                     val workbook = XSSFWorkbook()
                     val sheet1 = workbook.createSheet("1학년")
@@ -673,7 +609,6 @@ class ModifyStudentExcelServiceTest :
                             "창체동아리",
                             "호실",
                             "소속",
-                            "자퇴 여부",
                             "성별",
                         )
                     headerLabels.forEachIndexed { idx, label -> header.createCell(idx).setCellValue(label) }
@@ -684,8 +619,7 @@ class ModifyStudentExcelServiceTest :
                     row1.createCell(2).setCellValue("hong@gsm.hs.kr")
                     row1.createCell(3).setCellValue("SW개발과")
                     row1.createCell(8).setCellValue("일반학생")
-                    row1.createCell(9).setCellValue("X")
-                    row1.createCell(10).setCellValue("기타")
+                    row1.createCell(9).setCellValue("기타")
 
                     workbook.createSheet("2학년")
                     workbook.createSheet("3학년")
@@ -739,8 +673,7 @@ class ModifyStudentExcelServiceTest :
                     row1.createCell(2).setCellValue("hong@gsm.hs.kr")
                     row1.createCell(3).setCellValue("SW개발과")
                     row1.createCell(8).setCellValue("일반학생")
-                    row1.createCell(9).setCellValue("X")
-                    row1.createCell(10).setCellValue("남자")
+                    row1.createCell(9).setCellValue("남자")
 
                     workbook.createSheet("2학년")
                     workbook.createSheet("3학년")
