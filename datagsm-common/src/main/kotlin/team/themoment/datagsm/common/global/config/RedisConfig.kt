@@ -70,4 +70,15 @@ class RedisConfig {
             afterPropertiesSet()
         }
     }
+
+    @Bean
+    fun indexRedisTemplate(): RedisTemplate<String, String> =
+        RedisTemplate<String, String>().apply {
+            connectionFactory = redisConnectionFactory()
+            keySerializer = StringRedisSerializer()
+            hashKeySerializer = StringRedisSerializer()
+            valueSerializer = StringRedisSerializer()
+            hashValueSerializer = StringRedisSerializer()
+            afterPropertiesSet()
+        }
 }

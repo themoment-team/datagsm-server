@@ -11,6 +11,7 @@ import java.time.LocalDate
 @Repository
 class ScheduleRedisCustomRepositoryImpl(
     private val redisTemplate: RedisTemplate<String, Any>,
+    private val indexRedisTemplate: RedisTemplate<String, String>,
 ) : ScheduleRedisCustomRepository {
     private val jsonMapper =
         JsonMapper
@@ -47,8 +48,8 @@ class ScheduleRedisCustomRepositoryImpl(
 
         while (!currentDate.isAfter(to)) {
             val indexKey = "schedule:date:$currentDate"
-            val dateIds = redisTemplate.opsForSet().members(indexKey)
-            dateIds?.forEach { id -> ids.add(id.toString()) }
+            val dateIds = indexRedisTemplate.opsForSet().members(indexKey)
+            dateIds?.forEach { id -> ids.add(id) }
             currentDate = currentDate.plusDays(1)
         }
 
