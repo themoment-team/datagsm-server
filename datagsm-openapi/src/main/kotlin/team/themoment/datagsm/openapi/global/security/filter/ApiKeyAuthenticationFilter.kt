@@ -10,7 +10,6 @@ import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.common.global.security.util.SecurityFilterResponseUtil
 import team.themoment.datagsm.openapi.global.security.authentication.ApiKeyAuthenticationToken
 import team.themoment.datagsm.openapi.global.security.authentication.principal.ApiKeyPrincipal
-import team.themoment.sdk.logging.logger.logger
 import tools.jackson.databind.ObjectMapper
 import java.util.UUID
 

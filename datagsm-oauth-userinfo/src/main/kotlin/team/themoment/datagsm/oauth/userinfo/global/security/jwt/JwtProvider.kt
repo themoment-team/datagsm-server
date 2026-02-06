@@ -12,7 +12,6 @@ import team.themoment.datagsm.common.global.data.OauthJwtEnvironment
 import team.themoment.datagsm.oauth.userinfo.global.security.authentication.OauthAuthenticationToken
 import team.themoment.datagsm.oauth.userinfo.global.security.authentication.principal.OauthUserPrincipal
 import team.themoment.sdk.exception.ExpectedException
-import team.themoment.sdk.logging.logger.logger
 import java.nio.charset.StandardCharsets
 import java.util.Date
 import javax.crypto.SecretKey
