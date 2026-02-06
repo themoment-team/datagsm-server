@@ -67,14 +67,14 @@ class ScheduleRedisCustomRepositoryImpl(
 
     private fun convertHashToEntity(hash: Map<String, String>): ScheduleRedisEntity =
         ScheduleRedisEntity(
-            id = hash["id"] ?: "",
-            schoolCode = hash["schoolCode"] ?: "",
-            schoolName = hash["schoolName"] ?: "",
-            officeCode = hash["officeCode"] ?: "",
-            officeName = hash["officeName"] ?: "",
-            date = LocalDate.parse(hash["date"] ?: LocalDate.now().toString()),
-            academicYear = hash["academicYear"] ?: "",
-            eventName = hash["eventName"] ?: "",
+            id = hash["id"] ?: throw IllegalArgumentException("ScheduleRedisEntity ID cannot be null"),
+            schoolCode = hash["schoolCode"] ?: throw IllegalArgumentException("ScheduleRedisEntity schoolCode cannot be null"),
+            schoolName = hash["schoolName"] ?: throw IllegalArgumentException("ScheduleRedisEntity schoolName cannot be null"),
+            officeCode = hash["officeCode"] ?: throw IllegalArgumentException("ScheduleRedisEntity officeCode cannot be null"),
+            officeName = hash["officeName"] ?: throw IllegalArgumentException("ScheduleRedisEntity officeName cannot be null"),
+            date = LocalDate.parse(hash["date"] ?: throw IllegalArgumentException("ScheduleRedisEntity date cannot be null")),
+            academicYear = hash["academicYear"] ?: throw IllegalArgumentException("ScheduleRedisEntity academicYear cannot be null"),
+            eventName = hash["eventName"] ?: throw IllegalArgumentException("ScheduleRedisEntity eventName cannot be null"),
             eventContent = hash["eventContent"],
             dayCategory = hash["dayCategory"],
             schoolCourseType = hash["schoolCourseType"],

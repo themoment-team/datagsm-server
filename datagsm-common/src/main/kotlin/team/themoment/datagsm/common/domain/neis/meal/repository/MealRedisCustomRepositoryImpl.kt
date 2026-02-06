@@ -68,13 +68,13 @@ class MealRedisCustomRepositoryImpl(
 
     private fun convertHashToEntity(hash: Map<String, String>): MealRedisEntity =
         MealRedisEntity(
-            id = hash["id"] ?: "",
-            schoolCode = hash["schoolCode"] ?: "",
-            schoolName = hash["schoolName"] ?: "",
-            officeCode = hash["officeCode"] ?: "",
-            officeName = hash["officeName"] ?: "",
-            date = LocalDate.parse(hash["date"] ?: LocalDate.now().toString()),
-            type = MealType.valueOf(hash["type"] ?: "LUNCH"),
+            id = hash["id"] ?: throw IllegalArgumentException("MealRedisEntity ID cannot be null"),
+            schoolCode = hash["schoolCode"] ?: throw IllegalArgumentException("MealRedisEntity schoolCode cannot be null"),
+            schoolName = hash["schoolName"] ?: throw IllegalArgumentException("MealRedisEntity schoolName cannot be null"),
+            officeCode = hash["officeCode"] ?: throw IllegalArgumentException("MealRedisEntity officeCode cannot be null"),
+            officeName = hash["officeName"] ?: throw IllegalArgumentException("MealRedisEntity officeName cannot be null"),
+            date = LocalDate.parse(hash["date"] ?: throw IllegalArgumentException("MealRedisEntity date cannot be null")),
+            type = MealType.valueOf(hash["type"] ?: throw IllegalArgumentException("MealRedisEntity type cannot be null")),
             menu =
                 hash["menu"]?.let {
                     jsonMapper.readValue(it, object : TypeReference<List<String>>() {})
