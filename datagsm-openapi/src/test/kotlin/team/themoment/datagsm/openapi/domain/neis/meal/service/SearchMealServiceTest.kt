@@ -131,7 +131,7 @@ class SearchMealServiceTest :
                         )
 
                     beforeEach {
-                        every { mockMealRepository.findByDateBetween(fromDate, toDate) } returns listOf(meal1, meal2)
+                        every { mockMealRepository.findAll() } returns listOf(meal1, meal2, meal3)
                     }
 
                     it("날짜 범위 내의 급식 정보만 반환해야 한다") {
@@ -141,7 +141,7 @@ class SearchMealServiceTest :
                         result[0].mealDate shouldBe LocalDate.of(2025, 12, 16)
                         result[1].mealDate shouldBe LocalDate.of(2025, 12, 17)
 
-                        verify(exactly = 1) { mockMealRepository.findByDateBetween(fromDate, toDate) }
+                        verify(exactly = 1) { mockMealRepository.findAll() }
                     }
                 }
 
