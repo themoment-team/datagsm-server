@@ -12,7 +12,22 @@ group = "team.themoment"
 version = "v20260206.0"
 
 subprojects {
+    apply(plugin = plugin.Plugins.KOTLIN_JVM)
+    apply(plugin = plugin.Plugins.SPRING_DEPENDENCY_MANAGEMENT)
     apply(plugin = plugin.Plugins.KTLINT)
+
+    extensions.configure<JavaPluginExtension> {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
+    }
+
+    extensions.configure<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension> {
+        imports {
+            mavenBom(dependency.Dependencies.SPRING_CLOUD_BOM)
+            mavenBom(dependency.Dependencies.AWS_SDK_BOM)
+        }
+    }
 
     configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         filter {
