@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component
 import team.themoment.datagsm.openapi.global.security.annotation.RequireScope
 import team.themoment.datagsm.openapi.global.security.checker.ScopeChecker
 import team.themoment.sdk.exception.ExpectedException
-import team.themoment.sdk.logging.logger.logger
 
 @Aspect
 @Component

@@ -23,17 +23,11 @@ class ApiKeyAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain,
     ) {
-        val requestUri = request.requestURI
-        logger().info("[ApiKeyAuthenticationFilter] Processing: $requestUri")
-
         val apiKeyHeader = request.getHeader("X-API-KEY")
         if (apiKeyHeader.isNullOrBlank()) {
-            logger().info("[ApiKeyAuthenticationFilter] No API key provided, passing through")
             filterChain.doFilter(request, response)
             return
         }
-
-        logger().info("[ApiKeyAuthenticationFilter] API key found: ${apiKeyHeader.take(8)}...")
         try {
             val apiKeyValue = UUID.fromString(apiKeyHeader)
             val apiKey =
