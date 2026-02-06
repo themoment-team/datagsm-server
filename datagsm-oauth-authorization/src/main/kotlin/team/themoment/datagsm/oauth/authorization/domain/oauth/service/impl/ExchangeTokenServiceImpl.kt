@@ -1,5 +1,6 @@
 package team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl
 
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -32,12 +33,12 @@ class ExchangeTokenServiceImpl(
     override fun execute(reqDto: OauthTokenReqDto): OauthTokenResDto {
         val oauthCodeRedisEntity =
             oauthCodeRedisRepository
-                .findById(reqDto.code)
-                .orElseThrow { ExpectedException("존재하지 않거나 만료된 코드입니다.", HttpStatus.NOT_FOUND) }
+                .findByIdOrNull(reqDto.code)
+                ?: throw ExpectedException("존재하지 않거나 만료된 코드입니다.", HttpStatus.NOT_FOUND)
         val client =
             clientJpaRepository
-                .findById(oauthCodeRedisEntity.clientId)
-                .orElseThrow { ExpectedException("인증하려는 Client가 존재하지 않습니다.", HttpStatus.NOT_FOUND) }
+                .findByIdOrNull(oauthCodeRedisEntity.clientId)
+                ?: throw ExpectedException("인증하려는 Client가 존재하지 않습니다.", HttpStatus.NOT_FOUND)
 
         validateClientSecret(reqDto, client)
 
