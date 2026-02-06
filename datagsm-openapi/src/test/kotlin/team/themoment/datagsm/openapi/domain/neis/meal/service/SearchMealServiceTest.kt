@@ -131,7 +131,7 @@ class SearchMealServiceTest :
                         )
 
                     beforeEach {
-                        every { mockMealRepository.findAll() } returns listOf(meal1, meal2, meal3)
+                        every { mockMealRepository.findByDateBetween(fromDate, toDate) } returns listOf(meal1, meal2)
                     }
 
                     it("날짜 범위 내의 급식 정보만 반환해야 한다") {
@@ -141,7 +141,107 @@ class SearchMealServiceTest :
                         result[0].mealDate shouldBe LocalDate.of(2025, 12, 16)
                         result[1].mealDate shouldBe LocalDate.of(2025, 12, 17)
 
-                        verify(exactly = 1) { mockMealRepository.findAll() }
+                        verify(exactly = 1) { mockMealRepository.findByDateBetween(fromDate, toDate) }
+                    }
+                }
+
+                context("fromDate만 지정하여 검색할 때") {
+                    val fromDate = LocalDate.of(2025, 12, 17)
+                    val meal1 =
+                        MealRedisEntity(
+                            id = "7380292_20251217_1",
+                            schoolCode = "7380292",
+                            schoolName = "광주소프트웨어마이스터고등학교",
+                            officeCode = "F10",
+                            officeName = "광주광역시교육청",
+                            date = LocalDate.of(2025, 12, 17),
+                            type = MealType.BREAKFAST,
+                            menu = listOf("쌀밥"),
+                            allergyInfo = null,
+                            calories = "800 Kcal",
+                            originInfo = "쌀:국내산",
+                            nutritionInfo = "탄수화물:100g",
+                            serveCount = null,
+                        )
+                    val meal2 =
+                        MealRedisEntity(
+                            id = "7380292_20251218_1",
+                            schoolCode = "7380292",
+                            schoolName = "광주소프트웨어마이스터고등학교",
+                            officeCode = "F10",
+                            officeName = "광주광역시교육청",
+                            date = LocalDate.of(2025, 12, 18),
+                            type = MealType.LUNCH,
+                            menu = listOf("쌀밥"),
+                            allergyInfo = null,
+                            calories = "900 Kcal",
+                            originInfo = "쌀:국내산",
+                            nutritionInfo = "탄수화물:120g",
+                            serveCount = null,
+                        )
+
+                    beforeEach {
+                        every { mockMealRepository.findByDateGreaterThanEqual(fromDate) } returns listOf(meal1, meal2)
+                    }
+
+                    it("fromDate 이후의 급식 정보를 반환해야 한다") {
+                        val result = searchMealService.execute(date = null, fromDate = fromDate, toDate = null)
+
+                        result.size shouldBe 2
+                        result[0].mealDate shouldBe LocalDate.of(2025, 12, 17)
+                        result[1].mealDate shouldBe LocalDate.of(2025, 12, 18)
+
+                        verify(exactly = 1) { mockMealRepository.findByDateGreaterThanEqual(fromDate) }
+                    }
+                }
+
+                context("toDate만 지정하여 검색할 때") {
+                    val toDate = LocalDate.of(2025, 12, 17)
+                    val meal1 =
+                        MealRedisEntity(
+                            id = "7380292_20251216_1",
+                            schoolCode = "7380292",
+                            schoolName = "광주소프트웨어마이스터고등학교",
+                            officeCode = "F10",
+                            officeName = "광주광역시교육청",
+                            date = LocalDate.of(2025, 12, 16),
+                            type = MealType.BREAKFAST,
+                            menu = listOf("쌀밥"),
+                            allergyInfo = null,
+                            calories = "800 Kcal",
+                            originInfo = "쌀:국내산",
+                            nutritionInfo = "탄수화물:100g",
+                            serveCount = null,
+                        )
+                    val meal2 =
+                        MealRedisEntity(
+                            id = "7380292_20251217_1",
+                            schoolCode = "7380292",
+                            schoolName = "광주소프트웨어마이스터고등학교",
+                            officeCode = "F10",
+                            officeName = "광주광역시교육청",
+                            date = LocalDate.of(2025, 12, 17),
+                            type = MealType.LUNCH,
+                            menu = listOf("쌀밥"),
+                            allergyInfo = null,
+                            calories = "900 Kcal",
+                            originInfo = "쌀:국내산",
+                            nutritionInfo = "탄수화물:120g",
+                            serveCount = null,
+                        )
+
+                    beforeEach {
+                        every { mockMealRepository.findByDateLessThanEqual(toDate) } returns listOf(meal1, meal2)
+                    }
+
+                    it("toDate 이전의 급식 정보를 반환해야 한다") {
+                        val result = searchMealService.execute(date = null, fromDate = null, toDate = toDate)
+
+                        result.size shouldBe 2
+                        result[0].mealDate shouldBe LocalDate.of(2025, 12, 16)
+                        result[1].mealDate shouldBe LocalDate.of(2025, 12, 17)
+
+                        verify(exactly = 1) { mockMealRepository.findByDateLessThanEqual(toDate) }
                     }
                 }
 
