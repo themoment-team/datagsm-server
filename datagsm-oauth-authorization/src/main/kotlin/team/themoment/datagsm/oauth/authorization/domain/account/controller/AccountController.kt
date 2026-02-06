@@ -1,4 +1,4 @@
-package team.themoment.datagsm.oauth.authorization.domain.account.password.controller
+package team.themoment.datagsm.oauth.authorization.domain.account.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.account.dto.request.ChangePasswordReqDto
 import team.themoment.datagsm.common.domain.account.dto.request.SendPasswordResetEmailReqDto
 import team.themoment.datagsm.common.domain.account.dto.request.VerifyPasswordResetCodeReqDto
-import team.themoment.datagsm.oauth.authorization.domain.account.password.service.CheckPasswordResetCodeService
-import team.themoment.datagsm.oauth.authorization.domain.account.password.service.ModifyPasswordService
-import team.themoment.datagsm.oauth.authorization.domain.account.password.service.SendPasswordResetEmailService
+import team.themoment.datagsm.oauth.authorization.domain.account.service.CheckPasswordResetCodeService
+import team.themoment.datagsm.oauth.authorization.domain.account.service.ModifyPasswordService
+import team.themoment.datagsm.oauth.authorization.domain.account.service.SendPasswordResetEmailService
 
-@Tag(name = "Account Password", description = "계정 비밀번호 재설정 API")
+@Tag(name = "Account", description = "계정 관련 API")
 @RestController
-@RequestMapping("/v1/account/password")
-class PasswordController(
+@RequestMapping("/v1/accounts")
+class AccountController(
     private val sendPasswordResetEmailService: SendPasswordResetEmailService,
     private val checkPasswordResetCodeService: CheckPasswordResetCodeService,
     private val modifyPasswordService: ModifyPasswordService,
@@ -34,7 +34,7 @@ class PasswordController(
             ApiResponse(responseCode = "429", description = "요청 횟수 초과", content = [Content()]),
         ],
     )
-    @PostMapping("/reset/send")
+    @PostMapping("/password/reset/send")
     fun sendPasswordResetEmail(
         @RequestBody @Valid reqDto: SendPasswordResetEmailReqDto,
     ) {
@@ -50,7 +50,7 @@ class PasswordController(
             ApiResponse(responseCode = "429", description = "요청 횟수 초과", content = [Content()]),
         ],
     )
-    @PostMapping("/reset/verify")
+    @PostMapping("/password/reset/verify")
     fun checkPasswordResetCode(
         @RequestBody @Valid reqDto: VerifyPasswordResetCodeReqDto,
     ) {
@@ -66,7 +66,7 @@ class PasswordController(
             ApiResponse(responseCode = "429", description = "요청 횟수 초과", content = [Content()]),
         ],
     )
-    @PutMapping("/change")
+    @PutMapping("/password/change")
     fun modifyPassword(
         @RequestBody @Valid reqDto: ChangePasswordReqDto,
     ) {

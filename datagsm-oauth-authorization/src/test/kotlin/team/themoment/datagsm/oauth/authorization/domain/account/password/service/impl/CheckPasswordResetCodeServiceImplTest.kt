@@ -9,6 +9,7 @@ import io.mockk.verify
 import team.themoment.datagsm.common.domain.account.dto.request.VerifyPasswordResetCodeReqDto
 import team.themoment.datagsm.common.domain.account.entity.PasswordResetCodeRedisEntity
 import team.themoment.datagsm.common.domain.account.repository.PasswordResetCodeRedisRepository
+import team.themoment.datagsm.oauth.authorization.domain.account.service.impl.CheckPasswordResetCodeServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 
