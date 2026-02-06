@@ -11,8 +11,6 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 import org.springframework.data.redis.serializer.RedisSerializer
 import org.springframework.data.redis.serializer.StringRedisSerializer
 import tools.jackson.databind.json.JsonMapper
-import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator
-import tools.jackson.databind.jsontype.PolymorphicTypeValidator
 import tools.jackson.module.kotlin.kotlinModule
 
 @Configuration
@@ -37,23 +35,13 @@ class RedisConfig {
     }
 
     @Bean
-    fun jsonMapper(): JsonMapper {
-        val typeValidator: PolymorphicTypeValidator =
-            BasicPolymorphicTypeValidator
+    fun redisTemplate(): RedisTemplate<String, Any> {
+        val jsonMapper =
+            JsonMapper
                 .builder()
-                .allowIfBaseType(Any::class.java)
+                .addModule(kotlinModule())
                 .build()
 
-        return JsonMapper
-            .builder()
-            .addModule(kotlinModule())
-            .polymorphicTypeValidator(typeValidator)
-            .activateDefaultTyping(typeValidator)
-            .build()
-    }
-
-    @Bean
-    fun redisTemplate(jsonMapper: JsonMapper): RedisTemplate<String, Any> {
         val jsonSerializer =
             object : RedisSerializer<Any> {
                 override fun serialize(value: Any?): ByteArray = jsonMapper.writeValueAsBytes(value)
