@@ -5,11 +5,13 @@ import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.annotation.Before
 import org.aspectj.lang.reflect.MethodSignature
 import org.springframework.http.HttpStatus
+import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.openapi.global.security.annotation.RequireScope
 import team.themoment.datagsm.openapi.global.security.checker.ScopeChecker
 import team.themoment.sdk.exception.ExpectedException
+import team.themoment.sdk.logging.logger.logger
 
 @Aspect
 @Component
@@ -22,9 +24,10 @@ class RequireScopeAspect(
         val method = signature.method
         val requireScope = method.getAnnotation(RequireScope::class.java)
 
-        val authentication =
-            SecurityContextHolder.getContext().authentication
-                ?: throw ExpectedException("인증이 필요합니다", HttpStatus.UNAUTHORIZED)
+        val authentication = SecurityContextHolder.getContext().authentication
+        if (authentication == null || authentication is AnonymousAuthenticationToken) {
+            throw ExpectedException("인증이 필요합니다", HttpStatus.UNAUTHORIZED)
+        }
 
         val requiredScope = requireScope.scope.scope
         if (!scopeChecker.hasScope(authentication, requiredScope)) {
