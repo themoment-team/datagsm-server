@@ -30,7 +30,7 @@ class ApiKeyAuthenticationFilter(
 
         val apiKeyHeader = request.getHeader("X-API-KEY")
         if (apiKeyHeader.isNullOrBlank()) {
-            filterChain.doFilter(request, response)
+            SecurityFilterResponseUtil.sendErrorResponse(response, objectMapper, "X-API-KEY 헤더가 필요합니다.")
             return
         }
         try {
