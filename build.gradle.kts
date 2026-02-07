@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "team.themoment"
-version = "v20260207.1"
+version = "v20260207.2"
 
 subprojects {
     apply(plugin = plugin.Plugins.KOTLIN_JVM)
