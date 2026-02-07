@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "team.themoment"
-version = "v20260206.0"
+version = "v20260207.1"
 
 java {
     toolchain {
