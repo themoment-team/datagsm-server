@@ -10,22 +10,20 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.MediaType
+import team.themoment.datagsm.common.domain.oauth.dto.request.Oauth2TokenReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthCodeReqDto
-import team.themoment.datagsm.common.domain.oauth.dto.request.OauthTokenReqDto
-import team.themoment.datagsm.common.domain.oauth.dto.request.RefreshOauthTokenReqDto
+import team.themoment.datagsm.common.domain.oauth.dto.response.Oauth2TokenResDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.OauthCodeResDto
-import team.themoment.datagsm.common.domain.oauth.dto.response.OauthTokenResDto
-import team.themoment.datagsm.oauth.authorization.domain.oauth.service.ExchangeTokenService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueOauthCodeService
-import team.themoment.datagsm.oauth.authorization.domain.oauth.service.ReissueOauthTokenService
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.Oauth2TokenService
 
 @Tag(name = "OAuth", description = "OAuth 인증 관련 API")
 @RestController
 @RequestMapping("/v1/oauth")
 class OauthController(
     val issueOauthCodeService: IssueOauthCodeService,
-    val exchangeTokenService: ExchangeTokenService,
-    val reissueOauthTokenService: ReissueOauthTokenService,
+    val oauth2TokenService: Oauth2TokenService,
 ) {
     @Operation(summary = "OAuth 인증 코드 발급", description = "사용자 이메일, 비밀번호, 클라이언트 ID를 검증하여 OAuth 인증 코드를 발급합니다.")
     @ApiResponses(
@@ -41,30 +39,29 @@ class OauthController(
         @RequestBody @Valid reqDto: OauthCodeReqDto,
     ): OauthCodeResDto = issueOauthCodeService.execute(reqDto)
 
-    @Operation(summary = "OAuth 토큰 교환", description = "인증 코드를 액세스 토큰과 리프레시 토큰으로 교환합니다.")
+    @Operation(
+        summary = "OAuth2 토큰 발급/갱신",
+        description = """
+            RFC 6749 표준에 따른 OAuth2 토큰 엔드포인트.
+            grant_type에 따라 다음 플로우를 지원합니다:
+            - authorization_code: 인증 코드를 액세스/리프레시 토큰으로 교환
+            - refresh_token: 리프레시 토큰으로 새로운 토큰 발급
+            - client_credentials: 클라이언트 자격증명으로 토큰 발급 (Server-to-Server)
+        """,
+    )
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "OAuth 토큰 교환 성공"),
-            ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패 / Client Secret 불일치)", content = [Content()]),
-            ApiResponse(responseCode = "404", description = "존재하지 않거나 만료된 코드 / Client / 사용자", content = [Content()]),
+            ApiResponse(responseCode = "200", description = "토큰 발급 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청 (필수 파라미터 누락, 유효하지 않은 grant_type 등)", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "인증 실패 (잘못된 client_secret, 유효하지 않은 토큰 등)", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음 (code, client, account 등)", content = [Content()]),
         ],
     )
-    @PostMapping("/token")
-    fun exchangeToken(
-        @RequestBody @Valid reqDto: OauthTokenReqDto,
-    ): OauthTokenResDto = exchangeTokenService.execute(reqDto)
-
-    @Operation(summary = "OAuth 토큰 갱신", description = "리프레시 토큰을 사용하여 새로운 액세스 토큰과 리프레시 토큰을 발급합니다.")
-    @ApiResponses(
-        value = [
-            ApiResponse(responseCode = "200", description = "OAuth 토큰 갱신 성공"),
-            ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
-            ApiResponse(responseCode = "401", description = "유효하지 않거나 일치하지 않는 토큰", content = [Content()]),
-            ApiResponse(responseCode = "404", description = "저장된 Refresh Token을 찾을 수 없음 / 계정 없음", content = [Content()]),
-        ],
+    @PostMapping(
+        "/token",
+        consumes = [MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE],
     )
-    @PostMapping("/tokens")
-    fun refreshOauthToken(
-        @RequestBody @Valid reqDto: RefreshOauthTokenReqDto,
-    ): OauthTokenResDto = reissueOauthTokenService.execute(reqDto.refreshToken)
+    fun issueOauth2Token(
+        @RequestBody @Valid reqDto: Oauth2TokenReqDto,
+    ): Oauth2TokenResDto = oauth2TokenService.execute(reqDto)
 }
