@@ -3,8 +3,8 @@ package team.themoment.datagsm.common.domain.neis.dto.internal
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class ApiHead(
-    @param:JsonProperty("list_total_count")
+    @field:JsonProperty("list_total_count")
     val listTotalCount: Int?,
-    @param:JsonProperty("RESULT")
+    @field:JsonProperty("RESULT")
     val result: ApiResult?,
 )
