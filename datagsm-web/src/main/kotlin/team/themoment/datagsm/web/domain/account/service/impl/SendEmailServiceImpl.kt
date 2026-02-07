@@ -1,5 +1,6 @@
 package team.themoment.datagsm.web.domain.account.service.impl
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
@@ -20,6 +21,8 @@ class SendEmailServiceImpl(
     private val emailCodeRedisRepository: EmailCodeRedisRepository,
     private val accountJpaRepository: AccountJpaRepository,
     private val javaMailSender: JavaMailSender,
+    @param:Value("\${spring.mail.from-address:datagsm@hellogsm.kr}")
+    private val fromAddress: String,
 ) : SendEmailService {
     companion object {
         private val secureRandom = SecureRandom()
@@ -50,6 +53,7 @@ class SendEmailServiceImpl(
     ) {
         val message =
             SimpleMailMessage().apply {
+                setFrom(fromAddress)
                 setTo(email)
                 subject = "DataGSM 인증 코드"
                 text = "인증 코드는 $code 입니다. 5분 이내로 입력해주세요."
