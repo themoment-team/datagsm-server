@@ -27,6 +27,7 @@ class SendPasswordResetEmailServiceImplTest :
                 passwordResetCodeRedisRepository,
                 accountJpaRepository,
                 javaMailSender,
+                fromAddress = "test@datagsm.kr",
             )
 
         Given("존재하지 않는 이메일로") {

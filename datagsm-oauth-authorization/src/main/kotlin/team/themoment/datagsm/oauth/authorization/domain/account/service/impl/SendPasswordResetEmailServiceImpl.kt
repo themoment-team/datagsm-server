@@ -1,5 +1,6 @@
 package team.themoment.datagsm.oauth.authorization.domain.account.service.impl
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.mail.MailException
 import org.springframework.mail.SimpleMailMessage
@@ -21,6 +22,8 @@ class SendPasswordResetEmailServiceImpl(
     private val passwordResetCodeRedisRepository: PasswordResetCodeRedisRepository,
     private val accountJpaRepository: AccountJpaRepository,
     private val javaMailSender: JavaMailSender,
+    @param:Value($$"${${spring.mail.from-address}}")
+    private val fromAddress: String,
 ) : SendPasswordResetEmailService {
     companion object {
         private val secureRandom = SecureRandom()
@@ -54,6 +57,7 @@ class SendPasswordResetEmailServiceImpl(
     ) {
         val message =
             SimpleMailMessage().apply {
+                setFrom(fromAddress)
                 setTo(email)
                 subject = "DataGSM 비밀번호 재설정 코드"
                 text = "비밀번호 재설정 인증 코드는 $code 입니다. 5분 이내로 입력해주세요."
