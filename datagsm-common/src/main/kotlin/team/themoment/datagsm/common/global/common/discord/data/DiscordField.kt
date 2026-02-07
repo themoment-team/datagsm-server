@@ -3,10 +3,10 @@ package team.themoment.datagsm.common.global.common.discord.data
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class DiscordField(
-    @param:JsonProperty("name")
+    @field:JsonProperty("name")
     val name: String,
-    @param:JsonProperty("value")
+    @field:JsonProperty("value")
     val value: String,
-    @param:JsonProperty("inline")
+    @field:JsonProperty("inline")
     val inline: Boolean = false,
 )
