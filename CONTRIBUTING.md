@@ -63,9 +63,19 @@ export NEIS_API_KEY="your-neis-api-key"
 # CORS 설정
 export CORS_ALLOWED_ORIGINS="http://localhost:3000,http://localhost:5173"
 
-# 메일 설정 (인증 서버용)
+# 메일 설정 (로컬 개발 - Gmail)
+export MAIL_HOST="smtp.gmail.com"
+export MAIL_PORT="587"
 export MAIL_USERNAME="your-email@gmail.com"
 export MAIL_PASSWORD="your-app-password"
+export MAIL_FROM_ADDRESS="noreply@datagsm.kr"
+
+# 메일 설정 (프로덕션 - AWS SES)
+# export MAIL_HOST="email-smtp.ap-northeast-2.amazonaws.com"
+# export MAIL_PORT="587"
+# export MAIL_USERNAME="your-ses-smtp-username"
+# export MAIL_PASSWORD="your-ses-smtp-password"
+# export MAIL_FROM_ADDRESS="datagsm@hellogsm.kr"
 ```
 
 3. **프로젝트 빌드**
