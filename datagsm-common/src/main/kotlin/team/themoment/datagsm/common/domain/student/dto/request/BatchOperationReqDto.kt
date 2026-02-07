@@ -7,11 +7,3 @@ data class BatchOperationReqDto(
     var operation: BatchOperationType,
     val filter: BatchOperationFilter? = null,
 )
-
-enum class BatchOperationType {
-    GRADUATE,
-}
-
-data class BatchOperationFilter(
-    val grade: Int? = null,
-)

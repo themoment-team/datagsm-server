@@ -8,6 +8,8 @@ data class PasswordResetRateLimitEnvironment(
     val send: RateLimitConfig,
     val verify: RateLimitConfig,
     val change: RateLimitConfig,
+    val signupSend: RateLimitConfig,
+    val signupCheck: RateLimitConfig,
 ) {
     data class RateLimitConfig(
         val capacity: Long,

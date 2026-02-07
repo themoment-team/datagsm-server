@@ -73,6 +73,14 @@ spring:
         capacity: 3
         refill-tokens: 3
         refill-duration-minutes: 60
+      signup-send:
+        capacity: 5
+        refill-tokens: 5
+        refill-duration-minutes: 10
+      signup-check:
+        capacity: 10
+        refill-tokens: 10
+        refill-duration-minutes: 5
 server:
   port: 8081
   shutdown: graceful
