@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -17,8 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import team.themoment.datagsm.common.domain.student.dto.request.BatchOperationReqDto
 import team.themoment.datagsm.common.domain.student.dto.request.CreateStudentReqDto
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentReqDto
+import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentStatusReqDto
 import team.themoment.datagsm.common.domain.student.dto.response.GraduateStudentResDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentListResDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
@@ -26,6 +29,7 @@ import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentSortBy
 import team.themoment.datagsm.common.global.constant.SortDirection
+import team.themoment.datagsm.web.domain.student.service.BatchOperationService
 import team.themoment.datagsm.web.domain.student.service.CreateStudentExcelService
 import team.themoment.datagsm.web.domain.student.service.CreateStudentService
 import team.themoment.datagsm.web.domain.student.service.GraduateStudentService
@@ -33,6 +37,7 @@ import team.themoment.datagsm.web.domain.student.service.GraduateThirdGradeStude
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentExcelService
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentService
 import team.themoment.datagsm.web.domain.student.service.QueryStudentService
+import team.themoment.datagsm.web.domain.student.service.UpdateStudentStatusService
 import team.themoment.datagsm.web.domain.student.service.WithdrawStudentService
 
 @Tag(name = "Student", description = "학생 관련 API")
@@ -47,6 +52,8 @@ class StudentController(
     private val graduateStudentService: GraduateStudentService,
     private val graduateThirdGradeStudentsService: GraduateThirdGradeStudentsService,
     private val withdrawStudentService: WithdrawStudentService,
+    private val updateStudentStatusService: UpdateStudentStatusService,
+    private val batchOperationService: BatchOperationService,
 ) {
     @Operation(summary = "학생 정보 조회", description = "필터 조건에 맞는 학생 정보를 조회합니다.")
     @ApiResponses(
@@ -126,7 +133,7 @@ class StudentController(
             ApiResponse(responseCode = "200", description = "생성 성공"),
         ],
     )
-    @GetMapping("/excel/download")
+    @GetMapping("/exports/excel")
     fun downloadStudentExcel(
         @Parameter(description = "졸업생 포함 여부") @RequestParam(required = false, defaultValue = "false") includeGraduates: Boolean,
     ): ResponseEntity<ByteArray> = createStudentExcelService.execute(includeGraduates)
@@ -138,7 +145,7 @@ class StudentController(
             ApiResponse(responseCode = "400", description = "잘못된 요청 (잘못된 셀 값)", content = [Content()]),
         ],
     )
-    @PostMapping("/excel/upload")
+    @PostMapping("/imports")
     fun uploadStudentExcel(
         @RequestParam("file") file: MultipartFile,
     ) = modifyStudentExcelService.execute(file)
@@ -179,4 +186,32 @@ class StudentController(
     ) {
         withdrawStudentService.execute(studentId)
     }
+
+    @Operation(summary = "학생 상태 변경", description = "학생의 상태(졸업, 자퇴)를 변경합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "상태 변경 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "학생을 찾을 수 없음", content = [Content()]),
+        ],
+    )
+    @PatchMapping("/{studentId}/status")
+    fun updateStudentStatus(
+        @Parameter(description = "학생 ID") @PathVariable studentId: Long,
+        @RequestBody @Valid reqDto: UpdateStudentStatusReqDto,
+    ) {
+        updateStudentStatusService.execute(studentId, reqDto)
+    }
+
+    @Operation(summary = "학생 일괄 작업", description = "특정 조건의 학생들에 대해 일괄 작업을 수행합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "일괄 작업 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청", content = [Content()]),
+        ],
+    )
+    @PostMapping("/batch-operations")
+    fun batchOperation(
+        @RequestBody @Valid reqDto: BatchOperationReqDto,
+    ): GraduateStudentResDto = batchOperationService.execute(reqDto)
 }

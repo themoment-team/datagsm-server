@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -64,7 +63,7 @@ class OauthController(
             ApiResponse(responseCode = "404", description = "저장된 Refresh Token을 찾을 수 없음 / 계정 없음", content = [Content()]),
         ],
     )
-    @PutMapping("/refresh")
+    @PostMapping("/tokens")
     fun refreshOauthToken(
         @RequestBody @Valid reqDto: RefreshOauthTokenReqDto,
     ): OauthTokenResDto = reissueOauthTokenService.execute(reqDto.refreshToken)
