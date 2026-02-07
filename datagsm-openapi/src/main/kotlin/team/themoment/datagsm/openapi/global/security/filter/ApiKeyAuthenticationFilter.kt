@@ -22,7 +22,7 @@ class ApiKeyAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain,
     ) {
-        val requestPath = request.requestURI
+        val requestPath = request.servletPath
         if (requestPath == "/v1/health") {
             filterChain.doFilter(request, response)
             return
