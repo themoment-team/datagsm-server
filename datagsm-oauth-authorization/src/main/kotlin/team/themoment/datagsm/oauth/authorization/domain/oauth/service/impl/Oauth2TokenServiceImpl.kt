@@ -9,10 +9,11 @@ import team.themoment.datagsm.common.domain.account.repository.AccountJpaReposit
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
-import team.themoment.datagsm.common.domain.oauth.constant.GrantType
 import team.themoment.datagsm.common.domain.oauth.dto.request.Oauth2TokenReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.Oauth2TokenResDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisEntity
+import team.themoment.datagsm.common.domain.oauth.entity.constant.GrantType
+import team.themoment.datagsm.common.domain.oauth.entity.constant.PkceChallengeMethod
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
@@ -76,9 +77,11 @@ class Oauth2TokenServiceImpl(
                 reqDto.codeVerifier
                     ?: throw OAuthException.InvalidRequest("code_verifier is required")
 
+            val challengeMethod = PkceChallengeMethod.from(oauthCode.codeChallengeMethod)
+
             if (!PkceVerifier.verify(
                     codeChallenge,
-                    oauthCode.codeChallengeMethod ?: "plain",
+                    challengeMethod,
                     codeVerifier,
                 )
             ) {

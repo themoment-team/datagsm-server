@@ -12,6 +12,7 @@ import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepositor
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthCodeReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.OauthCodeResDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
+import team.themoment.datagsm.common.domain.oauth.entity.constant.PkceChallengeMethod
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueOauthCodeService
@@ -40,8 +41,9 @@ class IssueOauthCodeServiceImpl(
         validateRedirectUrl(reqDto.redirectUrl, client)
 
         if (reqDto.codeChallenge != null) {
-            val method = reqDto.codeChallengeMethod ?: "plain"
-            if (method !in setOf("S256", "plain")) {
+            if (reqDto.codeChallengeMethod != null &&
+                PkceChallengeMethod.fromOrNull(reqDto.codeChallengeMethod) == null
+            ) {
                 throw ExpectedException("지원하지 않는 code_challenge_method입니다.", HttpStatus.BAD_REQUEST)
             }
         }

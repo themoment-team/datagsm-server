@@ -1,16 +1,17 @@
 package team.themoment.datagsm.oauth.authorization.global.util
 
+import team.themoment.datagsm.common.domain.oauth.entity.constant.PkceChallengeMethod
 import java.security.MessageDigest
 import java.util.Base64
 
 object PkceVerifier {
     fun verify(
         codeChallenge: String,
-        codeChallengeMethod: String,
+        codeChallengeMethod: PkceChallengeMethod,
         codeVerifier: String,
     ): Boolean =
         when (codeChallengeMethod) {
-            "S256" -> {
+            PkceChallengeMethod.S256 -> {
                 val hash =
                     MessageDigest
                         .getInstance("SHA-256")
@@ -22,9 +23,8 @@ object PkceVerifier {
                         .encodeToString(hash)
                 MessageDigest.isEqual(codeChallenge.toByteArray(), encoded.toByteArray())
             }
-            "plain" -> {
+            PkceChallengeMethod.PLAIN -> {
                 MessageDigest.isEqual(codeChallenge.toByteArray(), codeVerifier.toByteArray())
             }
-            else -> false
         }
 }
