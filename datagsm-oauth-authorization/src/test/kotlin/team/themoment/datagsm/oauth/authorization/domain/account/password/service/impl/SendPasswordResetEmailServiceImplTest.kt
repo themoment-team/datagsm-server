@@ -56,11 +56,12 @@ class SendPasswordResetEmailServiceImplTest :
                 }
 
             every { accountJpaRepository.findByEmail(email) } returns Optional.of(account)
+            every { passwordResetCodeRedisRepository.save(any()) } answers { firstArg() }
 
             When("비밀번호 재설정 이메일을 요청하면") {
-                service.execute(reqDto)
-
                 Then("코드가 생성되고 Redis에 저장되며 이메일이 발송된다") {
+                    service.execute(reqDto)
+
                     verify(exactly = 1) { passwordResetCodeRedisRepository.save(any()) }
                     verify(exactly = 1) { emailSenderService.sendEmail(any(), any(), any()) }
                     verify(exactly = 1) { accountJpaRepository.findByEmail(email) }
