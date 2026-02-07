@@ -13,6 +13,7 @@ import team.themoment.datagsm.common.domain.oauth.constant.GrantType
 import team.themoment.datagsm.common.domain.oauth.dto.request.Oauth2TokenReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.Oauth2TokenResDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisEntity
+import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
 import team.themoment.datagsm.common.global.data.OauthJwtEnvironment
@@ -48,25 +49,32 @@ class Oauth2TokenServiceImpl(
 
         val oauthCode =
             oauthCodeRedisRepository.findByIdOrNull(reqDto.code!!)
-                ?: throw ExpectedException("존재하지 않거나 만료된 코드입니다.", HttpStatus.BAD_REQUEST)
+                ?: throw OAuthException.InvalidGrant("The authorization code is invalid or expired")
 
         val client = validateClient(reqDto.clientId!!, reqDto.clientSecret!!)
 
         if (oauthCode.clientId != reqDto.clientId) {
-            throw ExpectedException("코드가 해당 클라이언트에게 발급되지 않았습니다.", HttpStatus.BAD_REQUEST)
+            throw OAuthException.InvalidGrant("코드가 해당 클라이언트에게 발급되지 않았습니다.")
         }
 
-        if (reqDto.redirectUri != null) {
-            if (!client.redirectUrls.contains(reqDto.redirectUri)) {
-                throw ExpectedException("등록되지 않은 redirect_uri입니다.", HttpStatus.BAD_REQUEST)
+        if (oauthCode.redirectUri != null) {
+            if (reqDto.redirectUri == null) {
+                throw OAuthException.InvalidRequest("redirect_uri is required")
             }
+            if (oauthCode.redirectUri != reqDto.redirectUri) {
+                throw OAuthException.InvalidGrant("redirect_uri does not match the authorization request")
+            }
+        }
+
+        if (reqDto.redirectUri != null && !client.redirectUrls.contains(reqDto.redirectUri)) {
+            throw OAuthException.InvalidRequest("redirect_uri is not registered for this client")
         }
 
         val codeChallenge = oauthCode.codeChallenge
         if (codeChallenge != null) {
             val codeVerifier =
                 reqDto.codeVerifier
-                    ?: throw ExpectedException("code_verifier가 필요합니다.", HttpStatus.BAD_REQUEST)
+                    ?: throw OAuthException.InvalidRequest("code_verifier is required")
 
             if (!PkceVerifier.verify(
                     codeChallenge,
@@ -74,7 +82,7 @@ class Oauth2TokenServiceImpl(
                     codeVerifier,
                 )
             ) {
-                throw ExpectedException("code_verifier가 일치하지 않습니다.", HttpStatus.BAD_REQUEST)
+                throw OAuthException.InvalidGrant("PKCE verification failed")
             }
         }
 
@@ -106,7 +114,7 @@ class Oauth2TokenServiceImpl(
 
         val refreshToken = reqDto.refreshToken!!
         if (!jwtProvider.validateToken(refreshToken)) {
-            throw ExpectedException("유효하지 않은 refresh_token입니다.", HttpStatus.UNAUTHORIZED)
+            throw OAuthException.InvalidGrant("The refresh token is invalid or expired")
         }
 
         val email = jwtProvider.getEmailFromToken(refreshToken)
@@ -115,14 +123,14 @@ class Oauth2TokenServiceImpl(
         val client = validateClient(reqDto.clientId!!, reqDto.clientSecret!!)
 
         if (clientIdFromToken != reqDto.clientId) {
-            throw ExpectedException("토큰이 해당 클라이언트에게 발급되지 않았습니다.", HttpStatus.UNAUTHORIZED)
+            throw OAuthException.InvalidGrant("토큰이 해당 클라이언트에게 발급되지 않았습니다.")
         }
 
         val storedToken =
             oauthRefreshTokenRedisRepository
                 .findByEmailAndClientId(email, clientIdFromToken)
                 .orElseThrow {
-                    ExpectedException("저장된 refresh token을 찾을 수 없습니다.", HttpStatus.UNAUTHORIZED)
+                    OAuthException.InvalidGrant("The refresh token is invalid or expired")
                 }
 
         if (!MessageDigest.isEqual(
@@ -131,7 +139,7 @@ class Oauth2TokenServiceImpl(
             )
         ) {
             oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(email, clientIdFromToken)
-            throw ExpectedException("Refresh token이 일치하지 않습니다.", HttpStatus.UNAUTHORIZED)
+            throw OAuthException.InvalidGrant("The refresh token is invalid or expired")
         }
 
         val account =
@@ -181,10 +189,10 @@ class Oauth2TokenServiceImpl(
     ): ClientJpaEntity {
         val client =
             clientJpaRepository.findByIdOrNull(clientId)
-                ?: throw ExpectedException("존재하지 않는 클라이언트입니다.", HttpStatus.BAD_REQUEST)
+                ?: throw OAuthException.InvalidClient("존재하지 않는 클라이언트입니다.")
 
         if (!passwordEncoder.matches(clientSecret, client.secret)) {
-            throw ExpectedException("클라이언트 인증에 실패했습니다.", HttpStatus.UNAUTHORIZED)
+            throw OAuthException.InvalidClient("Client authentication failed")
         }
 
         return client
@@ -229,34 +237,34 @@ class Oauth2TokenServiceImpl(
 
     private fun validateAuthorizationCodeParams(reqDto: Oauth2TokenReqDto) {
         if (reqDto.code.isNullOrBlank()) {
-            throw ExpectedException("code는 필수입니다.", HttpStatus.BAD_REQUEST)
+            throw OAuthException.InvalidRequest("code parameter is required")
         }
         if (reqDto.clientId.isNullOrBlank()) {
-            throw ExpectedException("client_id는 필수입니다.", HttpStatus.BAD_REQUEST)
+            throw OAuthException.InvalidRequest("client_id parameter is required")
         }
         if (reqDto.clientSecret.isNullOrBlank()) {
-            throw ExpectedException("client_secret은 필수입니다.", HttpStatus.BAD_REQUEST)
+            throw OAuthException.InvalidRequest("client_secret parameter is required")
         }
     }
 
     private fun validateRefreshTokenParams(reqDto: Oauth2TokenReqDto) {
         if (reqDto.refreshToken.isNullOrBlank()) {
-            throw ExpectedException("refresh_token은 필수입니다.", HttpStatus.BAD_REQUEST)
+            throw OAuthException.InvalidRequest("refresh_token parameter is required")
         }
         if (reqDto.clientId.isNullOrBlank()) {
-            throw ExpectedException("client_id는 필수입니다.", HttpStatus.BAD_REQUEST)
+            throw OAuthException.InvalidRequest("client_id parameter is required")
         }
         if (reqDto.clientSecret.isNullOrBlank()) {
-            throw ExpectedException("client_secret은 필수입니다.", HttpStatus.BAD_REQUEST)
+            throw OAuthException.InvalidRequest("client_secret parameter is required")
         }
     }
 
     private fun validateClientCredentialsParams(reqDto: Oauth2TokenReqDto) {
         if (reqDto.clientId.isNullOrBlank()) {
-            throw ExpectedException("client_id는 필수입니다.", HttpStatus.BAD_REQUEST)
+            throw OAuthException.InvalidRequest("client_id parameter is required")
         }
         if (reqDto.clientSecret.isNullOrBlank()) {
-            throw ExpectedException("client_secret은 필수입니다.", HttpStatus.BAD_REQUEST)
+            throw OAuthException.InvalidRequest("client_secret parameter is required")
         }
     }
 }

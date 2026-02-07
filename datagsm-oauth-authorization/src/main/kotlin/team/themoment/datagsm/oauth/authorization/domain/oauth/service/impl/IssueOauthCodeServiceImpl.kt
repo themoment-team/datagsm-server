@@ -51,7 +51,8 @@ class IssueOauthCodeServiceImpl(
                 .findByEmail(reqDto.email)
                 .orElseThrow { ExpectedException("존재하지 않는 회원의 이메일입니다.", HttpStatus.NOT_FOUND) }
         validatePassword(reqDto.password, account.password)
-        val oauthCode = generateOauthCodeForAccount(account, reqDto.clientId, reqDto.codeChallenge, reqDto.codeChallengeMethod)
+        val oauthCode =
+            generateOauthCodeForAccount(account, reqDto.clientId, reqDto.redirectUrl, reqDto.codeChallenge, reqDto.codeChallengeMethod)
         return OauthCodeResDto(oauthCode)
     }
 
@@ -67,6 +68,7 @@ class IssueOauthCodeServiceImpl(
     private fun generateOauthCodeForAccount(
         account: AccountJpaEntity,
         clientId: String,
+        redirectUri: String,
         codeChallenge: String?,
         codeChallengeMethod: String?,
     ): String {
@@ -79,6 +81,7 @@ class IssueOauthCodeServiceImpl(
             OauthCodeRedisEntity(
                 email = account.email,
                 clientId = clientId,
+                redirectUri = redirectUri,
                 codeChallenge = codeChallenge,
                 codeChallengeMethod = codeChallengeMethod,
                 code = code,
