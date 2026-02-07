@@ -49,7 +49,7 @@ class GlobalExceptionHandler(
     }
 
     @ExceptionHandler(ExpectedException::class)
-    private fun expectedException(ex: ExpectedException): CommonApiResponse<Nothing> {
+    fun expectedException(ex: ExpectedException): CommonApiResponse<Nothing> {
         logger().warn("ExpectedException : {} ", ex.message)
         logger().trace("ExpectedException Details : ", ex)
         return CommonApiResponse.error(ex.message ?: "An error occurred", ex.statusCode)
