@@ -8,14 +8,18 @@ object PkceVerifier {
         codeChallenge: String,
         codeChallengeMethod: String,
         codeVerifier: String,
-    ): Boolean {
-        return when (codeChallengeMethod) {
+    ): Boolean =
+        when (codeChallengeMethod) {
             "S256" -> {
-                val hash = MessageDigest.getInstance("SHA-256")
-                    .digest(codeVerifier.toByteArray())
-                val encoded = Base64.getUrlEncoder()
-                    .withoutPadding()
-                    .encodeToString(hash)
+                val hash =
+                    MessageDigest
+                        .getInstance("SHA-256")
+                        .digest(codeVerifier.toByteArray())
+                val encoded =
+                    Base64
+                        .getUrlEncoder()
+                        .withoutPadding()
+                        .encodeToString(hash)
                 MessageDigest.isEqual(codeChallenge.toByteArray(), encoded.toByteArray())
             }
             "plain" -> {
@@ -23,5 +27,4 @@ object PkceVerifier {
             }
             else -> false
         }
-    }
 }

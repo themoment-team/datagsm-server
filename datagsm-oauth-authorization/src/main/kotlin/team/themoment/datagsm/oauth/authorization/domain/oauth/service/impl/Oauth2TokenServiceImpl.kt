@@ -62,14 +62,16 @@ class Oauth2TokenServiceImpl(
             }
         }
 
-        if (oauthCode.codeChallenge != null) {
-            if (reqDto.codeVerifier == null) {
-                throw ExpectedException("code_verifier가 필요합니다.", HttpStatus.BAD_REQUEST)
-            }
+        val codeChallenge = oauthCode.codeChallenge
+        if (codeChallenge != null) {
+            val codeVerifier =
+                reqDto.codeVerifier
+                    ?: throw ExpectedException("code_verifier가 필요합니다.", HttpStatus.BAD_REQUEST)
+
             if (!PkceVerifier.verify(
-                    oauthCode.codeChallenge,
+                    codeChallenge,
                     oauthCode.codeChallengeMethod ?: "S256",
-                    reqDto.codeVerifier,
+                    codeVerifier,
                 )
             ) {
                 throw ExpectedException("code_verifier가 일치하지 않습니다.", HttpStatus.BAD_REQUEST)
@@ -77,7 +79,8 @@ class Oauth2TokenServiceImpl(
         }
 
         val account =
-            accountJpaRepository.findByEmail(oauthCode.email)
+            accountJpaRepository
+                .findByEmail(oauthCode.email)
                 .orElseThrow { ExpectedException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
 
         val requestedScopes = parseScopes(reqDto.scope)
@@ -101,12 +104,13 @@ class Oauth2TokenServiceImpl(
     private fun handleRefreshToken(reqDto: Oauth2TokenReqDto): Oauth2TokenResDto {
         validateRefreshTokenParams(reqDto)
 
-        if (!jwtProvider.validateToken(reqDto.refreshToken!!)) {
+        val refreshToken = reqDto.refreshToken!!
+        if (!jwtProvider.validateToken(refreshToken)) {
             throw ExpectedException("유효하지 않은 refresh_token입니다.", HttpStatus.UNAUTHORIZED)
         }
 
-        val email = jwtProvider.getEmailFromToken(reqDto.refreshToken)
-        val clientIdFromToken = jwtProvider.getClientIdFromToken(reqDto.refreshToken)
+        val email = jwtProvider.getEmailFromToken(refreshToken)
+        val clientIdFromToken = jwtProvider.getClientIdFromToken(refreshToken)
 
         val client = validateClient(reqDto.clientId!!, reqDto.clientSecret!!)
 
@@ -123,7 +127,7 @@ class Oauth2TokenServiceImpl(
 
         if (!MessageDigest.isEqual(
                 storedToken.token.toByteArray(),
-                reqDto.refreshToken.toByteArray(),
+                refreshToken.toByteArray(),
             )
         ) {
             oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(email, clientIdFromToken)
@@ -131,7 +135,8 @@ class Oauth2TokenServiceImpl(
         }
 
         val account =
-            accountJpaRepository.findByEmail(email)
+            accountJpaRepository
+                .findByEmail(email)
                 .orElseThrow { ExpectedException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
 
         val requestedScopes = parseScopes(reqDto.scope)
