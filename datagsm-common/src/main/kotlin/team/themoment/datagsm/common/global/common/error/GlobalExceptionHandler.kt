@@ -175,7 +175,7 @@ class GlobalExceptionHandler(
 
     private fun isOAuthTokenEndpoint(): Boolean {
         val requestUri = getCurrentRequestUri()
-        return requestUri.contains("/oauth/token")
+        return requestUri == "/v1/oauth/token"
     }
 
     private fun extractValidationErrorMessage(ex: MethodArgumentNotValidException): String {
