@@ -1,4 +1,4 @@
-package team.themoment.datagsm.common.domain.oauth.constant
+package team.themoment.datagsm.common.domain.oauth.entity.constant
 
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 
