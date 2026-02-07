@@ -1,5 +1,6 @@
 package team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl
 
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -52,10 +53,8 @@ class ReissueOauthTokenServiceImpl(
                 }
         val client =
             clientJpaRepository
-                .findById(clientId)
-                .orElseThrow {
-                    ExpectedException("Oauth 클라이언트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
-                }
+                .findByIdOrNull(clientId)
+                ?: throw ExpectedException("Oauth 클라이언트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
 
         val scopes =
             client.scopes

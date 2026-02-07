@@ -3,17 +3,19 @@ package team.themoment.datagsm.openapi.global.security.filter
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.springframework.http.HttpStatus
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 import team.themoment.datagsm.common.domain.auth.entity.constant.ApiKeyScope
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
+import team.themoment.datagsm.common.global.security.util.SecurityFilterResponseUtil
 import team.themoment.datagsm.openapi.global.security.authentication.ApiKeyAuthenticationToken
 import team.themoment.datagsm.openapi.global.security.authentication.principal.ApiKeyPrincipal
+import tools.jackson.databind.ObjectMapper
 import java.util.UUID
 
 class ApiKeyAuthenticationFilter(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
+    private val objectMapper: ObjectMapper,
 ) : OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -32,16 +34,16 @@ class ApiKeyAuthenticationFilter(
                     .findByValue(apiKeyValue)
                     .orElse(null)
             if (apiKey == null) {
-                response.sendError(HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 API Key입니다.")
+                SecurityFilterResponseUtil.sendErrorResponse(response, objectMapper, "유효하지 않은 API Key입니다.")
                 return
             }
             if (apiKey.isExpired()) {
-                response.sendError(HttpStatus.UNAUTHORIZED.value(), "만료된 API Key입니다.")
+                SecurityFilterResponseUtil.sendErrorResponse(response, objectMapper, "만료된 API Key입니다.")
                 return
             }
             val scopeAuthorities = apiKey.scopes.mapNotNull { ApiKeyScope.fromString(it) }.toSet()
             if (scopeAuthorities.size != apiKey.scopes.size) {
-                response.sendError(HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 scope를 포함한 API Key입니다.")
+                SecurityFilterResponseUtil.sendErrorResponse(response, objectMapper, "유효하지 않은 scope를 포함한 API Key입니다.")
                 return
             }
             val authentication =
@@ -54,7 +56,7 @@ class ApiKeyAuthenticationFilter(
                 )
             SecurityContextHolder.getContext().authentication = authentication
         } catch (_: IllegalArgumentException) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "잘못된 형식의 API Key입니다.")
+            SecurityFilterResponseUtil.sendErrorResponse(response, objectMapper, "잘못된 형식의 API Key입니다.")
             return
         }
         filterChain.doFilter(request, response)

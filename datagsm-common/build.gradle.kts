@@ -1,23 +1,12 @@
 plugins {
-    id(plugin.Plugins.KOTLIN_JVM) version plugin.PluginVersions.KOTLIN_VERSION
-    id(plugin.Plugins.KOTLIN_SPRING) version plugin.PluginVersions.KOTLIN_VERSION
-    id(plugin.Plugins.KOTLIN_JPA) version plugin.PluginVersions.KOTLIN_VERSION
-    id(plugin.Plugins.KOTLIN_ALLOPEN) version plugin.PluginVersions.KOTLIN_VERSION
-    id(plugin.Plugins.SPRING_DEPENDENCY_MANAGEMENT) version plugin.PluginVersions.SPRING_DEPENDENCY_MANAGEMENT_VERSION
-    id(plugin.Plugins.KSP) version plugin.PluginVersions.KSP_VERSION
-}
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-    }
+    id(plugin.Plugins.KOTLIN_SPRING)
+    id(plugin.Plugins.KOTLIN_JPA)
+    id(plugin.Plugins.KSP)
 }
 
 dependencyManagement {
     imports {
         mavenBom(dependency.Dependencies.SPRING_BOOT_BOM)
-        mavenBom(dependency.Dependencies.SPRING_CLOUD_BOM)
-        mavenBom(dependency.Dependencies.AWS_SDK_BOM)
     }
 }
 

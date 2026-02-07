@@ -45,7 +45,7 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .exceptionHandling { it.authenticationEntryPoint(customAuthenticationEntryPoint) }
             .addFilterBefore(
-                ApiKeyAuthenticationFilter(apiKeyJpaRepository),
+                ApiKeyAuthenticationFilter(apiKeyJpaRepository, objectMapper),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).addFilterBefore(
                 RateLimitFilter(rateLimitService, objectMapper, currentUserProvider),

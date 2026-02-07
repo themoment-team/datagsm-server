@@ -1,5 +1,6 @@
 package team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl
 
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -34,9 +35,8 @@ class IssueOauthCodeServiceImpl(
     override fun execute(reqDto: OauthCodeReqDto): OauthCodeResDto {
         val client =
             clientJpaRepository
-                .findById(reqDto.clientId)
-                .orElseThrow { ExpectedException("존재하지 않는 Client Id 입니다.", HttpStatus.NOT_FOUND) }
-
+                .findByIdOrNull(reqDto.clientId)
+                ?: throw ExpectedException("존재하지 않는 Client Id 입니다.", HttpStatus.NOT_FOUND)
         validateRedirectUrl(reqDto.redirectUrl, client)
 
         val account =
