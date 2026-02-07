@@ -22,7 +22,7 @@ class SendPasswordResetEmailServiceImpl(
     private val passwordResetCodeRedisRepository: PasswordResetCodeRedisRepository,
     private val accountJpaRepository: AccountJpaRepository,
     private val javaMailSender: JavaMailSender,
-    @param:Value("\${spring.mail.from-address:datagsm@hellogsm.kr}")
+    @param:Value($$"${${spring.mail.from-address}}")
     private val fromAddress: String,
 ) : SendPasswordResetEmailService {
     companion object {
