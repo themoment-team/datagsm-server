@@ -8,7 +8,6 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
@@ -19,11 +18,11 @@ import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepositor
 import team.themoment.datagsm.common.domain.oauth.dto.request.Oauth2TokenReqDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
 import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisEntity
+import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
 import team.themoment.datagsm.common.global.data.OauthJwtEnvironment
 import team.themoment.datagsm.oauth.authorization.global.security.jwt.JwtProvider
-import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 
 class Oauth2TokenServiceImplTest :
@@ -69,6 +68,7 @@ class Oauth2TokenServiceImplTest :
                         OauthCodeRedisEntity(
                             email = "test@gsm.hs.kr",
                             clientId = "test-client",
+                            redirectUri = "https://example.com/callback",
                             codeChallenge = null,
                             codeChallengeMethod = null,
                             code = "test-code",
@@ -131,6 +131,7 @@ class Oauth2TokenServiceImplTest :
                         OauthCodeRedisEntity(
                             email = "test@gsm.hs.kr",
                             clientId = "test-client",
+                            redirectUri = null,
                             codeChallenge = "challenge-hash",
                             codeChallengeMethod = "S256",
                             code = "test-code",
@@ -151,11 +152,11 @@ class Oauth2TokenServiceImplTest :
 
                     it("잘못된 code_verifier로 요청하면 400 에러가 발생한다") {
                         val exception =
-                            shouldThrow<ExpectedException> {
+                            shouldThrow<OAuthException.InvalidGrant> {
                                 service.execute(reqDto)
                             }
-                        exception.message shouldBe "code_verifier가 일치하지 않습니다."
-                        exception.statusCode shouldBe HttpStatus.BAD_REQUEST
+                        exception.error shouldBe "invalid_grant"
+                        exception.errorDescription shouldBe "PKCE verification failed"
                     }
                 }
 
@@ -261,10 +262,12 @@ class Oauth2TokenServiceImplTest :
                 context("지원하지 않는 grant_type으로 요청하면") {
                     val reqDto = Oauth2TokenReqDto(grantType = "password")
 
-                    it("IllegalArgumentException이 발생한다") {
-                        shouldThrow<IllegalArgumentException> {
-                            service.execute(reqDto)
-                        }
+                    it("UnsupportedGrantType 에러가 발생한다") {
+                        val exception =
+                            shouldThrow<OAuthException.UnsupportedGrantType> {
+                                service.execute(reqDto)
+                            }
+                        exception.error shouldBe "unsupported_grant_type"
                     }
                 }
 
@@ -277,13 +280,13 @@ class Oauth2TokenServiceImplTest :
                             clientSecret = "test-secret",
                         )
 
-                    it("ExpectedException이 발생한다") {
+                    it("InvalidRequest 에러가 발생한다") {
                         val exception =
-                            shouldThrow<ExpectedException> {
+                            shouldThrow<OAuthException.InvalidRequest> {
                                 service.execute(reqDto)
                             }
-                        exception.message shouldBe "code는 필수입니다."
-                        exception.statusCode shouldBe HttpStatus.BAD_REQUEST
+                        exception.error shouldBe "invalid_request"
+                        exception.errorDescription shouldBe "code parameter is required"
                     }
                 }
             }
