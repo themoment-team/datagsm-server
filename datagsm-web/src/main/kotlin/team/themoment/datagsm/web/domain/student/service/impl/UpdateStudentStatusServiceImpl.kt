@@ -24,17 +24,8 @@ class UpdateStudentStatusServiceImpl(
                 ?: throw ExpectedException("학생을 찾을 수 없습니다. ID: $studentId", HttpStatus.NOT_FOUND)
 
         when (reqDto.status) {
-            StudentRole.GRADUATE -> {
-                student.role = StudentRole.GRADUATE
-                student.major = null
-                student.studentNumber = null
-                student.dormitoryRoomNumber = null
-                student.majorClub = null
-                student.jobClub = null
-                student.autonomousClub = null
-            }
-            StudentRole.WITHDRAWN -> {
-                student.role = StudentRole.WITHDRAWN
+            StudentRole.GRADUATE, StudentRole.WITHDRAWN -> {
+                student.role = reqDto.status
                 student.major = null
                 student.studentNumber = null
                 student.dormitoryRoomNumber = null
