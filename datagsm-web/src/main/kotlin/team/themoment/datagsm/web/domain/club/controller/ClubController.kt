@@ -106,7 +106,7 @@ class ClubController(
             ApiResponse(responseCode = "200", description = "생성 성공"),
         ],
     )
-    @GetMapping("/excel/download")
+    @GetMapping("/exports/excel")
     fun downloadClubExcel(): ResponseEntity<ByteArray> = createClubExcelService.execute()
 
     @Operation(summary = "동아리 엑셀 업로드", description = "동아리 이름이 담긴 엑셀을 받아 저장을 진행합니다.")
@@ -116,7 +116,7 @@ class ClubController(
             ApiResponse(responseCode = "400", description = "잘못된 요청 (잘못된 셀 값)", content = [Content()]),
         ],
     )
-    @PostMapping("/excel/upload")
+    @PostMapping("/imports")
     fun uploadClubExcel(
         @RequestParam("file") file: MultipartFile,
     ) = modifyClubExcelService.execute(file)

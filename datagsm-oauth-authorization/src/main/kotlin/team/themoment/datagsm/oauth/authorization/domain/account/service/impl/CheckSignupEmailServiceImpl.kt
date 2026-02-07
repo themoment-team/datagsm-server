@@ -1,20 +1,20 @@
-package team.themoment.datagsm.web.domain.account.service.impl
+package team.themoment.datagsm.oauth.authorization.domain.account.service.impl
 
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.account.dto.request.EmailCodeReqDto
 import team.themoment.datagsm.common.domain.account.repository.EmailCodeRedisRepository
-import team.themoment.datagsm.web.domain.account.service.CheckEmailService
-import team.themoment.datagsm.web.global.security.annotation.EmailRateLimitType
-import team.themoment.datagsm.web.global.security.annotation.EmailRateLimited
+import team.themoment.datagsm.oauth.authorization.domain.account.service.CheckSignupEmailService
+import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimitType
+import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimited
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
-class CheckEmailServiceImpl(
+class CheckSignupEmailServiceImpl(
     private val emailCodeRedisRepository: EmailCodeRedisRepository,
-) : CheckEmailService {
-    @EmailRateLimited(type = EmailRateLimitType.CHECK_EMAIL)
+) : CheckSignupEmailService {
+    @PasswordResetRateLimited(type = PasswordResetRateLimitType.SIGNUP_CHECK_CODE)
     override fun execute(reqDto: EmailCodeReqDto) {
         val emailCodeRedisEntity =
             emailCodeRedisRepository

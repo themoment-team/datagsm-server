@@ -6,9 +6,6 @@ object AuthenticationPathConfig {
      */
     val PUBLIC_PATHS =
         listOf(
-            "/v1/accounts/email/send",
-            "/v1/accounts/email/check",
-            "/v1/accounts/signup",
             "/v1/health",
             "/swagger-ui/**",
             "/v3/api-docs/**",
