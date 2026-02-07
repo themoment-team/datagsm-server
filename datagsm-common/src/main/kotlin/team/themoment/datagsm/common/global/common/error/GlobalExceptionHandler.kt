@@ -56,10 +56,23 @@ class GlobalExceptionHandler(
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun validationException(ex: MethodArgumentNotValidException): CommonApiResponse<Nothing> {
+    fun validationException(ex: MethodArgumentNotValidException): ResponseEntity<*> {
         logger().warn("Validation Failed : {}", ex.message)
         logger().trace("Validation Failed Details : ", ex)
-        return CommonApiResponse.error(methodArgumentNotValidExceptionToJson(ex), HttpStatus.BAD_REQUEST)
+
+        if (isOAuthTokenEndpoint()) {
+            val errorResponse =
+                OAuthErrorResDto(
+                    error = "invalid_request",
+                    errorDescription = extractValidationErrorMessage(ex),
+                    errorUri = null,
+                )
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
+        }
+
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(CommonApiResponse.error(methodArgumentNotValidExceptionToJson(ex), HttpStatus.BAD_REQUEST))
     }
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
@@ -159,4 +172,24 @@ class GlobalExceptionHandler(
         }
 
     private fun getActiveProfile(): String = environment.activeProfiles.firstOrNull() ?: "default"
+
+    private fun isOAuthTokenEndpoint(): Boolean {
+        val requestUri = getCurrentRequestUri()
+        return requestUri.contains("/oauth/token")
+    }
+
+    private fun extractValidationErrorMessage(ex: MethodArgumentNotValidException): String {
+        val fieldErrors =
+            ex.bindingResult.fieldErrors
+                .joinToString(", ") { "${it.field}: ${it.defaultMessage}" }
+        val globalErrors =
+            ex.bindingResult.globalErrors
+                .joinToString(", ") { it.defaultMessage ?: "" }
+
+        return when {
+            fieldErrors.isNotEmpty() -> fieldErrors
+            globalErrors.isNotEmpty() -> globalErrors
+            else -> "Validation failed"
+        }
+    }
 }
