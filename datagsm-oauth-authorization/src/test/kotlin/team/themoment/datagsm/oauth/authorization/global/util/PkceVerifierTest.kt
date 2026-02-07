@@ -2,6 +2,7 @@ package team.themoment.datagsm.oauth.authorization.global.util
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
+import team.themoment.datagsm.common.domain.oauth.entity.constant.PkceChallengeMethod
 import java.security.MessageDigest
 import java.util.Base64
 
@@ -17,13 +18,13 @@ class PkceVerifierTest :
                     val challenge = Base64.getUrlEncoder().withoutPadding().encodeToString(hash)
 
                     it("올바른 verifier를 제공하면 true를 반환한다") {
-                        val result = PkceVerifier.verify(challenge, "S256", verifier)
+                        val result = PkceVerifier.verify(challenge, PkceChallengeMethod.S256, verifier)
 
                         result shouldBe true
                     }
 
                     it("잘못된 verifier를 제공하면 false를 반환한다") {
-                        val result = PkceVerifier.verify(challenge, "S256", "wrong-verifier")
+                        val result = PkceVerifier.verify(challenge, PkceChallengeMethod.S256, "wrong-verifier")
 
                         result shouldBe false
                     }
@@ -34,24 +35,13 @@ class PkceVerifierTest :
                     val challenge = verifier
 
                     it("올바른 verifier를 제공하면 true를 반환한다") {
-                        val result = PkceVerifier.verify(challenge, "plain", verifier)
+                        val result = PkceVerifier.verify(challenge, PkceChallengeMethod.PLAIN, verifier)
 
                         result shouldBe true
                     }
 
                     it("잘못된 verifier를 제공하면 false를 반환한다") {
-                        val result = PkceVerifier.verify(challenge, "plain", "wrong-verifier")
-
-                        result shouldBe false
-                    }
-                }
-
-                context("지원하지 않는 방식의 PKCE 검증 시") {
-                    val verifier = "test-verifier"
-                    val challenge = "test-challenge"
-
-                    it("false를 반환한다") {
-                        val result = PkceVerifier.verify(challenge, "unsupported", verifier)
+                        val result = PkceVerifier.verify(challenge, PkceChallengeMethod.PLAIN, "wrong-verifier")
 
                         result shouldBe false
                     }
