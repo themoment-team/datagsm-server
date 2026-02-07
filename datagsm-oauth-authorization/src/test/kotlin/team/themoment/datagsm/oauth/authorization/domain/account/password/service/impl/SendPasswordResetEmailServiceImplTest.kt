@@ -6,28 +6,26 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.springframework.mail.SimpleMailMessage
-import org.springframework.mail.javamail.JavaMailSender
 import team.themoment.datagsm.common.domain.account.dto.request.SendPasswordResetEmailReqDto
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.account.repository.PasswordResetCodeRedisRepository
 import team.themoment.datagsm.oauth.authorization.domain.account.service.impl.SendPasswordResetEmailServiceImpl
+import team.themoment.datagsm.oauth.authorization.global.service.EmailSenderService
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 
 class SendPasswordResetEmailServiceImplTest :
     BehaviorSpec({
-        val passwordResetCodeRedisRepository = mockk<PasswordResetCodeRedisRepository>()
+        val passwordResetCodeRedisRepository = mockk<PasswordResetCodeRedisRepository>(relaxed = true)
         val accountJpaRepository = mockk<AccountJpaRepository>()
-        val javaMailSender = mockk<JavaMailSender>()
+        val emailSenderService = mockk<EmailSenderService>(relaxed = true)
 
         val service =
             SendPasswordResetEmailServiceImpl(
                 passwordResetCodeRedisRepository,
                 accountJpaRepository,
-                javaMailSender,
-                fromAddress = "test@datagsm.kr",
+                emailSenderService,
             )
 
         Given("존재하지 않는 이메일로") {
@@ -58,15 +56,13 @@ class SendPasswordResetEmailServiceImplTest :
                 }
 
             every { accountJpaRepository.findByEmail(email) } returns Optional.of(account)
-            every { passwordResetCodeRedisRepository.save(any()) } answers { firstArg() }
-            every { javaMailSender.send(any<SimpleMailMessage>()) } returns Unit
 
             When("비밀번호 재설정 이메일을 요청하면") {
                 service.execute(reqDto)
 
                 Then("코드가 생성되고 Redis에 저장되며 이메일이 발송된다") {
                     verify(exactly = 1) { passwordResetCodeRedisRepository.save(any()) }
-                    verify(exactly = 1) { javaMailSender.send(any<SimpleMailMessage>()) }
+                    verify(exactly = 1) { emailSenderService.sendEmail(any(), any(), any()) }
                     verify(exactly = 1) { accountJpaRepository.findByEmail(email) }
                 }
             }
