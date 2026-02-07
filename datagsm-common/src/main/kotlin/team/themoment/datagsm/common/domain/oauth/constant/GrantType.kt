@@ -1,5 +1,7 @@
 package team.themoment.datagsm.common.domain.oauth.constant
 
+import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
+
 enum class GrantType(
     val value: String,
 ) {
@@ -11,6 +13,6 @@ enum class GrantType(
     companion object {
         fun from(value: String): GrantType =
             entries.find { it.value == value }
-                ?: throw IllegalArgumentException("Unsupported grant_type: $value")
+                ?: throw OAuthException.UnsupportedGrantType("The grant_type '$value' is not supported")
     }
 }
