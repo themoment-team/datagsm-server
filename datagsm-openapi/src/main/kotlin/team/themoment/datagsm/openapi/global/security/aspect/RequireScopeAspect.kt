@@ -17,7 +17,7 @@ import team.themoment.sdk.exception.ExpectedException
 class RequireScopeAspect(
     private val scopeChecker: ScopeChecker,
 ) {
-    @Before("@annotation(team.themoment.datagsm..RequireScope)")
+    @Before("@annotation(team.themoment.datagsm.openapi.global.security.annotation.RequireScope)")
     fun checkScope(joinPoint: JoinPoint) {
         val signature = joinPoint.signature as MethodSignature
         val method = signature.method
