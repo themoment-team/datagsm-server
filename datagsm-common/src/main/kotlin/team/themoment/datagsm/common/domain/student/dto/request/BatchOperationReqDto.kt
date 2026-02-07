@@ -6,6 +6,6 @@ import team.themoment.datagsm.common.domain.student.dto.internal.BatchOperationT
 
 data class BatchOperationReqDto(
     @field:NotNull(message = "작업 타입은 필수입니다.")
-    var operation: BatchOperationType,
+    val operation: BatchOperationType,
     val filter: BatchOperationFilter? = null,
 )
