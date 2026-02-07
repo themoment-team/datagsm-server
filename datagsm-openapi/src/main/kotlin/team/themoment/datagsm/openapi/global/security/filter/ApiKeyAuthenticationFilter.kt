@@ -22,6 +22,12 @@ class ApiKeyAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain,
     ) {
+        val requestPath = request.requestURI
+        if (requestPath == "/v1/health") {
+            filterChain.doFilter(request, response)
+            return
+        }
+
         val apiKeyHeader = request.getHeader("X-API-KEY")
         if (apiKeyHeader.isNullOrBlank()) {
             filterChain.doFilter(request, response)
