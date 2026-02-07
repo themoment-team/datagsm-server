@@ -61,6 +61,25 @@ class JwtProvider(
             .compact()
     }
 
+    fun generateClientCredentialsAccessToken(
+        clientId: String,
+        scopes: Set<OAuthScope>,
+    ): String {
+        val now = Date()
+        val expiration = Date(now.time + jwtEnvironment.accessTokenExpiration)
+
+        return Jwts
+            .builder()
+            .subject(clientId)
+            .claim("clientId", clientId)
+            .claim("scopes", scopes)
+            .claim("grant_type", "client_credentials")
+            .issuedAt(now)
+            .expiration(expiration)
+            .signWith(secretKey)
+            .compact()
+    }
+
     fun validateToken(token: String): Boolean =
         try {
             val claims = parseClaims(token)
