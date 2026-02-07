@@ -39,12 +39,19 @@ class IssueOauthCodeServiceImpl(
                 ?: throw ExpectedException("존재하지 않는 Client Id 입니다.", HttpStatus.NOT_FOUND)
         validateRedirectUrl(reqDto.redirectUrl, client)
 
+        if (reqDto.codeChallenge != null) {
+            val method = reqDto.codeChallengeMethod ?: "plain"
+            if (method !in setOf("S256", "plain")) {
+                throw ExpectedException("지원하지 않는 code_challenge_method입니다.", HttpStatus.BAD_REQUEST)
+            }
+        }
+
         val account =
             accountJpaRepository
                 .findByEmail(reqDto.email)
                 .orElseThrow { ExpectedException("존재하지 않는 회원의 이메일입니다.", HttpStatus.NOT_FOUND) }
         validatePassword(reqDto.password, account.password)
-        val oauthCode = generateOauthCodeForAccount(account, reqDto.clientId)
+        val oauthCode = generateOauthCodeForAccount(account, reqDto.clientId, reqDto.codeChallenge, reqDto.codeChallengeMethod)
         return OauthCodeResDto(oauthCode)
     }
 
@@ -60,6 +67,8 @@ class IssueOauthCodeServiceImpl(
     private fun generateOauthCodeForAccount(
         account: AccountJpaEntity,
         clientId: String,
+        codeChallenge: String?,
+        codeChallengeMethod: String?,
     ): String {
         val code =
             Base64
@@ -70,6 +79,8 @@ class IssueOauthCodeServiceImpl(
             OauthCodeRedisEntity(
                 email = account.email,
                 clientId = clientId,
+                codeChallenge = codeChallenge,
+                codeChallengeMethod = codeChallengeMethod,
                 code = code,
                 ttl = oauthEnvironment.codeExpirationSeconds,
             )

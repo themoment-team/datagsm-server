@@ -23,4 +23,10 @@ data class OauthCodeReqDto(
     @field:URL(message = "Redirect URL 형식이 올바르지 않습니다.")
     @param:Schema(description = "리다이렉트 URL", example = "https://example.com/callback")
     val redirectUrl: String,
+    @param:Schema(description = "요청 스코프 (공백으로 구분)", example = "self:read")
+    val scope: String? = null,
+    @param:Schema(description = "PKCE Code Challenge", example = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM")
+    val codeChallenge: String? = null,
+    @param:Schema(description = "PKCE Code Challenge Method", example = "S256")
+    val codeChallengeMethod: String? = null,
 )
