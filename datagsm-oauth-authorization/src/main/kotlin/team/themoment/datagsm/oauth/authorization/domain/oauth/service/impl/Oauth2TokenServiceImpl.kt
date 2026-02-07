@@ -78,7 +78,7 @@ class Oauth2TokenServiceImpl(
 
             if (!PkceVerifier.verify(
                     codeChallenge,
-                    oauthCode.codeChallengeMethod ?: "S256",
+                    oauthCode.codeChallengeMethod ?: "plain",
                     codeVerifier,
                 )
             ) {
@@ -235,36 +235,30 @@ class Oauth2TokenServiceImpl(
         oauthRefreshTokenRedisRepository.save(entity)
     }
 
-    private fun validateAuthorizationCodeParams(reqDto: Oauth2TokenReqDto) {
-        if (reqDto.code.isNullOrBlank()) {
-            throw OAuthException.InvalidRequest("code parameter is required")
-        }
+    private fun validateClientCredentials(reqDto: Oauth2TokenReqDto) {
         if (reqDto.clientId.isNullOrBlank()) {
             throw OAuthException.InvalidRequest("client_id parameter is required")
         }
         if (reqDto.clientSecret.isNullOrBlank()) {
             throw OAuthException.InvalidRequest("client_secret parameter is required")
         }
+    }
+
+    private fun validateAuthorizationCodeParams(reqDto: Oauth2TokenReqDto) {
+        if (reqDto.code.isNullOrBlank()) {
+            throw OAuthException.InvalidRequest("code parameter is required")
+        }
+        validateClientCredentials(reqDto)
     }
 
     private fun validateRefreshTokenParams(reqDto: Oauth2TokenReqDto) {
         if (reqDto.refreshToken.isNullOrBlank()) {
             throw OAuthException.InvalidRequest("refresh_token parameter is required")
         }
-        if (reqDto.clientId.isNullOrBlank()) {
-            throw OAuthException.InvalidRequest("client_id parameter is required")
-        }
-        if (reqDto.clientSecret.isNullOrBlank()) {
-            throw OAuthException.InvalidRequest("client_secret parameter is required")
-        }
+        validateClientCredentials(reqDto)
     }
 
     private fun validateClientCredentialsParams(reqDto: Oauth2TokenReqDto) {
-        if (reqDto.clientId.isNullOrBlank()) {
-            throw OAuthException.InvalidRequest("client_id parameter is required")
-        }
-        if (reqDto.clientSecret.isNullOrBlank()) {
-            throw OAuthException.InvalidRequest("client_secret parameter is required")
-        }
+        validateClientCredentials(reqDto)
     }
 }
