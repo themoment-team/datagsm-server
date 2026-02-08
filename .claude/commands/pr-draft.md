@@ -49,11 +49,18 @@ Based on the above information, perform the following tasks:
    - Write in Korean
    - Be clear and specific
 
-3. **Save to file**:
+3. **Automatic Verification** (before generating PR body):
+   - Check DTO annotation mistakes: Search for `@param:JsonProperty` usage
+   - Check commit scope errors: Verify if module names are used as scope
+   - Add verification result as "## 검증 결과" section at the end of PR body
+   - If issues found: ⚠ Warning message with fix recommendations
+   - If no issues: ✓ Verification passed
+
+4. **Save to file**:
    - Save the content to `PR_BODY.md`
    - Overwrite if file already exists
 
-4. **Output format**:
+5. **Output format**:
    ```
    ## 추천 PR 제목
 
