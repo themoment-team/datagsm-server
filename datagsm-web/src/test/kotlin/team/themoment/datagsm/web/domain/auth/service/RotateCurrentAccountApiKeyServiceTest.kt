@@ -97,6 +97,7 @@ class RotateCurrentAccountApiKeyServiceTest :
                     beforeEach {
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                         every { mockApiKeyRepository.delete(apiKey) } returns Unit
+                        every { mockApiKeyRepository.flush() } returns Unit
                     }
 
                     it("API 키가 삭제되고 410 GONE 예외가 발생해야 한다") {
@@ -110,6 +111,7 @@ class RotateCurrentAccountApiKeyServiceTest :
 
                         verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
                         verify(exactly = 1) { mockApiKeyRepository.delete(apiKey) }
+                        verify(exactly = 1) { mockApiKeyRepository.flush() }
                         verify(exactly = 0) { mockApiKeyRepository.save(any()) }
                     }
                 }
@@ -271,6 +273,7 @@ class RotateCurrentAccountApiKeyServiceTest :
                     beforeEach {
                         every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(apiKey)
                         every { mockApiKeyRepository.delete(apiKey) } returns Unit
+                        every { mockApiKeyRepository.flush() } returns Unit
                     }
 
                     it("갱신 기간이 지나 삭제되어야 한다") {
@@ -282,6 +285,7 @@ class RotateCurrentAccountApiKeyServiceTest :
                         exception.statusCode.value() shouldBe 410
 
                         verify(exactly = 1) { mockApiKeyRepository.delete(apiKey) }
+                        verify(exactly = 1) { mockApiKeyRepository.flush() }
                         verify(exactly = 0) { mockApiKeyRepository.save(any()) }
                     }
                 }
