@@ -20,7 +20,7 @@ class RotateCurrentAccountApiKeyServiceImpl(
     private val currentUserProvider: CurrentUserProvider,
     private val apiKeyEnvironment: ApiKeyEnvironment,
 ) : RotateCurrentAccountApiKeyService {
-    @Transactional
+    @Transactional(noRollbackFor = [ExpectedException::class])
     override fun execute(): ApiKeyResDto {
         val account = currentUserProvider.getCurrentAccount()
 
@@ -34,6 +34,7 @@ class RotateCurrentAccountApiKeyServiceImpl(
         val renewalPeriodDays = apiKeyEnvironment.renewalPeriodDays
         if (!apiKey.canBeRenewed(renewalPeriodDays)) {
             apiKeyJpaRepository.delete(apiKey)
+            apiKeyJpaRepository.flush()
             throw ExpectedException(
                 "API 키 갱신 기간이 지났습니다. 해당 API 키는 삭제되었습니다.",
                 HttpStatus.GONE,
