@@ -30,6 +30,7 @@ import team.themoment.datagsm.web.domain.auth.service.ModifyCurrentAccountApiKey
 import team.themoment.datagsm.web.domain.auth.service.QueryApiScopeByScopeNameService
 import team.themoment.datagsm.web.domain.auth.service.QueryApiScopeGroupService
 import team.themoment.datagsm.web.domain.auth.service.QueryCurrentAccountApiKeyService
+import team.themoment.datagsm.web.domain.auth.service.RotateCurrentAccountApiKeyService
 import team.themoment.datagsm.web.domain.auth.service.SearchApiKeyService
 import team.themoment.sdk.response.CommonApiResponse
 
@@ -44,6 +45,7 @@ class AuthController(
     private val queryCurrentAccountApiKeyService: QueryCurrentAccountApiKeyService,
     private val queryApiScopeByScopeNameService: QueryApiScopeByScopeNameService,
     private val queryApiScopeGroupService: QueryApiScopeGroupService,
+    private val rotateCurrentAccountApiKeyService: RotateCurrentAccountApiKeyService,
     private val searchApiKeyService: SearchApiKeyService,
 ) {
     @Operation(summary = "API 키 생성", description = "새로운 API 키를 생성합니다. scope를 지정하여 세부 권한을 설정할 수 있습니다.")
@@ -72,6 +74,17 @@ class AuthController(
     fun modifyApiKey(
         @RequestBody @Valid reqDto: ModifyApiKeyReqDto,
     ): ApiKeyResDto = modifyCurrentAccountApiKeyService.execute(reqDto)
+
+    @Operation(summary = "API 키 로테이션", description = "보안상의 이유로 기존 API 키를 로테이션합니다. 기존 Scope와 Description은 유지되며, UUID만 새로 발급됩니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "API 키 로테이션 성공"),
+            ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "410", description = "API 키 갱신 기간이 지남 (키 삭제됨)", content = [Content()]),
+        ],
+    )
+    @PostMapping("/api-keys/my/rotations")
+    fun rotateApiKey(): ApiKeyResDto = rotateCurrentAccountApiKeyService.execute()
 
     @Operation(summary = "API 키 삭제", description = "현재 인증된 사용자의 API 키를 삭제합니다.")
     @ApiResponses(
