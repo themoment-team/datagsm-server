@@ -39,6 +39,27 @@ Kotlin, Spring Boot 4.0, Spring Data JPA, QueryDSL, Redis, MySQL
 - Test: Kotest + MockK (Given-When-Then)
 - Do NOT add excessive comments - only add comments where logic is not self-evident
 
+### DTO Annotations
+
+- **Jackson**: Always use `@field:JsonProperty`, `@field:JsonAlias` (not `@param:`)
+- **Swagger**: Request DTO uses `@param:Schema`, Response DTO uses `@field:Schema`
+- Example:
+  ```kotlin
+  // Request DTO
+  data class CreateReqDto(
+      @param:Schema(description = "Name")
+      @field:JsonProperty("user_name")
+      val userName: String
+  )
+
+  // Response DTO
+  data class UserResDto(
+      @field:Schema(description = "ID")
+      @field:JsonProperty("user_id")
+      val userId: Long
+  )
+  ```
+
 ## Key Paths
 
 - Common Entity: `datagsm-common/src/main/kotlin/.../domain/`

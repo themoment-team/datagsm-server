@@ -40,6 +40,31 @@ DataGSM is a Spring Boot REST API service providing school information (students
 - Separate Entity and DTO clearly
 - Do NOT add excessive comments - only where logic is not self-evident
 
+### DTO Annotations
+
+- **Jackson**: Always use `@field:JsonProperty`, `@field:JsonAlias` (not `@param:`)
+- **Swagger**: Request DTO uses `@param:Schema`, Response DTO uses `@field:Schema`
+
+```kotlin
+// Request DTO
+data class UserReqDto(
+    @field:NotBlank
+    @param:Schema(description = "User name")
+    @field:JsonProperty("user_name")
+    @field:JsonAlias("userName")
+    val userName: String
+)
+
+// Response DTO
+data class UserResDto(
+    @field:Schema(description = "User ID")
+    @field:JsonProperty("user_id")
+    val userId: Long
+)
+```
+
+See CONTRIBUTING.md for detailed explanation.
+
 ## Key Practices
 
 - Security: No hardcoded secrets, use SLF4J Logger (with Logback, not println()), validate JWT/API keys properly

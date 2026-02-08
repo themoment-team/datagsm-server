@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class DiscordWebhookPayload(
-    @param:JsonProperty("embeds") val embeds: List<DiscordEmbed>? = null,
-    @param:JsonProperty("content") val content: String? = null,
+    @field:JsonProperty("embeds") val embeds: List<DiscordEmbed>? = null,
+    @field:JsonProperty("content") val content: String? = null,
 ) {
     companion object {
         fun embedMessage(embed: DiscordEmbed) =

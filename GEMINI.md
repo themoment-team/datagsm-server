@@ -53,6 +53,11 @@ Each module follows: `controller/`, `service/`, `repository/`, `entity/`, `dto/`
 - **Entity vs DTO**: Separate Entity and DTO clearly
 - **Comments**: Do NOT add excessive comments - only where logic is not self-evident
 
+### DTO Annotations
+- **Jackson**: Always use `@field:JsonProperty`, `@field:JsonAlias` (not `@param:`)
+- **Swagger**: Request DTO uses `@param:Schema`, Response DTO uses `@field:Schema`
+- See CONTRIBUTING.md for detailed examples
+
 ## Key Practices
 
 ### Security

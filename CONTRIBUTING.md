@@ -431,8 +431,93 @@ data class ClubResDto(
     val id: Long,
     val name: String,
     val description: String
-) {
-}
+)
+```
+
+### DTO 어노테이션 규칙
+
+프로젝트는 Jackson과 Swagger 어노테이션 사용 시 명확한 규칙을 따릅니다:
+
+#### Jackson 어노테이션 (`@JsonProperty`, `@JsonAlias`)
+
+**모든 DTO (Request/Response)에서 `@field:` 사용:**
+
+```kotlin
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonAlias
+
+data class Oauth2TokenReqDto(
+    // ✅ 올바른 사용: @field:JsonProperty
+    @field:JsonProperty("access_token")
+    @field:JsonAlias("accessToken")    // 하위 호환성
+    val accessToken: String,
+
+    // ❌ 잘못된 사용: @param:JsonProperty (Jackson이 인식 못함)
+    @param:JsonProperty("token_type")
+    val tokenType: String
+)
+```
+
+**이유:**
+- `@field:` - Jackson이 필드를 직접 인식 (serialization/deserialization 모두 작동)
+- `@param:` - Constructor parameter에만 적용되어 Jackson이 무시함
+- `@JsonAlias` - 하위 호환성을 위해 camelCase도 지원
+
+#### Swagger 어노테이션 (`@Schema`)
+
+**Request DTO와 Response DTO 구분:**
+
+```kotlin
+import io.swagger.v3.oas.annotations.media.Schema
+
+// Request DTO: @param:Schema 사용
+data class CreateClubReqDto(
+    @param:Schema(description = "동아리 이름", example = "프로그래밍 동아리")
+    val name: String
+)
+
+// Response DTO: @field:Schema 사용
+data class ClubResDto(
+    @field:Schema(description = "동아리 ID", example = "1")
+    val id: Long,
+
+    @field:Schema(description = "동아리 이름", example = "프로그래밍 동아리")
+    val name: String
+)
+```
+
+**규칙:**
+- **Request DTO**: `@param:Schema` - Constructor parameter를 문서화
+- **Response DTO**: `@field:Schema` - Field를 문서화
+- 이유: Kotlin data class의 특성상 Request는 constructor를 통해 생성되고, Response는 field를 통해 직렬화됨
+
+#### 완전한 예시
+
+```kotlin
+// Request DTO (클라이언트 → 서버)
+data class Oauth2TokenReqDto(
+    @field:NotBlank(message = "grant_type은 필수입니다.")
+    @param:Schema(description = "Grant Type", example = "authorization_code")
+    @field:JsonProperty("grant_type")    // RFC 6749 표준 (snake_case)
+    @field:JsonAlias("grantType")         // 하위 호환성 (camelCase)
+    val grantType: String,
+
+    @param:Schema(description = "Client ID", example = "client-123")
+    @field:JsonProperty("client_id")
+    @field:JsonAlias("clientId")
+    val clientId: String?
+)
+
+// Response DTO (서버 → 클라이언트)
+data class Oauth2TokenResDto(
+    @field:Schema(description = "Access Token", example = "eyJhbGci...")
+    @field:JsonProperty("access_token")
+    val accessToken: String,
+
+    @field:Schema(description = "Token Type", example = "Bearer")
+    @field:JsonProperty("token_type")
+    val tokenType: String = "Bearer"
+)
 ```
 
 ### 생성자 주입
