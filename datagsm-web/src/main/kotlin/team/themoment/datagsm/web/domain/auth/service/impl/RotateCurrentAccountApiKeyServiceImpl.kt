@@ -7,7 +7,7 @@ import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.common.global.data.ApiKeyEnvironment
-import team.themoment.datagsm.web.domain.auth.service.ReissueCurrentAccountApiKeyService
+import team.themoment.datagsm.web.domain.auth.service.RotateCurrentAccountApiKeyService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.logging.logger.logger
@@ -15,11 +15,11 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @Service
-class ReissueCurrentAccountApiKeyServiceImpl(
+class RotateCurrentAccountApiKeyServiceImpl(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
     private val apiKeyEnvironment: ApiKeyEnvironment,
-) : ReissueCurrentAccountApiKeyService {
+) : RotateCurrentAccountApiKeyService {
     @Transactional
     override fun execute(): ApiKeyResDto {
         val account = currentUserProvider.getCurrentAccount()
@@ -54,7 +54,7 @@ class ReissueCurrentAccountApiKeyServiceImpl(
         }
 
         logger().info(
-            "API Key reissued: accountId=${account.id}, " +
+            "API Key rotated: accountId=${account.id}, " +
                 "oldKey=${oldValue.toString().take(8)}****, " +
                 "newKey=${apiKey.value.toString().take(8)}****, " +
                 "scopes=${apiKey.scopes.joinToString(",")}",
