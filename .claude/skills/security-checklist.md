@@ -12,10 +12,23 @@ description: Security checklist and vulnerability verification
 
 Verification commands:
 ```bash
+# Basic search in Kotlin files
 grep -r "password.*=.*\"" --include="*.kt"
 grep -r "secret.*=.*\"" --include="*.kt"
 grep -r "apiKey.*=.*\"" --include="*.kt"
+
+# Check YAML/Properties files
+grep -r "password\|secret\|apiKey" --include="*.yml" --include="*.yaml" --include="*.properties"
+
+# Check for base64 encoded strings (potential secrets)
+grep -rE "['\"]([A-Za-z0-9+/]{40,}={0,2})['\"]" --include="*.kt"
 ```
+
+**Limitations:**
+- May miss secrets encoded in base64 or other formats
+- May not detect secrets loaded from external sources at runtime
+- May not find secrets in configuration files outside the codebase
+- Manual review is still recommended for sensitive areas
 
 ### 2. SQL Injection
 - [ ] Using PreparedStatement or JPA/QueryDSL?
