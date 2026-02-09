@@ -49,7 +49,7 @@ Generate PR title suggestions and PR body following these rules:
 
 3. **Automatic Verification** (before generating PR body):
    - Check DTO annotation mistakes: Search for `@param:JsonProperty` usage in changed files
-   - Check commit scope errors: Verify if module names are used as scope in commits
+   - Check commit scope errors: Verify if module names are used as scope inappropriately (i.e., for non-cross-cutting concerns) in commits
    - Add verification result as "## 검증 결과" section at the end of PR body
    - If issues found: ⚠ Warning message with fix recommendations
    - If no issues: ✓ Verification passed

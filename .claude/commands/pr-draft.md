@@ -51,7 +51,7 @@ Based on the above information, perform the following tasks:
 
 3. **Automatic Verification** (before generating PR body):
    - Check DTO annotation mistakes: Search for `@param:JsonProperty` usage
-   - Check commit scope errors: Verify if module names are used as scope
+   - Check commit scope errors: Verify if module names are used as scope inappropriately (i.e., for non-cross-cutting concerns)
    - Add verification result as "## 검증 결과" section at the end of PR body
    - If issues found: ⚠ Warning message with fix recommendations
    - If no issues: ✓ Verification passed

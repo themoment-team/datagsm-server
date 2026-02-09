@@ -35,7 +35,7 @@ Analyze changed files and verify the following items.
 
 ### Commit
 - [ ] Following commit message convention?
-- [ ] Using domain name for scope? (not module name)
+- [ ] Using domain name for scope? (module names allowed only for cross-cutting concerns)
 - [ ] Commits split into logical units?
 
 ### Other
