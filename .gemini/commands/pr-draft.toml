@@ -47,12 +47,19 @@ Generate PR title suggestions and PR body following these rules:
    - Write in Korean
    - Be clear and specific
 
-3. **Save to file**:
+3. **Automatic Verification** (before generating PR body):
+   - Check DTO annotation mistakes: Search for `@param:JsonProperty` usage in changed files
+   - Check commit scope errors: Verify if module names are used as scope inappropriately (i.e., for non-cross-cutting concerns) in commits
+   - Add verification result as "## 검증 결과" section at the end of PR body
+   - If issues found: ⚠ Warning message with fix recommendations
+   - If no issues: ✓ Verification passed
+
+4. **Save to file**:
    - Use the write_file tool to save the PR body to PR_BODY.md in the project root
    - File path: PR_BODY.md (relative to current directory)
    - This will overwrite the file if it already exists
 
-4. **Output format**:
+5. **Output format**:
 
 First, output the title suggestions:
 

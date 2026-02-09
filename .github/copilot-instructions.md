@@ -72,3 +72,19 @@ See CONTRIBUTING.md for detailed explanation.
 - API: Use `CommonApiResponse` wrapper, validate with `@Valid`
 - Testing: Write Kotest tests for business logic using Given-When-Then pattern
 - Exceptions: Use `ExpectedException` for custom exceptions with appropriate HTTP status
+
+## Common Mistakes (Avoid These!)
+
+### DTO Annotations
+- ❌ WRONG: `@param:JsonProperty` → ✅ CORRECT: `@field:JsonProperty`
+- ❌ WRONG: Response DTO with `@param:Schema` → ✅ CORRECT: `@field:Schema`
+
+### Commit Scope
+- ❌ WRONG: `fix(web):` (module name) → ✅ CORRECT: `fix(auth):` (domain name)
+- Domain names first: auth, student, club, neis, oauth
+- Module names only for cross-cutting: global, ci/cd
+
+### Kotlin Style
+- ❌ WRONG: Overusing `var` → ✅ CORRECT: Prefer `val`
+- ❌ WRONG: Field injection → ✅ CORRECT: Constructor injection
+- ❌ WRONG: Excessive comments → ✅ CORRECT: Comment only non-obvious logic
