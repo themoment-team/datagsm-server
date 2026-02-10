@@ -82,9 +82,8 @@ class CheckPasswordResetCodeServiceImplTest :
             every { passwordResetCodeRedisRepository.save(any()) } answers { firstArg() }
 
             When("코드 검증을 요청하면") {
-                service.execute(reqDto)
-
                 Then("verified가 true로 변경되고 Redis에 저장된다") {
+                    service.execute(reqDto)
                     verify(exactly = 1) { passwordResetCodeRedisRepository.save(any()) }
                 }
             }
