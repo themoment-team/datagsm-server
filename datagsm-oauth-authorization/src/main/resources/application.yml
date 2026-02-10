@@ -89,6 +89,14 @@ spring:
 server:
   port: 8081
   shutdown: graceful
+  servlet:
+    session:
+      cookie:
+        same-site: none
+        secure: false
+        http-only: true
+        path: /
+        max-age: 600
 sdk:
   logging:
     enabled: true
