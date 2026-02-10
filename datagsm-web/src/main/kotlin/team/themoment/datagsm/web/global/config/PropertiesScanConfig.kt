@@ -12,6 +12,5 @@ import team.themoment.datagsm.common.global.data.InternalJwtEnvironment
     ApiKeyEnvironment::class,
     CorsEnvironment::class,
     InternalJwtEnvironment::class,
-    EmailRateLimitEnvironment::class,
 )
 class PropertiesScanConfig
