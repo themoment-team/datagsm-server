@@ -11,6 +11,9 @@ dependencies {
     // Spring Boot
     implementation(dependency.Dependencies.SPRINT_MAIL)
 
+    // Spring Session Redis
+    implementation(dependency.Dependencies.SPRING_SESSION_REDIS)
+
     // Spring OAuth2
     implementation(dependency.Dependencies.SPRING_OAUTH2_CLIENT)
 
