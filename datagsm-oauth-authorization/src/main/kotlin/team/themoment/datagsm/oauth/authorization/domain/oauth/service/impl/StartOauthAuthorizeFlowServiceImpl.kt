@@ -27,10 +27,10 @@ class StartOauthAuthorizeFlowServiceImpl(
 
         val client =
             clientJpaRepository
-                .findById(reqDto.clientId)
+                .findById(reqDto.clientId!!)
                 .orElseThrow { OAuthException.InvalidClient("존재하지 않는 클라이언트입니다.") }
 
-        if (!client.redirectUrls.contains(reqDto.redirectUri)) {
+        if (!client.redirectUrls.contains(reqDto.redirectUri!!)) {
             throw OAuthException.InvalidRequest("등록되지 않은 redirect_uri입니다.")
         }
 
