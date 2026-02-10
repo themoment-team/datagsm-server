@@ -12,7 +12,6 @@ import jakarta.servlet.http.HttpSession
 import org.springframework.http.HttpStatus
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
-import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeReqDto
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl.StartOauthAuthorizeFlowServiceImpl
@@ -53,22 +52,21 @@ class StartOauthAuthorizeFlowServiceTest :
                     }
 
                 context("유효한 OAuth Authorize 요청이 주어졌을 때") {
-                    val reqDto =
-                        OauthAuthorizeReqDto(
-                            clientId = testClientId,
-                            redirectUri = testRedirectUri,
-                            responseType = "code",
-                            state = "random-state",
-                            codeChallenge = "challenge",
-                            codeChallengeMethod = "S256",
-                        )
-
                     beforeEach {
                         every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(mockClient)
                     }
 
                     it("세션에 OAuth 파라미터가 저장되고 302 리다이렉트가 반환되어야 한다") {
-                        val response = startOauthAuthorizeFlowService.execute(reqDto, mockSession)
+                        val response =
+                            startOauthAuthorizeFlowService.execute(
+                                clientId = testClientId,
+                                redirectUri = testRedirectUri,
+                                responseType = "code",
+                                state = "random-state",
+                                codeChallenge = "challenge",
+                                codeChallengeMethod = "S256",
+                                session = mockSession,
+                            )
 
                         response.statusCode shouldBe HttpStatus.FOUND
                         response.headers.location shouldNotBe null
@@ -83,17 +81,18 @@ class StartOauthAuthorizeFlowServiceTest :
                 }
 
                 context("response_type이 code가 아닐 때") {
-                    val reqDto =
-                        OauthAuthorizeReqDto(
-                            clientId = testClientId,
-                            redirectUri = testRedirectUri,
-                            responseType = "token",
-                        )
-
                     it("InvalidRequest 예외가 발생해야 한다") {
                         val exception =
                             shouldThrow<OAuthException.InvalidRequest> {
-                                startOauthAuthorizeFlowService.execute(reqDto, mockSession)
+                                startOauthAuthorizeFlowService.execute(
+                                    clientId = testClientId,
+                                    redirectUri = testRedirectUri,
+                                    responseType = "token",
+                                    state = null,
+                                    codeChallenge = null,
+                                    codeChallengeMethod = null,
+                                    session = mockSession,
+                                )
                             }
 
                         exception.error shouldBe "invalid_request"
@@ -102,13 +101,6 @@ class StartOauthAuthorizeFlowServiceTest :
                 }
 
                 context("존재하지 않는 client_id가 주어졌을 때") {
-                    val reqDto =
-                        OauthAuthorizeReqDto(
-                            clientId = "invalid-client",
-                            redirectUri = testRedirectUri,
-                            responseType = "code",
-                        )
-
                     beforeEach {
                         every { mockClientJpaRepository.findById("invalid-client") } returns Optional.empty()
                     }
@@ -116,7 +108,15 @@ class StartOauthAuthorizeFlowServiceTest :
                     it("InvalidClient 예외가 발생해야 한다") {
                         val exception =
                             shouldThrow<OAuthException.InvalidClient> {
-                                startOauthAuthorizeFlowService.execute(reqDto, mockSession)
+                                startOauthAuthorizeFlowService.execute(
+                                    clientId = "invalid-client",
+                                    redirectUri = testRedirectUri,
+                                    responseType = "code",
+                                    state = null,
+                                    codeChallenge = null,
+                                    codeChallengeMethod = null,
+                                    session = mockSession,
+                                )
                             }
 
                         exception.error shouldBe "invalid_client"
@@ -127,13 +127,6 @@ class StartOauthAuthorizeFlowServiceTest :
                 }
 
                 context("등록되지 않은 redirect_uri가 주어졌을 때") {
-                    val reqDto =
-                        OauthAuthorizeReqDto(
-                            clientId = testClientId,
-                            redirectUri = "https://malicious.com/callback",
-                            responseType = "code",
-                        )
-
                     beforeEach {
                         every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(mockClient)
                     }
@@ -141,7 +134,15 @@ class StartOauthAuthorizeFlowServiceTest :
                     it("InvalidRequest 예외가 발생해야 한다") {
                         val exception =
                             shouldThrow<OAuthException.InvalidRequest> {
-                                startOauthAuthorizeFlowService.execute(reqDto, mockSession)
+                                startOauthAuthorizeFlowService.execute(
+                                    clientId = testClientId,
+                                    redirectUri = "https://malicious.com/callback",
+                                    responseType = "code",
+                                    state = null,
+                                    codeChallenge = null,
+                                    codeChallengeMethod = null,
+                                    session = mockSession,
+                                )
                             }
 
                         exception.errorDescription shouldBe "등록되지 않은 redirect_uri입니다."
@@ -151,15 +152,6 @@ class StartOauthAuthorizeFlowServiceTest :
                 }
 
                 context("지원하지 않는 code_challenge_method가 주어졌을 때") {
-                    val reqDto =
-                        OauthAuthorizeReqDto(
-                            clientId = testClientId,
-                            redirectUri = testRedirectUri,
-                            responseType = "code",
-                            codeChallenge = "challenge",
-                            codeChallengeMethod = "unsupported",
-                        )
-
                     beforeEach {
                         every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(mockClient)
                     }
@@ -167,7 +159,15 @@ class StartOauthAuthorizeFlowServiceTest :
                     it("InvalidRequest 예외가 발생해야 한다") {
                         val exception =
                             shouldThrow<OAuthException.InvalidRequest> {
-                                startOauthAuthorizeFlowService.execute(reqDto, mockSession)
+                                startOauthAuthorizeFlowService.execute(
+                                    clientId = testClientId,
+                                    redirectUri = testRedirectUri,
+                                    responseType = "code",
+                                    state = null,
+                                    codeChallenge = "challenge",
+                                    codeChallengeMethod = "unsupported",
+                                    session = mockSession,
+                                )
                             }
 
                         exception.errorDescription shouldBe "지원하지 않는 code_challenge_method입니다."

@@ -10,13 +10,12 @@ import jakarta.validation.Valid
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.oauth.dto.request.Oauth2TokenReqDto
-import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeSubmitReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthCodeReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.Oauth2TokenResDto
@@ -48,9 +47,23 @@ class OauthController(
         ],
     )
     fun authorizeGet(
-        @Valid @ModelAttribute reqDto: OauthAuthorizeReqDto,
+        @RequestParam("client_id") clientId: String?,
+        @RequestParam("redirect_uri") redirectUri: String?,
+        @RequestParam("response_type", defaultValue = "code") responseType: String?,
+        @RequestParam("state", required = false) state: String?,
+        @RequestParam("code_challenge", required = false) codeChallenge: String?,
+        @RequestParam("code_challenge_method", required = false) codeChallengeMethod: String?,
         session: HttpSession,
-    ): ResponseEntity<Void> = startOauthAuthorizeFlowService.execute(reqDto, session)
+    ): ResponseEntity<Void> =
+        startOauthAuthorizeFlowService.execute(
+            clientId,
+            redirectUri,
+            responseType,
+            state,
+            codeChallenge,
+            codeChallengeMethod,
+            session,
+        )
 
     @PostMapping("/authorize")
     @Operation(
