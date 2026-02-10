@@ -97,7 +97,7 @@ class StartOauthAuthorizeFlowServiceTest :
                             }
 
                         exception.error shouldBe "invalid_request"
-                        exception.errorDescription shouldBe "response_type must be 'code'"
+                        exception.errorDescription shouldBe "response_type은 'code'여야 합니다."
                     }
                 }
 
@@ -170,7 +170,7 @@ class StartOauthAuthorizeFlowServiceTest :
                                 startOauthAuthorizeFlowService.execute(reqDto, mockSession)
                             }
 
-                        exception.errorDescription shouldBe "지원하지 않는 code_challenge_method입니다. (plain, S256만 지원)"
+                        exception.errorDescription shouldBe "지원하지 않는 code_challenge_method입니다."
 
                         verify(exactly = 0) { mockSession.setAttribute(any(), any()) }
                     }

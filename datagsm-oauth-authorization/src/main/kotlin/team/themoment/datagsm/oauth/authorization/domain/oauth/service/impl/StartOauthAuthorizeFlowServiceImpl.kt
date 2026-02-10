@@ -22,7 +22,7 @@ class StartOauthAuthorizeFlowServiceImpl(
         session: HttpSession,
     ): ResponseEntity<Void> {
         if (reqDto.responseType != "code") {
-            throw OAuthException.InvalidRequest("response_type must be 'code'")
+            throw OAuthException.InvalidRequest("response_type은 'code'여야 합니다.")
         }
 
         val client =
@@ -37,7 +37,7 @@ class StartOauthAuthorizeFlowServiceImpl(
         if (reqDto.codeChallenge != null) {
             val challengeMethod =
                 PkceChallengeMethod.fromOrNull(reqDto.codeChallengeMethod)
-                    ?: throw OAuthException.InvalidRequest("지원하지 않는 code_challenge_method입니다. (plain, S256만 지원)")
+                    ?: throw OAuthException.InvalidRequest("지원하지 않는 code_challenge_method입니다.")
         }
 
         session.setAttribute("oauth_client_id", reqDto.clientId)
