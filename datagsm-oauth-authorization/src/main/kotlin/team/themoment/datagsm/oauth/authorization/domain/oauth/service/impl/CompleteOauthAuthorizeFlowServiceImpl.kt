@@ -35,7 +35,8 @@ class CompleteOauthAuthorizeFlowServiceImpl(
         val clientId =
             session.getAttribute("oauth_client_id") as? String
                 ?: throw OAuthException.InvalidRequest("세션이 만료되었습니다. 다시 시도해주세요.")
-        val redirectUri = session.getAttribute("oauth_redirect_uri") as String
+        val redirectUri = session.getAttribute("oauth_redirect_uri") as? String
+            ?: throw OAuthException.InvalidRequest("세션이 만료되었습니다. 다시 시도해주세요.")
         val state = session.getAttribute("oauth_state") as? String
         val codeChallenge = session.getAttribute("oauth_code_challenge") as? String
         val codeChallengeMethod = session.getAttribute("oauth_code_challenge_method") as? String
