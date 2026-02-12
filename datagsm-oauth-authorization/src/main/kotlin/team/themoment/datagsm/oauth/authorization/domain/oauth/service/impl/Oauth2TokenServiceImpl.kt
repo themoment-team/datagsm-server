@@ -46,13 +46,27 @@ class Oauth2TokenServiceImpl(
     }
 
     private fun handleAuthorizationCode(reqDto: Oauth2TokenReqDto): Oauth2TokenResDto {
-        validateAuthorizationCodeParams(reqDto)
+        if (reqDto.code.isNullOrBlank()) {
+            throw OAuthException.InvalidRequest("code 파라미터가 필요합니다.")
+        }
+        if (reqDto.clientId.isNullOrBlank()) {
+            throw OAuthException.InvalidRequest("client_id 파라미터가 필요합니다.")
+        }
 
         val oauthCode =
             oauthCodeRedisRepository.findByIdOrNull(reqDto.code!!)
                 ?: throw OAuthException.InvalidGrant("Authorization Code가 유효하지 않거나 만료되었습니다.")
 
-        val client = validateClient(reqDto.clientId!!, reqDto.clientSecret!!)
+        val hasPkce = oauthCode.codeChallenge != null
+        val client =
+            if (hasPkce && reqDto.clientSecret.isNullOrBlank()) {
+                validateClientWithoutSecret(reqDto.clientId!!)
+            } else {
+                if (reqDto.clientSecret.isNullOrBlank()) {
+                    throw OAuthException.InvalidRequest("client_secret 파라미터가 필요합니다.")
+                }
+                validateClient(reqDto.clientId!!, reqDto.clientSecret!!)
+            }
 
         if (oauthCode.clientId != reqDto.clientId) {
             throw OAuthException.InvalidGrant("코드가 해당 클라이언트에게 발급되지 않았습니다.")
@@ -201,6 +215,10 @@ class Oauth2TokenServiceImpl(
         return client
     }
 
+    private fun validateClientWithoutSecret(clientId: String): ClientJpaEntity =
+        clientJpaRepository.findByIdOrNull(clientId)
+            ?: throw OAuthException.InvalidClient("존재하지 않는 클라이언트입니다.")
+
     private fun parseScopes(scopeString: String?): Set<String> = scopeString?.split(" ")?.filter { it.isNotBlank() }?.toSet() ?: emptySet()
 
     private fun calculateGrantedScopes(
@@ -245,13 +263,6 @@ class Oauth2TokenServiceImpl(
         if (reqDto.clientSecret.isNullOrBlank()) {
             throw OAuthException.InvalidRequest("client_secret 파라미터가 필요합니다.")
         }
-    }
-
-    private fun validateAuthorizationCodeParams(reqDto: Oauth2TokenReqDto) {
-        if (reqDto.code.isNullOrBlank()) {
-            throw OAuthException.InvalidRequest("code 파라미터가 필요합니다.")
-        }
-        validateClientCredentials(reqDto)
     }
 
     private fun validateRefreshTokenParams(reqDto: Oauth2TokenReqDto) {
