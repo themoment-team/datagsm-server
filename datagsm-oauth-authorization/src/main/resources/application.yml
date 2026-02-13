@@ -16,6 +16,10 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       database: 0
+  session:
+    store-type: redis
+    redis:
+      namespace: spring:session:oauth
   jpa:
     hibernate:
       ddl-auto: update
@@ -59,6 +63,7 @@ spring:
         default-refill-duration-seconds: 60
     oauth:
       code-expiration-seconds: ${OAUTH_CODE_EXPIRATION:300}
+      frontend-url: ${OAUTH_FRONTEND_URL:http://localhost:3000}
     password-reset-rate-limit:
       enabled: true
       send:
@@ -84,6 +89,14 @@ spring:
 server:
   port: 8081
   shutdown: graceful
+  servlet:
+    session:
+      cookie:
+        same-site: none
+        secure: false
+        http-only: true
+        path: /
+        max-age: 600
 sdk:
   logging:
     enabled: true
@@ -97,6 +110,7 @@ sdk:
       - "/v3/api-docs/**"
       - "/swagger-ui/**"
       - "/actuator/**"
+      - "/v1/oauth/authorize"
   swagger:
     enabled: true
     title: "DataGSM Authorization Server API"

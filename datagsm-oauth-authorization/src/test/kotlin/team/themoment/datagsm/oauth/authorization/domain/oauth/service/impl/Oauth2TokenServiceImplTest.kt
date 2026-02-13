@@ -156,7 +156,7 @@ class Oauth2TokenServiceImplTest :
                                 service.execute(reqDto)
                             }
                         exception.error shouldBe "invalid_grant"
-                        exception.errorDescription shouldBe "PKCE verification failed"
+                        exception.errorDescription shouldBe "PKCE 검증에 실패했습니다."
                     }
                 }
 
@@ -286,7 +286,7 @@ class Oauth2TokenServiceImplTest :
                                 service.execute(reqDto)
                             }
                         exception.error shouldBe "invalid_request"
-                        exception.errorDescription shouldBe "code parameter is required"
+                        exception.errorDescription shouldBe "code 파라미터가 필요합니다."
                     }
                 }
             }

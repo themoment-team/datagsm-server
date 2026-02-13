@@ -27,12 +27,12 @@ class CheckPasswordResetCodeServiceImplTest :
             every { passwordResetCodeRedisRepository.findById(email) } returns Optional.empty()
 
             When("코드 검증을 요청하면") {
-                Then("404 Not Found 예외가 발생한다") {
-                    val exception =
-                        shouldThrow<ExpectedException> {
-                            service.execute(reqDto)
-                        }
+                val exception =
+                    shouldThrow<ExpectedException> {
+                        service.execute(reqDto)
+                    }
 
+                Then("404 Not Found 예외가 발생한다") {
                     exception.message shouldBe "인증 코드가 존재하지 않습니다."
                 }
             }
@@ -55,12 +55,12 @@ class CheckPasswordResetCodeServiceImplTest :
             every { passwordResetCodeRedisRepository.save(any()) } answers { firstArg() }
 
             When("코드 검증을 요청하면") {
-                Then("400 Bad Request 예외가 발생한다") {
-                    val exception =
-                        shouldThrow<ExpectedException> {
-                            service.execute(reqDto)
-                        }
+                val exception =
+                    shouldThrow<ExpectedException> {
+                        service.execute(reqDto)
+                    }
 
+                Then("400 Bad Request 예외가 발생한다") {
                     exception.message shouldBe "인증 코드가 일치하지 않습니다."
                 }
             }

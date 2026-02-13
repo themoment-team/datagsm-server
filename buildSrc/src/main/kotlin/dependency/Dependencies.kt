@@ -26,6 +26,9 @@ object Dependencies {
     const val SPRING_DATA_JPA = "org.springframework.boot:spring-boot-starter-data-jpa"
     const val SPRING_DATA_REDIS = "org.springframework.boot:spring-boot-starter-data-redis"
 
+    // Spring Session
+    const val SPRING_SESSION_REDIS = "org.springframework.session:spring-session-data-redis"
+
     // Spring Cloud
     const val SPRING_OPENFEIGN = "org.springframework.cloud:spring-cloud-starter-openfeign"
     const val SPRING_RETRY = "org.springframework.retry:spring-retry"
