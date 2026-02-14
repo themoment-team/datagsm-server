@@ -13,7 +13,6 @@ import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepos
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthAuthorizeFlowService
 import team.themoment.sdk.exception.ExpectedException
-import team.themoment.sdk.logging.logger.logger
 import java.net.URI
 import java.security.SecureRandom
 import java.util.Base64
@@ -31,27 +30,12 @@ class CompleteOauthAuthorizeFlowServiceImpl(
     }
 
     override fun execute(reqDto: OauthAuthorizeSubmitReqDto): ResponseEntity<Void> {
-        logger()
-            .info(
-                "🟢 [COMPLETE] OAuth authorize request - Token: ${reqDto.token}",
-            )
-
         val stateEntity =
             oauthAuthorizeStateRedisRepository
                 .findById(reqDto.token)
                 .orElseThrow {
-                    logger()
-                        .error(
-                            "🔴 [COMPLETE] Invalid or expired token - Token: ${reqDto.token}",
-                        )
                     OAuthException.InvalidRequest("인증 토큰이 유효하지 않거나 만료되었습니다. 다시 시도해주세요.")
                 }
-
-        logger()
-            .info(
-                "🟢 [COMPLETE] OAuth state retrieved: " +
-                    "ClientID: ${stateEntity.clientId}, RedirectURI: ${stateEntity.redirectUri}",
-            )
 
         val clientId = stateEntity.clientId
         val redirectUri = stateEntity.redirectUri
@@ -83,12 +67,6 @@ class CompleteOauthAuthorizeFlowServiceImpl(
         oauthCodeRedisRepository.save(oauthCodeEntity)
 
         oauthAuthorizeStateRedisRepository.deleteById(reqDto.token)
-
-        logger()
-            .info(
-                "🟢 [COMPLETE] Authorization code issued - Code: ${code.take(10)}..., " +
-                    "Token deleted: ${reqDto.token}",
-            )
 
         val redirectUrl = buildRedirectUrl(redirectUri, code, state)
 

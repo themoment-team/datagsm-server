@@ -10,7 +10,6 @@ import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.StartOauthAuthorizeFlowService
-import team.themoment.sdk.logging.logger.logger
 import java.net.URI
 import java.util.UUID
 
@@ -68,12 +67,6 @@ class StartOauthAuthorizeFlowServiceImpl(
             )
 
         oauthAuthorizeStateRedisRepository.save(stateEntity)
-
-        logger()
-            .info(
-                "🔵 [START] OAuth state saved - Token: $token, " +
-                    "ClientID: $clientId, TTL: 600s",
-            )
 
         return ResponseEntity
             .status(HttpStatus.FOUND)
