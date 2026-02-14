@@ -35,7 +35,7 @@ class OauthController(
 ) {
     @GetMapping("/authorize")
     @Operation(
-        summary = "OAuth 인증 시작 (표준 플로우)",
+        summary = "OAuth 인증 시작",
         description = "OAuth 파라미터를 검증하고 프론트엔드 로그인 페이지로 리다이렉트합니다.",
     )
     @ApiResponses(
@@ -62,12 +62,9 @@ class OauthController(
             codeChallengeMethod,
         )
 
-    @PostMapping(
-        "/authorize",
-        consumes = [MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE],
-    )
+    @PostMapping("/authorize")
     @Operation(
-        summary = "OAuth 인증 처리 (표준 플로우)",
+        summary = "OAuth 인증 처리",
         description = "사용자 인증 후 Authorization Code를 발급하고 외부 서비스로 리다이렉트합니다.",
     )
     @ApiResponses(
@@ -83,8 +80,8 @@ class OauthController(
 
     @Deprecated("Use /v1/oauth/authorize for standard OAuth flow")
     @Operation(
-        summary = "OAuth 인증 코드 발급 (레거시)",
-        description = "⚠️ 레거시 엔드포인트입니다. 새로운 통합은 GET /v1/oauth/authorize를 사용하세요.",
+        summary = "OAuth 인증 코드 발급",
+        description = "⚠ 레거시 엔드포인트입니다. 새로운 통합은 GET /v1/oauth/authorize를 사용하세요.",
     )
     @ApiResponses(
         value = [
