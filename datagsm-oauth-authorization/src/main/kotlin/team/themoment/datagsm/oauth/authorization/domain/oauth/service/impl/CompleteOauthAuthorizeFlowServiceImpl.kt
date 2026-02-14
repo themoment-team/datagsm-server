@@ -13,6 +13,7 @@ import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepos
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthAuthorizeFlowService
 import team.themoment.sdk.exception.ExpectedException
+import team.themoment.sdk.logging.logger.logger
 import java.net.URI
 import java.security.SecureRandom
 import java.util.Base64
@@ -32,12 +33,39 @@ class CompleteOauthAuthorizeFlowServiceImpl(
         reqDto: OauthAuthorizeSubmitReqDto,
         session: HttpSession,
     ): ResponseEntity<Void> {
-        val clientId =
-            session.getAttribute("oauth_client_id") as? String
-                ?: throw OAuthException.InvalidRequest("세션이 만료되었습니다. 다시 시도해주세요.")
-        val redirectUri =
-            session.getAttribute("oauth_redirect_uri") as? String
-                ?: throw OAuthException.InvalidRequest("세션이 만료되었습니다. 다시 시도해주세요.")
+        logger()
+            .info(
+                "🟢 [COMPLETE] Session received - ID: ${session.id}, " +
+                    "IsNew: ${session.isNew}, MaxInactiveInterval: ${session.maxInactiveInterval}s",
+            )
+
+        val clientId = session.getAttribute("oauth_client_id") as? String
+        val redirectUri = session.getAttribute("oauth_redirect_uri") as? String
+
+        logger()
+            .info(
+                "🟢 [COMPLETE] Session attributes retrieved: " +
+                    "oauth_client_id=$clientId, oauth_redirect_uri=$redirectUri",
+            )
+
+        if (clientId == null) {
+            logger()
+                .error(
+                    "🔴 [COMPLETE] Session missing oauth_client_id - " +
+                        "Session may have expired or was not created",
+                )
+            throw OAuthException.InvalidRequest("세션이 만료되었습니다. 다시 시도해주세요.")
+        }
+
+        if (redirectUri == null) {
+            logger()
+                .error(
+                    "🔴 [COMPLETE] Session missing oauth_redirect_uri - " +
+                        "Session may have expired or was not created",
+                )
+            throw OAuthException.InvalidRequest("세션이 만료되었습니다. 다시 시도해주세요.")
+        }
+
         val state = session.getAttribute("oauth_state") as? String
         val codeChallenge = session.getAttribute("oauth_code_challenge") as? String
         val codeChallengeMethod = session.getAttribute("oauth_code_challenge_method") as? String

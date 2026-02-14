@@ -9,6 +9,7 @@ import team.themoment.datagsm.common.domain.oauth.entity.constant.PkceChallengeM
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.StartOauthAuthorizeFlowService
+import team.themoment.sdk.logging.logger.logger
 import java.net.URI
 
 @Service
@@ -56,6 +57,17 @@ class StartOauthAuthorizeFlowServiceImpl(
         session.setAttribute("oauth_state", state)
         session.setAttribute("oauth_code_challenge", codeChallenge)
         session.setAttribute("oauth_code_challenge_method", codeChallengeMethod)
+
+        logger()
+            .info(
+                "🔵 [START] Session created - ID: ${session.id}, " +
+                    "ClientID: $clientId, MaxInactiveInterval: ${session.maxInactiveInterval}s",
+            )
+        logger()
+            .info(
+                "🔵 [START] Session attributes saved: " +
+                    "oauth_client_id=$clientId, oauth_redirect_uri=$redirectUri",
+            )
 
         return ResponseEntity
             .status(HttpStatus.FOUND)
