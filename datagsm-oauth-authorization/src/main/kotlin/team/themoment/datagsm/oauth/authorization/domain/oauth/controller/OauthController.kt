@@ -87,7 +87,7 @@ class OauthController(
         value = [
             ApiResponse(responseCode = "200", description = "OAuth 인증 코드 발급 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패 / 등록되지 않은 Redirect URL)", content = [Content()]),
-            ApiResponse(responseCode = "401", description = "비밀번호 불일치", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "이메일과 비밀번호 쌍 불일치", content = [Content()]),
             ApiResponse(responseCode = "404", description = "존재하지 않는 Client ID / 이메일", content = [Content()]),
         ],
     )
