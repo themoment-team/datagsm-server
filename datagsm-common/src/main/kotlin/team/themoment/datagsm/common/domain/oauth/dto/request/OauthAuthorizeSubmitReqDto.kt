@@ -14,4 +14,7 @@ data class OauthAuthorizeSubmitReqDto(
     @field:NotBlank(message = "비밀번호는 필수입니다.")
     @field:Size(min = 8, max = 100, message = "비밀번호는 8자 이상 100자 이하여야 합니다.")
     val password: String,
+    @param:Schema(description = "인증 상태 토큰", example = "abc123-def456-...")
+    @field:NotBlank(message = "인증 상태 토큰은 필수입니다.")
+    val token: String,
 )

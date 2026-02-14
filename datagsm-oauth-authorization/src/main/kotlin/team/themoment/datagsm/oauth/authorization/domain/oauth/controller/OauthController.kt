@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import jakarta.servlet.http.HttpSession
 import jakarta.validation.Valid
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -36,7 +35,7 @@ class OauthController(
 ) {
     @GetMapping("/authorize")
     @Operation(
-        summary = "OAuth 인증 시작 (표준 플로우)",
+        summary = "OAuth 인증 시작",
         description = "OAuth 파라미터를 검증하고 프론트엔드 로그인 페이지로 리다이렉트합니다.",
     )
     @ApiResponses(
@@ -53,7 +52,6 @@ class OauthController(
         @RequestParam("state", required = false) state: String?,
         @RequestParam("code_challenge", required = false) codeChallenge: String?,
         @RequestParam("code_challenge_method", required = false) codeChallengeMethod: String?,
-        session: HttpSession,
     ): ResponseEntity<Void> =
         startOauthAuthorizeFlowService.execute(
             clientId,
@@ -62,12 +60,11 @@ class OauthController(
             state,
             codeChallenge,
             codeChallengeMethod,
-            session,
         )
 
     @PostMapping("/authorize")
     @Operation(
-        summary = "OAuth 인증 처리 (표준 플로우)",
+        summary = "OAuth 인증 처리",
         description = "사용자 인증 후 Authorization Code를 발급하고 외부 서비스로 리다이렉트합니다.",
     )
     @ApiResponses(
@@ -79,19 +76,18 @@ class OauthController(
     )
     fun authorizePost(
         @Valid @RequestBody reqDto: OauthAuthorizeSubmitReqDto,
-        session: HttpSession,
-    ): ResponseEntity<Void> = completeOauthAuthorizeFlowService.execute(reqDto, session)
+    ): ResponseEntity<Void> = completeOauthAuthorizeFlowService.execute(reqDto)
 
     @Deprecated("Use /v1/oauth/authorize for standard OAuth flow")
     @Operation(
-        summary = "OAuth 인증 코드 발급 (레거시)",
-        description = "⚠️ 레거시 엔드포인트입니다. 새로운 통합은 GET /v1/oauth/authorize를 사용하세요.",
+        summary = "OAuth 인증 코드 발급",
+        description = "⚠ 레거시 엔드포인트입니다. 새로운 통합은 GET /v1/oauth/authorize를 사용하세요.",
     )
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "OAuth 인증 코드 발급 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패 / 등록되지 않은 Redirect URL)", content = [Content()]),
-            ApiResponse(responseCode = "401", description = "비밀번호 불일치", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "이메일과 비밀번호 쌍 불일치", content = [Content()]),
             ApiResponse(responseCode = "404", description = "존재하지 않는 Client ID / 이메일", content = [Content()]),
         ],
     )
