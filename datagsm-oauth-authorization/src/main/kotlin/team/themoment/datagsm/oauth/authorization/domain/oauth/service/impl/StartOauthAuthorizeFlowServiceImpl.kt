@@ -71,7 +71,7 @@ class StartOauthAuthorizeFlowServiceImpl(
 
         val location =
             UriComponentsBuilder
-                .fromHttpUrl(oauthEnvironment.frontendUrl)
+                .fromUriString(oauthEnvironment.frontendUrl)
                 .path("/oauth/authorize")
                 .queryParam("token", token)
                 .build()
