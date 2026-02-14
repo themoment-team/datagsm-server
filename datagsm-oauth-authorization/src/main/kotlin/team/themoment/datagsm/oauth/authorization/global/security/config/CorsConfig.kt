@@ -19,6 +19,7 @@ class CorsConfig(
                 allowedOrigins = corsEnvironment.allowedOrigins
                 allowedMethods = HttpMethod.values().map(HttpMethod::name)
                 addAllowedHeader("*")
+                addExposedHeader("Location")
                 allowCredentials = true
             }
 
