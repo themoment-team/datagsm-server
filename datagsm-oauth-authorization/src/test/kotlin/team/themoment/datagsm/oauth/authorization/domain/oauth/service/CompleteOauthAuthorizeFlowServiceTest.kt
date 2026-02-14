@@ -11,14 +11,15 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import jakarta.servlet.http.HttpSession
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeSubmitReqDto
+import team.themoment.datagsm.common.domain.oauth.entity.OauthAuthorizeStateRedisEntity
 import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
+import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl.CompleteOauthAuthorizeFlowServiceImpl
@@ -30,14 +31,15 @@ class CompleteOauthAuthorizeFlowServiceTest :
 
         val mockAccountJpaRepository = mockk<AccountJpaRepository>()
         val mockOauthCodeRedisRepository = mockk<OauthCodeRedisRepository>(relaxed = true)
+        val mockOauthAuthorizeStateRedisRepository = mockk<OauthAuthorizeStateRedisRepository>(relaxed = true)
         val mockPasswordEncoder = mockk<PasswordEncoder>()
         val mockOauthEnvironment = mockk<OauthEnvironment>()
-        val mockSession = mockk<HttpSession>(relaxed = true)
 
         val completeOauthAuthorizeFlowService =
             CompleteOauthAuthorizeFlowServiceImpl(
                 mockAccountJpaRepository,
                 mockOauthCodeRedisRepository,
+                mockOauthAuthorizeStateRedisRepository,
                 mockPasswordEncoder,
                 mockOauthEnvironment,
             )
@@ -50,6 +52,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
             describe("execute 메서드는") {
 
                 val testEmail = "user@gsm.hs.kr"
+                val testToken = "test-token-123"
                 val testClientId = "client-123"
                 val testRedirectUri = "https://example.com/callback"
                 val codeExpirationSeconds = 300L
@@ -65,29 +68,36 @@ class CompleteOauthAuthorizeFlowServiceTest :
                     every { mockOauthEnvironment.codeExpirationSeconds } returns codeExpirationSeconds
                 }
 
-                context("유효한 세션과 인증 정보가 주어졌을 때") {
+                context("유효한 토큰과 인증 정보가 주어졌을 때") {
                     val reqDto =
                         OauthAuthorizeSubmitReqDto(
                             email = testEmail,
                             password = "password123!",
+                            token = testToken,
+                        )
+
+                    val mockStateEntity =
+                        OauthAuthorizeStateRedisEntity(
+                            token = testToken,
+                            clientId = testClientId,
+                            redirectUri = testRedirectUri,
+                            state = "random-state",
+                            codeChallenge = "challenge",
+                            codeChallengeMethod = "S256",
+                            ttl = 600,
                         )
 
                     val savedEntitySlot = slot<OauthCodeRedisEntity>()
 
                     beforeEach {
-                        every { mockSession.getAttribute("oauth_client_id") } returns testClientId
-                        every { mockSession.getAttribute("oauth_redirect_uri") } returns testRedirectUri
-                        every { mockSession.getAttribute("oauth_state") } returns "random-state"
-                        every { mockSession.getAttribute("oauth_code_challenge") } returns "challenge"
-                        every { mockSession.getAttribute("oauth_code_challenge_method") } returns "S256"
-
+                        every { mockOauthAuthorizeStateRedisRepository.findById(testToken) } returns Optional.of(mockStateEntity)
                         every { mockAccountJpaRepository.findByEmail(testEmail) } returns Optional.of(mockAccount)
                         every { mockPasswordEncoder.matches("password123!", mockAccount.password) } returns true
                         every { mockOauthCodeRedisRepository.save(capture(savedEntitySlot)) } answers { firstArg() }
                     }
 
                     it("302 리다이렉트 ResponseEntity가 반환되어야 한다") {
-                        val response = completeOauthAuthorizeFlowService.execute(reqDto, mockSession)
+                        val response = completeOauthAuthorizeFlowService.execute(reqDto)
 
                         response.statusCode shouldBe HttpStatus.FOUND
                         response.headers.location shouldNotBe null
@@ -99,7 +109,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                     }
 
                     it("Redis에 Authorization Code가 저장되어야 한다") {
-                        completeOauthAuthorizeFlowService.execute(reqDto, mockSession)
+                        completeOauthAuthorizeFlowService.execute(reqDto)
 
                         verify(exactly = 1) { mockOauthCodeRedisRepository.save(any()) }
 
@@ -111,31 +121,32 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         savedEntitySlot.captured.ttl shouldBe codeExpirationSeconds
                     }
 
-                    it("세션이 무효화되어야 한다") {
-                        completeOauthAuthorizeFlowService.execute(reqDto, mockSession)
+                    it("Redis에서 인증 상태가 삭제되어야 한다") {
+                        completeOauthAuthorizeFlowService.execute(reqDto)
 
-                        verify(exactly = 1) { mockSession.invalidate() }
+                        verify(exactly = 1) { mockOauthAuthorizeStateRedisRepository.deleteById(testToken) }
                     }
                 }
 
-                context("세션이 만료되었을 때") {
+                context("토큰이 유효하지 않거나 만료되었을 때") {
                     val reqDto =
                         OauthAuthorizeSubmitReqDto(
                             email = testEmail,
                             password = "password123!",
+                            token = "invalid-token",
                         )
 
                     beforeEach {
-                        every { mockSession.getAttribute("oauth_client_id") } returns null
+                        every { mockOauthAuthorizeStateRedisRepository.findById("invalid-token") } returns Optional.empty()
                     }
 
                     it("InvalidRequest 예외가 발생해야 한다") {
                         val exception =
                             shouldThrow<OAuthException.InvalidRequest> {
-                                completeOauthAuthorizeFlowService.execute(reqDto, mockSession)
+                                completeOauthAuthorizeFlowService.execute(reqDto)
                             }
 
-                        exception.errorDescription shouldBe "세션이 만료되었습니다. 다시 시도해주세요."
+                        exception.errorDescription shouldBe "인증 토큰이 유효하지 않거나 만료되었습니다. 다시 시도해주세요."
 
                         verify(exactly = 0) { mockAccountJpaRepository.findByEmail(any()) }
                         verify(exactly = 0) { mockOauthCodeRedisRepository.save(any()) }
@@ -147,18 +158,29 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         OauthAuthorizeSubmitReqDto(
                             email = "invalid@gsm.hs.kr",
                             password = "password123!",
+                            token = testToken,
+                        )
+
+                    val mockStateEntity =
+                        OauthAuthorizeStateRedisEntity(
+                            token = testToken,
+                            clientId = testClientId,
+                            redirectUri = testRedirectUri,
+                            state = "random-state",
+                            codeChallenge = "challenge",
+                            codeChallengeMethod = "S256",
+                            ttl = 600,
                         )
 
                     beforeEach {
-                        every { mockSession.getAttribute("oauth_client_id") } returns testClientId
-                        every { mockSession.getAttribute("oauth_redirect_uri") } returns testRedirectUri
+                        every { mockOauthAuthorizeStateRedisRepository.findById(testToken) } returns Optional.of(mockStateEntity)
                         every { mockAccountJpaRepository.findByEmail("invalid@gsm.hs.kr") } returns Optional.empty()
                     }
 
                     it("ExpectedException 예외가 발생해야 한다") {
                         val exception =
                             shouldThrow<ExpectedException> {
-                                completeOauthAuthorizeFlowService.execute(reqDto, mockSession)
+                                completeOauthAuthorizeFlowService.execute(reqDto)
                             }
 
                         exception.message shouldBe "존재하지 않는 이메일입니다."
@@ -173,12 +195,22 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         OauthAuthorizeSubmitReqDto(
                             email = testEmail,
                             password = "wrongPassword",
+                            token = testToken,
+                        )
+
+                    val mockStateEntity =
+                        OauthAuthorizeStateRedisEntity(
+                            token = testToken,
+                            clientId = testClientId,
+                            redirectUri = testRedirectUri,
+                            state = "random-state",
+                            codeChallenge = "challenge",
+                            codeChallengeMethod = "S256",
+                            ttl = 600,
                         )
 
                     beforeEach {
-                        every { mockSession.getAttribute("oauth_client_id") } returns testClientId
-                        every { mockSession.getAttribute("oauth_redirect_uri") } returns testRedirectUri
-
+                        every { mockOauthAuthorizeStateRedisRepository.findById(testToken) } returns Optional.of(mockStateEntity)
                         every { mockAccountJpaRepository.findByEmail(testEmail) } returns Optional.of(mockAccount)
                         every { mockPasswordEncoder.matches("wrongPassword", mockAccount.password) } returns false
                     }
@@ -186,7 +218,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                     it("ExpectedException 예외가 발생해야 한다") {
                         val exception =
                             shouldThrow<ExpectedException> {
-                                completeOauthAuthorizeFlowService.execute(reqDto, mockSession)
+                                completeOauthAuthorizeFlowService.execute(reqDto)
                             }
 
                         exception.message shouldBe "비밀번호가 일치하지 않습니다."

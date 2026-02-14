@@ -4,15 +4,18 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
-import jakarta.servlet.http.HttpSession
 import org.springframework.http.HttpStatus
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
+import team.themoment.datagsm.common.domain.oauth.entity.OauthAuthorizeStateRedisEntity
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
+import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl.StartOauthAuthorizeFlowServiceImpl
 import java.util.Optional
@@ -21,7 +24,7 @@ class StartOauthAuthorizeFlowServiceTest :
     DescribeSpec({
 
         val mockClientJpaRepository = mockk<ClientJpaRepository>()
-        val mockSession = mockk<HttpSession>(relaxed = true)
+        val mockOauthAuthorizeStateRedisRepository = mockk<OauthAuthorizeStateRedisRepository>(relaxed = true)
         val mockOauthEnvironment =
             mockk<OauthEnvironment> {
                 every { frontendUrl } returns "http://localhost:3000"
@@ -31,6 +34,7 @@ class StartOauthAuthorizeFlowServiceTest :
             StartOauthAuthorizeFlowServiceImpl(
                 mockClientJpaRepository,
                 mockOauthEnvironment,
+                mockOauthAuthorizeStateRedisRepository,
             )
 
         afterEach {
@@ -52,11 +56,14 @@ class StartOauthAuthorizeFlowServiceTest :
                     }
 
                 context("유효한 OAuth Authorize 요청이 주어졌을 때") {
+                    val savedEntitySlot = slot<OauthAuthorizeStateRedisEntity>()
+
                     beforeEach {
                         every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(mockClient)
+                        every { mockOauthAuthorizeStateRedisRepository.save(capture(savedEntitySlot)) } answers { firstArg() }
                     }
 
-                    it("세션에 OAuth 파라미터가 저장되고 302 리다이렉트가 반환되어야 한다") {
+                    it("Redis에 OAuth 파라미터가 저장되고 302 리다이렉트가 반환되어야 한다") {
                         val response =
                             startOauthAuthorizeFlowService.execute(
                                 clientId = testClientId,
@@ -65,18 +72,23 @@ class StartOauthAuthorizeFlowServiceTest :
                                 state = "random-state",
                                 codeChallenge = "challenge",
                                 codeChallengeMethod = "S256",
-                                session = mockSession,
                             )
 
                         response.statusCode shouldBe HttpStatus.FOUND
                         response.headers.location shouldNotBe null
-                        response.headers.location?.toString() shouldBe "http://localhost:3000/oauth/authorize"
 
-                        verify { mockSession.setAttribute("oauth_client_id", testClientId) }
-                        verify { mockSession.setAttribute("oauth_redirect_uri", testRedirectUri) }
-                        verify { mockSession.setAttribute("oauth_state", "random-state") }
-                        verify { mockSession.setAttribute("oauth_code_challenge", "challenge") }
-                        verify { mockSession.setAttribute("oauth_code_challenge_method", "S256") }
+                        val locationUrl = response.headers.location?.toString() ?: ""
+                        locationUrl shouldContain "http://localhost:3000/oauth/authorize"
+                        locationUrl shouldContain "token="
+
+                        verify(exactly = 1) { mockOauthAuthorizeStateRedisRepository.save(any()) }
+
+                        savedEntitySlot.captured.clientId shouldBe testClientId
+                        savedEntitySlot.captured.redirectUri shouldBe testRedirectUri
+                        savedEntitySlot.captured.state shouldBe "random-state"
+                        savedEntitySlot.captured.codeChallenge shouldBe "challenge"
+                        savedEntitySlot.captured.codeChallengeMethod shouldBe "S256"
+                        savedEntitySlot.captured.ttl shouldBe 600
                     }
                 }
 
@@ -91,7 +103,6 @@ class StartOauthAuthorizeFlowServiceTest :
                                     state = null,
                                     codeChallenge = null,
                                     codeChallengeMethod = null,
-                                    session = mockSession,
                                 )
                             }
 
@@ -115,14 +126,13 @@ class StartOauthAuthorizeFlowServiceTest :
                                     state = null,
                                     codeChallenge = null,
                                     codeChallengeMethod = null,
-                                    session = mockSession,
                                 )
                             }
 
                         exception.error shouldBe "invalid_client"
                         exception.errorDescription shouldBe "존재하지 않는 클라이언트입니다."
 
-                        verify(exactly = 0) { mockSession.setAttribute(any(), any()) }
+                        verify(exactly = 0) { mockOauthAuthorizeStateRedisRepository.save(any()) }
                     }
                 }
 
@@ -141,13 +151,12 @@ class StartOauthAuthorizeFlowServiceTest :
                                     state = null,
                                     codeChallenge = null,
                                     codeChallengeMethod = null,
-                                    session = mockSession,
                                 )
                             }
 
                         exception.errorDescription shouldBe "등록되지 않은 redirect_uri입니다."
 
-                        verify(exactly = 0) { mockSession.setAttribute(any(), any()) }
+                        verify(exactly = 0) { mockOauthAuthorizeStateRedisRepository.save(any()) }
                     }
                 }
 
@@ -166,13 +175,12 @@ class StartOauthAuthorizeFlowServiceTest :
                                     state = null,
                                     codeChallenge = "challenge",
                                     codeChallengeMethod = "unsupported",
-                                    session = mockSession,
                                 )
                             }
 
                         exception.errorDescription shouldBe "지원하지 않는 code_challenge_method입니다."
 
-                        verify(exactly = 0) { mockSession.setAttribute(any(), any()) }
+                        verify(exactly = 0) { mockOauthAuthorizeStateRedisRepository.save(any()) }
                     }
                 }
             }
