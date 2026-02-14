@@ -65,7 +65,10 @@ class OauthController(
             session,
         )
 
-    @PostMapping("/authorize")
+    @PostMapping(
+        "/authorize",
+        consumes = [MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE],
+    )
     @Operation(
         summary = "OAuth 인증 처리 (표준 플로우)",
         description = "사용자 인증 후 Authorization Code를 발급하고 외부 서비스로 리다이렉트합니다.",
