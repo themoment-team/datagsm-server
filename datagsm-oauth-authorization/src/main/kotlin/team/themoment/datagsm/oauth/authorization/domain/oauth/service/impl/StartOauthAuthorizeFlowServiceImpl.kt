@@ -1,21 +1,24 @@
 package team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl
 
-import jakarta.servlet.http.HttpSession
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
+import team.themoment.datagsm.common.domain.oauth.entity.OauthAuthorizeStateRedisEntity
 import team.themoment.datagsm.common.domain.oauth.entity.constant.PkceChallengeMethod
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
+import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.StartOauthAuthorizeFlowService
 import team.themoment.sdk.logging.logger.logger
 import java.net.URI
+import java.util.UUID
 
 @Service
 class StartOauthAuthorizeFlowServiceImpl(
     private val clientJpaRepository: ClientJpaRepository,
     private val oauthEnvironment: OauthEnvironment,
+    private val oauthAuthorizeStateRedisRepository: OauthAuthorizeStateRedisRepository,
 ) : StartOauthAuthorizeFlowService {
     override fun execute(
         clientId: String?,
@@ -24,7 +27,6 @@ class StartOauthAuthorizeFlowServiceImpl(
         state: String?,
         codeChallenge: String?,
         codeChallengeMethod: String?,
-        session: HttpSession,
     ): ResponseEntity<Void> {
         if (clientId.isNullOrBlank()) {
             throw OAuthException.InvalidRequest("client_id 파라미터가 필요합니다.")
@@ -52,26 +54,30 @@ class StartOauthAuthorizeFlowServiceImpl(
                 ?: throw OAuthException.InvalidRequest("지원하지 않는 code_challenge_method입니다.")
         }
 
-        session.setAttribute("oauth_client_id", clientId)
-        session.setAttribute("oauth_redirect_uri", redirectUri)
-        session.setAttribute("oauth_state", state)
-        session.setAttribute("oauth_code_challenge", codeChallenge)
-        session.setAttribute("oauth_code_challenge_method", codeChallengeMethod)
+        val token = UUID.randomUUID().toString()
+
+        val stateEntity =
+            OauthAuthorizeStateRedisEntity(
+                token = token,
+                clientId = clientId,
+                redirectUri = redirectUri,
+                state = state,
+                codeChallenge = codeChallenge,
+                codeChallengeMethod = codeChallengeMethod,
+                ttl = 600,
+            )
+
+        oauthAuthorizeStateRedisRepository.save(stateEntity)
 
         logger()
             .info(
-                "🔵 [START] Session created - ID: ${session.id}, " +
-                    "ClientID: $clientId, MaxInactiveInterval: ${session.maxInactiveInterval}s",
-            )
-        logger()
-            .info(
-                "🔵 [START] Session attributes saved: " +
-                    "oauth_client_id=$clientId, oauth_redirect_uri=$redirectUri",
+                "🔵 [START] OAuth state saved - Token: $token, " +
+                    "ClientID: $clientId, TTL: 600s",
             )
 
         return ResponseEntity
             .status(HttpStatus.FOUND)
-            .location(URI.create("${oauthEnvironment.frontendUrl}/oauth/authorize"))
+            .location(URI.create("${oauthEnvironment.frontendUrl}/oauth/authorize?token=$token"))
             .build()
     }
 }

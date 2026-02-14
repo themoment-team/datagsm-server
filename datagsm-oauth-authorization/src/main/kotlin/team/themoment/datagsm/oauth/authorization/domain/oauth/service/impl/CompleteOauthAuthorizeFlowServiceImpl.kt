@@ -1,6 +1,5 @@
 package team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl
 
-import jakarta.servlet.http.HttpSession
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -9,6 +8,7 @@ import team.themoment.datagsm.common.domain.account.repository.AccountJpaReposit
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeSubmitReqDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
+import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthAuthorizeFlowService
@@ -22,6 +22,7 @@ import java.util.Base64
 class CompleteOauthAuthorizeFlowServiceImpl(
     private val accountJpaRepository: AccountJpaRepository,
     private val oauthCodeRedisRepository: OauthCodeRedisRepository,
+    private val oauthAuthorizeStateRedisRepository: OauthAuthorizeStateRedisRepository,
     private val passwordEncoder: PasswordEncoder,
     private val oauthEnvironment: OauthEnvironment,
 ) : CompleteOauthAuthorizeFlowService {
@@ -29,46 +30,34 @@ class CompleteOauthAuthorizeFlowServiceImpl(
         private val secureRandom = SecureRandom()
     }
 
-    override fun execute(
-        reqDto: OauthAuthorizeSubmitReqDto,
-        session: HttpSession,
-    ): ResponseEntity<Void> {
+    override fun execute(reqDto: OauthAuthorizeSubmitReqDto): ResponseEntity<Void> {
         logger()
             .info(
-                "🟢 [COMPLETE] Session received - ID: ${session.id}, " +
-                    "IsNew: ${session.isNew}, MaxInactiveInterval: ${session.maxInactiveInterval}s",
+                "🟢 [COMPLETE] OAuth authorize request - Token: ${reqDto.token}",
             )
 
-        val clientId = session.getAttribute("oauth_client_id") as? String
-        val redirectUri = session.getAttribute("oauth_redirect_uri") as? String
+        val stateEntity =
+            oauthAuthorizeStateRedisRepository
+                .findById(reqDto.token)
+                .orElseThrow {
+                    logger()
+                        .error(
+                            "🔴 [COMPLETE] Invalid or expired token - Token: ${reqDto.token}",
+                        )
+                    OAuthException.InvalidRequest("인증 토큰이 유효하지 않거나 만료되었습니다. 다시 시도해주세요.")
+                }
 
         logger()
             .info(
-                "🟢 [COMPLETE] Session attributes retrieved: " +
-                    "oauth_client_id=$clientId, oauth_redirect_uri=$redirectUri",
+                "🟢 [COMPLETE] OAuth state retrieved: " +
+                    "ClientID: ${stateEntity.clientId}, RedirectURI: ${stateEntity.redirectUri}",
             )
 
-        if (clientId == null) {
-            logger()
-                .error(
-                    "🔴 [COMPLETE] Session missing oauth_client_id - " +
-                        "Session may have expired or was not created",
-                )
-            throw OAuthException.InvalidRequest("세션이 만료되었습니다. 다시 시도해주세요.")
-        }
-
-        if (redirectUri == null) {
-            logger()
-                .error(
-                    "🔴 [COMPLETE] Session missing oauth_redirect_uri - " +
-                        "Session may have expired or was not created",
-                )
-            throw OAuthException.InvalidRequest("세션이 만료되었습니다. 다시 시도해주세요.")
-        }
-
-        val state = session.getAttribute("oauth_state") as? String
-        val codeChallenge = session.getAttribute("oauth_code_challenge") as? String
-        val codeChallengeMethod = session.getAttribute("oauth_code_challenge_method") as? String
+        val clientId = stateEntity.clientId
+        val redirectUri = stateEntity.redirectUri
+        val state = stateEntity.state
+        val codeChallenge = stateEntity.codeChallenge
+        val codeChallengeMethod = stateEntity.codeChallengeMethod
 
         val account =
             accountJpaRepository
@@ -93,7 +82,13 @@ class CompleteOauthAuthorizeFlowServiceImpl(
             )
         oauthCodeRedisRepository.save(oauthCodeEntity)
 
-        session.invalidate()
+        oauthAuthorizeStateRedisRepository.deleteById(reqDto.token)
+
+        logger()
+            .info(
+                "🟢 [COMPLETE] Authorization code issued - Code: ${code.take(10)}..., " +
+                    "Token deleted: ${reqDto.token}",
+            )
 
         val redirectUrl = buildRedirectUrl(redirectUri, code, state)
 

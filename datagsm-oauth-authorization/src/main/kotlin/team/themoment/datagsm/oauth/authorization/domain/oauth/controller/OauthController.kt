@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import jakarta.servlet.http.HttpSession
 import jakarta.validation.Valid
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -53,7 +52,6 @@ class OauthController(
         @RequestParam("state", required = false) state: String?,
         @RequestParam("code_challenge", required = false) codeChallenge: String?,
         @RequestParam("code_challenge_method", required = false) codeChallengeMethod: String?,
-        session: HttpSession,
     ): ResponseEntity<Void> =
         startOauthAuthorizeFlowService.execute(
             clientId,
@@ -62,7 +60,6 @@ class OauthController(
             state,
             codeChallenge,
             codeChallengeMethod,
-            session,
         )
 
     @PostMapping(
@@ -82,8 +79,7 @@ class OauthController(
     )
     fun authorizePost(
         @Valid @RequestBody reqDto: OauthAuthorizeSubmitReqDto,
-        session: HttpSession,
-    ): ResponseEntity<Void> = completeOauthAuthorizeFlowService.execute(reqDto, session)
+    ): ResponseEntity<Void> = completeOauthAuthorizeFlowService.execute(reqDto)
 
     @Deprecated("Use /v1/oauth/authorize for standard OAuth flow")
     @Operation(
