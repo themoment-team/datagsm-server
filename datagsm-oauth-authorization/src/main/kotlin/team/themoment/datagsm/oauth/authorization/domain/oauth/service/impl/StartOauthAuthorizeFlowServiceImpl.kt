@@ -3,6 +3,7 @@ package team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
+import org.springframework.web.util.UriComponentsBuilder
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.oauth.entity.OauthAuthorizeStateRedisEntity
 import team.themoment.datagsm.common.domain.oauth.entity.constant.PkceChallengeMethod
@@ -68,9 +69,17 @@ class StartOauthAuthorizeFlowServiceImpl(
 
         oauthAuthorizeStateRedisRepository.save(stateEntity)
 
+        val location =
+            UriComponentsBuilder
+                .fromHttpUrl(oauthEnvironment.frontendUrl)
+                .path("/oauth/authorize")
+                .queryParam("token", token)
+                .build()
+                .toUri()
+
         return ResponseEntity
             .status(HttpStatus.FOUND)
-            .location(URI.create("${oauthEnvironment.frontendUrl}/oauth/authorize?token=$token"))
+            .location(location)
             .build()
     }
 }
