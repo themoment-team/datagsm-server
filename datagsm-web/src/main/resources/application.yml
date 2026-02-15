@@ -59,13 +59,11 @@ sdk:
     not-logging-urls:
       - "/v3/api-docs/**"
       - "/swagger-ui/**"
-      - "/actuator/**"
   response:
     enabled: true
     not-wrapping-urls:
       - "/v3/api-docs/**"
       - "/swagger-ui/**"
-      - "/actuator/**"
       - "/v1/students/exports/excel"
       - "/v1/clubs/exports/excel"
   swagger:
