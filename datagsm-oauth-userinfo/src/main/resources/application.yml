@@ -18,7 +18,7 @@ spring:
       database: 0
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: true
     open-in-view: false
     properties:
@@ -53,8 +53,8 @@ sdk:
       - "/swagger-ui/**"
   swagger:
     enabled: true
-    title: "DataGSM OAuth UserInfo Server API"
-    description: "OAuth 2.0 UserInfo Endpoint"
+    title: "DataGSM OAuth Userinfo Server API"
+    description: "OAuth 2.0 Userinfo Server"
     version: "v1"
     group: "oauth-userinfo-api"
     paths-to-match:
