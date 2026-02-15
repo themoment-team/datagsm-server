@@ -29,18 +29,6 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
     open-in-view: false
-  mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
-    from-address: ${MAIL_FROM_ADDRESS:noreply@datagsm.kr}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
   cloud:
     discord:
       webhook:
