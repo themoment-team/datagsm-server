@@ -11,7 +11,6 @@ import team.themoment.datagsm.common.domain.account.entity.PasswordResetCodeRedi
 import team.themoment.datagsm.common.domain.account.repository.EmailCodeRedisRepository
 import team.themoment.datagsm.common.domain.account.repository.PasswordResetCodeRedisRepository
 import team.themoment.sdk.exception.ExpectedException
-import java.util.Optional
 
 class EmailCodeValidatorTest :
     BehaviorSpec({
@@ -77,7 +76,7 @@ class EmailCodeValidatorTest :
                 val email = "test@gsm.hs.kr"
                 val code = "12345678"
 
-                every { passwordResetCodeRedisRepository.findById(email) } returns Optional.empty()
+                every { passwordResetCodeRedisRepository.findByIdOrNull(email) } returns null
 
                 When("validatePasswordResetCode를 호출하면") {
                     Then("404 Not Found 예외가 발생한다") {
@@ -100,7 +99,7 @@ class EmailCodeValidatorTest :
                 val code = "12345678"
                 val storedEntity = PasswordResetCodeRedisEntity(email = email, code = "87654321", ttl = 300)
 
-                every { passwordResetCodeRedisRepository.findById(email) } returns Optional.of(storedEntity)
+                every { passwordResetCodeRedisRepository.findByIdOrNull(email) } returns storedEntity
 
                 When("validatePasswordResetCode를 호출하면") {
                     Then("400 Bad Request 예외가 발생한다") {
@@ -123,7 +122,7 @@ class EmailCodeValidatorTest :
                 val code = "12345678"
                 val storedEntity = PasswordResetCodeRedisEntity(email = email, code = code, ttl = 300)
 
-                every { passwordResetCodeRedisRepository.findById(email) } returns Optional.of(storedEntity)
+                every { passwordResetCodeRedisRepository.findByIdOrNull(email) } returns storedEntity
 
                 When("validatePasswordResetCode를 호출하면") {
                     Then("예외가 발생하지 않는다") {
