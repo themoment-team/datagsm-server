@@ -13,57 +13,34 @@ import org.springframework.web.bind.annotation.ResponseBody
 import team.themoment.sdk.response.CommonApiResponse
 
 @Controller
-class CustomErrorController : ErrorController {
+class CustomErrorController(
+    private val errorMessageResolver: ErrorMessageResolver,
+) : ErrorController {
     @RequestMapping("/error", produces = [MediaType.TEXT_HTML_VALUE])
     fun handleErrorHtml(
         request: HttpServletRequest,
         model: Model,
-    ): String {
-        val status = getStatus(request)
-        val errorMessage = getErrorMessage(status)
-        val path = request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI) ?: "Unknown"
-
-        model.addAttribute("statusCode", status.value())
-        model.addAttribute("error", status.reasonPhrase)
-        model.addAttribute("message", errorMessage)
-        model.addAttribute("path", path)
-
-        return "error"
-    }
+    ): String =
+        ((request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE) as? Int)
+            ?.let { HttpStatus.resolve(it) } ?: HttpStatus.INTERNAL_SERVER_ERROR)
+            .let { status ->
+                model.apply {
+                    addAttribute("statusCode", status.value())
+                    addAttribute("error", status.reasonPhrase)
+                    addAttribute("message", errorMessageResolver.resolveMessage(status))
+                    addAttribute("path", request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI) ?: "Unknown")
+                }
+                "error"
+            }
 
     @RequestMapping("/error", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseBody
-    fun handleErrorJson(request: HttpServletRequest): ResponseEntity<CommonApiResponse<Nothing>> {
-        val status = getStatus(request)
-        val errorMessage = getErrorMessage(status)
-
-        return ResponseEntity
-            .status(status)
-            .body(CommonApiResponse.error(errorMessage, status))
-    }
-
-    private fun getStatus(request: HttpServletRequest): HttpStatus {
-        val statusCode = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE) as? Int
-        return try {
-            HttpStatus.valueOf(statusCode ?: 500)
-        } catch (ex: Exception) {
-            HttpStatus.INTERNAL_SERVER_ERROR
-        }
-    }
-
-    private fun getErrorMessage(status: HttpStatus): String =
-        when (status) {
-            HttpStatus.NOT_FOUND -> "요청하신 페이지를 찾을 수 없습니다"
-            HttpStatus.FORBIDDEN -> "접근 권한이 부족합니다"
-            HttpStatus.UNAUTHORIZED -> "인증이 필요합니다"
-            HttpStatus.BAD_REQUEST -> "잘못된 요청입니다"
-            HttpStatus.METHOD_NOT_ALLOWED -> "허용되지 않는 요청 방식입니다"
-            HttpStatus.UNSUPPORTED_MEDIA_TYPE -> "지원되지 않는 미디어 타입입니다"
-            HttpStatus.CONFLICT -> "요청이 현재 서버 상태와 충돌합니다"
-            HttpStatus.TOO_MANY_REQUESTS -> "너무 많은 요청을 보냈습니다. 잠시 후 다시 시도해주세요"
-            HttpStatus.INTERNAL_SERVER_ERROR -> "서버 내부 오류가 발생했습니다"
-            HttpStatus.SERVICE_UNAVAILABLE -> "서비스를 일시적으로 사용할 수 없습니다"
-            HttpStatus.GATEWAY_TIMEOUT -> "게이트웨이 시간 초과"
-            else -> "알 수 없는 오류가 발생했습니다"
-        }
+    fun handleErrorJson(request: HttpServletRequest): ResponseEntity<CommonApiResponse<Nothing>> =
+        ((request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE) as? Int)
+            ?.let { HttpStatus.resolve(it) } ?: HttpStatus.INTERNAL_SERVER_ERROR)
+            .let { status ->
+                ResponseEntity
+                    .status(status)
+                    .body(CommonApiResponse.error(errorMessageResolver.resolveMessage(status), status))
+            }
 }
