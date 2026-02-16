@@ -18,8 +18,9 @@ spring:
       database: 0
   jpa:
     hibernate:
-      ddl-auto: none
-    show-sql: false
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
     properties:
       hibernate:
         format_sql: true
@@ -36,15 +37,6 @@ spring:
       secret: ${JWT_SECRET_KEY}
       access-token-expiration: ${OAUTH_ACCESS_TOKEN_EXPIRATION:3600000}
       refresh-token-expiration: ${OAUTH_REFRESH_TOKEN_EXPIRATION:2592000000}
-    api-key:
-      expiration-days: 30
-      renewal-period-days: 15
-      admin-expiration-days: 365
-      rate-limit:
-        enabled: true
-        default-capacity: 100
-        default-refill-tokens: 100
-        default-refill-duration-seconds: 60
 server:
   port: 8083
   shutdown: graceful
@@ -61,8 +53,8 @@ sdk:
       - "/swagger-ui/**"
   swagger:
     enabled: true
-    title: "DataGSM OAuth UserInfo Server API"
-    description: "OAuth 2.0 UserInfo Endpoint"
+    title: "DataGSM OAuth Userinfo Server API"
+    description: "OAuth 2.0 Userinfo Server"
     version: "v1"
     group: "oauth-userinfo-api"
     paths-to-match:

@@ -2,6 +2,7 @@ package team.themoment.datagsm.common.domain.auth.repository.custom.impl
 
 import com.querydsl.jpa.impl.JPAQueryFactory
 import io.github.snowykte0426.querydsl.mysql.json.jpa.JPAJsonFunctions
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.support.PageableExecutionUtils
@@ -13,6 +14,7 @@ import team.themoment.datagsm.common.global.data.ApiKeyEnvironment
 import java.time.LocalDateTime
 
 @Repository
+@ConditionalOnBean(ApiKeyEnvironment::class)
 class ApiKeyJpaCustomRepositoryImpl(
     private val jpaQueryFactory: JPAQueryFactory,
     private val apiKeyEnvironment: ApiKeyEnvironment,
