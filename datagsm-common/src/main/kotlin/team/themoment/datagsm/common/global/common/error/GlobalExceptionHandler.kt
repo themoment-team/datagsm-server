@@ -52,7 +52,7 @@ class GlobalExceptionHandler(
     fun expectedException(ex: ExpectedException): ResponseEntity<CommonApiResponse<Nothing>> {
         logger().warn("ExpectedException : {} ", ex.message)
         logger().trace("ExpectedException Details : ", ex)
-        return createErrorResponse(ex.statusCode, ex.message ?: "An error occurred")
+        return createErrorResponse(ex.statusCode, ex.message ?: "오류가 발생했습니다")
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
@@ -77,14 +77,14 @@ class GlobalExceptionHandler(
     fun httpMessageNotReadableException(ex: HttpMessageNotReadableException): ResponseEntity<CommonApiResponse<Nothing>> {
         logger().warn("Invalid Request Body : {}", ex.message)
         logger().trace("Invalid Request Body Details : ", ex)
-        return createErrorResponse(HttpStatus.BAD_REQUEST, "Invalid request body format")
+        return createErrorResponse(HttpStatus.BAD_REQUEST, "요청 본문 형식이 올바르지 않습니다")
     }
 
     @ExceptionHandler(ConstraintViolationException::class)
     fun validationException(ex: ConstraintViolationException): ResponseEntity<CommonApiResponse<Nothing>> {
         logger().warn("field validation failed : {}", ex.message)
         logger().trace("field validation failed : ", ex)
-        return createErrorResponse(HttpStatus.BAD_REQUEST, "field validation failed : ${ex.message}")
+        return createErrorResponse(HttpStatus.BAD_REQUEST, "필드 유효성 검증에 실패했습니다: ${ex.message}")
     }
 
     @ExceptionHandler(AuthorizationDeniedException::class, AccessDeniedException::class)
@@ -98,7 +98,7 @@ class GlobalExceptionHandler(
     fun illegalStateException(ex: IllegalStateException): ResponseEntity<CommonApiResponse<Nothing>> {
         if (ex.message?.contains("creationTime key must not be null") == true) {
             logger().warn("Corrupted session detected, treating as invalid session: {}", ex.message)
-            return createErrorResponse(HttpStatus.UNAUTHORIZED, "Session is invalid or expired")
+            return createErrorResponse(HttpStatus.UNAUTHORIZED, "세션이 유효하지 않거나 만료되었습니다")
         }
         return unExpectedException(ex)
     }
@@ -118,14 +118,14 @@ class GlobalExceptionHandler(
                 ),
         )
 
-        return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "internal server error has occurred")
+        return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다")
     }
 
     @ExceptionHandler(NoHandlerFoundException::class)
     fun noHandlerFoundException(ex: NoHandlerFoundException): ResponseEntity<CommonApiResponse<Nothing>> {
         logger().warn("Not Found Endpoint : {}", ex.message)
         logger().trace("Not Found Endpoint Details : ", ex)
-        return createErrorResponse(HttpStatus.NOT_FOUND, ex.message ?: "Endpoint not found")
+        return createErrorResponse(HttpStatus.NOT_FOUND, "요청하신 엔드포인트를 찾을 수 없습니다")
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException::class)
@@ -134,7 +134,7 @@ class GlobalExceptionHandler(
         logger().trace("The file is too big Details : ", ex)
         return createErrorResponse(
             HttpStatus.BAD_REQUEST,
-            "The file is too big, limited file size : ${ex.maxUploadSize}",
+            "파일 크기가 너무 큽니다. 최대 파일 크기: ${ex.maxUploadSize}",
         )
     }
 
@@ -195,7 +195,7 @@ class GlobalExceptionHandler(
         return when {
             fieldErrors.isNotEmpty() -> fieldErrors
             globalErrors.isNotEmpty() -> globalErrors
-            else -> "Validation failed"
+            else -> "유효성 검증에 실패했습니다"
         }
     }
 }
