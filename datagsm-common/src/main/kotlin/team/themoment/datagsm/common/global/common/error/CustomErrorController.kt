@@ -14,7 +14,6 @@ import team.themoment.sdk.response.CommonApiResponse
 
 @Controller
 class CustomErrorController : ErrorController {
-
     @RequestMapping("/error", produces = [MediaType.TEXT_HTML_VALUE])
     fun handleErrorHtml(
         request: HttpServletRequest,
