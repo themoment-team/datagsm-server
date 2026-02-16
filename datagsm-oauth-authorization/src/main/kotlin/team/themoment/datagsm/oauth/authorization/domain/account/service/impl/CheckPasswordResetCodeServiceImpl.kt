@@ -14,13 +14,13 @@ class CheckPasswordResetCodeServiceImpl(
 ) : CheckPasswordResetCodeService {
     @PasswordResetRateLimited(type = PasswordResetRateLimitType.CHECK_CODE)
     override fun execute(reqDto: VerifyPasswordResetCodeReqDto) {
-        EmailCodeValidator.validatePasswordResetCode(
-            reqDto.email,
-            reqDto.code,
-            passwordResetCodeRedisRepository,
-        )
+        val passwordResetCode =
+            EmailCodeValidator.validatePasswordResetCode(
+                reqDto.email,
+                reqDto.code,
+                passwordResetCodeRedisRepository,
+            )
 
-        val passwordResetCode = passwordResetCodeRedisRepository.findById(reqDto.email).get()
         val updatedCode = passwordResetCode.copy(verified = true)
         passwordResetCodeRedisRepository.save(updatedCode)
     }
