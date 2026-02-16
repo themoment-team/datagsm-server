@@ -53,6 +53,13 @@ spring:
 server:
   port: 8080
   shutdown: graceful
+  error:
+    whitelabel:
+      enabled: false
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: never
+    include-exception: false
 sdk:
   logging:
     enabled: true
