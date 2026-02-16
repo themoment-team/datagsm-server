@@ -9,15 +9,16 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.common.domain.account.dto.request.CreateAccountReqDto
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.EmailCodeRedisEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.account.repository.EmailCodeRedisRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.oauth.authorization.domain.account.service.CheckSignupEmailService
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 
@@ -25,7 +26,6 @@ class CreateAccountServiceImplTest :
     BehaviorSpec({
         val accountJpaRepository = mockk<AccountJpaRepository>()
         val studentJpaRepository = mockk<StudentJpaRepository>()
-        val checkSignupEmailService = mockk<CheckSignupEmailService>(relaxed = true)
         val emailCodeRedisRepository = mockk<EmailCodeRedisRepository>(relaxed = true)
         val passwordEncoder = mockk<PasswordEncoder>()
 
@@ -33,7 +33,6 @@ class CreateAccountServiceImplTest :
             CreateAccountServiceImpl(
                 accountJpaRepository,
                 studentJpaRepository,
-                checkSignupEmailService,
                 emailCodeRedisRepository,
                 passwordEncoder,
             )
@@ -60,12 +59,15 @@ class CreateAccountServiceImplTest :
         Given("새로운 이메일로 Student가 없을 때") {
             val email = "new@gsm.hs.kr"
             val password = "password123"
+            val code = "12345678"
             val encodedPassword = "encodedPassword"
-            val reqDto = CreateAccountReqDto(email = email, password = password, code = "12345678")
+            val reqDto = CreateAccountReqDto(email = email, password = password, code = code)
+            val emailCodeEntity = EmailCodeRedisEntity(email = email, code = code, ttl = 300)
             val accountSlot = slot<AccountJpaEntity>()
             val savedAccount = mockk<AccountJpaEntity>()
 
             every { accountJpaRepository.findByEmail(email) } returns Optional.empty()
+            every { emailCodeRedisRepository.findByIdOrNull(email) } returns emailCodeEntity
             every { studentJpaRepository.findByEmail(email) } returns Optional.empty()
             every { passwordEncoder.encode(password) } returns encodedPassword
             every { accountJpaRepository.save(capture(accountSlot)) } returns savedAccount
@@ -74,7 +76,7 @@ class CreateAccountServiceImplTest :
                 service.execute(reqDto)
 
                 Then("인증 코드가 검증되고 계정이 생성된다") {
-                    verify(exactly = 1) { checkSignupEmailService.execute(any()) }
+                    verify(exactly = 1) { emailCodeRedisRepository.findByIdOrNull(email) }
                     verify(exactly = 1) { emailCodeRedisRepository.deleteById(email) }
                     verify(exactly = 1) { accountJpaRepository.save(any()) }
 
@@ -90,13 +92,16 @@ class CreateAccountServiceImplTest :
         Given("새로운 이메일로 Student가 있을 때") {
             val email = "student@gsm.hs.kr"
             val password = "password123"
+            val code = "12345678"
             val encodedPassword = "encodedPassword"
-            val reqDto = CreateAccountReqDto(email = email, password = password, code = "12345678")
+            val reqDto = CreateAccountReqDto(email = email, password = password, code = code)
+            val emailCodeEntity = EmailCodeRedisEntity(email = email, code = code, ttl = 300)
             val student = mockk<StudentJpaEntity>()
             val accountSlot = slot<AccountJpaEntity>()
             val savedAccount = mockk<AccountJpaEntity>()
 
             every { accountJpaRepository.findByEmail(email) } returns Optional.empty()
+            every { emailCodeRedisRepository.findByIdOrNull(email) } returns emailCodeEntity
             every { studentJpaRepository.findByEmail(email) } returns Optional.of(student)
             every { passwordEncoder.encode(password) } returns encodedPassword
             every { accountJpaRepository.save(capture(accountSlot)) } returns savedAccount
