@@ -21,26 +21,28 @@ class CustomErrorController(
         request: HttpServletRequest,
         model: Model,
     ): String =
-        ((request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE) as? Int)
-            ?.let { HttpStatus.resolve(it) } ?: HttpStatus.INTERNAL_SERVER_ERROR)
-            .let { status ->
-                model.apply {
-                    addAttribute("statusCode", status.value())
-                    addAttribute("error", status.reasonPhrase)
-                    addAttribute("message", errorMessageResolver.resolveMessage(status))
-                    addAttribute("path", request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI) ?: "Unknown")
-                }
-                "error"
+        (
+            (request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE) as? Int)
+                ?.let { HttpStatus.resolve(it) } ?: HttpStatus.INTERNAL_SERVER_ERROR
+        ).let { status ->
+            model.apply {
+                addAttribute("statusCode", status.value())
+                addAttribute("error", status.reasonPhrase)
+                addAttribute("message", errorMessageResolver.resolveMessage(status))
+                addAttribute("path", request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI) ?: "Unknown")
             }
+            "error"
+        }
 
     @RequestMapping("/error", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseBody
     fun handleErrorJson(request: HttpServletRequest): ResponseEntity<CommonApiResponse<Nothing>> =
-        ((request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE) as? Int)
-            ?.let { HttpStatus.resolve(it) } ?: HttpStatus.INTERNAL_SERVER_ERROR)
-            .let { status ->
-                ResponseEntity
-                    .status(status)
-                    .body(CommonApiResponse.error(errorMessageResolver.resolveMessage(status), status))
-            }
+        (
+            (request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE) as? Int)
+                ?.let { HttpStatus.resolve(it) } ?: HttpStatus.INTERNAL_SERVER_ERROR
+        ).let { status ->
+            ResponseEntity
+                .status(status)
+                .body(CommonApiResponse.error(errorMessageResolver.resolveMessage(status), status))
+        }
 }
