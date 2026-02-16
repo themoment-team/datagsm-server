@@ -21,6 +21,7 @@ object Dependencies {
     const val SPRING_VALIDATION = "org.springframework.boot:spring-boot-starter-validation"
     const val SPRING_AOP = "org.springframework.boot:spring-boot-starter-aop:${DependencyVersions.SPRING_AOP_VERSION}"
     const val SPRINT_MAIL = "org.springframework.boot:spring-boot-starter-mail"
+    const val SPRING_THYMELEAF = "org.springframework.boot:spring-boot-starter-thymeleaf"
 
     // Spring Data
     const val SPRING_DATA_JPA = "org.springframework.boot:spring-boot-starter-data-jpa"
