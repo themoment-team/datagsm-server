@@ -65,6 +65,54 @@ data class UserResDto(
 
 See CONTRIBUTING.md for detailed explanation.
 
+### Query Parameter Binding (@RequestParam vs @ModelAttribute)
+
+Choose the appropriate method based on parameter count and validation needs:
+
+**Guidelines:**
+- **1-2 simple parameters**: Use `@RequestParam`
+- **3+ parameters or validation required**: Use `@ModelAttribute` + DTO
+
+**Examples:**
+
+```kotlin
+// Good: Single parameter → @RequestParam
+@GetMapping("/scopes/{scopeName}")
+fun getApiScope(@PathVariable scopeName: String): ApiScopeResDto
+
+// Good: 2 parameters → @RequestParam
+@GetMapping("/available-scopes")
+fun getApiScopes(
+    @RequestParam role: AccountRole,
+    @RequestParam(required = false) includeDeprecated: Boolean = false
+): ApiScopeGroupListResDto
+
+// Good: 3+ parameters → @ModelAttribute + DTO
+@GetMapping("/students")
+fun getStudentInfo(
+    @Valid @ModelAttribute queryReq: QueryStudentReqDto
+): StudentListResDto
+
+// Query DTO
+data class QueryStudentReqDto(
+    @field:Positive
+    @param:Schema(description = "Student ID")
+    val studentId: Long? = null,
+
+    @field:Min(1) @field:Max(3)
+    @param:Schema(description = "Grade (1-3)")
+    val grade: Int? = null,
+
+    @field:Min(0)
+    @param:Schema(description = "Page number", defaultValue = "0")
+    val page: Int = 0,
+
+    @field:Min(1) @field:Max(1000)
+    @param:Schema(description = "Page size", defaultValue = "300")
+    val size: Int = 300
+)
+```
+
 ## Key Practices
 
 - Security: No hardcoded secrets, use SLF4J Logger (with Logback, not println()), validate JWT/API keys properly
@@ -76,15 +124,15 @@ See CONTRIBUTING.md for detailed explanation.
 ## Common Mistakes (Avoid These!)
 
 ### DTO Annotations
-- ❌ WRONG: `@param:JsonProperty` → ✅ CORRECT: `@field:JsonProperty`
-- ❌ WRONG: Response DTO with `@param:Schema` → ✅ CORRECT: `@field:Schema`
+- WRONG: `@param:JsonProperty` → CORRECT: `@field:JsonProperty`
+- WRONG: Response DTO with `@param:Schema` → CORRECT: `@field:Schema`
 
 ### Commit Scope
-- ❌ WRONG: `fix(web):` (module name) → ✅ CORRECT: `fix(auth):` (domain name)
+- WRONG: `fix(web):` (module name) → CORRECT: `fix(auth):` (domain name)
 - Domain names first: auth, student, club, neis, oauth
 - Module names only for cross-cutting: global, ci/cd
 
 ### Kotlin Style
-- ❌ WRONG: Overusing `var` → ✅ CORRECT: Prefer `val`
-- ❌ WRONG: Field injection → ✅ CORRECT: Constructor injection
-- ❌ WRONG: Excessive comments → ✅ CORRECT: Comment only non-obvious logic
+- WRONG: Overusing `var` → CORRECT: Prefer `val`
+- WRONG: Field injection → CORRECT: Constructor injection
+- WRONG: Excessive comments → CORRECT: Comment only non-obvious logic

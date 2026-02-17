@@ -520,6 +520,83 @@ data class Oauth2TokenResDto(
 )
 ```
 
+### Query Parameter 바인딩 (@RequestParam vs @ModelAttribute)
+
+Query String 파라미터를 받을 때 개수와 검증 필요 여부에 따라 다른 방식을 사용합니다.
+
+#### 사용 기준
+
+| 조건                  | 방식                      | 이유                               |
+|---------------------|-------------------------|----------------------------------|
+| **1~2개 이하 단순 파라미터** | `@RequestParam`         | 간결하고 직관적                         |
+| **3개 이상 파라미터**      | `@ModelAttribute` + DTO | 가독성 향상, 유지보수 편의                  |
+| **검증이 필요한 경우**      | `@ModelAttribute` + DTO | `@Valid` + Bean Validation 적용 가능 |
+
+#### @RequestParam 예시 (1~2개 파라미터)
+
+```kotlin
+// ✅ 좋은 예시: 단일 파라미터
+@GetMapping("/scopes/{scopeName}")
+fun getApiScope(
+    @PathVariable scopeName: String
+): ApiScopeResDto = queryService.execute(scopeName)
+
+// ✅ 좋은 예시: 2개 파라미터
+@GetMapping("/available-scopes")
+fun getApiScopes(
+    @RequestParam role: AccountRole,
+    @RequestParam(required = false, defaultValue = "false") includeDeprecated: Boolean
+): ApiScopeGroupListResDto = queryService.execute(role, includeDeprecated)
+```
+
+#### @ModelAttribute 예시 (3개 이상 또는 검증 필요)
+
+```kotlin
+// ✅ 좋은 예시: 3개 이상 파라미터 → @ModelAttribute + DTO
+@GetMapping("/students")
+fun getStudentInfo(
+    @Valid @ModelAttribute queryReq: QueryStudentReqDto
+): StudentListResDto = queryStudentService.execute(queryReq)
+
+// Query DTO 정의
+data class QueryStudentReqDto(
+    @field:Positive
+    @param:Schema(description = "학생 ID")
+    val studentId: Long? = null,
+
+    @field:Min(1)
+    @field:Max(3)
+    @param:Schema(description = "학년 (1-3)", minimum = "1", maximum = "3")
+    val grade: Int? = null,
+
+    @field:Min(1)
+    @field:Max(4)
+    @param:Schema(description = "반 (1-4)", minimum = "1", maximum = "4")
+    val classNum: Int? = null,
+
+    @field:Min(0)
+    @param:Schema(description = "페이지 번호", defaultValue = "0", minimum = "0")
+    val page: Int = 0,
+
+    @field:Min(1)
+    @field:Max(1000)
+    @param:Schema(description = "페이지 크기", defaultValue = "300", minimum = "1", maximum = "1000")
+    val size: Int = 300,
+
+    @param:Schema(description = "정렬 기준")
+    val sortBy: StudentSortBy? = null,
+
+    @param:Schema(description = "정렬 방향", defaultValue = "ASC")
+    val sortDirection: SortDirection = SortDirection.ASC
+)
+```
+
+#### 주의사항
+
+- **@RequestParam과 동일한 동작**: Query String 파라미터 이름과 DTO 필드명이 일치해야 함
+- **기본값 설정**: Nullable 필드는 `null` 기본값, Required 필드는 명시적 기본값 설정
+- **Swagger 문서화**: `@param:Schema`로 각 파라미터 설명 추가
+
 ### 생성자 주입
 
 **생성자 주입**을 필수로 사용합니다 (Field 주입 금지):
