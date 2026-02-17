@@ -6,12 +6,12 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.springframework.data.repository.findByIdOrNull
 import team.themoment.datagsm.common.domain.account.dto.request.VerifyPasswordResetCodeReqDto
 import team.themoment.datagsm.common.domain.account.entity.PasswordResetCodeRedisEntity
 import team.themoment.datagsm.common.domain.account.repository.PasswordResetCodeRedisRepository
 import team.themoment.datagsm.oauth.authorization.domain.account.service.impl.CheckPasswordResetCodeServiceImpl
 import team.themoment.sdk.exception.ExpectedException
-import java.util.Optional
 
 class CheckPasswordResetCodeServiceImplTest :
     BehaviorSpec({
@@ -24,7 +24,7 @@ class CheckPasswordResetCodeServiceImplTest :
             val code = "12345678"
             val reqDto = VerifyPasswordResetCodeReqDto(email = email, code = code)
 
-            every { passwordResetCodeRedisRepository.findById(email) } returns Optional.empty()
+            every { passwordResetCodeRedisRepository.findByIdOrNull(email) } returns null
 
             When("코드 검증을 요청하면") {
                 val exception =
@@ -33,7 +33,7 @@ class CheckPasswordResetCodeServiceImplTest :
                     }
 
                 Then("404 Not Found 예외가 발생한다") {
-                    exception.message shouldBe "인증 코드가 존재하지 않습니다."
+                    exception.message shouldBe "해당 이메일에 인증 코드가 존재하지 않습니다."
                 }
             }
         }
@@ -51,7 +51,7 @@ class CheckPasswordResetCodeServiceImplTest :
                     ttl = 300,
                 )
 
-            every { passwordResetCodeRedisRepository.findById(email) } returns Optional.of(redisEntity)
+            every { passwordResetCodeRedisRepository.findByIdOrNull(email) } returns redisEntity
             every { passwordResetCodeRedisRepository.save(any()) } answers { firstArg() }
 
             When("코드 검증을 요청하면") {
@@ -78,7 +78,7 @@ class CheckPasswordResetCodeServiceImplTest :
                     ttl = 300,
                 )
 
-            every { passwordResetCodeRedisRepository.findById(email) } returns Optional.of(redisEntity)
+            every { passwordResetCodeRedisRepository.findByIdOrNull(email) } returns redisEntity
             every { passwordResetCodeRedisRepository.save(any()) } answers { firstArg() }
 
             When("코드 검증을 요청하면") {

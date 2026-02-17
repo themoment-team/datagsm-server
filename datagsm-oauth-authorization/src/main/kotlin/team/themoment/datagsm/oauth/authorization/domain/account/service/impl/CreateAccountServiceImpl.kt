@@ -5,14 +5,13 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.account.dto.request.CreateAccountReqDto
-import team.themoment.datagsm.common.domain.account.dto.request.EmailCodeReqDto
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.account.repository.EmailCodeRedisRepository
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.oauth.authorization.domain.account.service.CheckSignupEmailService
 import team.themoment.datagsm.oauth.authorization.domain.account.service.CreateAccountService
+import team.themoment.datagsm.oauth.authorization.global.util.EmailCodeValidator
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
@@ -20,7 +19,6 @@ import team.themoment.sdk.exception.ExpectedException
 class CreateAccountServiceImpl(
     private val accountJpaRepository: AccountJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
-    private val checkSignupEmailService: CheckSignupEmailService,
     private val emailCodeRedisRepository: EmailCodeRedisRepository,
     private val passwordEncoder: PasswordEncoder,
 ) : CreateAccountService {
@@ -43,7 +41,7 @@ class CreateAccountServiceImpl(
         email: String,
         code: String,
     ) {
-        checkSignupEmailService.execute(EmailCodeReqDto(email, code))
+        EmailCodeValidator.validateSignupCode(email, code, emailCodeRedisRepository)
         emailCodeRedisRepository.deleteById(email)
     }
 }
