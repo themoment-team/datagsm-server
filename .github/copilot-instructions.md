@@ -84,7 +84,7 @@ fun getApiScope(@PathVariable scopeName: String): ApiScopeResDto
 @GetMapping("/available-scopes")
 fun getApiScopes(
     @RequestParam role: AccountRole,
-    @RequestParam(required = false) includeDeprecated: Boolean = false
+    @RequestParam(required = false, defaultValue = "false") includeDeprecated: Boolean
 ): ApiScopeGroupListResDto
 
 // Good: 3+ parameters → @ModelAttribute + DTO
