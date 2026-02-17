@@ -14,6 +14,9 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfigurationSource
+import team.themoment.datagsm.common.global.data.HealthCheckEnvironment
+import team.themoment.datagsm.common.global.filter.ResponseTimeMetricFilter
+import team.themoment.datagsm.common.global.metrics.ResponseTimeMetricsCollector
 import team.themoment.datagsm.oauth.authorization.global.security.handler.CustomAuthenticationEntryPoint
 import team.themoment.datagsm.oauth.authorization.global.security.jwt.JwtProvider
 import team.themoment.datagsm.oauth.authorization.global.security.jwt.filter.JwtAuthenticationFilter
@@ -27,6 +30,8 @@ class SecurityConfig(
     private val jwtProvider: JwtProvider,
     private val customAuthenticationEntryPoint: CustomAuthenticationEntryPoint,
     private val objectMapper: ObjectMapper,
+    private val metricsCollector: ResponseTimeMetricsCollector,
+    private val healthCheckEnvironment: HealthCheckEnvironment,
 ) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -39,6 +44,9 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) }
             .exceptionHandling { it.authenticationEntryPoint(customAuthenticationEntryPoint) }
             .addFilterBefore(
+                ResponseTimeMetricFilter(metricsCollector, healthCheckEnvironment),
+                UsernamePasswordAuthenticationFilter::class.java,
+            ).addFilterBefore(
                 JwtAuthenticationFilter(jwtProvider, objectMapper),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).authorizeHttpRequests {

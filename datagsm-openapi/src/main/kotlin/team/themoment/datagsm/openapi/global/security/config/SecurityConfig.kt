@@ -16,6 +16,9 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfigurationSource
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
+import team.themoment.datagsm.common.global.data.HealthCheckEnvironment
+import team.themoment.datagsm.common.global.filter.ResponseTimeMetricFilter
+import team.themoment.datagsm.common.global.metrics.ResponseTimeMetricsCollector
 import team.themoment.datagsm.openapi.global.security.filter.ApiKeyAuthenticationFilter
 import team.themoment.datagsm.openapi.global.security.filter.RateLimitFilter
 import team.themoment.datagsm.openapi.global.security.handler.CustomAuthenticationEntryPoint
@@ -33,6 +36,8 @@ class SecurityConfig(
     private val rateLimitService: RateLimitService,
     private val objectMapper: ObjectMapper,
     private val currentUserProvider: CurrentUserProvider,
+    private val metricsCollector: ResponseTimeMetricsCollector,
+    private val healthCheckEnvironment: HealthCheckEnvironment,
 ) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -45,6 +50,9 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .exceptionHandling { it.authenticationEntryPoint(customAuthenticationEntryPoint) }
             .addFilterBefore(
+                ResponseTimeMetricFilter(metricsCollector, healthCheckEnvironment),
+                UsernamePasswordAuthenticationFilter::class.java,
+            ).addFilterBefore(
                 ApiKeyAuthenticationFilter(apiKeyJpaRepository, objectMapper),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).addFilterBefore(
