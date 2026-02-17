@@ -9,20 +9,18 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.auth.entity.constant.ApiKeyScope
 import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
+import team.themoment.datagsm.common.domain.club.dto.request.QueryClubReqDto
 import team.themoment.datagsm.common.domain.club.dto.response.ClubListResDto
 import team.themoment.datagsm.common.domain.club.dto.response.ClubResDto
-import team.themoment.datagsm.common.domain.club.entity.constant.ClubSortBy
-import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
-import team.themoment.datagsm.common.global.constant.SortDirection
 import team.themoment.datagsm.openapi.domain.club.service.CreateClubService
 import team.themoment.datagsm.openapi.domain.club.service.DeleteClubService
 import team.themoment.datagsm.openapi.domain.club.service.ModifyClubService
@@ -42,21 +40,14 @@ class ClubController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
         ],
     )
     @RequireScope(ApiKeyScope.CLUB_READ)
     @GetMapping
     fun getClubInfo(
-        @Parameter(description = "동아리 ID") @RequestParam(required = false) clubId: Long?,
-        @Parameter(description = "동아리 이름") @RequestParam(required = false) clubName: String?,
-        @Parameter(description = "동아리 종류") @RequestParam(required = false) clubType: ClubType?,
-        @Parameter(description = "페이지 번호") @RequestParam(required = false, defaultValue = "0") page: Int,
-        @Parameter(description = "페이지 크기") @RequestParam(required = false, defaultValue = "100") size: Int,
-        @Parameter(description = "부장을 부원 목록에 포함할지 여부") @RequestParam(required = false, defaultValue = "false") includeLeaderInParticipants:
-            Boolean,
-        @Parameter(description = "정렬 기준 (ID, NAME, TYPE)") @RequestParam(required = false) sortBy: ClubSortBy?,
-        @Parameter(description = "정렬 방향 (ASC, DESC)") @RequestParam(required = false, defaultValue = "ASC") sortDirection: SortDirection,
-    ): ClubListResDto = queryClubService.execute(clubId, clubName, clubType, page, size, includeLeaderInParticipants, sortBy, sortDirection)
+        @Valid @ModelAttribute queryReq: QueryClubReqDto,
+    ): ClubListResDto = queryClubService.execute(queryReq)
 
     @Operation(summary = "동아리 생성", description = "새로운 동아리를 생성합니다.")
     @ApiResponses(
