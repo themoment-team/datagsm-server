@@ -10,6 +10,7 @@ import io.mockk.verify
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.common.domain.auth.dto.request.SearchApiKeyReqDto
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.web.domain.auth.service.impl.SearchApiKeyServiceImpl
@@ -91,16 +92,12 @@ class SearchApiKeyServiceTest :
                     }
 
                     it("모든 API 키 목록을 마스킹하여 반환해야 한다") {
-                        val result =
-                            searchApiKeyService.execute(
-                                id = null,
-                                accountId = null,
-                                scope = null,
-                                isExpired = null,
-                                isRenewable = null,
+                        val searchReq =
+                            SearchApiKeyReqDto(
                                 page = 0,
                                 size = 100,
                             )
+                        val result = searchApiKeyService.execute(searchReq)
 
                         result.totalPages shouldBe 1
                         result.totalElements shouldBe 2
@@ -146,16 +143,13 @@ class SearchApiKeyServiceTest :
                     }
 
                     it("해당 계정의 API 키만 마스킹하여 반환해야 한다") {
-                        val result =
-                            searchApiKeyService.execute(
-                                id = null,
+                        val searchReq =
+                            SearchApiKeyReqDto(
                                 accountId = 1L,
-                                scope = null,
-                                isExpired = null,
-                                isRenewable = null,
                                 page = 0,
                                 size = 100,
                             )
+                        val result = searchApiKeyService.execute(searchReq)
 
                         result.totalPages shouldBe 1
                         result.totalElements shouldBe 1
@@ -194,16 +188,13 @@ class SearchApiKeyServiceTest :
                     }
 
                     it("해당 scope를 가진 API 키만 마스킹하여 반환해야 한다") {
-                        val result =
-                            searchApiKeyService.execute(
-                                id = null,
-                                accountId = null,
+                        val searchReq =
+                            SearchApiKeyReqDto(
                                 scope = "club:write",
-                                isExpired = null,
-                                isRenewable = null,
                                 page = 0,
                                 size = 100,
                             )
+                        val result = searchApiKeyService.execute(searchReq)
 
                         result.totalPages shouldBe 1
                         result.totalElements shouldBe 1
@@ -243,16 +234,13 @@ class SearchApiKeyServiceTest :
                     }
 
                     it("만료된 API 키만 마스킹하여 반환해야 한다") {
-                        val result =
-                            searchApiKeyService.execute(
-                                id = null,
-                                accountId = null,
-                                scope = null,
+                        val searchReq =
+                            SearchApiKeyReqDto(
                                 isExpired = true,
-                                isRenewable = null,
                                 page = 0,
                                 size = 100,
                             )
+                        val result = searchApiKeyService.execute(searchReq)
 
                         result.totalPages shouldBe 1
                         result.totalElements shouldBe 1
@@ -291,16 +279,13 @@ class SearchApiKeyServiceTest :
                     }
 
                     it("빈 목록을 반환해야 한다") {
-                        val result =
-                            searchApiKeyService.execute(
+                        val searchReq =
+                            SearchApiKeyReqDto(
                                 id = 999L,
-                                accountId = null,
-                                scope = null,
-                                isExpired = null,
-                                isRenewable = null,
                                 page = 0,
                                 size = 100,
                             )
+                        val result = searchApiKeyService.execute(searchReq)
 
                         result.totalPages shouldBe 0
                         result.totalElements shouldBe 0

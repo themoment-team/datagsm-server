@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
+import team.themoment.datagsm.common.domain.project.dto.request.QueryProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.web.domain.project.service.impl.QueryProjectServiceImpl
@@ -58,14 +59,13 @@ class QueryProjectServiceTest :
                     }
 
                     it("해당 프로젝트 정보가 반환되어야 한다") {
-                        val result =
-                            queryProjectService.execute(
+                        val queryReq =
+                            QueryProjectReqDto(
                                 projectId = 1L,
-                                projectName = null,
-                                clubId = null,
                                 page = 0,
                                 size = 20,
                             )
+                        val result = queryProjectService.execute(queryReq)
 
                         result.totalElements shouldBe 1L
                         result.totalPages shouldBe 1
@@ -108,14 +108,13 @@ class QueryProjectServiceTest :
                     }
 
                     it("이름에 해당하는 프로젝트가 반환되어야 한다") {
-                        val result =
-                            queryProjectService.execute(
-                                projectId = null,
+                        val queryReq =
+                            QueryProjectReqDto(
                                 projectName = "DataGSM",
-                                clubId = null,
                                 page = 0,
                                 size = 20,
                             )
+                        val result = queryProjectService.execute(queryReq)
 
                         result.totalElements shouldBe 1L
                         result.projects[0].name shouldBe "DataGSM 프로젝트"
@@ -137,14 +136,13 @@ class QueryProjectServiceTest :
                     }
 
                     it("해당 동아리의 프로젝트가 반환되어야 한다") {
-                        val result =
-                            queryProjectService.execute(
-                                projectId = null,
-                                projectName = null,
+                        val queryReq =
+                            QueryProjectReqDto(
                                 clubId = 1L,
                                 page = 0,
                                 size = 20,
                             )
+                        val result = queryProjectService.execute(queryReq)
 
                         result.totalElements shouldBe 1L
                         result.projects[0].club?.id shouldBe 1L
@@ -167,14 +165,14 @@ class QueryProjectServiceTest :
                     }
 
                     it("조건에 맞는 프로젝트 목록이 반환되어야 한다") {
-                        val result =
-                            queryProjectService.execute(
-                                projectId = null,
+                        val queryReq =
+                            QueryProjectReqDto(
                                 projectName = "DataGSM",
                                 clubId = 1L,
                                 page = 0,
                                 size = 20,
                             )
+                        val result = queryProjectService.execute(queryReq)
 
                         result.totalElements shouldBe 1L
                         result.projects[0].name shouldBe "DataGSM 프로젝트"
@@ -197,14 +195,13 @@ class QueryProjectServiceTest :
                     }
 
                     it("빈 결과가 반환되어야 한다") {
-                        val result =
-                            queryProjectService.execute(
+                        val queryReq =
+                            QueryProjectReqDto(
                                 projectId = 999L,
-                                projectName = null,
-                                clubId = null,
                                 page = 0,
                                 size = 20,
                             )
+                        val result = queryProjectService.execute(queryReq)
 
                         result.totalElements shouldBe 0L
                         result.totalPages shouldBe 0
@@ -242,14 +239,12 @@ class QueryProjectServiceTest :
                     }
 
                     it("페이징된 프로젝트 목록이 반환되어야 한다") {
-                        val result =
-                            queryProjectService.execute(
-                                projectId = null,
-                                projectName = null,
-                                clubId = null,
+                        val queryReq =
+                            QueryProjectReqDto(
                                 page = 0,
                                 size = 10,
                             )
+                        val result = queryProjectService.execute(queryReq)
 
                         result.totalElements shouldBe 2L
                         result.totalPages shouldBe 1
@@ -300,14 +295,13 @@ class QueryProjectServiceTest :
                     }
 
                     it("취업동아리의 프로젝트가 정상적으로 조회되어야 한다") {
-                        val result =
-                            queryProjectService.execute(
-                                projectId = null,
-                                projectName = null,
+                        val queryReq =
+                            QueryProjectReqDto(
                                 clubId = 3L,
                                 page = 0,
                                 size = 20,
                             )
+                        val result = queryProjectService.execute(queryReq)
 
                         result.totalElements shouldBe 1L
                         result.projects[0].club?.type shouldBe ClubType.JOB_CLUB
