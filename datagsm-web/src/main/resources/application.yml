@@ -50,6 +50,21 @@ spring:
         default-capacity: 100
         default-refill-tokens: 100
         default-refill-duration-seconds: 60
+  health-check:
+    metrics:
+      enabled: false
+      sample-size: 1000
+    thresholds:
+      warn-p95-ms: 500
+      critical-p95-ms: 1000
+      warn-avg-ms: 300
+      critical-avg-ms: 800
+      error-rate-warn: 0.05
+      error-rate-critical: 0.10
+    excluded-paths:
+      - "/v1/health"
+      - "/v3/api-docs/**"
+      - "/swagger-ui/**"
   web:
     error:
       whitelabel:
@@ -65,6 +80,7 @@ sdk:
   logging:
     enabled: true
     not-logging-urls:
+      - "/v1/health"
       - "/v3/api-docs/**"
       - "/swagger-ui/**"
   response:
