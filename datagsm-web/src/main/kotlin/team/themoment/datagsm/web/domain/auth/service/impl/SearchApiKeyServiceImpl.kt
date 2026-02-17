@@ -3,6 +3,7 @@ package team.themoment.datagsm.web.domain.auth.service.impl
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.auth.dto.request.SearchApiKeyReqDto
 import team.themoment.datagsm.common.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.common.domain.auth.dto.response.ApiKeySearchResDto
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
@@ -13,23 +14,15 @@ class SearchApiKeyServiceImpl(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
 ) : SearchApiKeyService {
     @Transactional(readOnly = true)
-    override fun execute(
-        id: Long?,
-        accountId: Long?,
-        scope: String?,
-        isExpired: Boolean?,
-        isRenewable: Boolean?,
-        page: Int,
-        size: Int,
-    ): ApiKeySearchResDto {
+    override fun execute(searchReq: SearchApiKeyReqDto): ApiKeySearchResDto {
         val apiKeyPage =
             apiKeyJpaRepository.searchApiKeyWithPaging(
-                id = id,
-                accountId = accountId,
-                scope = scope,
-                isExpired = isExpired,
-                isRenewable = isRenewable,
-                pageable = PageRequest.of(page, size),
+                id = searchReq.id,
+                accountId = searchReq.accountId,
+                scope = searchReq.scope,
+                isExpired = searchReq.isExpired,
+                isRenewable = searchReq.isRenewable,
+                pageable = PageRequest.of(searchReq.page, searchReq.size),
             )
 
         return ApiKeySearchResDto(
