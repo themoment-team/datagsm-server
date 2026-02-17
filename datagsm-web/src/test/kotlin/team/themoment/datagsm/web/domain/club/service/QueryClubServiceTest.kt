@@ -7,6 +7,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import team.themoment.datagsm.common.domain.club.dto.request.QueryClubReqDto
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
@@ -53,7 +54,15 @@ class QueryClubServiceTest :
                     }
 
                     it("빈 목록과 0 카운트를 반환해야 한다") {
-                        val res = queryClubService.execute(clubId, clubName, clubType, page, size)
+                        val queryReq =
+                            QueryClubReqDto(
+                                clubId = clubId,
+                                clubName = clubName,
+                                clubType = clubType,
+                                page = page,
+                                size = size,
+                            )
+                        val res = queryClubService.execute(queryReq)
 
                         res.totalPages shouldBe 1 // PageImpl(emptyList())의 totalPages는 1로 계산됨
                         res.totalElements shouldBe 0
@@ -124,7 +133,15 @@ class QueryClubServiceTest :
                     }
 
                     it("조회된 엔티티들을 DTO로 매핑해 반환해야 한다") {
-                        val res = queryClubService.execute(clubId, clubName, clubType, page, size)
+                        val queryReq =
+                            QueryClubReqDto(
+                                clubId = clubId,
+                                clubName = clubName,
+                                clubType = clubType,
+                                page = page,
+                                size = size,
+                            )
+                        val res = queryClubService.execute(queryReq)
 
                         res.clubs.size shouldBe 2
                         res.clubs[0].id shouldBe 1L
@@ -251,7 +268,12 @@ class QueryClubServiceTest :
                     }
 
                     it("알맞은 Page 결과가 반환된다") {
-                        val res = queryClubService.execute(null, null, null, 1, 2)
+                        val queryReq =
+                            QueryClubReqDto(
+                                page = 1,
+                                size = 2,
+                            )
+                        val res = queryClubService.execute(queryReq)
 
                         res.totalElements shouldBe 5
                         res.totalPages shouldBe 3
