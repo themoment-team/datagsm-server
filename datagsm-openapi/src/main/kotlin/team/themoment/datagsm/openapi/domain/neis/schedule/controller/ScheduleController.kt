@@ -5,16 +5,16 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.format.annotation.DateTimeFormat
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.auth.entity.constant.ApiKeyScope
+import team.themoment.datagsm.common.domain.neis.dto.schedule.request.QueryScheduleReqDto
 import team.themoment.datagsm.common.domain.neis.dto.schedule.response.ScheduleResDto
 import team.themoment.datagsm.openapi.domain.neis.schedule.service.SearchScheduleService
 import team.themoment.datagsm.openapi.global.security.annotation.RequireScope
-import java.time.LocalDate
 
 @Tag(name = "Schedule", description = "학사일정 정보 조회 API")
 @RestController
@@ -34,7 +34,7 @@ class ScheduleController(
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "잘못된 요청 파라미터",
+                description = "잘못된 요청 (검증 실패)",
                 content = [Content()],
             ),
         ],
@@ -42,19 +42,6 @@ class ScheduleController(
     @RequireScope(ApiKeyScope.NEIS_READ)
     @GetMapping
     fun searchSchedules(
-        @RequestParam(required = false)
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-        date: LocalDate?,
-        @RequestParam(required = false)
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-        fromDate: LocalDate?,
-        @RequestParam(required = false)
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-        toDate: LocalDate?,
-    ): List<ScheduleResDto> =
-        searchScheduleService.execute(
-            date = date,
-            fromDate = fromDate,
-            toDate = toDate,
-        )
+        @Valid @ModelAttribute queryReq: QueryScheduleReqDto,
+    ): List<ScheduleResDto> = searchScheduleService.execute(queryReq)
 }
