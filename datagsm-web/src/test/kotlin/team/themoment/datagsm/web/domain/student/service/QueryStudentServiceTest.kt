@@ -8,6 +8,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
+import team.themoment.datagsm.common.domain.student.dto.request.QueryStudentReqDto
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
@@ -56,6 +57,7 @@ class QueryStudentServiceTest :
                                 sex = null,
                                 role = null,
                                 dormitoryRoom = null,
+                                includeGraduates = false,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -64,20 +66,13 @@ class QueryStudentServiceTest :
                     }
 
                     it("해당 학생 정보가 반환되어야 한다") {
-                        val result =
-                            queryStudentService.execute(
+                        val queryReq =
+                            QueryStudentReqDto(
                                 studentId = 1L,
-                                name = null,
-                                email = null,
-                                grade = null,
-                                classNum = null,
-                                number = null,
-                                sex = null,
-                                role = null,
-                                dormitoryRoom = null,
                                 page = 0,
                                 size = 20,
                             )
+                        val result = queryStudentService.execute(queryReq)
 
                         result.totalElements shouldBe 1L
                         result.totalPages shouldBe 1
@@ -108,6 +103,7 @@ class QueryStudentServiceTest :
                                 sex = null,
                                 role = null,
                                 dormitoryRoom = null,
+                                includeGraduates = false,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -129,6 +125,7 @@ class QueryStudentServiceTest :
                                 sex = Sex.MAN,
                                 role = null,
                                 dormitoryRoom = null,
+                                includeGraduates = false,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -137,20 +134,14 @@ class QueryStudentServiceTest :
                     }
 
                     it("조건에 맞는 학생 목록이 반환되어야 한다") {
-                        val result =
-                            queryStudentService.execute(
-                                studentId = null,
+                        val queryReq =
+                            QueryStudentReqDto(
                                 name = "홍길동",
-                                email = null,
-                                grade = null,
-                                classNum = null,
-                                number = null,
                                 sex = Sex.MAN,
-                                role = null,
-                                dormitoryRoom = null,
                                 page = 0,
                                 size = 20,
                             )
+                        val result = queryStudentService.execute(queryReq)
 
                         result.totalElements shouldBe 1L
                         result.students[0].name shouldBe "홍길동"
@@ -171,6 +162,7 @@ class QueryStudentServiceTest :
                                 sex = null,
                                 role = null,
                                 dormitoryRoom = null,
+                                includeGraduates = false,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -179,20 +171,13 @@ class QueryStudentServiceTest :
                     }
 
                     it("빈 결과가 반환되어야 한다") {
-                        val result =
-                            queryStudentService.execute(
+                        val queryReq =
+                            QueryStudentReqDto(
                                 studentId = 999L,
-                                name = null,
-                                email = null,
-                                grade = null,
-                                classNum = null,
-                                number = null,
-                                sex = null,
-                                role = null,
-                                dormitoryRoom = null,
                                 page = 0,
                                 size = 20,
                             )
+                        val result = queryStudentService.execute(queryReq)
 
                         result.totalElements shouldBe 0L
                         result.totalPages shouldBe 0
@@ -228,6 +213,7 @@ class QueryStudentServiceTest :
                                 sex = null,
                                 role = null,
                                 dormitoryRoom = null,
+                                includeGraduates = false,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -236,20 +222,12 @@ class QueryStudentServiceTest :
                     }
 
                     it("첫 번째 페이지 결과가 반환되어야 한다") {
-                        val result =
-                            queryStudentService.execute(
-                                studentId = null,
-                                name = null,
-                                email = null,
-                                grade = null,
-                                classNum = null,
-                                number = null,
-                                sex = null,
-                                role = null,
-                                dormitoryRoom = null,
+                        val queryReq =
+                            QueryStudentReqDto(
                                 page = 0,
                                 size = 20,
                             )
+                        val result = queryStudentService.execute(queryReq)
 
                         result.totalElements shouldBe 50L
                         result.totalPages shouldBe 3

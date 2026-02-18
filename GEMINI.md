@@ -58,6 +58,62 @@ Each module follows: `controller/`, `service/`, `repository/`, `entity/`, `dto/`
 - **Swagger**: Request DTO uses `@param:Schema`, Response DTO uses `@field:Schema`
 - See CONTRIBUTING.md for detailed examples
 
+### Query Parameter Binding (@RequestParam vs @ModelAttribute)
+
+Choose the appropriate method based on the number of parameters and validation needs:
+
+**Usage Guidelines:**
+- **1-2 simple parameters**: Use `@RequestParam`
+- **3+ parameters or validation required**: Use `@ModelAttribute` + DTO
+
+**Examples:**
+
+```kotlin
+// Good: Single parameter → @RequestParam
+@GetMapping("/scopes/{scopeName}")
+fun getApiScope(
+    @PathVariable scopeName: String
+): ApiScopeResDto
+
+// Good: 2 parameters → @RequestParam
+@GetMapping("/available-scopes")
+fun getApiScopes(
+    @RequestParam role: AccountRole,
+    @RequestParam(required = false, defaultValue = "false") includeDeprecated: Boolean
+): ApiScopeGroupListResDto
+
+// Good: 3+ parameters → @ModelAttribute + DTO
+@GetMapping("/students")
+fun getStudentInfo(
+    @Valid @ModelAttribute queryReq: QueryStudentReqDto
+): StudentListResDto
+
+// Query DTO example
+data class QueryStudentReqDto(
+    @field:Positive
+    @param:Schema(description = "Student ID")
+    val studentId: Long? = null,
+
+    @field:Min(1) @field:Max(3)
+    @param:Schema(description = "Grade (1-3)")
+    val grade: Int? = null,
+
+    @field:Min(0)
+    @param:Schema(description = "Page number", defaultValue = "0")
+    val page: Int = 0,
+
+    @field:Min(1) @field:Max(1000)
+    @param:Schema(description = "Page size", defaultValue = "300")
+    val size: Int = 300
+)
+```
+
+**Benefits of @ModelAttribute + DTO:**
+- Enhanced validation with `@Valid` + Jakarta Bean Validation
+- Improved readability (14 parameters → 1 DTO)
+- Better maintainability (add/modify parameters in one place)
+- 100% backward compatibility (same query string parameter names)
+
 ## Key Practices
 
 ### Security

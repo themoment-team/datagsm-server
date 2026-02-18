@@ -60,39 +60,94 @@ Kotlin, Spring Boot 4.0, Spring Data JPA, QueryDSL, Redis, MySQL
   )
   ```
 
-## Common Mistakes (이런 실수를 피하세요!)
+### Query Parameter Binding (@RequestParam vs @ModelAttribute)
+
+Choose the appropriate method based on parameter count and validation needs:
+
+**Guidelines:**
+- **1-2 simple parameters**: Use `@RequestParam`
+- **3+ parameters or validation required**: Use `@ModelAttribute` + DTO
+
+**Examples:**
+```kotlin
+// Good: Single parameter → @RequestParam
+@GetMapping("/scopes/{scopeName}")
+fun getApiScope(
+    @PathVariable scopeName: String
+): ApiScopeResDto
+
+// Good: 2 parameters → @RequestParam
+@GetMapping("/available-scopes")
+fun getApiScopes(
+    @RequestParam role: AccountRole,
+    @RequestParam(required = false, defaultValue = "false") includeDeprecated: Boolean
+): ApiScopeGroupListResDto
+
+// Good: 3+ parameters → @ModelAttribute + DTO
+@GetMapping("/students")
+fun getStudentInfo(
+    @Valid @ModelAttribute queryReq: QueryStudentReqDto
+): StudentListResDto
+
+// Query DTO example
+data class QueryStudentReqDto(
+    @field:Positive
+    @param:Schema(description = "Student ID")
+    val studentId: Long? = null,
+
+    @field:Min(1) @field:Max(3)
+    @param:Schema(description = "Grade (1-3)")
+    val grade: Int? = null,
+
+    @field:Min(0)
+    @param:Schema(description = "Page number", defaultValue = "0")
+    val page: Int = 0,
+
+    @field:Min(1) @field:Max(1000)
+    @param:Schema(description = "Page size", defaultValue = "300")
+    val size: Int = 300
+)
+```
+
+**Benefits:**
+- Enhanced validation with `@Valid` + Jakarta Bean Validation
+- Improved readability (14 parameters → 1 DTO)
+- Better maintainability
+- 100% backward compatibility
+
+## Common Mistakes
 
 ### DTO Annotations
-- ❌ WRONG: `@param:JsonProperty` → ✅ CORRECT: `@field:JsonProperty`
-- ❌ WRONG: Response DTO에 `@param:Schema` → ✅ CORRECT: `@field:Schema`
+- WRONG: `@param:JsonProperty` → CORRECT: `@field:JsonProperty`
+- WRONG: Response DTO with `@param:Schema` → CORRECT: `@field:Schema`
 
 ### Commit Scope
-- ❌ WRONG: `fix(web):` (모듈명) → ✅ CORRECT: `fix(auth):` (도메인명)
-- ❌ WRONG: `update(common):` → ✅ CORRECT: `update(student):`
+- WRONG: `fix(web):` (module name) → CORRECT: `fix(auth):` (domain name)
+- WRONG: `update(common):` → CORRECT: `update(student):`
 - Only use module names for cross-cutting concerns: `refactor(global):`, `update(ci/cd):`
 
 ### Kotlin Style
-- ❌ WRONG: `var` 남용 → ✅ CORRECT: `val` 우선
-- ❌ WRONG: field injection → ✅ CORRECT: constructor injection
-- ❌ WRONG: 과도한 주석 → ✅ CORRECT: 로직이 명확하지 않은 곳만 주석
+- WRONG: Overusing `var` → CORRECT: Prefer `val`
+- WRONG: Field injection → CORRECT: Constructor injection
+- WRONG: Excessive comments → CORRECT: Comment only non-obvious logic
 
 ## Context Compaction Rules
 
-대화 압축 시 우선순위 (중요도 순):
-1. Project Overview (모듈 구조)
-2. Common Mistakes 섹션
-3. DTO Annotations 규칙
-4. Commit/PR 컨벤션
+Priority order when compressing conversation history:
+1. Project Overview (module structure)
+2. Common Mistakes section
+3. DTO Annotations rules
+4. Commit/PR conventions
 5. Tech Stack
 6. Reduce: Commands, Key Paths
 
-## 상세 가이드 (Skills)
+## Detailed Guides (Skills)
 
-더 자세한 내용은 해당 skill을 실행하세요:
-- **kotlin-spring-arch**: 상세 레이어 구조, 트랜잭션 전략, 예외 처리 패턴
-- **kotest-guide**: Kotest + MockK Given-When-Then 패턴, 코루틴 테스트
-- **code-review**: 체크리스트 기반 자동 검증
-- **security-checklist**: 하드코딩 시크릿, SQL Injection, JWT 검증 체크
+For more details, execute the corresponding skill:
+- **kotlin-spring-arch**: Detailed layer structure, transaction strategy, exception handling patterns
+- **kotest-guide**: Kotest + MockK Given-When-Then pattern, coroutine testing
+- **code-review**: Checklist-based automatic validation
+- **security-checklist**: Hardcoded secrets, SQL Injection, JWT validation checks
 
 ## Key Paths
 
