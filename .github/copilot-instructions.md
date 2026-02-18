@@ -42,75 +42,71 @@ DataGSM is a Spring Boot REST API service providing school information (students
 
 ### DTO Annotations
 
-- **Jackson**: Always use `@field:JsonProperty`, `@field:JsonAlias` (not `@param:`)
-- **Swagger**: Request DTO uses `@param:Schema`, Response DTO uses `@field:Schema`
-
-```kotlin
-// Request DTO
-data class UserReqDto(
-    @field:NotBlank
-    @param:Schema(description = "User name")
-    @field:JsonProperty("user_name")
-    @field:JsonAlias("userName")
-    val userName: String
-)
-
-// Response DTO
-data class UserResDto(
-    @field:Schema(description = "User ID")
-    @field:JsonProperty("user_id")
-    val userId: Long
-)
-```
-
-See CONTRIBUTING.md for detailed explanation.
+- **Jackson**: Always `@field:JsonProperty`, `@field:JsonAlias` (not `@param:`)
+- **Swagger**: Request DTO → `@param:Schema`, Response DTO → `@field:Schema`
+- See CONTRIBUTING.md for examples
 
 ### Query Parameter Binding (@RequestParam vs @ModelAttribute)
-
-Choose the appropriate method based on parameter count and validation needs:
 
 **Guidelines:**
 - **1-2 simple parameters**: Use `@RequestParam`
 - **3+ parameters or validation required**: Use `@ModelAttribute` + DTO
 
 **Examples:**
-
 ```kotlin
-// Good: Single parameter → @RequestParam
-@GetMapping("/scopes/{scopeName}")
-fun getApiScope(@PathVariable scopeName: String): ApiScopeResDto
+// 1-2 parameters → @RequestParam
+@GetMapping("/scopes")
+fun getScopes(@RequestParam role: AccountRole): ApiScopeListResDto
 
-// Good: 2 parameters → @RequestParam
-@GetMapping("/available-scopes")
-fun getApiScopes(
-    @RequestParam role: AccountRole,
-    @RequestParam(required = false, defaultValue = "false") includeDeprecated: Boolean
-): ApiScopeGroupListResDto
-
-// Good: 3+ parameters → @ModelAttribute + DTO
+// 3+ parameters → @ModelAttribute + DTO
 @GetMapping("/students")
-fun getStudentInfo(
-    @Valid @ModelAttribute queryReq: QueryStudentReqDto
-): StudentListResDto
+fun getStudents(@Valid @ModelAttribute queryReq: QueryStudentReqDto): StudentListResDto
 
-// Query DTO
 data class QueryStudentReqDto(
-    @field:Positive
-    @param:Schema(description = "Student ID")
+    @field:Positive @param:Schema(description = "Student ID")
     val studentId: Long? = null,
-
-    @field:Min(1) @field:Max(3)
-    @param:Schema(description = "Grade (1-3)")
-    val grade: Int? = null,
-
-    @field:Min(0)
-    @param:Schema(description = "Page number", defaultValue = "0")
+    @field:Min(0) @param:Schema(description = "Page", defaultValue = "0")
     val page: Int = 0,
-
-    @field:Min(1) @field:Max(1000)
-    @param:Schema(description = "Page size", defaultValue = "300")
+    @field:Min(1) @field:Max(1000) @param:Schema(description = "Size", defaultValue = "300")
     val size: Int = 300
 )
+```
+
+### DTO Variable Naming
+
+- **@RequestBody (Create/Update)**: Use `reqDto`
+- **@ModelAttribute (Query)**: Use `queryReq`
+
+```kotlin
+@PostMapping
+fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDto =
+    createStudentService.execute(reqDto)
+
+@GetMapping
+fun getStudents(@Valid @ModelAttribute queryReq: QueryStudentReqDto): StudentListResDto =
+    queryStudentService.execute(queryReq)
+```
+
+### Controller-Service Value Passing
+
+Pass request body/query DTO objects to service layer. PathVariable can be passed individually.
+
+**Correct Pattern:**
+```kotlin
+@PostMapping
+fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDto =
+    createStudentService.execute(reqDto)
+
+@PutMapping("/{id}")
+fun updateStudent(@PathVariable id: Long, @Valid @RequestBody reqDto: UpdateStudentReqDto): StudentResDto =
+    updateStudentService.execute(id, reqDto)
+```
+
+**Wrong Pattern:**
+```kotlin
+@PostMapping
+fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDto =
+    createStudentService.execute(reqDto.name, reqDto.email)  // Don't extract DTO fields
 ```
 
 ## Key Practices
