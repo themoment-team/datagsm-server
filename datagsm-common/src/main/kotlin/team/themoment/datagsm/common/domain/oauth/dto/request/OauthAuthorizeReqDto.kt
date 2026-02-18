@@ -8,11 +8,11 @@ data class OauthAuthorizeReqDto(
     @param:Schema(description = "클라이언트 ID", example = "my-client-id", requiredMode = Schema.RequiredMode.REQUIRED)
     @field:NotBlank(message = "client_id는 필수입니다.")
     @field:JsonProperty("client_id")
-    val `client_id`: String?,
+    val `client_id`: String,
     @param:Schema(description = "리다이렉트 URI", example = "https://example.com/callback", requiredMode = Schema.RequiredMode.REQUIRED)
     @field:NotBlank(message = "redirect_uri는 필수입니다.")
     @field:JsonProperty("redirect_uri")
-    val `redirect_uri`: String?,
+    val `redirect_uri`: String,
     @param:Schema(description = "응답 타입 (code 고정)", example = "code", defaultValue = "code")
     @field:JsonProperty("response_type")
     val `response_type`: String? = "code",

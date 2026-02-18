@@ -28,14 +28,6 @@ class StartOauthAuthorizeFlowServiceImpl(
         val codeChallenge = reqDto.`code_challenge`
         val codeChallengeMethod = reqDto.`code_challenge_method`
 
-        if (clientId.isNullOrBlank()) {
-            throw OAuthException.InvalidRequest("client_id 파라미터가 필요합니다.")
-        }
-
-        if (redirectUri.isNullOrBlank()) {
-            throw OAuthException.InvalidRequest("redirect_uri 파라미터가 필요합니다.")
-        }
-
         if (responseType != "code") {
             throw OAuthException.InvalidRequest("response_type은 'code'여야 합니다.")
         }
