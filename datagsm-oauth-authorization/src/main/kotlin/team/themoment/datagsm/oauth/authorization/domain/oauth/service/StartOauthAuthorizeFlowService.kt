@@ -1,14 +1,8 @@
 package team.themoment.datagsm.oauth.authorization.domain.oauth.service
 
 import org.springframework.http.ResponseEntity
+import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeReqDto
 
 interface StartOauthAuthorizeFlowService {
-    fun execute(
-        clientId: String?,
-        redirectUri: String?,
-        responseType: String?,
-        state: String?,
-        codeChallenge: String?,
-        codeChallengeMethod: String?,
-    ): ResponseEntity<Void>
+    fun execute(reqDto: OauthAuthorizeReqDto): ResponseEntity<Void>
 }
