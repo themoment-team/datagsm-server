@@ -57,8 +57,8 @@ class ProjectController(
     )
     @PostMapping
     fun createProject(
-        @RequestBody @Valid projectReqDto: ProjectReqDto,
-    ): ProjectResDto = createProjectService.execute(projectReqDto)
+        @RequestBody @Valid reqDto: ProjectReqDto,
+    ): ProjectResDto = createProjectService.execute(reqDto)
 
     @Operation(summary = "프로젝트 정보 수정", description = "기존 프로젝트의 정보를 전체 교체합니다.")
     @ApiResponses(
@@ -72,8 +72,8 @@ class ProjectController(
     @PutMapping("/{projectId}")
     fun updateProject(
         @Parameter(description = "프로젝트 ID") @PathVariable projectId: Long,
-        @RequestBody @Valid projectReqDto: ProjectReqDto,
-    ): ProjectResDto = modifyProjectService.execute(projectId, projectReqDto)
+        @RequestBody @Valid reqDto: ProjectReqDto,
+    ): ProjectResDto = modifyProjectService.execute(projectId, reqDto)
 
     @Operation(summary = "프로젝트 삭제", description = "기존 프로젝트를 삭제합니다.")
     @ApiResponses(

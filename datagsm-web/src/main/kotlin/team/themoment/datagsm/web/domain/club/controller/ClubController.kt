@@ -63,8 +63,8 @@ class ClubController(
     )
     @PostMapping
     fun createClub(
-        @RequestBody @Valid clubReqDto: ClubReqDto,
-    ): ClubResDto = createClubService.execute(clubReqDto)
+        @RequestBody @Valid reqDto: ClubReqDto,
+    ): ClubResDto = createClubService.execute(reqDto)
 
     @Operation(summary = "동아리 정보 수정", description = "기존 동아리의 정보를 전체 교체합니다.")
     @ApiResponses(
@@ -77,8 +77,8 @@ class ClubController(
     @PutMapping("/{clubId}")
     fun updateClub(
         @Parameter(description = "동아리 ID") @PathVariable clubId: Long,
-        @RequestBody @Valid clubReqDto: ClubReqDto,
-    ): ClubResDto = modifyClubService.execute(clubId, clubReqDto)
+        @RequestBody @Valid reqDto: ClubReqDto,
+    ): ClubResDto = modifyClubService.execute(clubId, reqDto)
 
     @Operation(summary = "동아리 삭제", description = "기존 동아리를 삭제합니다.")
     @ApiResponses(
