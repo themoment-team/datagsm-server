@@ -41,7 +41,4 @@ data class QueryMealReqDto(
         }
         return true
     }
-
-    @AssertTrue(message = "fromDate와 toDate는 함께 사용해야 합니다.")
-    fun isValidDateRangePresence(): Boolean = (fromDate == null && toDate == null) || (fromDate != null && toDate != null)
 }
