@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
+import team.themoment.datagsm.common.domain.client.dto.request.SearchClientReqDto
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
@@ -59,9 +60,11 @@ class SearchClientServiceTest :
                     it("조건에 맞는 클라이언트가 반환되어야 한다") {
                         val result =
                             searchClientService.execute(
-                                clientName = "테스트",
-                                page = 0,
-                                size = 20,
+                                SearchClientReqDto(
+                                    clientName = "테스트",
+                                    page = 0,
+                                    size = 20,
+                                ),
                             )
 
                         result.totalElements shouldBe 1L
@@ -107,9 +110,11 @@ class SearchClientServiceTest :
                     it("모든 클라이언트가 반환되어야 한다") {
                         val result =
                             searchClientService.execute(
-                                clientName = null,
-                                page = 0,
-                                size = 20,
+                                SearchClientReqDto(
+                                    clientName = null,
+                                    page = 0,
+                                    size = 20,
+                                ),
                             )
 
                         result.totalElements shouldBe 10L
@@ -133,9 +138,11 @@ class SearchClientServiceTest :
                     it("빈 결과가 반환되어야 한다") {
                         val result =
                             searchClientService.execute(
-                                clientName = "존재하지않음",
-                                page = 0,
-                                size = 20,
+                                SearchClientReqDto(
+                                    clientName = "존재하지않음",
+                                    page = 0,
+                                    size = 20,
+                                ),
                             )
 
                         result.totalElements shouldBe 0L
@@ -170,9 +177,11 @@ class SearchClientServiceTest :
                     it("첫 번째 페이지 결과가 반환되어야 한다") {
                         val result =
                             searchClientService.execute(
-                                clientName = null,
-                                page = 0,
-                                size = 20,
+                                SearchClientReqDto(
+                                    clientName = null,
+                                    page = 0,
+                                    size = 20,
+                                ),
                             )
 
                         result.totalElements shouldBe 50L
@@ -209,9 +218,11 @@ class SearchClientServiceTest :
                     it("두 번째 페이지 결과가 반환되어야 한다") {
                         val result =
                             searchClientService.execute(
-                                clientName = null,
-                                page = 1,
-                                size = 20,
+                                SearchClientReqDto(
+                                    clientName = null,
+                                    page = 1,
+                                    size = 20,
+                                ),
                             )
 
                         result.totalElements shouldBe 50L
@@ -255,9 +266,11 @@ class SearchClientServiceTest :
                     it("부분 일치하는 클라이언트들이 반환되어야 한다") {
                         val result =
                             searchClientService.execute(
-                                clientName = "API",
-                                page = 0,
-                                size = 20,
+                                SearchClientReqDto(
+                                    clientName = "API",
+                                    page = 0,
+                                    size = 20,
+                                ),
                             )
 
                         result.totalElements shouldBe 2L
@@ -292,9 +305,11 @@ class SearchClientServiceTest :
                     it("지정된 크기만큼의 결과가 반환되어야 한다") {
                         val result =
                             searchClientService.execute(
-                                clientName = null,
-                                page = 0,
-                                size = 5,
+                                SearchClientReqDto(
+                                    clientName = null,
+                                    page = 0,
+                                    size = 5,
+                                ),
                             )
 
                         result.totalElements shouldBe 5L

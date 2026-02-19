@@ -3,6 +3,7 @@ package team.themoment.datagsm.web.domain.client.service.impl
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.client.dto.request.SearchClientReqDto
 import team.themoment.datagsm.common.domain.client.dto.response.ClientListResDto
 import team.themoment.datagsm.common.domain.client.dto.response.ClientResDto
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
@@ -13,15 +14,11 @@ class SearchClientServiceImpl(
     private val clientJpaRepository: ClientJpaRepository,
 ) : SearchClientService {
     @Transactional(readOnly = true)
-    override fun execute(
-        clientName: String?,
-        page: Int,
-        size: Int,
-    ): ClientListResDto {
+    override fun execute(reqDto: SearchClientReqDto): ClientListResDto {
         val clientPage =
             clientJpaRepository.searchClientWithPaging(
-                name = clientName,
-                pageable = PageRequest.of(page, size),
+                name = reqDto.clientName,
+                pageable = PageRequest.of(reqDto.page, reqDto.size),
             )
 
         return ClientListResDto(

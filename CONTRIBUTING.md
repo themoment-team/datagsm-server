@@ -597,6 +597,72 @@ data class QueryStudentReqDto(
 - **기본값 설정**: Nullable 필드는 `null` 기본값, Required 필드는 명시적 기본값 설정
 - **Swagger 문서화**: `@param:Schema`로 각 파라미터 설명 추가
 
+### DTO 변수명 규칙
+
+컨트롤러에서 DTO를 받을 때 일관된 변수명을 사용합니다:
+
+**네이밍 규칙:**
+- **@RequestBody (생성/수정)**: `reqDto` 사용
+- **@ModelAttribute (조회)**: `queryReq` 사용
+
+**예시:**
+```kotlin
+// POST/PUT/PATCH - reqDto 사용
+@PostMapping
+fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDto {
+    return createStudentService.execute(reqDto)
+}
+
+@PutMapping("/{id}")
+fun updateStudent(
+    @PathVariable id: Long,
+    @Valid @RequestBody reqDto: UpdateStudentReqDto
+): StudentResDto {
+    return updateStudentService.execute(id, reqDto)
+}
+
+// GET - queryReq 사용
+@GetMapping
+fun getStudents(@Valid @ModelAttribute queryReq: QueryStudentReqDto): StudentListResDto {
+    return queryStudentService.execute(queryReq)
+}
+```
+
+### 컨트롤러-서비스 계층 값 전달 규칙
+
+Request body나 query parameters로 받은 데이터는 DTO 객체 그대로 서비스에 전달합니다. PathVariable 같은 단일 식별자는 개별로 전달할 수 있습니다.
+
+**올바른 패턴:**
+```kotlin
+// Request body → DTO 전달
+@PostMapping
+fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDto {
+    return createStudentService.execute(reqDto)
+}
+
+// PathVariable + Request body → 개별 + DTO 전달
+@PutMapping("/{id}")
+fun updateStudent(
+    @PathVariable id: Long,
+    @Valid @RequestBody reqDto: UpdateStudentReqDto
+): StudentResDto {
+    return updateStudentService.execute(id, reqDto)
+}
+```
+
+**잘못된 패턴:**
+```kotlin
+// DTO 필드를 개별 파라미터로 추출하여 전달
+@PostMapping
+fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDto {
+    return createStudentService.execute(reqDto.name, reqDto.email)  // 잘못됨
+}
+
+interface CreateStudentService {
+    fun execute(name: String, email: String): StudentResDto  // 잘못됨
+}
+```
+
 ### 생성자 주입
 
 **생성자 주입**을 필수로 사용합니다 (Field 주입 금지):

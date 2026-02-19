@@ -6,6 +6,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import team.themoment.datagsm.common.domain.neis.dto.meal.request.QueryMealReqDto
 import team.themoment.datagsm.common.domain.neis.meal.entity.MealRedisEntity
 import team.themoment.datagsm.common.domain.neis.meal.entity.constant.MealType
 import team.themoment.datagsm.common.domain.neis.meal.repository.MealRedisRepository
@@ -65,7 +66,7 @@ class SearchMealServiceTest :
                     }
 
                     it("해당 날짜의 모든 급식 정보를 반환해야 한다") {
-                        val result = searchMealService.execute(date = targetDate, fromDate = null, toDate = null)
+                        val result = searchMealService.execute(QueryMealReqDto(date = targetDate, fromDate = null, toDate = null))
 
                         result.size shouldBe 2
                         result[0].mealId shouldBe "7380292_20251216_1"
@@ -135,7 +136,7 @@ class SearchMealServiceTest :
                     }
 
                     it("날짜 범위 내의 급식 정보만 반환해야 한다") {
-                        val result = searchMealService.execute(date = null, fromDate = fromDate, toDate = toDate)
+                        val result = searchMealService.execute(QueryMealReqDto(date = null, fromDate = fromDate, toDate = toDate))
 
                         result.size shouldBe 2
                         result[0].mealDate shouldBe LocalDate.of(2025, 12, 16)
@@ -185,7 +186,7 @@ class SearchMealServiceTest :
                     }
 
                     it("fromDate 이후의 급식 정보를 반환해야 한다") {
-                        val result = searchMealService.execute(date = null, fromDate = fromDate, toDate = null)
+                        val result = searchMealService.execute(QueryMealReqDto(date = null, fromDate = fromDate, toDate = null))
 
                         result.size shouldBe 2
                         result[0].mealDate shouldBe LocalDate.of(2025, 12, 17)
@@ -235,7 +236,7 @@ class SearchMealServiceTest :
                     }
 
                     it("toDate 이전의 급식 정보를 반환해야 한다") {
-                        val result = searchMealService.execute(date = null, fromDate = null, toDate = toDate)
+                        val result = searchMealService.execute(QueryMealReqDto(date = null, fromDate = null, toDate = toDate))
 
                         result.size shouldBe 2
                         result[0].mealDate shouldBe LocalDate.of(2025, 12, 16)
@@ -253,7 +254,7 @@ class SearchMealServiceTest :
                     }
 
                     it("빈 목록을 반환해야 한다") {
-                        val result = searchMealService.execute(date = searchDate, fromDate = null, toDate = null)
+                        val result = searchMealService.execute(QueryMealReqDto(date = searchDate, fromDate = null, toDate = null))
 
                         result.size shouldBe 0
 
@@ -284,7 +285,7 @@ class SearchMealServiceTest :
                     }
 
                     it("모든 급식 정보를 반환해야 한다") {
-                        val result = searchMealService.execute(date = null, fromDate = null, toDate = null)
+                        val result = searchMealService.execute(QueryMealReqDto(date = null, fromDate = null, toDate = null))
 
                         result.size shouldBe 1
                         result[0].mealId shouldBe "7380292_20251216_1"

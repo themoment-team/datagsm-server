@@ -9,12 +9,13 @@ import jakarta.validation.Valid
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.oauth.dto.request.Oauth2TokenReqDto
+import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeSubmitReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthCodeReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.Oauth2TokenResDto
@@ -41,26 +42,13 @@ class OauthController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "302", description = "로그인 페이지로 리다이렉트"),
-            ApiResponse(responseCode = "400", description = "잘못된 요청 (invalid_request)", content = [Content()]),
+            ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
             ApiResponse(responseCode = "401", description = "존재하지 않는 클라이언트 (invalid_client)", content = [Content()]),
         ],
     )
     fun authorizeGet(
-        @RequestParam("client_id") clientId: String?,
-        @RequestParam("redirect_uri") redirectUri: String?,
-        @RequestParam("response_type", defaultValue = "code") responseType: String?,
-        @RequestParam("state", required = false) state: String?,
-        @RequestParam("code_challenge", required = false) codeChallenge: String?,
-        @RequestParam("code_challenge_method", required = false) codeChallengeMethod: String?,
-    ): ResponseEntity<Void> =
-        startOauthAuthorizeFlowService.execute(
-            clientId,
-            redirectUri,
-            responseType,
-            state,
-            codeChallenge,
-            codeChallengeMethod,
-        )
+        @Valid @ModelAttribute queryReq: OauthAuthorizeReqDto,
+    ): ResponseEntity<Void> = startOauthAuthorizeFlowService.execute(queryReq)
 
     @PostMapping("/authorize")
     @Operation(

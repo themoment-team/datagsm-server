@@ -1,12 +1,8 @@
 package team.themoment.datagsm.openapi.domain.neis.meal.service
 
+import team.themoment.datagsm.common.domain.neis.dto.meal.request.QueryMealReqDto
 import team.themoment.datagsm.common.domain.neis.dto.meal.response.MealResDto
-import java.time.LocalDate
 
 interface SearchMealService {
-    fun execute(
-        date: LocalDate?,
-        fromDate: LocalDate?,
-        toDate: LocalDate?,
-    ): List<MealResDto>
+    fun execute(reqDto: QueryMealReqDto): List<MealResDto>
 }

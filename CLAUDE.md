@@ -41,28 +41,11 @@ Kotlin, Spring Boot 4.0, Spring Data JPA, QueryDSL, Redis, MySQL
 
 ### DTO Annotations
 
-- **Jackson**: Always use `@field:JsonProperty`, `@field:JsonAlias` (not `@param:`)
-- **Swagger**: Request DTO uses `@param:Schema`, Response DTO uses `@field:Schema`
-- Example:
-  ```kotlin
-  // Request DTO
-  data class CreateReqDto(
-      @param:Schema(description = "Name")
-      @field:JsonProperty("user_name")
-      val userName: String
-  )
-
-  // Response DTO
-  data class UserResDto(
-      @field:Schema(description = "ID")
-      @field:JsonProperty("user_id")
-      val userId: Long
-  )
-  ```
+- **Jackson**: Always `@field:JsonProperty`, `@field:JsonAlias` (not `@param:`)
+- **Swagger**: Request DTO → `@param:Schema`, Response DTO → `@field:Schema`
+- See CONTRIBUTING.md for examples
 
 ### Query Parameter Binding (@RequestParam vs @ModelAttribute)
-
-Choose the appropriate method based on parameter count and validation needs:
 
 **Guidelines:**
 - **1-2 simple parameters**: Use `@RequestParam`
@@ -70,50 +53,60 @@ Choose the appropriate method based on parameter count and validation needs:
 
 **Examples:**
 ```kotlin
-// Good: Single parameter → @RequestParam
-@GetMapping("/scopes/{scopeName}")
-fun getApiScope(
-    @PathVariable scopeName: String
-): ApiScopeResDto
+// 1-2 parameters → @RequestParam
+@GetMapping("/scopes")
+fun getScopes(@RequestParam role: AccountRole): ApiScopeListResDto
 
-// Good: 2 parameters → @RequestParam
-@GetMapping("/available-scopes")
-fun getApiScopes(
-    @RequestParam role: AccountRole,
-    @RequestParam(required = false, defaultValue = "false") includeDeprecated: Boolean
-): ApiScopeGroupListResDto
-
-// Good: 3+ parameters → @ModelAttribute + DTO
+// 3+ parameters → @ModelAttribute + DTO
 @GetMapping("/students")
-fun getStudentInfo(
-    @Valid @ModelAttribute queryReq: QueryStudentReqDto
-): StudentListResDto
+fun getStudents(@Valid @ModelAttribute queryReq: QueryStudentReqDto): StudentListResDto
 
-// Query DTO example
 data class QueryStudentReqDto(
-    @field:Positive
-    @param:Schema(description = "Student ID")
+    @field:Positive @param:Schema(description = "Student ID")
     val studentId: Long? = null,
-
-    @field:Min(1) @field:Max(3)
-    @param:Schema(description = "Grade (1-3)")
-    val grade: Int? = null,
-
-    @field:Min(0)
-    @param:Schema(description = "Page number", defaultValue = "0")
+    @field:Min(0) @param:Schema(description = "Page", defaultValue = "0")
     val page: Int = 0,
-
-    @field:Min(1) @field:Max(1000)
-    @param:Schema(description = "Page size", defaultValue = "300")
+    @field:Min(1) @field:Max(1000) @param:Schema(description = "Size", defaultValue = "300")
     val size: Int = 300
 )
 ```
 
-**Benefits:**
-- Enhanced validation with `@Valid` + Jakarta Bean Validation
-- Improved readability (14 parameters → 1 DTO)
-- Better maintainability
-- 100% backward compatibility
+### DTO Variable Naming
+
+- **@RequestBody (Create/Update)**: Use `reqDto`
+- **@ModelAttribute (Query)**: Use `queryReq`
+
+```kotlin
+@PostMapping
+fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDto =
+    createStudentService.execute(reqDto)
+
+@GetMapping
+fun getStudents(@Valid @ModelAttribute queryReq: QueryStudentReqDto): StudentListResDto =
+    queryStudentService.execute(queryReq)
+```
+
+### Controller-Service Value Passing
+
+Pass request body/query DTO objects to service layer. PathVariable can be passed individually.
+
+**Good:**
+```kotlin
+@PostMapping
+fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDto =
+    createStudentService.execute(reqDto)
+
+@PutMapping("/{id}")
+fun updateStudent(@PathVariable id: Long, @Valid @RequestBody reqDto: UpdateStudentReqDto): StudentResDto =
+    updateStudentService.execute(id, reqDto)
+```
+
+**Bad:**
+```kotlin
+@PostMapping
+fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDto =
+    createStudentService.execute(reqDto.name, reqDto.email)  // Don't extract DTO fields
+```
 
 ## Common Mistakes
 

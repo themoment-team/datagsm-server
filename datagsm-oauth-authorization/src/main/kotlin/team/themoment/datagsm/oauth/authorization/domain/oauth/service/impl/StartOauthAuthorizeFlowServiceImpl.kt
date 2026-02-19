@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
+import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeReqDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthAuthorizeStateRedisEntity
 import team.themoment.datagsm.common.domain.oauth.entity.constant.PkceChallengeMethod
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
@@ -19,21 +20,13 @@ class StartOauthAuthorizeFlowServiceImpl(
     private val oauthEnvironment: OauthEnvironment,
     private val oauthAuthorizeStateRedisRepository: OauthAuthorizeStateRedisRepository,
 ) : StartOauthAuthorizeFlowService {
-    override fun execute(
-        clientId: String?,
-        redirectUri: String?,
-        responseType: String?,
-        state: String?,
-        codeChallenge: String?,
-        codeChallengeMethod: String?,
-    ): ResponseEntity<Void> {
-        if (clientId.isNullOrBlank()) {
-            throw OAuthException.InvalidRequest("client_id 파라미터가 필요합니다.")
-        }
-
-        if (redirectUri.isNullOrBlank()) {
-            throw OAuthException.InvalidRequest("redirect_uri 파라미터가 필요합니다.")
-        }
+    override fun execute(reqDto: OauthAuthorizeReqDto): ResponseEntity<Void> {
+        val clientId = reqDto.`client_id`
+        val redirectUri = reqDto.`redirect_uri`
+        val responseType = reqDto.`response_type`
+        val state = reqDto.state
+        val codeChallenge = reqDto.`code_challenge`
+        val codeChallengeMethod = reqDto.`code_challenge_method`
 
         if (responseType != "code") {
             throw OAuthException.InvalidRequest("response_type은 'code'여야 합니다.")

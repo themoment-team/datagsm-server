@@ -13,6 +13,7 @@ import io.mockk.verify
 import org.springframework.http.HttpStatus
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
+import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeReqDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthAuthorizeStateRedisEntity
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
@@ -64,15 +65,16 @@ class StartOauthAuthorizeFlowServiceTest :
                     }
 
                     it("Redis에 OAuth 파라미터가 저장되고 302 리다이렉트가 반환되어야 한다") {
-                        val response =
-                            startOauthAuthorizeFlowService.execute(
-                                clientId = testClientId,
-                                redirectUri = testRedirectUri,
-                                responseType = "code",
+                        val reqDto =
+                            OauthAuthorizeReqDto(
+                                `client_id` = testClientId,
+                                `redirect_uri` = testRedirectUri,
+                                `response_type` = "code",
                                 state = "random-state",
-                                codeChallenge = "challenge",
-                                codeChallengeMethod = "S256",
+                                `code_challenge` = "challenge",
+                                `code_challenge_method` = "S256",
                             )
+                        val response = startOauthAuthorizeFlowService.execute(reqDto)
 
                         response.statusCode shouldBe HttpStatus.FOUND
                         response.headers.location shouldNotBe null
@@ -94,16 +96,18 @@ class StartOauthAuthorizeFlowServiceTest :
 
                 context("response_type이 code가 아닐 때") {
                     it("InvalidRequest 예외가 발생해야 한다") {
+                        val reqDto =
+                            OauthAuthorizeReqDto(
+                                `client_id` = testClientId,
+                                `redirect_uri` = testRedirectUri,
+                                `response_type` = "token",
+                                state = null,
+                                `code_challenge` = null,
+                                `code_challenge_method` = null,
+                            )
                         val exception =
                             shouldThrow<OAuthException.InvalidRequest> {
-                                startOauthAuthorizeFlowService.execute(
-                                    clientId = testClientId,
-                                    redirectUri = testRedirectUri,
-                                    responseType = "token",
-                                    state = null,
-                                    codeChallenge = null,
-                                    codeChallengeMethod = null,
-                                )
+                                startOauthAuthorizeFlowService.execute(reqDto)
                             }
 
                         exception.error shouldBe "invalid_request"
@@ -117,16 +121,18 @@ class StartOauthAuthorizeFlowServiceTest :
                     }
 
                     it("InvalidClient 예외가 발생해야 한다") {
+                        val reqDto =
+                            OauthAuthorizeReqDto(
+                                `client_id` = "invalid-client",
+                                `redirect_uri` = testRedirectUri,
+                                `response_type` = "code",
+                                state = null,
+                                `code_challenge` = null,
+                                `code_challenge_method` = null,
+                            )
                         val exception =
                             shouldThrow<OAuthException.InvalidClient> {
-                                startOauthAuthorizeFlowService.execute(
-                                    clientId = "invalid-client",
-                                    redirectUri = testRedirectUri,
-                                    responseType = "code",
-                                    state = null,
-                                    codeChallenge = null,
-                                    codeChallengeMethod = null,
-                                )
+                                startOauthAuthorizeFlowService.execute(reqDto)
                             }
 
                         exception.error shouldBe "invalid_client"
@@ -142,16 +148,18 @@ class StartOauthAuthorizeFlowServiceTest :
                     }
 
                     it("InvalidRequest 예외가 발생해야 한다") {
+                        val reqDto =
+                            OauthAuthorizeReqDto(
+                                `client_id` = testClientId,
+                                `redirect_uri` = "https://malicious.com/callback",
+                                `response_type` = "code",
+                                state = null,
+                                `code_challenge` = null,
+                                `code_challenge_method` = null,
+                            )
                         val exception =
                             shouldThrow<OAuthException.InvalidRequest> {
-                                startOauthAuthorizeFlowService.execute(
-                                    clientId = testClientId,
-                                    redirectUri = "https://malicious.com/callback",
-                                    responseType = "code",
-                                    state = null,
-                                    codeChallenge = null,
-                                    codeChallengeMethod = null,
-                                )
+                                startOauthAuthorizeFlowService.execute(reqDto)
                             }
 
                         exception.errorDescription shouldBe "등록되지 않은 redirect_uri입니다."
@@ -166,16 +174,18 @@ class StartOauthAuthorizeFlowServiceTest :
                     }
 
                     it("InvalidRequest 예외가 발생해야 한다") {
+                        val reqDto =
+                            OauthAuthorizeReqDto(
+                                `client_id` = testClientId,
+                                `redirect_uri` = testRedirectUri,
+                                `response_type` = "code",
+                                state = null,
+                                `code_challenge` = "challenge",
+                                `code_challenge_method` = "unsupported",
+                            )
                         val exception =
                             shouldThrow<OAuthException.InvalidRequest> {
-                                startOauthAuthorizeFlowService.execute(
-                                    clientId = testClientId,
-                                    redirectUri = testRedirectUri,
-                                    responseType = "code",
-                                    state = null,
-                                    codeChallenge = "challenge",
-                                    codeChallengeMethod = "unsupported",
-                                )
+                                startOauthAuthorizeFlowService.execute(reqDto)
                             }
 
                         exception.errorDescription shouldBe "지원하지 않는 code_challenge_method입니다."
