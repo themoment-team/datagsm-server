@@ -216,6 +216,7 @@ class IssueOauthCodeServiceTest :
 
                         savedEntitySlot.captured.email shouldBe testEmail
                         savedEntitySlot.captured.clientId shouldBe testClientId
+                        savedEntitySlot.captured.redirectUri shouldBe testRedirectUrl
                         savedEntitySlot.captured.ttl shouldBe codeExpirationSeconds
                     }
                 }

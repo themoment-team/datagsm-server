@@ -5,12 +5,12 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class DiscordEmbed(
-    @param:JsonProperty("title")
+    @field:JsonProperty("title")
     val title: String? = null,
-    @param:JsonProperty("color")
+    @field:JsonProperty("color")
     val color: Int? = null,
-    @param:JsonProperty("fields")
+    @field:JsonProperty("fields")
     val fields: List<DiscordField>? = null,
-    @param:JsonProperty("timestamp")
+    @field:JsonProperty("timestamp")
     val timestamp: String? = null,
 )

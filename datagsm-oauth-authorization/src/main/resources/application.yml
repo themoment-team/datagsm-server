@@ -20,6 +20,7 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    open-in-view: false
     properties:
       hibernate:
         format_sql: true
@@ -48,17 +49,9 @@ spring:
       secret: ${JWT_SECRET_KEY}
       access-token-expiration: ${OAUTH_ACCESS_TOKEN_EXPIRATION:3600000}
       refresh-token-expiration: ${OAUTH_REFRESH_TOKEN_EXPIRATION:2592000000}
-    api-key:
-      expiration-days: 30
-      renewal-period-days: 15
-      admin-expiration-days: 365
-      rate-limit:
-        enabled: true
-        default-capacity: 100
-        default-refill-tokens: 100
-        default-refill-duration-seconds: 60
     oauth:
       code-expiration-seconds: ${OAUTH_CODE_EXPIRATION:300}
+      frontend-url: ${OAUTH_FRONTEND_URL:http://localhost:3000}
     password-reset-rate-limit:
       enabled: true
       send:
@@ -73,6 +66,22 @@ spring:
         capacity: 3
         refill-tokens: 3
         refill-duration-minutes: 60
+      signup-send:
+        capacity: 5
+        refill-tokens: 5
+        refill-duration-minutes: 10
+      signup-check:
+        capacity: 10
+        refill-tokens: 10
+        refill-duration-minutes: 5
+  web:
+    error:
+      whitelabel:
+        enabled: false
+      include-message: always
+      include-binding-errors: always
+      include-stacktrace: never
+      include-exception: false
 server:
   port: 8081
   shutdown: graceful
@@ -89,6 +98,7 @@ sdk:
       - "/v3/api-docs/**"
       - "/swagger-ui/**"
       - "/actuator/**"
+      - "/v1/oauth/authorize"
   swagger:
     enabled: true
     title: "DataGSM Authorization Server API"

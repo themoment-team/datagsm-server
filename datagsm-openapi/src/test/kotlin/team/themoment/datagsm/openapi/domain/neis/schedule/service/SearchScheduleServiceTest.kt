@@ -6,6 +6,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import team.themoment.datagsm.common.domain.neis.dto.schedule.request.QueryScheduleReqDto
 import team.themoment.datagsm.common.domain.neis.schedule.entity.ScheduleRedisEntity
 import team.themoment.datagsm.common.domain.neis.schedule.repository.ScheduleRedisRepository
 import team.themoment.datagsm.openapi.domain.neis.schedule.service.impl.SearchScheduleServiceImpl
@@ -48,7 +49,7 @@ class SearchScheduleServiceTest :
                     }
 
                     it("해당 날짜의 학사일정 정보를 반환해야 한다") {
-                        val result = searchScheduleService.execute(date = targetDate, fromDate = null, toDate = null)
+                        val result = searchScheduleService.execute(QueryScheduleReqDto(date = targetDate, fromDate = null, toDate = null))
 
                         result.size shouldBe 1
                         result[0].scheduleId shouldBe "7380292_20251216"
@@ -117,7 +118,7 @@ class SearchScheduleServiceTest :
                     }
 
                     it("날짜 범위 내의 학사일정 정보만 반환해야 한다") {
-                        val result = searchScheduleService.execute(date = null, fromDate = fromDate, toDate = toDate)
+                        val result = searchScheduleService.execute(QueryScheduleReqDto(date = null, fromDate = fromDate, toDate = toDate))
 
                         result.size shouldBe 2
                         result[0].scheduleDate shouldBe LocalDate.of(2025, 12, 16)
@@ -135,7 +136,7 @@ class SearchScheduleServiceTest :
                     }
 
                     it("빈 목록을 반환해야 한다") {
-                        val result = searchScheduleService.execute(date = searchDate, fromDate = null, toDate = null)
+                        val result = searchScheduleService.execute(QueryScheduleReqDto(date = searchDate, fromDate = null, toDate = null))
 
                         result.size shouldBe 0
 
@@ -166,7 +167,7 @@ class SearchScheduleServiceTest :
                     }
 
                     it("모든 학사일정 정보를 반환해야 한다") {
-                        val result = searchScheduleService.execute(date = null, fromDate = null, toDate = null)
+                        val result = searchScheduleService.execute(QueryScheduleReqDto(date = null, fromDate = null, toDate = null))
 
                         result.size shouldBe 1
                         result[0].scheduleId shouldBe "7380292_20251216"

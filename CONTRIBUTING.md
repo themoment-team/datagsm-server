@@ -431,7 +431,235 @@ data class ClubResDto(
     val id: Long,
     val name: String,
     val description: String
-) {
+)
+```
+
+### DTO 어노테이션 규칙
+
+프로젝트는 Jackson과 Swagger 어노테이션 사용 시 명확한 규칙을 따릅니다:
+
+#### Jackson 어노테이션 (`@JsonProperty`, `@JsonAlias`)
+
+**모든 DTO (Request/Response)에서 `@field:` 사용:**
+
+```kotlin
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonAlias
+
+data class Oauth2TokenReqDto(
+    // ✅ 올바른 사용: @field:JsonProperty
+    @field:JsonProperty("access_token")
+    @field:JsonAlias("accessToken")    // 하위 호환성
+    val accessToken: String,
+
+    // ❌ 잘못된 사용: @param:JsonProperty (Jackson이 인식 못함)
+    @param:JsonProperty("token_type")
+    val tokenType: String
+)
+```
+
+**이유:**
+- `@field:` - Jackson이 필드를 직접 인식 (serialization/deserialization 모두 작동)
+- `@param:` - Constructor parameter에만 적용되어 Jackson이 무시함
+- `@JsonAlias` - 하위 호환성을 위해 camelCase도 지원
+
+#### Swagger 어노테이션 (`@Schema`)
+
+**Request DTO와 Response DTO 구분:**
+
+```kotlin
+import io.swagger.v3.oas.annotations.media.Schema
+
+// Request DTO: @param:Schema 사용
+data class CreateClubReqDto(
+    @param:Schema(description = "동아리 이름", example = "프로그래밍 동아리")
+    val name: String
+)
+
+// Response DTO: @field:Schema 사용
+data class ClubResDto(
+    @field:Schema(description = "동아리 ID", example = "1")
+    val id: Long,
+
+    @field:Schema(description = "동아리 이름", example = "프로그래밍 동아리")
+    val name: String
+)
+```
+
+**규칙:**
+- **Request DTO**: `@param:Schema` - Constructor parameter를 문서화
+- **Response DTO**: `@field:Schema` - Field를 문서화
+- 이유: Kotlin data class의 특성상 Request는 constructor를 통해 생성되고, Response는 field를 통해 직렬화됨
+
+#### 완전한 예시
+
+```kotlin
+// Request DTO (클라이언트 → 서버)
+data class Oauth2TokenReqDto(
+    @field:NotBlank(message = "grant_type은 필수입니다.")
+    @param:Schema(description = "Grant Type", example = "authorization_code")
+    @field:JsonProperty("grant_type")    // RFC 6749 표준 (snake_case)
+    @field:JsonAlias("grantType")         // 하위 호환성 (camelCase)
+    val grantType: String,
+
+    @param:Schema(description = "Client ID", example = "client-123")
+    @field:JsonProperty("client_id")
+    @field:JsonAlias("clientId")
+    val clientId: String?
+)
+
+// Response DTO (서버 → 클라이언트)
+data class Oauth2TokenResDto(
+    @field:Schema(description = "Access Token", example = "eyJhbGci...")
+    @field:JsonProperty("access_token")
+    val accessToken: String,
+
+    @field:Schema(description = "Token Type", example = "Bearer")
+    @field:JsonProperty("token_type")
+    val tokenType: String = "Bearer"
+)
+```
+
+### Query Parameter 바인딩 (@RequestParam vs @ModelAttribute)
+
+Query String 파라미터를 받을 때 개수와 검증 필요 여부에 따라 다른 방식을 사용합니다.
+
+#### 사용 기준
+
+| 조건                  | 방식                      | 이유                               |
+|---------------------|-------------------------|----------------------------------|
+| **1~2개 이하 단순 파라미터** | `@RequestParam`         | 간결하고 직관적                         |
+| **3개 이상 파라미터**      | `@ModelAttribute` + DTO | 가독성 향상, 유지보수 편의                  |
+| **검증이 필요한 경우**      | `@ModelAttribute` + DTO | `@Valid` + Bean Validation 적용 가능 |
+
+#### @RequestParam 예시 (1~2개 파라미터)
+
+```kotlin
+// ✅ 좋은 예시: 단일 파라미터
+@GetMapping("/scopes/{scopeName}")
+fun getApiScope(
+    @PathVariable scopeName: String
+): ApiScopeResDto = queryService.execute(scopeName)
+
+// ✅ 좋은 예시: 2개 파라미터
+@GetMapping("/available-scopes")
+fun getApiScopes(
+    @RequestParam role: AccountRole,
+    @RequestParam(required = false, defaultValue = "false") includeDeprecated: Boolean
+): ApiScopeGroupListResDto = queryService.execute(role, includeDeprecated)
+```
+
+#### @ModelAttribute 예시 (3개 이상 또는 검증 필요)
+
+```kotlin
+// ✅ 좋은 예시: 3개 이상 파라미터 → @ModelAttribute + DTO
+@GetMapping("/students")
+fun getStudentInfo(
+    @Valid @ModelAttribute queryReq: QueryStudentReqDto
+): StudentListResDto = queryStudentService.execute(queryReq)
+
+// Query DTO 정의
+data class QueryStudentReqDto(
+    @field:Positive
+    @param:Schema(description = "학생 ID")
+    val studentId: Long? = null,
+
+    @field:Min(1)
+    @field:Max(3)
+    @param:Schema(description = "학년 (1-3)", minimum = "1", maximum = "3")
+    val grade: Int? = null,
+
+    @field:Min(1)
+    @field:Max(4)
+    @param:Schema(description = "반 (1-4)", minimum = "1", maximum = "4")
+    val classNum: Int? = null,
+
+    @field:Min(0)
+    @param:Schema(description = "페이지 번호", defaultValue = "0", minimum = "0")
+    val page: Int = 0,
+
+    @field:Min(1)
+    @field:Max(1000)
+    @param:Schema(description = "페이지 크기", defaultValue = "300", minimum = "1", maximum = "1000")
+    val size: Int = 300,
+
+    @param:Schema(description = "정렬 기준")
+    val sortBy: StudentSortBy? = null,
+
+    @param:Schema(description = "정렬 방향", defaultValue = "ASC")
+    val sortDirection: SortDirection = SortDirection.ASC
+)
+```
+
+#### 주의사항
+
+- **@RequestParam과 동일한 동작**: Query String 파라미터 이름과 DTO 필드명이 일치해야 함
+- **기본값 설정**: Nullable 필드는 `null` 기본값, Required 필드는 명시적 기본값 설정
+- **Swagger 문서화**: `@param:Schema`로 각 파라미터 설명 추가
+
+### DTO 변수명 규칙
+
+컨트롤러에서 DTO를 받을 때 일관된 변수명을 사용합니다:
+
+**네이밍 규칙:**
+- **@RequestBody (생성/수정)**: `reqDto` 사용
+- **@ModelAttribute (조회)**: `queryReq` 사용
+
+**예시:**
+```kotlin
+// POST/PUT/PATCH - reqDto 사용
+@PostMapping
+fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDto {
+    return createStudentService.execute(reqDto)
+}
+
+@PutMapping("/{id}")
+fun updateStudent(
+    @PathVariable id: Long,
+    @Valid @RequestBody reqDto: UpdateStudentReqDto
+): StudentResDto {
+    return updateStudentService.execute(id, reqDto)
+}
+
+// GET - queryReq 사용
+@GetMapping
+fun getStudents(@Valid @ModelAttribute queryReq: QueryStudentReqDto): StudentListResDto {
+    return queryStudentService.execute(queryReq)
+}
+```
+
+### 컨트롤러-서비스 계층 값 전달 규칙
+
+Request body나 query parameters로 받은 데이터는 DTO 객체 그대로 서비스에 전달합니다. PathVariable 같은 단일 식별자는 개별로 전달할 수 있습니다.
+
+**올바른 패턴:**
+```kotlin
+// Request body → DTO 전달
+@PostMapping
+fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDto {
+    return createStudentService.execute(reqDto)
+}
+
+// PathVariable + Request body → 개별 + DTO 전달
+@PutMapping("/{id}")
+fun updateStudent(
+    @PathVariable id: Long,
+    @Valid @RequestBody reqDto: UpdateStudentReqDto
+): StudentResDto {
+    return updateStudentService.execute(id, reqDto)
+}
+```
+
+**잘못된 패턴:**
+```kotlin
+// DTO 필드를 개별 파라미터로 추출하여 전달
+@PostMapping
+fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDto {
+    return createStudentService.execute(reqDto.name, reqDto.email)  // 잘못됨
+}
+
+interface CreateStudentService {
+    fun execute(name: String, email: String): StudentResDto  // 잘못됨
 }
 ```
 

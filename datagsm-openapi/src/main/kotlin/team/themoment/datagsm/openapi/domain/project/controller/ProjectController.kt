@@ -9,19 +9,18 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.auth.entity.constant.ApiKeyScope
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
+import team.themoment.datagsm.common.domain.project.dto.request.QueryProjectReqDto
 import team.themoment.datagsm.common.domain.project.dto.response.ProjectListResDto
 import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
-import team.themoment.datagsm.common.domain.project.entity.constant.ProjectSortBy
-import team.themoment.datagsm.common.global.constant.SortDirection
 import team.themoment.datagsm.openapi.domain.project.service.CreateProjectService
 import team.themoment.datagsm.openapi.domain.project.service.DeleteProjectService
 import team.themoment.datagsm.openapi.domain.project.service.ModifyProjectService
@@ -41,19 +40,14 @@ class ProjectController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
         ],
     )
     @RequireScope(ApiKeyScope.PROJECT_READ)
     @GetMapping
     fun getProjectInfo(
-        @Parameter(description = "프로젝트 ID") @RequestParam(required = false) projectId: Long?,
-        @Parameter(description = "프로젝트 이름") @RequestParam(required = false) projectName: String?,
-        @Parameter(description = "동아리 ID") @RequestParam(required = false) clubId: Long?,
-        @Parameter(description = "페이지 번호") @RequestParam(required = false, defaultValue = "0") page: Int,
-        @Parameter(description = "페이지 크기") @RequestParam(required = false, defaultValue = "100") size: Int,
-        @Parameter(description = "정렬 기준 (ID, NAME)") @RequestParam(required = false) sortBy: ProjectSortBy?,
-        @Parameter(description = "정렬 방향 (ASC, DESC)") @RequestParam(required = false, defaultValue = "ASC") sortDirection: SortDirection,
-    ): ProjectListResDto = queryProjectService.execute(projectId, projectName, clubId, page, size, sortBy, sortDirection)
+        @Valid @ModelAttribute queryReq: QueryProjectReqDto,
+    ): ProjectListResDto = queryProjectService.execute(queryReq)
 
     @Operation(summary = "프로젝트 생성", description = "새로운 프로젝트를 생성합니다.")
     @ApiResponses(
@@ -67,8 +61,8 @@ class ProjectController(
     @RequireScope(ApiKeyScope.PROJECT_WRITE)
     @PostMapping
     fun createProject(
-        @RequestBody @Valid projectReqDto: ProjectReqDto,
-    ): ProjectResDto = createProjectService.execute(projectReqDto)
+        @RequestBody @Valid reqDto: ProjectReqDto,
+    ): ProjectResDto = createProjectService.execute(reqDto)
 
     @Operation(summary = "프로젝트 정보 수정", description = "기존 프로젝트의 정보를 전체 교체합니다.")
     @ApiResponses(
@@ -83,8 +77,8 @@ class ProjectController(
     @PutMapping("/{projectId}")
     fun updateProject(
         @Parameter(description = "프로젝트 ID") @PathVariable projectId: Long,
-        @RequestBody @Valid projectReqDto: ProjectReqDto,
-    ): ProjectResDto = modifyProjectService.execute(projectId, projectReqDto)
+        @RequestBody @Valid reqDto: ProjectReqDto,
+    ): ProjectResDto = modifyProjectService.execute(projectId, reqDto)
 
     @Operation(summary = "프로젝트 삭제", description = "기존 프로젝트를 삭제합니다.")
     @ApiResponses(

@@ -22,6 +22,7 @@ dependencies {
     api(dependency.Dependencies.SPRING_VALIDATION)
     api(dependency.Dependencies.SPRING_AOP)
     api(dependency.Dependencies.SPRING_RETRY)
+    api(dependency.Dependencies.SPRING_THYMELEAF)
 
     // Spring Data
     api(dependency.Dependencies.SPRING_DATA_JPA)

@@ -1,26 +1,29 @@
 package team.themoment.datagsm.openapi.domain.neis.schedule.service.impl
 
 import org.springframework.stereotype.Service
+import team.themoment.datagsm.common.domain.neis.dto.schedule.request.QueryScheduleReqDto
 import team.themoment.datagsm.common.domain.neis.dto.schedule.response.ScheduleResDto
 import team.themoment.datagsm.common.domain.neis.schedule.repository.ScheduleRedisRepository
 import team.themoment.datagsm.openapi.domain.neis.schedule.service.SearchScheduleService
-import java.time.LocalDate
 
 @Service
 class SearchScheduleServiceImpl(
     private val scheduleRedisRepository: ScheduleRedisRepository,
 ) : SearchScheduleService {
-    override fun execute(
-        date: LocalDate?,
-        fromDate: LocalDate?,
-        toDate: LocalDate?,
-    ): List<ScheduleResDto> {
+    override fun execute(reqDto: QueryScheduleReqDto): List<ScheduleResDto> {
+        val date = reqDto.date
+        val fromDate = reqDto.fromDate
+        val toDate = reqDto.toDate
+
         val schedules =
             when {
                 date != null -> scheduleRedisRepository.findByDate(date)
-                fromDate != null && toDate != null -> scheduleRedisRepository.findByDateBetween(fromDate, toDate)
-                fromDate != null -> scheduleRedisRepository.findByDateGreaterThanEqual(fromDate)
-                toDate != null -> scheduleRedisRepository.findByDateLessThanEqual(toDate)
+                fromDate != null && toDate != null ->
+                    scheduleRedisRepository.findByDateBetween(fromDate, toDate)
+                fromDate != null ->
+                    scheduleRedisRepository.findByDateGreaterThanEqual(fromDate)
+                toDate != null ->
+                    scheduleRedisRepository.findByDateLessThanEqual(toDate)
                 else -> scheduleRedisRepository.findAll().toList()
             }
 

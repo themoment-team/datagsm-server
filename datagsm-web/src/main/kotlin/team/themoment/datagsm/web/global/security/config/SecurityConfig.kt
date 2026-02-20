@@ -3,6 +3,7 @@ package team.themoment.datagsm.web.global.security.config
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -51,10 +52,13 @@ class SecurityConfig(
                         "/v1/students/**",
                         "/v1/projects/**",
                         "/v1/clubs/**",
-                        "/v1/clients/search",
-                        "/v1/auth/api-keys",
-                        "/v1/auth/api-key/{apiKeyId}",
                     ).hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
+                    .requestMatchers(HttpMethod.GET, "/v1/auth/api-keys")
+                    .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
+                    .requestMatchers(HttpMethod.DELETE, "/v1/auth/api-keys/{apiKeyId}")
+                    .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
+                    .requestMatchers(HttpMethod.GET, "/v1/clients")
+                    .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
                     .anyRequest()
                     .authenticated()
             }

@@ -3,32 +3,32 @@ package team.themoment.datagsm.common.domain.neis.dto.internal
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class MealServiceDietInfo(
-    @param:JsonProperty("ATPT_OFCDC_SC_CODE")
+    @field:JsonProperty("ATPT_OFCDC_SC_CODE")
     val officeCode: String,
-    @param:JsonProperty("ATPT_OFCDC_SC_NM")
+    @field:JsonProperty("ATPT_OFCDC_SC_NM")
     val officeName: String,
-    @param:JsonProperty("SD_SCHUL_CODE")
+    @field:JsonProperty("SD_SCHUL_CODE")
     val schoolCode: String,
-    @param:JsonProperty("SCHUL_NM")
+    @field:JsonProperty("SCHUL_NM")
     val schoolName: String,
-    @param:JsonProperty("MMEAL_SC_CODE")
+    @field:JsonProperty("MMEAL_SC_CODE")
     val mealTypeCode: String,
-    @param:JsonProperty("MMEAL_SC_NM")
+    @field:JsonProperty("MMEAL_SC_NM")
     val mealTypeName: String,
-    @param:JsonProperty("MLSV_YMD")
+    @field:JsonProperty("MLSV_YMD")
     val mealDate: String,
-    @param:JsonProperty("MLSV_FGR")
+    @field:JsonProperty("MLSV_FGR")
     val mealServeCount: String?,
-    @param:JsonProperty("DDISH_NM")
+    @field:JsonProperty("DDISH_NM")
     val dishName: String?,
-    @param:JsonProperty("ORPLC_INFO")
+    @field:JsonProperty("ORPLC_INFO")
     val originInfo: String?,
-    @param:JsonProperty("CAL_INFO")
+    @field:JsonProperty("CAL_INFO")
     val calorieInfo: String?,
-    @param:JsonProperty("NTR_INFO")
+    @field:JsonProperty("NTR_INFO")
     val nutritionInfo: String?,
-    @param:JsonProperty("MLSV_FROM_YMD")
+    @field:JsonProperty("MLSV_FROM_YMD")
     val mealFromDate: String?,
-    @param:JsonProperty("MLSV_TO_YMD")
+    @field:JsonProperty("MLSV_TO_YMD")
     val mealToDate: String?,
 )

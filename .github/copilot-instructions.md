@@ -16,11 +16,11 @@ DataGSM is a Spring Boot REST API service providing school information (students
 
 ## Project Structure (Multi-module)
 
-- `datagsm-common/`: Shared library (Entity, DTO, Repository, Config)
-- `datagsm-oauth-authorization/`: OAuth2 authentication server
-- `datagsm-openapi/`: Resource API server (students, clubs, NEIS)
-- `datagsm-web/`: Admin web API server (Excel processing)
-- `datagsm-oauth-userinfo/`: OAuth2 User info API server (profile, roles)
+- `datagsm-common/`: Shared library (Entity, DTO, Repository, Config, Health API)
+- `datagsm-oauth-authorization/`: OAuth2 authentication, account lifecycle (signup, password reset)
+- `datagsm-oauth-userinfo/`: OAuth2 UserInfo endpoint (external clients)
+- `datagsm-openapi/`: Public read-only API (students, clubs, NEIS)
+- `datagsm-web/`: Web service API (user features, admin features, Excel)
 - Each module: `controller/`, `service/`, `repository/`, `entity/`, `dto/`
 
 ## Commands
@@ -40,6 +40,75 @@ DataGSM is a Spring Boot REST API service providing school information (students
 - Separate Entity and DTO clearly
 - Do NOT add excessive comments - only where logic is not self-evident
 
+### DTO Annotations
+
+- **Jackson**: Always `@field:JsonProperty`, `@field:JsonAlias` (not `@param:`)
+- **Swagger**: Request DTO → `@param:Schema`, Response DTO → `@field:Schema`
+- See CONTRIBUTING.md for examples
+
+### Query Parameter Binding (@RequestParam vs @ModelAttribute)
+
+**Guidelines:**
+- **1-2 simple parameters**: Use `@RequestParam`
+- **3+ parameters or validation required**: Use `@ModelAttribute` + DTO
+
+**Examples:**
+```kotlin
+// 1-2 parameters → @RequestParam
+@GetMapping("/scopes")
+fun getScopes(@RequestParam role: AccountRole): ApiScopeListResDto
+
+// 3+ parameters → @ModelAttribute + DTO
+@GetMapping("/students")
+fun getStudents(@Valid @ModelAttribute queryReq: QueryStudentReqDto): StudentListResDto
+
+data class QueryStudentReqDto(
+    @field:Positive @param:Schema(description = "Student ID")
+    val studentId: Long? = null,
+    @field:Min(0) @param:Schema(description = "Page", defaultValue = "0")
+    val page: Int = 0,
+    @field:Min(1) @field:Max(1000) @param:Schema(description = "Size", defaultValue = "300")
+    val size: Int = 300
+)
+```
+
+### DTO Variable Naming
+
+- **@RequestBody (Create/Update)**: Use `reqDto`
+- **@ModelAttribute (Query)**: Use `queryReq`
+
+```kotlin
+@PostMapping
+fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDto =
+    createStudentService.execute(reqDto)
+
+@GetMapping
+fun getStudents(@Valid @ModelAttribute queryReq: QueryStudentReqDto): StudentListResDto =
+    queryStudentService.execute(queryReq)
+```
+
+### Controller-Service Value Passing
+
+Pass request body/query DTO objects to service layer. PathVariable can be passed individually.
+
+**Correct Pattern:**
+```kotlin
+@PostMapping
+fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDto =
+    createStudentService.execute(reqDto)
+
+@PutMapping("/{id}")
+fun updateStudent(@PathVariable id: Long, @Valid @RequestBody reqDto: UpdateStudentReqDto): StudentResDto =
+    updateStudentService.execute(id, reqDto)
+```
+
+**Wrong Pattern:**
+```kotlin
+@PostMapping
+fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDto =
+    createStudentService.execute(reqDto.name, reqDto.email)  // Don't extract DTO fields
+```
+
 ## Key Practices
 
 - Security: No hardcoded secrets, use SLF4J Logger (with Logback, not println()), validate JWT/API keys properly
@@ -47,3 +116,19 @@ DataGSM is a Spring Boot REST API service providing school information (students
 - API: Use `CommonApiResponse` wrapper, validate with `@Valid`
 - Testing: Write Kotest tests for business logic using Given-When-Then pattern
 - Exceptions: Use `ExpectedException` for custom exceptions with appropriate HTTP status
+
+## Common Mistakes (Avoid These!)
+
+### DTO Annotations
+- WRONG: `@param:JsonProperty` → CORRECT: `@field:JsonProperty`
+- WRONG: Response DTO with `@param:Schema` → CORRECT: `@field:Schema`
+
+### Commit Scope
+- WRONG: `fix(web):` (module name) → CORRECT: `fix(auth):` (domain name)
+- Domain names first: auth, student, club, neis, oauth
+- Module names only for cross-cutting: global, ci/cd
+
+### Kotlin Style
+- WRONG: Overusing `var` → CORRECT: Prefer `val`
+- WRONG: Field injection → CORRECT: Constructor injection
+- WRONG: Excessive comments → CORRECT: Comment only non-obvious logic

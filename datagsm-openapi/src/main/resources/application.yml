@@ -48,6 +48,14 @@ spring:
         default-capacity: 100
         default-refill-tokens: 100
         default-refill-duration-seconds: 60
+  web:
+    error:
+      whitelabel:
+        enabled: false
+      include-message: always
+      include-binding-errors: always
+      include-stacktrace: never
+      include-exception: false
 server:
   port: 8082
   shutdown: graceful

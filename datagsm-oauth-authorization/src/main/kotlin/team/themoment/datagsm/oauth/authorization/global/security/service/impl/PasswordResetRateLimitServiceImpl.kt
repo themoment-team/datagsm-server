@@ -42,6 +42,8 @@ class PasswordResetRateLimitServiceImpl(
             PasswordResetRateLimitType.SEND_EMAIL -> passwordResetRateLimitEnvironment.send
             PasswordResetRateLimitType.CHECK_CODE -> passwordResetRateLimitEnvironment.verify
             PasswordResetRateLimitType.MODIFY_PASSWORD -> passwordResetRateLimitEnvironment.change
+            PasswordResetRateLimitType.SIGNUP_SEND_EMAIL -> passwordResetRateLimitEnvironment.signupSend
+            PasswordResetRateLimitType.SIGNUP_CHECK_CODE -> passwordResetRateLimitEnvironment.signupCheck
         }
 
     private fun createDisabledResult(capacity: Long) =

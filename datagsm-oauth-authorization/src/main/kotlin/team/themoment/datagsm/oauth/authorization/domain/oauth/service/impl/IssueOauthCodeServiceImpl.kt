@@ -12,6 +12,7 @@ import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepositor
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthCodeReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.OauthCodeResDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
+import team.themoment.datagsm.common.domain.oauth.entity.constant.PkceChallengeMethod
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueOauthCodeService
@@ -39,12 +40,21 @@ class IssueOauthCodeServiceImpl(
                 ?: throw ExpectedException("존재하지 않는 Client Id 입니다.", HttpStatus.NOT_FOUND)
         validateRedirectUrl(reqDto.redirectUrl, client)
 
+        if (reqDto.codeChallenge != null) {
+            if (reqDto.codeChallengeMethod != null &&
+                PkceChallengeMethod.fromOrNull(reqDto.codeChallengeMethod) == null
+            ) {
+                throw ExpectedException("지원하지 않는 code_challenge_method입니다.", HttpStatus.BAD_REQUEST)
+            }
+        }
+
         val account =
             accountJpaRepository
                 .findByEmail(reqDto.email)
                 .orElseThrow { ExpectedException("존재하지 않는 회원의 이메일입니다.", HttpStatus.NOT_FOUND) }
         validatePassword(reqDto.password, account.password)
-        val oauthCode = generateOauthCodeForAccount(account, reqDto.clientId)
+        val oauthCode =
+            generateOauthCodeForAccount(account, reqDto.clientId, reqDto.redirectUrl, reqDto.codeChallenge, reqDto.codeChallengeMethod)
         return OauthCodeResDto(oauthCode)
     }
 
@@ -60,6 +70,9 @@ class IssueOauthCodeServiceImpl(
     private fun generateOauthCodeForAccount(
         account: AccountJpaEntity,
         clientId: String,
+        redirectUri: String,
+        codeChallenge: String?,
+        codeChallengeMethod: String?,
     ): String {
         val code =
             Base64
@@ -70,6 +83,9 @@ class IssueOauthCodeServiceImpl(
             OauthCodeRedisEntity(
                 email = account.email,
                 clientId = clientId,
+                redirectUri = redirectUri,
+                codeChallenge = codeChallenge,
+                codeChallengeMethod = codeChallengeMethod,
                 code = code,
                 ttl = oauthEnvironment.codeExpirationSeconds,
             )

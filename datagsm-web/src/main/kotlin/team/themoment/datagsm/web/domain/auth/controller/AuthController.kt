@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.auth.dto.request.CreateApiKeyReqDto
 import team.themoment.datagsm.common.domain.auth.dto.request.ModifyApiKeyReqDto
+import team.themoment.datagsm.common.domain.auth.dto.request.SearchApiKeyReqDto
 import team.themoment.datagsm.common.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.common.domain.auth.dto.response.ApiKeySearchResDto
 import team.themoment.datagsm.common.domain.auth.dto.response.ApiScopeGroupListResDto
@@ -30,6 +32,7 @@ import team.themoment.datagsm.web.domain.auth.service.ModifyCurrentAccountApiKey
 import team.themoment.datagsm.web.domain.auth.service.QueryApiScopeByScopeNameService
 import team.themoment.datagsm.web.domain.auth.service.QueryApiScopeGroupService
 import team.themoment.datagsm.web.domain.auth.service.QueryCurrentAccountApiKeyService
+import team.themoment.datagsm.web.domain.auth.service.RotateCurrentAccountApiKeyService
 import team.themoment.datagsm.web.domain.auth.service.SearchApiKeyService
 import team.themoment.sdk.response.CommonApiResponse
 
@@ -44,6 +47,7 @@ class AuthController(
     private val queryCurrentAccountApiKeyService: QueryCurrentAccountApiKeyService,
     private val queryApiScopeByScopeNameService: QueryApiScopeByScopeNameService,
     private val queryApiScopeGroupService: QueryApiScopeGroupService,
+    private val rotateCurrentAccountApiKeyService: RotateCurrentAccountApiKeyService,
     private val searchApiKeyService: SearchApiKeyService,
 ) {
     @Operation(summary = "API 키 생성", description = "새로운 API 키를 생성합니다. scope를 지정하여 세부 권한을 설정할 수 있습니다.")
@@ -72,6 +76,17 @@ class AuthController(
     fun modifyApiKey(
         @RequestBody @Valid reqDto: ModifyApiKeyReqDto,
     ): ApiKeyResDto = modifyCurrentAccountApiKeyService.execute(reqDto)
+
+    @Operation(summary = "API 키 로테이션", description = "보안상의 이유로 기존 API 키를 로테이션합니다. 기존 Scope와 Description은 유지되며, UUID만 새로 발급됩니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "API 키 로테이션 성공"),
+            ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "410", description = "API 키 갱신 기간이 지남 (키 삭제됨)", content = [Content()]),
+        ],
+    )
+    @PostMapping("/api-keys/my/rotations")
+    fun rotateApiKey(): ApiKeyResDto = rotateCurrentAccountApiKeyService.execute()
 
     @Operation(summary = "API 키 삭제", description = "현재 인증된 사용자의 API 키를 삭제합니다.")
     @ApiResponses(
@@ -119,27 +134,13 @@ class AuthController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "검색 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
         ],
     )
     @GetMapping("/api-keys")
     fun searchApiKeys(
-        @Parameter(description = "API 키 ID") @RequestParam(required = false) id: Long?,
-        @Parameter(description = "계정 ID") @RequestParam(required = false) accountId: Long?,
-        @Parameter(description = "권한 스코프") @RequestParam(required = false) scope: String?,
-        @Parameter(description = "만료 여부") @RequestParam(required = false) isExpired: Boolean?,
-        @Parameter(description = "갱신 가능 여부") @RequestParam(required = false) isRenewable: Boolean?,
-        @Parameter(description = "페이지 번호") @RequestParam(required = false, defaultValue = "0") page: Int,
-        @Parameter(description = "페이지 크기") @RequestParam(required = false, defaultValue = "100") size: Int,
-    ): ApiKeySearchResDto =
-        searchApiKeyService.execute(
-            id,
-            accountId,
-            scope,
-            isExpired,
-            isRenewable,
-            page,
-            size,
-        )
+        @Valid @ModelAttribute searchReq: SearchApiKeyReqDto,
+    ): ApiKeySearchResDto = searchApiKeyService.execute(searchReq)
 
     @Operation(summary = "역할별 사용 가능한 API 권한 범위 조회", description = "USER 또는 ADMIN 역할에서 사용 가능한 API 권한 범위 목록을 카테고리별로 그룹핑하여 조회합니다.")
     @ApiResponses(

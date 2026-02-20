@@ -7,9 +7,7 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClient
 import software.amazon.awssdk.services.cloudwatchlogs.model.CreateLogGroupRequest
 import software.amazon.awssdk.services.cloudwatchlogs.model.CreateLogStreamRequest
-import software.amazon.awssdk.services.cloudwatchlogs.model.DescribeLogStreamsRequest
 import software.amazon.awssdk.services.cloudwatchlogs.model.InputLogEvent
-import software.amazon.awssdk.services.cloudwatchlogs.model.InvalidSequenceTokenException
 import software.amazon.awssdk.services.cloudwatchlogs.model.PutLogEventsRequest
 import software.amazon.awssdk.services.cloudwatchlogs.model.PutRetentionPolicyRequest
 import software.amazon.awssdk.services.cloudwatchlogs.model.ResourceAlreadyExistsException
@@ -18,7 +16,6 @@ import java.util.UUID
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicReference
 import kotlin.concurrent.thread
 
 class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
@@ -34,7 +31,6 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
 
     private lateinit var cloudWatchClient: CloudWatchLogsClient
     private val logQueue: BlockingQueue<ILoggingEvent> = LinkedBlockingQueue()
-    private val sequenceToken = AtomicReference<String?>(null)
     private var writerThread: Thread? = null
     private var actualLogStreamName: String? = null
 
@@ -161,27 +157,9 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
             addInfo("Created log stream: $actualLogStreamName")
         } catch (_: ResourceAlreadyExistsException) {
             addInfo("Log stream already exists: $actualLogStreamName")
-            refreshSequenceToken()
         } catch (e: Exception) {
             addError("Failed to create log stream: $actualLogStreamName", e)
             throw e
-        }
-    }
-
-    private fun refreshSequenceToken() {
-        try {
-            val request =
-                DescribeLogStreamsRequest
-                    .builder()
-                    .logGroupName(logGroupName)
-                    .logStreamNamePrefix(actualLogStreamName)
-                    .build()
-
-            val response = cloudWatchClient.describeLogStreams(request)
-            val logStream = response.logStreams().firstOrNull { it.logStreamName() == actualLogStreamName }
-            sequenceToken.set(logStream?.uploadSequenceToken())
-        } catch (e: Exception) {
-            addError("Failed to refresh sequence token", e)
         }
     }
 
@@ -249,26 +227,19 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
                             .message(event.formattedMessage)
                             .build()
                     }.sortedBy { it.timestamp() }
+
             repeat(maxRetries) { retryCount ->
                 try {
-                    val requestBuilder =
+                    val request =
                         PutLogEventsRequest
                             .builder()
                             .logGroupName(logGroupName)
                             .logStreamName(actualLogStreamName)
                             .logEvents(logEvents)
+                            .build()
 
-                    val currentToken = sequenceToken.get()
-                    if (currentToken != null) {
-                        requestBuilder.sequenceToken(currentToken)
-                    }
-
-                    val response = cloudWatchClient.putLogEvents(requestBuilder.build())
-                    sequenceToken.set(response.nextSequenceToken())
-                    return@flushBatch
-                } catch (e: InvalidSequenceTokenException) {
-                    sequenceToken.set(e.expectedSequenceToken())
-                    if (retryCount >= maxRetries - 1) throw e
+                    cloudWatchClient.putLogEvents(request)
+                    return
                 } catch (e: ResourceNotFoundException) {
                     addError("Log group or stream not found, attempting to recreate", e)
                     initializeLogGroup()

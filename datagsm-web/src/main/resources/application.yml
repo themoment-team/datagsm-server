@@ -29,18 +29,6 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
     open-in-view: false
-  mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
-    from-address: ${MAIL_FROM_ADDRESS:noreply@datagsm.kr}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
   cloud:
     discord:
       webhook:
@@ -62,16 +50,14 @@ spring:
         default-capacity: 100
         default-refill-tokens: 100
         default-refill-duration-seconds: 60
-    email-rate-limit:
-      enabled: true
-      send:
-        capacity: 5
-        refill-tokens: 5
-        refill-duration-minutes: 10
-      check:
-        capacity: 10
-        refill-tokens: 10
-        refill-duration-minutes: 5
+  web:
+    error:
+      whitelabel:
+        enabled: false
+      include-message: always
+      include-binding-errors: always
+      include-stacktrace: never
+      include-exception: false
 server:
   port: 8080
   shutdown: graceful
@@ -81,15 +67,13 @@ sdk:
     not-logging-urls:
       - "/v3/api-docs/**"
       - "/swagger-ui/**"
-      - "/actuator/**"
   response:
     enabled: true
     not-wrapping-urls:
       - "/v3/api-docs/**"
       - "/swagger-ui/**"
-      - "/actuator/**"
-      - "/v1/students/excel/download"
-      - "/v1/clubs/excel/download"
+      - "/v1/students/exports/excel"
+      - "/v1/clubs/exports/excel"
   swagger:
     enabled: true
     title: "DataGSM Web Server API"

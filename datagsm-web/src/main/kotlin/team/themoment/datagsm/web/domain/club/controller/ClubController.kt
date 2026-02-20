@@ -10,6 +10,7 @@ import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -19,11 +20,9 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
+import team.themoment.datagsm.common.domain.club.dto.request.QueryClubReqDto
 import team.themoment.datagsm.common.domain.club.dto.response.ClubListResDto
 import team.themoment.datagsm.common.domain.club.dto.response.ClubResDto
-import team.themoment.datagsm.common.domain.club.entity.constant.ClubSortBy
-import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
-import team.themoment.datagsm.common.global.constant.SortDirection
 import team.themoment.datagsm.web.domain.club.service.CreateClubExcelService
 import team.themoment.datagsm.web.domain.club.service.CreateClubService
 import team.themoment.datagsm.web.domain.club.service.DeleteClubService
@@ -46,20 +45,13 @@ class ClubController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
         ],
     )
     @GetMapping
     fun getClubInfo(
-        @Parameter(description = "동아리 ID") @RequestParam(required = false) clubId: Long?,
-        @Parameter(description = "동아리 이름") @RequestParam(required = false) clubName: String?,
-        @Parameter(description = "동아리 종류") @RequestParam(required = false) clubType: ClubType?,
-        @Parameter(description = "페이지 번호") @RequestParam(required = false, defaultValue = "0") page: Int,
-        @Parameter(description = "페이지 크기") @RequestParam(required = false, defaultValue = "100") size: Int,
-        @Parameter(description = "부장을 부원 목록에 포함할지 여부") @RequestParam(required = false, defaultValue = "false") includeLeaderInParticipants:
-            Boolean,
-        @Parameter(description = "정렬 기준 (ID, NAME, TYPE)") @RequestParam(required = false) sortBy: ClubSortBy?,
-        @Parameter(description = "정렬 방향 (ASC, DESC)") @RequestParam(required = false, defaultValue = "ASC") sortDirection: SortDirection,
-    ): ClubListResDto = queryClubService.execute(clubId, clubName, clubType, page, size, includeLeaderInParticipants, sortBy, sortDirection)
+        @Valid @ModelAttribute queryReq: QueryClubReqDto,
+    ): ClubListResDto = queryClubService.execute(queryReq)
 
     @Operation(summary = "동아리 생성", description = "새로운 동아리를 생성합니다.")
     @ApiResponses(
@@ -71,8 +63,8 @@ class ClubController(
     )
     @PostMapping
     fun createClub(
-        @RequestBody @Valid clubReqDto: ClubReqDto,
-    ): ClubResDto = createClubService.execute(clubReqDto)
+        @RequestBody @Valid reqDto: ClubReqDto,
+    ): ClubResDto = createClubService.execute(reqDto)
 
     @Operation(summary = "동아리 정보 수정", description = "기존 동아리의 정보를 전체 교체합니다.")
     @ApiResponses(
@@ -85,8 +77,8 @@ class ClubController(
     @PutMapping("/{clubId}")
     fun updateClub(
         @Parameter(description = "동아리 ID") @PathVariable clubId: Long,
-        @RequestBody @Valid clubReqDto: ClubReqDto,
-    ): ClubResDto = modifyClubService.execute(clubId, clubReqDto)
+        @RequestBody @Valid reqDto: ClubReqDto,
+    ): ClubResDto = modifyClubService.execute(clubId, reqDto)
 
     @Operation(summary = "동아리 삭제", description = "기존 동아리를 삭제합니다.")
     @ApiResponses(
@@ -106,7 +98,7 @@ class ClubController(
             ApiResponse(responseCode = "200", description = "생성 성공"),
         ],
     )
-    @GetMapping("/excel/download")
+    @GetMapping("/exports/excel")
     fun downloadClubExcel(): ResponseEntity<ByteArray> = createClubExcelService.execute()
 
     @Operation(summary = "동아리 엑셀 업로드", description = "동아리 이름이 담긴 엑셀을 받아 저장을 진행합니다.")
@@ -116,7 +108,7 @@ class ClubController(
             ApiResponse(responseCode = "400", description = "잘못된 요청 (잘못된 셀 값)", content = [Content()]),
         ],
     )
-    @PostMapping("/excel/upload")
+    @PostMapping("/imports")
     fun uploadClubExcel(
         @RequestParam("file") file: MultipartFile,
     ) = modifyClubExcelService.execute(file)

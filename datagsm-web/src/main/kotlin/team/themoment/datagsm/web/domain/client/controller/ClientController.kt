@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.client.dto.request.CreateClientReqDto
 import team.themoment.datagsm.common.domain.client.dto.request.ModifyClientReqDto
+import team.themoment.datagsm.common.domain.client.dto.request.SearchClientReqDto
 import team.themoment.datagsm.common.domain.client.dto.response.ClientListResDto
 import team.themoment.datagsm.common.domain.client.dto.response.OAuthScopeGroupListResDto
 import team.themoment.datagsm.web.domain.client.service.CreateClientService
@@ -58,16 +60,15 @@ class ClientController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
             ApiResponse(responseCode = "401", description = "인증되지 않은 요청", content = [Content()]),
             ApiResponse(responseCode = "403", description = "권한이 없는 요청", content = [Content()]),
         ],
     )
     @GetMapping
     fun searchClient(
-        @Parameter(description = "클라이언트 이름") @RequestParam(required = false) clientName: String?,
-        @Parameter(description = "페이지 번호") @RequestParam(required = false, defaultValue = "0") page: Int,
-        @Parameter(description = "페이지 크기") @RequestParam(required = false, defaultValue = "100") size: Int,
-    ): ClientListResDto = searchClientService.execute(clientName, page, size)
+        @Valid @ModelAttribute queryReq: SearchClientReqDto,
+    ): ClientListResDto = searchClientService.execute(queryReq)
 
     @Operation(summary = "클라이언트 생성", description = "새로운 OAuth 클라이언트를 생성합니다.")
     @ApiResponses(

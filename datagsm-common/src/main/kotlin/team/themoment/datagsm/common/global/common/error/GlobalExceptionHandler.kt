@@ -3,6 +3,7 @@ package team.themoment.datagsm.common.global.common.error
 import jakarta.validation.ConstraintViolationException
 import org.springframework.core.env.Environment
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.authorization.AuthorizationDeniedException
@@ -14,6 +15,8 @@ import org.springframework.web.context.request.ServletRequestAttributes
 import org.springframework.web.multipart.MaxUploadSizeExceededException
 import org.springframework.web.servlet.NoHandlerFoundException
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
+import team.themoment.datagsm.common.domain.oauth.dto.response.OAuthErrorResDto
+import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.global.common.discord.error.DiscordErrorNotificationService
 import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.logging.logger.logger
@@ -30,52 +33,78 @@ class GlobalExceptionHandler(
 ) {
     private val objectMapper = ObjectMapper()
 
+    @ExceptionHandler(OAuthException::class)
+    fun handleOAuthException(ex: OAuthException): ResponseEntity<OAuthErrorResDto> {
+        logger().warn("OAuth Error: {} - {}", ex.error, ex.errorDescription)
+        logger().trace("OAuth Error Details: ", ex)
+
+        val errorResponse =
+            OAuthErrorResDto(
+                error = ex.error,
+                errorDescription = ex.errorDescription,
+                errorUri = null,
+            )
+
+        return ResponseEntity.status(ex.httpStatus).body(errorResponse)
+    }
+
     @ExceptionHandler(ExpectedException::class)
-    private fun expectedException(ex: ExpectedException): CommonApiResponse<Nothing> {
+    fun expectedException(ex: ExpectedException): ResponseEntity<CommonApiResponse<Nothing>> {
         logger().warn("ExpectedException : {} ", ex.message)
         logger().trace("ExpectedException Details : ", ex)
-        return CommonApiResponse.error(ex.message ?: "An error occurred", ex.statusCode)
+        return createErrorResponse(ex.statusCode, ex.message ?: "오류가 발생했습니다")
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun validationException(ex: MethodArgumentNotValidException): CommonApiResponse<Nothing> {
+    fun validationException(ex: MethodArgumentNotValidException): ResponseEntity<*> {
         logger().warn("Validation Failed : {}", ex.message)
         logger().trace("Validation Failed Details : ", ex)
-        return CommonApiResponse.error(methodArgumentNotValidExceptionToJson(ex), HttpStatus.BAD_REQUEST)
+
+        if (isOAuthTokenEndpoint()) {
+            val errorResponse =
+                OAuthErrorResDto(
+                    error = "invalid_request",
+                    errorDescription = extractValidationErrorMessage(ex),
+                    errorUri = null,
+                )
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
+        }
+
+        return createErrorResponse(HttpStatus.BAD_REQUEST, methodArgumentNotValidExceptionToJson(ex))
     }
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
-    fun httpMessageNotReadableException(ex: HttpMessageNotReadableException): CommonApiResponse<Nothing> {
+    fun httpMessageNotReadableException(ex: HttpMessageNotReadableException): ResponseEntity<CommonApiResponse<Nothing>> {
         logger().warn("Invalid Request Body : {}", ex.message)
         logger().trace("Invalid Request Body Details : ", ex)
-        return CommonApiResponse.error("Invalid request body format", HttpStatus.BAD_REQUEST)
+        return createErrorResponse(HttpStatus.BAD_REQUEST, "요청 본문 형식이 올바르지 않습니다")
     }
 
     @ExceptionHandler(ConstraintViolationException::class)
-    fun validationException(ex: ConstraintViolationException): CommonApiResponse<Nothing> {
+    fun validationException(ex: ConstraintViolationException): ResponseEntity<CommonApiResponse<Nothing>> {
         logger().warn("field validation failed : {}", ex.message)
         logger().trace("field validation failed : ", ex)
-        return CommonApiResponse.error("field validation failed : ${ex.message}", HttpStatus.BAD_REQUEST)
+        return createErrorResponse(HttpStatus.BAD_REQUEST, "필드 유효성 검증에 실패했습니다: ${ex.message}")
     }
 
     @ExceptionHandler(AuthorizationDeniedException::class, AccessDeniedException::class)
-    fun authorizationDeniedException(ex: Exception): CommonApiResponse<Nothing> {
+    fun authorizationDeniedException(ex: Exception): ResponseEntity<CommonApiResponse<Nothing>> {
         logger().warn("Authorization Denied : {}", ex.message)
         logger().trace("Authorization Denied Details : ", ex)
-        return CommonApiResponse.error("접근 권한이 부족합니다", HttpStatus.FORBIDDEN)
+        return createErrorResponse(HttpStatus.FORBIDDEN, "접근 권한이 부족합니다")
     }
 
     @ExceptionHandler(IllegalStateException::class)
-    fun illegalStateException(ex: IllegalStateException): CommonApiResponse<out Unit> {
+    fun illegalStateException(ex: IllegalStateException): ResponseEntity<CommonApiResponse<Nothing>> {
         if (ex.message?.contains("creationTime key must not be null") == true) {
             logger().warn("Corrupted session detected, treating as invalid session: {}", ex.message)
-            return CommonApiResponse.error("Session is invalid or expired", HttpStatus.UNAUTHORIZED)
+            return createErrorResponse(HttpStatus.UNAUTHORIZED, "세션이 유효하지 않거나 만료되었습니다")
         }
         return unExpectedException(ex)
     }
 
     @ExceptionHandler(RuntimeException::class)
-    fun unExpectedException(ex: RuntimeException): CommonApiResponse<Nothing> {
+    fun unExpectedException(ex: RuntimeException): ResponseEntity<CommonApiResponse<Nothing>> {
         logger().error("UnExpectedException Occur : ", ex)
 
         discordErrorNotificationService?.notifyError(
@@ -89,25 +118,33 @@ class GlobalExceptionHandler(
                 ),
         )
 
-        return CommonApiResponse.error("internal server error has occurred", HttpStatus.INTERNAL_SERVER_ERROR)
+        return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다")
     }
 
     @ExceptionHandler(NoHandlerFoundException::class)
-    fun noHandlerFoundException(ex: NoHandlerFoundException): CommonApiResponse<Nothing> {
+    fun noHandlerFoundException(ex: NoHandlerFoundException): ResponseEntity<CommonApiResponse<Nothing>> {
         logger().warn("Not Found Endpoint : {}", ex.message)
         logger().trace("Not Found Endpoint Details : ", ex)
-        return CommonApiResponse.error(ex.message ?: "Endpoint not found", HttpStatus.NOT_FOUND)
+        return createErrorResponse(HttpStatus.NOT_FOUND, "요청하신 엔드포인트를 찾을 수 없습니다")
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException::class)
-    fun maxUploadSizeExceededException(ex: MaxUploadSizeExceededException): CommonApiResponse<Nothing> {
+    fun maxUploadSizeExceededException(ex: MaxUploadSizeExceededException): ResponseEntity<CommonApiResponse<Nothing>> {
         logger().warn("The file is too big : {}", ex.message)
         logger().trace("The file is too big Details : ", ex)
-        return CommonApiResponse.error(
-            "The file is too big, limited file size : ${ex.maxUploadSize}",
+        return createErrorResponse(
             HttpStatus.BAD_REQUEST,
+            "파일 크기가 너무 큽니다. 최대 파일 크기: ${ex.maxUploadSize}",
         )
     }
+
+    private fun createErrorResponse(
+        status: HttpStatus,
+        message: String,
+    ): ResponseEntity<CommonApiResponse<Nothing>> =
+        ResponseEntity
+            .status(status)
+            .body(CommonApiResponse.error(message, status))
 
     private fun methodArgumentNotValidExceptionToJson(ex: MethodArgumentNotValidException): String {
         val result = mutableMapOf<String, Any>()
@@ -141,4 +178,24 @@ class GlobalExceptionHandler(
         }
 
     private fun getActiveProfile(): String = environment.activeProfiles.firstOrNull() ?: "default"
+
+    private fun isOAuthTokenEndpoint(): Boolean {
+        val requestUri = getCurrentRequestUri()
+        return requestUri == "/v1/oauth/token"
+    }
+
+    private fun extractValidationErrorMessage(ex: MethodArgumentNotValidException): String {
+        val fieldErrors =
+            ex.bindingResult.fieldErrors
+                .joinToString(", ") { "${it.field}: ${it.defaultMessage}" }
+        val globalErrors =
+            ex.bindingResult.globalErrors
+                .joinToString(", ") { it.defaultMessage ?: "" }
+
+        return when {
+            fieldErrors.isNotEmpty() -> fieldErrors
+            globalErrors.isNotEmpty() -> globalErrors
+            else -> "유효성 검증에 실패했습니다"
+        }
+    }
 }
