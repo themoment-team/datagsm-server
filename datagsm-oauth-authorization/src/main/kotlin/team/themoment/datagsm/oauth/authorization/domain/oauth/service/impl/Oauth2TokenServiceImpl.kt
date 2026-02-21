@@ -91,14 +91,11 @@ class Oauth2TokenServiceImpl(
                 reqDto.codeVerifier
                     ?: throw OAuthException.InvalidRequest("code_verifier가 필요합니다.")
 
-            val challengeMethod = PkceChallengeMethod.from(oauthCode.codeChallengeMethod)
+            val challengeMethod =
+                PkceChallengeMethod.fromOrNull(oauthCode.codeChallengeMethod)
+                    ?: throw OAuthException.InvalidGrant("지원하지 않는 code_challenge_method입니다.")
 
-            if (!PkceVerifier.verify(
-                    codeChallenge,
-                    challengeMethod,
-                    codeVerifier,
-                )
-            ) {
+            if (!PkceVerifier.verify(codeChallenge, challengeMethod, codeVerifier)) {
                 throw OAuthException.InvalidGrant("PKCE 검증에 실패했습니다.")
             }
         }
@@ -127,7 +124,12 @@ class Oauth2TokenServiceImpl(
     }
 
     private fun handleRefreshToken(reqDto: Oauth2TokenReqDto): Oauth2TokenResDto {
-        validateRefreshTokenParams(reqDto)
+        if (reqDto.refreshToken.isNullOrBlank()) {
+            throw OAuthException.InvalidRequest("refresh_token 파라미터가 필요합니다.")
+        }
+        if (reqDto.clientId.isNullOrBlank()) {
+            throw OAuthException.InvalidRequest("client_id 파라미터가 필요합니다.")
+        }
 
         val refreshToken = reqDto.refreshToken!!
         if (!jwtProvider.validateToken(refreshToken)) {
@@ -137,7 +139,12 @@ class Oauth2TokenServiceImpl(
         val email = jwtProvider.getEmailFromToken(refreshToken)
         val clientIdFromToken = jwtProvider.getClientIdFromToken(refreshToken)
 
-        val client = validateClient(reqDto.clientId!!, reqDto.clientSecret!!)
+        val client =
+            if (reqDto.clientSecret.isNullOrBlank()) {
+                validateClientWithoutSecret(reqDto.clientId!!)
+            } else {
+                validateClient(reqDto.clientId!!, reqDto.clientSecret!!)
+            }
 
         if (clientIdFromToken != reqDto.clientId) {
             throw OAuthException.InvalidGrant("토큰이 해당 클라이언트에게 발급되지 않았습니다.")
@@ -263,13 +270,6 @@ class Oauth2TokenServiceImpl(
         if (reqDto.clientSecret.isNullOrBlank()) {
             throw OAuthException.InvalidRequest("client_secret 파라미터가 필요합니다.")
         }
-    }
-
-    private fun validateRefreshTokenParams(reqDto: Oauth2TokenReqDto) {
-        if (reqDto.refreshToken.isNullOrBlank()) {
-            throw OAuthException.InvalidRequest("refresh_token 파라미터가 필요합니다.")
-        }
-        validateClientCredentials(reqDto)
     }
 
     private fun validateClientCredentialsParams(reqDto: Oauth2TokenReqDto) {
