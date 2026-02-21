@@ -35,12 +35,12 @@ Create Git commits following these rules:
 - web/oauth/openapi: Module-wide impact
 
 **Wrong Examples**:
-- ❌ `fix(web): API 키 삭제 버그 수정` → ✅ `fix(auth): API 키 삭제 버그 수정`
-- ❌ `update(common): 학생 엔티티 수정` → ✅ `update(student): 엔티티 필드 추가`
+- `fix(web): API 키 삭제 버그 수정` → `fix(auth): API 키 삭제 버그 수정`
+- `update(common): 학생 엔티티 수정` → `update(student): 엔티티 필드 추가`
 
 **Correct Module Name Usage**:
-- ✅ `refactor(global): 공통 예외 처리 로직 개선`
-- ✅ `update(ci/cd): GitHub Actions 워크플로우 최적화`
+- `refactor(global): 공통 예외 처리 로직 개선`
+- `update(ci/cd): GitHub Actions 워크플로우 최적화`
 
 Steps:
 
