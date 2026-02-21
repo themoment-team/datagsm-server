@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -17,11 +16,8 @@ import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.oauth.dto.request.Oauth2TokenReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeSubmitReqDto
-import team.themoment.datagsm.common.domain.oauth.dto.request.OauthCodeReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.Oauth2TokenResDto
-import team.themoment.datagsm.common.domain.oauth.dto.response.OauthCodeResDto
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthAuthorizeFlowService
-import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueOauthCodeService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.Oauth2TokenService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.StartOauthAuthorizeFlowService
 
@@ -29,7 +25,6 @@ import team.themoment.datagsm.oauth.authorization.domain.oauth.service.StartOaut
 @RestController
 @RequestMapping("/v1/oauth")
 class OauthController(
-    val issueOauthCodeService: IssueOauthCodeService,
     val oauth2TokenService: Oauth2TokenService,
     val startOauthAuthorizeFlowService: StartOauthAuthorizeFlowService,
     val completeOauthAuthorizeFlowService: CompleteOauthAuthorizeFlowService,
@@ -66,24 +61,6 @@ class OauthController(
         @Valid @RequestBody reqDto: OauthAuthorizeSubmitReqDto,
     ): ResponseEntity<Void> = completeOauthAuthorizeFlowService.execute(reqDto)
 
-    @Deprecated("Use /v1/oauth/authorize for standard OAuth flow")
-    @Operation(
-        summary = "OAuth 인증 코드 발급",
-        description = "⚠ 레거시 엔드포인트입니다. 새로운 통합은 GET /v1/oauth/authorize를 사용하세요.",
-    )
-    @ApiResponses(
-        value = [
-            ApiResponse(responseCode = "200", description = "OAuth 인증 코드 발급 성공"),
-            ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패 / 등록되지 않은 Redirect URL)", content = [Content()]),
-            ApiResponse(responseCode = "401", description = "이메일과 비밀번호 쌍 불일치", content = [Content()]),
-            ApiResponse(responseCode = "404", description = "존재하지 않는 Client ID / 이메일", content = [Content()]),
-        ],
-    )
-    @PostMapping("/code")
-    fun issueOauthCode(
-        @RequestBody @Valid reqDto: OauthCodeReqDto,
-    ): OauthCodeResDto = issueOauthCodeService.execute(reqDto)
-
     @Operation(
         summary = "OAuth2 토큰 발급/갱신",
         description = "Authorization Code를 토큰으로 교환하거나 Refresh Token으로 갱신합니다.",
@@ -96,10 +73,7 @@ class OauthController(
             ApiResponse(responseCode = "404", description = "리소스를 찾을 수 없음 (code, client, account 등)", content = [Content()]),
         ],
     )
-    @PostMapping(
-        "/token",
-        consumes = [MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE],
-    )
+    @PostMapping("/token")
     fun issueOauth2Token(
         @RequestBody @Valid reqDto: Oauth2TokenReqDto,
     ): Oauth2TokenResDto = oauth2TokenService.execute(reqDto)
