@@ -4,6 +4,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeReqDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthAuthorizeStateRedisEntity
@@ -66,6 +68,7 @@ class StartOauthAuthorizeFlowServiceImpl(
                 .fromUriString(oauthEnvironment.frontendUrl)
                 .path("/oauth/authorize")
                 .queryParam("token", token)
+                .queryParam("service_name", URLEncoder.encode(client.serviceName, StandardCharsets.UTF_8))
                 .build()
                 .toUri()
 
