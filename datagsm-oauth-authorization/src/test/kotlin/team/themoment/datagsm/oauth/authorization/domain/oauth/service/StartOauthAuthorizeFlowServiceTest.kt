@@ -53,7 +53,8 @@ class StartOauthAuthorizeFlowServiceTest :
                         id = testClientId
                         secret = "encodedSecret"
                         redirectUrls = setOf(testRedirectUri)
-                        name = "Test Client"
+                        clientName = "Test Client"
+                        serviceName = "Test Service"
                     }
 
                 context("유효한 OAuth Authorize 요청이 주어졌을 때") {
@@ -82,6 +83,7 @@ class StartOauthAuthorizeFlowServiceTest :
                         val locationUrl = response.headers.location?.toString() ?: ""
                         locationUrl shouldContain "http://localhost:3000/oauth/authorize"
                         locationUrl shouldContain "token="
+                        locationUrl shouldContain "service_name="
 
                         verify(exactly = 1) { mockOauthAuthorizeStateRedisRepository.save(any()) }
 
