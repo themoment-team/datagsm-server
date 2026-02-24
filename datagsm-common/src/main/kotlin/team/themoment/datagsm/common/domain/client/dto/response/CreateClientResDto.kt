@@ -8,7 +8,9 @@ data class CreateClientResDto(
     @param:Schema(description = "생성된 클라이언트 Secret (최초 1회만 반환)", example = $$"$2a$12$p2631BskS5B4yknxhj4UIuoVg8S8BGCXRcanzBZF/VlASgc9gFhjG")
     val clientSecret: String,
     @param:Schema(description = "클라이언트 이름", example = "My OAuth Client")
-    val name: String,
+    val clientName: String,
+    @param:Schema(description = "서비스 명칭", example = "광주소프트웨어마이스터고등학교")
+    val serviceName: String,
     @param:Schema(description = "리다이렉트 URL 목록", example = "[\"https://example.com/callback\"]")
     val redirectUrls: Set<String>,
     @param:Schema(description = "OAuth 권한 범위 목록", example = "[\"self:read\", \"student:read\"]")

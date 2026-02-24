@@ -37,13 +37,15 @@ class ModifyClientServiceImpl(
             throw ExpectedException("Client 변경 권한이 없습니다.", HttpStatus.FORBIDDEN)
         }
         client.apply {
-            name = reqDto.name ?: name
+            clientName = reqDto.clientName ?: clientName
+            serviceName = reqDto.serviceName ?: serviceName
             redirectUrls = reqDto.redirectUrls ?: redirectUrls
         }
 
         return ClientResDto(
             id = client.id,
-            name = client.name,
+            clientName = client.clientName,
+            serviceName = client.serviceName,
             redirectUrl = client.redirectUrls,
             scopes = client.scopes,
         )

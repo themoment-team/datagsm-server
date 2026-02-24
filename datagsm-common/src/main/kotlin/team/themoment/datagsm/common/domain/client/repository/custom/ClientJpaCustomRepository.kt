@@ -7,7 +7,8 @@ import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 
 interface ClientJpaCustomRepository {
     fun searchClientWithPaging(
-        name: String?,
+        clientName: String?,
+        serviceName: String?,
         pageable: Pageable,
     ): Page<ClientJpaEntity>
 
