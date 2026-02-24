@@ -43,7 +43,8 @@ class QueryMyClientServiceTest :
                         ClientJpaEntity().apply {
                             id = "client-1"
                             secret = "secret-1"
-                            name = "나의 클라이언트"
+                            clientName = "나의 클라이언트"
+                            serviceName = "나의 서비스"
                             account = currentAccount
                             redirectUrls = setOf("https://example.com")
                             scopes = setOf(OAuthScope.SELF_READ.scope)
@@ -68,7 +69,7 @@ class QueryMyClientServiceTest :
 
                         val clientRes = result.clients[0]
                         clientRes.id shouldBe "client-1"
-                        clientRes.name shouldBe "나의 클라이언트"
+                        clientRes.clientName shouldBe "나의 클라이언트"
                         clientRes.redirectUrl shouldBe listOf("https://example.com")
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
@@ -87,7 +88,8 @@ class QueryMyClientServiceTest :
                             ClientJpaEntity().apply {
                                 id = "client-$index"
                                 secret = "secret-$index"
-                                name = "클라이언트$index"
+                                clientName = "클라이언트$index"
+                                serviceName = "서비스$index"
                                 account = currentAccount
                                 redirectUrls = setOf("https://example$index.com")
                                 scopes = setOf(OAuthScope.SELF_READ.scope)
@@ -110,8 +112,8 @@ class QueryMyClientServiceTest :
                         result.totalPages shouldBe 1
                         result.totalElements shouldBe 5L
                         result.clients.size shouldBe 5
-                        result.clients[0].name shouldBe "클라이언트1"
-                        result.clients[4].name shouldBe "클라이언트5"
+                        result.clients[0].clientName shouldBe "클라이언트1"
+                        result.clients[4].clientName shouldBe "클라이언트5"
                     }
                 }
 
@@ -148,7 +150,8 @@ class QueryMyClientServiceTest :
                         ClientJpaEntity().apply {
                             id = "client-1"
                             secret = "secret-1"
-                            name = "멀티 리다이렉트 클라이언트"
+                            clientName = "멀티 리다이렉트 클라이언트"
+                            serviceName = "멀티 리다이렉트 서비스"
                             account = currentAccount
                             redirectUrls = setOf("https://url1.com", "https://url2.com", "https://url3.com")
                             scopes = setOf(OAuthScope.SELF_READ.scope)
@@ -158,7 +161,8 @@ class QueryMyClientServiceTest :
                         ClientJpaEntity().apply {
                             id = "client-2"
                             secret = "secret-2"
-                            name = "단일 리다이렉트 클라이언트"
+                            clientName = "단일 리다이렉트 클라이언트"
+                            serviceName = "단일 리다이렉트 서비스"
                             account = currentAccount
                             redirectUrls = setOf("https://single.com")
                             scopes = setOf(OAuthScope.SELF_READ.scope)
@@ -168,7 +172,8 @@ class QueryMyClientServiceTest :
                         ClientJpaEntity().apply {
                             id = "client-3"
                             secret = "secret-3"
-                            name = "리다이렉트 없는 클라이언트"
+                            clientName = "리다이렉트 없는 클라이언트"
+                            serviceName = "리다이렉트 없는 서비스"
                             account = currentAccount
                             redirectUrls = emptySet()
                             scopes = setOf(OAuthScope.SELF_READ.scope)
@@ -207,7 +212,8 @@ class QueryMyClientServiceTest :
                         ClientJpaEntity().apply {
                             id = "admin-client"
                             secret = "admin-secret"
-                            name = "관리자 클라이언트"
+                            clientName = "관리자 클라이언트"
+                            serviceName = "관리자 서비스"
                             account = adminAccount
                             redirectUrls = emptySet()
                             scopes = setOf(OAuthScope.SELF_READ.scope)
@@ -228,7 +234,7 @@ class QueryMyClientServiceTest :
 
                         result.totalPages shouldBe 1
                         result.totalElements shouldBe 1L
-                        result.clients[0].name shouldBe "관리자 클라이언트"
+                        result.clients[0].clientName shouldBe "관리자 클라이언트"
                     }
                 }
 
@@ -240,7 +246,8 @@ class QueryMyClientServiceTest :
                             ClientJpaEntity().apply {
                                 id = "client-$index"
                                 secret = "secret-$index"
-                                name = "클라이언트$index"
+                                clientName = "클라이언트$index"
+                                serviceName = "서비스$index"
                                 account = currentAccount
                                 redirectUrls = setOf("https://example$index.com")
                                 scopes = setOf(OAuthScope.SELF_READ.scope)
@@ -281,8 +288,8 @@ class QueryMyClientServiceTest :
                         result.totalPages shouldBe 3
                         result.totalElements shouldBe totalElements
                         result.clients.size shouldBe pageSize
-                        result.clients[0].name shouldBe "클라이언트1"
-                        result.clients[9].name shouldBe "클라이언트10"
+                        result.clients[0].clientName shouldBe "클라이언트1"
+                        result.clients[9].clientName shouldBe "클라이언트10"
                     }
 
                     it("두 번째 페이지를 올바르게 반환해야 한다") {
@@ -291,8 +298,8 @@ class QueryMyClientServiceTest :
                         result.totalPages shouldBe 3
                         result.totalElements shouldBe totalElements
                         result.clients.size shouldBe pageSize
-                        result.clients[0].name shouldBe "클라이언트11"
-                        result.clients[9].name shouldBe "클라이언트20"
+                        result.clients[0].clientName shouldBe "클라이언트11"
+                        result.clients[9].clientName shouldBe "클라이언트20"
                     }
 
                     it("마지막 페이지를 올바르게 반환해야 한다") {
@@ -301,8 +308,8 @@ class QueryMyClientServiceTest :
                         result.totalPages shouldBe 3
                         result.totalElements shouldBe totalElements
                         result.clients.size shouldBe 5
-                        result.clients[0].name shouldBe "클라이언트21"
-                        result.clients[4].name shouldBe "클라이언트25"
+                        result.clients[0].clientName shouldBe "클라이언트21"
+                        result.clients[4].clientName shouldBe "클라이언트25"
                     }
                 }
             }

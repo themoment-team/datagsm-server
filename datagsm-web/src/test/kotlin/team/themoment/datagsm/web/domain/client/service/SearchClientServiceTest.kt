@@ -41,7 +41,8 @@ class SearchClientServiceTest :
                     ClientJpaEntity().apply {
                         id = "test-client-id"
                         secret = "test-secret"
-                        name = "테스트 클라이언트"
+                        clientName = "테스트 클라이언트"
+                        serviceName = "테스트 서비스"
                         account = testAccount
                         redirectUrls = setOf("https://test.com")
                         scopes = setOf(OAuthScope.SELF_READ.scope)
@@ -51,7 +52,8 @@ class SearchClientServiceTest :
                     beforeEach {
                         every {
                             mockClientRepository.searchClientWithPaging(
-                                name = "테스트",
+                                clientName = "테스트",
+                                serviceName = null,
                                 pageable = PageRequest.of(0, 20),
                             )
                         } returns PageImpl(listOf(testClient), PageRequest.of(0, 20), 1L)
@@ -73,12 +75,13 @@ class SearchClientServiceTest :
 
                         val client = result.clients[0]
                         client.id shouldBe "test-client-id"
-                        client.name shouldBe "테스트 클라이언트"
+                        client.clientName shouldBe "테스트 클라이언트"
                         client.redirectUrl shouldBe listOf("https://test.com")
 
                         verify(exactly = 1) {
                             mockClientRepository.searchClientWithPaging(
-                                name = "테스트",
+                                clientName = "테스트",
+                                serviceName = null,
                                 pageable = PageRequest.of(0, 20),
                             )
                         }
@@ -91,7 +94,8 @@ class SearchClientServiceTest :
                             ClientJpaEntity().apply {
                                 id = "client-$index"
                                 secret = "secret-$index"
-                                name = "클라이언트$index"
+                                clientName = "클라이언트$index"
+                                serviceName = "서비스$index"
                                 account = testAccount
                                 redirectUrls = setOf("https://example$index.com")
                                 scopes = setOf(OAuthScope.SELF_READ.scope)
@@ -101,7 +105,8 @@ class SearchClientServiceTest :
                     beforeEach {
                         every {
                             mockClientRepository.searchClientWithPaging(
-                                name = null,
+                                clientName = null,
+                                serviceName = null,
                                 pageable = PageRequest.of(0, 20),
                             )
                         } returns PageImpl(clients, PageRequest.of(0, 20), 10L)
@@ -120,8 +125,8 @@ class SearchClientServiceTest :
                         result.totalElements shouldBe 10L
                         result.totalPages shouldBe 1
                         result.clients.size shouldBe 10
-                        result.clients[0].name shouldBe "클라이언트1"
-                        result.clients[9].name shouldBe "클라이언트10"
+                        result.clients[0].clientName shouldBe "클라이언트1"
+                        result.clients[9].clientName shouldBe "클라이언트10"
                     }
                 }
 
@@ -129,7 +134,8 @@ class SearchClientServiceTest :
                     beforeEach {
                         every {
                             mockClientRepository.searchClientWithPaging(
-                                name = "존재하지않음",
+                                clientName = "존재하지않음",
+                                serviceName = null,
                                 pageable = PageRequest.of(0, 20),
                             )
                         } returns PageImpl(emptyList(), PageRequest.of(0, 20), 0L)
@@ -157,7 +163,8 @@ class SearchClientServiceTest :
                             ClientJpaEntity().apply {
                                 id = "client-$index"
                                 secret = "secret-$index"
-                                name = "클라이언트$index"
+                                clientName = "클라이언트$index"
+                                serviceName = "서비스$index"
                                 account = testAccount
                                 redirectUrls = emptySet()
                                 scopes = setOf(OAuthScope.SELF_READ.scope)
@@ -168,7 +175,8 @@ class SearchClientServiceTest :
                         val firstPageClients = allClients.take(20)
                         every {
                             mockClientRepository.searchClientWithPaging(
-                                name = null,
+                                clientName = null,
+                                serviceName = null,
                                 pageable = PageRequest.of(0, 20),
                             )
                         } returns PageImpl(firstPageClients, PageRequest.of(0, 20), 50L)
@@ -187,8 +195,8 @@ class SearchClientServiceTest :
                         result.totalElements shouldBe 50L
                         result.totalPages shouldBe 3
                         result.clients.size shouldBe 20
-                        result.clients[0].name shouldBe "클라이언트1"
-                        result.clients[19].name shouldBe "클라이언트20"
+                        result.clients[0].clientName shouldBe "클라이언트1"
+                        result.clients[19].clientName shouldBe "클라이언트20"
                     }
                 }
 
@@ -198,7 +206,8 @@ class SearchClientServiceTest :
                             ClientJpaEntity().apply {
                                 id = "client-$index"
                                 secret = "secret-$index"
-                                name = "클라이언트$index"
+                                clientName = "클라이언트$index"
+                                serviceName = "서비스$index"
                                 account = testAccount
                                 redirectUrls = emptySet()
                                 scopes = setOf(OAuthScope.SELF_READ.scope)
@@ -209,7 +218,8 @@ class SearchClientServiceTest :
                         val secondPageClients = allClients.drop(20).take(20)
                         every {
                             mockClientRepository.searchClientWithPaging(
-                                name = null,
+                                clientName = null,
+                                serviceName = null,
                                 pageable = PageRequest.of(1, 20),
                             )
                         } returns PageImpl(secondPageClients, PageRequest.of(1, 20), 50L)
@@ -228,8 +238,8 @@ class SearchClientServiceTest :
                         result.totalElements shouldBe 50L
                         result.totalPages shouldBe 3
                         result.clients.size shouldBe 20
-                        result.clients[0].name shouldBe "클라이언트21"
-                        result.clients[19].name shouldBe "클라이언트40"
+                        result.clients[0].clientName shouldBe "클라이언트21"
+                        result.clients[19].clientName shouldBe "클라이언트40"
                     }
                 }
 
@@ -239,7 +249,8 @@ class SearchClientServiceTest :
                             ClientJpaEntity().apply {
                                 id = "client-1"
                                 secret = "secret-1"
-                                name = "API 클라이언트"
+                                clientName = "API 클라이언트"
+                                serviceName = "API 서비스1"
                                 account = testAccount
                                 redirectUrls = emptySet()
                                 scopes = setOf(OAuthScope.SELF_READ.scope)
@@ -247,7 +258,8 @@ class SearchClientServiceTest :
                             ClientJpaEntity().apply {
                                 id = "client-2"
                                 secret = "secret-2"
-                                name = "API 서비스 클라이언트"
+                                clientName = "API 서비스 클라이언트"
+                                serviceName = "API 서비스2"
                                 account = testAccount
                                 redirectUrls = emptySet()
                                 scopes = setOf(OAuthScope.SELF_READ.scope)
@@ -257,7 +269,8 @@ class SearchClientServiceTest :
                     beforeEach {
                         every {
                             mockClientRepository.searchClientWithPaging(
-                                name = "API",
+                                clientName = "API",
+                                serviceName = null,
                                 pageable = PageRequest.of(0, 20),
                             )
                         } returns PageImpl(matchingClients, PageRequest.of(0, 20), 2L)
@@ -275,8 +288,8 @@ class SearchClientServiceTest :
 
                         result.totalElements shouldBe 2L
                         result.clients.size shouldBe 2
-                        result.clients[0].name shouldBe "API 클라이언트"
-                        result.clients[1].name shouldBe "API 서비스 클라이언트"
+                        result.clients[0].clientName shouldBe "API 클라이언트"
+                        result.clients[1].clientName shouldBe "API 서비스 클라이언트"
                     }
                 }
 
@@ -286,7 +299,8 @@ class SearchClientServiceTest :
                             ClientJpaEntity().apply {
                                 id = "client-$index"
                                 secret = "secret-$index"
-                                name = "클라이언트$index"
+                                clientName = "클라이언트$index"
+                                serviceName = "서비스$index"
                                 account = testAccount
                                 redirectUrls = emptySet()
                                 scopes = setOf(OAuthScope.SELF_READ.scope)
@@ -296,7 +310,8 @@ class SearchClientServiceTest :
                     beforeEach {
                         every {
                             mockClientRepository.searchClientWithPaging(
-                                name = null,
+                                clientName = null,
+                                serviceName = null,
                                 pageable = PageRequest.of(0, 5),
                             )
                         } returns PageImpl(clients, PageRequest.of(0, 5), 5L)

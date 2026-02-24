@@ -59,7 +59,8 @@ class CreateClientServiceTest :
                 context("유효한 scope로 클라이언트 생성 요청할 때") {
                     val reqDto =
                         CreateClientReqDto(
-                            name = "Test OAuth Client",
+                            clientName = "Test OAuth Client",
+                            serviceName = "테스트 서비스",
                             scopes = setOf("self:read"),
                             redirectUrls = emptySet(),
                         )
@@ -79,7 +80,8 @@ class CreateClientServiceTest :
 
                         result.clientId shouldNotBe null
                         result.clientSecret shouldNotBe null
-                        result.name shouldBe "Test OAuth Client"
+                        result.clientName shouldBe "Test OAuth Client"
+                        result.serviceName shouldBe "테스트 서비스"
                         result.redirectUrls shouldBe emptySet()
                         result.scopes shouldBe setOf("self:read")
 
@@ -93,7 +95,8 @@ class CreateClientServiceTest :
                 context("허용되지 않는 scope를 포함하여 클라이언트 생성 요청할 때") {
                     val reqDto =
                         CreateClientReqDto(
-                            name = "Invalid Client",
+                            clientName = "Invalid Client",
+                            serviceName = "잘못된 서비스",
                             scopes = setOf("self:read", "invalid:scope"),
                             redirectUrls = emptySet(),
                         )
@@ -122,7 +125,8 @@ class CreateClientServiceTest :
                 context("여러 개의 허용되지 않는 scope를 포함하여 클라이언트 생성 요청할 때") {
                     val reqDto =
                         CreateClientReqDto(
-                            name = "Invalid Client",
+                            clientName = "Invalid Client",
+                            serviceName = "잘못된 서비스",
                             scopes = setOf("self:read", "invalid:scope1", "invalid:scope2"),
                             redirectUrls = emptySet(),
                         )
@@ -149,7 +153,8 @@ class CreateClientServiceTest :
                 context("클라이언트 secret이 암호화되어 저장될 때") {
                     val reqDto =
                         CreateClientReqDto(
-                            name = "Test Client",
+                            clientName = "Test Client",
+                            serviceName = "테스트 서비스",
                             scopes = setOf("self:read"),
                             redirectUrls = emptySet(),
                         )
@@ -179,7 +184,8 @@ class CreateClientServiceTest :
                 context("클라이언트 생성 시 redirectUrls가 빈 Set으로 초기화될 때") {
                     val reqDto =
                         CreateClientReqDto(
-                            name = "Test Client",
+                            clientName = "Test Client",
+                            serviceName = "테스트 서비스",
                             scopes = setOf("self:read"),
                             redirectUrls = emptySet(),
                         )
@@ -209,7 +215,8 @@ class CreateClientServiceTest :
                 context("클라이언트 생성 시 redirectUrls를 포함할 때") {
                     val reqDto =
                         CreateClientReqDto(
-                            name = "Test Client with URLs",
+                            clientName = "Test Client with URLs",
+                            serviceName = "테스트 서비스",
                             scopes = setOf("self:read"),
                             redirectUrls = setOf("https://example.com/callback", "https://app.example.com/oauth/callback"),
                         )
@@ -239,7 +246,8 @@ class CreateClientServiceTest :
                 context("클라이언트 생성 시 scope가 ApiScope enum으로 변환될 때") {
                     val reqDto =
                         CreateClientReqDto(
-                            name = "Test Client",
+                            clientName = "Test Client",
+                            serviceName = "테스트 서비스",
                             scopes = setOf("self:read"),
                             redirectUrls = emptySet(),
                         )
@@ -268,7 +276,8 @@ class CreateClientServiceTest :
                 context("클라이언트 생성 시 현재 사용자의 Account가 연결될 때") {
                     val reqDto =
                         CreateClientReqDto(
-                            name = "Test Client",
+                            clientName = "Test Client",
+                            serviceName = "테스트 서비스",
                             scopes = setOf("self:read"),
                             redirectUrls = emptySet(),
                         )
@@ -299,7 +308,8 @@ class CreateClientServiceTest :
                 context("유효한 scope로 생성된 클라이언트 ID와 secret이 UUID 형식일 때") {
                     val reqDto =
                         CreateClientReqDto(
-                            name = "UUID Test Client",
+                            clientName = "UUID Test Client",
+                            serviceName = "UUID 테스트 서비스",
                             scopes = setOf("self:read"),
                             redirectUrls = emptySet(),
                         )
@@ -327,7 +337,8 @@ class CreateClientServiceTest :
                 context("빈 scope 목록으로 클라이언트 생성 요청할 때") {
                     val reqDto =
                         CreateClientReqDto(
-                            name = "Empty Scope Client",
+                            clientName = "Empty Scope Client",
+                            serviceName = "빈 스코프 서비스",
                             scopes = emptySet(),
                             redirectUrls = emptySet(),
                         )
@@ -346,7 +357,7 @@ class CreateClientServiceTest :
                         val result = createClientService.execute(reqDto)
 
                         result.clientId shouldNotBe null
-                        result.name shouldBe "Empty Scope Client"
+                        result.clientName shouldBe "Empty Scope Client"
 
                         verify(exactly = 1) { mockClientJpaRepository.save(any()) }
                     }
