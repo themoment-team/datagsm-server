@@ -93,8 +93,12 @@ class QueryClubServiceTest :
                             }
                         every {
                             mockClubRepository.searchClubWithPaging(
-                                id = null, name = null, type = ClubType.MAJOR_CLUB,
-                                pageable = any(), sortBy = any(), sortDirection = any(),
+                                id = null,
+                                name = null,
+                                type = ClubType.MAJOR_CLUB,
+                                pageable = any(),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         } returns PageImpl(listOf(club))
                         every { mockStudentRepository.findRegisteredStudentsByMajorClub(club) } returns listOf(leader, member)
@@ -149,8 +153,12 @@ class QueryClubServiceTest :
                             }
                         every {
                             mockClubRepository.searchClubWithPaging(
-                                id = null, name = null, type = ClubType.MAJOR_CLUB,
-                                pageable = any(), sortBy = any(), sortDirection = any(),
+                                id = null,
+                                name = null,
+                                type = ClubType.MAJOR_CLUB,
+                                pageable = any(),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         } returns PageImpl(listOf(club))
                         every { mockStudentRepository.findRegisteredStudentsByMajorClub(club) } returns listOf(leader, member)
@@ -195,8 +203,12 @@ class QueryClubServiceTest :
                             }
                         every {
                             mockClubRepository.searchClubWithPaging(
-                                id = null, name = null, type = ClubType.JOB_CLUB,
-                                pageable = any(), sortBy = any(), sortDirection = any(),
+                                id = null,
+                                name = null,
+                                type = ClubType.JOB_CLUB,
+                                pageable = any(),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         } returns PageImpl(listOf(club))
                         every { mockStudentRepository.findRegisteredStudentsByJobClub(club) } returns listOf(leader)
@@ -236,8 +248,12 @@ class QueryClubServiceTest :
                             }
                         every {
                             mockClubRepository.searchClubWithPaging(
-                                id = null, name = null, type = ClubType.AUTONOMOUS_CLUB,
-                                pageable = any(), sortBy = any(), sortDirection = any(),
+                                id = null,
+                                name = null,
+                                type = ClubType.AUTONOMOUS_CLUB,
+                                pageable = any(),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         } returns PageImpl(listOf(club))
                         every { mockStudentRepository.findRegisteredStudentsByAutonomousClub(club) } returns listOf(leader)
@@ -277,8 +293,12 @@ class QueryClubServiceTest :
                             }
                         every {
                             mockClubRepository.searchClubWithPaging(
-                                id = null, name = "검색동아리", type = null,
-                                pageable = any(), sortBy = any(), sortDirection = any(),
+                                id = null,
+                                name = "검색동아리",
+                                type = null,
+                                pageable = any(),
+                                sortBy = any(),
+                                sortDirection = any(),
                             )
                         } returns PageImpl(listOf(club))
                         every { mockStudentRepository.findRegisteredStudentsByMajorClub(club) } returns listOf(leader)
