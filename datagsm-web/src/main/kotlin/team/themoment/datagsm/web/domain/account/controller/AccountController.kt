@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.common.domain.account.dto.response.GetMyInfoResDto
+import team.themoment.datagsm.common.domain.account.dto.response.AccountInfoResDto
 import team.themoment.datagsm.web.domain.account.service.QueryMyInfoService
 
 @Tag(name = "Account", description = "계정 관련 API")
@@ -27,5 +27,5 @@ class AccountController(
         ],
     )
     @GetMapping("/my")
-    fun getMyInfo(): GetMyInfoResDto = queryMyInfoService.execute()
+    fun getMyInfo(): AccountInfoResDto = queryMyInfoService.execute()
 }

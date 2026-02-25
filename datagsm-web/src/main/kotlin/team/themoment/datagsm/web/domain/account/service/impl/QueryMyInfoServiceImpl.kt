@@ -2,7 +2,7 @@ package team.themoment.datagsm.web.domain.account.service.impl
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.common.domain.account.dto.response.GetMyInfoResDto
+import team.themoment.datagsm.common.domain.account.dto.response.AccountInfoResDto
 import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
@@ -14,10 +14,10 @@ class QueryMyInfoServiceImpl(
     private val currentUserProvider: CurrentUserProvider,
 ) : QueryMyInfoService {
     @Transactional(readOnly = true)
-    override fun execute(): GetMyInfoResDto {
+    override fun execute(): AccountInfoResDto {
         val account = currentUserProvider.getCurrentAccount()
 
-        return GetMyInfoResDto(
+        return AccountInfoResDto(
             id = account.id!!,
             email = account.email,
             role = account.role,
