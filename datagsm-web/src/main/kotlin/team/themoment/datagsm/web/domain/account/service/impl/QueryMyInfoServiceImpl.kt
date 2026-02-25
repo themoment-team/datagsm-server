@@ -6,13 +6,13 @@ import team.themoment.datagsm.common.domain.account.dto.response.GetMyInfoResDto
 import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
-import team.themoment.datagsm.web.domain.account.service.GetMyInfoService
+import team.themoment.datagsm.web.domain.account.service.QueryMyInfoService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 
 @Service
-class GetMyInfoServiceImpl(
+class QueryMyInfoServiceImpl(
     private val currentUserProvider: CurrentUserProvider,
-) : GetMyInfoService {
+) : QueryMyInfoService {
     @Transactional(readOnly = true)
     override fun execute(): GetMyInfoResDto {
         val account = currentUserProvider.getCurrentAccount()
