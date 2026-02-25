@@ -24,8 +24,8 @@ import team.themoment.datagsm.common.domain.client.dto.response.ClientListResDto
 import team.themoment.datagsm.common.domain.client.dto.response.OAuthScopeGroupListResDto
 import team.themoment.datagsm.web.domain.client.service.CreateClientService
 import team.themoment.datagsm.web.domain.client.service.DeleteClientService
-import team.themoment.datagsm.web.domain.client.service.QueryAvailableOauthScopesService
 import team.themoment.datagsm.web.domain.client.service.ModifyClientService
+import team.themoment.datagsm.web.domain.client.service.QueryAvailableOauthScopesService
 import team.themoment.datagsm.web.domain.client.service.QueryMyClientService
 import team.themoment.datagsm.web.domain.client.service.SearchClientService
 import team.themoment.sdk.response.CommonApiResponse
