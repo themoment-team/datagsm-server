@@ -40,7 +40,8 @@ class CreateClientServiceImpl(
             ClientJpaEntity().apply {
                 id = generateUUID()
                 secret = passwordEncoder.encode(rawSecret).toString()
-                name = reqDto.name
+                clientName = reqDto.clientName
+                serviceName = reqDto.serviceName
                 account = currentAccount
                 redirectUrls = reqDto.redirectUrls
                 scopes = reqDto.scopes
@@ -49,7 +50,8 @@ class CreateClientServiceImpl(
         return CreateClientResDto(
             clientId = client.id,
             clientSecret = rawSecret,
-            name = client.name,
+            clientName = client.clientName,
+            serviceName = client.serviceName,
             redirectUrls = client.redirectUrls,
             scopes = client.scopes,
         )

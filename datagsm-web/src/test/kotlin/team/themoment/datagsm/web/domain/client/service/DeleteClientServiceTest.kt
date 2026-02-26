@@ -51,7 +51,8 @@ class DeleteClientServiceTest :
                         ClientJpaEntity().apply {
                             id = clientId
                             secret = "encoded-secret"
-                            name = "테스트 클라이언트"
+                            clientName = "테스트 클라이언트"
+                            serviceName = "테스트 서비스"
                             account = ownerAccount
                             redirectUrls = setOf("https://example.com")
                         }

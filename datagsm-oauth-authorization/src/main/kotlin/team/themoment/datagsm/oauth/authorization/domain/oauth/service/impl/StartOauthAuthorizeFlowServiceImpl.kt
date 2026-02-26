@@ -12,6 +12,8 @@ import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.StartOauthAuthorizeFlowService
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.util.UUID
 
 @Service
@@ -66,6 +68,7 @@ class StartOauthAuthorizeFlowServiceImpl(
                 .fromUriString(oauthEnvironment.frontendUrl)
                 .path("/oauth/authorize")
                 .queryParam("token", token)
+                .queryParam("service_name", URLEncoder.encode(client.serviceName, StandardCharsets.UTF_8))
                 .build()
                 .toUri()
 

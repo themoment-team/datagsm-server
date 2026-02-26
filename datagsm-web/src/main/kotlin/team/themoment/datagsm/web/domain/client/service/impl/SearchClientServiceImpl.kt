@@ -17,7 +17,8 @@ class SearchClientServiceImpl(
     override fun execute(reqDto: SearchClientReqDto): ClientListResDto {
         val clientPage =
             clientJpaRepository.searchClientWithPaging(
-                name = reqDto.clientName,
+                clientName = reqDto.clientName,
+                serviceName = reqDto.serviceName,
                 pageable = PageRequest.of(reqDto.page, reqDto.size),
             )
 
@@ -28,7 +29,8 @@ class SearchClientServiceImpl(
                 clientPage.content.map { entity ->
                     ClientResDto(
                         id = entity.id,
-                        name = entity.name,
+                        clientName = entity.clientName,
+                        serviceName = entity.serviceName,
                         redirectUrl = entity.redirectUrls,
                         scopes = entity.scopes,
                     )

@@ -29,7 +29,11 @@ class ClientJpaEntity {
     @Column(columnDefinition = "text")
     lateinit var scopes: Set<String>
 
-    lateinit var name: String
+    @Column(name = "client_name")
+    lateinit var clientName: String
+
+    @Column(name = "service_name")
+    lateinit var serviceName: String
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "account_id", nullable = false)

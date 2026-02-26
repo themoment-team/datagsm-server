@@ -15,14 +15,16 @@ class ClientJpaCustomRepositoryImpl(
     private val jpaQueryFactory: JPAQueryFactory,
 ) : ClientJpaCustomRepository {
     override fun searchClientWithPaging(
-        name: String?,
+        clientName: String?,
+        serviceName: String?,
         pageable: Pageable,
     ): Page<ClientJpaEntity> {
         val content =
             jpaQueryFactory
                 .selectFrom(clientJpaEntity)
                 .where(
-                    name?.let { clientJpaEntity.name.startsWith(it) },
+                    clientName?.let { clientJpaEntity.clientName.startsWith(it) },
+                    serviceName?.let { clientJpaEntity.serviceName.startsWith(it) },
                 ).offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
@@ -32,7 +34,8 @@ class ClientJpaCustomRepositoryImpl(
                 .select(clientJpaEntity.count())
                 .from(clientJpaEntity)
                 .where(
-                    name?.let { clientJpaEntity.name.startsWith(it) },
+                    clientName?.let { clientJpaEntity.clientName.startsWith(it) },
+                    serviceName?.let { clientJpaEntity.serviceName.startsWith(it) },
                 )
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
