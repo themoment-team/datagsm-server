@@ -8,14 +8,14 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.common.domain.account.dto.response.GetMyInfoResDto
-import team.themoment.datagsm.web.domain.account.service.GetMyInfoService
+import team.themoment.datagsm.common.domain.account.dto.response.AccountInfoResDto
+import team.themoment.datagsm.web.domain.account.service.QueryMyInfoService
 
 @Tag(name = "Account", description = "계정 관련 API")
 @RestController
 @RequestMapping("/v1/accounts")
 class AccountController(
-    private val getMyInfoService: GetMyInfoService,
+    private val queryMyInfoService: QueryMyInfoService,
 ) {
     @Operation(summary = "내 정보 조회", description = "현재 로그인한 사용자의 계정 및 학생 정보를 조회합니다.")
     @ApiResponses(
@@ -27,5 +27,5 @@ class AccountController(
         ],
     )
     @GetMapping("/my")
-    fun getMyInfo(): GetMyInfoResDto = getMyInfoService.execute()
+    fun getMyInfo(): AccountInfoResDto = queryMyInfoService.execute()
 }
