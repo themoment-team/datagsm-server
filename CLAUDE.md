@@ -61,6 +61,7 @@ fun getStudents(@Valid @ModelAttribute queryReq: QueryStudentReqDto): StudentLis
 
 - **@RequestBody (Create/Update)**: Use `reqDto` → `service.execute(reqDto)`
 - **@ModelAttribute (Query)**: Use `queryReq` → `service.execute(queryReq)`
+- **@ModelAttribute (Search)**: Use `searchReq` (검색 의미가 명확한 경우)
 
 ### Controller-Service Value Passing
 
