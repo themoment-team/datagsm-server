@@ -108,6 +108,8 @@ fun getApiScopes(
 
 ### Use `@ModelAttribute` + DTO for 3+ Parameters or Validation
 
+Variable naming: use `queryReq` for general queries, `searchReq` when search intent is clear.
+
 ```kotlin
 @GetMapping("/students")
 fun getStudentInfo(
