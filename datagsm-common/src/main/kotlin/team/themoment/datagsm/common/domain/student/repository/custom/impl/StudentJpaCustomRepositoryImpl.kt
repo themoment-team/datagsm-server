@@ -361,14 +361,14 @@ class StudentJpaCustomRepositoryImpl(
             .execute()
     }
 
-    private fun buildEmailCaseExpr(pairs: List<Pair<Long, String>>): Expression<String> {
-        var caseWhen =
-            CaseBuilder()
-                .`when`(studentJpaEntity.id.eq(pairs[0].first))
-                .then(pairs[0].second)
-        pairs.drop(1).forEach { (id, email) ->
-            caseWhen = caseWhen.`when`(studentJpaEntity.id.eq(id)).then(email)
-        }
-        return caseWhen.otherwise(studentJpaEntity.email)
-    }
+    private fun buildEmailCaseExpr(pairs: List<Pair<Long, String>>): Expression<String> =
+        pairs
+            .drop(1)
+            .fold(
+                CaseBuilder()
+                    .`when`(studentJpaEntity.id.eq(pairs[0].first))
+                    .then(pairs[0].second),
+            ) { caseWhen, (id, email) ->
+                caseWhen.`when`(studentJpaEntity.id.eq(id)).then(email)
+            }.otherwise(studentJpaEntity.email)
 }
