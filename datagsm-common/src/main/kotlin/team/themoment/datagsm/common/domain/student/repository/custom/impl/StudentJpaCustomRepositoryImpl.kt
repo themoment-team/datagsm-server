@@ -2,8 +2,6 @@ package team.themoment.datagsm.common.domain.student.repository.custom.impl
 
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.jpa.impl.JPAQueryFactory
-import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.support.PageableExecutionUtils
@@ -17,12 +15,10 @@ import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentSortBy
 import team.themoment.datagsm.common.domain.student.repository.custom.StudentJpaCustomRepository
 import team.themoment.datagsm.common.global.constant.SortDirection
-import java.util.UUID
 
 @Repository
 class StudentJpaCustomRepositoryImpl(
     val jpaQueryFactory: JPAQueryFactory,
-    @PersistenceContext val entityManager: EntityManager,
 ) : StudentJpaCustomRepository {
     override fun searchStudentsWithPaging(
         id: Long?,
@@ -323,24 +319,19 @@ class StudentJpaCustomRepositoryImpl(
     override fun bulkUpdateEmails(emailUpdates: Map<Long, String>) {
         if (emailUpdates.isEmpty()) return
 
-        val tempEmails = emailUpdates.keys.associateWith { "tmp_${UUID.randomUUID()}" }
-        executeBulkEmailUpdate(tempEmails)
-        executeBulkEmailUpdate(emailUpdates)
-    }
-
-    private fun executeBulkEmailUpdate(emailUpdates: Map<Long, String>) {
-        val sb = StringBuilder("UPDATE tb_student SET email = CASE id ")
-        val params = mutableListOf<Any>()
-        emailUpdates.forEach { (id, email) ->
-            sb.append("WHEN ? THEN ? ")
-            params.add(id)
-            params.add(email)
+        emailUpdates.keys.forEach { id ->
+            jpaQueryFactory
+                .update(studentJpaEntity)
+                .set(studentJpaEntity.email, "tmp_$id")
+                .where(studentJpaEntity.id.eq(id))
+                .execute()
         }
-        sb.append("END WHERE id IN (${emailUpdates.keys.joinToString(",") { "?" }})")
-        emailUpdates.keys.forEach { params.add(it) }
-
-        val query = entityManager.createNativeQuery(sb.toString())
-        params.forEachIndexed { idx, param -> query.setParameter(idx + 1, param) }
-        query.executeUpdate()
+        emailUpdates.forEach { (id, email) ->
+            jpaQueryFactory
+                .update(studentJpaEntity)
+                .set(studentJpaEntity.email, email)
+                .where(studentJpaEntity.id.eq(id))
+                .execute()
+        }
     }
 }
