@@ -74,13 +74,8 @@ class ModifyClubExcelServiceImpl(
         val allExistingClubs = clubJpaRepository.findAll()
         val orphanClubs = allExistingClubs.filter { it.name !in excelClubNames }
         if (orphanClubs.isNotEmpty()) {
-            orphanClubs.forEach { club ->
-                studentJpaRepository.findByMajorClub(club).forEach { it.majorClub = null }
-                studentJpaRepository.findByJobClub(club).forEach { it.jobClub = null }
-                studentJpaRepository.findByAutonomousClub(club).forEach { it.autonomousClub = null }
-            }
-            studentJpaRepository.flush()
-            clubJpaRepository.deleteAll(orphanClubs)
+            studentJpaRepository.bulkClearClubReferences(orphanClubs)
+            clubJpaRepository.deleteAllInBatch(orphanClubs)
         }
 
         return CommonApiResponse.success("엑셀 업로드 성공")

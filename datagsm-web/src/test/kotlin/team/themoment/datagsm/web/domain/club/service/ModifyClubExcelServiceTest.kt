@@ -585,18 +585,20 @@ class ModifyClubExcelServiceTest :
                                 },
                                 orphanClub,
                             )
-                        every { mockStudentRepository.findByMajorClub(orphanClub) } returns emptyList()
-                        every { mockStudentRepository.findByJobClub(orphanClub) } returns emptyList()
-                        every { mockStudentRepository.findByAutonomousClub(orphanClub) } returns emptyList()
-                        every { mockStudentRepository.flush() } just Runs
-                        every { mockClubRepository.deleteAll(any<Iterable<ClubJpaEntity>>()) } just Runs
+                        every { mockStudentRepository.bulkClearClubReferences(any()) } just Runs
+                        every { mockClubRepository.deleteAllInBatch(any<Iterable<ClubJpaEntity>>()) } just Runs
                     }
 
                     it("DB에만 있는 동아리를 삭제해야 한다") {
                         modifyClubExcelService.execute(file)
 
                         verify(exactly = 1) {
-                            mockClubRepository.deleteAll(
+                            mockStudentRepository.bulkClearClubReferences(
+                                match { clubs -> clubs.any { it.id == 999L } },
+                            )
+                        }
+                        verify(exactly = 1) {
+                            mockClubRepository.deleteAllInBatch(
                                 match<Iterable<ClubJpaEntity>> { clubs ->
                                     clubs.toList().any { it.id == 999L }
                                 },
