@@ -111,6 +111,10 @@ class SearchApiKeyServiceTest :
                         result.apiKeys[0].apiKey shouldContain "****"
                         result.apiKeys[1].apiKey shouldContain "****"
 
+                        // expiresInDays 검증 (apiKey1.expiresAt 설정 시점과 서비스 실행 시점 차이로 29~30 범위 허용)
+                        (result.apiKeys[0].expiresInDays in 29L..30L) shouldBe true
+                        result.apiKeys[1].expiresInDays shouldBe 0L
+
                         verify(exactly = 1) {
                             mockApiKeyRepository.searchApiKeyWithPaging(
                                 id = null,
@@ -246,6 +250,7 @@ class SearchApiKeyServiceTest :
                         result.totalElements shouldBe 1
                         result.apiKeys.size shouldBe 1
                         result.apiKeys[0].apiKey shouldBe "6ba7b810-****-****-****-********30c8"
+                        result.apiKeys[0].expiresInDays shouldBe 0L
 
                         verify(exactly = 1) {
                             mockApiKeyRepository.searchApiKeyWithPaging(

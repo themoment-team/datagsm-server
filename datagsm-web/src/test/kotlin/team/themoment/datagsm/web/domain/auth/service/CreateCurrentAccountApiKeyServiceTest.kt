@@ -82,6 +82,7 @@ class CreateCurrentAccountApiKeyServiceTest :
                         result.apiKey.isNotEmpty() shouldBe true
                         UUID.fromString(result.apiKey) shouldNotBe null // UUID 형식 검증
                         result.expiresAt shouldNotBe null
+                        result.expiresInDays shouldBe 30L
                         result.scopes shouldBe reqDto.scopes
                         result.description shouldBe reqDto.description
 
@@ -293,6 +294,7 @@ class CreateCurrentAccountApiKeyServiceTest :
                         UUID.fromString(result.apiKey) shouldNotBe null // UUID 형식 검증
                         result.scopes shouldBe reqDto.scopes
                         result.description shouldBe reqDto.description
+                        result.expiresInDays shouldBe 365L
 
                         val expectedMinExpiresAt = beforeExecution.plusDays(365)
                         val expectedMaxExpiresAt = afterExecution.plusDays(365)

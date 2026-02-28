@@ -79,11 +79,79 @@ class QueryCurrentAccountApiKeyServiceTest :
                         result.apiKey.takeLast(4) shouldBe apiKeyValue.toString().takeLast(4)
 
                         result.expiresAt shouldBe expiresAt
+                        (result.expiresInDays in 29L..30L) shouldBe true
                         result.scopes shouldBe testScopes
                         result.description shouldBe testDescription
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
                         verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
+                    }
+                }
+
+                context("API 키가 이미 만료된 경우") {
+                    val expiredApiKey =
+                        ApiKey().apply {
+                            id = 1L
+                            this.value = UUID.randomUUID()
+                            account = mockAccount
+                            createdAt = LocalDateTime.now().minusDays(35)
+                            updatedAt = LocalDateTime.now().minusDays(35)
+                            this.expiresAt = LocalDateTime.now().minusDays(5)
+                        }
+
+                    beforeEach {
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(expiredApiKey)
+                    }
+
+                    it("expiresInDays가 0이어야 한다") {
+                        val result = queryApiKeyService.execute()
+
+                        result.expiresInDays shouldBe 0L
+                    }
+                }
+
+                context("만료 1초 전인 경우") {
+                    val almostExpiredApiKey =
+                        ApiKey().apply {
+                            id = 1L
+                            this.value = UUID.randomUUID()
+                            account = mockAccount
+                            createdAt = LocalDateTime.now().minusDays(30)
+                            updatedAt = LocalDateTime.now().minusDays(30)
+                            this.expiresAt = LocalDateTime.now().plusSeconds(1)
+                        }
+
+                    beforeEach {
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(almostExpiredApiKey)
+                    }
+
+                    it("expiresInDays가 0이어야 한다 (절삭 동작 검증)") {
+                        val result = queryApiKeyService.execute()
+
+                        result.expiresInDays shouldBe 0L
+                    }
+                }
+
+                context("만료까지 정확히 1일 남은 경우") {
+                    val oneDayLeftApiKey =
+                        ApiKey().apply {
+                            id = 1L
+                            this.value = UUID.randomUUID()
+                            account = mockAccount
+                            createdAt = LocalDateTime.now().minusDays(29)
+                            updatedAt = LocalDateTime.now().minusDays(29)
+                            // 서비스의 LocalDateTime.now()와 시점 차이를 고려해 5분 버퍼 추가
+                            this.expiresAt = LocalDateTime.now().plusDays(1).plusMinutes(5)
+                        }
+
+                    beforeEach {
+                        every { mockApiKeyRepository.findByAccount(mockAccount) } returns Optional.of(oneDayLeftApiKey)
+                    }
+
+                    it("expiresInDays가 1이어야 한다") {
+                        val result = queryApiKeyService.execute()
+
+                        result.expiresInDays shouldBe 1L
                     }
                 }
 
