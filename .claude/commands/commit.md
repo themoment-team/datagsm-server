@@ -1,5 +1,7 @@
 ---
 description: Create Git commits by splitting changes into logical units
+allowedTools:
+  - Bash
 ---
 
 Create Git commits following these rules:

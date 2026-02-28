@@ -1,5 +1,9 @@
 ---
 description: Run tests with coverage and analyze results
+allowedTools:
+  - Bash
+  - Glob
+  - Grep
 ---
 
 Run tests following these steps:
