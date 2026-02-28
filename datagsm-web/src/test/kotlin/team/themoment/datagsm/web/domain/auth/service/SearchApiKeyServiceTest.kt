@@ -98,20 +98,13 @@ class SearchApiKeyServiceTest :
                                 size = 100,
                             )
                         val result = searchApiKeyService.execute(searchReq)
-
                         result.totalPages shouldBe 1
                         result.totalElements shouldBe 2
                         result.apiKeys.size shouldBe 2
-
-                        // API 키가 마스킹되었는지 확인
                         result.apiKeys[0].apiKey shouldBe "550e8400-****-****-****-********0000"
                         result.apiKeys[1].apiKey shouldBe "6ba7b810-****-****-****-********30c8"
-
-                        // 마스킹된 키에 별표가 포함되어 있는지 확인
                         result.apiKeys[0].apiKey shouldContain "****"
                         result.apiKeys[1].apiKey shouldContain "****"
-
-                        // expiresInDays 검증 (apiKey1.expiresAt 설정 시점과 서비스 실행 시점 차이로 29~30 범위 허용)
                         (result.apiKeys[0].expiresInDays in 29L..30L) shouldBe true
                         result.apiKeys[1].expiresInDays shouldBe 0L
 

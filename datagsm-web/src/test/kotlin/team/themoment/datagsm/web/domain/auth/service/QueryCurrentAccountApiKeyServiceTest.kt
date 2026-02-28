@@ -140,7 +140,6 @@ class QueryCurrentAccountApiKeyServiceTest :
                             account = mockAccount
                             createdAt = LocalDateTime.now().minusDays(29)
                             updatedAt = LocalDateTime.now().minusDays(29)
-                            // 서비스의 LocalDateTime.now()와 시점 차이를 고려해 5분 버퍼 추가
                             this.expiresAt = LocalDateTime.now().plusDays(1).plusMinutes(5)
                         }
 

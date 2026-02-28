@@ -80,7 +80,7 @@ class CreateCurrentAccountApiKeyServiceTest :
                         result.id shouldBe 1L
                         result.apiKey shouldNotBe null
                         result.apiKey.isNotEmpty() shouldBe true
-                        UUID.fromString(result.apiKey) shouldNotBe null // UUID 형식 검증
+                        UUID.fromString(result.apiKey) shouldNotBe null
                         result.expiresAt shouldNotBe null
                         result.expiresInDays shouldBe 30L
                         result.scopes shouldBe reqDto.scopes
@@ -291,7 +291,7 @@ class CreateCurrentAccountApiKeyServiceTest :
 
                         result.apiKey shouldNotBe null
                         result.apiKey.isNotEmpty() shouldBe true
-                        UUID.fromString(result.apiKey) shouldNotBe null // UUID 형식 검증
+                        UUID.fromString(result.apiKey) shouldNotBe null
                         result.scopes shouldBe reqDto.scopes
                         result.description shouldBe reqDto.description
                         result.expiresInDays shouldBe 365L
