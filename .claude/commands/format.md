@@ -1,7 +1,6 @@
 ---
 description: Run KtLint formatting with Java 24
-allowedTools:
-    - Bash
+allowed-tools: Bash
 ---
 
 Run KtLint formatting:
