@@ -48,7 +48,11 @@ interface StudentJpaCustomRepository {
 
     fun findStudentsByGrade(grade: Int): List<StudentJpaEntity>
 
+    fun findAllGraduates(): List<StudentJpaEntity>
+
     fun findAllStudents(): List<StudentJpaEntity>
+
+    fun bulkUpdateEmails(emailUpdates: Map<Long, String>)
 
     fun searchRegisteredStudentsWithPaging(
         id: Long?,

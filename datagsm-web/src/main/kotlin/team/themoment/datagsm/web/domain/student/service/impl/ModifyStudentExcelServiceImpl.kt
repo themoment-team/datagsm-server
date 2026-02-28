@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
@@ -21,6 +22,7 @@ import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.response.CommonApiResponse
 
 @Service
+@Transactional
 class ModifyStudentExcelServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
@@ -123,39 +125,41 @@ class ModifyStudentExcelServiceImpl(
                     .associateBy { it.name }
             }
 
-        val studentsToSave =
-            excelData.mapNotNull { dto ->
-                dto.number?.let { number ->
-                    existingStudents.getValue(number).also { student ->
-                        student.name = dto.name
-                        student.email = "TEMP_${dto.number}"
-                        student.major = dto.major
-                        student.majorClub =
-                            dto.majorClub?.let { clubName ->
-                                existingMajorClubs[clubName]
-                                    ?: throw ExpectedException("존재하지 않는 전공동아리입니다.", HttpStatus.BAD_REQUEST)
-                            }
-                        student.jobClub =
-                            dto.jobClub?.let { clubName ->
-                                existingJobClubs[clubName]
-                                    ?: throw ExpectedException("존재하지 않는 취업동아리입니다.", HttpStatus.BAD_REQUEST)
-                            }
-                        student.autonomousClub =
-                            dto.autonomousClub?.let { clubName ->
-                                existingAutonomousClubs[clubName]
-                                    ?: throw ExpectedException("존재하지 않는 창체동아리입니다.", HttpStatus.BAD_REQUEST)
-                            }
-                        student.dormitoryRoomNumber = getDormitoryEmbedded(dto.dormitoryRoomNumber)
-                        student.role = dto.role
-                        student.sex = dto.sex
-                    }
+        excelData.forEach { dto ->
+            dto.number?.let { number ->
+                existingStudents.getValue(number).also { student ->
+                    student.name = dto.name
+                    student.major = dto.major
+                    student.majorClub =
+                        dto.majorClub?.let { clubName ->
+                            existingMajorClubs[clubName]
+                                ?: throw ExpectedException("존재하지 않는 전공동아리입니다.", HttpStatus.BAD_REQUEST)
+                        }
+                    student.jobClub =
+                        dto.jobClub?.let { clubName ->
+                            existingJobClubs[clubName]
+                                ?: throw ExpectedException("존재하지 않는 취업동아리입니다.", HttpStatus.BAD_REQUEST)
+                        }
+                    student.autonomousClub =
+                        dto.autonomousClub?.let { clubName ->
+                            existingAutonomousClubs[clubName]
+                                ?: throw ExpectedException("존재하지 않는 창체동아리입니다.", HttpStatus.BAD_REQUEST)
+                        }
+                    student.dormitoryRoomNumber = getDormitoryEmbedded(dto.dormitoryRoomNumber)
+                    student.role = dto.role
+                    student.sex = dto.sex
                 }
             }
-        studentJpaRepository.flush()
-
-        excelData.zip(studentsToSave).forEach { (dto, student) ->
-            student.email = dto.email
         }
+
+        val emailUpdates =
+            excelData
+                .mapNotNull { dto ->
+                    dto.number?.let { number ->
+                        existingStudents[number]?.id?.let { id -> id to dto.email }
+                    }
+                }.toMap()
+        studentJpaRepository.bulkUpdateEmails(emailUpdates)
 
         return CommonApiResponse.success("엑셀 업로드 성공")
     }
