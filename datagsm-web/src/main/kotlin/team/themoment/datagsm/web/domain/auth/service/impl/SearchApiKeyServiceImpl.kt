@@ -8,6 +8,8 @@ import team.themoment.datagsm.common.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.common.domain.auth.dto.response.ApiKeySearchResDto
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.web.domain.auth.service.SearchApiKeyService
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 @Service
 class SearchApiKeyServiceImpl(
@@ -25,6 +27,7 @@ class SearchApiKeyServiceImpl(
                 pageable = PageRequest.of(searchReq.page, searchReq.size),
             )
 
+        val now = LocalDateTime.now()
         return ApiKeySearchResDto(
             totalPages = apiKeyPage.totalPages,
             totalElements = apiKeyPage.totalElements,
@@ -34,6 +37,7 @@ class SearchApiKeyServiceImpl(
                         id = entity.id!!,
                         apiKey = entity.maskedValue,
                         expiresAt = entity.expiresAt,
+                        expiresInDays = maxOf(0L, ChronoUnit.DAYS.between(now, entity.expiresAt)),
                         scopes = entity.scopes,
                         description = entity.description,
                     )
