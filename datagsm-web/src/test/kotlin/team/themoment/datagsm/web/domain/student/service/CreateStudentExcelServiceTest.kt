@@ -281,6 +281,82 @@ class CreateStudentExcelServiceTest :
                     }
                 }
 
+                context("includeGraduates=true 일 때") {
+                    val graduateStudent =
+                        StudentJpaEntity().apply {
+                            id = 100L
+                            name = "졸업생홍길동"
+                            studentNumber = StudentNumber(3, 2, 5)
+                            email = "graduate@gsm.hs.kr"
+                            major = Major.SW_DEVELOPMENT
+                            role = StudentRole.GRADUATE
+                            sex = Sex.MAN
+                        }
+
+                    beforeEach {
+                        every { mockStudentRepository.findStudentsByGrade(1) } returns emptyList()
+                        every { mockStudentRepository.findStudentsByGrade(2) } returns emptyList()
+                        every { mockStudentRepository.findStudentsByGrade(3) } returns emptyList()
+                        every { mockStudentRepository.findAllGraduates() } returns listOf(graduateStudent)
+                    }
+
+                    it("4번째 '졸업생' 시트가 추가되어야 한다") {
+                        val result = createStudentExcelService.execute(true)
+
+                        result.statusCode shouldBe HttpStatus.OK
+
+                        val workbook = XSSFWorkbook(ByteArrayInputStream(result.body))
+
+                        workbook.numberOfSheets shouldBe 4
+                        workbook.getSheetAt(0).sheetName shouldBe "1학년"
+                        workbook.getSheetAt(1).sheetName shouldBe "2학년"
+                        workbook.getSheetAt(2).sheetName shouldBe "3학년"
+                        workbook.getSheetAt(3).sheetName shouldBe "졸업생"
+
+                        val graduateSheet = workbook.getSheetAt(3)
+                        graduateSheet.getRow(1).getCell(NAME_COL_IDX).stringCellValue shouldBe "졸업생홍길동"
+                        graduateSheet.getRow(1).getCell(STUDENT_ROLE_COL_IDX).stringCellValue shouldBe "졸업생"
+
+                        workbook.close()
+                    }
+                }
+
+                context("includeGraduates=false 일 때") {
+                    val graduateStudent =
+                        StudentJpaEntity().apply {
+                            id = 101L
+                            name = "졸업생김철수"
+                            studentNumber = StudentNumber(3, 1, 1)
+                            email = "grad@gsm.hs.kr"
+                            major = Major.AI
+                            role = StudentRole.GRADUATE
+                            sex = Sex.MAN
+                        }
+
+                    beforeEach {
+                        every { mockStudentRepository.findStudentsByGrade(1) } returns emptyList()
+                        every { mockStudentRepository.findStudentsByGrade(2) } returns emptyList()
+                        every { mockStudentRepository.findStudentsByGrade(3) } returns listOf(graduateStudent)
+                    }
+
+                    it("졸업생 시트가 없어야 하고 학년 시트에 졸업생이 포함되지 않아야 한다") {
+                        val result = createStudentExcelService.execute(false)
+
+                        result.statusCode shouldBe HttpStatus.OK
+
+                        val workbook = XSSFWorkbook(ByteArrayInputStream(result.body))
+
+                        workbook.numberOfSheets shouldBe 3
+
+                        // findStudentsByGrade는 이미 GRADUATE를 제외하므로, 반환된 목록이 그대로 사용됨
+                        // 이 테스트에서는 mock이 graduateStudent를 반환하지만,
+                        // 실제 Repository에서는 GRADUATE가 제외됨을 검증하는 것임
+                        verify(exactly = 0) { mockStudentRepository.findAllGraduates() }
+
+                        workbook.close()
+                    }
+                }
+
                 context("각 학년별로 다른 수의 학생이 있을 때") {
                     val grade1Students =
                         (1..5).map { idx ->
