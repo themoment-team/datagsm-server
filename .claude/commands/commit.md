@@ -2,6 +2,7 @@
 description: Create Git commits by splitting changes into logical units
 allowedTools:
   - Bash
+  - Grep
 ---
 
 Create Git commits following these rules:
