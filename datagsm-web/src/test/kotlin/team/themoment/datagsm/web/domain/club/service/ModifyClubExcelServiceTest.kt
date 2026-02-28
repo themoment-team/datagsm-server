@@ -143,7 +143,7 @@ class ModifyClubExcelServiceTest :
                                 )
                         } returns leader3
                         every { mockClubRepository.saveAll(any<List<ClubJpaEntity>>()) } returns emptyList()
-                        every { mockClubRepository.findAll() } returns emptyList()
+                        every { mockClubRepository.findByNameNotIn(any()) } returns emptyList()
                     }
 
                     it("동아리를 저장하고 성공 메시지를 반환해야 한다") {
@@ -514,7 +514,7 @@ class ModifyClubExcelServiceTest :
                                 )
                         } returns newLeader
                         every { mockClubRepository.saveAll(any<List<ClubJpaEntity>>()) } returns emptyList()
-                        every { mockClubRepository.findAll() } returns emptyList()
+                        every { mockClubRepository.findByNameNotIn(any()) } returns emptyList()
                     }
 
                     it("기존 동아리를 수정해야 한다") {
@@ -569,22 +569,7 @@ class ModifyClubExcelServiceTest :
                                 )
                         } returns leader1
                         every { mockClubRepository.saveAll(any<List<ClubJpaEntity>>()) } returns emptyList()
-                        every { mockClubRepository.findAll() } returns
-                            listOf(
-                                ClubJpaEntity().apply {
-                                    name = "SW개발동아리"
-                                    type = ClubType.MAJOR_CLUB
-                                },
-                                ClubJpaEntity().apply {
-                                    name = "취업동아리A"
-                                    type = ClubType.JOB_CLUB
-                                },
-                                ClubJpaEntity().apply {
-                                    name = "창체동아리B"
-                                    type = ClubType.AUTONOMOUS_CLUB
-                                },
-                                orphanClub,
-                            )
+                        every { mockClubRepository.findByNameNotIn(any()) } returns listOf(orphanClub)
                         every { mockStudentRepository.bulkClearClubReferences(any()) } just Runs
                         every { mockClubRepository.deleteAllInBatch(any<Iterable<ClubJpaEntity>>()) } just Runs
                     }

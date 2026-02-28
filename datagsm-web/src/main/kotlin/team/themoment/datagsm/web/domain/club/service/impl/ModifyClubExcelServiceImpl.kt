@@ -70,9 +70,8 @@ class ModifyClubExcelServiceImpl(
             }
         clubJpaRepository.saveAll(clubsToSave)
 
-        val excelClubNames = clubInfos.map { it.clubName }.toSet()
-        val allExistingClubs = clubJpaRepository.findAll()
-        val orphanClubs = allExistingClubs.filter { it.name !in excelClubNames }
+        val excelClubNames = clubInfos.map { it.clubName }
+        val orphanClubs = clubJpaRepository.findByNameNotIn(excelClubNames)
         if (orphanClubs.isNotEmpty()) {
             studentJpaRepository.bulkClearClubReferences(orphanClubs)
             clubJpaRepository.deleteAllInBatch(orphanClubs)
