@@ -1,6 +1,8 @@
 package team.themoment.datagsm.common.domain.student.repository.custom.impl
 
+import com.querydsl.core.types.Expression
 import com.querydsl.core.types.OrderSpecifier
+import com.querydsl.core.types.dsl.CaseBuilder
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -319,19 +321,54 @@ class StudentJpaCustomRepositoryImpl(
     override fun bulkUpdateEmails(emailUpdates: Map<Long, String>) {
         if (emailUpdates.isEmpty()) return
 
-        emailUpdates.keys.forEach { id ->
-            jpaQueryFactory
-                .update(studentJpaEntity)
-                .set(studentJpaEntity.email, "tmp_$id")
-                .where(studentJpaEntity.id.eq(id))
-                .execute()
+        val ids = emailUpdates.keys.toList()
+        val tempPairs = ids.map { id -> id to "tmp_$id" }
+
+        jpaQueryFactory
+            .update(studentJpaEntity)
+            .set(studentJpaEntity.email, buildEmailCaseExpr(tempPairs))
+            .where(studentJpaEntity.id.`in`(ids))
+            .execute()
+
+        val actualPairs = emailUpdates.entries.map { (id, email) -> id to email }
+
+        jpaQueryFactory
+            .update(studentJpaEntity)
+            .set(studentJpaEntity.email, buildEmailCaseExpr(actualPairs))
+            .where(studentJpaEntity.id.`in`(ids))
+            .execute()
+    }
+
+    override fun bulkClearClubReferences(clubs: List<ClubJpaEntity>) {
+        if (clubs.isEmpty()) return
+
+        jpaQueryFactory
+            .update(studentJpaEntity)
+            .setNull(studentJpaEntity.majorClub)
+            .where(studentJpaEntity.majorClub.`in`(clubs))
+            .execute()
+
+        jpaQueryFactory
+            .update(studentJpaEntity)
+            .setNull(studentJpaEntity.jobClub)
+            .where(studentJpaEntity.jobClub.`in`(clubs))
+            .execute()
+
+        jpaQueryFactory
+            .update(studentJpaEntity)
+            .setNull(studentJpaEntity.autonomousClub)
+            .where(studentJpaEntity.autonomousClub.`in`(clubs))
+            .execute()
+    }
+
+    private fun buildEmailCaseExpr(pairs: List<Pair<Long, String>>): Expression<String> {
+        var caseWhen =
+            CaseBuilder()
+                .`when`(studentJpaEntity.id.eq(pairs[0].first))
+                .then(pairs[0].second)
+        pairs.drop(1).forEach { (id, email) ->
+            caseWhen = caseWhen.`when`(studentJpaEntity.id.eq(id)).then(email)
         }
-        emailUpdates.forEach { (id, email) ->
-            jpaQueryFactory
-                .update(studentJpaEntity)
-                .set(studentJpaEntity.email, email)
-                .where(studentJpaEntity.id.eq(id))
-                .execute()
-        }
+        return caseWhen.otherwise(studentJpaEntity.email)
     }
 }

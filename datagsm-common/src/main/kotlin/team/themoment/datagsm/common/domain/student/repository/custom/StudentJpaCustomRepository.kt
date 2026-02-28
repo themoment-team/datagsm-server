@@ -54,6 +54,8 @@ interface StudentJpaCustomRepository {
 
     fun bulkUpdateEmails(emailUpdates: Map<Long, String>)
 
+    fun bulkClearClubReferences(clubs: List<ClubJpaEntity>)
+
     fun searchRegisteredStudentsWithPaging(
         id: Long?,
         name: String?,
