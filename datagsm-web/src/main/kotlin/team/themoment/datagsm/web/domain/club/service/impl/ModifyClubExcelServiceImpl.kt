@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.common.domain.club.dto.internal.ClubInfoDto
-import team.themoment.datagsm.common.domain.club.dto.internal.ExcelRowDto
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
@@ -33,17 +32,7 @@ class ModifyClubExcelServiceImpl(
     }
 
     override fun execute(file: MultipartFile): CommonApiResponse<Nothing> {
-        val excelData: List<ExcelRowDto> = queryExcelData(file)
-        val clubInfos =
-            excelData.flatMap { row ->
-                row.clubName.zip(row.clubLeader).map { (name, leader) ->
-                    ClubInfoDto(
-                        clubName = name,
-                        clubType = row.clubType,
-                        leaderInfo = leader,
-                    )
-                }
-            }
+        val clubInfos: List<ClubInfoDto> = queryExcelData(file)
 
         if (clubInfos.isEmpty()) {
             throw ExpectedException(
@@ -80,6 +69,20 @@ class ModifyClubExcelServiceImpl(
                 }
             }
         clubJpaRepository.saveAll(clubsToSave)
+
+        val excelClubNames = clubInfos.map { it.clubName }.toSet()
+        val allExistingClubs = clubJpaRepository.findAll()
+        val orphanClubs = allExistingClubs.filter { it.name !in excelClubNames }
+        if (orphanClubs.isNotEmpty()) {
+            orphanClubs.forEach { club ->
+                studentJpaRepository.findByMajorClub(club).forEach { it.majorClub = null }
+                studentJpaRepository.findByJobClub(club).forEach { it.jobClub = null }
+                studentJpaRepository.findByAutonomousClub(club).forEach { it.autonomousClub = null }
+            }
+            studentJpaRepository.flush()
+            clubJpaRepository.deleteAll(orphanClubs)
+        }
+
         return CommonApiResponse.success("엑셀 업로드 성공")
     }
 
@@ -125,7 +128,7 @@ class ModifyClubExcelServiceImpl(
         )
     }
 
-    private fun queryExcelData(file: MultipartFile): List<ExcelRowDto> {
+    private fun queryExcelData(file: MultipartFile): List<ClubInfoDto> {
         val workbook =
             file.inputStream.use { inputStream ->
                 when (file.originalFilename?.substringAfterLast(".")) {
@@ -189,10 +192,10 @@ class ModifyClubExcelServiceImpl(
                                     it to clubLeader
                                 }
                             }
-                        val clubNames = clubAndLeaderPairs.map { it.first }
-                        val clubLeaders = clubAndLeaderPairs.map { it.second }
-                        ExcelRowDto(clubName = clubNames, clubLeader = clubLeaders, clubType = clubType)
-                    }
+                        clubAndLeaderPairs.map { (name, leader) ->
+                            ClubInfoDto(clubName = name, clubType = clubType, leaderInfo = leader)
+                        }
+                    }.flatten()
             return data
         }
     }
