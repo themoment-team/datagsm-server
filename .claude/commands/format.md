@@ -2,6 +2,7 @@
 description: Run KtLint formatting with Java 24
 allowedTools:
   - Bash
+  - Grep
 ---
 
 Run KtLint formatting:
