@@ -23,8 +23,8 @@ class StartOauthAuthorizeFlowServiceImpl(
     private val oauthAuthorizeStateRedisRepository: OauthAuthorizeStateRedisRepository,
 ) : StartOauthAuthorizeFlowService {
     override fun execute(reqDto: OauthAuthorizeReqDto): ResponseEntity<Void> {
-        val clientId = reqDto.clientId
-        val redirectUri = reqDto.redirectUri
+        val clientId = requireNotNull(reqDto.clientId)
+        val redirectUri = requireNotNull(reqDto.redirectUri)
         val responseType = reqDto.responseType
         val state = reqDto.state
         val codeChallenge = reqDto.codeChallenge
