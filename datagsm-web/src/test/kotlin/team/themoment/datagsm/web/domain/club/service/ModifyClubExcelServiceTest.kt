@@ -4,7 +4,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
@@ -141,6 +143,7 @@ class ModifyClubExcelServiceTest :
                                 )
                         } returns leader3
                         every { mockClubRepository.saveAll(any<List<ClubJpaEntity>>()) } returns emptyList()
+                        every { mockClubRepository.findByNameNotIn(any()) } returns emptyList()
                     }
 
                     it("동아리를 저장하고 성공 메시지를 반환해야 한다") {
@@ -511,6 +514,7 @@ class ModifyClubExcelServiceTest :
                                 )
                         } returns newLeader
                         every { mockClubRepository.saveAll(any<List<ClubJpaEntity>>()) } returns emptyList()
+                        every { mockClubRepository.findByNameNotIn(any()) } returns emptyList()
                     }
 
                     it("기존 동아리를 수정해야 한다") {
@@ -523,6 +527,68 @@ class ModifyClubExcelServiceTest :
 
                         val savedClubs = clubsSlot.captured
                         savedClubs.any { it.id == 100L } shouldBe true
+                    }
+                }
+
+                context("DB에만 있고 엑셀에 없는 동아리가 있을 때") {
+                    val excelBytes = createValidExcelFile()
+                    val file =
+                        MockMultipartFile(
+                            "file",
+                            "clubs.xlsx",
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            excelBytes,
+                        )
+
+                    val orphanClub =
+                        ClubJpaEntity().apply {
+                            id = 999L
+                            name = "삭제될동아리"
+                            type = ClubType.MAJOR_CLUB
+                        }
+
+                    val leader1 =
+                        StudentJpaEntity().apply {
+                            id = 1L
+                            name = "김철수"
+                            studentNumber = StudentNumber(2, 4, 4)
+                            email = "kim@gsm.hs.kr"
+                            major = Major.SW_DEVELOPMENT
+                            sex = Sex.MAN
+                        }
+
+                    beforeEach {
+                        every { mockClubRepository.findAllByNameIn(any()) } returns emptyList()
+                        every {
+                            mockStudentRepository
+                                .findByStudentNumberStudentGradeAndStudentNumberStudentClassAndStudentNumberStudentNumberAndName(
+                                    any(),
+                                    any(),
+                                    any(),
+                                    any(),
+                                )
+                        } returns leader1
+                        every { mockClubRepository.saveAll(any<List<ClubJpaEntity>>()) } returns emptyList()
+                        every { mockClubRepository.findByNameNotIn(any()) } returns listOf(orphanClub)
+                        every { mockStudentRepository.bulkClearClubReferences(any()) } just Runs
+                        every { mockClubRepository.deleteAllInBatch(any<Iterable<ClubJpaEntity>>()) } just Runs
+                    }
+
+                    it("DB에만 있는 동아리를 삭제해야 한다") {
+                        modifyClubExcelService.execute(file)
+
+                        verify(exactly = 1) {
+                            mockStudentRepository.bulkClearClubReferences(
+                                match { clubs -> clubs.any { it.id == 999L } },
+                            )
+                        }
+                        verify(exactly = 1) {
+                            mockClubRepository.deleteAllInBatch(
+                                match<Iterable<ClubJpaEntity>> { clubs ->
+                                    clubs.toList().any { it.id == 999L }
+                                },
+                            )
+                        }
                     }
                 }
             }

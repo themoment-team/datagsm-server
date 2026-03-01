@@ -4,8 +4,11 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.verify
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.springframework.http.HttpStatus
 import org.springframework.mock.web.MockMultipartFile
@@ -145,7 +148,7 @@ class ModifyStudentExcelServiceTest :
                             listOf(jobClub)
                         every { mockClubRepository.findAllByNameInAndType(listOf("창체동아리B"), ClubType.AUTONOMOUS_CLUB) } returns
                             listOf(autonomousClub)
-                        every { mockStudentRepository.flush() } returns Unit
+                        every { mockStudentRepository.bulkUpdateEmails(any()) } just Runs
                     }
 
                     it("학생 정보를 수정하고 성공 메시지를 반환해야 한다") {
@@ -155,10 +158,11 @@ class ModifyStudentExcelServiceTest :
                         result.code shouldBe HttpStatus.OK.value()
 
                         existingStudent.name shouldBe "홍길동"
-                        existingStudent.email shouldBe "hong@gsm.hs.kr"
                         existingStudent.major shouldBe Major.SW_DEVELOPMENT
                         existingStudent.majorClub shouldBe majorClub
                         existingStudent.sex shouldBe Sex.MAN
+
+                        verify { mockStudentRepository.bulkUpdateEmails(match { it[1L] == "hong@gsm.hs.kr" }) }
                     }
                 }
 

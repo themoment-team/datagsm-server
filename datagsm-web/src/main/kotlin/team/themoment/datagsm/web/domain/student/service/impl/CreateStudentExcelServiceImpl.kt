@@ -36,7 +36,7 @@ class CreateStudentExcelServiceImpl(
     }
 
     override fun execute(includeGraduates: Boolean): ResponseEntity<ByteArray> {
-        val data: List<ExcelRowDto> = getStudentData(includeGraduates)
+        val data: List<ExcelRowDto> = getStudentData()
         val workbook = XSSFWorkbook()
 
         data.forEachIndexed { idx, excelRowDto ->
@@ -72,6 +72,37 @@ class CreateStudentExcelServiceImpl(
             }
         }
 
+        if (includeGraduates) {
+            val graduateSheet = workbook.createSheet("졸업생")
+            val headerRow = graduateSheet.createRow(0)
+            headerRow.createCell(NAME_COL_IDX).setCellValue("학생명")
+            headerRow.createCell(STUDENT_NUMBER_COL_IDX).setCellValue("학번")
+            headerRow.createCell(EMAIL_COL_IDX).setCellValue("이메일")
+            headerRow.createCell(MAJOR_COL_IDX).setCellValue("학과")
+            headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("전공동아리")
+            headerRow.createCell(JOB_CLUB_COL_IDX).setCellValue("취업동아리")
+            headerRow.createCell(AUTONOMOUS_COL_IDX).setCellValue("창체동아리")
+            headerRow.createCell(DORMITORY_ROOM_NUMBER_COL_IDX).setCellValue("호실")
+            headerRow.createCell(STUDENT_ROLE_COL_IDX).setCellValue("소속")
+            headerRow.createCell(SEX_COL_IDX).setCellValue("성별")
+
+            studentJpaRepository.findAllGraduates().forEachIndexed { rowIndex, student ->
+                val row = graduateSheet.createRow(rowIndex + 1)
+                row.createCell(NAME_COL_IDX).setCellValue(student.name)
+                row.createCell(STUDENT_NUMBER_COL_IDX).setCellValue(student.studentNumber?.fullStudentNumber?.toString() ?: "")
+                row.createCell(EMAIL_COL_IDX).setCellValue(student.email)
+                row.createCell(MAJOR_COL_IDX).setCellValue(student.major?.value ?: "")
+                row.createCell(MAJOR_CLUB_COL_IDX).setCellValue(student.majorClub?.name ?: "")
+                row.createCell(JOB_CLUB_COL_IDX).setCellValue(student.jobClub?.name ?: "")
+                row.createCell(AUTONOMOUS_COL_IDX).setCellValue(student.autonomousClub?.name ?: "")
+                row
+                    .createCell(DORMITORY_ROOM_NUMBER_COL_IDX)
+                    .setCellValue(student.dormitoryRoomNumber?.dormitoryRoomNumber?.toString() ?: "")
+                row.createCell(STUDENT_ROLE_COL_IDX).setCellValue(student.role.value)
+                row.createCell(SEX_COL_IDX).setCellValue(student.sex.value)
+            }
+        }
+
         val byteArrayFile =
             workbook.use { workbook ->
                 ByteArrayOutputStream().use { outputStream ->
@@ -100,20 +131,10 @@ class CreateStudentExcelServiceImpl(
             .body(byteArrayFile)
     }
 
-    private fun getStudentData(includeGraduates: Boolean): List<ExcelRowDto> {
+    private fun getStudentData(): List<ExcelRowDto> {
         val data = mutableListOf<ExcelRowDto>()
         for (i: Int in 1..3) {
-            val list =
-                studentJpaRepository.findStudentsByGrade(i).let { students ->
-                    if (includeGraduates) {
-                        students
-                    } else {
-                        students.filter {
-                            it.role !=
-                                team.themoment.datagsm.common.domain.student.entity.constant.StudentRole.GRADUATE
-                        }
-                    }
-                }
+            val list = studentJpaRepository.findStudentsByGrade(i)
             val excelRowDto =
                 ExcelRowDto(
                     columns =
