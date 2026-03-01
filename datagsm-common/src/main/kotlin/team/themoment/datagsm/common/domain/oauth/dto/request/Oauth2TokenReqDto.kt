@@ -12,7 +12,7 @@ data class Oauth2TokenReqDto(
     @field:JsonAlias("grantType")
     val grantType: String = "",
     @param:Schema(description = "Client ID", example = "client-123")
-    @field:JsonProperty("client_id")
+    @field:JsonProperty("clientId")
     @field:JsonAlias("clientId")
     val clientId: String? = null,
     @param:Schema(description = "Client Secret", example = "secret-key-123")
