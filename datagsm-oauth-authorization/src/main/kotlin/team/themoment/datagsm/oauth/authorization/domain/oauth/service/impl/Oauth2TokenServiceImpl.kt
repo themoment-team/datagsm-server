@@ -50,7 +50,7 @@ class Oauth2TokenServiceImpl(
             throw OAuthException.InvalidRequest("code 파라미터가 필요합니다.")
         }
         if (reqDto.clientId.isNullOrBlank()) {
-            throw OAuthException.InvalidRequest("clientId 파라미터가 필요합니다.")
+            throw OAuthException.InvalidRequest("client_id 파라미터가 필요합니다.")
         }
 
         val oauthCode =
@@ -128,7 +128,7 @@ class Oauth2TokenServiceImpl(
             throw OAuthException.InvalidRequest("refresh_token 파라미터가 필요합니다.")
         }
         if (reqDto.clientId.isNullOrBlank()) {
-            throw OAuthException.InvalidRequest("clientId 파라미터가 필요합니다.")
+            throw OAuthException.InvalidRequest("client_id 파라미터가 필요합니다.")
         }
 
         val refreshToken = reqDto.refreshToken!!
@@ -189,7 +189,7 @@ class Oauth2TokenServiceImpl(
     }
 
     private fun handleClientCredentials(reqDto: Oauth2TokenReqDto): Oauth2TokenResDto {
-        validateClientCredentialsParams(reqDto)
+        validateClientCredentials(reqDto)
 
         val client = validateClient(reqDto.clientId!!, reqDto.clientSecret!!)
 
@@ -265,14 +265,12 @@ class Oauth2TokenServiceImpl(
 
     private fun validateClientCredentials(reqDto: Oauth2TokenReqDto) {
         if (reqDto.clientId.isNullOrBlank()) {
-            throw OAuthException.InvalidRequest("clientId 파라미터가 필요합니다.")
+            throw OAuthException.InvalidRequest("client_id 파라미터가 필요합니다.")
         }
         if (reqDto.clientSecret.isNullOrBlank()) {
             throw OAuthException.InvalidRequest("client_secret 파라미터가 필요합니다.")
         }
     }
 
-    private fun validateClientCredentialsParams(reqDto: Oauth2TokenReqDto) {
-        validateClientCredentials(reqDto)
-    }
+
 }
