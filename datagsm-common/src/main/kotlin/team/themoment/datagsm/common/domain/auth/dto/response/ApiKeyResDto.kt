@@ -10,6 +10,8 @@ data class ApiKeyResDto(
     val apiKey: String,
     @field:Schema(description = "API 키 만료일시", example = "2024-12-31T23:59:59")
     val expiresAt: LocalDateTime,
+    @field:Schema(description = "만료까지 남은 일수 (이미 만료된 경우 0)", example = "30")
+    val expiresInDays: Long,
     @field:Schema(description = "API 키 권한 범위 목록", example = "[\"student:read\", \"club:*\"]")
     val scopes: Set<String>,
     @field:Schema(description = "API 키 설명", example = "프론트엔드 개발용 API 키")

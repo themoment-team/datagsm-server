@@ -147,6 +147,7 @@ class RotateCurrentAccountApiKeyServiceTest :
                         apiKey.value shouldNotBe oldApiKeyValue
                         result.scopes shouldBe setOf("student:read", "club:read")
                         result.description shouldBe "기존 설명"
+                        result.expiresInDays shouldBe 30L
 
                         val expectedMinExpiresAt = beforeExecution.plusDays(30)
                         val expectedMaxExpiresAt = afterExecution.plusDays(30)
@@ -208,6 +209,7 @@ class RotateCurrentAccountApiKeyServiceTest :
                                 "project:write",
                             )
                         result.description shouldBe "관리자 API 키"
+                        result.expiresInDays shouldBe 365L
 
                         val expectedMinExpiresAt = beforeExecution.plusDays(365)
                         val expectedMaxExpiresAt = afterExecution.plusDays(365)
@@ -319,6 +321,7 @@ class RotateCurrentAccountApiKeyServiceTest :
 
                         result.apiKey shouldNotBe oldApiKeyValue.toString()
                         apiKey.value shouldNotBe oldApiKeyValue
+                        result.expiresInDays shouldBe 365L
 
                         val expectedMinExpiresAt = beforeExecution.plusDays(365)
                         val expectedMaxExpiresAt = afterExecution.plusDays(365)

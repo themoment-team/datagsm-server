@@ -12,6 +12,7 @@ import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.logging.logger.logger
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 @Service
@@ -67,6 +68,7 @@ class RotateCurrentAccountApiKeyServiceImpl(
             id = savedApiKey.id!!,
             apiKey = savedApiKey.value.toString(),
             expiresAt = savedApiKey.expiresAt,
+            expiresInDays = maxOf(0L, ChronoUnit.DAYS.between(now, savedApiKey.expiresAt)),
             scopes = savedApiKey.scopes,
             description = savedApiKey.description,
         )
