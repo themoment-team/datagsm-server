@@ -1,6 +1,4 @@
-import org.gradle.build.event.BuildEventsListenerRegistry
-import org.gradle.kotlin.dsl.support.serviceOf
-import test.TestSummaryService
+import test.TestSummaryPlugin
 
 plugins {
     id(plugin.Plugins.KOTLIN_JVM) version plugin.PluginVersions.KOTLIN_VERSION apply false
@@ -15,11 +13,7 @@ plugins {
 group = "team.themoment"
 version = "v20260220.0"
 
-val testSummaryService =
-    gradle.sharedServices.registerIfAbsent("testSummary", TestSummaryService::class) {
-        parameters.rootDir.set(rootDir)
-    }
-serviceOf<BuildEventsListenerRegistry>().onTaskCompletion(testSummaryService)
+apply<TestSummaryPlugin>()
 
 subprojects {
     apply(plugin = plugin.Plugins.KOTLIN_JVM)
