@@ -1,3 +1,5 @@
+package test
+
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.logging.Logging
 import org.gradle.api.services.BuildService
