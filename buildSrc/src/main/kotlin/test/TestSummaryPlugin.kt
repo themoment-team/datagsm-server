@@ -17,6 +17,7 @@ class TestSummaryPlugin
                 target.gradle.sharedServices.registerIfAbsent(
                     "testSummary",
                     TestSummaryService::class.java,
+                    @Suppress("ObjectLiteralToLambda") // 람다식으로 변환시 이중 제네릭 인식 문제가 발생하여 object로 작성
                     object : Action<BuildServiceSpec<TestSummaryService.Params>> {
                         override fun execute(spec: BuildServiceSpec<TestSummaryService.Params>) {
                             spec.parameters.rootDir.set(target.rootDir)
