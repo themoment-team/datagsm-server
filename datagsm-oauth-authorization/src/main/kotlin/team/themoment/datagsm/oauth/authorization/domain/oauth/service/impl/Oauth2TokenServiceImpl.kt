@@ -271,6 +271,4 @@ class Oauth2TokenServiceImpl(
             throw OAuthException.InvalidRequest("client_secret 파라미터가 필요합니다.")
         }
     }
-
-
 }
