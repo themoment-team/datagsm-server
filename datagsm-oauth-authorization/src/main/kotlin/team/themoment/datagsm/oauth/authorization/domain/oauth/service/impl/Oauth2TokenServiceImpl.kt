@@ -189,7 +189,7 @@ class Oauth2TokenServiceImpl(
     }
 
     private fun handleClientCredentials(reqDto: Oauth2TokenReqDto): Oauth2TokenResDto {
-        validateClientCredentialsParams(reqDto)
+        validateClientCredentials(reqDto)
 
         val client = validateClient(reqDto.clientId!!, reqDto.clientSecret!!)
 
@@ -270,9 +270,5 @@ class Oauth2TokenServiceImpl(
         if (reqDto.clientSecret.isNullOrBlank()) {
             throw OAuthException.InvalidRequest("client_secret 파라미터가 필요합니다.")
         }
-    }
-
-    private fun validateClientCredentialsParams(reqDto: Oauth2TokenReqDto) {
-        validateClientCredentials(reqDto)
     }
 }

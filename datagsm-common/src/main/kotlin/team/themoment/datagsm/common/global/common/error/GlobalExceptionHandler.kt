@@ -21,7 +21,6 @@ import team.themoment.datagsm.common.global.common.discord.error.DiscordErrorNot
 import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.logging.logger.logger
 import team.themoment.sdk.response.CommonApiResponse
-import tools.jackson.databind.ObjectMapper
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -31,8 +30,6 @@ class GlobalExceptionHandler(
     private val discordErrorNotificationService: DiscordErrorNotificationService? = null,
     private val environment: Environment,
 ) {
-    private val objectMapper = ObjectMapper()
-
     @ExceptionHandler(OAuthException::class)
     fun handleOAuthException(ex: OAuthException): ResponseEntity<OAuthErrorResDto> {
         logger().warn("OAuth Error: {} - {}", ex.error, ex.errorDescription)
@@ -70,7 +67,7 @@ class GlobalExceptionHandler(
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
         }
 
-        return createErrorResponse(HttpStatus.BAD_REQUEST, methodArgumentNotValidExceptionToJson(ex))
+        return createErrorResponse(HttpStatus.BAD_REQUEST, extractValidationErrorMessage(ex))
     }
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
@@ -145,29 +142,6 @@ class GlobalExceptionHandler(
         ResponseEntity
             .status(status)
             .body(CommonApiResponse.error(message, status))
-
-    private fun methodArgumentNotValidExceptionToJson(ex: MethodArgumentNotValidException): String {
-        val result = mutableMapOf<String, Any>()
-        val globalErrors = mutableListOf<String>()
-        val fieldErrors = mutableMapOf<String, String?>()
-
-        ex.bindingResult.globalErrors.forEach { error ->
-            globalErrors.add(error.defaultMessage ?: "")
-        }
-
-        ex.bindingResult.fieldErrors.forEach { error ->
-            fieldErrors[error.field] = error.defaultMessage
-        }
-
-        if (globalErrors.isNotEmpty()) {
-            result["globalErrors"] = globalErrors
-        }
-        if (fieldErrors.isNotEmpty()) {
-            result["fieldErrors"] = fieldErrors
-        }
-
-        return objectMapper.writeValueAsString(result)
-    }
 
     private fun getCurrentRequestUri(): String =
         try {

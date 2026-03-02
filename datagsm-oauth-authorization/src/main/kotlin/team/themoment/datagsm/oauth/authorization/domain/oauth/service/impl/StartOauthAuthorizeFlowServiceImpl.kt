@@ -23,12 +23,12 @@ class StartOauthAuthorizeFlowServiceImpl(
     private val oauthAuthorizeStateRedisRepository: OauthAuthorizeStateRedisRepository,
 ) : StartOauthAuthorizeFlowService {
     override fun execute(reqDto: OauthAuthorizeReqDto): ResponseEntity<Void> {
-        val clientId = reqDto.`client_id`
-        val redirectUri = reqDto.`redirect_uri`
-        val responseType = reqDto.`response_type`
+        val clientId = reqDto.client_id ?: throw OAuthException.InvalidRequest("client_id는 필수입니다.")
+        val redirectUri = reqDto.redirect_uri ?: throw OAuthException.InvalidRequest("redirect_uri는 필수입니다.")
+        val responseType = reqDto.response_type
         val state = reqDto.state
-        val codeChallenge = reqDto.`code_challenge`
-        val codeChallengeMethod = reqDto.`code_challenge_method`
+        val codeChallenge = reqDto.code_challenge
+        val codeChallengeMethod = reqDto.code_challenge_method
 
         if (responseType != "code") {
             throw OAuthException.InvalidRequest("response_type은 'code'여야 합니다.")

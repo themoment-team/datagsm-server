@@ -8,13 +8,13 @@ import java.time.temporal.ChronoUnit
 
 data class QueryMealReqDto(
     @param:Schema(description = "특정 날짜 (YYYY-MM-DD)")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @param:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     val date: LocalDate? = null,
     @param:Schema(description = "시작 날짜 (YYYY-MM-DD)")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @param:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     val fromDate: LocalDate? = null,
     @param:Schema(description = "종료 날짜 (YYYY-MM-DD)")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @param:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     val toDate: LocalDate? = null,
 ) {
     @AssertTrue(message = "date와 fromDate/toDate는 동시에 사용할 수 없습니다.")
