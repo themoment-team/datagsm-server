@@ -12,13 +12,16 @@ import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.oauth.dto.request.Oauth2TokenReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeSubmitReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.Oauth2TokenResDto
+import team.themoment.datagsm.common.domain.oauth.dto.response.OauthSessionResDto
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthAuthorizeFlowService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.Oauth2TokenService
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryOauthSessionService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.StartOauthAuthorizeFlowService
 
 @Tag(name = "OAuth", description = "OAuth 인증 관련 API")
@@ -28,6 +31,7 @@ class OauthController(
     val oauth2TokenService: Oauth2TokenService,
     val startOauthAuthorizeFlowService: StartOauthAuthorizeFlowService,
     val completeOauthAuthorizeFlowService: CompleteOauthAuthorizeFlowService,
+    val queryOauthSessionService: QueryOauthSessionService,
 ) {
     @GetMapping("/authorize")
     @Operation(
@@ -60,6 +64,22 @@ class OauthController(
     fun authorizePost(
         @Valid @RequestBody reqDto: OauthAuthorizeSubmitReqDto,
     ): ResponseEntity<Void> = completeOauthAuthorizeFlowService.execute(reqDto)
+
+    @GetMapping("/sessions/{token}")
+    @Operation(
+        summary = "OAuth 세션 조회",
+        description = "세션 토큰을 기반으로 서비스 이름을 조회합니다. UI 스푸핑 방지를 위해 URL 파라미터의 service_name 대신 이 API를 사용합니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "세션 조회 성공"),
+            ApiResponse(responseCode = "400", description = "유효하지 않거나 만료된 세션", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "존재하지 않는 클라이언트", content = [Content()]),
+        ],
+    )
+    fun queryOauthSession(
+        @PathVariable token: String,
+    ): OauthSessionResDto = queryOauthSessionService.execute(token)
 
     @Operation(
         summary = "OAuth2 토큰 발급/갱신",
