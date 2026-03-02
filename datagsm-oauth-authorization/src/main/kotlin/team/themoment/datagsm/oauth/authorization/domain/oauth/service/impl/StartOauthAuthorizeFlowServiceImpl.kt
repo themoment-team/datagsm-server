@@ -69,6 +69,7 @@ class StartOauthAuthorizeFlowServiceImpl(
                 .path("/oauth/authorize")
                 .queryParam("token", token)
                 .queryParam("service_name", URLEncoder.encode(client.serviceName, StandardCharsets.UTF_8))
+                // TODO: 추후 프론트엔드 작업 종료 시 제거해야 함(하위호환성을 위해 남겨짐; service_name 파라미터)
                 .build()
                 .toUri()
 
