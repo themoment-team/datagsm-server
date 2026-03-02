@@ -1,3 +1,5 @@
+import test.TestSummaryPlugin
+
 plugins {
     id(plugin.Plugins.KOTLIN_JVM) version plugin.PluginVersions.KOTLIN_VERSION apply false
     id(plugin.Plugins.KOTLIN_SPRING) version plugin.PluginVersions.KOTLIN_VERSION apply false
@@ -10,6 +12,8 @@ plugins {
 
 group = "team.themoment"
 version = "v20260220.0"
+
+apply<TestSummaryPlugin>()
 
 subprojects {
     apply(plugin = plugin.Plugins.KOTLIN_JVM)
