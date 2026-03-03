@@ -2,6 +2,7 @@ plugins {
     id(plugin.Plugins.KOTLIN_SPRING)
     id(plugin.Plugins.KOTLIN_JPA)
     id(plugin.Plugins.SPRING_BOOT)
+    id(plugin.Plugins.GIT_PROPERTIES)
 }
 
 dependencies {
@@ -46,4 +47,14 @@ tasks.withType<Test> {
 
 tasks.jar {
     enabled = false
+}
+
+gitProperties {
+    dotGitDirectory = rootProject.file(".git")
+    keys = listOf(
+        "git.branch",
+        "git.commit.id.abbrev",
+        "git.commit.time",
+        "git.commit.message.short"
+    )
 }

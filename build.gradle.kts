@@ -8,6 +8,7 @@ plugins {
     id(plugin.Plugins.SPRING_DEPENDENCY_MANAGEMENT) version plugin.PluginVersions.SPRING_DEPENDENCY_MANAGEMENT_VERSION apply false
     id(plugin.Plugins.KSP) version plugin.PluginVersions.KSP_VERSION apply false
     id(plugin.Plugins.KTLINT) version plugin.PluginVersions.KTLINT_VERSION apply false
+    id(plugin.Plugins.GIT_PROPERTIES) version plugin.PluginVersions.GIT_PROPERTIES_VERSION apply false
 }
 
 group = "team.themoment"
