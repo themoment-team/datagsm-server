@@ -10,8 +10,11 @@ import java.io.PrintStream
 import java.util.Properties
 
 class GitAwareBanner : Banner {
-
-    override fun printBanner(environment: Environment, sourceClass: Class<*>?, out: PrintStream) {
+    override fun printBanner(
+        environment: Environment,
+        sourceClass: Class<*>?,
+        out: PrintStream,
+    ) {
         val bannerResource = ClassPathResource("banner.txt")
         if (bannerResource.exists()) {
             ResourceBanner(bannerResource).printBanner(environment, sourceClass, out)
@@ -29,7 +32,9 @@ class GitAwareBanner : Banner {
         val message = props.getProperty("git.commit.message.short", "?").trim()
 
         out.println(
-            "${AnsiOutput.encode(AnsiColor.WHITE)}   Git: $branch @ $commitId | $commitTime | $message${AnsiOutput.encode(AnsiColor.DEFAULT)}"
+            "${AnsiOutput.encode(
+                AnsiColor.WHITE,
+            )}   Git: $branch @ $commitId | $commitTime | $message${AnsiOutput.encode(AnsiColor.DEFAULT)}",
         )
     }
 }

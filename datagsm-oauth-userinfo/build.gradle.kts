@@ -41,10 +41,11 @@ tasks.jar {
 
 gitProperties {
     dotGitDirectory = rootProject.file(".git")
-    keys = listOf(
-        "git.branch",
-        "git.commit.id.abbrev",
-        "git.commit.time",
-        "git.commit.message.short"
-    )
+    keys =
+        listOf(
+            "git.branch",
+            "git.commit.id.abbrev",
+            "git.commit.time",
+            "git.commit.message.short",
+        )
 }
