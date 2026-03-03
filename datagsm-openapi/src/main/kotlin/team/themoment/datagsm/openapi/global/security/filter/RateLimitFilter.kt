@@ -31,10 +31,6 @@ class RateLimitFilter(
         }
 
         val apiKey = currentUserProvider.getPrincipal().apiKey
-        if (apiKey == null) {
-            filterChain.doFilter(request, response)
-            return
-        }
         if (isExcludedFromRateLimit(apiKey)) {
             filterChain.doFilter(request, response)
             return
