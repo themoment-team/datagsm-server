@@ -21,10 +21,7 @@ School information API server for Gwangju Software Meister High School (students
 - Build: `./gradlew build`
 - Test: `./gradlew test`
 - Format: `./gradlew ktlintFormat`
-- Run: `./gradlew :datagsm-oauth-authorization:bootRun`
-- Run: `./gradlew :datagsm-openapi:bootRun`
-- Run: `./gradlew :datagsm-oauth-userinfo:bootRun`
-- Run: `./gradlew :datagsm-web:bootRun`
+- Run: `./gradlew :<module>:bootRun` (modules: `datagsm-oauth-authorization`, `datagsm-openapi`, `datagsm-oauth-userinfo`, `datagsm-web`)
 
 ## Tech Stack
 
@@ -47,11 +44,9 @@ Kotlin, Spring Boot 4.0, Spring Data JPA, QueryDSL, Redis, MySQL
 
 ### Query Parameter Binding (@RequestParam vs @ModelAttribute)
 
-**Guidelines:**
 - **1-2 simple parameters**: Use `@RequestParam`
 - **3+ parameters or validation required**: Use `@ModelAttribute` + DTO
 
-**Examples:**
 ```kotlin
 // 1-2 parameters → @RequestParam
 @GetMapping("/scopes")
@@ -60,37 +55,18 @@ fun getScopes(@RequestParam role: AccountRole): ApiScopeListResDto
 // 3+ parameters → @ModelAttribute + DTO
 @GetMapping("/students")
 fun getStudents(@Valid @ModelAttribute queryReq: QueryStudentReqDto): StudentListResDto
-
-data class QueryStudentReqDto(
-    @field:Positive @param:Schema(description = "Student ID")
-    val studentId: Long? = null,
-    @field:Min(0) @param:Schema(description = "Page", defaultValue = "0")
-    val page: Int = 0,
-    @field:Min(1) @field:Max(1000) @param:Schema(description = "Size", defaultValue = "300")
-    val size: Int = 300
-)
 ```
 
 ### DTO Variable Naming
 
-- **@RequestBody (Create/Update)**: Use `reqDto`
-- **@ModelAttribute (Query)**: Use `queryReq`
-
-```kotlin
-@PostMapping
-fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDto =
-    createStudentService.execute(reqDto)
-
-@GetMapping
-fun getStudents(@Valid @ModelAttribute queryReq: QueryStudentReqDto): StudentListResDto =
-    queryStudentService.execute(queryReq)
-```
+- **@RequestBody (Create/Update)**: Use `reqDto` → `service.execute(reqDto)`
+- **@ModelAttribute (Query)**: Use `queryReq` → `service.execute(queryReq)`
+- **@ModelAttribute (Search)**: Use `searchReq` (검색 의미가 명확한 경우)
 
 ### Controller-Service Value Passing
 
-Pass request body/query DTO objects to service layer. PathVariable can be passed individually.
+Pass DTO objects to service layer as-is. PathVariable can be passed individually.
 
-**Good:**
 ```kotlin
 @PostMapping
 fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDto =
@@ -99,13 +75,6 @@ fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDt
 @PutMapping("/{id}")
 fun updateStudent(@PathVariable id: Long, @Valid @RequestBody reqDto: UpdateStudentReqDto): StudentResDto =
     updateStudentService.execute(id, reqDto)
-```
-
-**Bad:**
-```kotlin
-@PostMapping
-fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDto =
-    createStudentService.execute(reqDto.name, reqDto.email)  // Don't extract DTO fields
 ```
 
 ## Common Mistakes
@@ -118,11 +87,6 @@ fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDt
 - WRONG: `fix(web):` (module name) → CORRECT: `fix(auth):` (domain name)
 - WRONG: `update(common):` → CORRECT: `update(student):`
 - Only use module names for cross-cutting concerns: `refactor(global):`, `update(ci/cd):`
-
-### Kotlin Style
-- WRONG: Overusing `var` → CORRECT: Prefer `val`
-- WRONG: Field injection → CORRECT: Constructor injection
-- WRONG: Excessive comments → CORRECT: Comment only non-obvious logic
 
 ## Context Compaction Rules
 

@@ -604,6 +604,7 @@ data class QueryStudentReqDto(
 **네이밍 규칙:**
 - **@RequestBody (생성/수정)**: `reqDto` 사용
 - **@ModelAttribute (조회)**: `queryReq` 사용
+- **@ModelAttribute (검색)**: `searchReq` 사용 (검색 의미가 명확한 경우)
 
 **예시:**
 ```kotlin

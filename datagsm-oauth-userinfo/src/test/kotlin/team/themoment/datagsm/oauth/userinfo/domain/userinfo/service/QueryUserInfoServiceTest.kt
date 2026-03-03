@@ -8,20 +8,20 @@ import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
-import team.themoment.datagsm.oauth.userinfo.domain.userinfo.service.impl.GetUserInfoServiceImpl
+import team.themoment.datagsm.oauth.userinfo.domain.userinfo.service.impl.QueryUserInfoServiceImpl
 import team.themoment.datagsm.oauth.userinfo.global.security.provider.CurrentUserProvider
 
-class GetUserInfoServiceTest :
+class QueryUserInfoServiceTest :
     DescribeSpec({
 
         val mockCurrentUserProvider = mockk<CurrentUserProvider>()
-        val getUserInfoService = GetUserInfoServiceImpl(mockCurrentUserProvider)
+        val queryUserInfoService = QueryUserInfoServiceImpl(mockCurrentUserProvider)
 
         afterEach {
             clearAllMocks()
         }
 
-        describe("GetUserInfoService 클래스의") {
+        describe("QueryUserInfoService 클래스의") {
             describe("execute 메서드는") {
 
                 val testEmail = "test@gsm.hs.kr"
@@ -39,7 +39,7 @@ class GetUserInfoServiceTest :
                     }
 
                     it("계정 정보가 정상적으로 반환되어야 한다") {
-                        val result = getUserInfoService.execute()
+                        val result = queryUserInfoService.execute()
 
                         result.id shouldBe 1L
                         result.email shouldBe testEmail

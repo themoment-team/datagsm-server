@@ -8,6 +8,8 @@ import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.web.domain.auth.service.QueryCurrentAccountApiKeyService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 @Service
 class QueryCurrentAccountApiKeyServiceImpl(
@@ -29,6 +31,7 @@ class QueryCurrentAccountApiKeyServiceImpl(
             id = apiKey.id!!,
             apiKey = apiKey.maskedValue,
             expiresAt = apiKey.expiresAt,
+            expiresInDays = maxOf(0L, ChronoUnit.DAYS.between(LocalDateTime.now(), apiKey.expiresAt)),
             scopes = apiKey.scopes,
             description = apiKey.description,
         )

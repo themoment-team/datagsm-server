@@ -1,23 +1,23 @@
-package team.themoment.datagsm.web.domain.account.service.impl
+package team.themoment.datagsm.oauth.userinfo.domain.userinfo.service.impl
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.common.domain.account.dto.response.GetMyInfoResDto
+import team.themoment.datagsm.common.domain.account.dto.response.AccountInfoResDto
 import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
-import team.themoment.datagsm.web.domain.account.service.GetMyInfoService
-import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
+import team.themoment.datagsm.oauth.userinfo.domain.userinfo.service.QueryUserInfoService
+import team.themoment.datagsm.oauth.userinfo.global.security.provider.CurrentUserProvider
 
 @Service
-class GetMyInfoServiceImpl(
+class QueryUserInfoServiceImpl(
     private val currentUserProvider: CurrentUserProvider,
-) : GetMyInfoService {
+) : QueryUserInfoService {
     @Transactional(readOnly = true)
-    override fun execute(): GetMyInfoResDto {
+    override fun execute(): AccountInfoResDto {
         val account = currentUserProvider.getCurrentAccount()
 
-        return GetMyInfoResDto(
+        return AccountInfoResDto(
             id = account.id!!,
             email = account.email,
             role = account.role,

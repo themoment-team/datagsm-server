@@ -53,7 +53,8 @@ class ModifyClientServiceTest :
                         ClientJpaEntity().apply {
                             id = clientId
                             secret = "encoded-secret"
-                            name = "기존 클라이언트"
+                            clientName = "기존 클라이언트"
+                            serviceName = "기존 서비스"
                             account = ownerAccount
                             redirectUrls = setOf("https://example.com")
                             scopes = setOf(OAuthScope.SELF_READ.scope)
@@ -63,7 +64,7 @@ class ModifyClientServiceTest :
                 context("소유자가 클라이언트 이름을 수정할 때") {
                     val updateRequest =
                         ModifyClientReqDto(
-                            name = "수정된 클라이언트",
+                            clientName = "수정된 클라이언트",
                             redirectUrls = null,
                         )
 
@@ -76,7 +77,7 @@ class ModifyClientServiceTest :
                         val result = modifyClientService.execute(clientId, updateRequest)
 
                         result.id shouldBe clientId
-                        result.name shouldBe "수정된 클라이언트"
+                        result.clientName shouldBe "수정된 클라이언트"
                         result.redirectUrl shouldBe listOf("https://example.com")
 
                         verify(exactly = 1) { mockClientRepository.findById(clientId) }
@@ -87,7 +88,7 @@ class ModifyClientServiceTest :
                 context("소유자가 redirect URL을 수정할 때") {
                     val updateRequest =
                         ModifyClientReqDto(
-                            name = null,
+                            clientName = null,
                             redirectUrls = setOf("https://new-url.com", "https://another-url.com"),
                         )
 
@@ -99,7 +100,7 @@ class ModifyClientServiceTest :
                     it("redirect URL이 성공적으로 수정되어야 한다") {
                         val result = modifyClientService.execute(clientId, updateRequest)
 
-                        result.name shouldBe "기존 클라이언트"
+                        result.clientName shouldBe "기존 클라이언트"
                         result.redirectUrl shouldBe listOf("https://new-url.com", "https://another-url.com")
                     }
                 }
@@ -107,7 +108,7 @@ class ModifyClientServiceTest :
                 context("소유자가 이름과 redirect URL을 모두 수정할 때") {
                     val updateRequest =
                         ModifyClientReqDto(
-                            name = "전체 수정 클라이언트",
+                            clientName = "전체 수정 클라이언트",
                             redirectUrls = setOf("https://updated.com"),
                         )
 
@@ -120,7 +121,7 @@ class ModifyClientServiceTest :
                         val result = modifyClientService.execute(clientId, updateRequest)
 
                         result.id shouldBe clientId
-                        result.name shouldBe "전체 수정 클라이언트"
+                        result.clientName shouldBe "전체 수정 클라이언트"
                         result.redirectUrl shouldBe listOf("https://updated.com")
                     }
                 }
@@ -129,7 +130,7 @@ class ModifyClientServiceTest :
                     val nonExistingId = "non-existing-id"
                     val updateRequest =
                         ModifyClientReqDto(
-                            name = "수정 시도",
+                            clientName = "수정 시도",
                         )
 
                     beforeEach {
@@ -156,7 +157,7 @@ class ModifyClientServiceTest :
 
                     val updateRequest =
                         ModifyClientReqDto(
-                            name = "무단 수정 시도",
+                            clientName = "무단 수정 시도",
                         )
 
                     beforeEach {

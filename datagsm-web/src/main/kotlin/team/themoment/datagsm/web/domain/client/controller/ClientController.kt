@@ -24,8 +24,8 @@ import team.themoment.datagsm.common.domain.client.dto.response.ClientListResDto
 import team.themoment.datagsm.common.domain.client.dto.response.OAuthScopeGroupListResDto
 import team.themoment.datagsm.web.domain.client.service.CreateClientService
 import team.themoment.datagsm.web.domain.client.service.DeleteClientService
-import team.themoment.datagsm.web.domain.client.service.GetAvailableOauthScopesService
 import team.themoment.datagsm.web.domain.client.service.ModifyClientService
+import team.themoment.datagsm.web.domain.client.service.QueryAvailableOauthScopesService
 import team.themoment.datagsm.web.domain.client.service.QueryMyClientService
 import team.themoment.datagsm.web.domain.client.service.SearchClientService
 import team.themoment.sdk.response.CommonApiResponse
@@ -39,7 +39,7 @@ class ClientController(
     private val deleteClientService: DeleteClientService,
     private val queryMyClientService: QueryMyClientService,
     private val searchClientService: SearchClientService,
-    private val getAvailableOauthScopesService: GetAvailableOauthScopesService,
+    private val queryAvailableOauthScopesService: QueryAvailableOauthScopesService,
 ) {
     @Operation(summary = "내 클라이언트 조회", description = "내가 등록한 클라이언트를 조회합니다.")
     @ApiResponses(
@@ -123,5 +123,5 @@ class ClientController(
         ],
     )
     @GetMapping("/available-scopes")
-    fun getAvailableScopes(): OAuthScopeGroupListResDto = getAvailableOauthScopesService.execute()
+    fun getAvailableScopes(): OAuthScopeGroupListResDto = queryAvailableOauthScopesService.execute()
 }

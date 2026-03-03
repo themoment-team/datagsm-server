@@ -7,7 +7,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.common.domain.club.dto.internal.ExcelRowDto
+import team.themoment.datagsm.common.domain.club.dto.internal.ClubInfoDto
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.web.domain.club.service.CreateClubExcelService
@@ -34,7 +34,7 @@ class CreateClubExcelServiceImpl(
     }
 
     override fun execute(): ResponseEntity<ByteArray> {
-        val data: List<ExcelRowDto> = getClubData()
+        val data: List<ClubInfoDto> = getClubData()
         val workbook = XSSFWorkbook()
         workbook.use { workbook ->
             val sheet = workbook.createSheet("동아리")
@@ -47,8 +47,8 @@ class CreateClubExcelServiceImpl(
             headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue(ClubType.AUTONOMOUS_CLUB.value)
             headerRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("${ClubType.AUTONOMOUS_CLUB.value} 부장")
 
-            val maxRows = data.maxOf { it.clubName.size }
-            val clubDataMap = data.associateBy { it.clubType }
+            val dataByType = data.groupBy { it.clubType }
+            val maxRows = ClubType.entries.maxOf { dataByType[it]?.size ?: 0 }
             val clubTypeColumnMap =
                 mapOf(
                     ClubType.MAJOR_CLUB to (MAJOR_CLUB_COL_IDX to MAJOR_CLUB_LEADER_COL_IDX),
@@ -60,12 +60,9 @@ class CreateClubExcelServiceImpl(
                 val dataRow = sheet.createRow(rowIdx + 1)
                 clubTypeColumnMap.forEach { (clubType, columnIndices) ->
                     val (clubNameColIdx, clubLeaderColIdx) = columnIndices
-                    val clubData = clubDataMap[clubType]
-                    clubData?.clubName?.getOrNull(rowIdx)?.let { clubName ->
-                        dataRow.createCell(clubNameColIdx).setCellValue(clubName)
-                    }
-                    clubData?.clubLeader?.getOrNull(rowIdx)?.let { clubLeader ->
-                        dataRow.createCell(clubLeaderColIdx).setCellValue(clubLeader)
+                    dataByType[clubType]?.getOrNull(rowIdx)?.let { dto ->
+                        dataRow.createCell(clubNameColIdx).setCellValue(dto.clubName)
+                        dataRow.createCell(clubLeaderColIdx).setCellValue(dto.leaderInfo ?: "")
                     }
                 }
             }
@@ -104,17 +101,15 @@ class CreateClubExcelServiceImpl(
         }
     }
 
-    private fun getClubData(): List<ExcelRowDto> =
-        ClubType.entries.map { clubType ->
-            val clubs = clubJpaRepository.findByType(clubType)
-            val clubNames = clubs.map { it.name }
-            val clubLeaders =
-                clubs.map { club ->
+    private fun getClubData(): List<ClubInfoDto> =
+        ClubType.entries.flatMap { clubType ->
+            clubJpaRepository.findByType(clubType).map { club ->
+                val leaderStr =
                     club.leader.studentNumber
                         ?.fullStudentNumber
                         ?.let { "$it " }
                         .orEmpty() + club.leader.name
-                }
-            ExcelRowDto(clubName = clubNames, clubLeader = clubLeaders, clubType = clubType)
+                ClubInfoDto(clubName = club.name, clubType = clubType, leaderInfo = leaderStr)
+            }
         }
 }

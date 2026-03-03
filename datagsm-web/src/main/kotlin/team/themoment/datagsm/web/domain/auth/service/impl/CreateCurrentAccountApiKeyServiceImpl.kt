@@ -14,6 +14,7 @@ import team.themoment.datagsm.web.domain.auth.service.CreateCurrentAccountApiKey
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 @Service
 class CreateCurrentAccountApiKeyServiceImpl(
@@ -71,6 +72,7 @@ class CreateCurrentAccountApiKeyServiceImpl(
             id = savedApiKey.id!!,
             apiKey = savedApiKey.value.toString(),
             expiresAt = savedApiKey.expiresAt,
+            expiresInDays = maxOf(0L, ChronoUnit.DAYS.between(now, savedApiKey.expiresAt)),
             scopes = savedApiKey.scopes,
             description = savedApiKey.description,
         )

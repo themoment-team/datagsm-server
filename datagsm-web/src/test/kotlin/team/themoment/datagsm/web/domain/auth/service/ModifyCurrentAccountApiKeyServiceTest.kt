@@ -156,6 +156,7 @@ class ModifyCurrentAccountApiKeyServiceTest :
                         result.apiKey shouldBe apiKey.maskedValue
                         apiKey.value shouldBe oldApiKeyValue
                         result.expiresAt shouldNotBe null
+                        result.expiresInDays shouldBe 30L
                         result.scopes shouldBe reqDto.scopes
                         result.description shouldBe reqDto.description
 
@@ -449,6 +450,7 @@ class ModifyCurrentAccountApiKeyServiceTest :
                         apiKey.value shouldNotBe oldApiKeyValue
                         result.scopes shouldBe reqDto.scopes
                         result.description shouldBe reqDto.description
+                        result.expiresInDays shouldBe 365L
 
                         val expectedMinExpiresAt = beforeExecution.plusDays(365)
                         val expectedMaxExpiresAt = afterExecution.plusDays(365)

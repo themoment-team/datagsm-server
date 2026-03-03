@@ -27,7 +27,8 @@ class QueryMyClientServiceImpl(
             clientsPage.content.map { client ->
                 ClientResDto(
                     id = client.id,
-                    name = client.name,
+                    clientName = client.clientName,
+                    serviceName = client.serviceName,
                     redirectUrl = client.redirectUrls,
                     scopes = client.scopes,
                 )

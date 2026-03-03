@@ -20,7 +20,7 @@ dependencies {
     api(dependency.Dependencies.SPRING_WEB)
     api(dependency.Dependencies.SPRING_SECURITY)
     api(dependency.Dependencies.SPRING_VALIDATION)
-    api(dependency.Dependencies.SPRING_AOP)
+    api(dependency.Dependencies.SPRING_ASPECTJ)
     api(dependency.Dependencies.SPRING_RETRY)
     api(dependency.Dependencies.SPRING_THYMELEAF)
 

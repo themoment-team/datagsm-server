@@ -8,9 +8,7 @@ import org.springframework.stereotype.Component
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.global.data.InternalJwtEnvironment
 import team.themoment.sdk.exception.ExpectedException
-import team.themoment.sdk.logging.logger.logger
 import java.nio.charset.StandardCharsets
-import java.util.Date
 import javax.crypto.SecretKey
 
 @Component
@@ -21,15 +19,6 @@ class JwtProvider(
         Keys.hmacShaKeyFor(
             internalJwtEnvironment.secret.toByteArray(StandardCharsets.UTF_8),
         )
-
-    fun validateToken(token: String): Boolean =
-        try {
-            val claims = parseClaims(token)
-            claims.expiration?.after(Date()) ?: false
-        } catch (e: Exception) {
-            logger().error("Invalid JWT token ${e.message}")
-            false
-        }
 
     fun getEmailFromToken(token: String): String = parseClaims(token).subject
 

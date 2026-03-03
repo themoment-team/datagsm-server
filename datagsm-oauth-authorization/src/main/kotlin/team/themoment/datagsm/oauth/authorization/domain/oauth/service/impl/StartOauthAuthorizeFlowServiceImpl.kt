@@ -12,6 +12,8 @@ import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.StartOauthAuthorizeFlowService
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.util.UUID
 
 @Service
@@ -21,12 +23,12 @@ class StartOauthAuthorizeFlowServiceImpl(
     private val oauthAuthorizeStateRedisRepository: OauthAuthorizeStateRedisRepository,
 ) : StartOauthAuthorizeFlowService {
     override fun execute(reqDto: OauthAuthorizeReqDto): ResponseEntity<Void> {
-        val clientId = reqDto.`client_id`
-        val redirectUri = reqDto.`redirect_uri`
-        val responseType = reqDto.`response_type`
+        val clientId = reqDto.client_id ?: throw OAuthException.InvalidRequest("client_id는 필수입니다.")
+        val redirectUri = reqDto.redirect_uri ?: throw OAuthException.InvalidRequest("redirect_uri는 필수입니다.")
+        val responseType = reqDto.response_type
         val state = reqDto.state
-        val codeChallenge = reqDto.`code_challenge`
-        val codeChallengeMethod = reqDto.`code_challenge_method`
+        val codeChallenge = reqDto.code_challenge
+        val codeChallengeMethod = reqDto.code_challenge_method
 
         if (responseType != "code") {
             throw OAuthException.InvalidRequest("response_type은 'code'여야 합니다.")
@@ -66,6 +68,8 @@ class StartOauthAuthorizeFlowServiceImpl(
                 .fromUriString(oauthEnvironment.frontendUrl)
                 .path("/oauth/authorize")
                 .queryParam("token", token)
+                .queryParam("service_name", URLEncoder.encode(client.serviceName, StandardCharsets.UTF_8))
+                // TODO: 추후 프론트엔드 작업 종료 시 제거해야 함(하위호환성을 위해 남겨짐; service_name 파라미터)
                 .build()
                 .toUri()
 
