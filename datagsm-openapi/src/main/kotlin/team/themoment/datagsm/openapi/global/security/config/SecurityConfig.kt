@@ -48,7 +48,7 @@ class SecurityConfig(
                 ApiKeyAuthenticationFilter(apiKeyJpaRepository, objectMapper),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).addFilterBefore(
-                RateLimitFilter(rateLimitService, objectMapper, currentUserProvider),
+                RateLimitFilter(rateLimitService, objectMapper),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).authorizeHttpRequests {
                 it.anyRequest().permitAll()
