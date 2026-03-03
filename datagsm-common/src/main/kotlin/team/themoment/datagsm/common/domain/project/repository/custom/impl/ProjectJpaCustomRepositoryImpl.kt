@@ -42,14 +42,12 @@ class ProjectJpaCustomRepositoryImpl(
     ): Page<ProjectJpaEntity> {
         val orderSpecifier = createOrderSpecifier(sortBy, sortDirection)
 
+        // FIXME: participants N+1 문제가 있음. default_batch_fetch_size로 임시 완화 중.
+        //        추후 ID 페이지네이션 → IN절 fetchJoin 2쿼리 패턴으로 전환 필요.
         val content =
             jpaQueryFactory
-                .select(projectJpaEntity)
-                .distinct()
-                .from(projectJpaEntity)
+                .selectFrom(projectJpaEntity)
                 .leftJoin(projectJpaEntity.club)
-                .fetchJoin()
-                .leftJoin(projectJpaEntity.participants)
                 .fetchJoin()
                 .where(
                     projectId?.let { projectJpaEntity.id.eq(it) },
