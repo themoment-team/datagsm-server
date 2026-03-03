@@ -1,5 +1,4 @@
-package team.themoment.datagsm.common.global.banner
-// team.themoment.datagsm.common.global.common.banner로 가는게 맞을듯? 아닌가?
+package team.themoment.datagsm.common.global.common.banner
 
 import org.springframework.boot.Banner
 import org.springframework.boot.ResourceBanner

@@ -2,7 +2,7 @@ package team.themoment.datagsm.openapi
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
-import team.themoment.datagsm.common.global.banner.GitAwareBanner
+import team.themoment.datagsm.common.global.common.banner.GitAwareBanner
 
 @SpringBootApplication(
     scanBasePackages = ["team.themoment.datagsm.openapi", "team.themoment.datagsm.common"],
