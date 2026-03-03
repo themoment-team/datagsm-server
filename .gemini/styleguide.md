@@ -197,7 +197,8 @@ Controller → Service → Repository
 - HTTP request/response handling
 - Input validation (`@Valid`)
 - Route mapping
-- Return DTOs wrapped in `CommonApiResponse`
+- Return DTOs directly — the SDK Wrapper (`ResponseBodyAdvice`) automatically wraps responses in `CommonApiResponse`
+- Use `CommonApiResponse<Nothing>` explicitly only when returning a message with no data (e.g., delete operations)
 
 **Service Responsibilities:**
 - Business logic
@@ -217,14 +218,22 @@ Controller → Service → Repository
 @RestController
 @RequestMapping("/v1/students")
 class StudentController(
-    private val createStudentService: CreateStudentService
+    private val createStudentService: CreateStudentService,
+    private val deleteStudentService: DeleteStudentService,
 ) {
+    // Return DTO directly — SDK Wrapper automatically wraps it in CommonApiResponse
     @PostMapping
     fun createStudent(
         @Valid @RequestBody reqDto: CreateStudentReqDto
-    ): CommonApiResponse<StudentResDto> {
-        val result = createStudentService.execute(reqDto)
-        return CommonApiResponse.success(result)
+    ): StudentResDto = createStudentService.execute(reqDto)
+
+    // Use CommonApiResponse explicitly only when returning a message with no data
+    @DeleteMapping("/{studentId}")
+    fun deleteStudent(
+        @PathVariable studentId: Long,
+    ): CommonApiResponse<Nothing> {
+        deleteStudentService.execute(studentId)
+        return CommonApiResponse.success("Student를 성공적으로 삭제했습니다.")
     }
 }
 
