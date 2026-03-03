@@ -3,13 +3,13 @@ package team.themoment.datagsm.openapi.global.security.filter
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.openapi.global.security.authentication.ApiKeyAuthenticationToken
-import team.themoment.datagsm.openapi.global.security.provider.CurrentUserProvider
 import team.themoment.datagsm.openapi.global.security.service.RateLimitService
 import team.themoment.sdk.response.CommonApiResponse
 import tools.jackson.databind.ObjectMapper
@@ -17,7 +17,6 @@ import tools.jackson.databind.ObjectMapper
 class RateLimitFilter(
     private val rateLimitService: RateLimitService,
     private val objectMapper: ObjectMapper,
-    private val currentUserProvider: CurrentUserProvider,
 ) : OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -30,7 +29,7 @@ class RateLimitFilter(
             return
         }
 
-        val apiKey = currentUserProvider.getPrincipal().apiKey
+        val apiKey = authentication.principal.apiKey
         if (isExcludedFromRateLimit(apiKey)) {
             filterChain.doFilter(request, response)
             return
@@ -43,7 +42,7 @@ class RateLimitFilter(
         if (!result.consumed) {
             response.status = HttpStatus.TOO_MANY_REQUESTS.value()
             response.contentType = MediaType.APPLICATION_JSON_VALUE
-            response.setHeader("Retry-After", result.secondsToWaitForRefill.toString())
+            response.setHeader(HttpHeaders.RETRY_AFTER, result.secondsToWaitForRefill.toString())
             val errorResponse =
                 CommonApiResponse.error(
                     "API 요청 제한을 초과했습니다. ${result.secondsToWaitForRefill}초 후에 다시 시도해주세요.",
