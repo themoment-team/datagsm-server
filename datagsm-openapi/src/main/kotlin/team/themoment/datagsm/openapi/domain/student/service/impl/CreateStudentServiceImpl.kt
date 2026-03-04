@@ -26,7 +26,11 @@ class CreateStudentServiceImpl(
             throw ExpectedException("이미 존재하는 이메일입니다: ${reqDto.email}", HttpStatus.CONFLICT)
         }
 
-        if (studentJpaRepository.existsByStudentNumber(reqDto.grade, reqDto.classNum, reqDto.number)) {
+        if (reqDto.grade == null || reqDto.classNum == null || reqDto.number == null) {
+            throw ExpectedException("재학생은 학번 정보(학년, 반, 번호)가 필수입니다.", HttpStatus.BAD_REQUEST)
+        }
+
+        if (studentJpaRepository.existsByStudentNumber(reqDto.grade!!, reqDto.classNum!!, reqDto.number!!)) {
             throw ExpectedException(
                 "이미 존재하는 학번입니다: ${reqDto.grade}학년 ${reqDto.classNum}반 ${reqDto.number}번",
                 HttpStatus.CONFLICT,
@@ -39,7 +43,7 @@ class CreateStudentServiceImpl(
                 sex = reqDto.sex
                 email = reqDto.email
                 studentNumber = StudentNumber(reqDto.grade, reqDto.classNum, reqDto.number)
-                major = Major.fromClassNum(reqDto.classNum)
+                major = Major.fromClassNum(reqDto.classNum!!)
                     ?: throw ExpectedException("유효하지 않은 학급입니다: ${reqDto.classNum}", HttpStatus.BAD_REQUEST)
                 role = reqDto.role
                 dormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
