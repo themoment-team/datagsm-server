@@ -17,7 +17,6 @@ import team.themoment.datagsm.oauth.authorization.global.template.EmailTemplate
  * - Service → Infrastructure 의존은 정상적인 의존 방향입니다.
  *
  * @see team.themoment.datagsm.oauth.authorization.domain.account.service.impl.SendSignupEmailServiceImpl
- * @see team.themoment.datagsm.oauth.authorization.domain.account.password.service.impl.SendPasswordResetEmailServiceImpl
  */
 @Service
 class EmailSenderService(
