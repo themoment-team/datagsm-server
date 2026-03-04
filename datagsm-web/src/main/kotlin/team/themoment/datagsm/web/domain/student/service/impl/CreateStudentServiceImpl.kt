@@ -11,6 +11,7 @@ import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
+import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.student.service.CreateStudentService
 import team.themoment.sdk.exception.ExpectedException
@@ -26,11 +27,36 @@ class CreateStudentServiceImpl(
             throw ExpectedException("이미 존재하는 이메일입니다: ${reqDto.email}", HttpStatus.CONFLICT)
         }
 
-        if (studentJpaRepository.existsByStudentNumber(reqDto.grade, reqDto.classNum, reqDto.number)) {
-            throw ExpectedException(
-                "이미 존재하는 학번입니다: ${reqDto.grade}학년 ${reqDto.classNum}반 ${reqDto.number}번",
-                HttpStatus.CONFLICT,
-            )
+        when (reqDto.role) {
+            StudentRole.GRADUATE -> {
+                val hasStudentNumberInfo = reqDto.grade != null || reqDto.classNum != null || reqDto.number != null
+                val hasDormitoryInfo = reqDto.dormitoryRoomNumber != null
+                val hasClubInfo = reqDto.majorClubId != null || reqDto.jobClubId != null || reqDto.autonomousClubId != null
+                if (hasStudentNumberInfo || hasDormitoryInfo || hasClubInfo) {
+                    throw ExpectedException("졸업생은 학번, 기숙사, 동아리 정보를 가질 수 없습니다.", HttpStatus.BAD_REQUEST)
+                }
+            }
+            StudentRole.WITHDRAWN -> {
+                val hasDormitoryInfo = reqDto.dormitoryRoomNumber != null
+                val hasClubInfo = reqDto.majorClubId != null || reqDto.jobClubId != null || reqDto.autonomousClubId != null
+                if (hasDormitoryInfo || hasClubInfo) {
+                    throw ExpectedException("자퇴생은 기숙사, 동아리 정보를 가질 수 없습니다.", HttpStatus.BAD_REQUEST)
+                }
+            }
+            else -> {
+                if (reqDto.grade == null || reqDto.classNum == null || reqDto.number == null) {
+                    throw ExpectedException("재학생은 학번 정보(학년, 반, 번호)가 필수입니다.", HttpStatus.BAD_REQUEST)
+                }
+            }
+        }
+
+        if (reqDto.grade != null && reqDto.classNum != null && reqDto.number != null) {
+            if (studentJpaRepository.existsByStudentNumber(reqDto.grade!!, reqDto.classNum!!, reqDto.number!!)) {
+                throw ExpectedException(
+                    "이미 존재하는 학번입니다: ${reqDto.grade}학년 ${reqDto.classNum}반 ${reqDto.number}번",
+                    HttpStatus.CONFLICT,
+                )
+            }
         }
 
         val studentEntity =
@@ -38,30 +64,34 @@ class CreateStudentServiceImpl(
                 name = reqDto.name
                 sex = reqDto.sex
                 email = reqDto.email
-                studentNumber = StudentNumber(reqDto.grade, reqDto.classNum, reqDto.number)
-                major = Major.fromClassNum(reqDto.classNum)
-                    ?: throw ExpectedException("유효하지 않은 학급입니다: ${reqDto.classNum}", HttpStatus.BAD_REQUEST)
                 role = reqDto.role
-                dormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
-                val clubIds = listOfNotNull(reqDto.majorClubId, reqDto.jobClubId, reqDto.autonomousClubId)
-                val clubs =
-                    if (clubIds.isNotEmpty()) {
-                        clubJpaRepository.findAllById(clubIds).associateBy { it.id }
-                    } else {
-                        emptyMap()
-                    }
-                majorClub =
-                    reqDto.majorClubId?.let { clubId ->
-                        clubs[clubId] ?: throw ExpectedException("전공 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
-                    }
-                jobClub =
-                    reqDto.jobClubId?.let { clubId ->
-                        clubs[clubId] ?: throw ExpectedException("취업 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
-                    }
-                autonomousClub =
-                    reqDto.autonomousClubId?.let { clubId ->
-                        clubs[clubId] ?: throw ExpectedException("자율 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
-                    }
+                if (reqDto.grade != null && reqDto.classNum != null && reqDto.number != null) {
+                    studentNumber = StudentNumber(reqDto.grade, reqDto.classNum, reqDto.number)
+                }
+                if (reqDto.role != StudentRole.GRADUATE && reqDto.role != StudentRole.WITHDRAWN) {
+                    major = Major.fromClassNum(reqDto.classNum!!)
+                        ?: throw ExpectedException("유효하지 않은 학급입니다: ${reqDto.classNum}", HttpStatus.BAD_REQUEST)
+                    dormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
+                    val clubIds = listOfNotNull(reqDto.majorClubId, reqDto.jobClubId, reqDto.autonomousClubId)
+                    val clubs =
+                        if (clubIds.isNotEmpty()) {
+                            clubJpaRepository.findAllById(clubIds).associateBy { it.id }
+                        } else {
+                            emptyMap()
+                        }
+                    majorClub =
+                        reqDto.majorClubId?.let { clubId ->
+                            clubs[clubId] ?: throw ExpectedException("전공 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
+                        }
+                    jobClub =
+                        reqDto.jobClubId?.let { clubId ->
+                            clubs[clubId] ?: throw ExpectedException("취업 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
+                        }
+                    autonomousClub =
+                        reqDto.autonomousClubId?.let { clubId ->
+                            clubs[clubId] ?: throw ExpectedException("자율 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
+                        }
+                }
             }
 
         val savedStudent = studentJpaRepository.save(studentEntity)

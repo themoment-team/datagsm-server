@@ -77,9 +77,9 @@ class CreateStudentServiceTest :
                         every { mockStudentRepository.existsByEmail(req.email) } returns false
                         every {
                             mockStudentRepository.existsByStudentNumber(
-                                req.grade,
-                                req.classNum,
-                                req.number,
+                                req.grade!!,
+                                req.classNum!!,
+                                req.number!!,
                             )
                         } returns false
                         every { mockStudentRepository.save(any()) } answers {
@@ -102,9 +102,9 @@ class CreateStudentServiceTest :
                         verify(exactly = 1) { mockStudentRepository.existsByEmail(req.email) }
                         verify(exactly = 1) {
                             mockStudentRepository.existsByStudentNumber(
-                                req.grade,
-                                req.classNum,
-                                req.number,
+                                req.grade!!,
+                                req.classNum!!,
+                                req.number!!,
                             )
                         }
                         verify(exactly = 1) { mockStudentRepository.save(any()) }
