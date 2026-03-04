@@ -29,6 +29,9 @@ class ModifyStudentServiceImpl(
             studentJpaRepository
                 .findById(studentId)
                 .orElseThrow { ExpectedException("학생을 찾을 수 없습니다. studentId: $studentId", HttpStatus.NOT_FOUND) }
+        if (student.role == StudentRole.GRADUATE || student.role == StudentRole.WITHDRAWN) {
+            throw ExpectedException("졸업생이나 자퇴생은 수정 API를 사용할 수 없습니다.", HttpStatus.BAD_REQUEST)
+        }
         if (studentJpaRepository.existsByStudentEmailAndNotId(reqDto.email, studentId)) {
             throw ExpectedException("이미 존재하는 이메일입니다: ${reqDto.email}", HttpStatus.CONFLICT)
         }
