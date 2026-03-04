@@ -50,4 +50,17 @@ subprojects {
     configurations.all {
         exclude(group = "org.bouncycastle")
     }
+
+    plugins.withId(plugin.Plugins.GIT_PROPERTIES) {
+        configure<com.gorylenko.GitPropertiesPluginExtension> {
+            dotGitDirectory = rootProject.file(".git")
+            keys =
+                listOf(
+                    "git.branch",
+                    "git.commit.id.abbrev",
+                    "git.commit.time",
+                    "git.commit.message.short",
+                )
+        }
+    }
 }

@@ -33,14 +33,3 @@ tasks.withType<Test> {
 tasks.jar {
     enabled = false
 }
-
-gitProperties {
-    dotGitDirectory = rootProject.file(".git")
-    keys =
-        listOf(
-            "git.branch",
-            "git.commit.id.abbrev",
-            "git.commit.time",
-            "git.commit.message.short",
-        )
-}
