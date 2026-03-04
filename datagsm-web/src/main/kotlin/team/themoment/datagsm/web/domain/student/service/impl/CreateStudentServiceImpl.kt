@@ -27,29 +27,26 @@ class CreateStudentServiceImpl(
             throw ExpectedException("이미 존재하는 이메일입니다: ${reqDto.email}", HttpStatus.CONFLICT)
         }
 
-        val isGraduate = reqDto.role == StudentRole.GRADUATE
-        val isWithdrawn = reqDto.role == StudentRole.WITHDRAWN
-
-        if (isGraduate) {
-            val hasStudentNumberInfo = reqDto.grade != null || reqDto.classNum != null || reqDto.number != null
-            val hasDormitoryInfo = reqDto.dormitoryRoomNumber != null
-            val hasClubInfo = reqDto.majorClubId != null || reqDto.jobClubId != null || reqDto.autonomousClubId != null
-            if (hasStudentNumberInfo || hasDormitoryInfo || hasClubInfo) {
-                throw ExpectedException("졸업생은 학번, 기숙사, 동아리 정보를 가질 수 없습니다.", HttpStatus.BAD_REQUEST)
+        when (reqDto.role) {
+            StudentRole.GRADUATE -> {
+                val hasStudentNumberInfo = reqDto.grade != null || reqDto.classNum != null || reqDto.number != null
+                val hasDormitoryInfo = reqDto.dormitoryRoomNumber != null
+                val hasClubInfo = reqDto.majorClubId != null || reqDto.jobClubId != null || reqDto.autonomousClubId != null
+                if (hasStudentNumberInfo || hasDormitoryInfo || hasClubInfo) {
+                    throw ExpectedException("졸업생은 학번, 기숙사, 동아리 정보를 가질 수 없습니다.", HttpStatus.BAD_REQUEST)
+                }
             }
-        }
-
-        if (isWithdrawn) {
-            val hasDormitoryInfo = reqDto.dormitoryRoomNumber != null
-            val hasClubInfo = reqDto.majorClubId != null || reqDto.jobClubId != null || reqDto.autonomousClubId != null
-            if (hasDormitoryInfo || hasClubInfo) {
-                throw ExpectedException("자퇴생은 기숙사, 동아리 정보를 가질 수 없습니다.", HttpStatus.BAD_REQUEST)
+            StudentRole.WITHDRAWN -> {
+                val hasDormitoryInfo = reqDto.dormitoryRoomNumber != null
+                val hasClubInfo = reqDto.majorClubId != null || reqDto.jobClubId != null || reqDto.autonomousClubId != null
+                if (hasDormitoryInfo || hasClubInfo) {
+                    throw ExpectedException("자퇴생은 기숙사, 동아리 정보를 가질 수 없습니다.", HttpStatus.BAD_REQUEST)
+                }
             }
-        }
-
-        if (!isGraduate && !isWithdrawn) {
-            if (reqDto.grade == null || reqDto.classNum == null || reqDto.number == null) {
-                throw ExpectedException("재학생은 학번 정보(학년, 반, 번호)가 필수입니다.", HttpStatus.BAD_REQUEST)
+            else -> {
+                if (reqDto.grade == null || reqDto.classNum == null || reqDto.number == null) {
+                    throw ExpectedException("재학생은 학번 정보(학년, 반, 번호)가 필수입니다.", HttpStatus.BAD_REQUEST)
+                }
             }
         }
 
@@ -71,7 +68,7 @@ class CreateStudentServiceImpl(
                 if (reqDto.grade != null && reqDto.classNum != null && reqDto.number != null) {
                     studentNumber = StudentNumber(reqDto.grade, reqDto.classNum, reqDto.number)
                 }
-                if (!isGraduate && !isWithdrawn) {
+                if (reqDto.role != StudentRole.GRADUATE && reqDto.role != StudentRole.WITHDRAWN) {
                     major = Major.fromClassNum(reqDto.classNum!!)
                         ?: throw ExpectedException("유효하지 않은 학급입니다: ${reqDto.classNum}", HttpStatus.BAD_REQUEST)
                     dormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
