@@ -131,6 +131,121 @@ class ModifyStudentServiceTest :
                         }
                     }
                 }
+
+                context("기존 role이 GRADUATE인 학생을 수정하려 할 때") {
+                    val studentId = 5L
+                    val graduateStudent =
+                        StudentJpaEntity().apply {
+                            this.id = studentId
+                            name = "졸업생"
+                            sex = Sex.MAN
+                            email = "graduate@gsm.hs.kr"
+                            role = StudentRole.GRADUATE
+                        }
+
+                    val req =
+                        UpdateStudentReqDto(
+                            name = "수정시도",
+                            sex = Sex.MAN,
+                            email = "graduate@gsm.hs.kr",
+                            grade = 2,
+                            classNum = 1,
+                            number = 5,
+                            role = StudentRole.GENERAL_STUDENT,
+                        )
+
+                    beforeEach {
+                        every { mockStudentRepository.findById(studentId) } returns Optional.of(graduateStudent)
+                    }
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                modifyStudentService.execute(studentId, req)
+                            }
+
+                        exception.message shouldBe "졸업생이나 자퇴생은 수정 API를 사용할 수 없습니다."
+
+                        verify(exactly = 0) { mockStudentRepository.existsByStudentEmailAndNotId(any(), any()) }
+                    }
+                }
+
+                context("기존 role이 WITHDRAWN인 학생을 수정하려 할 때") {
+                    val studentId = 6L
+                    val withdrawnStudent =
+                        StudentJpaEntity().apply {
+                            this.id = studentId
+                            name = "자퇴생"
+                            sex = Sex.WOMAN
+                            email = "withdrawn@gsm.hs.kr"
+                            role = StudentRole.WITHDRAWN
+                        }
+
+                    val req =
+                        UpdateStudentReqDto(
+                            name = "수정시도",
+                            sex = Sex.WOMAN,
+                            email = "withdrawn@gsm.hs.kr",
+                            grade = 2,
+                            classNum = 1,
+                            number = 5,
+                            role = StudentRole.GENERAL_STUDENT,
+                        )
+
+                    beforeEach {
+                        every { mockStudentRepository.findById(studentId) } returns Optional.of(withdrawnStudent)
+                    }
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                modifyStudentService.execute(studentId, req)
+                            }
+
+                        exception.message shouldBe "졸업생이나 자퇴생은 수정 API를 사용할 수 없습니다."
+
+                        verify(exactly = 0) { mockStudentRepository.existsByStudentEmailAndNotId(any(), any()) }
+                    }
+                }
+
+                context("role을 GRADUATE로 변경 시도할 때") {
+                    val studentId = 7L
+                    val existingStudent =
+                        StudentJpaEntity().apply {
+                            this.id = studentId
+                            name = "재학생"
+                            sex = Sex.MAN
+                            email = "student@gsm.hs.kr"
+                            studentNumber = StudentNumber(2, 1, 5)
+                            role = StudentRole.GENERAL_STUDENT
+                        }
+
+                    val req =
+                        UpdateStudentReqDto(
+                            name = "재학생",
+                            sex = Sex.MAN,
+                            email = "student@gsm.hs.kr",
+                            grade = 2,
+                            classNum = 1,
+                            number = 5,
+                            role = StudentRole.GRADUATE,
+                        )
+
+                    beforeEach {
+                        every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
+                    }
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                modifyStudentService.execute(studentId, req)
+                            }
+
+                        exception.message shouldBe "졸업생이나 자퇴생으로의 role 변경은 허용되지 않습니다."
+
+                        verify(exactly = 0) { mockStudentRepository.existsByStudentEmailAndNotId(any(), any()) }
+                    }
+                }
             }
         }
     })
