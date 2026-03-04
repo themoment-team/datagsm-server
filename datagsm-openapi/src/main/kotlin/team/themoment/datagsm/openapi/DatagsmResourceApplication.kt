@@ -2,6 +2,7 @@ package team.themoment.datagsm.openapi
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import team.themoment.datagsm.common.global.common.banner.GitAwareBanner
 
 @SpringBootApplication(
     scanBasePackages = ["team.themoment.datagsm.openapi", "team.themoment.datagsm.common"],
@@ -9,5 +10,8 @@ import org.springframework.boot.runApplication
 class DatagsmOpenApiApplication
 
 fun main(args: Array<String>) {
-    runApplication<DatagsmOpenApiApplication>(*args)
+    runApplication<DatagsmOpenApiApplication>(*args) {
+        setBanner(GitAwareBanner())
+        setDefaultProperties(mapOf("spring.banner.location" to "classpath:_"))
+    }
 }

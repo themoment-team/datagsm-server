@@ -2,6 +2,7 @@ plugins {
     id(plugin.Plugins.KOTLIN_SPRING)
     id(plugin.Plugins.KOTLIN_JPA)
     id(plugin.Plugins.SPRING_BOOT)
+    id(plugin.Plugins.GIT_PROPERTIES)
 }
 
 dependencies {
