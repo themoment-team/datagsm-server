@@ -12,5 +12,6 @@ class DatagsmOpenApiApplication
 fun main(args: Array<String>) {
     runApplication<DatagsmOpenApiApplication>(*args) {
         setBanner(GitAwareBanner())
+        setDefaultProperties(mapOf("spring.banner.location" to "classpath:_"))
     }
 }

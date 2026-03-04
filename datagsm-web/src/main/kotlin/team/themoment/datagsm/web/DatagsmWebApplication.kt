@@ -12,5 +12,6 @@ class DatagsmWebApplication
 fun main(args: Array<String>) {
     runApplication<DatagsmWebApplication>(*args) {
         setBanner(GitAwareBanner())
+        setDefaultProperties(mapOf("spring.banner.location" to "classpath:_"))
     }
 }

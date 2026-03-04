@@ -12,5 +12,6 @@ class DatagsmOauthUserInfoApplication
 fun main(args: Array<String>) {
     runApplication<DatagsmOauthUserInfoApplication>(*args) {
         setBanner(GitAwareBanner())
+        setDefaultProperties(mapOf("spring.banner.location" to "classpath:_"))
     }
 }
