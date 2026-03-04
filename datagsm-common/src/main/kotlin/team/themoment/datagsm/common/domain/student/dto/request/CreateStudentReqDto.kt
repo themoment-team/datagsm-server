@@ -21,10 +21,16 @@ data class CreateStudentReqDto(
     @field:NotBlank
     @param:Schema(description = "이메일", example = "student@gsm.hs.kr", maxLength = 50)
     val email: String,
+    @field:Min(value = 1)
+    @field:Max(value = 3)
     @param:Schema(description = "학년 (1-3, 재학생 필수)", example = "1", minimum = "1", maximum = "3")
     val grade: Int? = null,
+    @field:Min(value = 1)
+    @field:Max(value = 4)
     @param:Schema(description = "반 (1-4, 재학생 필수)", example = "1", minimum = "1", maximum = "4")
     val classNum: Int? = null,
+    @field:Min(value = 1)
+    @field:Max(value = 18)
     @param:Schema(description = "번호 (1-18, 재학생 필수)", example = "1", minimum = "1", maximum = "18")
     val number: Int? = null,
     @param:Schema(description = "역할", example = "GENERAL_STUDENT")
