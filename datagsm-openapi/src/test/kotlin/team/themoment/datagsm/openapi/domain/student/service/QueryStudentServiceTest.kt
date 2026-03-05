@@ -265,6 +265,57 @@ class QueryStudentServiceTest :
                     }
                 }
 
+                context("includeWithdrawn = true로 조회할 때") {
+                    beforeEach {
+                        every {
+                            mockStudentRepository.searchRegisteredStudentsWithPaging(
+                                id = null,
+                                name = null,
+                                email = null,
+                                grade = null,
+                                classNum = null,
+                                number = null,
+                                sex = null,
+                                role = null,
+                                dormitoryRoom = null,
+                                includeGraduates = false,
+                                includeWithdrawn = true,
+                                onlyEnrolled = false,
+                                pageable = PageRequest.of(0, 300),
+                                sortBy = any(),
+                                sortDirection = any(),
+                            )
+                        } returns PageImpl(listOf(testStudent), PageRequest.of(0, 300), 1L)
+                    }
+
+                    it("includeWithdrawn 파라미터가 repository에 전달되어야 한다") {
+                        val queryReq = QueryStudentReqDto(includeWithdrawn = true)
+                        val result = queryStudentService.execute(queryReq)
+
+                        result.totalElements shouldBe 1L
+
+                        verify(exactly = 1) {
+                            mockStudentRepository.searchRegisteredStudentsWithPaging(
+                                id = null,
+                                name = null,
+                                email = null,
+                                grade = null,
+                                classNum = null,
+                                number = null,
+                                sex = null,
+                                role = null,
+                                dormitoryRoom = null,
+                                includeGraduates = false,
+                                includeWithdrawn = true,
+                                onlyEnrolled = false,
+                                pageable = PageRequest.of(0, 300),
+                                sortBy = any(),
+                                sortDirection = any(),
+                            )
+                        }
+                    }
+                }
+
                 context("onlyEnrolled = true로 조회할 때") {
                     beforeEach {
                         every {
