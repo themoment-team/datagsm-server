@@ -7,10 +7,8 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.common.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
-import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.club.service.CreateClubService
 import team.themoment.sdk.exception.ExpectedException
@@ -45,8 +43,7 @@ class CreateClubServiceImpl(
         val filteredParticipantIds = clubReqDto.participantIds.filter { it != clubReqDto.leaderId }
         val participants = studentJpaRepository.findAllById(filteredParticipantIds)
 
-        assignClubToStudent(leader, savedClub, clubReqDto.type)
-        participants.forEach { assignClubToStudent(it, savedClub, clubReqDto.type) }
+        studentJpaRepository.bulkAssignClub(listOf(clubReqDto.leaderId) + filteredParticipantIds, savedClub, clubReqDto.type)
 
         return ClubResDto(
             id = savedClub.id!!,
@@ -73,17 +70,5 @@ class CreateClubServiceImpl(
                     )
                 },
         )
-    }
-
-    private fun assignClubToStudent(
-        student: StudentJpaEntity,
-        club: ClubJpaEntity,
-        type: ClubType,
-    ) {
-        when (type) {
-            ClubType.MAJOR_CLUB -> student.majorClub = club
-            ClubType.JOB_CLUB -> student.jobClub = club
-            ClubType.AUTONOMOUS_CLUB -> student.autonomousClub = club
-        }
     }
 }
