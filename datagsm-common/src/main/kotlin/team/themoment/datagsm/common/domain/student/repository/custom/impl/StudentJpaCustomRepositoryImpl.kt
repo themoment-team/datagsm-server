@@ -10,6 +10,7 @@ import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.account.entity.QAccountJpaEntity.Companion.accountJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.student.entity.QStudentJpaEntity.Companion.studentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -359,6 +360,32 @@ class StudentJpaCustomRepositoryImpl(
             .setNull(studentJpaEntity.autonomousClub)
             .where(studentJpaEntity.autonomousClub.`in`(clubs))
             .execute()
+    }
+
+    override fun clearClubReferencesByType(
+        club: ClubJpaEntity,
+        type: ClubType,
+    ) {
+        when (type) {
+            ClubType.MAJOR_CLUB ->
+                jpaQueryFactory
+                    .update(studentJpaEntity)
+                    .setNull(studentJpaEntity.majorClub)
+                    .where(studentJpaEntity.majorClub.eq(club))
+                    .execute()
+            ClubType.JOB_CLUB ->
+                jpaQueryFactory
+                    .update(studentJpaEntity)
+                    .setNull(studentJpaEntity.jobClub)
+                    .where(studentJpaEntity.jobClub.eq(club))
+                    .execute()
+            ClubType.AUTONOMOUS_CLUB ->
+                jpaQueryFactory
+                    .update(studentJpaEntity)
+                    .setNull(studentJpaEntity.autonomousClub)
+                    .where(studentJpaEntity.autonomousClub.eq(club))
+                    .execute()
+        }
     }
 
     private fun buildEmailCaseExpr(pairs: List<Pair<Long, String>>): Expression<String> =
