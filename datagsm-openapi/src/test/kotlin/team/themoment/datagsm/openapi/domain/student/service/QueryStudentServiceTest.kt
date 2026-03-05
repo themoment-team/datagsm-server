@@ -59,6 +59,8 @@ class QueryStudentServiceTest :
                                 role = null,
                                 dormitoryRoom = null,
                                 includeGraduates = false,
+                                includeWithdrawn = false,
+                                onlyEnrolled = false,
                                 pageable = PageRequest.of(0, 300),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -100,6 +102,8 @@ class QueryStudentServiceTest :
                                 role = null,
                                 dormitoryRoom = null,
                                 includeGraduates = false,
+                                includeWithdrawn = false,
+                                onlyEnrolled = false,
                                 pageable = PageRequest.of(0, 300),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -122,6 +126,8 @@ class QueryStudentServiceTest :
                                 role = null,
                                 dormitoryRoom = null,
                                 includeGraduates = false,
+                                includeWithdrawn = false,
+                                onlyEnrolled = false,
                                 pageable = PageRequest.of(0, 300),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -153,6 +159,8 @@ class QueryStudentServiceTest :
                                 role = null,
                                 dormitoryRoom = null,
                                 includeGraduates = false,
+                                includeWithdrawn = false,
+                                onlyEnrolled = false,
                                 pageable = PageRequest.of(0, 300),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -184,6 +192,8 @@ class QueryStudentServiceTest :
                                 role = null,
                                 dormitoryRoom = null,
                                 includeGraduates = true,
+                                includeWithdrawn = false,
+                                onlyEnrolled = false,
                                 pageable = PageRequest.of(0, 300),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -232,6 +242,8 @@ class QueryStudentServiceTest :
                                 role = null,
                                 dormitoryRoom = null,
                                 includeGraduates = false,
+                                includeWithdrawn = false,
+                                onlyEnrolled = false,
                                 pageable = PageRequest.of(0, 300),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -250,6 +262,58 @@ class QueryStudentServiceTest :
                         student.majorClub?.type shouldBe ClubType.MAJOR_CLUB
                         student.jobClub shouldBe null
                         student.autonomousClub shouldBe null
+                    }
+                }
+
+                context("onlyEnrolled = true로 조회할 때") {
+                    beforeEach {
+                        every {
+                            mockStudentRepository.searchRegisteredStudentsWithPaging(
+                                id = null,
+                                name = null,
+                                email = null,
+                                grade = null,
+                                classNum = null,
+                                number = null,
+                                sex = null,
+                                role = null,
+                                dormitoryRoom = null,
+                                includeGraduates = false,
+                                includeWithdrawn = false,
+                                onlyEnrolled = true,
+                                pageable = PageRequest.of(0, 300),
+                                sortBy = any(),
+                                sortDirection = any(),
+                            )
+                        } returns PageImpl(listOf(testStudent), PageRequest.of(0, 300), 1L)
+                    }
+
+                    it("onlyEnrolled 파라미터가 repository에 전달되어야 한다") {
+                        val queryReq = QueryStudentReqDto(onlyEnrolled = true)
+                        val result = queryStudentService.execute(queryReq)
+
+                        result.totalElements shouldBe 1L
+                        result.students.size shouldBe 1
+
+                        verify(exactly = 1) {
+                            mockStudentRepository.searchRegisteredStudentsWithPaging(
+                                id = null,
+                                name = null,
+                                email = null,
+                                grade = null,
+                                classNum = null,
+                                number = null,
+                                sex = null,
+                                role = null,
+                                dormitoryRoom = null,
+                                includeGraduates = false,
+                                includeWithdrawn = false,
+                                onlyEnrolled = true,
+                                pageable = PageRequest.of(0, 300),
+                                sortBy = any(),
+                                sortDirection = any(),
+                            )
+                        }
                     }
                 }
             }
