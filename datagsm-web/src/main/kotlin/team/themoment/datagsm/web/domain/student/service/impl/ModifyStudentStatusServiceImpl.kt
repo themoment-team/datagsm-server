@@ -11,7 +11,7 @@ import team.themoment.datagsm.web.domain.student.service.UpdateStudentStatusServ
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
-class UpdateStudentStatusServiceImpl(
+class ModifyStudentStatusServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
 ) : UpdateStudentStatusService {
     @Transactional
@@ -33,7 +33,9 @@ class UpdateStudentStatusServiceImpl(
                 student.jobClub = null
                 student.autonomousClub = null
             }
-            else -> throw ExpectedException("지원하지 않는 상태입니다: ${reqDto.status}", HttpStatus.BAD_REQUEST)
+            StudentRole.GENERAL_STUDENT, StudentRole.STUDENT_COUNCIL, StudentRole.DORMITORY_MANAGER -> {
+                student.role = reqDto.status
+            }
         }
     }
 }

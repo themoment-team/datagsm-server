@@ -153,7 +153,7 @@ class StudentController(
         withdrawStudentService.execute(studentId)
     }
 
-    @Operation(summary = "학생 상태 변경", description = "학생의 상태(졸업, 자퇴)를 변경합니다.")
+    @Operation(summary = "학생 상태 변경", description = "학생의 상태(졸업, 자퇴, 재학생 복원)를 변경합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "상태 변경 성공"),
