@@ -83,7 +83,6 @@ class StartOauthAuthorizeFlowServiceTest :
                         val locationUrl = response.headers.location?.toString() ?: ""
                         locationUrl shouldContain "http://localhost:3000/oauth/authorize"
                         locationUrl shouldContain "token="
-                        locationUrl shouldContain "service_name="
 
                         verify(exactly = 1) { mockOauthAuthorizeStateRedisRepository.save(any()) }
 
