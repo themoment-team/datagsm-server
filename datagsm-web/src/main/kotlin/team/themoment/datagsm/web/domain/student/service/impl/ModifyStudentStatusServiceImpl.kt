@@ -7,13 +7,13 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentStatusReqDto
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.web.domain.student.service.UpdateStudentStatusService
+import team.themoment.datagsm.web.domain.student.service.ModifyStudentStatusService
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
-class UpdateStudentStatusServiceImpl(
+class ModifyStudentStatusServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
-) : UpdateStudentStatusService {
+) : ModifyStudentStatusService {
     @Transactional
     override fun execute(
         studentId: Long,
@@ -33,7 +33,9 @@ class UpdateStudentStatusServiceImpl(
                 student.jobClub = null
                 student.autonomousClub = null
             }
-            else -> throw ExpectedException("지원하지 않는 상태입니다: ${reqDto.status}", HttpStatus.BAD_REQUEST)
+            StudentRole.GENERAL_STUDENT, StudentRole.STUDENT_COUNCIL, StudentRole.DORMITORY_MANAGER -> {
+                student.role = reqDto.status
+            }
         }
     }
 }
