@@ -13,7 +13,7 @@ import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.sdk.exception.ExpectedException
 
-class UpdateStudentStatusServiceImplTest :
+class ModifyStudentStatusServiceImplTest :
     BehaviorSpec({
         val studentJpaRepository = mockk<StudentJpaRepository>()
         val service = ModifyStudentStatusServiceImpl(studentJpaRepository)
