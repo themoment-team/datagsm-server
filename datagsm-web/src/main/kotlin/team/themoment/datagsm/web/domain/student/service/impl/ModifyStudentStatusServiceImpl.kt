@@ -7,13 +7,13 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentStatusReqDto
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.web.domain.student.service.UpdateStudentStatusService
+import team.themoment.datagsm.web.domain.student.service.ModifyStudentStatusService
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
 class ModifyStudentStatusServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
-) : UpdateStudentStatusService {
+) : ModifyStudentStatusService {
     @Transactional
     override fun execute(
         studentId: Long,
