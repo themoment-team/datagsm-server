@@ -366,26 +366,37 @@ class StudentJpaCustomRepositoryImpl(
         club: ClubJpaEntity,
         type: ClubType,
     ) {
-        when (type) {
-            ClubType.MAJOR_CLUB ->
-                jpaQueryFactory
-                    .update(studentJpaEntity)
-                    .setNull(studentJpaEntity.majorClub)
-                    .where(studentJpaEntity.majorClub.eq(club))
-                    .execute()
-            ClubType.JOB_CLUB ->
-                jpaQueryFactory
-                    .update(studentJpaEntity)
-                    .setNull(studentJpaEntity.jobClub)
-                    .where(studentJpaEntity.jobClub.eq(club))
-                    .execute()
-            ClubType.AUTONOMOUS_CLUB ->
-                jpaQueryFactory
-                    .update(studentJpaEntity)
-                    .setNull(studentJpaEntity.autonomousClub)
-                    .where(studentJpaEntity.autonomousClub.eq(club))
-                    .execute()
-        }
+        val clubPath =
+            when (type) {
+                ClubType.MAJOR_CLUB -> studentJpaEntity.majorClub
+                ClubType.JOB_CLUB -> studentJpaEntity.jobClub
+                ClubType.AUTONOMOUS_CLUB -> studentJpaEntity.autonomousClub
+            }
+        jpaQueryFactory
+            .update(studentJpaEntity)
+            .setNull(clubPath)
+            .where(clubPath.eq(club))
+            .execute()
+    }
+
+    override fun bulkAssignClub(
+        studentIds: List<Long>,
+        club: ClubJpaEntity,
+        type: ClubType,
+    ) {
+        if (studentIds.isEmpty()) return
+
+        val clubPath =
+            when (type) {
+                ClubType.MAJOR_CLUB -> studentJpaEntity.majorClub
+                ClubType.JOB_CLUB -> studentJpaEntity.jobClub
+                ClubType.AUTONOMOUS_CLUB -> studentJpaEntity.autonomousClub
+            }
+        jpaQueryFactory
+            .update(studentJpaEntity)
+            .set(clubPath, club)
+            .where(studentJpaEntity.id.`in`(studentIds))
+            .execute()
     }
 
     private fun buildEmailCaseExpr(pairs: List<Pair<Long, String>>): Expression<String> =

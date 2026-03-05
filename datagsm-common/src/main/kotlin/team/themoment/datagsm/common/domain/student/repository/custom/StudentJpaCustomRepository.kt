@@ -62,6 +62,12 @@ interface StudentJpaCustomRepository {
         type: ClubType,
     )
 
+    fun bulkAssignClub(
+        studentIds: List<Long>,
+        club: ClubJpaEntity,
+        type: ClubType,
+    )
+
     fun searchRegisteredStudentsWithPaging(
         id: Long?,
         name: String?,
