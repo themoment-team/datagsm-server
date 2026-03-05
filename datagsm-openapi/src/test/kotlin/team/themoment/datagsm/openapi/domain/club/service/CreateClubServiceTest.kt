@@ -3,7 +3,9 @@ package team.themoment.datagsm.openapi.domain.club.service
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
@@ -105,6 +107,7 @@ class CreateClubServiceTest :
                             entity.apply { this.id = 10L }
                         }
                         every { mockStudentRepository.findAllById(listOf(200L, 300L)) } returns listOf(participant1, participant2)
+                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
                     it("생성된 동아리 정보와 부원 목록을 반환해야 한다") {
@@ -120,6 +123,7 @@ class CreateClubServiceTest :
                         verify(exactly = 1) { mockStudentRepository.findById(req.leaderId) }
                         verify(exactly = 1) { mockClubRepository.save(any()) }
                         verify(exactly = 1) { mockStudentRepository.findAllById(listOf(200L, 300L)) }
+                        verify(exactly = 1) { mockStudentRepository.bulkAssignClub(any(), any(), any()) }
                     }
                 }
 
@@ -160,6 +164,7 @@ class CreateClubServiceTest :
                             entity.apply { this.id = 10L }
                         }
                         every { mockStudentRepository.findAllById(listOf(200L)) } returns listOf(participant)
+                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
                     it("participants에 leader가 포함되지 않아야 한다") {
@@ -181,7 +186,6 @@ class CreateClubServiceTest :
                         )
                     lateinit var mockLeader: StudentJpaEntity
                     lateinit var participant: StudentJpaEntity
-                    lateinit var savedClub: ClubJpaEntity
 
                     beforeEach {
                         mockLeader =
@@ -206,17 +210,22 @@ class CreateClubServiceTest :
                         every { mockStudentRepository.findById(req.leaderId) } returns java.util.Optional.of(mockLeader)
                         every { mockClubRepository.save(any()) } answers {
                             val entity = firstArg<ClubJpaEntity>()
-                            savedClub = entity.apply { this.id = 10L }
-                            savedClub
+                            entity.apply { this.id = 10L }
                         }
                         every { mockStudentRepository.findAllById(listOf(200L)) } returns listOf(participant)
+                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
-                    it("부장과 부원의 majorClub 필드가 새 동아리로 설정되어야 한다") {
+                    it("bulkAssignClub이 부장과 부원 ID를 포함해 호출되어야 한다") {
                         createClubService.execute(req)
 
-                        mockLeader.majorClub shouldBe savedClub
-                        participant.majorClub shouldBe savedClub
+                        verify(exactly = 1) {
+                            mockStudentRepository.bulkAssignClub(
+                                listOf(100L, 200L),
+                                any(),
+                                ClubType.MAJOR_CLUB,
+                            )
+                        }
                     }
                 }
             }

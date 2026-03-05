@@ -103,6 +103,7 @@ class ModifyClubServiceTest :
                         every { mockStudentRepository.findById(req.leaderId) } returns java.util.Optional.of(newLeader)
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
                         every { mockStudentRepository.findAllById(any<Iterable<Long>>()) } returns emptyList()
+                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
                     it("수정된 동아리 정보를 반환해야 한다") {
@@ -118,7 +119,7 @@ class ModifyClubServiceTest :
                         verify(exactly = 1) { mockClubRepository.existsByNameAndIdNot(req.name, clubId) }
                         verify(exactly = 1) { mockStudentRepository.findById(req.leaderId) }
                         verify(exactly = 1) { mockStudentRepository.clearClubReferencesByType(existingClub, ClubType.MAJOR_CLUB) }
-                        verify(exactly = 1) { mockStudentRepository.findAllById(any<Iterable<Long>>()) }
+                        verify(exactly = 1) { mockStudentRepository.bulkAssignClub(any(), any(), any()) }
                     }
                 }
 
@@ -166,6 +167,7 @@ class ModifyClubServiceTest :
                         every { mockStudentRepository.findById(req.leaderId) } returns java.util.Optional.of(newLeader)
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
                         every { mockStudentRepository.findAllById(any<Iterable<Long>>()) } returns emptyList()
+                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
                     it("구 타입 기준 부원 해제가 호출되어야 한다") {
@@ -229,6 +231,7 @@ class ModifyClubServiceTest :
                         every { mockStudentRepository.findById(req.leaderId) } returns java.util.Optional.of(newLeader)
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
                         every { mockStudentRepository.findAllById(listOf(300L)) } returns listOf(participant)
+                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
                     it("participants에 leader가 포함되지 않아야 한다") {
