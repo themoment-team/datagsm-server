@@ -14,7 +14,7 @@ data class ClubReqDto(
     val type: ClubType,
     @param:Schema(description = "동아리 부장 학생 ID", example = "1")
     val leaderId: Long,
-    @field:Size(min = 1, message = "부원은 최소 1명 이상이어야 합니다")
+    @field:Size(min = 1, max = 100, message = "부원은 최소 1명 이상, 최대 100명 이하여야 합니다")
     @param:Schema(description = "동아리 부원 학생 ID 목록", example = "[2, 3, 4]")
     val participantIds: List<Long>,
 )
