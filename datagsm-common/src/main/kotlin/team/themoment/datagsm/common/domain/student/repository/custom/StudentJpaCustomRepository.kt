@@ -3,6 +3,7 @@ package team.themoment.datagsm.common.domain.student.repository.custom
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
@@ -55,6 +56,17 @@ interface StudentJpaCustomRepository {
     fun bulkUpdateEmails(emailUpdates: Map<Long, String>)
 
     fun bulkClearClubReferences(clubs: List<ClubJpaEntity>)
+
+    fun clearClubReferencesByType(
+        club: ClubJpaEntity,
+        type: ClubType,
+    )
+
+    fun bulkAssignClub(
+        studentIds: List<Long>,
+        club: ClubJpaEntity,
+        type: ClubType,
+    )
 
     fun searchRegisteredStudentsWithPaging(
         id: Long?,

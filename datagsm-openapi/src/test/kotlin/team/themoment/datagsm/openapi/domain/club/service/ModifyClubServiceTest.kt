@@ -3,7 +3,9 @@ package team.themoment.datagsm.openapi.domain.club.service
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
@@ -39,6 +41,7 @@ class ModifyClubServiceTest :
                             name = "수정동아리",
                             type = ClubType.MAJOR_CLUB,
                             leaderId = 1L,
+                            participantIds = listOf(2L),
                         )
 
                     beforeEach {
@@ -63,6 +66,7 @@ class ModifyClubServiceTest :
                             name = "수정된동아리",
                             type = ClubType.JOB_CLUB,
                             leaderId = 200L,
+                            participantIds = listOf(300L),
                         )
                     lateinit var existingClub: ClubJpaEntity
                     lateinit var newLeader: StudentJpaEntity
@@ -97,7 +101,9 @@ class ModifyClubServiceTest :
                         every { mockClubRepository.findById(clubId) } returns java.util.Optional.of(existingClub)
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId) } returns java.util.Optional.of(newLeader)
-                        every { mockStudentRepository.findByJobClub(existingClub) } returns emptyList()
+                        every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
+                        every { mockStudentRepository.findAllById(any<Iterable<Long>>()) } returns emptyList()
+                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
                     it("수정된 동아리 정보를 반환해야 한다") {
@@ -112,6 +118,128 @@ class ModifyClubServiceTest :
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
                         verify(exactly = 1) { mockClubRepository.existsByNameAndIdNot(req.name, clubId) }
                         verify(exactly = 1) { mockStudentRepository.findById(req.leaderId) }
+                        verify(exactly = 1) { mockStudentRepository.clearClubReferencesByType(existingClub, ClubType.MAJOR_CLUB) }
+                        verify(exactly = 1) { mockStudentRepository.bulkAssignClub(any(), any(), any()) }
+                    }
+                }
+
+                context("타입이 변경될 때") {
+                    val clubId = 10L
+                    val req =
+                        ClubReqDto(
+                            name = "수정동아리",
+                            type = ClubType.AUTONOMOUS_CLUB,
+                            leaderId = 200L,
+                            participantIds = listOf(300L),
+                        )
+                    lateinit var existingClub: ClubJpaEntity
+                    lateinit var newLeader: StudentJpaEntity
+
+                    beforeEach {
+                        val oldLeader =
+                            StudentJpaEntity().apply {
+                                this.id = 100L
+                                this.name = "이전부장"
+                                this.email = "old@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(1, 1, 1)
+                                this.major = Major.AI
+                                this.sex = Sex.MAN
+                            }
+                        existingClub =
+                            ClubJpaEntity().apply {
+                                this.id = clubId
+                                this.name = "기존동아리"
+                                this.type = ClubType.JOB_CLUB
+                                this.leader = oldLeader
+                            }
+                        newLeader =
+                            StudentJpaEntity().apply {
+                                this.id = 200L
+                                this.name = "새부장"
+                                this.email = "new@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(2, 2, 2)
+                                this.major = Major.AI
+                                this.sex = Sex.WOMAN
+                            }
+
+                        every { mockClubRepository.findById(clubId) } returns java.util.Optional.of(existingClub)
+                        every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
+                        every { mockStudentRepository.findById(req.leaderId) } returns java.util.Optional.of(newLeader)
+                        every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
+                        every { mockStudentRepository.findAllById(any<Iterable<Long>>()) } returns emptyList()
+                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
+                    }
+
+                    it("구 타입 기준 부원 해제가 호출되어야 한다") {
+                        modifyClubService.execute(clubId, req)
+
+                        verify(exactly = 1) { mockStudentRepository.clearClubReferencesByType(existingClub, ClubType.JOB_CLUB) }
+                    }
+                }
+
+                context("participantIds에 leaderId가 포함될 때") {
+                    val clubId = 10L
+                    val req =
+                        ClubReqDto(
+                            name = "수정동아리",
+                            type = ClubType.MAJOR_CLUB,
+                            leaderId = 200L,
+                            participantIds = listOf(200L, 300L),
+                        )
+                    lateinit var existingClub: ClubJpaEntity
+                    lateinit var newLeader: StudentJpaEntity
+                    lateinit var participant: StudentJpaEntity
+
+                    beforeEach {
+                        val oldLeader =
+                            StudentJpaEntity().apply {
+                                this.id = 100L
+                                this.name = "이전부장"
+                                this.email = "old@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(1, 1, 1)
+                                this.major = Major.AI
+                                this.sex = Sex.MAN
+                            }
+                        existingClub =
+                            ClubJpaEntity().apply {
+                                this.id = clubId
+                                this.name = "기존동아리"
+                                this.type = ClubType.MAJOR_CLUB
+                                this.leader = oldLeader
+                            }
+                        newLeader =
+                            StudentJpaEntity().apply {
+                                this.id = 200L
+                                this.name = "새부장"
+                                this.email = "new@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(2, 2, 2)
+                                this.major = Major.AI
+                                this.sex = Sex.WOMAN
+                            }
+                        participant =
+                            StudentJpaEntity().apply {
+                                this.id = 300L
+                                this.name = "부원"
+                                this.email = "p@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(2, 2, 3)
+                                this.major = Major.AI
+                                this.sex = Sex.MAN
+                            }
+
+                        every { mockClubRepository.findById(clubId) } returns java.util.Optional.of(existingClub)
+                        every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
+                        every { mockStudentRepository.findById(req.leaderId) } returns java.util.Optional.of(newLeader)
+                        every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
+                        every { mockStudentRepository.findAllById(listOf(300L)) } returns listOf(participant)
+                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
+                    }
+
+                    it("participants에 leader가 포함되지 않아야 한다") {
+                        val res = modifyClubService.execute(clubId, req)
+
+                        res.participants.none { it.id == 200L } shouldBe true
+                        res.participants.size shouldBe 1
+                        res.participants[0].id shouldBe 300L
                     }
                 }
             }

@@ -10,6 +10,7 @@ import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.account.entity.QAccountJpaEntity.Companion.accountJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.student.entity.QStudentJpaEntity.Companion.studentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -358,6 +359,43 @@ class StudentJpaCustomRepositoryImpl(
             .update(studentJpaEntity)
             .setNull(studentJpaEntity.autonomousClub)
             .where(studentJpaEntity.autonomousClub.`in`(clubs))
+            .execute()
+    }
+
+    override fun clearClubReferencesByType(
+        club: ClubJpaEntity,
+        type: ClubType,
+    ) {
+        val clubPath =
+            when (type) {
+                ClubType.MAJOR_CLUB -> studentJpaEntity.majorClub
+                ClubType.JOB_CLUB -> studentJpaEntity.jobClub
+                ClubType.AUTONOMOUS_CLUB -> studentJpaEntity.autonomousClub
+            }
+        jpaQueryFactory
+            .update(studentJpaEntity)
+            .setNull(clubPath)
+            .where(clubPath.eq(club))
+            .execute()
+    }
+
+    override fun bulkAssignClub(
+        studentIds: List<Long>,
+        club: ClubJpaEntity,
+        type: ClubType,
+    ) {
+        if (studentIds.isEmpty()) return
+
+        val clubPath =
+            when (type) {
+                ClubType.MAJOR_CLUB -> studentJpaEntity.majorClub
+                ClubType.JOB_CLUB -> studentJpaEntity.jobClub
+                ClubType.AUTONOMOUS_CLUB -> studentJpaEntity.autonomousClub
+            }
+        jpaQueryFactory
+            .update(studentJpaEntity)
+            .set(clubPath, club)
+            .where(studentJpaEntity.id.`in`(studentIds))
             .execute()
     }
 
