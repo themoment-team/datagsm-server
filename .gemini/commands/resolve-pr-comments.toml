@@ -1,0 +1,31 @@
+description = "Reply to resolved PR inline comments with commit hash"
+prompt = """
+Run the data collection script first:
+!{bash scripts/get-pr-data.sh}
+
+Now analyze the following data:
+
+PR inline comments:
+@{/tmp/pr_comments.json}
+
+Changed files:
+@{/tmp/pr_changed_files.txt}
+
+Commits in this PR:
+!{cat /tmp/pr_commits.txt}
+
+Full diff:
+@{/tmp/pr_diff.txt}
+
+Repo:
+!{gh repo view --json nameWithOwner -q .nameWithOwner}
+
+For each comment in pr_comments.json:
+1. JUDGE if resolved: compare comment's path + body against the diff. RESOLVED = diff shows a change in the same file addressing the concern.
+2. SELECT commit hash: for resolved comments, find the most relevant commit that touched the commented file. Use 7-char short hash.
+3. POST reply for each resolved comment:
+   gh api repos/<owner>/<repo>/pulls/comments/<comment_id>/replies -f body="<short_hash> 해결했습니다."
+4. REPORT:
+   - Replied comments: [file:line] excerpt → hash
+   - Unresolved comments: [file:line] excerpt → reason
+"""
