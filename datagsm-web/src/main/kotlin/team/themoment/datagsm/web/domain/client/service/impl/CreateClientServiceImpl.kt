@@ -4,6 +4,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.application.repository.ApplicationJpaRepository
+import team.themoment.datagsm.common.domain.application.repository.ThirdPartyScopeJpaRepository
 import team.themoment.datagsm.common.domain.client.dto.request.CreateClientReqDto
 import team.themoment.datagsm.common.domain.client.dto.response.CreateClientResDto
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
@@ -20,20 +22,34 @@ class CreateClientServiceImpl(
     private val currentUserProvider: CurrentUserProvider,
     private val passwordEncoder: PasswordEncoder,
     private val clientJpaRepository: ClientJpaRepository,
+    private val applicationJpaRepository: ApplicationJpaRepository,
+    private val thirdPartyScopeJpaRepository: ThirdPartyScopeJpaRepository,
 ) : CreateClientService {
     @Transactional
     override fun execute(reqDto: CreateClientReqDto): CreateClientResDto {
-        val availableScopes = ClientUtil.getAvailableOauthScopes()
-        val invalidScopes = reqDto.scopes.minus(availableScopes)
-        if (invalidScopes.isNotEmpty()) throw ExpectedException("허용되지 않는 OAuth 권한이 포함되어 있습니다: $invalidScopes", HttpStatus.BAD_REQUEST)
+        val builtinScopes = ClientUtil.getAvailableOauthScopes()
+        val thirdpartyScopeStrings = reqDto.scopes.filter { it.contains(':') && OAuthScope.fromString(it) == null }
+        val invalidBuiltinScopes = reqDto.scopes.minus(builtinScopes).minus(thirdpartyScopeStrings.toSet())
 
-        reqDto.scopes.forEach { scopeString ->
-            OAuthScope.fromString(scopeString)
-                ?: throw IllegalStateException("OAuthScope는 허용된 $scopeString 값을 포함하지 않습니다. See GetAvailableOauthScopesService")
+        if (invalidBuiltinScopes.isNotEmpty()) {
+            throw ExpectedException("허용되지 않는 OAuth 권한이 포함되어 있습니다: $invalidBuiltinScopes", HttpStatus.BAD_REQUEST)
+        }
+
+        thirdpartyScopeStrings.forEach { scopeStr ->
+            val colonIdx = scopeStr.indexOf(':')
+            if (colonIdx <= 0 || colonIdx == scopeStr.lastIndex) {
+                throw ExpectedException("유효하지 않은 ThirdPartyScope 형식: $scopeStr", HttpStatus.BAD_REQUEST)
+            }
+            val appId = scopeStr.substring(0, colonIdx)
+            val scopeName = scopeStr.substring(colonIdx + 1)
+            applicationJpaRepository.findById(appId).orElseThrow {
+                ExpectedException("존재하지 않는 Application: $appId", HttpStatus.BAD_REQUEST)
+            }
+            thirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(appId, scopeName)
+                ?: throw ExpectedException("존재하지 않는 ThirdPartyScope: $scopeStr", HttpStatus.BAD_REQUEST)
         }
 
         val currentAccount = currentUserProvider.getCurrentAccount()
-
         val rawSecret = generateUUID()
 
         val client =
@@ -47,6 +63,7 @@ class CreateClientServiceImpl(
                 scopes = reqDto.scopes
             }
         clientJpaRepository.save(client)
+
         return CreateClientResDto(
             clientId = client.id,
             clientSecret = rawSecret,

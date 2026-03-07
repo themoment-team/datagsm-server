@@ -13,6 +13,8 @@ import io.mockk.verify
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.common.domain.application.repository.ApplicationJpaRepository
+import team.themoment.datagsm.common.domain.application.repository.ThirdPartyScopeJpaRepository
 import team.themoment.datagsm.common.domain.client.dto.request.CreateClientReqDto
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
@@ -20,6 +22,7 @@ import team.themoment.datagsm.web.domain.client.service.impl.CreateClientService
 import team.themoment.datagsm.web.domain.client.util.ClientUtil
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
+import java.util.Optional
 
 class CreateClientServiceTest :
     DescribeSpec({
@@ -27,12 +30,16 @@ class CreateClientServiceTest :
         val mockCurrentUserProvider = mockk<CurrentUserProvider>()
         val mockPasswordEncoder = mockk<PasswordEncoder>()
         val mockClientJpaRepository = mockk<ClientJpaRepository>()
+        val mockApplicationJpaRepository = mockk<ApplicationJpaRepository>()
+        val mockThirdPartyScopeJpaRepository = mockk<ThirdPartyScopeJpaRepository>()
 
         val createClientService =
             CreateClientServiceImpl(
                 mockCurrentUserProvider,
                 mockPasswordEncoder,
                 mockClientJpaRepository,
+                mockApplicationJpaRepository,
+                mockThirdPartyScopeJpaRepository,
             )
 
         beforeSpec {
@@ -92,12 +99,12 @@ class CreateClientServiceTest :
                     }
                 }
 
-                context("허용되지 않는 scope를 포함하여 클라이언트 생성 요청할 때") {
+                context("허용되지 않는 builtin scope를 포함하여 클라이언트 생성 요청할 때") {
                     val reqDto =
                         CreateClientReqDto(
                             clientName = "Invalid Client",
                             serviceName = "잘못된 서비스",
-                            scopes = setOf("self:read", "invalid:scope"),
+                            scopes = setOf("self:read", "unknown"),
                             redirectUrls = emptySet(),
                         )
 
@@ -113,7 +120,6 @@ class CreateClientServiceTest :
                             }
 
                         exception.statusCode shouldBe HttpStatus.BAD_REQUEST
-                        exception.message shouldBe "허용되지 않는 OAuth 권한이 포함되어 있습니다: [invalid:scope]"
 
                         verify(exactly = 1) { ClientUtil.getAvailableOauthScopes() }
                         verify(exactly = 0) { mockCurrentUserProvider.getCurrentAccount() }
@@ -122,28 +128,28 @@ class CreateClientServiceTest :
                     }
                 }
 
-                context("여러 개의 허용되지 않는 scope를 포함하여 클라이언트 생성 요청할 때") {
+                context("존재하지 않는 ThirdPartyScope를 포함하여 클라이언트 생성 요청할 때") {
                     val reqDto =
                         CreateClientReqDto(
                             clientName = "Invalid Client",
                             serviceName = "잘못된 서비스",
-                            scopes = setOf("self:read", "invalid:scope1", "invalid:scope2"),
+                            scopes = setOf("self:read", "appId:scopeName"),
                             redirectUrls = emptySet(),
                         )
 
                     beforeEach {
-                        every { ClientUtil.getAvailableOauthScopes() } returns
-                            setOf("self:read")
+                        every { ClientUtil.getAvailableOauthScopes() } returns setOf("self:read")
+                        every { mockApplicationJpaRepository.findById("appId") } returns Optional.empty()
                     }
 
-                    it("400 BAD_REQUEST 예외가 발생하고 모든 유효하지 않은 scope를 포함해야 한다") {
+                    it("400 BAD_REQUEST 예외가 발생해야 한다") {
                         val exception =
                             shouldThrow<ExpectedException> {
                                 createClientService.execute(reqDto)
                             }
 
                         exception.statusCode shouldBe HttpStatus.BAD_REQUEST
-                        exception.message shouldBe "허용되지 않는 OAuth 권한이 포함되어 있습니다: [invalid:scope1, invalid:scope2]"
+                        exception.message shouldBe "존재하지 않는 Application: appId"
 
                         verify(exactly = 1) { ClientUtil.getAvailableOauthScopes() }
                         verify(exactly = 0) { mockClientJpaRepository.save(any()) }
