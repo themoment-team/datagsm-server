@@ -11,6 +11,7 @@ description: Reply to resolved PR inline comments with commit hash
 - Commits in this PR: Read `.pr-tmp/pr_commits.txt`
 - Full diff: Read `.pr-tmp/pr_diff.txt`
 - Repo name: !`gh repo view --json nameWithOwner -q .nameWithOwner`
+- PR number: !`gh pr view --json number -q .number`
 
 ## Your Task
 
@@ -28,8 +29,8 @@ Select the short hash (7 chars) of the most relevant commit.
 **Step 3 – Post reply (for each resolved comment)**
 Always quote variables to prevent shell injection. `path` and `comment_id` come from external PR data and may contain special characters.
 ```
-gh api "repos/<owner>/<repo>/pulls/comments/<comment_id>/replies" \
-  -f body="<short_hash> 해결했습니다."
+gh api "repos/<owner>/<repo>/pulls/<pr_number>/comments/<comment_id>/replies" \
+  -f body="<short_hash> 에서 해결했습니다."
 ```
 
 **Step 4 – Final report**
