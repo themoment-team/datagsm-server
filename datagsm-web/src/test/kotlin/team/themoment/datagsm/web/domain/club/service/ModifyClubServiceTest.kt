@@ -217,17 +217,12 @@ class ModifyClubServiceTest :
                         every { mockStudentRepository.findAllById(listOf(30L)) } returns emptyList()
                     }
 
-                    it("구 타입(MAJOR_CLUB) 참여자의 majorClub 참조가 null로 해제되어야 한다") {
+                    it("구 참여자의 majorClub이 해제되고 새 리더의 jobClub이 설정되어야 한다") {
                         modifyClubService.execute(clubId, req)
 
                         oldParticipant.majorClub shouldBe null
-                        verify(exactly = 1) { mockStudentRepository.findByMajorClub(existing) }
-                    }
-
-                    it("새 리더의 jobClub이 club으로 설정되어야 한다") {
-                        modifyClubService.execute(clubId, req)
-
                         newLeader.jobClub shouldBe existing
+                        verify(exactly = 1) { mockStudentRepository.findByMajorClub(existing) }
                     }
                 }
 
