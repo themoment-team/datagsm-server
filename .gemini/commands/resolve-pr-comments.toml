@@ -6,16 +6,16 @@ Run the data collection script first:
 Now analyze the following data:
 
 PR inline comments:
-@{/tmp/pr_comments.json}
+@{.pr-tmp/pr_comments.json}
 
 Changed files:
-@{/tmp/pr_changed_files.txt}
+@{.pr-tmp/pr_changed_files.txt}
 
 Commits in this PR:
-!{cat /tmp/pr_commits.txt}
+!{cat .pr-tmp/pr_commits.txt}
 
 Full diff:
-@{/tmp/pr_diff.txt}
+@{.pr-tmp/pr_diff.txt}
 
 Repo:
 !{gh repo view --json nameWithOwner -q .nameWithOwner}
@@ -29,5 +29,5 @@ For each comment in pr_comments.json:
    - Replied comments: [file:line] excerpt → hash
    - Unresolved comments: [file:line] excerpt → reason
 5. CLEANUP: Remove temporary files after all work is done:
-   rm -f /tmp/pr_comments.json /tmp/pr_commits.txt /tmp/pr_changed_files.txt /tmp/pr_diff.txt
+   rm -rf .pr-tmp
 """
