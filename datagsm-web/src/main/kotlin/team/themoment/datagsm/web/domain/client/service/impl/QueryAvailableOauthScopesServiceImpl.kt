@@ -9,7 +9,7 @@ import team.themoment.datagsm.web.domain.client.service.QueryAvailableOauthScope
 @Service
 class QueryAvailableOauthScopesServiceImpl : QueryAvailableOauthScopesService {
     override fun execute(): OAuthScopeGroupListResDto {
-        val allScopes = OAuthScope.entries
+        val allScopes = OAuthScope.builtinValues
         val grouped = OAuthScope.groupByCategory(allScopes)
 
         return OAuthScopeGroupListResDto(
