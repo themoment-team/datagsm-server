@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DG_NAME=$(echo $DEPLOYMENT_GROUP_NAME)
+DG_NAME="$DEPLOYMENT_GROUP_NAME"
 
 if [ "$DG_NAME" == "datagsm-prod-server" ]; then
   chmod +x /home/ec2-user/builds/scripts/deploy/prod-deploy.sh
