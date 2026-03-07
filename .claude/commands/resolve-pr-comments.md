@@ -1,11 +1,11 @@
 ---
-allowed-tools: Bash(bash scripts/get-pr-data.sh:*), Bash(git log:*), Bash(gh api:*), Bash(gh repo:*), Read
+allowed-tools: Bash(bash scripts/dev/get-pr-data.sh:*), Bash(git log:*), Bash(gh api:*), Bash(gh repo:*), Read
 description: Reply to resolved PR inline comments with commit hash
 ---
 
 ## Context
 
-- Run data collection: !`bash scripts/get-pr-data.sh`
+- Run data collection: !`bash scripts/dev/get-pr-data.sh`
 - PR inline comments: Read `/tmp/pr_comments.json`
 - Changed files: Read `/tmp/pr_changed_files.txt`
 - Commits in this PR: !`cat /tmp/pr_commits.txt`

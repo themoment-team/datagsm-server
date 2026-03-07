@@ -1,7 +1,7 @@
 description = "Reply to resolved PR inline comments with commit hash"
 prompt = """
 Run the data collection script first:
-!{bash scripts/get-pr-data.sh}
+!{bash scripts/dev/get-pr-data.sh}
 
 Now analyze the following data:
 
