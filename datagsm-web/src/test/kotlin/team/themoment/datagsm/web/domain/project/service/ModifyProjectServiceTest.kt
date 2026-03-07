@@ -393,7 +393,7 @@ class ModifyProjectServiceTest :
                                 modifyProjectService.execute(projectId, updateRequest)
                             }
 
-                        exception.message shouldBe "존재하지 않는 학생 ID: 999"
+                        exception.message shouldBe "999 에 대응하는 학생 데이터를 찾을 수 없습니다."
 
                         verify(exactly = 1) { mockStudentRepository.findAllById(listOf(999L)) }
                     }

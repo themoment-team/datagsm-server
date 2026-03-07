@@ -49,7 +49,7 @@ class ModifyProjectServiceImpl(
 
                 if (notFoundIds.isNotEmpty()) {
                     throw ExpectedException(
-                        "존재하지 않는 학생 ID: ${notFoundIds.joinToString(", ")}",
+                        "${notFoundIds.joinToString(", ")} 에 대응하는 학생 데이터를 찾을 수 없습니다.",
                         HttpStatus.NOT_FOUND,
                     )
                 }
