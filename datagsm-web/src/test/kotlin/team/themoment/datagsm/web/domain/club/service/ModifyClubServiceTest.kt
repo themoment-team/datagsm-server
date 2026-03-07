@@ -3,9 +3,7 @@ package team.themoment.datagsm.web.domain.club.service
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.Runs
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
@@ -82,9 +80,8 @@ class ModifyClubServiceTest :
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(newLeader)
-                        every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
+                        every { mockStudentRepository.findByMajorClub(existing) } returns emptyList()
                         every { mockStudentRepository.findAllById(any<Iterable<Long>>()) } returns emptyList()
-                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
                     it("업데이트된 정보가 반환되어야 한다") {
@@ -98,12 +95,11 @@ class ModifyClubServiceTest :
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
                         verify(exactly = 1) { mockClubRepository.existsByNameAndIdNot(req.name, clubId) }
                         verify(exactly = 1) { mockStudentRepository.findById(req.leaderId) }
-                        verify(exactly = 1) { mockStudentRepository.clearClubReferencesByType(existing, ClubType.MAJOR_CLUB) }
-                        verify(exactly = 1) { mockStudentRepository.bulkAssignClub(any(), any(), any()) }
+                        verify(exactly = 1) { mockStudentRepository.findByMajorClub(existing) }
                     }
                 }
 
-                context("이름을 기존과 동일하게 두고 설명/타입만 변경할 때") {
+                context("이름을 기존과 동일하게 두고 타입만 변경할 때") {
                     val req =
                         ClubReqDto(
                             name = "기존동아리",
@@ -116,9 +112,8 @@ class ModifyClubServiceTest :
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(oldLeader)
-                        every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
+                        every { mockStudentRepository.findByMajorClub(existing) } returns emptyList()
                         every { mockStudentRepository.findAllById(any<Iterable<Long>>()) } returns emptyList()
-                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
                     it("중복 이름 검사를 수행하고 저장되어야 한다") {
@@ -184,7 +179,7 @@ class ModifyClubServiceTest :
                     }
                 }
 
-                context("타입이 변경될 때") {
+                context("타입이 변경될 때 (MAJOR_CLUB → JOB_CLUB)") {
                     val req =
                         ClubReqDto(
                             name = "새이름",
@@ -193,6 +188,7 @@ class ModifyClubServiceTest :
                             participantIds = listOf(30L),
                         )
                     lateinit var newLeader: StudentJpaEntity
+                    lateinit var oldParticipant: StudentJpaEntity
 
                     beforeEach {
                         newLeader =
@@ -204,18 +200,34 @@ class ModifyClubServiceTest :
                                 this.major = Major.AI
                                 this.sex = Sex.WOMAN
                             }
+                        oldParticipant =
+                            StudentJpaEntity().apply {
+                                this.id = 99L
+                                this.name = "구부원"
+                                this.email = "old_p@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(1, 1, 2)
+                                this.major = Major.SW_DEVELOPMENT
+                                this.sex = Sex.MAN
+                                this.majorClub = existing
+                            }
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(newLeader)
-                        every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
-                        every { mockStudentRepository.findAllById(any<Iterable<Long>>()) } returns emptyList()
-                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
+                        every { mockStudentRepository.findByMajorClub(existing) } returns listOf(oldParticipant)
+                        every { mockStudentRepository.findAllById(listOf(30L)) } returns emptyList()
                     }
 
-                    it("구 타입 기준 부원 해제가 호출되어야 한다") {
+                    it("구 타입(MAJOR_CLUB) 참여자의 majorClub 참조가 null로 해제되어야 한다") {
                         modifyClubService.execute(clubId, req)
 
-                        verify(exactly = 1) { mockStudentRepository.clearClubReferencesByType(existing, ClubType.MAJOR_CLUB) }
+                        oldParticipant.majorClub shouldBe null
+                        verify(exactly = 1) { mockStudentRepository.findByMajorClub(existing) }
+                    }
+
+                    it("새 리더의 jobClub이 club으로 설정되어야 한다") {
+                        modifyClubService.execute(clubId, req)
+
+                        newLeader.jobClub shouldBe existing
                     }
                 }
 
@@ -252,9 +264,8 @@ class ModifyClubServiceTest :
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(newLeader)
-                        every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
+                        every { mockStudentRepository.findByMajorClub(existing) } returns emptyList()
                         every { mockStudentRepository.findAllById(listOf(30L)) } returns listOf(participant)
-                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
                     it("participants에 leader가 포함되지 않아야 한다") {
@@ -275,6 +286,7 @@ class ModifyClubServiceTest :
                             participantIds = listOf(30L),
                         )
                     lateinit var newLeader: StudentJpaEntity
+                    lateinit var participant: StudentJpaEntity
 
                     beforeEach {
                         newLeader =
@@ -286,24 +298,27 @@ class ModifyClubServiceTest :
                                 this.major = Major.AI
                                 this.sex = Sex.WOMAN
                             }
+                        participant =
+                            StudentJpaEntity().apply {
+                                this.id = 30L
+                                this.name = "부원"
+                                this.email = "p@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(2, 2, 3)
+                                this.major = Major.AI
+                                this.sex = Sex.MAN
+                            }
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(newLeader)
-                        every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
-                        every { mockStudentRepository.findAllById(any<Iterable<Long>>()) } returns emptyList()
-                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
+                        every { mockStudentRepository.findByMajorClub(existing) } returns emptyList()
+                        every { mockStudentRepository.findAllById(listOf(30L)) } returns listOf(participant)
                     }
 
-                    it("bulkAssignClub이 부장과 부원 ID를 포함해 호출되어야 한다") {
+                    it("부장과 부원의 majorClub이 club으로 설정되어야 한다") {
                         modifyClubService.execute(clubId, req)
 
-                        verify(exactly = 1) {
-                            mockStudentRepository.bulkAssignClub(
-                                listOf(20L, 30L),
-                                existing,
-                                ClubType.MAJOR_CLUB,
-                            )
-                        }
+                        newLeader.majorClub shouldBe existing
+                        participant.majorClub shouldBe existing
                     }
                 }
             }
