@@ -10,19 +10,21 @@ fi
 REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
 BASE=$(gh pr view "$PR_NUMBER" --json baseRefName -q .baseRefName)
 
+mkdir -p .pr-tmp
+
 # Inline review comments only (not issue-level comments)
 gh api "repos/$REPO/pulls/$PR_NUMBER/comments" \
   --jq '[.[] | {id, path, line, body, user: .user.login}]' \
-  > /tmp/pr_comments.json
+  > .pr-tmp/pr_comments.json
 
 # Commits in this PR
-git log "origin/$BASE..HEAD" --pretty=format:"%H %h %s" > /tmp/pr_commits.txt
+git log "origin/$BASE..HEAD" --pretty=format:"%H %h %s" > .pr-tmp/pr_commits.txt
 
 # Changed files
-git diff "origin/$BASE...HEAD" --name-only > /tmp/pr_changed_files.txt
+git diff "origin/$BASE...HEAD" --name-only > .pr-tmp/pr_changed_files.txt
 
 # Full diff
-git diff "origin/$BASE...HEAD" > /tmp/pr_diff.txt
+git diff "origin/$BASE...HEAD" > .pr-tmp/pr_diff.txt
 
 echo "PR #$PR_NUMBER | Repo: $REPO | Base: $BASE"
-echo "Comments: $(jq length /tmp/pr_comments.json), Changed files: $(wc -l < /tmp/pr_changed_files.txt | tr -d ' ')"
+echo "Comments: $(jq length .pr-tmp/pr_comments.json), Changed files: $(wc -l < .pr-tmp/pr_changed_files.txt | tr -d ' ')"
