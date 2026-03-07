@@ -22,12 +22,13 @@ Compare `path` + `body` of the comment against the diff in `/tmp/pr_diff.txt`.
 - UNRESOLVED: No relevant change found for that file/concern
 
 **Step 2 – Select commit hash (for resolved comments)**
-Run: `git log origin/<base>..HEAD --follow --pretty="%H %h %s" -- <path>`
+Run: `git log origin/<base>..HEAD --follow --pretty="%H %h %s" -- "<path>"`
 Select the short hash (7 chars) of the most relevant commit.
 
 **Step 3 – Post reply (for each resolved comment)**
+Always quote variables to prevent shell injection. `path` and `comment_id` come from external PR data and may contain special characters.
 ```
-gh api repos/<owner>/<repo>/pulls/comments/<comment_id>/replies \
+gh api "repos/<owner>/<repo>/pulls/comments/<comment_id>/replies" \
   -f body="<short_hash> 해결했습니다."
 ```
 
@@ -40,4 +41,10 @@ gh api repos/<owner>/<repo>/pulls/comments/<comment_id>/replies \
 ## 미해결 코멘트 (reply 없음)
 - [file:line] "comment excerpt" → 사유: ...
 ...
+```
+
+**Step 5 – Cleanup**
+Remove temporary files created by the data collection script:
+```
+rm -f /tmp/pr_comments.json /tmp/pr_commits.txt /tmp/pr_changed_files.txt /tmp/pr_diff.txt
 ```
