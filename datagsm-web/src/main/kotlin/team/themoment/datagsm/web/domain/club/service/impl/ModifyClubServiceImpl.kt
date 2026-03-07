@@ -1,5 +1,6 @@
 package team.themoment.datagsm.web.domain.club.service.impl
 
+import jakarta.persistence.EntityManager
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -17,6 +18,7 @@ import team.themoment.sdk.exception.ExpectedException
 class ModifyClubServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
+    private val entityManager: EntityManager,
 ) : ModifyClubService {
     override fun execute(
         clubId: Long,
@@ -43,12 +45,16 @@ class ModifyClubServiceImpl(
         club.type = reqDto.type
         club.leader = newLeader
 
+        clubJpaRepository.saveAndFlush(club)
+
         studentJpaRepository.clearClubReferencesByType(club, oldType)
 
         val filteredParticipantIds = reqDto.participantIds.filter { it != reqDto.leaderId }
         val participants = studentJpaRepository.findAllById(filteredParticipantIds)
 
         studentJpaRepository.bulkAssignClub(listOf(reqDto.leaderId) + filteredParticipantIds, club, reqDto.type)
+
+        entityManager.clear()
 
         return ClubResDto(
             id = club.id!!,
