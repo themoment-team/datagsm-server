@@ -48,9 +48,6 @@ dependencies {
     // Database
     api(dependency.Dependencies.MYSQL_CONNECTOR)
 
-    // OpenAPI / Swagger
-    api(dependency.Dependencies.SPRINGDOC_OPENAPI)
-
     // Custom Libraries
     api(dependency.Dependencies.THE_MOMENT_THE_SDK)
     api(dependency.Dependencies.QUERY_DSL_JSON_EXTENSION)

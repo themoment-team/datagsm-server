@@ -11,7 +11,6 @@ import dependency.DependencyVersions.POI_VERSION
 import dependency.DependencyVersions.QUERY_DSL_JSON_EXTENSION_VERSION
 import dependency.DependencyVersions.QUERY_DSL_VERSION
 import dependency.DependencyVersions.SPRING_CLOUD_VERSION
-import dependency.DependencyVersions.SWAGGER_VERSION
 import dependency.DependencyVersions.THE_MOMENT_THE_SDK_VERSION
 
 object Dependencies {
@@ -65,9 +64,6 @@ object Dependencies {
 
     // Database
     const val MYSQL_CONNECTOR = "com.mysql:mysql-connector-j"
-
-    // OpenAPI / Swagger
-    const val SPRINGDOC_OPENAPI = "org.springdoc:springdoc-openapi-starter-webmvc-ui:${SWAGGER_VERSION}"
 
     // Custom Libraries
     const val THE_MOMENT_THE_SDK = "com.github.themoment-team:the-sdk:${THE_MOMENT_THE_SDK_VERSION}"
