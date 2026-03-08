@@ -55,10 +55,6 @@ dependencies {
     // Logging / AWS CloudWatch
     api(dependency.Dependencies.AWS_CLOUDWATCH_LOGS)
 
-    // Development Tools
-    api(dependency.Dependencies.SPRING_BOOT_DEVTOOLS)
-    api(dependency.Dependencies.SPRING_DOCKER_SUPPORT)
-
     // Kotlin
     api(dependency.Dependencies.KOTLIN_REFLECT)
     api(dependency.Dependencies.KOTLIN_COROUTINES)

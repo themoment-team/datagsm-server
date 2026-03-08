@@ -21,9 +21,6 @@ dependencies {
     implementation(dependency.Dependencies.POI)
     implementation(dependency.Dependencies.POI_OOXML)
 
-    // QueryDSL
-    implementation(dependency.Dependencies.QUERY_DSL)
-
     // Testing
     testImplementation(dependency.Dependencies.SPRING_TEST)
     testImplementation(dependency.Dependencies.KOTLIN_JUNIT5)
