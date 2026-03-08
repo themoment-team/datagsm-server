@@ -16,8 +16,6 @@ data class ExcelColumnDto(
     val major: Major?,
     @field:Schema(description = "전공동아리", example = "더모먼트", maxLength = 50)
     val majorClub: String?,
-    @field:Schema(description = "취업동아리", example = "백엔드2", maxLength = 50)
-    val jobClub: String?,
     @field:Schema(description = "창체동아리", example = "블렌드", maxLength = 50)
     val autonomousClub: String?,
     @field:Schema(description = "기숙사 번호", example = "201", minimum = "201", maximum = "518")

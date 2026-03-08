@@ -407,12 +407,6 @@ class CreateStudentServiceTest :
                             name = "SW개발동아리"
                             type = ClubType.MAJOR_CLUB
                         }
-                    val jobClub =
-                        ClubJpaEntity().apply {
-                            id = 2L
-                            name = "취업동아리"
-                            type = ClubType.JOB_CLUB
-                        }
                     val autonomousClub =
                         ClubJpaEntity().apply {
                             id = 3L
@@ -431,7 +425,6 @@ class CreateStudentServiceTest :
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 210,
                             majorClubId = 1L,
-                            jobClubId = 2L,
                             autonomousClubId = 3L,
                         )
 
@@ -447,7 +440,6 @@ class CreateStudentServiceTest :
                             role = createRequest.role
                             dormitoryRoomNumber = DormitoryRoomNumber(createRequest.dormitoryRoomNumber)
                             this.majorClub = majorClub
-                            this.jobClub = jobClub
                             this.autonomousClub = autonomousClub
                         }
 
@@ -462,7 +454,7 @@ class CreateStudentServiceTest :
                         } returns false
                         every {
                             mockClubRepository.findAllById(listOf(1L, 2L, 3L))
-                        } returns listOf(majorClub, jobClub, autonomousClub)
+                        } returns listOf(majorClub, autonomousClub)
                         every { mockStudentRepository.save(any()) } returns savedStudent
                     }
 
@@ -472,8 +464,6 @@ class CreateStudentServiceTest :
                         result.name shouldBe "동아리학생"
                         result.majorClub?.id shouldBe 1L
                         result.majorClub?.name shouldBe "SW개발동아리"
-                        result.jobClub?.id shouldBe 2L
-                        result.jobClub?.name shouldBe "취업동아리"
                         result.autonomousClub?.id shouldBe 3L
                         result.autonomousClub?.name shouldBe "자율동아리"
 
@@ -516,44 +506,6 @@ class CreateStudentServiceTest :
                             }
 
                         exception.message shouldBe "전공 동아리를 찾을 수 없습니다."
-
-                        verify(exactly = 1) { mockClubRepository.findAllById(listOf(999L)) }
-                    }
-                }
-
-                context("존재하지 않는 취업 동아리 ID로 생성 요청할 때") {
-                    val createRequest =
-                        CreateStudentReqDto(
-                            name = "학생",
-                            sex = Sex.MAN,
-                            email = "test@gsm.hs.kr",
-                            grade = 1,
-                            classNum = 1,
-                            number = 2,
-                            role = StudentRole.GENERAL_STUDENT,
-                            dormitoryRoomNumber = 202,
-                            jobClubId = 999L,
-                        )
-
-                    beforeEach {
-                        every { mockStudentRepository.existsByEmail(createRequest.email) } returns false
-                        every {
-                            mockStudentRepository.existsByStudentNumber(
-                                createRequest.grade!!,
-                                createRequest.classNum!!,
-                                createRequest.number!!,
-                            )
-                        } returns false
-                        every { mockClubRepository.findAllById(listOf(999L)) } returns emptyList()
-                    }
-
-                    it("ExpectedException이 발생해야 한다") {
-                        val exception =
-                            shouldThrow<ExpectedException> {
-                                createStudentService.execute(createRequest)
-                            }
-
-                        exception.message shouldBe "취업 동아리를 찾을 수 없습니다."
 
                         verify(exactly = 1) { mockClubRepository.findAllById(listOf(999L)) }
                     }

@@ -27,7 +27,6 @@ private const val STUDENT_NUMBER_COL_IDX = 1
 private const val EMAIL_COL_IDX = 2
 private const val MAJOR_COL_IDX = 3
 private const val MAJOR_CLUB_COL_IDX = 4
-private const val JOB_CLUB_COL_IDX = 5
 private const val AUTONOMOUS_COL_IDX = 6
 private const val DORMITORY_ROOM_NUMBER_COL_IDX = 7
 private const val STUDENT_ROLE_COL_IDX = 8
@@ -55,12 +54,6 @@ class CreateStudentExcelServiceTest :
                             type = ClubType.MAJOR_CLUB
                         }
 
-                    val jobClub =
-                        ClubJpaEntity().apply {
-                            id = 2L
-                            name = "취업동아리A"
-                            type = ClubType.JOB_CLUB
-                        }
 
                     val autonomousClub =
                         ClubJpaEntity().apply {
@@ -78,7 +71,6 @@ class CreateStudentExcelServiceTest :
                                 email = "hong@gsm.hs.kr"
                                 major = Major.SW_DEVELOPMENT
                                 this.majorClub = majorClub
-                                this.jobClub = jobClub
                                 this.autonomousClub = autonomousClub
                                 dormitoryRoomNumber = DormitoryRoomNumber(301)
                                 role = StudentRole.GENERAL_STUDENT
@@ -95,7 +87,6 @@ class CreateStudentExcelServiceTest :
                                 email = "kim@gsm.hs.kr"
                                 major = Major.AI
                                 this.majorClub = null
-                                this.jobClub = null
                                 this.autonomousClub = null
                                 dormitoryRoomNumber = null
                                 role = StudentRole.STUDENT_COUNCIL
@@ -112,7 +103,6 @@ class CreateStudentExcelServiceTest :
                                 email = "lee@gsm.hs.kr"
                                 major = Major.SMART_IOT
                                 this.majorClub = null
-                                this.jobClub = null
                                 this.autonomousClub = null
                                 dormitoryRoomNumber = DormitoryRoomNumber(401)
                                 role = StudentRole.DORMITORY_MANAGER
@@ -156,7 +146,6 @@ class CreateStudentExcelServiceTest :
                         header1.getCell(EMAIL_COL_IDX).stringCellValue shouldBe "이메일"
                         header1.getCell(MAJOR_COL_IDX).stringCellValue shouldBe "학과"
                         header1.getCell(MAJOR_CLUB_COL_IDX).stringCellValue shouldBe "전공동아리"
-                        header1.getCell(JOB_CLUB_COL_IDX).stringCellValue shouldBe "취업동아리"
                         header1.getCell(AUTONOMOUS_COL_IDX).stringCellValue shouldBe "창체동아리"
                         header1.getCell(DORMITORY_ROOM_NUMBER_COL_IDX).stringCellValue shouldBe "호실"
                         header1.getCell(STUDENT_ROLE_COL_IDX).stringCellValue shouldBe "소속"
@@ -168,7 +157,6 @@ class CreateStudentExcelServiceTest :
                         data1.getCell(EMAIL_COL_IDX).stringCellValue shouldBe "hong@gsm.hs.kr"
                         data1.getCell(MAJOR_COL_IDX).stringCellValue shouldBe "SW개발과"
                         data1.getCell(MAJOR_CLUB_COL_IDX).stringCellValue shouldBe "SW개발동아리"
-                        data1.getCell(JOB_CLUB_COL_IDX).stringCellValue shouldBe "취업동아리A"
                         data1.getCell(AUTONOMOUS_COL_IDX).stringCellValue shouldBe "창체동아리B"
                         data1.getCell(DORMITORY_ROOM_NUMBER_COL_IDX).stringCellValue shouldBe "301"
                         data1.getCell(STUDENT_ROLE_COL_IDX).stringCellValue shouldBe "일반학생"
@@ -179,7 +167,6 @@ class CreateStudentExcelServiceTest :
                         val data2 = sheet2.getRow(1)
                         data2.getCell(NAME_COL_IDX).stringCellValue shouldBe "김철수"
                         data2.getCell(MAJOR_CLUB_COL_IDX).stringCellValue shouldBe ""
-                        data2.getCell(JOB_CLUB_COL_IDX).stringCellValue shouldBe ""
                         data2.getCell(AUTONOMOUS_COL_IDX).stringCellValue shouldBe ""
                         data2.getCell(DORMITORY_ROOM_NUMBER_COL_IDX).stringCellValue shouldBe ""
                         data2.getCell(STUDENT_ROLE_COL_IDX).stringCellValue shouldBe "학생회"
@@ -230,7 +217,6 @@ class CreateStudentExcelServiceTest :
                                 email = "student$idx@gsm.hs.kr"
                                 major = Major.SW_DEVELOPMENT
                                 majorClub = null
-                                jobClub = null
                                 autonomousClub = null
                                 dormitoryRoomNumber = DormitoryRoomNumber(200 + idx)
                                 role = StudentRole.GENERAL_STUDENT

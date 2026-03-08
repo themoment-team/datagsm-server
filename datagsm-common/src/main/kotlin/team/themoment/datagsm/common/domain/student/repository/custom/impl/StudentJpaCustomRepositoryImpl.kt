@@ -196,8 +196,6 @@ class StudentJpaCustomRepositoryImpl(
             .selectFrom(studentJpaEntity)
             .leftJoin(studentJpaEntity.majorClub)
             .fetchJoin()
-            .leftJoin(studentJpaEntity.jobClub)
-            .fetchJoin()
             .leftJoin(studentJpaEntity.autonomousClub)
             .fetchJoin()
             .where(
@@ -212,8 +210,6 @@ class StudentJpaCustomRepositoryImpl(
         jpaQueryFactory
             .selectFrom(studentJpaEntity)
             .leftJoin(studentJpaEntity.majorClub)
-            .fetchJoin()
-            .leftJoin(studentJpaEntity.jobClub)
             .fetchJoin()
             .leftJoin(studentJpaEntity.autonomousClub)
             .fetchJoin()
@@ -302,14 +298,6 @@ class StudentJpaCustomRepositoryImpl(
             .where(studentJpaEntity.majorClub.eq(club))
             .fetch()
 
-    override fun findRegisteredStudentsByJobClub(club: ClubJpaEntity): List<StudentJpaEntity> =
-        jpaQueryFactory
-            .selectFrom(studentJpaEntity)
-            .innerJoin(accountJpaEntity)
-            .on(accountJpaEntity.student.id.eq(studentJpaEntity.id))
-            .where(studentJpaEntity.jobClub.eq(club))
-            .fetch()
-
     override fun findRegisteredStudentsByAutonomousClub(club: ClubJpaEntity): List<StudentJpaEntity> =
         jpaQueryFactory
             .selectFrom(studentJpaEntity)
@@ -346,12 +334,6 @@ class StudentJpaCustomRepositoryImpl(
             .update(studentJpaEntity)
             .setNull(studentJpaEntity.majorClub)
             .where(studentJpaEntity.majorClub.`in`(clubs))
-            .execute()
-
-        jpaQueryFactory
-            .update(studentJpaEntity)
-            .setNull(studentJpaEntity.jobClub)
-            .where(studentJpaEntity.jobClub.`in`(clubs))
             .execute()
 
         jpaQueryFactory

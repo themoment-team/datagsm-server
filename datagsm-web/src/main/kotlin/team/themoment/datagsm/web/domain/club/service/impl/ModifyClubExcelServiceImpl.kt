@@ -25,8 +25,6 @@ class ModifyClubExcelServiceImpl(
     companion object {
         private const val MAJOR_CLUB_COL_IDX = 0
         private const val MAJOR_CLUB_LEADER_COL_IDX = 1
-        private const val JOB_CLUB_COL_IDX = 2
-        private const val JOB_CLUB_LEADER_COL_IDX = 3
         private const val AUTONOMOUS_CLUB_COL_IDX = 4
         private const val AUTONOMOUS_CLUB_LEADER_COL_IDX = 5
     }
@@ -138,8 +136,6 @@ class ModifyClubExcelServiceImpl(
             listOf(
                 headerRow?.getCell(MAJOR_CLUB_COL_IDX)?.stringCellValue ?: "",
                 headerRow?.getCell(MAJOR_CLUB_LEADER_COL_IDX)?.stringCellValue ?: "",
-                headerRow?.getCell(JOB_CLUB_COL_IDX)?.stringCellValue ?: "",
-                headerRow?.getCell(JOB_CLUB_LEADER_COL_IDX)?.stringCellValue ?: "",
                 headerRow?.getCell(AUTONOMOUS_CLUB_COL_IDX)?.stringCellValue ?: "",
                 headerRow?.getCell(AUTONOMOUS_CLUB_LEADER_COL_IDX)?.stringCellValue ?: "",
             )
@@ -147,8 +143,6 @@ class ModifyClubExcelServiceImpl(
             listOf(
                 "전공동아리",
                 "전공동아리 부장",
-                "취업동아리",
-                "취업동아리 부장",
                 "창체동아리",
                 "창체동아리 부장",
             )
@@ -158,7 +152,7 @@ class ModifyClubExcelServiceImpl(
                 headerColumns != expectedHeaders
             ) {
                 throw ExpectedException(
-                    "헤더 행의 열은 순서대로 전공동아리, 전공동아리 부장, 취업동아리, 취업동아리 부장, 창체동아리, 창체동아리 부장여야 합니다.",
+                    "헤더 행의 열은 순서대로 전공동아리, 전공동아리 부장, 창체동아리, 창체동아리 부장여야 합니다.",
                     HttpStatus.BAD_REQUEST,
                 )
             }

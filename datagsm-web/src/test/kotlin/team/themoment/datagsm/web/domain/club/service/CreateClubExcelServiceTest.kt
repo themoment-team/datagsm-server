@@ -22,8 +22,6 @@ import java.io.ByteArrayInputStream
 
 private const val MAJOR_CLUB_COL_IDX = 0
 private const val MAJOR_CLUB_LEADER_COL_IDX = 1
-private const val JOB_CLUB_COL_IDX = 2
-private const val JOB_CLUB_LEADER_COL_IDX = 3
 private const val AUTONOMOUS_CLUB_COL_IDX = 4
 private const val AUTONOMOUS_CLUB_LEADER_COL_IDX = 5
 
@@ -52,16 +50,6 @@ class CreateClubExcelServiceTest :
                             sex = Sex.MAN
                         }
 
-                    val jobClubLeader =
-                        StudentJpaEntity().apply {
-                            id = 2L
-                            name = "이영희"
-                            studentNumber = StudentNumber(2, 3, 5)
-                            email = "job@gsm.hs.kr"
-                            major = Major.AI
-                            sex = Sex.WOMAN
-                        }
-
                     val autonomousClubLeader =
                         StudentJpaEntity().apply {
                             id = 3L
@@ -82,15 +70,6 @@ class CreateClubExcelServiceTest :
                             },
                         )
 
-                    val jobClubs =
-                        listOf(
-                            ClubJpaEntity().apply {
-                                id = 2L
-                                name = "취업준비동아리"
-                                type = ClubType.JOB_CLUB
-                                leader = jobClubLeader
-                            },
-                        )
 
                     val autonomousClubs =
                         listOf(
@@ -104,7 +83,6 @@ class CreateClubExcelServiceTest :
 
                     beforeEach {
                         every { mockClubRepository.findByType(ClubType.MAJOR_CLUB) } returns majorClubs
-                        every { mockClubRepository.findByType(ClubType.JOB_CLUB) } returns jobClubs
                         every { mockClubRepository.findByType(ClubType.AUTONOMOUS_CLUB) } returns autonomousClubs
                     }
 
@@ -118,7 +96,6 @@ class CreateClubExcelServiceTest :
                         result.headers.contentDisposition.filename shouldMatch Regex("동아리_현황_\\d{8}\\.xlsx")
 
                         verify(exactly = 1) { mockClubRepository.findByType(ClubType.MAJOR_CLUB) }
-                        verify(exactly = 1) { mockClubRepository.findByType(ClubType.JOB_CLUB) }
                         verify(exactly = 1) { mockClubRepository.findByType(ClubType.AUTONOMOUS_CLUB) }
 
                         val workbook = XSSFWorkbook(ByteArrayInputStream(result.body))
@@ -129,16 +106,12 @@ class CreateClubExcelServiceTest :
                         val headerRow = sheet.getRow(0)
                         headerRow.getCell(MAJOR_CLUB_COL_IDX).stringCellValue shouldBe "전공동아리"
                         headerRow.getCell(MAJOR_CLUB_LEADER_COL_IDX).stringCellValue shouldBe "전공동아리 부장"
-                        headerRow.getCell(JOB_CLUB_COL_IDX).stringCellValue shouldBe "취업동아리"
-                        headerRow.getCell(JOB_CLUB_LEADER_COL_IDX).stringCellValue shouldBe "취업동아리 부장"
                         headerRow.getCell(AUTONOMOUS_CLUB_COL_IDX).stringCellValue shouldBe "창체동아리"
                         headerRow.getCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).stringCellValue shouldBe "창체동아리 부장"
 
                         val dataRow = sheet.getRow(1)
                         dataRow.getCell(MAJOR_CLUB_COL_IDX).stringCellValue shouldBe "SW개발동아리"
                         dataRow.getCell(MAJOR_CLUB_LEADER_COL_IDX).stringCellValue shouldBe "2404 김철수"
-                        dataRow.getCell(JOB_CLUB_COL_IDX).stringCellValue shouldBe "취업준비동아리"
-                        dataRow.getCell(JOB_CLUB_LEADER_COL_IDX).stringCellValue shouldBe "2305 이영희"
                         dataRow.getCell(AUTONOMOUS_CLUB_COL_IDX).stringCellValue shouldBe "창체동아리A"
                         dataRow.getCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).stringCellValue shouldBe "1210 박민수"
 
@@ -149,7 +122,6 @@ class CreateClubExcelServiceTest :
                 context("빈 동아리 리스트로 Excel을 생성할 때") {
                     beforeEach {
                         every { mockClubRepository.findByType(ClubType.MAJOR_CLUB) } returns emptyList()
-                        every { mockClubRepository.findByType(ClubType.JOB_CLUB) } returns emptyList()
                         every { mockClubRepository.findByType(ClubType.AUTONOMOUS_CLUB) } returns emptyList()
                     }
 
@@ -192,7 +164,6 @@ class CreateClubExcelServiceTest :
 
                     beforeEach {
                         every { mockClubRepository.findByType(ClubType.MAJOR_CLUB) } returns majorClubs
-                        every { mockClubRepository.findByType(ClubType.JOB_CLUB) } returns emptyList()
                         every { mockClubRepository.findByType(ClubType.AUTONOMOUS_CLUB) } returns emptyList()
                     }
 
@@ -223,17 +194,6 @@ class CreateClubExcelServiceTest :
                             sex = Sex.MAN
                         }
 
-                    val jobLeaders =
-                        (1..3).map { idx ->
-                            StudentJpaEntity().apply {
-                                id = idx.toLong() + 1
-                                name = "취업부장$idx"
-                                studentNumber = StudentNumber(2, 2, idx)
-                                email = "job$idx@gsm.hs.kr"
-                                major = Major.AI
-                                sex = Sex.WOMAN
-                            }
-                        }
 
                     val majorClubs =
                         listOf(
@@ -245,19 +205,8 @@ class CreateClubExcelServiceTest :
                             },
                         )
 
-                    val jobClubs =
-                        jobLeaders.mapIndexed { idx, leader ->
-                            ClubJpaEntity().apply {
-                                id = idx.toLong() + 2
-                                name = "취업동아리${idx + 1}"
-                                type = ClubType.JOB_CLUB
-                                this.leader = leader
-                            }
-                        }
-
                     beforeEach {
                         every { mockClubRepository.findByType(ClubType.MAJOR_CLUB) } returns majorClubs
-                        every { mockClubRepository.findByType(ClubType.JOB_CLUB) } returns jobClubs
                         every { mockClubRepository.findByType(ClubType.AUTONOMOUS_CLUB) } returns emptyList()
                     }
 
@@ -269,10 +218,8 @@ class CreateClubExcelServiceTest :
                         sheet.lastRowNum shouldBe 3
                         val row1 = sheet.getRow(1)
                         row1.getCell(MAJOR_CLUB_COL_IDX).stringCellValue shouldBe "전공동아리1"
-                        row1.getCell(JOB_CLUB_COL_IDX).stringCellValue shouldBe "취업동아리1"
                         val row2 = sheet.getRow(2)
                         row2.getCell(MAJOR_CLUB_COL_IDX) shouldBe null
-                        row2.getCell(JOB_CLUB_COL_IDX).stringCellValue shouldBe "취업동아리2"
                         workbook.close()
                     }
                 }

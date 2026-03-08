@@ -248,7 +248,6 @@ class QueryStudentServiceTest :
                         student.majorClub?.id shouldBe 100L
                         student.majorClub?.name shouldBe "SW개발동아리"
                         student.majorClub?.type shouldBe ClubType.MAJOR_CLUB
-                        student.jobClub shouldBe null
                         student.autonomousClub shouldBe null
                     }
                 }

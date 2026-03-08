@@ -61,7 +61,7 @@ class ModifyClubServiceTest :
                     val req =
                         ClubReqDto(
                             name = "새이름",
-                            type = ClubType.JOB_CLUB,
+                            type = ClubType.MAJOR_CLUB,
                             leaderId = 20L,
                         )
                     lateinit var newLeader: StudentJpaEntity
@@ -79,7 +79,6 @@ class ModifyClubServiceTest :
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(newLeader)
-                        every { mockStudentRepository.findByJobClub(existing) } returns emptyList()
                     }
 
                     it("업데이트된 정보가 반환되어야 한다") {

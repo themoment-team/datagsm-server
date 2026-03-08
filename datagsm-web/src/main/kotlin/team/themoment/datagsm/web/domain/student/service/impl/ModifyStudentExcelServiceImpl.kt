@@ -97,7 +97,6 @@ class ModifyStudentExcelServiceImpl(
         }
 
         val majorClubs = excelData.mapNotNull { it.majorClub }.distinct()
-        val jobClubs = excelData.mapNotNull { it.jobClub }.distinct()
         val autonomousClubs = excelData.mapNotNull { it.autonomousClub }.distinct()
 
         val existingMajorClubs =
@@ -106,14 +105,6 @@ class ModifyStudentExcelServiceImpl(
             } else {
                 clubJpaRepository
                     .findAllByNameInAndType(majorClubs, ClubType.MAJOR_CLUB)
-                    .associateBy { it.name }
-            }
-        val existingJobClubs =
-            if (jobClubs.isEmpty()) {
-                emptyMap()
-            } else {
-                clubJpaRepository
-                    .findAllByNameInAndType(jobClubs, ClubType.JOB_CLUB)
                     .associateBy { it.name }
             }
         val existingAutonomousClubs =
@@ -134,11 +125,6 @@ class ModifyStudentExcelServiceImpl(
                         dto.majorClub?.let { clubName ->
                             existingMajorClubs[clubName]
                                 ?: throw ExpectedException("존재하지 않는 전공동아리입니다.", HttpStatus.BAD_REQUEST)
-                        }
-                    student.jobClub =
-                        dto.jobClub?.let { clubName ->
-                            existingJobClubs[clubName]
-                                ?: throw ExpectedException("존재하지 않는 취업동아리입니다.", HttpStatus.BAD_REQUEST)
                         }
                     student.autonomousClub =
                         dto.autonomousClub?.let { clubName ->
@@ -203,7 +189,6 @@ class ModifyStudentExcelServiceImpl(
                                             HttpStatus.BAD_REQUEST,
                                         ),
                                 majorClub = getOptionalString(row, 4),
-                                jobClub = getOptionalString(row, 5),
                                 autonomousClub = getOptionalString(row, 6),
                                 dormitoryRoomNumber = getOptionalInt(row, 7),
                                 role =

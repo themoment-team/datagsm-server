@@ -24,7 +24,6 @@ class GraduateStudentServiceImpl(
         student.studentNumber = null
         student.dormitoryRoomNumber = null
         student.majorClub = null
-        student.jobClub = null
         student.autonomousClub = null
     }
 }

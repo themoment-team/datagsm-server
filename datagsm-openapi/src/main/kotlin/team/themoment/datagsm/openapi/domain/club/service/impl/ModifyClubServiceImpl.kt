@@ -79,7 +79,6 @@ class ModifyClubServiceImpl(
     private fun getParticipantsByClubType(club: ClubJpaEntity): List<StudentJpaEntity> =
         when (club.type) {
             ClubType.MAJOR_CLUB -> studentJpaRepository.findByMajorClub(club)
-            ClubType.JOB_CLUB -> studentJpaRepository.findByJobClub(club)
             ClubType.AUTONOMOUS_CLUB -> studentJpaRepository.findByAutonomousClub(club)
         }
 }
