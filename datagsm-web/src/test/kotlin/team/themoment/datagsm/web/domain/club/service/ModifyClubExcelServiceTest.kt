@@ -27,8 +27,8 @@ import java.io.ByteArrayOutputStream
 
 private const val MAJOR_CLUB_COL_IDX = 0
 private const val MAJOR_CLUB_LEADER_COL_IDX = 1
-private const val AUTONOMOUS_CLUB_COL_IDX = 4
-private const val AUTONOMOUS_CLUB_LEADER_COL_IDX = 5
+private const val AUTONOMOUS_CLUB_COL_IDX = 2
+private const val AUTONOMOUS_CLUB_LEADER_COL_IDX = 3
 
 class ModifyClubExcelServiceTest :
     DescribeSpec({
