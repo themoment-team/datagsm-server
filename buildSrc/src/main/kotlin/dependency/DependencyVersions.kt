@@ -1,7 +1,7 @@
 package dependency
 
 object DependencyVersions {
-    const val KOTEST_VERSION = "6.1.3"
+    const val KOTEST_VERSION = "6.1.4"
     const val MOCKK_VERSION = "1.14.9"
 
     const val JJWT_VERSION = "0.13.0"
@@ -10,7 +10,7 @@ object DependencyVersions {
     const val QUERY_DSL_JSON_EXTENSION_VERSION = "0.1.1"
 
     const val SPRING_CLOUD_VERSION = "2025.1.1"
-    const val AWS_SDK_VERSION = "2.42.2"
+    const val AWS_SDK_VERSION = "2.42.7"
 
     const val THE_MOMENT_THE_SDK_VERSION = "1.5"
 
@@ -20,5 +20,4 @@ object DependencyVersions {
 
     const val POI_VERSION = "5.5.1"
 
-    const val JACKSON_VERSION = "3.1.0"
 }
