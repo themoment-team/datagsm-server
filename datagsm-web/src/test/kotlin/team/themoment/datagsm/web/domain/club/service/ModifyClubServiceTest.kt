@@ -63,6 +63,7 @@ class ModifyClubServiceTest :
                             name = "새이름",
                             type = ClubType.MAJOR_CLUB,
                             leaderId = 20L,
+                            participantIds = listOf(30L, 40L),
                         )
                     lateinit var newLeader: StudentJpaEntity
 
@@ -79,6 +80,8 @@ class ModifyClubServiceTest :
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(newLeader)
+                        every { mockStudentRepository.findByMajorClub(existing) } returns emptyList()
+                        every { mockStudentRepository.findAllById(any<Iterable<Long>>()) } returns emptyList()
                     }
 
                     it("업데이트된 정보가 반환되어야 한다") {
@@ -95,19 +98,21 @@ class ModifyClubServiceTest :
                     }
                 }
 
-                context("이름을 기존과 동일하게 두고 설명/타입만 변경할 때") {
+                context("이름을 기존과 동일하게 두고 타입만 변경할 때") {
                     val req =
                         ClubReqDto(
                             name = "기존동아리",
                             type = ClubType.AUTONOMOUS_CLUB,
                             leaderId = 10L,
+                            participantIds = listOf(30L),
                         )
 
                     beforeEach {
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(oldLeader)
-                        every { mockStudentRepository.findByAutonomousClub(existing) } returns emptyList()
+                        every { mockStudentRepository.findByMajorClub(existing) } returns emptyList()
+                        every { mockStudentRepository.findAllById(any<Iterable<Long>>()) } returns emptyList()
                     }
 
                     it("중복 이름 검사를 수행하고 저장되어야 한다") {
@@ -129,6 +134,7 @@ class ModifyClubServiceTest :
                             name = "기존있는이름",
                             type = ClubType.MAJOR_CLUB,
                             leaderId = 10L,
+                            participantIds = listOf(10L),
                         )
 
                     beforeEach {
@@ -154,6 +160,7 @@ class ModifyClubServiceTest :
                             name = "아무이름",
                             type = ClubType.MAJOR_CLUB,
                             leaderId = 10L,
+                            participantIds = listOf(10L),
                         )
 
                     beforeEach {
@@ -168,6 +175,144 @@ class ModifyClubServiceTest :
                         ex.message shouldBe "동아리를 찾을 수 없습니다. clubId: $clubId"
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
+                    }
+                }
+
+                context("타입이 변경될 때 (MAJOR_CLUB → AUTONOMOUS_CLUB)") {
+                    val req =
+                        ClubReqDto(
+                            name = "새이름",
+                            type = ClubType.AUTONOMOUS_CLUB,
+                            leaderId = 20L,
+                            participantIds = listOf(30L),
+                        )
+                    lateinit var newLeader: StudentJpaEntity
+                    lateinit var oldParticipant: StudentJpaEntity
+
+                    beforeEach {
+                        newLeader =
+                            StudentJpaEntity().apply {
+                                this.id = 20L
+                                this.name = "새부장"
+                                this.email = "new@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(2, 2, 2)
+                                this.major = Major.AI
+                                this.sex = Sex.WOMAN
+                            }
+                        oldParticipant =
+                            StudentJpaEntity().apply {
+                                this.id = 99L
+                                this.name = "구부원"
+                                this.email = "old_p@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(1, 1, 2)
+                                this.major = Major.SW_DEVELOPMENT
+                                this.sex = Sex.MAN
+                                this.majorClub = existing
+                            }
+                        every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
+                        every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
+                        every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(newLeader)
+                        every { mockStudentRepository.findByMajorClub(existing) } returns listOf(oldParticipant)
+                        every { mockStudentRepository.findAllById(listOf(30L)) } returns emptyList()
+                    }
+
+                    it("구 참여자의 majorClub이 해제되고 새 리더의 autonomousClub이 설정되어야 한다") {
+                        modifyClubService.execute(clubId, req)
+
+                        oldParticipant.majorClub shouldBe null
+                        newLeader.autonomousClub shouldBe existing
+                        verify(exactly = 1) { mockStudentRepository.findByMajorClub(existing) }
+                    }
+                }
+
+                context("participantIds에 leaderId가 포함될 때") {
+                    val req =
+                        ClubReqDto(
+                            name = "새이름",
+                            type = ClubType.MAJOR_CLUB,
+                            leaderId = 20L,
+                            participantIds = listOf(20L, 30L),
+                        )
+                    lateinit var newLeader: StudentJpaEntity
+                    lateinit var participant: StudentJpaEntity
+
+                    beforeEach {
+                        newLeader =
+                            StudentJpaEntity().apply {
+                                this.id = 20L
+                                this.name = "새부장"
+                                this.email = "new@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(2, 2, 2)
+                                this.major = Major.AI
+                                this.sex = Sex.WOMAN
+                            }
+                        participant =
+                            StudentJpaEntity().apply {
+                                this.id = 30L
+                                this.name = "부원"
+                                this.email = "p@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(2, 2, 3)
+                                this.major = Major.AI
+                                this.sex = Sex.MAN
+                            }
+                        every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
+                        every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
+                        every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(newLeader)
+                        every { mockStudentRepository.findByMajorClub(existing) } returns emptyList()
+                        every { mockStudentRepository.findAllById(listOf(30L)) } returns listOf(participant)
+                    }
+
+                    it("participants에 leader가 포함되지 않아야 한다") {
+                        val res = modifyClubService.execute(clubId, req)
+
+                        res.participants.none { it.id == 20L } shouldBe true
+                        res.participants.size shouldBe 1
+                        res.participants[0].id shouldBe 30L
+                    }
+                }
+
+                context("부장과 부원이 배정될 때") {
+                    val req =
+                        ClubReqDto(
+                            name = "새이름",
+                            type = ClubType.MAJOR_CLUB,
+                            leaderId = 20L,
+                            participantIds = listOf(30L),
+                        )
+                    lateinit var newLeader: StudentJpaEntity
+                    lateinit var participant: StudentJpaEntity
+
+                    beforeEach {
+                        newLeader =
+                            StudentJpaEntity().apply {
+                                this.id = 20L
+                                this.name = "새부장"
+                                this.email = "new@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(2, 2, 2)
+                                this.major = Major.AI
+                                this.sex = Sex.WOMAN
+                            }
+                        participant =
+                            StudentJpaEntity().apply {
+                                this.id = 30L
+                                this.name = "부원"
+                                this.email = "p@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(2, 2, 3)
+                                this.major = Major.AI
+                                this.sex = Sex.MAN
+                            }
+                        every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
+                        every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
+                        every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(newLeader)
+                        every { mockStudentRepository.findByMajorClub(existing) } returns emptyList()
+                        every { mockStudentRepository.findAllById(listOf(30L)) } returns listOf(participant)
+                    }
+
+                    it("부장과 부원의 majorClub이 club으로 설정되어야 한다") {
+                        modifyClubService.execute(clubId, req)
+
+                        newLeader.majorClub shouldBe existing
+                        participant.majorClub shouldBe existing
                     }
                 }
             }

@@ -38,12 +38,17 @@ class CreateClubServiceImpl(
                 type = clubReqDto.type
                 this.leader = leader
             }
-        val savedClubEntity = clubJpaRepository.save(clubEntity)
+        val savedClub = clubJpaRepository.save(clubEntity)
+
+        val filteredParticipantIds = clubReqDto.participantIds.filter { it != clubReqDto.leaderId }
+        val participants = studentJpaRepository.findAllById(filteredParticipantIds)
+
+        studentJpaRepository.bulkAssignClub(listOf(clubReqDto.leaderId) + filteredParticipantIds, savedClub, clubReqDto.type)
 
         return ClubResDto(
-            id = savedClubEntity.id!!,
-            name = savedClubEntity.name,
-            type = savedClubEntity.type,
+            id = savedClub.id!!,
+            name = savedClub.name,
+            type = savedClub.type,
             leader =
                 ParticipantInfoDto(
                     id = leader.id!!,
@@ -53,7 +58,17 @@ class CreateClubServiceImpl(
                     major = leader.major,
                     sex = leader.sex,
                 ),
-            participants = emptyList(),
+            participants =
+                participants.map { student ->
+                    ParticipantInfoDto(
+                        id = student.id!!,
+                        name = student.name,
+                        email = student.email,
+                        studentNumber = student.studentNumber?.fullStudentNumber,
+                        major = student.major,
+                        sex = student.sex,
+                    )
+                },
         )
     }
 }

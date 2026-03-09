@@ -6,11 +6,9 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.common.domain.club.dto.response.ClubResDto
-import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.club.service.ModifyClubService
 import team.themoment.sdk.exception.ExpectedException
@@ -41,11 +39,34 @@ class ModifyClubServiceImpl(
                     HttpStatus.NOT_FOUND,
                 )
 
+        val oldType = club.type
         club.name = reqDto.name
         club.type = reqDto.type
         club.leader = newLeader
 
-        val participants = getParticipantsByClubType(club)
+        // 동아리 최대 인원이 30명 이하이므로 bulk DML 대신 엔티티 직접 수정을 사용
+        // Bulk 연산을 수행할 성능적 이점이 사실상 없다고 판단하였습니다
+        val oldParticipants =
+            when (oldType) {
+                ClubType.MAJOR_CLUB -> studentJpaRepository.findByMajorClub(club)
+                ClubType.AUTONOMOUS_CLUB -> studentJpaRepository.findByAutonomousClub(club)
+            }
+        oldParticipants.forEach { student ->
+            when (oldType) {
+                ClubType.MAJOR_CLUB -> student.majorClub = null
+                ClubType.AUTONOMOUS_CLUB -> student.autonomousClub = null
+            }
+        }
+
+        val filteredParticipantIds = reqDto.participantIds.filter { it != reqDto.leaderId }
+        val participants = studentJpaRepository.findAllById(filteredParticipantIds)
+
+        (listOf(newLeader) + participants).forEach { student ->
+            when (reqDto.type) {
+                ClubType.MAJOR_CLUB -> student.majorClub = club
+                ClubType.AUTONOMOUS_CLUB -> student.autonomousClub = club
+            }
+        }
 
         return ClubResDto(
             id = club.id!!,
@@ -61,9 +82,7 @@ class ModifyClubServiceImpl(
                     sex = newLeader.sex,
                 ),
             participants =
-                participants
-                    .filter { it.id != newLeader.id }
-                    .map { student ->
+                participants.map { student ->
                         ParticipantInfoDto(
                             id = student.id!!,
                             name = student.name,
@@ -75,10 +94,4 @@ class ModifyClubServiceImpl(
                     },
         )
     }
-
-    private fun getParticipantsByClubType(club: ClubJpaEntity): List<StudentJpaEntity> =
-        when (club.type) {
-            ClubType.MAJOR_CLUB -> studentJpaRepository.findByMajorClub(club)
-            ClubType.AUTONOMOUS_CLUB -> studentJpaRepository.findByAutonomousClub(club)
-        }
 }

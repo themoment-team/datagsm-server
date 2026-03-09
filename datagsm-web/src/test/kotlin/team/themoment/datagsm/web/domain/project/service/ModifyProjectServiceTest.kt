@@ -12,6 +12,8 @@ import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
+import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.web.domain.project.service.impl.ModifyProjectServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
@@ -62,6 +64,7 @@ class ModifyProjectServiceTest :
                             name = "수정된프로젝트",
                             description = "기존 설명",
                             clubId = 1L,
+                            participantIds = emptyList(),
                         )
 
                     beforeEach {
@@ -100,6 +103,7 @@ class ModifyProjectServiceTest :
                             name = "기존프로젝트",
                             description = "새로운 설명입니다",
                             clubId = 1L,
+                            participantIds = emptyList(),
                         )
 
                     beforeEach {
@@ -144,6 +148,7 @@ class ModifyProjectServiceTest :
                             name = "기존프로젝트",
                             description = "기존 설명",
                             clubId = 2L,
+                            participantIds = emptyList(),
                         )
 
                     beforeEach {
@@ -188,6 +193,7 @@ class ModifyProjectServiceTest :
                             name = "완전새로운프로젝트",
                             description = "완전 새로운 설명",
                             clubId = 3L,
+                            participantIds = emptyList(),
                         )
 
                     beforeEach {
@@ -226,6 +232,7 @@ class ModifyProjectServiceTest :
                             name = "수정프로젝트",
                             description = "설명",
                             clubId = 1L,
+                            participantIds = emptyList(),
                         )
 
                     beforeEach {
@@ -251,6 +258,7 @@ class ModifyProjectServiceTest :
                             name = "중복프로젝트",
                             description = "기존 설명",
                             clubId = 1L,
+                            participantIds = emptyList(),
                         )
 
                     beforeEach {
@@ -286,6 +294,7 @@ class ModifyProjectServiceTest :
                             name = "기존프로젝트",
                             description = "기존 설명",
                             clubId = 999L,
+                            participantIds = emptyList(),
                         )
 
                     beforeEach {
@@ -314,6 +323,79 @@ class ModifyProjectServiceTest :
                             )
                         }
                         verify(exactly = 1) { mockClubRepository.findById(999L) }
+                    }
+                }
+
+                context("유효한 참여자 ID로 수정 요청할 때") {
+                    val participant =
+                        StudentJpaEntity().apply {
+                            id = 1L
+                            name = "홍길동"
+                            email = "hong@gsm.hs.kr"
+                            sex = Sex.MAN
+                        }
+
+                    val updateRequest =
+                        ProjectReqDto(
+                            name = "기존프로젝트",
+                            description = "기존 설명",
+                            clubId = 1L,
+                            participantIds = listOf(1L),
+                        )
+
+                    beforeEach {
+                        every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
+                        every {
+                            mockProjectRepository.existsByNameAndIdNot(
+                                updateRequest.name,
+                                projectId,
+                            )
+                        } returns false
+                        every { mockClubRepository.findById(1L) } returns Optional.of(ownerClub)
+                        every { mockStudentRepository.findAllById(listOf(1L)) } returns listOf(participant)
+                    }
+
+                    it("참여자가 교체되어야 한다") {
+                        val result = modifyProjectService.execute(projectId, updateRequest)
+
+                        result.participants.size shouldBe 1
+                        result.participants[0].id shouldBe 1L
+                        result.participants[0].name shouldBe "홍길동"
+
+                        verify(exactly = 1) { mockStudentRepository.findAllById(listOf(1L)) }
+                    }
+                }
+
+                context("존재하지 않는 참여자 ID로 수정 요청할 때") {
+                    val updateRequest =
+                        ProjectReqDto(
+                            name = "기존프로젝트",
+                            description = "기존 설명",
+                            clubId = 1L,
+                            participantIds = listOf(999L),
+                        )
+
+                    beforeEach {
+                        every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
+                        every {
+                            mockProjectRepository.existsByNameAndIdNot(
+                                updateRequest.name,
+                                projectId,
+                            )
+                        } returns false
+                        every { mockClubRepository.findById(1L) } returns Optional.of(ownerClub)
+                        every { mockStudentRepository.findAllById(listOf(999L)) } returns emptyList()
+                    }
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                modifyProjectService.execute(projectId, updateRequest)
+                            }
+
+                        exception.message shouldBe "999 에 대응하는 학생 데이터를 찾을 수 없습니다."
+
+                        verify(exactly = 1) { mockStudentRepository.findAllById(listOf(999L)) }
                     }
                 }
             }

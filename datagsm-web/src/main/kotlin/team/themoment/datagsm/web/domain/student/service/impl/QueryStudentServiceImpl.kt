@@ -28,6 +28,8 @@ class QueryStudentServiceImpl(
                 role = queryReq.role,
                 dormitoryRoom = queryReq.dormitoryRoom,
                 includeGraduates = queryReq.includeGraduates,
+                includeWithdrawn = queryReq.includeWithdrawn,
+                onlyEnrolled = queryReq.onlyEnrolled,
                 pageable = PageRequest.of(queryReq.page, queryReq.size),
                 sortBy = queryReq.sortBy,
                 sortDirection = queryReq.sortDirection,
