@@ -89,8 +89,8 @@ class ModifyClubServiceTest :
 
                         res.name shouldBe req.name
                         res.type shouldBe req.type
-                        res.leader.id shouldBe 20L
-                        res.leader.name shouldBe "새부장"
+                        res.leader?.id shouldBe 20L
+                        res.leader?.name shouldBe "새부장"
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
                         verify(exactly = 1) { mockClubRepository.existsByNameAndIdNot(req.name, clubId) }
@@ -121,7 +121,7 @@ class ModifyClubServiceTest :
 
                         res.name shouldBe req.name
                         res.type shouldBe req.type
-                        res.leader.id shouldBe 10L
+                        res.leader?.id shouldBe 10L
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
                         verify(exactly = 1) { mockClubRepository.existsByNameAndIdNot(req.name, clubId) }
