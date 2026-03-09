@@ -76,13 +76,13 @@ class ModifyStudentExcelServiceTest :
 
             val sheet2 = workbook.createSheet("2학년")
             val header2 = sheet2.createRow(0)
-            for (i in 0..9) {
+            for (i in 0..8) {
                 header2.createCell(i).setCellValue(header1.getCell(i).stringCellValue)
             }
 
             val sheet3 = workbook.createSheet("3학년")
             val header3 = sheet3.createRow(0)
-            for (i in 0..9) {
+            for (i in 0..8) {
                 header3.createCell(i).setCellValue(header1.getCell(i).stringCellValue)
             }
 
@@ -178,16 +178,16 @@ class ModifyStudentExcelServiceTest :
                     row1.createCell(1).setCellValue("1101")
                     row1.createCell(2).setCellValue("s1@gsm.hs.kr")
                     row1.createCell(3).setCellValue("SW개발과")
-                    row1.createCell(4).setCellValue("일반학생")
-                    row1.createCell(5).setCellValue("남자")
+                    row1.createCell(7).setCellValue("일반학생")
+                    row1.createCell(8).setCellValue("남자")
 
                     val row2 = sheet1.createRow(2)
                     row2.createCell(0).setCellValue("학생2")
                     row2.createCell(1).setCellValue("1101")
                     row2.createCell(2).setCellValue("s2@gsm.hs.kr")
                     row2.createCell(3).setCellValue("SW개발과")
-                    row2.createCell(4).setCellValue("일반학생")
-                    row2.createCell(5).setCellValue("남자")
+                    row2.createCell(7).setCellValue("일반학생")
+                    row2.createCell(8).setCellValue("남자")
 
                     workbook.createSheet("2학년")
                     workbook.createSheet("3학년")
@@ -239,16 +239,16 @@ class ModifyStudentExcelServiceTest :
                     row1.createCell(1).setCellValue("1101")
                     row1.createCell(2).setCellValue("duplicate@gsm.hs.kr")
                     row1.createCell(3).setCellValue("SW개발과")
-                    row1.createCell(4).setCellValue("일반학생")
-                    row1.createCell(5).setCellValue("남자")
+                    row1.createCell(7).setCellValue("일반학생")
+                    row1.createCell(8).setCellValue("남자")
 
                     val row2 = sheet1.createRow(2)
                     row2.createCell(0).setCellValue("학생2")
                     row2.createCell(1).setCellValue("1102")
                     row2.createCell(2).setCellValue("duplicate@gsm.hs.kr")
                     row2.createCell(3).setCellValue("SW개발과")
-                    row2.createCell(4).setCellValue("일반학생")
-                    row2.createCell(5).setCellValue("남자")
+                    row2.createCell(7).setCellValue("일반학생")
+                    row2.createCell(8).setCellValue("남자")
 
                     workbook.createSheet("2학년")
                     workbook.createSheet("3학년")
@@ -499,8 +499,8 @@ class ModifyStudentExcelServiceTest :
                     row1.createCell(1).setCellValue("1101")
                     row1.createCell(2).setCellValue("hong@gsm.hs.kr")
                     row1.createCell(3).setCellValue("잘못된학과")
-                    row1.createCell(4).setCellValue("일반학생")
-                    row1.createCell(5).setCellValue("남자")
+                    row1.createCell(7).setCellValue("일반학생")
+                    row1.createCell(8).setCellValue("남자")
 
                     workbook.createSheet("2학년")
                     workbook.createSheet("3학년")
@@ -552,8 +552,8 @@ class ModifyStudentExcelServiceTest :
                     row1.createCell(1).setCellValue("1101")
                     row1.createCell(2).setCellValue("hong@gsm.hs.kr")
                     row1.createCell(3).setCellValue("SW개발과")
-                    row1.createCell(4).setCellValue("잘못된소속")
-                    row1.createCell(5).setCellValue("남자")
+                    row1.createCell(7).setCellValue("잘못된소속")
+                    row1.createCell(8).setCellValue("남자")
 
                     workbook.createSheet("2학년")
                     workbook.createSheet("3학년")
@@ -604,8 +604,8 @@ class ModifyStudentExcelServiceTest :
                     row1.createCell(1).setCellValue("1101")
                     row1.createCell(2).setCellValue("hong@gsm.hs.kr")
                     row1.createCell(3).setCellValue("SW개발과")
-                    row1.createCell(4).setCellValue("일반학생")
-                    row1.createCell(5).setCellValue("기타")
+                    row1.createCell(7).setCellValue("일반학생")
+                    row1.createCell(8).setCellValue("기타")
 
                     workbook.createSheet("2학년")
                     workbook.createSheet("3학년")
@@ -657,8 +657,8 @@ class ModifyStudentExcelServiceTest :
                     row1.createCell(1).setCellValue("9999")
                     row1.createCell(2).setCellValue("hong@gsm.hs.kr")
                     row1.createCell(3).setCellValue("SW개발과")
-                    row1.createCell(4).setCellValue("일반학생")
-                    row1.createCell(5).setCellValue("남자")
+                    row1.createCell(7).setCellValue("일반학생")
+                    row1.createCell(8).setCellValue("남자")
 
                     workbook.createSheet("2학년")
                     workbook.createSheet("3학년")
