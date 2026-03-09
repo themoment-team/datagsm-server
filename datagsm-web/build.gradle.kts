@@ -21,6 +21,10 @@ dependencies {
     implementation(dependency.Dependencies.POI)
     implementation(dependency.Dependencies.POI_OOXML)
 
+    // Development Tools
+    developmentOnly(dependency.Dependencies.SPRING_BOOT_DEVTOOLS)
+    developmentOnly(dependency.Dependencies.SPRING_DOCKER_SUPPORT)
+
     // Testing
     testImplementation(dependency.Dependencies.SPRING_TEST)
     testImplementation(dependency.Dependencies.KOTLIN_JUNIT5)
