@@ -9,5 +9,6 @@ object AuthenticationPathConfig {
             "/v1/health",
             "/swagger-ui/**",
             "/v3/api-docs/**",
+            "/v1/utility/**",
         )
 }
