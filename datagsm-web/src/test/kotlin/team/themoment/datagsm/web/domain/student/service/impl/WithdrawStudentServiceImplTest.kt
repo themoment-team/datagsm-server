@@ -38,7 +38,6 @@ class WithdrawStudentServiceImplTest :
                     major = Major.SW_DEVELOPMENT
                     dormitoryRoomNumber = DormitoryRoomNumber(301)
                     majorClub = mockClub
-                    jobClub = mockClub
                     autonomousClub = mockClub
                 }
 
@@ -54,7 +53,6 @@ class WithdrawStudentServiceImplTest :
                     student.studentNumber shouldBe null
                     student.dormitoryRoomNumber shouldBe null
                     student.majorClub shouldBe null
-                    student.jobClub shouldBe null
                     student.autonomousClub shouldBe null
                 }
 

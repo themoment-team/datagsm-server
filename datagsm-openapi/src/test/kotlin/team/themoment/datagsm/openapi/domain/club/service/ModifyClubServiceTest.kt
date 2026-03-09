@@ -64,7 +64,7 @@ class ModifyClubServiceTest :
                     val req =
                         ClubReqDto(
                             name = "수정된동아리",
-                            type = ClubType.JOB_CLUB,
+                            type = ClubType.MAJOR_CLUB,
                             leaderId = 200L,
                             participantIds = listOf(300L),
                         )
@@ -111,7 +111,7 @@ class ModifyClubServiceTest :
 
                         res.id shouldBe clubId
                         res.name shouldBe "수정된동아리"
-                        res.type shouldBe ClubType.JOB_CLUB
+                        res.type shouldBe ClubType.MAJOR_CLUB
                         res.leader?.id shouldBe 200L
                         res.leader?.name shouldBe "새부장"
 
@@ -149,7 +149,7 @@ class ModifyClubServiceTest :
                             ClubJpaEntity().apply {
                                 this.id = clubId
                                 this.name = "기존동아리"
-                                this.type = ClubType.JOB_CLUB
+                                this.type = ClubType.MAJOR_CLUB
                                 this.leader = oldLeader
                             }
                         newLeader =
@@ -173,7 +173,7 @@ class ModifyClubServiceTest :
                     it("구 타입 기준 부원 해제가 호출되어야 한다") {
                         modifyClubService.execute(clubId, req)
 
-                        verify(exactly = 1) { mockStudentRepository.clearClubReferencesByType(existingClub, ClubType.JOB_CLUB) }
+                        verify(exactly = 1) { mockStudentRepository.clearClubReferencesByType(existingClub, ClubType.MAJOR_CLUB) }
                     }
                 }
 

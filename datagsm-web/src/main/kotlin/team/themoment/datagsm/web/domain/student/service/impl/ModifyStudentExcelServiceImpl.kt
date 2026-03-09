@@ -97,7 +97,6 @@ class ModifyStudentExcelServiceImpl(
         }
 
         val majorClubs = excelData.mapNotNull { it.majorClub }.distinct()
-        val jobClubs = excelData.mapNotNull { it.jobClub }.distinct()
         val autonomousClubs = excelData.mapNotNull { it.autonomousClub }.distinct()
 
         val existingMajorClubs =
@@ -106,14 +105,6 @@ class ModifyStudentExcelServiceImpl(
             } else {
                 clubJpaRepository
                     .findAllByNameInAndType(majorClubs, ClubType.MAJOR_CLUB)
-                    .associateBy { it.name }
-            }
-        val existingJobClubs =
-            if (jobClubs.isEmpty()) {
-                emptyMap()
-            } else {
-                clubJpaRepository
-                    .findAllByNameInAndType(jobClubs, ClubType.JOB_CLUB)
                     .associateBy { it.name }
             }
         val existingAutonomousClubs =
@@ -134,11 +125,6 @@ class ModifyStudentExcelServiceImpl(
                         dto.majorClub?.let { clubName ->
                             existingMajorClubs[clubName]
                                 ?: throw ExpectedException("존재하지 않는 전공동아리입니다.", HttpStatus.BAD_REQUEST)
-                        }
-                    student.jobClub =
-                        dto.jobClub?.let { clubName ->
-                            existingJobClubs[clubName]
-                                ?: throw ExpectedException("존재하지 않는 취업동아리입니다.", HttpStatus.BAD_REQUEST)
                         }
                     student.autonomousClub =
                         dto.autonomousClub?.let { clubName ->
@@ -203,17 +189,16 @@ class ModifyStudentExcelServiceImpl(
                                             HttpStatus.BAD_REQUEST,
                                         ),
                                 majorClub = getOptionalString(row, 4),
-                                jobClub = getOptionalString(row, 5),
-                                autonomousClub = getOptionalString(row, 6),
-                                dormitoryRoomNumber = getOptionalInt(row, 7),
+                                autonomousClub = getOptionalString(row, 5),
+                                dormitoryRoomNumber = getOptionalInt(row, 6),
                                 role =
-                                    StudentRole.fromRole(getRequiredString(row, 8, "소속"))
+                                    StudentRole.fromRole(getRequiredString(row, 7, "소속"))
                                         ?: throw ExpectedException(
                                             "${row.rowNum + 1}행: 소속은 '일반학생', '기숙사자치위원회', '학생회'여야 합니다.",
                                             HttpStatus.BAD_REQUEST,
                                         ),
                                 sex =
-                                    Sex.fromSex(getRequiredString(row, 9, "성별"))
+                                    Sex.fromSex(getRequiredString(row, 8, "성별"))
                                         ?: throw ExpectedException(
                                             "${row.rowNum + 1}행: 성별은 '남자' 또는 '여자'여야 합니다.",
                                             HttpStatus.BAD_REQUEST,

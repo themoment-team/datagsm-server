@@ -54,7 +54,6 @@ class QueryStudentServiceImpl(
                         dormitoryFloor = entity.dormitoryRoomNumber?.dormitoryRoomFloor,
                         dormitoryRoom = entity.dormitoryRoomNumber?.dormitoryRoomNumber,
                         majorClub = entity.majorClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
-                        jobClub = entity.jobClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
                         autonomousClub = entity.autonomousClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
                     )
                 },

@@ -61,7 +61,6 @@ class QueryClubServiceImpl(
     private fun getParticipantsByClubType(club: ClubJpaEntity): List<StudentJpaEntity> =
         when (club.type) {
             ClubType.MAJOR_CLUB -> studentJpaRepository.findRegisteredStudentsByMajorClub(club)
-            ClubType.JOB_CLUB -> studentJpaRepository.findRegisteredStudentsByJobClub(club)
             ClubType.AUTONOMOUS_CLUB -> studentJpaRepository.findRegisteredStudentsByAutonomousClub(club)
         }
 

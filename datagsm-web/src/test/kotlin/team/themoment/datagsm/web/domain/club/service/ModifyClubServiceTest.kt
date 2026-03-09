@@ -61,7 +61,7 @@ class ModifyClubServiceTest :
                     val req =
                         ClubReqDto(
                             name = "새이름",
-                            type = ClubType.JOB_CLUB,
+                            type = ClubType.MAJOR_CLUB,
                             leaderId = 20L,
                             participantIds = listOf(30L, 40L),
                         )
@@ -95,7 +95,6 @@ class ModifyClubServiceTest :
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
                         verify(exactly = 1) { mockClubRepository.existsByNameAndIdNot(req.name, clubId) }
                         verify(exactly = 1) { mockStudentRepository.findById(req.leaderId) }
-                        verify(exactly = 1) { mockStudentRepository.findByMajorClub(existing) }
                     }
                 }
 
@@ -179,11 +178,11 @@ class ModifyClubServiceTest :
                     }
                 }
 
-                context("타입이 변경될 때 (MAJOR_CLUB → JOB_CLUB)") {
+                context("타입이 변경될 때 (MAJOR_CLUB → AUTONOMOUS_CLUB)") {
                     val req =
                         ClubReqDto(
                             name = "새이름",
-                            type = ClubType.JOB_CLUB,
+                            type = ClubType.AUTONOMOUS_CLUB,
                             leaderId = 20L,
                             participantIds = listOf(30L),
                         )
@@ -217,11 +216,11 @@ class ModifyClubServiceTest :
                         every { mockStudentRepository.findAllById(listOf(30L)) } returns emptyList()
                     }
 
-                    it("구 참여자의 majorClub이 해제되고 새 리더의 jobClub이 설정되어야 한다") {
+                    it("구 참여자의 majorClub이 해제되고 새 리더의 autonomousClub이 설정되어야 한다") {
                         modifyClubService.execute(clubId, req)
 
                         oldParticipant.majorClub shouldBe null
-                        newLeader.jobClub shouldBe existing
+                        newLeader.autonomousClub shouldBe existing
                         verify(exactly = 1) { mockStudentRepository.findByMajorClub(existing) }
                     }
                 }

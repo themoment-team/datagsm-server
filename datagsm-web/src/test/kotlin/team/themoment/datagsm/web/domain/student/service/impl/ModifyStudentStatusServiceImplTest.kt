@@ -61,7 +61,6 @@ class ModifyStudentStatusServiceImplTest :
                     student.studentNumber.shouldBeNull()
                     student.dormitoryRoomNumber.shouldBeNull()
                     student.majorClub.shouldBeNull()
-                    student.jobClub.shouldBeNull()
                     student.autonomousClub.shouldBeNull()
                 }
             }

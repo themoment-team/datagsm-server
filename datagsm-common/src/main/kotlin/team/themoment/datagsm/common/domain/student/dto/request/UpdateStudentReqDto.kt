@@ -41,8 +41,6 @@ data class UpdateStudentReqDto(
     val dormitoryRoomNumber: Int? = null,
     @param:Schema(description = "전공 동아리 ID", example = "1")
     val majorClubId: Long? = null,
-    @param:Schema(description = "취업 동아리 ID", example = "2")
-    val jobClubId: Long? = null,
     @param:Schema(description = "자율 동아리 ID", example = "3")
     val autonomousClubId: Long? = null,
 )

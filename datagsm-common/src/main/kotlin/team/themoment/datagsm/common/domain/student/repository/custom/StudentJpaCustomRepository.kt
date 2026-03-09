@@ -90,7 +90,5 @@ interface StudentJpaCustomRepository {
 
     fun findRegisteredStudentsByMajorClub(club: ClubJpaEntity): List<StudentJpaEntity>
 
-    fun findRegisteredStudentsByJobClub(club: ClubJpaEntity): List<StudentJpaEntity>
-
     fun findRegisteredStudentsByAutonomousClub(club: ClubJpaEntity): List<StudentJpaEntity>
 }

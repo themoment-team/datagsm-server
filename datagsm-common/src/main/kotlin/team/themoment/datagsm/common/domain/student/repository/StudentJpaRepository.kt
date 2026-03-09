@@ -13,8 +13,6 @@ interface StudentJpaRepository :
 
     fun findByMajorClub(club: ClubJpaEntity): List<StudentJpaEntity>
 
-    fun findByJobClub(club: ClubJpaEntity): List<StudentJpaEntity>
-
     fun findByAutonomousClub(club: ClubJpaEntity): List<StudentJpaEntity>
 
     fun findByStudentNumberStudentGradeAndStudentNumberStudentClassAndStudentNumberStudentNumberAndName(

@@ -33,7 +33,6 @@ class ModifyStudentStatusServiceImpl(
                 student.studentNumber = null
                 student.dormitoryRoomNumber = null
                 student.majorClub = null
-                student.jobClub = null
                 student.autonomousClub = null
             }
             StudentRole.GENERAL_STUDENT, StudentRole.STUDENT_COUNCIL, StudentRole.DORMITORY_MANAGER -> {

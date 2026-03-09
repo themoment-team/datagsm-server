@@ -140,7 +140,7 @@ class ModifyProjectServiceTest :
                         ClubJpaEntity().apply {
                             id = 2L
                             name = "새동아리"
-                            type = ClubType.JOB_CLUB
+                            type = ClubType.MAJOR_CLUB
                         }
 
                     val updateRequest =
@@ -167,7 +167,7 @@ class ModifyProjectServiceTest :
 
                         result.club?.id shouldBe 2L
                         result.club?.name shouldBe "새동아리"
-                        result.club?.type shouldBe ClubType.JOB_CLUB
+                        result.club?.type shouldBe ClubType.MAJOR_CLUB
 
                         verify(exactly = 1) { mockProjectRepository.findById(projectId) }
                         verify(exactly = 1) {

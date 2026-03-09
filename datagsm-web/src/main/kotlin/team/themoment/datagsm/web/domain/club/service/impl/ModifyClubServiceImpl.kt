@@ -49,13 +49,11 @@ class ModifyClubServiceImpl(
         val oldParticipants =
             when (oldType) {
                 ClubType.MAJOR_CLUB -> studentJpaRepository.findByMajorClub(club)
-                ClubType.JOB_CLUB -> studentJpaRepository.findByJobClub(club)
                 ClubType.AUTONOMOUS_CLUB -> studentJpaRepository.findByAutonomousClub(club)
             }
         oldParticipants.forEach { student ->
             when (oldType) {
                 ClubType.MAJOR_CLUB -> student.majorClub = null
-                ClubType.JOB_CLUB -> student.jobClub = null
                 ClubType.AUTONOMOUS_CLUB -> student.autonomousClub = null
             }
         }
@@ -66,7 +64,6 @@ class ModifyClubServiceImpl(
         (listOf(newLeader) + participants).forEach { student ->
             when (reqDto.type) {
                 ClubType.MAJOR_CLUB -> student.majorClub = club
-                ClubType.JOB_CLUB -> student.jobClub = club
                 ClubType.AUTONOMOUS_CLUB -> student.autonomousClub = club
             }
         }

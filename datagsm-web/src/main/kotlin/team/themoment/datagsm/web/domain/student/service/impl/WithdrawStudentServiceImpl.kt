@@ -29,7 +29,6 @@ class WithdrawStudentServiceImpl(
             studentNumber = null
             dormitoryRoomNumber = null
             majorClub = null
-            jobClub = null
             autonomousClub = null
         }
     }

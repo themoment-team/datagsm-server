@@ -266,19 +266,19 @@ class QueryProjectServiceTest :
                 }
 
                 context("다양한 동아리 타입의 프로젝트를 검색할 때") {
-                    val jobClub =
+                    val majorClub =
                         ClubJpaEntity().apply {
                             id = 3L
-                            name = "취업동아리"
-                            type = ClubType.JOB_CLUB
+                            name = "전공동아리"
+                            type = ClubType.MAJOR_CLUB
                         }
 
-                    val jobProject =
+                    val majorProject =
                         ProjectJpaEntity().apply {
                             id = 3L
                             name = "취업 포트폴리오"
-                            description = "취업 준비 프로젝트"
-                            club = jobClub
+                            description = "전공 동아리 프로젝트"
+                            club = majorClub
                         }
 
                     beforeEach {
@@ -291,10 +291,10 @@ class QueryProjectServiceTest :
                                 sortBy = any(),
                                 sortDirection = any(),
                             )
-                        } returns PageImpl(listOf(jobProject), PageRequest.of(0, 20), 1L)
+                        } returns PageImpl(listOf(majorProject), PageRequest.of(0, 20), 1L)
                     }
 
-                    it("취업동아리의 프로젝트가 정상적으로 조회되어야 한다") {
+                    it("전공동아리의 프로젝트가 정상적으로 조회되어야 한다") {
                         val queryReq =
                             QueryProjectReqDto(
                                 clubId = 3L,
@@ -304,8 +304,8 @@ class QueryProjectServiceTest :
                         val result = queryProjectService.execute(queryReq)
 
                         result.totalElements shouldBe 1L
-                        result.projects[0].club?.type shouldBe ClubType.JOB_CLUB
-                        result.projects[0].club?.name shouldBe "취업동아리"
+                        result.projects[0].club?.type shouldBe ClubType.MAJOR_CLUB
+                        result.projects[0].club?.name shouldBe "전공동아리"
                     }
                 }
             }
