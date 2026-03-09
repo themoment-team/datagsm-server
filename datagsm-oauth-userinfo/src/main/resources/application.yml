@@ -35,7 +35,7 @@ spring:
       allowed-origins:
         - ${CORS_ALLOWED_ORIGINS:*}
     oauth-jwt:
-      secret: ${JWT_SECRET_KEY}
+      secret: mock-secret-key-for-jwt-signing
       access-token-expiration: ${OAUTH_ACCESS_TOKEN_EXPIRATION:3600000}
       refresh-token-expiration: ${OAUTH_REFRESH_TOKEN_EXPIRATION:2592000000}
   web:
