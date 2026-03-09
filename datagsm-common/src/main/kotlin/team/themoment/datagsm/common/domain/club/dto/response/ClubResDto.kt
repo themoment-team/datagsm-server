@@ -12,7 +12,7 @@ data class ClubResDto(
     @field:Schema(description = "동아리 종류", example = "MAJOR_CLUB")
     val type: ClubType,
     @field:Schema(description = "동아리 부장")
-    val leader: ParticipantInfoDto,
+    val leader: ParticipantInfoDto?,
     @field:Schema(description = "동아리 부원 목록")
     val participants: List<ParticipantInfoDto>,
 )

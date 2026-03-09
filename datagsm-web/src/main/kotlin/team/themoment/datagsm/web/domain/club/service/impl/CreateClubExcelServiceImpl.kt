@@ -18,7 +18,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Service
-@Transactional(readOnly = true)
 class CreateClubExcelServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
 ) : CreateClubExcelService {
@@ -31,6 +30,7 @@ class CreateClubExcelServiceImpl(
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     }
 
+    @Transactional(readOnly = true)
     override fun execute(): ResponseEntity<ByteArray> {
         val data: List<ClubInfoDto> = getClubData()
         val workbook = XSSFWorkbook()
@@ -98,10 +98,13 @@ class CreateClubExcelServiceImpl(
         ClubType.entries.flatMap { clubType ->
             clubJpaRepository.findByType(clubType).map { club ->
                 val leaderStr =
-                    club.leader.studentNumber
-                        ?.fullStudentNumber
-                        ?.let { "$it " }
-                        .orEmpty() + club.leader.name
+                    club.leader
+                        ?.let { leader ->
+                            leader.studentNumber
+                                ?.fullStudentNumber
+                                ?.let { "$it " }
+                                .orEmpty() + leader.name
+                        }
                 ClubInfoDto(clubName = club.name, clubType = clubType, leaderInfo = leaderStr)
             }
         }

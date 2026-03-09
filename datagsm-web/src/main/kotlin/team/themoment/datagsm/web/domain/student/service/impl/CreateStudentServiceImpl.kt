@@ -17,11 +17,11 @@ import team.themoment.datagsm.web.domain.student.service.CreateStudentService
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
-@Transactional
 class CreateStudentServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
 ) : CreateStudentService {
+    @Transactional
     override fun execute(reqDto: CreateStudentReqDto): StudentResDto {
         if (studentJpaRepository.existsByEmail(reqDto.email)) {
             throw ExpectedException("이미 존재하는 이메일입니다: ${reqDto.email}", HttpStatus.CONFLICT)

@@ -1,3 +1,6 @@
+import com.gorylenko.GitPropertiesPluginExtension
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import org.jlleitschuh.gradle.ktlint.KtlintExtension
 import test.TestSummaryPlugin
 
 plugins {
@@ -12,7 +15,7 @@ plugins {
 }
 
 group = "team.themoment"
-version = "v20260303.0"
+version = "v20260309.0"
 
 apply<TestSummaryPlugin>()
 
@@ -27,14 +30,14 @@ subprojects {
         }
     }
 
-    extensions.configure<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension> {
+    extensions.configure<DependencyManagementExtension> {
         imports {
             mavenBom(dependency.Dependencies.SPRING_CLOUD_BOM)
             mavenBom(dependency.Dependencies.AWS_SDK_BOM)
         }
     }
 
-    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+    configure<KtlintExtension> {
         filter {
             exclude("**/build/**")
             exclude {
@@ -52,7 +55,7 @@ subprojects {
     }
 
     plugins.withId(plugin.Plugins.GIT_PROPERTIES) {
-        configure<com.gorylenko.GitPropertiesPluginExtension> {
+        configure<GitPropertiesPluginExtension> {
             dotGitDirectory = rootProject.file(".git")
             keys =
                 listOf(

@@ -11,10 +11,10 @@ import team.themoment.datagsm.common.domain.student.repository.StudentJpaReposit
 import team.themoment.datagsm.web.domain.student.service.QueryStudentService
 
 @Service
-@Transactional(readOnly = true)
 class QueryStudentServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
 ) : QueryStudentService {
+    @Transactional(readOnly = true)
     override fun execute(queryReq: QueryStudentReqDto): StudentListResDto {
         val studentPage =
             studentJpaRepository.searchStudentsWithPaging(

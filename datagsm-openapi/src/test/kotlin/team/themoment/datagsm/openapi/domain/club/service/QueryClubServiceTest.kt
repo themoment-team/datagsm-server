@@ -114,7 +114,7 @@ class QueryClubServiceTest :
 
                         result.clubs.size shouldBe 1
                         val clubDto = result.clubs[0]
-                        clubDto.leader.id shouldBe 10L
+                        clubDto.leader?.id shouldBe 10L
                         clubDto.participants.size shouldBe 1
                         clubDto.participants[0].id shouldBe 11L
                     }
@@ -174,7 +174,7 @@ class QueryClubServiceTest :
 
                         result.clubs.size shouldBe 1
                         val clubDto = result.clubs[0]
-                        clubDto.leader.id shouldBe 10L
+                        clubDto.leader?.id shouldBe 10L
                         clubDto.participants.size shouldBe 2
                         clubDto.participants.map { it.id } shouldBe listOf(10L, 11L)
                     }

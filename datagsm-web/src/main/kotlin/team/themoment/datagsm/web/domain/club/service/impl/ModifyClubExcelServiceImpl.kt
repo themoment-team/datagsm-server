@@ -17,7 +17,6 @@ import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.response.CommonApiResponse
 
 @Service
-@Transactional
 class ModifyClubExcelServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
@@ -29,6 +28,7 @@ class ModifyClubExcelServiceImpl(
         private const val AUTONOMOUS_CLUB_LEADER_COL_IDX = 3
     }
 
+    @Transactional
     override fun execute(file: MultipartFile): CommonApiResponse<Nothing> {
         val clubInfos: List<ClubInfoDto> = queryExcelData(file)
 

@@ -114,6 +114,9 @@ class ModifyClubServiceTest :
                         res.type shouldBe ClubType.MAJOR_CLUB
                         res.leader.id shouldBe 200L
                         res.leader.name shouldBe "새부장"
+                        res.type shouldBe ClubType.AUTONOMOUS_CLUB
+                        res.leader?.id shouldBe 200L
+                        res.leader?.name shouldBe "새부장"
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
                         verify(exactly = 1) { mockClubRepository.existsByNameAndIdNot(req.name, clubId) }

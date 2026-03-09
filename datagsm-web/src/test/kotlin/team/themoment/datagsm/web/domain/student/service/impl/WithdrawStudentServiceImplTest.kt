@@ -7,6 +7,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
@@ -20,7 +21,8 @@ import java.util.Optional
 class WithdrawStudentServiceImplTest :
     BehaviorSpec({
         val studentJpaRepository = mockk<StudentJpaRepository>()
-        val withdrawStudentService = WithdrawStudentServiceImpl(studentJpaRepository)
+        val clubJpaRepository = mockk<ClubJpaRepository>()
+        val withdrawStudentService = WithdrawStudentServiceImpl(studentJpaRepository, clubJpaRepository)
 
         Given("일반 학생이 존재하는 경우") {
             val studentId = 1L
@@ -40,6 +42,7 @@ class WithdrawStudentServiceImplTest :
                 }
 
             every { studentJpaRepository.findById(studentId) } returns Optional.of(student)
+            every { clubJpaRepository.findAllByLeader(student) } returns emptyList()
 
             When("해당 학생을 자퇴 처리하면") {
                 withdrawStudentService.execute(studentId)

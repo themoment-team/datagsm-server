@@ -37,13 +37,13 @@ class QueryClubServiceImpl(
             clubs =
                 clubPage.content.map { entity ->
                     val participants = getParticipantsByClubType(entity)
-                    val leader = entity.leader.toParticipantInfoDto()
+                    val leader = entity.leader?.toParticipantInfoDto()
                     val participantList =
                         if (queryReq.includeLeaderInParticipants) {
                             participants.map { it.toParticipantInfoDto() }
                         } else {
                             participants
-                                .filter { it.id != entity.leader.id }
+                                .filter { it.id != entity.leader?.id }
                                 .map { it.toParticipantInfoDto() }
                         }
 
