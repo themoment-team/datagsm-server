@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
@@ -19,7 +20,8 @@ import java.util.Optional
 class GraduateStudentServiceImplTest :
     BehaviorSpec({
         val studentJpaRepository = mockk<StudentJpaRepository>()
-        val graduateStudentService = GraduateStudentServiceImpl(studentJpaRepository)
+        val clubJpaRepository = mockk<ClubJpaRepository>()
+        val graduateStudentService = GraduateStudentServiceImpl(studentJpaRepository, clubJpaRepository)
 
         Given("3학년 학생이 존재하는 경우") {
             val studentId = 1L
@@ -36,6 +38,7 @@ class GraduateStudentServiceImplTest :
                 }
 
             every { studentJpaRepository.findById(studentId) } returns Optional.of(student)
+            every { clubJpaRepository.findAllByLeader(student) } returns emptyList()
 
             When("해당 학생을 졸업 처리하면") {
                 graduateStudentService.execute(studentId)

@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import org.springframework.data.repository.findByIdOrNull
+import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentStatusReqDto
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
@@ -16,7 +17,8 @@ import team.themoment.sdk.exception.ExpectedException
 class ModifyStudentStatusServiceImplTest :
     BehaviorSpec({
         val studentJpaRepository = mockk<StudentJpaRepository>()
-        val service = ModifyStudentStatusServiceImpl(studentJpaRepository)
+        val clubJpaRepository = mockk<ClubJpaRepository>()
+        val service = ModifyStudentStatusServiceImpl(studentJpaRepository, clubJpaRepository)
 
         Given("존재하지 않는 학생 ID로") {
             val studentId = 999L
@@ -48,6 +50,7 @@ class ModifyStudentStatusServiceImplTest :
             val reqDto = UpdateStudentStatusReqDto(status = StudentRole.GRADUATE)
 
             every { studentJpaRepository.findByIdOrNull(studentId) } returns student
+            every { clubJpaRepository.findAllByLeader(student) } returns emptyList()
 
             When("상태 변경을 요청하면") {
                 service.execute(studentId, reqDto)
@@ -76,6 +79,7 @@ class ModifyStudentStatusServiceImplTest :
             val reqDto = UpdateStudentStatusReqDto(status = StudentRole.WITHDRAWN)
 
             every { studentJpaRepository.findByIdOrNull(studentId) } returns student
+            every { clubJpaRepository.findAllByLeader(student) } returns emptyList()
 
             When("상태 변경을 요청하면") {
                 service.execute(studentId, reqDto)
