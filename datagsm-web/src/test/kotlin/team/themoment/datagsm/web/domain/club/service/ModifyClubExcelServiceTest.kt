@@ -159,7 +159,7 @@ class ModifyClubExcelServiceTest :
                         savedClubs.size shouldBe 3
                         savedClubs[0].name shouldBe "SW개발동아리"
                         savedClubs[0].type shouldBe ClubType.MAJOR_CLUB
-                        savedClubs[0].leader.name shouldBe "김철수"
+                        savedClubs[0].leader?.name shouldBe "김철수"
                     }
                 }
 

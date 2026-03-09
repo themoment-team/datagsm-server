@@ -115,8 +115,8 @@ class CreateClubServiceTest :
 
                         res.name shouldBe req.name
                         res.type shouldBe req.type
-                        res.leader.id shouldBe 100L
-                        res.leader.name shouldBe "부장이름"
+                        res.leader?.id shouldBe 100L
+                        res.leader?.name shouldBe "부장이름"
                         res.participants.size shouldBe 2
 
                         verify(exactly = 1) { mockClubRepository.existsByName(req.name) }
