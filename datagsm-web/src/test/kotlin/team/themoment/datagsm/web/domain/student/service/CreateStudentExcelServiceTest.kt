@@ -28,7 +28,7 @@ private const val EMAIL_COL_IDX = 2
 private const val MAJOR_COL_IDX = 3
 private const val MAJOR_CLUB_COL_IDX = 4
 private const val AUTONOMOUS_COL_IDX = 5
-private const val DORMITORY_ROOM_NUMBER_COL_IDX =6
+private const val DORMITORY_ROOM_NUMBER_COL_IDX = 6
 private const val STUDENT_ROLE_COL_IDX = 7
 private const val SEX_COL_IDX = 8
 
@@ -53,7 +53,6 @@ class CreateStudentExcelServiceTest :
                             name = "SW개발동아리"
                             type = ClubType.MAJOR_CLUB
                         }
-
 
                     val autonomousClub =
                         ClubJpaEntity().apply {

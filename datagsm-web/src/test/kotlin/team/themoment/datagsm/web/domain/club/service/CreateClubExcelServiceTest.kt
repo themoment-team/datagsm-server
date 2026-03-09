@@ -70,7 +70,6 @@ class CreateClubExcelServiceTest :
                             },
                         )
 
-
                     val autonomousClubs =
                         listOf(
                             ClubJpaEntity().apply {
@@ -193,7 +192,6 @@ class CreateClubExcelServiceTest :
                             major = Major.SW_DEVELOPMENT
                             sex = Sex.MAN
                         }
-
 
                     val majorClubs =
                         listOf(

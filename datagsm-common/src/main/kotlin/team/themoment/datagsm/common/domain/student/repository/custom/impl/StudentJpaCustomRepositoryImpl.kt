@@ -363,7 +363,6 @@ class StudentJpaCustomRepositoryImpl(
         val clubPath =
             when (type) {
                 ClubType.MAJOR_CLUB -> studentJpaEntity.majorClub
-                ClubType.JOB_CLUB -> studentJpaEntity.jobClub
                 ClubType.AUTONOMOUS_CLUB -> studentJpaEntity.autonomousClub
             }
         jpaQueryFactory
@@ -383,7 +382,6 @@ class StudentJpaCustomRepositoryImpl(
         val clubPath =
             when (type) {
                 ClubType.MAJOR_CLUB -> studentJpaEntity.majorClub
-                ClubType.JOB_CLUB -> studentJpaEntity.jobClub
                 ClubType.AUTONOMOUS_CLUB -> studentJpaEntity.autonomousClub
             }
         jpaQueryFactory

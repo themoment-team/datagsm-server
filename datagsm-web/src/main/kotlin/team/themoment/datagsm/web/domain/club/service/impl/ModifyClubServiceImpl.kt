@@ -83,15 +83,15 @@ class ModifyClubServiceImpl(
                 ),
             participants =
                 participants.map { student ->
-                        ParticipantInfoDto(
-                            id = student.id!!,
-                            name = student.name,
-                            email = student.email,
-                            studentNumber = student.studentNumber?.fullStudentNumber,
-                            major = student.major,
-                            sex = student.sex,
-                        )
-                    },
+                    ParticipantInfoDto(
+                        id = student.id!!,
+                        name = student.name,
+                        email = student.email,
+                        studentNumber = student.studentNumber?.fullStudentNumber,
+                        major = student.major,
+                        sex = student.sex,
+                    )
+                },
         )
     }
 }
