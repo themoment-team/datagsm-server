@@ -42,9 +42,10 @@ class ModifyAccountRoleServiceTest :
                     }
 
                     it("계정 권한이 변경되어야 한다") {
-                        modifyAccountRoleService.execute(email, AccountRole.ADMIN)
+                        val result = modifyAccountRoleService.execute(email, AccountRole.ADMIN)
 
                         account.role shouldBe AccountRole.ADMIN
+                        result.message shouldBe "계정 권한이 변경되었습니다."
                         verify(exactly = 1) { mockAccountJpaRepository.findByEmail(email) }
                     }
                 }
@@ -69,23 +70,24 @@ class ModifyAccountRoleServiceTest :
                     }
                 }
 
-                context("현재와 동일한 권한으로 변경할 때") {
+                context("ROOT 권한을 USER로 변경할 때") {
                     val email = "test@gsm.hs.kr"
                     val account =
                         AccountJpaEntity().apply {
                             id = 1L
                             this.email = email
-                            role = AccountRole.ADMIN
+                            role = AccountRole.ROOT
                         }
 
                     beforeEach {
                         every { mockAccountJpaRepository.findByEmail(email) } returns Optional.of(account)
                     }
 
-                    it("동일한 권한으로 유지되어야 한다") {
-                        modifyAccountRoleService.execute(email, AccountRole.ADMIN)
+                    it("권한이 USER로 변경되어야 한다") {
+                        val result = modifyAccountRoleService.execute(email, AccountRole.USER)
 
-                        account.role shouldBe AccountRole.ADMIN
+                        account.role shouldBe AccountRole.USER
+                        result.message shouldBe "계정 권한이 변경되었습니다."
                         verify(exactly = 1) { mockAccountJpaRepository.findByEmail(email) }
                     }
                 }
