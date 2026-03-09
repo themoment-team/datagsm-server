@@ -21,8 +21,9 @@ dependencies {
     implementation(dependency.Dependencies.POI)
     implementation(dependency.Dependencies.POI_OOXML)
 
-    // QueryDSL
-    implementation(dependency.Dependencies.QUERY_DSL)
+    // Development Tools
+    developmentOnly(dependency.Dependencies.SPRING_BOOT_DEVTOOLS)
+    developmentOnly(dependency.Dependencies.SPRING_DOCKER_SUPPORT)
 
     // Testing
     testImplementation(dependency.Dependencies.SPRING_TEST)
