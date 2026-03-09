@@ -213,11 +213,10 @@ class CreateClubExcelServiceTest :
                         result.statusCode shouldBe HttpStatus.OK
                         val workbook = XSSFWorkbook(ByteArrayInputStream(result.body))
                         val sheet = workbook.getSheetAt(0)
-                        sheet.lastRowNum shouldBe 3
+                        sheet.lastRowNum shouldBe 1
                         val row1 = sheet.getRow(1)
                         row1.getCell(MAJOR_CLUB_COL_IDX).stringCellValue shouldBe "전공동아리1"
-                        val row2 = sheet.getRow(2)
-                        row2.getCell(MAJOR_CLUB_COL_IDX) shouldBe null
+                        val row2 = sheet.getRow(2) shouldBe null
                         workbook.close()
                     }
                 }
