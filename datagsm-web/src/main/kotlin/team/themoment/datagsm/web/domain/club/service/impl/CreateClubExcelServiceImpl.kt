@@ -105,10 +105,13 @@ class CreateClubExcelServiceImpl(
         ClubType.entries.flatMap { clubType ->
             clubJpaRepository.findByType(clubType).map { club ->
                 val leaderStr =
-                    club.leader.studentNumber
-                        ?.fullStudentNumber
-                        ?.let { "$it " }
-                        .orEmpty() + club.leader.name
+                    club.leader
+                        ?.let { leader ->
+                            leader.studentNumber
+                                ?.fullStudentNumber
+                                ?.let { "$it " }
+                                .orEmpty() + leader.name
+                        }
                 ClubInfoDto(clubName = club.name, clubType = clubType, leaderInfo = leaderStr)
             }
         }

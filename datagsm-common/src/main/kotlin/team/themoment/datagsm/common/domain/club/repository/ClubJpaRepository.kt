@@ -9,7 +9,6 @@ import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 interface ClubJpaRepository :
     JpaRepository<ClubJpaEntity, Long>,
     ClubJpaCustomRepository {
-
     fun findAllByLeader(leader: StudentJpaEntity): List<ClubJpaEntity>
 
     fun existsByName(clubName: String): Boolean
