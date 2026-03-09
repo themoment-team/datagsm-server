@@ -26,6 +26,7 @@ class UtilityController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "계정 권한 변경 성공"),
+            ApiResponse(responseCode = "400", description = "유효하지 않은 역할 값", content = [Content()]),
             ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
         ],
     )
