@@ -8,10 +8,10 @@ import team.themoment.datagsm.web.domain.club.service.DeleteClubService
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
-@Transactional
 class DeleteClubServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
 ) : DeleteClubService {
+    @Transactional
     override fun execute(clubId: Long) {
         val club =
             clubJpaRepository

@@ -16,11 +16,11 @@ import team.themoment.datagsm.web.domain.student.service.ModifyStudentService
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
-@Transactional
 class ModifyStudentServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
 ) : ModifyStudentService {
+    @Transactional
     override fun execute(
         studentId: Long,
         reqDto: UpdateStudentReqDto,

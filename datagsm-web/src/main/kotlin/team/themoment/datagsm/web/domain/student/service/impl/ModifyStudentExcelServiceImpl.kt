@@ -22,13 +22,13 @@ import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.response.CommonApiResponse
 
 @Service
-@Transactional
 class ModifyStudentExcelServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
 ) : ModifyStudentExcelService {
     private val dataFormatter = DataFormatter()
 
+    @Transactional
     override fun execute(file: MultipartFile): CommonApiResponse<Nothing> {
         val excelData: List<ExcelColumnDto> = queryExcelData(file).flatMap { it.columns }
         val studentNumbers =
