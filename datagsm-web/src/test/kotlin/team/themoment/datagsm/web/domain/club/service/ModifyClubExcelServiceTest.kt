@@ -150,7 +150,7 @@ class ModifyClubExcelServiceTest :
                         verify(exactly = 1) { mockClubRepository.saveAll(capture(clubsSlot)) }
 
                         val savedClubs = clubsSlot.captured
-                        savedClubs.size shouldBe 3
+                        savedClubs.size shouldBe 2
                         savedClubs[0].name shouldBe "SW개발동아리"
                         savedClubs[0].type shouldBe ClubType.MAJOR_CLUB
                         savedClubs[0].leader.name shouldBe "김철수"
@@ -191,6 +191,8 @@ class ModifyClubExcelServiceTest :
                                 val row1 = sheet.createRow(1)
                                 row1.createCell(MAJOR_CLUB_COL_IDX).setCellValue("중복동아리")
                                 row1.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("2404 김철수")
+                                row1.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("중복동아리")
+                                row1.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("1210 박민수")
 
                                 workbook.write(output)
                             }
@@ -204,6 +206,9 @@ class ModifyClubExcelServiceTest :
                             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                             excelBytes,
                         )
+                    beforeEach {
+                        every { mockClubRepository.findAllByNameIn(any()) } returns emptyList()
+                    }
 
                     it("ExpectedException이 발생해야 한다") {
                         val exception =
