@@ -11,6 +11,7 @@ import io.mockk.verify
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.club.service.impl.DeleteClubServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
@@ -19,11 +20,13 @@ class DeleteClubServiceTest :
     DescribeSpec({
 
         lateinit var mockClubRepository: ClubJpaRepository
+        lateinit var mockStudentRepository: StudentJpaRepository
         lateinit var deleteClubService: DeleteClubService
 
         beforeEach {
             mockClubRepository = mockk<ClubJpaRepository>()
-            deleteClubService = DeleteClubServiceImpl(mockClubRepository)
+            mockStudentRepository = mockk<StudentJpaRepository>()
+            deleteClubService = DeleteClubServiceImpl(mockClubRepository, mockStudentRepository)
         }
 
         describe("DeleteClubService 클래스의") {
@@ -41,13 +44,15 @@ class DeleteClubServiceTest :
                                 type = ClubType.MAJOR_CLUB
                             }
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
+                        every { mockStudentRepository.bulkClearClubReferences(listOf(existing)) } just runs
                         every { mockClubRepository.delete(existing) } just runs
                     }
 
-                    it("delete가 1회 호출되어야 한다") {
+                    it("bulkClearClubReferences 후 delete가 각 1회 호출되어야 한다") {
                         deleteClubService.execute(clubId)
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
+                        verify(exactly = 1) { mockStudentRepository.bulkClearClubReferences(listOf(existing)) }
                         verify(exactly = 1) { mockClubRepository.delete(existing) }
                     }
                 }
@@ -65,6 +70,7 @@ class DeleteClubServiceTest :
                         ex.message shouldBe "동아리를 찾을 수 없습니다. clubId: $clubId"
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
+                        verify(exactly = 0) { mockStudentRepository.bulkClearClubReferences(any()) }
                         verify(exactly = 0) { mockClubRepository.delete(any()) }
                     }
                 }
