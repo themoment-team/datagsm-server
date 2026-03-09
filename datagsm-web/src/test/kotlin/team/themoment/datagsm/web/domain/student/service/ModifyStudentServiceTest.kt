@@ -277,7 +277,7 @@ class ModifyStudentServiceTest :
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
                         every { mockStudentRepository.existsByStudentEmailAndNotId("existing@gsm.hs.kr", studentId) } returns false
                         every { mockStudentRepository.existsByStudentNumberAndNotId(2, 1, 5, studentId) } returns false
-                        every { mockClubRepository.findAllById(listOf(10L, 20L)) } returns listOf(majorClub)
+                        every { mockClubRepository.findAllById(listOf(10L)) } returns listOf(majorClub)
                     }
 
                     it("클럽 정보가 성공적으로 변경되어야 한다") {
@@ -286,7 +286,7 @@ class ModifyStudentServiceTest :
                         result.majorClub?.id shouldBe 10L
                         result.majorClub?.name shouldBe "새로운전공동아리"
 
-                        verify(exactly = 1) { mockClubRepository.findAllById(listOf(10L, 20L)) }
+                        verify(exactly = 1) { mockClubRepository.findAllById(listOf(10L)) }
                     }
                 }
 

@@ -453,7 +453,7 @@ class CreateStudentServiceTest :
                             )
                         } returns false
                         every {
-                            mockClubRepository.findAllById(listOf(1L, 2L, 3L))
+                            mockClubRepository.findAllById(listOf(1L, 3L))
                         } returns listOf(majorClub, autonomousClub)
                         every { mockStudentRepository.save(any()) } returns savedStudent
                     }
@@ -468,7 +468,7 @@ class CreateStudentServiceTest :
                         result.autonomousClub?.name shouldBe "자율동아리"
 
                         verify(exactly = 1) {
-                            mockClubRepository.findAllById(listOf(1L, 2L, 3L))
+                            mockClubRepository.findAllById(listOf(1L, 3L))
                         }
                     }
                 }
