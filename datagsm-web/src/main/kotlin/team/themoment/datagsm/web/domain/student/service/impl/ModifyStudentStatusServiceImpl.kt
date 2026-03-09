@@ -4,6 +4,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentStatusReqDto
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
@@ -13,6 +14,7 @@ import team.themoment.sdk.exception.ExpectedException
 @Service
 class ModifyStudentStatusServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
+    private val clubJpaRepository: ClubJpaRepository,
 ) : ModifyStudentStatusService {
     @Transactional
     override fun execute(
@@ -25,6 +27,7 @@ class ModifyStudentStatusServiceImpl(
 
         when (reqDto.status) {
             StudentRole.GRADUATE, StudentRole.WITHDRAWN -> {
+                clubJpaRepository.findAllByLeader(student).forEach { it.leader = null }
                 student.role = reqDto.status
                 student.major = null
                 student.studentNumber = null
