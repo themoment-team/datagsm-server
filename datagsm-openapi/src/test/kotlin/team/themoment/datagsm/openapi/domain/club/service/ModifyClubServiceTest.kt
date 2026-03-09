@@ -112,9 +112,6 @@ class ModifyClubServiceTest :
                         res.id shouldBe clubId
                         res.name shouldBe "수정된동아리"
                         res.type shouldBe ClubType.MAJOR_CLUB
-                        res.leader.id shouldBe 200L
-                        res.leader.name shouldBe "새부장"
-                        res.type shouldBe ClubType.AUTONOMOUS_CLUB
                         res.leader?.id shouldBe 200L
                         res.leader?.name shouldBe "새부장"
 
