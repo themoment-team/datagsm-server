@@ -14,11 +14,11 @@ import team.themoment.datagsm.web.domain.club.service.CreateClubService
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
-@Transactional
 class CreateClubServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
 ) : CreateClubService {
+    @Transactional
     override fun execute(clubReqDto: ClubReqDto): ClubResDto {
         if (clubJpaRepository.existsByName(clubReqDto.name)) {
             throw ExpectedException("이미 존재하는 동아리 이름입니다: ${clubReqDto.name}", HttpStatus.CONFLICT)

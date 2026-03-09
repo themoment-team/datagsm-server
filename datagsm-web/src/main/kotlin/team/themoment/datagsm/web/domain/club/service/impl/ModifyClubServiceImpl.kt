@@ -16,11 +16,11 @@ import team.themoment.datagsm.web.domain.club.service.ModifyClubService
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
-@Transactional
 class ModifyClubServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
 ) : ModifyClubService {
+    @Transactional
     override fun execute(
         clubId: Long,
         reqDto: ClubReqDto,
