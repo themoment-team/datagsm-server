@@ -2,6 +2,7 @@ plugins {
     id(plugin.Plugins.KOTLIN_SPRING)
     id(plugin.Plugins.KOTLIN_JPA)
     id(plugin.Plugins.SPRING_BOOT)
+    id(plugin.Plugins.GIT_PROPERTIES)
 }
 
 dependencies {
@@ -12,6 +13,10 @@ dependencies {
     implementation(dependency.Dependencies.JJWT)
     runtimeOnly(dependency.Dependencies.JJWT_IMPL)
     runtimeOnly(dependency.Dependencies.JJWT_JACKSON)
+
+    // Development Tools
+    developmentOnly(dependency.Dependencies.SPRING_BOOT_DEVTOOLS)
+    developmentOnly(dependency.Dependencies.SPRING_DOCKER_SUPPORT)
 
     // Testing
     testImplementation(dependency.Dependencies.SPRING_TEST)

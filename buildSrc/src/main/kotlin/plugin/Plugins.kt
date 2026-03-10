@@ -8,4 +8,5 @@ object Plugins {
     const val KOTLIN_JPA = "org.jetbrains.kotlin.plugin.jpa"
     const val KSP = "com.google.devtools.ksp"
     const val KTLINT = "org.jlleitschuh.gradle.ktlint"
+    const val GIT_PROPERTIES = "com.gorylenko.gradle-git-properties"
 }

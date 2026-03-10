@@ -16,11 +16,11 @@ import team.themoment.datagsm.web.domain.student.service.ModifyStudentService
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
-@Transactional
 class ModifyStudentServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
 ) : ModifyStudentService {
+    @Transactional
     override fun execute(
         studentId: Long,
         reqDto: UpdateStudentReqDto,
@@ -29,6 +29,9 @@ class ModifyStudentServiceImpl(
             studentJpaRepository
                 .findById(studentId)
                 .orElseThrow { ExpectedException("학생을 찾을 수 없습니다. studentId: $studentId", HttpStatus.NOT_FOUND) }
+        if (student.role == StudentRole.GRADUATE || student.role == StudentRole.WITHDRAWN) {
+            throw ExpectedException("졸업생이나 자퇴생은 수정 API를 사용할 수 없습니다.", HttpStatus.BAD_REQUEST)
+        }
         if (studentJpaRepository.existsByStudentEmailAndNotId(reqDto.email, studentId)) {
             throw ExpectedException("이미 존재하는 이메일입니다: ${reqDto.email}", HttpStatus.CONFLICT)
         }
@@ -60,7 +63,7 @@ class ModifyStudentServiceImpl(
         student.major = major
         student.role = reqDto.role
         student.dormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
-        val clubIds = listOfNotNull(reqDto.majorClubId, reqDto.jobClubId, reqDto.autonomousClubId)
+        val clubIds = listOfNotNull(reqDto.majorClubId, reqDto.autonomousClubId)
         val clubs =
             if (clubIds.isNotEmpty()) {
                 clubJpaRepository.findAllById(clubIds).associateBy { it.id }
@@ -70,10 +73,6 @@ class ModifyStudentServiceImpl(
         student.majorClub =
             reqDto.majorClubId?.let { clubId ->
                 clubs[clubId] ?: throw ExpectedException("전공 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
-            }
-        student.jobClub =
-            reqDto.jobClubId?.let { clubId ->
-                clubs[clubId] ?: throw ExpectedException("취업 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
             }
         student.autonomousClub =
             reqDto.autonomousClubId?.let { clubId ->
@@ -93,7 +92,6 @@ class ModifyStudentServiceImpl(
             dormitoryFloor = student.dormitoryRoomNumber?.dormitoryRoomFloor,
             dormitoryRoom = student.dormitoryRoomNumber?.dormitoryRoomNumber,
             majorClub = student.majorClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
-            jobClub = student.jobClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             autonomousClub = student.autonomousClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
         )
     }

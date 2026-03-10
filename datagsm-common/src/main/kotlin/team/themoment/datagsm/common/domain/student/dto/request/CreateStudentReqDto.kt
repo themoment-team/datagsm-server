@@ -23,16 +23,16 @@ data class CreateStudentReqDto(
     val email: String,
     @field:Min(value = 1)
     @field:Max(value = 3)
-    @param:Schema(description = "학년 (1-3)", example = "1", minimum = "1", maximum = "3")
-    val grade: Int,
+    @param:Schema(description = "학년 (1-3, 재학생 필수)", example = "1", minimum = "1", maximum = "3")
+    val grade: Int? = null,
     @field:Min(value = 1)
     @field:Max(value = 4)
-    @param:Schema(description = "반 (1-4)", example = "1", minimum = "1", maximum = "4")
-    val classNum: Int,
+    @param:Schema(description = "반 (1-4, 재학생 필수)", example = "1", minimum = "1", maximum = "4")
+    val classNum: Int? = null,
     @field:Min(value = 1)
     @field:Max(value = 18)
-    @param:Schema(description = "번호 (1-18)", example = "1", minimum = "1", maximum = "18")
-    val number: Int,
+    @param:Schema(description = "번호 (1-18, 재학생 필수)", example = "1", minimum = "1", maximum = "18")
+    val number: Int? = null,
     @param:Schema(description = "역할", example = "GENERAL_STUDENT")
     val role: StudentRole = StudentRole.GENERAL_STUDENT,
     @field:Min(value = 201)
@@ -41,8 +41,6 @@ data class CreateStudentReqDto(
     val dormitoryRoomNumber: Int?,
     @param:Schema(description = "전공 동아리 ID", example = "1")
     val majorClubId: Long? = null,
-    @param:Schema(description = "취업 동아리 ID", example = "2")
-    val jobClubId: Long? = null,
     @param:Schema(description = "자율 동아리 ID", example = "3")
     val autonomousClubId: Long? = null,
 )

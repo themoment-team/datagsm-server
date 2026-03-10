@@ -147,14 +147,14 @@ class QueryClubServiceTest :
                         res.clubs[0].id shouldBe 1L
                         res.clubs[0].name shouldBe "A"
                         res.clubs[0].type shouldBe ClubType.MAJOR_CLUB
-                        res.clubs[0].leader.id shouldBe 10L
-                        res.clubs[0].leader.name shouldBe "Leader1"
+                        res.clubs[0].leader?.id shouldBe 10L
+                        res.clubs[0].leader?.name shouldBe "Leader1"
 
                         res.clubs[1].id shouldBe 2L
                         res.clubs[1].name shouldBe "B"
                         res.clubs[1].type shouldBe ClubType.MAJOR_CLUB
-                        res.clubs[1].leader.id shouldBe 20L
-                        res.clubs[1].leader.name shouldBe "Leader2"
+                        res.clubs[1].leader?.id shouldBe 20L
+                        res.clubs[1].leader?.name shouldBe "Leader2"
 
                         verify(exactly = 1) {
                             mockClubRepository.searchClubWithPaging(clubId, clubName, clubType, any(), any(), any())
@@ -282,12 +282,12 @@ class QueryClubServiceTest :
                         res.clubs[0].id shouldBe 3L
                         res.clubs[0].name shouldBe "C"
                         res.clubs[0].type shouldBe ClubType.MAJOR_CLUB
-                        res.clubs[0].leader.id shouldBe 30L
+                        res.clubs[0].leader?.id shouldBe 30L
 
                         res.clubs[1].id shouldBe 4L
                         res.clubs[1].name shouldBe "D"
                         res.clubs[1].type shouldBe ClubType.MAJOR_CLUB
-                        res.clubs[1].leader.id shouldBe 40L
+                        res.clubs[1].leader?.id shouldBe 40L
 
                         verify(exactly = 1) { mockClubRepository.searchClubWithPaging(null, null, null, any(), any(), any()) }
                     }

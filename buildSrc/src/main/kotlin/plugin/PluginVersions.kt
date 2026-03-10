@@ -6,4 +6,5 @@ object PluginVersions {
     const val SPRING_DEPENDENCY_MANAGEMENT_VERSION = "1.1.7"
     const val KSP_VERSION = "2.3.6"
     const val KTLINT_VERSION = "14.0.1"
+    const val GIT_PROPERTIES_VERSION = "2.5.7"
 }

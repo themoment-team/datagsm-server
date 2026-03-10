@@ -37,13 +37,13 @@ class QueryClubServiceImpl(
             clubs =
                 clubPage.content.map { entity ->
                     val participants = getParticipantsByClubType(entity)
-                    val leader = entity.leader.toParticipantInfoDto()
+                    val leader = entity.leader?.toParticipantInfoDto()
                     val participantList =
                         if (queryReq.includeLeaderInParticipants) {
                             participants.map { it.toParticipantInfoDto() }
                         } else {
                             participants
-                                .filter { it.id != entity.leader.id }
+                                .filter { it.id != entity.leader?.id }
                                 .map { it.toParticipantInfoDto() }
                         }
 
@@ -61,7 +61,6 @@ class QueryClubServiceImpl(
     private fun getParticipantsByClubType(club: ClubJpaEntity): List<StudentJpaEntity> =
         when (club.type) {
             ClubType.MAJOR_CLUB -> studentJpaRepository.findRegisteredStudentsByMajorClub(club)
-            ClubType.JOB_CLUB -> studentJpaRepository.findRegisteredStudentsByJobClub(club)
             ClubType.AUTONOMOUS_CLUB -> studentJpaRepository.findRegisteredStudentsByAutonomousClub(club)
         }
 

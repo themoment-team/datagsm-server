@@ -48,19 +48,12 @@ dependencies {
     // Database
     api(dependency.Dependencies.MYSQL_CONNECTOR)
 
-    // OpenAPI / Swagger
-    api(dependency.Dependencies.SPRINGDOC_OPENAPI)
-
     // Custom Libraries
     api(dependency.Dependencies.THE_MOMENT_THE_SDK)
     api(dependency.Dependencies.QUERY_DSL_JSON_EXTENSION)
 
     // Logging / AWS CloudWatch
     api(dependency.Dependencies.AWS_CLOUDWATCH_LOGS)
-
-    // Development Tools
-    api(dependency.Dependencies.SPRING_BOOT_DEVTOOLS)
-    api(dependency.Dependencies.SPRING_DOCKER_SUPPORT)
 
     // Kotlin
     api(dependency.Dependencies.KOTLIN_REFLECT)

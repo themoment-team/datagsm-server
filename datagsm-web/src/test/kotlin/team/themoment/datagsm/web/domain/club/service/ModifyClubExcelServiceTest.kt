@@ -27,10 +27,8 @@ import java.io.ByteArrayOutputStream
 
 private const val MAJOR_CLUB_COL_IDX = 0
 private const val MAJOR_CLUB_LEADER_COL_IDX = 1
-private const val JOB_CLUB_COL_IDX = 2
-private const val JOB_CLUB_LEADER_COL_IDX = 3
-private const val AUTONOMOUS_CLUB_COL_IDX = 4
-private const val AUTONOMOUS_CLUB_LEADER_COL_IDX = 5
+private const val AUTONOMOUS_CLUB_COL_IDX = 2
+private const val AUTONOMOUS_CLUB_LEADER_COL_IDX = 3
 
 class ModifyClubExcelServiceTest :
     DescribeSpec({
@@ -52,16 +50,12 @@ class ModifyClubExcelServiceTest :
                     val headerRow = sheet.createRow(0)
                     headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("전공동아리")
                     headerRow.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("전공동아리 부장")
-                    headerRow.createCell(JOB_CLUB_COL_IDX).setCellValue("취업동아리")
-                    headerRow.createCell(JOB_CLUB_LEADER_COL_IDX).setCellValue("취업동아리 부장")
                     headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("창체동아리")
                     headerRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("창체동아리 부장")
 
                     val dataRow = sheet.createRow(1)
                     dataRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("SW개발동아리")
                     dataRow.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("2404 김철수")
-                    dataRow.createCell(JOB_CLUB_COL_IDX).setCellValue("취업동아리A")
-                    dataRow.createCell(JOB_CLUB_LEADER_COL_IDX).setCellValue("2305 이영희")
                     dataRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("창체동아리B")
                     dataRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("1210 박민수")
 
@@ -156,10 +150,10 @@ class ModifyClubExcelServiceTest :
                         verify(exactly = 1) { mockClubRepository.saveAll(capture(clubsSlot)) }
 
                         val savedClubs = clubsSlot.captured
-                        savedClubs.size shouldBe 3
+                        savedClubs.size shouldBe 2
                         savedClubs[0].name shouldBe "SW개발동아리"
                         savedClubs[0].type shouldBe ClubType.MAJOR_CLUB
-                        savedClubs[0].leader.name shouldBe "김철수"
+                        savedClubs[0].leader?.name shouldBe "김철수"
                     }
                 }
 
@@ -191,18 +185,14 @@ class ModifyClubExcelServiceTest :
                                 val headerRow = sheet.createRow(0)
                                 headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("전공동아리")
                                 headerRow.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("전공동아리 부장")
-                                headerRow.createCell(JOB_CLUB_COL_IDX).setCellValue("취업동아리")
-                                headerRow.createCell(JOB_CLUB_LEADER_COL_IDX).setCellValue("취업동아리 부장")
                                 headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("창체동아리")
                                 headerRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("창체동아리 부장")
 
                                 val row1 = sheet.createRow(1)
                                 row1.createCell(MAJOR_CLUB_COL_IDX).setCellValue("중복동아리")
                                 row1.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("2404 김철수")
-
-                                val row2 = sheet.createRow(2)
-                                row2.createCell(JOB_CLUB_COL_IDX).setCellValue("중복동아리")
-                                row2.createCell(JOB_CLUB_LEADER_COL_IDX).setCellValue("2305 이영희")
+                                row1.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("중복동아리")
+                                row1.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("1210 박민수")
 
                                 workbook.write(output)
                             }
@@ -216,6 +206,9 @@ class ModifyClubExcelServiceTest :
                             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                             excelBytes,
                         )
+                    beforeEach {
+                        every { mockClubRepository.findAllByNameIn(any()) } returns emptyList()
+                    }
 
                     it("ExpectedException이 발생해야 한다") {
                         val exception =
@@ -236,8 +229,6 @@ class ModifyClubExcelServiceTest :
                                 val headerRow = sheet.createRow(0)
                                 headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("전공동아리")
                                 headerRow.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("전공동아리 부장")
-                                headerRow.createCell(JOB_CLUB_COL_IDX).setCellValue("취업동아리")
-                                headerRow.createCell(JOB_CLUB_LEADER_COL_IDX).setCellValue("취업동아리 부장")
                                 headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("창체동아리")
                                 headerRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("창체동아리 부장")
 
@@ -277,8 +268,6 @@ class ModifyClubExcelServiceTest :
                                 val headerRow = sheet.createRow(0)
                                 headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("잘못된헤더")
                                 headerRow.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("전공동아리 부장")
-                                headerRow.createCell(JOB_CLUB_COL_IDX).setCellValue("취업동아리")
-                                headerRow.createCell(JOB_CLUB_LEADER_COL_IDX).setCellValue("취업동아리 부장")
                                 headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("창체동아리")
                                 headerRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("창체동아리 부장")
 
@@ -314,8 +303,6 @@ class ModifyClubExcelServiceTest :
                                 val headerRow = sheet.createRow(0)
                                 headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("전공동아리")
                                 headerRow.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("전공동아리 부장")
-                                headerRow.createCell(JOB_CLUB_COL_IDX).setCellValue("취업동아리")
-                                headerRow.createCell(JOB_CLUB_LEADER_COL_IDX).setCellValue("취업동아리 부장")
                                 headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("창체동아리")
                                 headerRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("창체동아리 부장")
 
@@ -359,8 +346,6 @@ class ModifyClubExcelServiceTest :
                                 val headerRow = sheet.createRow(0)
                                 headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("전공동아리")
                                 headerRow.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("전공동아리 부장")
-                                headerRow.createCell(JOB_CLUB_COL_IDX).setCellValue("취업동아리")
-                                headerRow.createCell(JOB_CLUB_LEADER_COL_IDX).setCellValue("취업동아리 부장")
                                 headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("창체동아리")
                                 headerRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("창체동아리 부장")
 
@@ -404,8 +389,6 @@ class ModifyClubExcelServiceTest :
                                 val headerRow = sheet.createRow(0)
                                 headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("전공동아리")
                                 headerRow.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("전공동아리 부장")
-                                headerRow.createCell(JOB_CLUB_COL_IDX).setCellValue("취업동아리")
-                                headerRow.createCell(JOB_CLUB_LEADER_COL_IDX).setCellValue("취업동아리 부장")
                                 headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("창체동아리")
                                 headerRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("창체동아리 부장")
 

@@ -28,6 +28,8 @@ class QueryStudentServiceImpl(
                 role = queryReq.role,
                 dormitoryRoom = queryReq.dormitoryRoom,
                 includeGraduates = queryReq.includeGraduates,
+                includeWithdrawn = queryReq.includeWithdrawn,
+                onlyEnrolled = queryReq.onlyEnrolled,
                 pageable = PageRequest.of(queryReq.page, queryReq.size),
                 sortBy = queryReq.sortBy,
                 sortDirection = queryReq.sortDirection,
@@ -52,7 +54,6 @@ class QueryStudentServiceImpl(
                         dormitoryFloor = entity.dormitoryRoomNumber?.dormitoryRoomFloor,
                         dormitoryRoom = entity.dormitoryRoomNumber?.dormitoryRoomNumber,
                         majorClub = entity.majorClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
-                        jobClub = entity.jobClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
                         autonomousClub = entity.autonomousClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
                     )
                 },

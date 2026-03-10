@@ -15,11 +15,11 @@ import team.themoment.datagsm.common.domain.student.repository.StudentJpaReposit
 import team.themoment.datagsm.web.domain.club.service.QueryClubService
 
 @Service
-@Transactional
 class QueryClubServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
 ) : QueryClubService {
+    @Transactional
     override fun execute(queryReq: QueryClubReqDto): ClubListResDto {
         val clubPage =
             clubJpaRepository.searchClubWithPaging(
@@ -37,13 +37,13 @@ class QueryClubServiceImpl(
             clubs =
                 clubPage.content.map { entity ->
                     val participants = getParticipantsByClubType(entity)
-                    val leader = entity.leader.toParticipantInfoDto()
+                    val leader = entity.leader?.toParticipantInfoDto()
                     val participantList =
                         if (queryReq.includeLeaderInParticipants) {
                             participants.map { it.toParticipantInfoDto() }
                         } else {
                             participants
-                                .filter { it.id != entity.leader.id }
+                                .filter { it.id != entity.leader?.id }
                                 .map { it.toParticipantInfoDto() }
                         }
 
@@ -61,7 +61,6 @@ class QueryClubServiceImpl(
     private fun getParticipantsByClubType(club: ClubJpaEntity): List<StudentJpaEntity> =
         when (club.type) {
             ClubType.MAJOR_CLUB -> studentJpaRepository.findByMajorClub(club)
-            ClubType.JOB_CLUB -> studentJpaRepository.findByJobClub(club)
             ClubType.AUTONOMOUS_CLUB -> studentJpaRepository.findByAutonomousClub(club)
         }
 

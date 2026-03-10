@@ -2,11 +2,16 @@ plugins {
     id(plugin.Plugins.KOTLIN_SPRING)
     id(plugin.Plugins.KOTLIN_JPA)
     id(plugin.Plugins.SPRING_BOOT)
+    id(plugin.Plugins.GIT_PROPERTIES)
 }
 
 dependencies {
     // Common Module
     implementation(project(":datagsm-common"))
+
+    // Development Tools
+    developmentOnly(dependency.Dependencies.SPRING_BOOT_DEVTOOLS)
+    developmentOnly(dependency.Dependencies.SPRING_DOCKER_SUPPORT)
 
     // Testing
     testImplementation(dependency.Dependencies.SPRING_TEST)

@@ -34,8 +34,8 @@ import team.themoment.datagsm.web.domain.student.service.GraduateStudentService
 import team.themoment.datagsm.web.domain.student.service.GraduateThirdGradeStudentsService
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentExcelService
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentService
+import team.themoment.datagsm.web.domain.student.service.ModifyStudentStatusService
 import team.themoment.datagsm.web.domain.student.service.QueryStudentService
-import team.themoment.datagsm.web.domain.student.service.UpdateStudentStatusService
 import team.themoment.datagsm.web.domain.student.service.WithdrawStudentService
 
 @Tag(name = "Student", description = "학생 관련 API")
@@ -50,7 +50,7 @@ class StudentController(
     private val graduateStudentService: GraduateStudentService,
     private val graduateThirdGradeStudentsService: GraduateThirdGradeStudentsService,
     private val withdrawStudentService: WithdrawStudentService,
-    private val updateStudentStatusService: UpdateStudentStatusService,
+    private val modifyStudentStatusService: ModifyStudentStatusService,
     private val batchOperationService: BatchOperationService,
 ) {
     @Operation(summary = "학생 정보 조회", description = "필터 조건에 맞는 학생 정보를 조회합니다.")
@@ -153,7 +153,7 @@ class StudentController(
         withdrawStudentService.execute(studentId)
     }
 
-    @Operation(summary = "학생 상태 변경", description = "학생의 상태(졸업, 자퇴)를 변경합니다.")
+    @Operation(summary = "학생 상태 변경", description = "학생의 상태를 변경합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "상태 변경 성공"),
@@ -166,7 +166,7 @@ class StudentController(
         @Parameter(description = "학생 ID") @PathVariable studentId: Long,
         @RequestBody @Valid reqDto: UpdateStudentStatusReqDto,
     ) {
-        updateStudentStatusService.execute(studentId, reqDto)
+        modifyStudentStatusService.execute(studentId, reqDto)
     }
 
     @Operation(summary = "학생 일괄 작업", description = "특정 조건의 학생들에 대해 일괄 작업을 수행합니다.")

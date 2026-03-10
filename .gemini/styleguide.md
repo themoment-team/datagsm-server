@@ -342,42 +342,28 @@ fun processStudent() {
 
 ## Error Handling
 
-### Custom Exceptions
+### Use ExpectedException Directly
 
-Use `ExpectedException` base class for all custom exceptions.
+For business scenario exceptions (resource not found, duplicate, insufficient permissions, etc.), instantiate `ExpectedException` directly.
 
 ```kotlin
-class StudentNotFoundException(
-    message: String = "Student not found"
-) : ExpectedException(
-    status = HttpStatus.NOT_FOUND,
-    message = message
-)
+val student =
+    studentRepository.findById(id).orElseThrow {
+        ExpectedException("Student not found. studentId: $id", HttpStatus.NOT_FOUND)
+    }
 
-class DuplicateStudentException(
-    message: String = "Student already exists"
-) : ExpectedException(
-    status = HttpStatus.CONFLICT,
-    message = message
-)
+if (studentRepository.existsByEmail(email)) {
+    throw ExpectedException("Email already exists: $email", HttpStatus.CONFLICT)
+}
 ```
+
+Do not create custom exception subclasses extending `ExpectedException`. `ExpectedException` itself is the class for representing scenario-based exceptions; additional wrapping is unnecessary boilerplate.
+
+Other exceptions (e.g., `IOException`, `TimeoutException`) should only be used for situations outside our control, such as external infrastructure failures (AWS S3 outage, network timeout, etc.).
 
 ### Exception Handler
 
 All exceptions are caught by `GlobalExceptionHandler` in `datagsm-common` module.
-
-```kotlin
-@RestControllerAdvice
-class GlobalExceptionHandler {
-    @ExceptionHandler(StudentNotFoundException::class)
-    fun handleStudentNotFound(ex: StudentNotFoundException): CommonApiResponse<Nothing> {
-        return CommonApiResponse.error(
-            status = HttpStatus.NOT_FOUND,
-            message = ex.message
-        )
-    }
-}
-```
 
 ## Logging
 
@@ -533,7 +519,7 @@ fun findByName(name: String): List<StudentJpaEntity>
 - WRONG: `@Transactional` on class level → CORRECT: `@Transactional` on method level
 - WRONG: Read operations without `readOnly = true` → CORRECT: `@Transactional(readOnly = true)`
 
-**Apply `@Transactional` at method level, not class level**, for fine-grained control and explicit intent.
+Always apply `@Transactional` at the method level for explicit intent.
 
 ```kotlin
 // CORRECT: Method-level transaction

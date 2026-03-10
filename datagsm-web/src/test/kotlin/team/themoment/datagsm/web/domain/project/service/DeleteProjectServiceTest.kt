@@ -110,37 +110,6 @@ class DeleteProjectServiceTest :
                         verify(exactly = 1) { mockProjectRepository.delete(autonomousProject) }
                     }
                 }
-
-                context("취업동아리 프로젝트를 삭제할 때") {
-                    val projectId = 3L
-
-                    val jobClub =
-                        ClubJpaEntity().apply {
-                            id = 3L
-                            name = "취업동아리"
-                            type = ClubType.JOB_CLUB
-                        }
-
-                    val jobProject =
-                        ProjectJpaEntity().apply {
-                            this.id = projectId
-                            name = "취업 포트폴리오"
-                            description = "취업 준비 프로젝트"
-                            club = jobClub
-                        }
-
-                    beforeEach {
-                        every { mockProjectRepository.findById(projectId) } returns Optional.of(jobProject)
-                        every { mockProjectRepository.delete(jobProject) } returns Unit
-                    }
-
-                    it("취업동아리 프로젝트도 정상적으로 삭제되어야 한다") {
-                        deleteProjectService.execute(projectId)
-
-                        verify(exactly = 1) { mockProjectRepository.findById(projectId) }
-                        verify(exactly = 1) { mockProjectRepository.delete(jobProject) }
-                    }
-                }
             }
         }
     })

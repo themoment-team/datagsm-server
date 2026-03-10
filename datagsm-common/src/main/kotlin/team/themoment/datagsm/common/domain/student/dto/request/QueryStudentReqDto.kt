@@ -37,6 +37,10 @@ data class QueryStudentReqDto(
     val dormitoryRoom: Int? = null,
     @param:Schema(description = "졸업생 포함 여부", defaultValue = "false")
     val includeGraduates: Boolean = false,
+    @param:Schema(description = "자퇴생 포함 여부", defaultValue = "false")
+    val includeWithdrawn: Boolean = false,
+    @param:Schema(description = "재학생만 조회 여부 (true 시 GRADUATE+WITHDRAWN 모두 제외)", defaultValue = "false")
+    val onlyEnrolled: Boolean = false,
     @field:Min(0)
     @param:Schema(description = "페이지 번호", defaultValue = "0", minimum = "0")
     val page: Int = 0,

@@ -26,11 +26,10 @@ class CreateStudentExcelServiceImpl(
         private const val EMAIL_COL_IDX = 2
         private const val MAJOR_COL_IDX = 3
         private const val MAJOR_CLUB_COL_IDX = 4
-        private const val JOB_CLUB_COL_IDX = 5
-        private const val AUTONOMOUS_COL_IDX = 6
-        private const val DORMITORY_ROOM_NUMBER_COL_IDX = 7
-        private const val STUDENT_ROLE_COL_IDX = 8
-        private const val SEX_COL_IDX = 9
+        private const val AUTONOMOUS_COL_IDX = 5
+        private const val DORMITORY_ROOM_NUMBER_COL_IDX = 6
+        private const val STUDENT_ROLE_COL_IDX = 7
+        private const val SEX_COL_IDX = 8
 
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     }
@@ -48,7 +47,6 @@ class CreateStudentExcelServiceImpl(
             headerRow.createCell(EMAIL_COL_IDX).setCellValue("이메일")
             headerRow.createCell(MAJOR_COL_IDX).setCellValue("학과")
             headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("전공동아리")
-            headerRow.createCell(JOB_CLUB_COL_IDX).setCellValue("취업동아리")
             headerRow.createCell(AUTONOMOUS_COL_IDX).setCellValue("창체동아리")
             headerRow.createCell(DORMITORY_ROOM_NUMBER_COL_IDX).setCellValue("호실")
             headerRow.createCell(STUDENT_ROLE_COL_IDX).setCellValue("소속")
@@ -62,7 +60,6 @@ class CreateStudentExcelServiceImpl(
                 row.createCell(EMAIL_COL_IDX).setCellValue(columnDto.email)
                 row.createCell(MAJOR_COL_IDX).setCellValue(columnDto.major?.value ?: "")
                 row.createCell(MAJOR_CLUB_COL_IDX).setCellValue(columnDto.majorClub ?: "")
-                row.createCell(JOB_CLUB_COL_IDX).setCellValue(columnDto.jobClub ?: "")
                 row.createCell(AUTONOMOUS_COL_IDX).setCellValue(columnDto.autonomousClub ?: "")
                 row
                     .createCell(DORMITORY_ROOM_NUMBER_COL_IDX)
@@ -80,7 +77,6 @@ class CreateStudentExcelServiceImpl(
             headerRow.createCell(EMAIL_COL_IDX).setCellValue("이메일")
             headerRow.createCell(MAJOR_COL_IDX).setCellValue("학과")
             headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("전공동아리")
-            headerRow.createCell(JOB_CLUB_COL_IDX).setCellValue("취업동아리")
             headerRow.createCell(AUTONOMOUS_COL_IDX).setCellValue("창체동아리")
             headerRow.createCell(DORMITORY_ROOM_NUMBER_COL_IDX).setCellValue("호실")
             headerRow.createCell(STUDENT_ROLE_COL_IDX).setCellValue("소속")
@@ -93,7 +89,6 @@ class CreateStudentExcelServiceImpl(
                 row.createCell(EMAIL_COL_IDX).setCellValue(student.email)
                 row.createCell(MAJOR_COL_IDX).setCellValue(student.major?.value ?: "")
                 row.createCell(MAJOR_CLUB_COL_IDX).setCellValue(student.majorClub?.name ?: "")
-                row.createCell(JOB_CLUB_COL_IDX).setCellValue(student.jobClub?.name ?: "")
                 row.createCell(AUTONOMOUS_COL_IDX).setCellValue(student.autonomousClub?.name ?: "")
                 row
                     .createCell(DORMITORY_ROOM_NUMBER_COL_IDX)
@@ -145,7 +140,6 @@ class CreateStudentExcelServiceImpl(
                                 email = student.email,
                                 major = student.major,
                                 majorClub = student.majorClub?.name,
-                                jobClub = student.jobClub?.name,
                                 autonomousClub = student.autonomousClub?.name,
                                 dormitoryRoomNumber = student.dormitoryRoomNumber?.dormitoryRoomNumber,
                                 role = student.role,

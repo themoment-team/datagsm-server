@@ -33,8 +33,6 @@ data class StudentResDto(
     val dormitoryRoom: Int?,
     @field:Schema(description = "전공 동아리")
     val majorClub: ClubSummaryDto?,
-    @field:Schema(description = "취업 동아리")
-    val jobClub: ClubSummaryDto?,
     @field:Schema(description = "자율 동아리")
     val autonomousClub: ClubSummaryDto?,
 )
