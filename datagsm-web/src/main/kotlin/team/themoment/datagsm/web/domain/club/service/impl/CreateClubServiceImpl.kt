@@ -14,11 +14,11 @@ import team.themoment.datagsm.web.domain.club.service.CreateClubService
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
-@Transactional
 class CreateClubServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
 ) : CreateClubService {
+    @Transactional
     override fun execute(clubReqDto: ClubReqDto): ClubResDto {
         if (clubJpaRepository.existsByName(clubReqDto.name)) {
             throw ExpectedException("이미 존재하는 동아리 이름입니다: ${clubReqDto.name}", HttpStatus.CONFLICT)
@@ -38,12 +38,24 @@ class CreateClubServiceImpl(
                 type = clubReqDto.type
                 this.leader = leader
             }
-        val savedClubEntity = clubJpaRepository.save(clubEntity)
+        val savedClub = clubJpaRepository.save(clubEntity)
+
+        val filteredParticipantIds = clubReqDto.participantIds.filter { it != clubReqDto.leaderId }
+        val participants = studentJpaRepository.findAllById(filteredParticipantIds)
+
+        (listOf(leader) + participants).forEach { student ->
+            clubJpaRepository
+                .findAllByLeader(student)
+                .filter { it.type == clubReqDto.type && it.id != savedClub.id }
+                .forEach { otherClub -> otherClub.leader = null }
+        }
+
+        studentJpaRepository.bulkAssignClub(listOf(clubReqDto.leaderId) + filteredParticipantIds, savedClub, clubReqDto.type)
 
         return ClubResDto(
-            id = savedClubEntity.id!!,
-            name = savedClubEntity.name,
-            type = savedClubEntity.type,
+            id = savedClub.id!!,
+            name = savedClub.name,
+            type = savedClub.type,
             leader =
                 ParticipantInfoDto(
                     id = leader.id!!,
@@ -53,7 +65,17 @@ class CreateClubServiceImpl(
                     major = leader.major,
                     sex = leader.sex,
                 ),
-            participants = emptyList(),
+            participants =
+                participants.map { student ->
+                    ParticipantInfoDto(
+                        id = student.id!!,
+                        name = student.name,
+                        email = student.email,
+                        studentNumber = student.studentNumber?.fullStudentNumber,
+                        major = student.major,
+                        sex = student.sex,
+                    )
+                },
         )
     }
 }

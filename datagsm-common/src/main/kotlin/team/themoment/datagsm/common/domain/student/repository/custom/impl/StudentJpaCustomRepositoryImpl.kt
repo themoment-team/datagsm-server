@@ -10,6 +10,7 @@ import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.account.entity.QAccountJpaEntity.Companion.accountJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.student.entity.QStudentJpaEntity.Companion.studentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -33,6 +34,8 @@ class StudentJpaCustomRepositoryImpl(
         role: StudentRole?,
         dormitoryRoom: Int?,
         includeGraduates: Boolean,
+        includeWithdrawn: Boolean,
+        onlyEnrolled: Boolean,
         pageable: Pageable,
         sortBy: StudentSortBy?,
         sortDirection: SortDirection,
@@ -52,7 +55,9 @@ class StudentJpaCustomRepositoryImpl(
                     sex?.let { studentJpaEntity.sex.eq(it) },
                     role?.let { studentJpaEntity.role.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
-                    if (!includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
+                    if (!onlyEnrolled && !includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
+                    if (!onlyEnrolled && !includeWithdrawn) studentJpaEntity.role.ne(StudentRole.WITHDRAWN) else null,
+                    if (onlyEnrolled) studentJpaEntity.role.notIn(StudentRole.GRADUATE, StudentRole.WITHDRAWN) else null,
                 ).apply {
                     orderSpecifier?.let { orderBy(*it) }
                 }.offset(pageable.offset)
@@ -73,7 +78,9 @@ class StudentJpaCustomRepositoryImpl(
                     sex?.let { studentJpaEntity.sex.eq(it) },
                     role?.let { studentJpaEntity.role.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
-                    if (!includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
+                    if (!onlyEnrolled && !includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
+                    if (!onlyEnrolled && !includeWithdrawn) studentJpaEntity.role.ne(StudentRole.WITHDRAWN) else null,
+                    if (onlyEnrolled) studentJpaEntity.role.notIn(StudentRole.GRADUATE, StudentRole.WITHDRAWN) else null,
                 )
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
@@ -196,8 +203,6 @@ class StudentJpaCustomRepositoryImpl(
             .selectFrom(studentJpaEntity)
             .leftJoin(studentJpaEntity.majorClub)
             .fetchJoin()
-            .leftJoin(studentJpaEntity.jobClub)
-            .fetchJoin()
             .leftJoin(studentJpaEntity.autonomousClub)
             .fetchJoin()
             .where(
@@ -212,8 +217,6 @@ class StudentJpaCustomRepositoryImpl(
         jpaQueryFactory
             .selectFrom(studentJpaEntity)
             .leftJoin(studentJpaEntity.majorClub)
-            .fetchJoin()
-            .leftJoin(studentJpaEntity.jobClub)
             .fetchJoin()
             .leftJoin(studentJpaEntity.autonomousClub)
             .fetchJoin()
@@ -244,6 +247,8 @@ class StudentJpaCustomRepositoryImpl(
         role: StudentRole?,
         dormitoryRoom: Int?,
         includeGraduates: Boolean,
+        includeWithdrawn: Boolean,
+        onlyEnrolled: Boolean,
         pageable: Pageable,
         sortBy: StudentSortBy?,
         sortDirection: SortDirection,
@@ -265,7 +270,9 @@ class StudentJpaCustomRepositoryImpl(
                     sex?.let { studentJpaEntity.sex.eq(it) },
                     role?.let { studentJpaEntity.role.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
-                    if (!includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
+                    if (!onlyEnrolled && !includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
+                    if (!onlyEnrolled && !includeWithdrawn) studentJpaEntity.role.ne(StudentRole.WITHDRAWN) else null,
+                    if (onlyEnrolled) studentJpaEntity.role.notIn(StudentRole.GRADUATE, StudentRole.WITHDRAWN) else null,
                 ).apply {
                     orderSpecifier?.let { orderBy(*it) }
                 }.offset(pageable.offset)
@@ -288,7 +295,9 @@ class StudentJpaCustomRepositoryImpl(
                     sex?.let { studentJpaEntity.sex.eq(it) },
                     role?.let { studentJpaEntity.role.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
-                    if (!includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
+                    if (!onlyEnrolled && !includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
+                    if (!onlyEnrolled && !includeWithdrawn) studentJpaEntity.role.ne(StudentRole.WITHDRAWN) else null,
+                    if (onlyEnrolled) studentJpaEntity.role.notIn(StudentRole.GRADUATE, StudentRole.WITHDRAWN) else null,
                 )
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
@@ -300,14 +309,6 @@ class StudentJpaCustomRepositoryImpl(
             .innerJoin(accountJpaEntity)
             .on(accountJpaEntity.student.id.eq(studentJpaEntity.id))
             .where(studentJpaEntity.majorClub.eq(club))
-            .fetch()
-
-    override fun findRegisteredStudentsByJobClub(club: ClubJpaEntity): List<StudentJpaEntity> =
-        jpaQueryFactory
-            .selectFrom(studentJpaEntity)
-            .innerJoin(accountJpaEntity)
-            .on(accountJpaEntity.student.id.eq(studentJpaEntity.id))
-            .where(studentJpaEntity.jobClub.eq(club))
             .fetch()
 
     override fun findRegisteredStudentsByAutonomousClub(club: ClubJpaEntity): List<StudentJpaEntity> =
@@ -350,14 +351,43 @@ class StudentJpaCustomRepositoryImpl(
 
         jpaQueryFactory
             .update(studentJpaEntity)
-            .setNull(studentJpaEntity.jobClub)
-            .where(studentJpaEntity.jobClub.`in`(clubs))
-            .execute()
-
-        jpaQueryFactory
-            .update(studentJpaEntity)
             .setNull(studentJpaEntity.autonomousClub)
             .where(studentJpaEntity.autonomousClub.`in`(clubs))
+            .execute()
+    }
+
+    override fun clearClubReferencesByType(
+        club: ClubJpaEntity,
+        type: ClubType,
+    ) {
+        val clubPath =
+            when (type) {
+                ClubType.MAJOR_CLUB -> studentJpaEntity.majorClub
+                ClubType.AUTONOMOUS_CLUB -> studentJpaEntity.autonomousClub
+            }
+        jpaQueryFactory
+            .update(studentJpaEntity)
+            .setNull(clubPath)
+            .where(clubPath.eq(club))
+            .execute()
+    }
+
+    override fun bulkAssignClub(
+        studentIds: List<Long>,
+        club: ClubJpaEntity,
+        type: ClubType,
+    ) {
+        if (studentIds.isEmpty()) return
+
+        val clubPath =
+            when (type) {
+                ClubType.MAJOR_CLUB -> studentJpaEntity.majorClub
+                ClubType.AUTONOMOUS_CLUB -> studentJpaEntity.autonomousClub
+            }
+        jpaQueryFactory
+            .update(studentJpaEntity)
+            .set(clubPath, club)
+            .where(studentJpaEntity.id.`in`(studentIds))
             .execute()
     }
 

@@ -114,7 +114,7 @@ class QueryClubServiceTest :
 
                         result.clubs.size shouldBe 1
                         val clubDto = result.clubs[0]
-                        clubDto.leader.id shouldBe 10L
+                        clubDto.leader?.id shouldBe 10L
                         clubDto.participants.size shouldBe 1
                         clubDto.participants[0].id shouldBe 11L
                     }
@@ -174,54 +174,9 @@ class QueryClubServiceTest :
 
                         result.clubs.size shouldBe 1
                         val clubDto = result.clubs[0]
-                        clubDto.leader.id shouldBe 10L
+                        clubDto.leader?.id shouldBe 10L
                         clubDto.participants.size shouldBe 2
                         clubDto.participants.map { it.id } shouldBe listOf(10L, 11L)
-                    }
-                }
-
-                context("JOB_CLUB 타입의 동아리를 조회할 때") {
-                    lateinit var leader: StudentJpaEntity
-                    lateinit var club: ClubJpaEntity
-
-                    beforeEach {
-                        leader =
-                            StudentJpaEntity().apply {
-                                id = 20L
-                                name = "취업부장"
-                                email = "job_leader@gsm.hs.kr"
-                                studentNumber = StudentNumber(3, 2, 1)
-                                major = Major.AI
-                                sex = Sex.WOMAN
-                            }
-                        club =
-                            ClubJpaEntity().apply {
-                                id = 2L
-                                name = "취업동아리"
-                                type = ClubType.JOB_CLUB
-                                this.leader = leader
-                            }
-                        every {
-                            mockClubRepository.searchClubWithPaging(
-                                id = null,
-                                name = null,
-                                type = ClubType.JOB_CLUB,
-                                pageable = any(),
-                                sortBy = any(),
-                                sortDirection = any(),
-                            )
-                        } returns PageImpl(listOf(club))
-                        every { mockStudentRepository.findRegisteredStudentsByJobClub(club) } returns listOf(leader)
-                    }
-
-                    it("JOB_CLUB 타입의 동아리 정보를 정상 반환해야 한다") {
-                        val queryReq = QueryClubReqDto(clubType = ClubType.JOB_CLUB)
-                        val result = queryClubService.execute(queryReq)
-
-                        result.clubs.size shouldBe 1
-                        result.clubs[0].id shouldBe 2L
-                        result.clubs[0].name shouldBe "취업동아리"
-                        result.clubs[0].type shouldBe ClubType.JOB_CLUB
                     }
                 }
 

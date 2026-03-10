@@ -259,12 +259,6 @@ class ModifyStudentServiceTest :
                             name = "새로운전공동아리"
                             type = ClubType.MAJOR_CLUB
                         }
-                    val jobClub =
-                        ClubJpaEntity().apply {
-                            id = 20L
-                            name = "새로운취업동아리"
-                            type = ClubType.JOB_CLUB
-                        }
 
                     val updateRequest =
                         UpdateStudentReqDto(
@@ -277,14 +271,13 @@ class ModifyStudentServiceTest :
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
                             majorClubId = 10L,
-                            jobClubId = 20L,
                         )
 
                     beforeEach {
                         every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
                         every { mockStudentRepository.existsByStudentEmailAndNotId("existing@gsm.hs.kr", studentId) } returns false
                         every { mockStudentRepository.existsByStudentNumberAndNotId(2, 1, 5, studentId) } returns false
-                        every { mockClubRepository.findAllById(listOf(10L, 20L)) } returns listOf(majorClub, jobClub)
+                        every { mockClubRepository.findAllById(listOf(10L)) } returns listOf(majorClub)
                     }
 
                     it("클럽 정보가 성공적으로 변경되어야 한다") {
@@ -292,10 +285,8 @@ class ModifyStudentServiceTest :
 
                         result.majorClub?.id shouldBe 10L
                         result.majorClub?.name shouldBe "새로운전공동아리"
-                        result.jobClub?.id shouldBe 20L
-                        result.jobClub?.name shouldBe "새로운취업동아리"
 
-                        verify(exactly = 1) { mockClubRepository.findAllById(listOf(10L, 20L)) }
+                        verify(exactly = 1) { mockClubRepository.findAllById(listOf(10L)) }
                     }
                 }
 
@@ -311,7 +302,6 @@ class ModifyStudentServiceTest :
                             role = StudentRole.GENERAL_STUDENT,
                             dormitoryRoomNumber = 201,
                             majorClubId = null,
-                            jobClubId = null,
                             autonomousClubId = null,
                         )
 
@@ -331,7 +321,6 @@ class ModifyStudentServiceTest :
                         val result = modifyStudentService.execute(studentId, updateRequest)
 
                         result.majorClub shouldBe null
-                        result.jobClub shouldBe null
                         result.autonomousClub shouldBe null
                     }
                 }

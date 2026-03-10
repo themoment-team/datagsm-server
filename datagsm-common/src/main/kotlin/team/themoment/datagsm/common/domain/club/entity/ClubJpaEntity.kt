@@ -30,7 +30,7 @@ class ClubJpaEntity {
     @Enumerated(EnumType.STRING)
     lateinit var type: ClubType
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "leader_id", nullable = false, referencedColumnName = "id")
-    lateinit var leader: StudentJpaEntity
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "leader_id", nullable = true, referencedColumnName = "id")
+    var leader: StudentJpaEntity? = null
 }

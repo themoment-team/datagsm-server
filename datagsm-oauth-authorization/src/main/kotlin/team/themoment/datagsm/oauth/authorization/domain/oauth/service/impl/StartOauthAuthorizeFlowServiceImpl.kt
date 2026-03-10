@@ -12,8 +12,6 @@ import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.StartOauthAuthorizeFlowService
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 import java.util.UUID
 
 @Service
@@ -68,8 +66,6 @@ class StartOauthAuthorizeFlowServiceImpl(
                 .fromUriString(oauthEnvironment.frontendUrl)
                 .path("/oauth/authorize")
                 .queryParam("token", token)
-                .queryParam("service_name", URLEncoder.encode(client.serviceName, StandardCharsets.UTF_8))
-                // TODO: 추후 프론트엔드 작업 종료 시 제거해야 함(하위호환성을 위해 남겨짐; service_name 파라미터)
                 .build()
                 .toUri()
 

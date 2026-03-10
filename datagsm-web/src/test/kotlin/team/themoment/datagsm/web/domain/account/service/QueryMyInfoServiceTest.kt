@@ -121,12 +121,6 @@ class QueryMyInfoServiceTest :
                                 name = "SW개발동아리"
                                 type = ClubType.MAJOR_CLUB
                             }
-                        val jobClub =
-                            ClubJpaEntity().apply {
-                                id = 200L
-                                name = "취업동아리"
-                                type = ClubType.JOB_CLUB
-                            }
                         val autonomousClub =
                             ClubJpaEntity().apply {
                                 id = 300L
@@ -142,7 +136,6 @@ class QueryMyInfoServiceTest :
                                 studentNumber = StudentNumber(2, 1, 5)
                                 major = Major.AI
                                 this.majorClub = majorClub
-                                this.jobClub = jobClub
                                 this.autonomousClub = autonomousClub
                             }
                         account =
@@ -165,10 +158,6 @@ class QueryMyInfoServiceTest :
                         studentDto.majorClub?.id shouldBe 100L
                         studentDto.majorClub?.name shouldBe "SW개발동아리"
                         studentDto.majorClub?.type shouldBe ClubType.MAJOR_CLUB
-
-                        studentDto.jobClub?.id shouldBe 200L
-                        studentDto.jobClub?.name shouldBe "취업동아리"
-                        studentDto.jobClub?.type shouldBe ClubType.JOB_CLUB
 
                         studentDto.autonomousClub?.id shouldBe 300L
                         studentDto.autonomousClub?.name shouldBe "자율동아리"

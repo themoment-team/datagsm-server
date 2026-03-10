@@ -17,11 +17,11 @@ import team.themoment.datagsm.web.domain.student.service.CreateStudentService
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
-@Transactional
 class CreateStudentServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
 ) : CreateStudentService {
+    @Transactional
     override fun execute(reqDto: CreateStudentReqDto): StudentResDto {
         if (studentJpaRepository.existsByEmail(reqDto.email)) {
             throw ExpectedException("이미 존재하는 이메일입니다: ${reqDto.email}", HttpStatus.CONFLICT)
@@ -31,14 +31,14 @@ class CreateStudentServiceImpl(
             StudentRole.GRADUATE -> {
                 val hasStudentNumberInfo = reqDto.grade != null || reqDto.classNum != null || reqDto.number != null
                 val hasDormitoryInfo = reqDto.dormitoryRoomNumber != null
-                val hasClubInfo = reqDto.majorClubId != null || reqDto.jobClubId != null || reqDto.autonomousClubId != null
+                val hasClubInfo = reqDto.majorClubId != null || reqDto.autonomousClubId != null
                 if (hasStudentNumberInfo || hasDormitoryInfo || hasClubInfo) {
                     throw ExpectedException("졸업생은 학번, 기숙사, 동아리 정보를 가질 수 없습니다.", HttpStatus.BAD_REQUEST)
                 }
             }
             StudentRole.WITHDRAWN -> {
                 val hasDormitoryInfo = reqDto.dormitoryRoomNumber != null
-                val hasClubInfo = reqDto.majorClubId != null || reqDto.jobClubId != null || reqDto.autonomousClubId != null
+                val hasClubInfo = reqDto.majorClubId != null || reqDto.autonomousClubId != null
                 if (hasDormitoryInfo || hasClubInfo) {
                     throw ExpectedException("자퇴생은 기숙사, 동아리 정보를 가질 수 없습니다.", HttpStatus.BAD_REQUEST)
                 }
@@ -72,7 +72,7 @@ class CreateStudentServiceImpl(
                     major = Major.fromClassNum(reqDto.classNum!!)
                         ?: throw ExpectedException("유효하지 않은 학급입니다: ${reqDto.classNum}", HttpStatus.BAD_REQUEST)
                     dormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
-                    val clubIds = listOfNotNull(reqDto.majorClubId, reqDto.jobClubId, reqDto.autonomousClubId)
+                    val clubIds = listOfNotNull(reqDto.majorClubId, reqDto.autonomousClubId)
                     val clubs =
                         if (clubIds.isNotEmpty()) {
                             clubJpaRepository.findAllById(clubIds).associateBy { it.id }
@@ -82,10 +82,6 @@ class CreateStudentServiceImpl(
                     majorClub =
                         reqDto.majorClubId?.let { clubId ->
                             clubs[clubId] ?: throw ExpectedException("전공 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
-                        }
-                    jobClub =
-                        reqDto.jobClubId?.let { clubId ->
-                            clubs[clubId] ?: throw ExpectedException("취업 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
                         }
                     autonomousClub =
                         reqDto.autonomousClubId?.let { clubId ->
@@ -110,7 +106,6 @@ class CreateStudentServiceImpl(
             dormitoryFloor = savedStudent.dormitoryRoomNumber?.dormitoryRoomFloor,
             dormitoryRoom = savedStudent.dormitoryRoomNumber?.dormitoryRoomNumber,
             majorClub = savedStudent.majorClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
-            jobClub = savedStudent.jobClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             autonomousClub = savedStudent.autonomousClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
         )
     }

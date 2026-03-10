@@ -18,21 +18,19 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Service
-@Transactional(readOnly = true)
 class CreateClubExcelServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
 ) : CreateClubExcelService {
     companion object {
         private const val MAJOR_CLUB_COL_IDX = 0
         private const val MAJOR_CLUB_LEADER_COL_IDX = 1
-        private const val JOB_CLUB_COL_IDX = 2
-        private const val JOB_CLUB_LEADER_COL_IDX = 3
-        private const val AUTONOMOUS_CLUB_COL_IDX = 4
-        private const val AUTONOMOUS_CLUB_LEADER_COL_IDX = 5
+        private const val AUTONOMOUS_CLUB_COL_IDX = 2
+        private const val AUTONOMOUS_CLUB_LEADER_COL_IDX = 3
 
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     }
 
+    @Transactional(readOnly = true)
     override fun execute(): ResponseEntity<ByteArray> {
         val data: List<ClubInfoDto> = getClubData()
         val workbook = XSSFWorkbook()
@@ -42,8 +40,6 @@ class CreateClubExcelServiceImpl(
 
             headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue(ClubType.MAJOR_CLUB.value)
             headerRow.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("${ClubType.MAJOR_CLUB.value} 부장")
-            headerRow.createCell(JOB_CLUB_COL_IDX).setCellValue(ClubType.JOB_CLUB.value)
-            headerRow.createCell(JOB_CLUB_LEADER_COL_IDX).setCellValue("${ClubType.JOB_CLUB.value} 부장")
             headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue(ClubType.AUTONOMOUS_CLUB.value)
             headerRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("${ClubType.AUTONOMOUS_CLUB.value} 부장")
 
@@ -52,7 +48,6 @@ class CreateClubExcelServiceImpl(
             val clubTypeColumnMap =
                 mapOf(
                     ClubType.MAJOR_CLUB to (MAJOR_CLUB_COL_IDX to MAJOR_CLUB_LEADER_COL_IDX),
-                    ClubType.JOB_CLUB to (JOB_CLUB_COL_IDX to JOB_CLUB_LEADER_COL_IDX),
                     ClubType.AUTONOMOUS_CLUB to (AUTONOMOUS_CLUB_COL_IDX to AUTONOMOUS_CLUB_LEADER_COL_IDX),
                 )
 
@@ -69,8 +64,6 @@ class CreateClubExcelServiceImpl(
 
             sheet.autoSizeColumn(MAJOR_CLUB_COL_IDX)
             sheet.autoSizeColumn(MAJOR_CLUB_LEADER_COL_IDX)
-            sheet.autoSizeColumn(JOB_CLUB_COL_IDX)
-            sheet.autoSizeColumn(JOB_CLUB_LEADER_COL_IDX)
             sheet.autoSizeColumn(AUTONOMOUS_CLUB_COL_IDX)
             sheet.autoSizeColumn(AUTONOMOUS_CLUB_LEADER_COL_IDX)
 
@@ -105,10 +98,13 @@ class CreateClubExcelServiceImpl(
         ClubType.entries.flatMap { clubType ->
             clubJpaRepository.findByType(clubType).map { club ->
                 val leaderStr =
-                    club.leader.studentNumber
-                        ?.fullStudentNumber
-                        ?.let { "$it " }
-                        .orEmpty() + club.leader.name
+                    club.leader
+                        ?.let { leader ->
+                            leader.studentNumber
+                                ?.fullStudentNumber
+                                ?.let { "$it " }
+                                .orEmpty() + leader.name
+                        }
                 ClubInfoDto(clubName = club.name, clubType = clubType, leaderInfo = leaderStr)
             }
         }

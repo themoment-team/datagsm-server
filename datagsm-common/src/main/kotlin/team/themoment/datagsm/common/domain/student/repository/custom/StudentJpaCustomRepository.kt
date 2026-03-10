@@ -3,6 +3,7 @@ package team.themoment.datagsm.common.domain.student.repository.custom
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
@@ -21,6 +22,8 @@ interface StudentJpaCustomRepository {
         role: StudentRole?,
         dormitoryRoom: Int?,
         includeGraduates: Boolean = false,
+        includeWithdrawn: Boolean = false,
+        onlyEnrolled: Boolean = false,
         pageable: Pageable,
         sortBy: StudentSortBy?,
         sortDirection: SortDirection,
@@ -56,6 +59,17 @@ interface StudentJpaCustomRepository {
 
     fun bulkClearClubReferences(clubs: List<ClubJpaEntity>)
 
+    fun clearClubReferencesByType(
+        club: ClubJpaEntity,
+        type: ClubType,
+    )
+
+    fun bulkAssignClub(
+        studentIds: List<Long>,
+        club: ClubJpaEntity,
+        type: ClubType,
+    )
+
     fun searchRegisteredStudentsWithPaging(
         id: Long?,
         name: String?,
@@ -67,14 +81,14 @@ interface StudentJpaCustomRepository {
         role: StudentRole?,
         dormitoryRoom: Int?,
         includeGraduates: Boolean = false,
+        includeWithdrawn: Boolean = false,
+        onlyEnrolled: Boolean = false,
         pageable: Pageable,
         sortBy: StudentSortBy?,
         sortDirection: SortDirection,
     ): Page<StudentJpaEntity>
 
     fun findRegisteredStudentsByMajorClub(club: ClubJpaEntity): List<StudentJpaEntity>
-
-    fun findRegisteredStudentsByJobClub(club: ClubJpaEntity): List<StudentJpaEntity>
 
     fun findRegisteredStudentsByAutonomousClub(club: ClubJpaEntity): List<StudentJpaEntity>
 }

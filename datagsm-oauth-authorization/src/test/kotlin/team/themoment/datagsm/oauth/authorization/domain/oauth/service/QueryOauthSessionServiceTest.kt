@@ -6,12 +6,13 @@ import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
+import org.springframework.http.HttpStatus
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.oauth.entity.OauthAuthorizeStateRedisEntity
-import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl.QueryOauthSessionServiceImpl
+import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 
 class QueryOauthSessionServiceTest :
@@ -73,14 +74,14 @@ class QueryOauthSessionServiceTest :
                         every { mockOauthAuthorizeStateRedisRepository.findById("expired-token") } returns Optional.empty()
                     }
 
-                    it("InvalidRequest 예외가 발생해야 한다") {
+                    it("ExpectedException이 발생해야 한다") {
                         val exception =
-                            shouldThrow<OAuthException.InvalidRequest> {
+                            shouldThrow<ExpectedException> {
                                 queryOauthSessionService.execute("expired-token")
                             }
 
-                        exception.error shouldBe "invalid_request"
-                        exception.errorDescription shouldBe "유효하지 않거나 만료된 세션입니다."
+                        exception.message shouldBe "유효하지 않은 토큰입니다."
+                        exception.statusCode shouldBe HttpStatus.UNAUTHORIZED
                     }
                 }
 
@@ -90,14 +91,14 @@ class QueryOauthSessionServiceTest :
                         every { mockClientJpaRepository.findById(testClientId) } returns Optional.empty()
                     }
 
-                    it("InvalidClient 예외가 발생해야 한다") {
+                    it("ExpectedException이 발생해야 한다") {
                         val exception =
-                            shouldThrow<OAuthException.InvalidClient> {
+                            shouldThrow<ExpectedException> {
                                 queryOauthSessionService.execute(testToken)
                             }
 
-                        exception.error shouldBe "invalid_client"
-                        exception.errorDescription shouldBe "존재하지 않는 클라이언트입니다."
+                        exception.message shouldBe "유효하지 않은 클라이언트입니다."
+                        exception.statusCode shouldBe HttpStatus.UNAUTHORIZED
                     }
                 }
             }
