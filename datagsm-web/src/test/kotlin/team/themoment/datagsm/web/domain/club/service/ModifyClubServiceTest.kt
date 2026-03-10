@@ -55,6 +55,7 @@ class ModifyClubServiceTest :
                             type = ClubType.MAJOR_CLUB
                             this.leader = oldLeader
                         }
+                    every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
                 }
 
                 context("이름을 다른 값으로 변경할 때") {
@@ -313,6 +314,92 @@ class ModifyClubServiceTest :
 
                         newLeader.majorClub shouldBe existing
                         participant.majorClub shouldBe existing
+                    }
+                }
+
+                context("새 부장이 같은 타입의 다른 동아리 부장인 경우") {
+                    val req =
+                        ClubReqDto(
+                            name = "새이름",
+                            type = ClubType.MAJOR_CLUB,
+                            leaderId = 20L,
+                            participantIds = emptyList(),
+                        )
+                    lateinit var newLeader: StudentJpaEntity
+                    lateinit var otherClub: ClubJpaEntity
+
+                    beforeEach {
+                        newLeader =
+                            StudentJpaEntity().apply {
+                                this.id = 20L
+                                this.name = "새부장"
+                                this.email = "new@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(2, 2, 2)
+                                this.major = Major.AI
+                                this.sex = Sex.WOMAN
+                            }
+                        otherClub =
+                            ClubJpaEntity().apply {
+                                this.id = 2L
+                                this.name = "다른동아리"
+                                this.type = ClubType.MAJOR_CLUB
+                                this.leader = newLeader
+                            }
+                        every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
+                        every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
+                        every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(newLeader)
+                        every { mockStudentRepository.findByMajorClub(existing) } returns emptyList()
+                        every { mockStudentRepository.findAllById(emptyList()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeader(newLeader) } returns listOf(otherClub)
+                    }
+
+                    it("다른 동아리의 leader가 null로 해제되어야 한다") {
+                        modifyClubService.execute(clubId, req)
+
+                        otherClub.leader shouldBe null
+                    }
+                }
+
+                context("새 부장이 다른 타입의 동아리 부장인 경우") {
+                    val req =
+                        ClubReqDto(
+                            name = "새이름",
+                            type = ClubType.MAJOR_CLUB,
+                            leaderId = 20L,
+                            participantIds = emptyList(),
+                        )
+                    lateinit var newLeader: StudentJpaEntity
+                    lateinit var autonomousClub: ClubJpaEntity
+
+                    beforeEach {
+                        newLeader =
+                            StudentJpaEntity().apply {
+                                this.id = 20L
+                                this.name = "새부장"
+                                this.email = "new@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(2, 2, 2)
+                                this.major = Major.AI
+                                this.sex = Sex.WOMAN
+                            }
+                        autonomousClub =
+                            ClubJpaEntity().apply {
+                                this.id = 3L
+                                this.name = "자율동아리"
+                                this.type = ClubType.AUTONOMOUS_CLUB
+                                this.leader = newLeader
+                            }
+                        every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
+                        every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
+                        every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(newLeader)
+                        every { mockStudentRepository.findByMajorClub(existing) } returns emptyList()
+                        every { mockStudentRepository.findAllById(emptyList()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeader(newLeader) } returns listOf(autonomousClub)
+                    }
+
+                    it("다른 타입 동아리의 leader는 변경되지 않아야 한다") {
+                        modifyClubService.execute(clubId, req)
+
+                        autonomousClub.leader shouldBe newLeader
                     }
                 }
             }

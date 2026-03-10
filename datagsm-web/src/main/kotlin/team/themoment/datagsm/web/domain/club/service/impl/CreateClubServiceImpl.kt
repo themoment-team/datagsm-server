@@ -43,6 +43,13 @@ class CreateClubServiceImpl(
         val filteredParticipantIds = clubReqDto.participantIds.filter { it != clubReqDto.leaderId }
         val participants = studentJpaRepository.findAllById(filteredParticipantIds)
 
+        (listOf(leader) + participants).forEach { student ->
+            clubJpaRepository
+                .findAllByLeader(student)
+                .filter { it.type == clubReqDto.type && it.id != savedClub.id }
+                .forEach { otherClub -> otherClub.leader = null }
+        }
+
         studentJpaRepository.bulkAssignClub(listOf(clubReqDto.leaderId) + filteredParticipantIds, savedClub, clubReqDto.type)
 
         return ClubResDto(
