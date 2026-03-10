@@ -315,8 +315,6 @@ class ModifyClubServiceTest :
                         participant.majorClub shouldBe existing
                     }
                 }
-
-
             }
         }
     })
