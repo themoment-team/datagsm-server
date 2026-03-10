@@ -40,26 +40,25 @@ class ModifyClubServiceImpl(
                 )
 
         val oldType = club.type
-        club.name = reqDto.name
-        club.type = reqDto.type
-        club.leader = newLeader
-
-        // 동아리 최대 인원이 30명 이하이므로 bulk DML 대신 엔티티 직접 수정을 사용
-        // Bulk 연산을 수행할 성능적 이점이 사실상 없다고 판단하였습니다
         val oldParticipants =
             when (oldType) {
                 ClubType.MAJOR_CLUB -> studentJpaRepository.findByMajorClub(club)
                 ClubType.AUTONOMOUS_CLUB -> studentJpaRepository.findByAutonomousClub(club)
             }
+
+        val filteredParticipantIds = reqDto.participantIds.filter { it != reqDto.leaderId }
+        val participants = studentJpaRepository.findAllById(filteredParticipantIds)
+
+        club.name = reqDto.name
+        club.type = reqDto.type
+        club.leader = newLeader
+
         oldParticipants.forEach { student ->
             when (oldType) {
                 ClubType.MAJOR_CLUB -> student.majorClub = null
                 ClubType.AUTONOMOUS_CLUB -> student.autonomousClub = null
             }
         }
-
-        val filteredParticipantIds = reqDto.participantIds.filter { it != reqDto.leaderId }
-        val participants = studentJpaRepository.findAllById(filteredParticipantIds)
 
         (listOf(newLeader) + participants).forEach { student ->
             when (reqDto.type) {
