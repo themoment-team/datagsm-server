@@ -43,9 +43,8 @@ class ModifyClubServiceImpl(
         club.name = reqDto.name
         club.type = reqDto.type
         club.leader = newLeader
+        clubJpaRepository.saveAndFlush(club)
 
-        // 동아리 최대 인원이 30명 이하이므로 bulk DML 대신 엔티티 직접 수정을 사용
-        // Bulk 연산을 수행할 성능적 이점이 사실상 없다고 판단하였습니다
         val oldParticipants =
             when (oldType) {
                 ClubType.MAJOR_CLUB -> studentJpaRepository.findByMajorClub(club)
