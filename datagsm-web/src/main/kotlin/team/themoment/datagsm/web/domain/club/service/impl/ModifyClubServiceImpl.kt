@@ -62,7 +62,8 @@ class ModifyClubServiceImpl(
         val participants = studentJpaRepository.findAllById(filteredParticipantIds)
 
         (listOf(newLeader) + participants).forEach { student ->
-            clubJpaRepository.findAllByLeader(student)
+            clubJpaRepository
+                .findAllByLeader(student)
                 .filter { it.type == reqDto.type && it.id != clubId }
                 .forEach { otherClub -> otherClub.leader = null }
         }

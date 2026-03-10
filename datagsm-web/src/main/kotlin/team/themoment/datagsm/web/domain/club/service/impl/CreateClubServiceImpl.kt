@@ -44,7 +44,8 @@ class CreateClubServiceImpl(
         val participants = studentJpaRepository.findAllById(filteredParticipantIds)
 
         (listOf(leader) + participants).forEach { student ->
-            clubJpaRepository.findAllByLeader(student)
+            clubJpaRepository
+                .findAllByLeader(student)
                 .filter { it.type == clubReqDto.type }
                 .forEach { otherClub -> otherClub.leader = null }
         }
