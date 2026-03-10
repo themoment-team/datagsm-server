@@ -45,15 +45,15 @@ class DeleteClubServiceTest :
                             }
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
                         every { mockStudentRepository.bulkClearClubReferences(listOf(existing)) } just runs
-                        every { mockClubRepository.delete(existing) } just runs
+                        every { mockClubRepository.deleteAllByIdInBatch(listOf(clubId)) } just runs
                     }
 
-                    it("bulkClearClubReferences 후 delete가 각 1회 호출되어야 한다") {
+                    it("bulkClearClubReferences 후 deleteAllByIdInBatch가 각 1회 호출되어야 한다") {
                         deleteClubService.execute(clubId)
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
                         verify(exactly = 1) { mockStudentRepository.bulkClearClubReferences(listOf(existing)) }
-                        verify(exactly = 1) { mockClubRepository.delete(existing) }
+                        verify(exactly = 1) { mockClubRepository.deleteAllByIdInBatch(listOf(clubId)) }
                     }
                 }
 
@@ -71,7 +71,7 @@ class DeleteClubServiceTest :
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
                         verify(exactly = 0) { mockStudentRepository.bulkClearClubReferences(any()) }
-                        verify(exactly = 0) { mockClubRepository.delete(any()) }
+                        verify(exactly = 0) { mockClubRepository.deleteAllByIdInBatch(any()) }
                     }
                 }
             }
