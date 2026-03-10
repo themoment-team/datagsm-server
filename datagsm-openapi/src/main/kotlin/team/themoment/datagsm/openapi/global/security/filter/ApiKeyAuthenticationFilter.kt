@@ -24,7 +24,8 @@ class ApiKeyAuthenticationFilter(
     ) {
         val requestPath = request.servletPath
         if (requestPath == "/v1/health" ||
-            requestPath.startsWith("/swagger-ui") ||
+            requestPath == "/swagger-ui.html" ||
+            requestPath.startsWith("/swagger-ui/") ||
             requestPath.startsWith("/v3/api-docs")
         ) {
             filterChain.doFilter(request, response)
