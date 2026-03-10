@@ -102,7 +102,7 @@ class GlobalExceptionHandler(
 
     @ExceptionHandler(RuntimeException::class)
     fun unExpectedException(ex: RuntimeException): ResponseEntity<CommonApiResponse<Nothing>> {
-        logger().error("UnExpectedException Occur : ", ex)
+        logger().error("UnExpectedException Occur : \n${ex.stackTraceToString()}")
 
         discordErrorNotificationService?.notifyError(
             exception = ex,
