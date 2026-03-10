@@ -108,6 +108,7 @@ class CreateClubServiceTest :
                             entity.apply { this.id = 10L }
                         }
                         every { mockStudentRepository.findAllById(listOf(200L, 300L)) } returns listOf(participant1, participant2)
+                        every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
@@ -165,6 +166,7 @@ class CreateClubServiceTest :
                             entity.apply { this.id = 10L }
                         }
                         every { mockStudentRepository.findAllById(listOf(200L)) } returns listOf(participant)
+                        every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
@@ -214,6 +216,7 @@ class CreateClubServiceTest :
                             entity.apply { this.id = 10L }
                         }
                         every { mockStudentRepository.findAllById(listOf(200L)) } returns listOf(participant)
+                        every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
@@ -227,6 +230,52 @@ class CreateClubServiceTest :
                                 ClubType.MAJOR_CLUB,
                             )
                         }
+                    }
+                }
+
+                context("부장이 같은 타입의 다른 동아리 부장인 경우") {
+                    val req =
+                        ClubReqDto(
+                            name = "동아리E",
+                            type = ClubType.AUTONOMOUS_CLUB,
+                            leaderId = 100L,
+                            participantIds = emptyList(),
+                        )
+                    lateinit var mockLeader: StudentJpaEntity
+                    lateinit var otherClub: ClubJpaEntity
+
+                    beforeEach {
+                        mockLeader =
+                            StudentJpaEntity().apply {
+                                this.id = 100L
+                                this.name = "부장이름"
+                                this.email = "leader@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(2, 1, 5)
+                                this.major = Major.AI
+                                this.sex = Sex.WOMAN
+                            }
+                        otherClub =
+                            ClubJpaEntity().apply {
+                                this.id = 99L
+                                this.name = "기존자율동아리"
+                                this.type = ClubType.AUTONOMOUS_CLUB
+                                this.leader = mockLeader
+                            }
+                        every { mockClubRepository.existsByName(req.name) } returns false
+                        every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(mockLeader)
+                        every { mockClubRepository.save(any()) } answers {
+                            val entity = firstArg<ClubJpaEntity>()
+                            entity.apply { this.id = 10L }
+                        }
+                        every { mockStudentRepository.findAllById(emptyList()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeader(mockLeader) } returns listOf(otherClub)
+                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
+                    }
+
+                    it("기존 동아리의 leader가 null로 해제되어야 한다") {
+                        createClubService.execute(req)
+
+                        otherClub.leader shouldBe null
                     }
                 }
             }
