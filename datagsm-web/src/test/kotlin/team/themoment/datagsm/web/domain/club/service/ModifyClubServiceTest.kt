@@ -56,6 +56,7 @@ class ModifyClubServiceTest :
                             this.leader = oldLeader
                         }
                     every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
+                    every { mockClubRepository.saveAndFlush(any()) } returns existing
                 }
 
                 context("이름을 다른 값으로 변경할 때") {
