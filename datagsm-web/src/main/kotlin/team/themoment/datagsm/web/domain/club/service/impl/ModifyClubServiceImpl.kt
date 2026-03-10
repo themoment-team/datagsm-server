@@ -40,16 +40,25 @@ class ModifyClubServiceImpl(
                 )
 
         val oldType = club.type
-        club.name = reqDto.name
-        club.type = reqDto.type
-        club.leader = newLeader
-        clubJpaRepository.saveAndFlush(club)
 
         val oldParticipants =
             when (oldType) {
                 ClubType.MAJOR_CLUB -> studentJpaRepository.findByMajorClub(club)
                 ClubType.AUTONOMOUS_CLUB -> studentJpaRepository.findByAutonomousClub(club)
             }
+
+        val filteredParticipantIds = reqDto.participantIds.filter { it != reqDto.leaderId }
+        val participants = studentJpaRepository.findAllById(filteredParticipantIds)
+
+        val clubsToUnsetLeader =
+            (listOf(newLeader) + participants)
+                .flatMap { student -> clubJpaRepository.findAllByLeader(student) }
+                .filter { it.type == reqDto.type && it.id != clubId }
+
+        club.name = reqDto.name
+        club.type = reqDto.type
+        club.leader = newLeader
+
         oldParticipants.forEach { student ->
             when (oldType) {
                 ClubType.MAJOR_CLUB -> student.majorClub = null
@@ -57,15 +66,7 @@ class ModifyClubServiceImpl(
             }
         }
 
-        val filteredParticipantIds = reqDto.participantIds.filter { it != reqDto.leaderId }
-        val participants = studentJpaRepository.findAllById(filteredParticipantIds)
-
-        (listOf(newLeader) + participants).forEach { student ->
-            clubJpaRepository
-                .findAllByLeader(student)
-                .filter { it.type == reqDto.type && it.id != clubId }
-                .forEach { otherClub -> otherClub.leader = null }
-        }
+        clubsToUnsetLeader.forEach { otherClub -> otherClub.leader = null }
 
         (listOf(newLeader) + participants).forEach { student ->
             when (reqDto.type) {
