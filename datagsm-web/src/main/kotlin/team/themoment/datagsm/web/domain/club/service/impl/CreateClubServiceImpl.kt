@@ -46,7 +46,7 @@ class CreateClubServiceImpl(
         (listOf(leader) + participants).forEach { student ->
             clubJpaRepository
                 .findAllByLeader(student)
-                .filter { it.type == clubReqDto.type }
+                .filter { it.type == clubReqDto.type && it.id != savedClub.id }
                 .forEach { otherClub -> otherClub.leader = null }
         }
 

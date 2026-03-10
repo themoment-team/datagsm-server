@@ -278,6 +278,45 @@ class CreateClubServiceTest :
                         otherClub.leader shouldBe null
                     }
                 }
+
+                context("findAllByLeader가 새로 생성한 동아리 자신을 반환하는 경우") {
+                    val req =
+                        ClubReqDto(
+                            name = "동아리F",
+                            type = ClubType.MAJOR_CLUB,
+                            leaderId = 100L,
+                            participantIds = emptyList(),
+                        )
+                    lateinit var mockLeader: StudentJpaEntity
+                    lateinit var savedClubRef: ClubJpaEntity
+
+                    beforeEach {
+                        mockLeader =
+                            StudentJpaEntity().apply {
+                                this.id = 100L
+                                this.name = "부장이름"
+                                this.email = "leader@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(2, 1, 5)
+                                this.major = Major.AI
+                                this.sex = Sex.WOMAN
+                            }
+                        every { mockClubRepository.existsByName(req.name) } returns false
+                        every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(mockLeader)
+                        every { mockClubRepository.save(any()) } answers {
+                            val entity = firstArg<ClubJpaEntity>()
+                            entity.apply { this.id = 10L }.also { savedClubRef = it }
+                        }
+                        every { mockStudentRepository.findAllById(emptyList()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeader(mockLeader) } answers { listOf(savedClubRef) }
+                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
+                    }
+
+                    it("새로 생성된 동아리의 leader는 null이 되어서는 안 된다") {
+                        createClubService.execute(req)
+
+                        savedClubRef.leader shouldBe mockLeader
+                    }
+                }
             }
         }
     })
