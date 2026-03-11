@@ -37,7 +37,9 @@ class JwtProvider(
 
         return Jwts
             .builder()
-            .header().keyId(keyId).and()
+            .header()
+            .keyId(keyId)
+            .and()
             .subject(email)
             .claim("role", role.name)
             .claim("clientId", clientId)
@@ -57,7 +59,9 @@ class JwtProvider(
 
         return Jwts
             .builder()
-            .header().keyId(keyId).and()
+            .header()
+            .keyId(keyId)
+            .and()
             .subject(email)
             .claim("clientId", clientId)
             .issuedAt(now)
@@ -75,7 +79,9 @@ class JwtProvider(
 
         return Jwts
             .builder()
-            .header().keyId(keyId).and()
+            .header()
+            .keyId(keyId)
+            .and()
             .subject(clientId)
             .claim("clientId", clientId)
             .claim("scopes", scopes.map { it.scope })
