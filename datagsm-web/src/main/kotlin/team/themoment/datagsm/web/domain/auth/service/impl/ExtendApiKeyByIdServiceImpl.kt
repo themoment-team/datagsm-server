@@ -9,6 +9,7 @@ import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.common.global.data.ApiKeyEnvironment
 import team.themoment.datagsm.web.domain.auth.service.ExtendApiKeyByIdService
 import team.themoment.sdk.exception.ExpectedException
+import team.themoment.sdk.logging.logger.logger
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 
@@ -27,6 +28,7 @@ class ExtendApiKeyByIdServiceImpl(
         }
         val now = LocalDateTime.now()
         apiKey.expiresAt = now.plusDays(apiKeyEnvironment.adminExpirationDays)
+        logger().info("apiKeyId ${apiKeyId}에 해당하는 API 키의 만료일을 연장합니다")
         return ApiKeyResDto(
             id = apiKey.id!!,
             apiKey = apiKey.maskedValue,
