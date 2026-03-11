@@ -135,10 +135,7 @@ class AuthController(
         @Parameter(description = "연장할 API 키 ID", required = true)
         @PathVariable
         apiKeyId: Long,
-    ): CommonApiResponse<ApiKeyResDto> {
-        val result = extendApiKeyByIdService.execute(apiKeyId)
-        return CommonApiResponse.success("API 키가 연장되었습니다.", result)
-    }
+    ): ApiKeyResDto = extendApiKeyByIdService.execute(apiKeyId)
 
     @Operation(summary = "API 키 조회", description = "현재 로그인한 사용자의 API 키를 조회합니다. API 키는 마스킹되어 반환됩니다.")
     @ApiResponses(
