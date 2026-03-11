@@ -7,6 +7,7 @@ import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.application.entity.ApplicationJpaEntity
 import team.themoment.datagsm.common.domain.application.entity.QApplicationJpaEntity.Companion.applicationJpaEntity
+import team.themoment.datagsm.common.domain.application.entity.QThirdPartyScopeJpaEntity.Companion.thirdPartyScopeJpaEntity
 import team.themoment.datagsm.common.domain.application.repository.custom.ApplicationJpaCustomRepository
 
 @Repository
@@ -18,17 +19,29 @@ class ApplicationJpaCustomRepositoryImpl(
         id: String?,
         pageable: Pageable,
     ): Page<ApplicationJpaEntity> {
-        val content =
+        val ids =
             jpaQueryFactory
-                .selectFrom(applicationJpaEntity)
-                .leftJoin(applicationJpaEntity.account)
-                .fetchJoin()
+                .select(applicationJpaEntity.id)
+                .from(applicationJpaEntity)
                 .where(
                     name?.let { applicationJpaEntity.name.startsWith(it) },
                     id?.let { applicationJpaEntity.id.eq(it) },
                 ).offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
+
+        val content =
+            if (ids.isEmpty()) {
+                emptyList()
+            } else {
+                jpaQueryFactory
+                    .selectFrom(applicationJpaEntity)
+                    .leftJoin(applicationJpaEntity.account).fetchJoin()
+                    .leftJoin(applicationJpaEntity.thirdPartyScopes, thirdPartyScopeJpaEntity).fetchJoin()
+                    .where(applicationJpaEntity.id.`in`(ids))
+                    .fetch()
+                    .distinctBy { it.id }
+            }
 
         val countQuery =
             jpaQueryFactory
