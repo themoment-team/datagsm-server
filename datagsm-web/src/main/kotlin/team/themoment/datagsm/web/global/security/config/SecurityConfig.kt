@@ -57,6 +57,8 @@ class SecurityConfig(
                     .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
                     .requestMatchers(HttpMethod.DELETE, "/v1/auth/api-keys/{apiKeyId}")
                     .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
+                    .requestMatchers(HttpMethod.PATCH, "/v1/auth/api-keys/{apiKeyId}/expiration")
+                    .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
                     .requestMatchers(HttpMethod.GET, "/v1/clients")
                     .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
                     .anyRequest()
