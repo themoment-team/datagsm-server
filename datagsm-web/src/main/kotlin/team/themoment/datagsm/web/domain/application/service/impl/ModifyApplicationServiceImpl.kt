@@ -47,6 +47,7 @@ class ModifyApplicationServiceImpl(
             application.thirdPartyScopes.add(scopeEntity)
         }
 
+        applicationJpaRepository.saveAndFlush(application)
         return application.toResDto()
     }
 }
