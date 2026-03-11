@@ -23,7 +23,7 @@ class ModifyCurrentAccountApiKeyServiceImpl(
     private val currentUserProvider: CurrentUserProvider,
     private val apiKeyEnvironment: ApiKeyEnvironment,
 ) : ModifyCurrentAccountApiKeyService {
-    @Transactional
+    @Transactional(noRollbackFor = [ExpectedException::class])
     override fun execute(reqDto: ModifyApiKeyReqDto): ApiKeyResDto {
         val account = currentUserProvider.getCurrentAccount()
 

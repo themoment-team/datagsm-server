@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.auth.dto.request.CreateApiKeyReqDto
+import team.themoment.datagsm.common.domain.auth.dto.request.ExtendApiKeyReqDto
 import team.themoment.datagsm.common.domain.auth.dto.request.ModifyApiKeyReqDto
 import team.themoment.datagsm.common.domain.auth.dto.request.SearchApiKeyReqDto
 import team.themoment.datagsm.common.domain.auth.dto.response.ApiKeyResDto
@@ -126,8 +127,8 @@ class AuthController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "API 키 연장 성공"),
-            ApiResponse(responseCode = "400", description = "만료된 API 키", content = [Content()]),
             ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "410", description = "API 키 갱신 기간이 지남 (키 삭제됨)", content = [Content()]),
         ],
     )
     @PatchMapping("/api-keys/{apiKeyId}/expiration")
@@ -135,7 +136,8 @@ class AuthController(
         @Parameter(description = "연장할 API 키 ID", required = true)
         @PathVariable
         apiKeyId: Long,
-    ): ApiKeyResDto = extendApiKeyByIdService.execute(apiKeyId)
+        @RequestBody @Valid reqDto: ExtendApiKeyReqDto,
+    ): ApiKeyResDto = extendApiKeyByIdService.execute(apiKeyId, reqDto)
 
     @Operation(summary = "API 키 조회", description = "현재 로그인한 사용자의 API 키를 조회합니다. API 키는 마스킹되어 반환됩니다.")
     @ApiResponses(
