@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.application.dto.request.ModifyApplicationReqDto
 import team.themoment.datagsm.common.domain.application.dto.response.ApplicationResDto
-import team.themoment.datagsm.common.domain.application.entity.ThirdPartyScopeJpaEntity
 import team.themoment.datagsm.common.domain.application.repository.ApplicationJpaRepository
 import team.themoment.datagsm.web.domain.application.service.ModifyApplicationService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
@@ -36,18 +35,6 @@ class ModifyApplicationServiceImpl(
 
         application.name = reqDto.name
 
-        application.thirdPartyScopes.clear()
-        reqDto.scopes.forEach { scopeReq ->
-            val scopeEntity =
-                ThirdPartyScopeJpaEntity().apply {
-                    scopeName = scopeReq.scopeName
-                    description = scopeReq.description
-                    this.application = application
-                }
-            application.thirdPartyScopes.add(scopeEntity)
-        }
-
-        applicationJpaRepository.saveAndFlush(application)
         return application.toResDto()
     }
 }
