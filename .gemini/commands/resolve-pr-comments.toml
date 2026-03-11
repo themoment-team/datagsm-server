@@ -6,16 +6,16 @@ Run the data collection script first:
 Now analyze the following data:
 
 PR inline comments:
-@{.pr-tmp/pr_comments.json}
+!{cat .pr-tmp/pr_comments.json}
 
 Changed files:
-@{.pr-tmp/pr_changed_files.txt}
+!{cat .pr-tmp/pr_changed_files.txt}
 
 Commits in this PR:
 !{cat .pr-tmp/pr_commits.txt}
 
 Full diff:
-@{.pr-tmp/pr_diff.txt}
+!{cat .pr-tmp/pr_diff.txt}
 
 Repo:
 !{gh repo view --json nameWithOwner -q .nameWithOwner}
