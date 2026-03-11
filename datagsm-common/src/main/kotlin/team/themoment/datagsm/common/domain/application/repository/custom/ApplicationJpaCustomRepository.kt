@@ -11,5 +11,5 @@ interface ApplicationJpaCustomRepository {
         pageable: Pageable,
     ): Page<ApplicationJpaEntity>
 
-    fun findAllWithThirdPartyScope(): List<ApplicationJpaEntity>
+    fun findAllByEager(): List<ApplicationJpaEntity>
 }

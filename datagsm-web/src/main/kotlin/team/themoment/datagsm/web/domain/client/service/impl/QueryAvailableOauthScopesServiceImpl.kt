@@ -22,7 +22,7 @@ class QueryAvailableOauthScopesServiceImpl(
 
         val thirdPartyGroups =
             applicationJpaRepository
-                .findAllWithThirdPartyScope()
+                .findAllByEager()
                 .filter { it.thirdPartyScopes.isNotEmpty() }
                 .map { application ->
                     OAuthScopeGroupListResDto.OAuthScopeGroupResDto(
