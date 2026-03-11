@@ -1,6 +1,7 @@
 package team.themoment.datagsm.common.domain.application.dto.request
 
 import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 
 data class SearchApplicationReqDto(
@@ -12,6 +13,7 @@ data class SearchApplicationReqDto(
     @param:Schema(description = "페이지 번호", example = "0", defaultValue = "0")
     val page: Int = 0,
     @field:Min(1)
+    @field:Max(100)
     @param:Schema(description = "페이지 크기", example = "100", defaultValue = "100")
     val size: Int = 100,
 )
