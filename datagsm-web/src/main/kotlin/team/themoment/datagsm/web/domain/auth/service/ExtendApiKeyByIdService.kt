@@ -1,7 +1,11 @@
 package team.themoment.datagsm.web.domain.auth.service
 
+import team.themoment.datagsm.common.domain.auth.dto.request.ExtendApiKeyReqDto
 import team.themoment.datagsm.common.domain.auth.dto.response.ApiKeyResDto
 
 interface ExtendApiKeyByIdService {
-    fun execute(apiKeyId: Long): ApiKeyResDto
+    fun execute(
+        apiKeyId: Long,
+        reqDto: ExtendApiKeyReqDto,
+    ): ApiKeyResDto
 }

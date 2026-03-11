@@ -4,6 +4,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.auth.dto.request.ExtendApiKeyReqDto
 import team.themoment.datagsm.common.domain.auth.dto.response.ApiKeyResDto
 import team.themoment.datagsm.common.domain.auth.repository.ApiKeyJpaRepository
 import team.themoment.datagsm.common.global.data.ApiKeyEnvironment
@@ -19,16 +20,23 @@ class ExtendApiKeyByIdServiceImpl(
     private val apiKeyEnvironment: ApiKeyEnvironment,
 ) : ExtendApiKeyByIdService {
     @Transactional
-    override fun execute(apiKeyId: Long): ApiKeyResDto {
+    override fun execute(
+        apiKeyId: Long,
+        reqDto: ExtendApiKeyReqDto,
+    ): ApiKeyResDto {
         val apiKey =
             apiKeyJpaRepository.findByIdOrNull(apiKeyId)
                 ?: throw ExpectedException("API 키를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
-        if (apiKey.isExpired()) {
-            throw ExpectedException("만료된 API 키는 연장할 수 없습니다.", HttpStatus.BAD_REQUEST)
+
+        val renewalPeriodDays = apiKeyEnvironment.renewalPeriodDays
+        if (!apiKey.canBeRenewed(renewalPeriodDays)) {
+            apiKeyJpaRepository.delete(apiKey)
+            throw ExpectedException("API 키 갱신 기간이 지났습니다. 해당 API 키는 삭제되었습니다.", HttpStatus.GONE)
         }
+
         val now = LocalDateTime.now()
-        apiKey.expiresAt = now.plusDays(apiKeyEnvironment.adminExpirationDays)
-        logger().info("API key expiration extended for apiKeyId $apiKeyId")
+        apiKey.expiresAt = now.plusDays(reqDto.days)
+        logger().info("API key expiration extended for apiKeyId $apiKeyId, days=${reqDto.days}")
         return ApiKeyResDto(
             id = apiKey.id!!,
             apiKey = apiKey.maskedValue,
