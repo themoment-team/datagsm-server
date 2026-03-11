@@ -20,6 +20,6 @@ class DeleteClubServiceImpl(
                 .findById(clubId)
                 .orElseThrow { ExpectedException("동아리를 찾을 수 없습니다. clubId: $clubId", HttpStatus.NOT_FOUND) }
         studentJpaRepository.bulkClearClubReferences(listOf(club))
-        clubJpaRepository.delete(club)
+        clubJpaRepository.deleteAllByIdInBatch(listOf(clubId))
     }
 }
