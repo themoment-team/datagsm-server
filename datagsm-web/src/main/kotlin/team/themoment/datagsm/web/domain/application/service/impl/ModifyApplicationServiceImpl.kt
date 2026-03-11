@@ -1,7 +1,6 @@
 package team.themoment.datagsm.web.domain.application.service.impl
 
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
@@ -29,9 +28,7 @@ class ModifyApplicationServiceImpl(
             }
 
         val currentAccount = currentUserProvider.getCurrentAccount()
-        val authentication = SecurityContextHolder.getContext().authentication
-        val authorities = authentication?.authorities?.map { it.authority } ?: emptyList()
-        val isAdmin = authorities.contains(AccountRole.ADMIN.name) || currentAccount.role == AccountRole.ADMIN
+        val isAdmin = currentAccount.role == AccountRole.ADMIN || currentAccount.role == AccountRole.ROOT
 
         if (application.account != currentAccount && !isAdmin) {
             throw ExpectedException("Application 수정 권한이 없습니다.", HttpStatus.FORBIDDEN)
