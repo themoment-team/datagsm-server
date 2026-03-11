@@ -10,4 +10,6 @@ interface ApplicationJpaCustomRepository {
         id: String?,
         pageable: Pageable,
     ): Page<ApplicationJpaEntity>
+
+    fun findAllWithThirdPartyScope(): List<ApplicationJpaEntity>
 }

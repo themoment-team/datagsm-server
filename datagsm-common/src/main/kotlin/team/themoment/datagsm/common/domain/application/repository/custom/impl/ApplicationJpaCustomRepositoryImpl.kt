@@ -56,4 +56,12 @@ class ApplicationJpaCustomRepositoryImpl(
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
     }
+
+    override fun findAllWithThirdPartyScope(): List<ApplicationJpaEntity> =
+        jpaQueryFactory
+            .selectFrom(applicationJpaEntity)
+            .leftJoin(applicationJpaEntity.thirdPartyScopes, thirdPartyScopeJpaEntity)
+            .fetchJoin()
+            .fetch()
+            .distinctBy { it.id }
 }
