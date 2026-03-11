@@ -10,6 +10,7 @@ import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -28,6 +29,7 @@ import team.themoment.datagsm.common.domain.auth.dto.response.ApiScopeResDto
 import team.themoment.datagsm.web.domain.auth.service.CreateCurrentAccountApiKeyService
 import team.themoment.datagsm.web.domain.auth.service.DeleteApiKeyByIdService
 import team.themoment.datagsm.web.domain.auth.service.DeleteCurrentAccountApiKeyService
+import team.themoment.datagsm.web.domain.auth.service.ExtendApiKeyByIdService
 import team.themoment.datagsm.web.domain.auth.service.ModifyCurrentAccountApiKeyService
 import team.themoment.datagsm.web.domain.auth.service.QueryApiScopeByScopeNameService
 import team.themoment.datagsm.web.domain.auth.service.QueryApiScopeGroupService
@@ -43,6 +45,7 @@ class AuthController(
     private val createCurrentAccountApiKeyService: CreateCurrentAccountApiKeyService,
     private val deleteCurrentAccountApiKeyService: DeleteCurrentAccountApiKeyService,
     private val deleteApiKeyByIdService: DeleteApiKeyByIdService,
+    private val extendApiKeyByIdService: ExtendApiKeyByIdService,
     private val modifyCurrentAccountApiKeyService: ModifyCurrentAccountApiKeyService,
     private val queryCurrentAccountApiKeyService: QueryCurrentAccountApiKeyService,
     private val queryApiScopeByScopeNameService: QueryApiScopeByScopeNameService,
@@ -117,6 +120,24 @@ class AuthController(
     ): CommonApiResponse<Nothing> {
         deleteApiKeyByIdService.execute(apiKeyId)
         return CommonApiResponse.success("API 키가 삭제되었습니다.")
+    }
+
+    @Operation(summary = "ID로 API 키 만료일 연장", description = "특정 ID를 가진 API 키의 만료일을 연장합니다. 관리자 전용 API입니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "API 키 연장 성공"),
+            ApiResponse(responseCode = "400", description = "만료된 API 키", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음", content = [Content()]),
+        ],
+    )
+    @PatchMapping("/api-keys/{apiKeyId}/expiration")
+    fun extendApiKeyById(
+        @Parameter(description = "연장할 API 키 ID", required = true)
+        @PathVariable
+        apiKeyId: Long,
+    ): CommonApiResponse<ApiKeyResDto> {
+        val result = extendApiKeyByIdService.execute(apiKeyId)
+        return CommonApiResponse.success("API 키가 연장되었습니다.", result)
     }
 
     @Operation(summary = "API 키 조회", description = "현재 로그인한 사용자의 API 키를 조회합니다. API 키는 마스킹되어 반환됩니다.")
