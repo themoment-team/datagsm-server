@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(bash scripts/dev/get-pr-data.sh:*), Bash(git log:*), Bash(gh api:*), Bash(gh repo:*), Bash(rm:*), Read
+allowed-tools: Bash(bash scripts/dev/get-pr-data.sh:*), Bash(gh api:*), Bash(gh pr view:*), Bash(gh repo:*), Bash(git log:*), Bash(rm:*), Read
 description: Reply to resolved PR inline comments with commit hash
 ---
 
