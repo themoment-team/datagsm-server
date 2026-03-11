@@ -36,8 +36,10 @@ class ApplicationJpaCustomRepositoryImpl(
             } else {
                 jpaQueryFactory
                     .selectFrom(applicationJpaEntity)
-                    .leftJoin(applicationJpaEntity.account).fetchJoin()
-                    .leftJoin(applicationJpaEntity.thirdPartyScopes, thirdPartyScopeJpaEntity).fetchJoin()
+                    .leftJoin(applicationJpaEntity.account)
+                    .fetchJoin()
+                    .leftJoin(applicationJpaEntity.thirdPartyScopes, thirdPartyScopeJpaEntity)
+                    .fetchJoin()
                     .where(applicationJpaEntity.id.`in`(ids))
                     .fetch()
                     .distinctBy { it.id }
