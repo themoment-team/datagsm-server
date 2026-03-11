@@ -19,7 +19,7 @@ class ExtendApiKeyByIdServiceImpl(
     private val apiKeyJpaRepository: ApiKeyJpaRepository,
     private val apiKeyEnvironment: ApiKeyEnvironment,
 ) : ExtendApiKeyByIdService {
-    @Transactional
+    @Transactional(noRollbackFor = [ExpectedException::class])
     override fun execute(
         apiKeyId: Long,
         reqDto: ExtendApiKeyReqDto,
