@@ -49,18 +49,15 @@ Based on the above information, perform the following tasks:
    - Write in Korean
    - Be clear and specific
 
-3. **Automatic Verification** (before generating PR body):
-   - Check DTO annotation mistakes: Search for `@param:JsonProperty` usage
-   - Check commit scope errors: Verify if module names are used as scope inappropriately (i.e., for non-cross-cutting concerns)
-   - Add verification result as "## 검증 결과" section at the end of PR body
-   - If issues found: ⚠ Warning message with fix recommendations
-   - If no issues: ✓ Verification passed
+3. **Writing Style**:
+   - Use formal Korean ending style: "~하였습니다", "~되었습니다", "~추가하였습니다" (not "~했어요", "~합니다", "~했습니다")
 
 4. **Save to file**:
    - Save the content to `PR_BODY.md`
    - Overwrite if file already exists
 
 5. **Output format**:
+
    ```
    ## 추천 PR 제목
 
