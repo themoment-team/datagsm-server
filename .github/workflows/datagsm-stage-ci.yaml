@@ -62,13 +62,13 @@ jobs:
   setup-pr-metadata:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    continue-on-error: true
     permissions:
       contents: read
       pull-requests: write
 
     steps:
       - name: Setup PR Metadata
-        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
