@@ -20,7 +20,7 @@ class QueryAvailableOauthScopesServiceTest :
             describe("execute 메서드는") {
                 context("ThirdPartyScope가 없을 때") {
                     beforeEach {
-                        every { mockApplicationJpaRepository.findAll() } returns emptyList()
+                        every { mockApplicationJpaRepository.findAllByEager() } returns emptyList()
                     }
 
                     it("OAuthScopeGroupListResDto 형식으로 반환해야 한다") {
@@ -86,7 +86,7 @@ class QueryAvailableOauthScopesServiceTest :
                     application.thirdPartyScopes.add(thirdPartyScope)
 
                     beforeEach {
-                        every { mockApplicationJpaRepository.findAll() } returns listOf(application)
+                        every { mockApplicationJpaRepository.findAllByEager() } returns listOf(application)
                     }
 
                     it("ThirdPartyScope가 반환값에 포함되어야 한다") {
@@ -118,7 +118,7 @@ class QueryAvailableOauthScopesServiceTest :
                         }
 
                     beforeEach {
-                        every { mockApplicationJpaRepository.findAll() } returns listOf(emptyApplication)
+                        every { mockApplicationJpaRepository.findAllByEager() } returns listOf(emptyApplication)
                     }
 
                     it("해당 Application은 그룹에 포함되지 않아야 한다") {
