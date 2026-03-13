@@ -6,8 +6,10 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
+import team.themoment.datagsm.common.domain.application.repository.ThirdPartyScopeJpaRepository
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
+import team.themoment.datagsm.common.domain.client.entity.constant.ThirdPartyScope
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.oauth.dto.request.Oauth2TokenReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.Oauth2TokenResDto
@@ -33,6 +35,7 @@ class Oauth2TokenServiceImpl(
     private val passwordEncoder: PasswordEncoder,
     private val jwtProvider: JwtProvider,
     private val jwtEnvironment: OauthJwtEnvironment,
+    private val thirdPartyScopeJpaRepository: ThirdPartyScopeJpaRepository,
 ) : Oauth2TokenService {
     @Transactional(readOnly = true)
     override fun execute(reqDto: Oauth2TokenReqDto): Oauth2TokenResDto {
@@ -240,10 +243,23 @@ class Oauth2TokenServiceImpl(
             }
 
         return scopesToGrant
-            .map { scopeString ->
-                OAuthScope.fromString(scopeString)
-                    ?: throw ExpectedException("Client에 유효하지 않은 권한범위가 포함되어 있습니다: $scopeString", HttpStatus.INTERNAL_SERVER_ERROR)
+            .map { scopeStr ->
+                OAuthScope.fromString(scopeStr)
+                    ?: resolveThirdPartyScope(scopeStr)
             }.toSet()
+    }
+
+    private fun resolveThirdPartyScope(scopeStr: String): ThirdPartyScope {
+        val colonIdx = scopeStr.indexOf(':')
+        if (colonIdx <= 0) {
+            throw ExpectedException("유효하지 않은 scope: $scopeStr", HttpStatus.BAD_REQUEST)
+        }
+        val appId = scopeStr.substring(0, colonIdx)
+        val scopeName = scopeStr.substring(colonIdx + 1)
+        val entity =
+            thirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(appId, scopeName)
+                ?: throw ExpectedException("유효하지 않은 ThirdPartyScope: $scopeStr", HttpStatus.BAD_REQUEST)
+        return ThirdPartyScope(appId, scopeName, entity.description)
     }
 
     private fun saveRefreshToken(

@@ -7,10 +7,9 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.client.dto.request.CreateClientReqDto
 import team.themoment.datagsm.common.domain.client.dto.response.CreateClientResDto
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
-import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.web.domain.client.service.CreateClientService
-import team.themoment.datagsm.web.domain.client.util.ClientUtil
+import team.themoment.datagsm.web.domain.client.service.QueryAvailableOauthScopesService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 import java.util.UUID
@@ -20,20 +19,23 @@ class CreateClientServiceImpl(
     private val currentUserProvider: CurrentUserProvider,
     private val passwordEncoder: PasswordEncoder,
     private val clientJpaRepository: ClientJpaRepository,
+    private val queryAvailableOauthScopesService: QueryAvailableOauthScopesService,
 ) : CreateClientService {
     @Transactional
     override fun execute(reqDto: CreateClientReqDto): CreateClientResDto {
-        val availableScopes = ClientUtil.getAvailableOauthScopes()
-        val invalidScopes = reqDto.scopes.minus(availableScopes)
-        if (invalidScopes.isNotEmpty()) throw ExpectedException("허용되지 않는 OAuth 권한이 포함되어 있습니다: $invalidScopes", HttpStatus.BAD_REQUEST)
+        val availableScopes =
+            queryAvailableOauthScopesService
+                .execute()
+                .list
+                .flatMap { group -> group.scopes.map { it.scope } }
+                .toSet()
+        val invalidScopes = reqDto.scopes.filter { it !in availableScopes }
 
-        reqDto.scopes.forEach { scopeString ->
-            OAuthScope.fromString(scopeString)
-                ?: throw IllegalStateException("OAuthScope는 허용된 $scopeString 값을 포함하지 않습니다. See GetAvailableOauthScopesService")
+        if (invalidScopes.isNotEmpty()) {
+            throw ExpectedException("허용되지 않는 OAuth 권한이 포함되어 있습니다: $invalidScopes", HttpStatus.BAD_REQUEST)
         }
 
         val currentAccount = currentUserProvider.getCurrentAccount()
-
         val rawSecret = generateUUID()
 
         val client =
@@ -47,6 +49,7 @@ class CreateClientServiceImpl(
                 scopes = reqDto.scopes
             }
         clientJpaRepository.save(client)
+
         return CreateClientResDto(
             clientId = client.id,
             clientSecret = rawSecret,
