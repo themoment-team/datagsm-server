@@ -39,4 +39,3 @@ class EmailSenderService(
         javaMailSender.send(message)
     }
 }
-
