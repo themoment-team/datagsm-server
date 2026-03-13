@@ -160,7 +160,7 @@ class ModifyClubExcelServiceImpl(
             val data =
                 headerColumns
                     .filterIndexed { index, _ -> index % 2 == 0 }
-                    .mapIndexed { idx, header ->
+                    .flatMapIndexed { idx, header ->
                         val clubType = headerToClubType[header]!!
                         val clubNameColIdx = idx * 2
                         val clubLeaderColIdx = idx * 2 + 1
@@ -183,7 +183,7 @@ class ModifyClubExcelServiceImpl(
                         clubAndLeaderPairs.map { (name, leader) ->
                             ClubInfoDto(clubName = name, clubType = clubType, leaderInfo = leader)
                         }
-                    }.flatten()
+                    }
             return data
         }
     }
