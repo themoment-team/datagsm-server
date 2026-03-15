@@ -132,7 +132,7 @@ class CreateProjectServiceTest :
                         exception.message shouldBe "동아리를 찾을 수 없습니다. clubId: ${createRequest.clubId}"
 
                         verify(exactly = 1) { mockProjectRepository.existsByName(createRequest.name) }
-                        verify(exactly = 1) { mockClubRepository.findById(createRequest.clubId) }
+                        verify(exactly = 1) { mockClubRepository.findById(createRequest.clubId!!) }
                         verify(exactly = 0) { mockProjectRepository.save(any()) }
                     }
                 }
