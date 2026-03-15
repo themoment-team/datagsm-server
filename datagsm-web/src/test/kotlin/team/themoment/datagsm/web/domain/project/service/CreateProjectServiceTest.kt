@@ -61,7 +61,7 @@ class CreateProjectServiceTest :
 
                     beforeEach {
                         every { mockProjectRepository.existsByName(createRequest.name) } returns false
-                        every { mockClubRepository.findById(createRequest.clubId) } returns Optional.of(ownerClub)
+                        every { mockClubRepository.findById(createRequest.clubId!!) } returns Optional.of(ownerClub)
                         every { mockProjectRepository.save(any()) } returns savedProject
                     }
 
@@ -77,7 +77,7 @@ class CreateProjectServiceTest :
                         result.participants shouldBe emptyList()
 
                         verify(exactly = 1) { mockProjectRepository.existsByName(createRequest.name) }
-                        verify(exactly = 1) { mockClubRepository.findById(createRequest.clubId) }
+                        verify(exactly = 1) { mockClubRepository.findById(createRequest.clubId!!) }
                         verify(exactly = 1) { mockProjectRepository.save(any()) }
                     }
                 }
@@ -120,7 +120,7 @@ class CreateProjectServiceTest :
 
                     beforeEach {
                         every { mockProjectRepository.existsByName(createRequest.name) } returns false
-                        every { mockClubRepository.findById(createRequest.clubId) } returns Optional.empty()
+                        every { mockClubRepository.findById(createRequest.clubId!!) } returns Optional.empty()
                     }
 
                     it("ExpectedException이 발생해야 한다") {
@@ -163,7 +163,7 @@ class CreateProjectServiceTest :
 
                     beforeEach {
                         every { mockProjectRepository.existsByName(createRequest.name) } returns false
-                        every { mockClubRepository.findById(createRequest.clubId) } returns Optional.of(ownerClub)
+                        every { mockClubRepository.findById(createRequest.clubId!!) } returns Optional.of(ownerClub)
                         every { mockProjectRepository.save(any()) } returns savedProject
                     }
 
@@ -211,7 +211,7 @@ class CreateProjectServiceTest :
 
                     beforeEach {
                         every { mockProjectRepository.existsByName(createRequest.name) } returns false
-                        every { mockClubRepository.findById(createRequest.clubId) } returns Optional.of(ownerClub)
+                        every { mockClubRepository.findById(createRequest.clubId!!) } returns Optional.of(ownerClub)
                         every { mockStudentRepository.findAllById(listOf(1L)) } returns listOf(participant)
                         every { mockProjectRepository.save(any()) } returns savedProject
                     }
@@ -224,6 +224,41 @@ class CreateProjectServiceTest :
                         result.participants[0].name shouldBe "홍길동"
 
                         verify(exactly = 1) { mockStudentRepository.findAllById(listOf(1L)) }
+                        verify(exactly = 1) { mockProjectRepository.save(any()) }
+                    }
+                }
+
+                context("동아리 없이 프로젝트를 생성할 때") {
+                    val createRequest =
+                        ProjectReqDto(
+                            name = "동아리없는프로젝트",
+                            description = "동아리가 없는 프로젝트입니다",
+                            clubId = null,
+                            participantIds = emptyList(),
+                        )
+
+                    val savedProject =
+                        ProjectJpaEntity().apply {
+                            id = 4L
+                            name = createRequest.name
+                            description = createRequest.description
+                            this.club = null
+                        }
+
+                    beforeEach {
+                        every { mockProjectRepository.existsByName(createRequest.name) } returns false
+                        every { mockProjectRepository.save(any()) } returns savedProject
+                    }
+
+                    it("동아리 없이 프로젝트가 생성되어야 한다") {
+                        val result = createProjectService.execute(createRequest)
+
+                        result.id shouldBe 4L
+                        result.name shouldBe "동아리없는프로젝트"
+                        result.club shouldBe null
+
+                        verify(exactly = 1) { mockProjectRepository.existsByName(createRequest.name) }
+                        verify(exactly = 0) { mockClubRepository.findById(any()) }
                         verify(exactly = 1) { mockProjectRepository.save(any()) }
                     }
                 }
@@ -246,7 +281,7 @@ class CreateProjectServiceTest :
 
                     beforeEach {
                         every { mockProjectRepository.existsByName(createRequest.name) } returns false
-                        every { mockClubRepository.findById(createRequest.clubId) } returns Optional.of(ownerClub)
+                        every { mockClubRepository.findById(createRequest.clubId!!) } returns Optional.of(ownerClub)
                         every { mockStudentRepository.findAllById(listOf(999L)) } returns emptyList()
                     }
 
