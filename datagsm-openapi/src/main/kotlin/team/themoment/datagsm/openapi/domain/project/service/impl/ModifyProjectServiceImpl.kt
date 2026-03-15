@@ -33,12 +33,13 @@ class ModifyProjectServiceImpl(
             throw ExpectedException("이미 존재하는 프로젝트 이름입니다: ${reqDto.name}", HttpStatus.CONFLICT)
         }
         val ownerClub =
-            clubJpaRepository
-                .findByIdOrNull(reqDto.clubId)
-                ?: throw ExpectedException(
-                    "동아리를 찾을 수 없습니다. clubId: ${reqDto.clubId}",
-                    HttpStatus.NOT_FOUND,
-                )
+            reqDto.clubId?.let { clubId ->
+                clubJpaRepository.findByIdOrNull(clubId)
+                    ?: throw ExpectedException(
+                        "동아리를 찾을 수 없습니다. clubId: $clubId",
+                        HttpStatus.NOT_FOUND,
+                    )
+            }
 
         val newParticipants =
             if (reqDto.participantIds.isNotEmpty()) {

@@ -28,12 +28,13 @@ class CreateProjectServiceImpl(
         }
 
         val ownerClub =
-            clubJpaRepository
-                .findByIdOrNull(projectReqDto.clubId)
-                ?: throw ExpectedException(
-                    "동아리를 찾을 수 없습니다. clubId: ${projectReqDto.clubId}",
-                    HttpStatus.NOT_FOUND,
-                )
+            projectReqDto.clubId?.let { clubId ->
+                clubJpaRepository.findByIdOrNull(clubId)
+                    ?: throw ExpectedException(
+                        "동아리를 찾을 수 없습니다. clubId: $clubId",
+                        HttpStatus.NOT_FOUND,
+                    )
+            }
 
         val participants =
             if (projectReqDto.participantIds.isNotEmpty()) {
@@ -64,12 +65,7 @@ class CreateProjectServiceImpl(
             id = savedProjectEntity.id!!,
             name = savedProjectEntity.name,
             description = savedProjectEntity.description,
-            club =
-                ClubSummaryDto(
-                    id = ownerClub.id!!,
-                    name = ownerClub.name,
-                    type = ownerClub.type,
-                ),
+            club = ownerClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             participants =
                 savedProjectEntity.participants.map { student ->
                     ParticipantInfoDto(
