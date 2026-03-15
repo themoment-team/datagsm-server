@@ -14,7 +14,7 @@ data class ProjectReqDto(
     @param:Schema(description = "프로젝트 설명", example = "학교 데이터를 제공하는 API 서비스", maxLength = 500)
     val description: String,
     @param:Schema(description = "프로젝트 소유 동아리 ID", example = "1")
-    val clubId: Long,
+    val clubId: Long?,
     @param:Schema(description = "프로젝트 참가자 학생 ID 목록", example = "[1, 2, 3]")
     val participantIds: List<Long>,
 )
