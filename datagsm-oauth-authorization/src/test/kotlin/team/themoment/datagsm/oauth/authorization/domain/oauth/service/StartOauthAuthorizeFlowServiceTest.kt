@@ -29,6 +29,7 @@ class StartOauthAuthorizeFlowServiceTest :
         val mockOauthEnvironment =
             mockk<OauthEnvironment> {
                 every { frontendUrl } returns "http://localhost:3000"
+                every { authorizeStateExpirationMs } returns 600000L
             }
 
         val startOauthAuthorizeFlowService =

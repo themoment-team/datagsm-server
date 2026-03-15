@@ -2,6 +2,8 @@ package team.themoment.datagsm.oauth.authorization.domain.oauth.service
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.longs.shouldBeGreaterThanOrEqual
+import io.kotest.matchers.longs.shouldBeLessThanOrEqual
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -11,19 +13,23 @@ import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.oauth.entity.OauthAuthorizeStateRedisEntity
 import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
+import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl.QueryOauthSessionServiceImpl
 import team.themoment.sdk.exception.ExpectedException
+import java.time.Instant
 import java.util.Optional
 
 class QueryOauthSessionServiceTest :
     DescribeSpec({
         val mockOauthAuthorizeStateRedisRepository = mockk<OauthAuthorizeStateRedisRepository>()
         val mockClientJpaRepository = mockk<ClientJpaRepository>()
+        val mockOauthEnvironment = mockk<OauthEnvironment>()
 
         val queryOauthSessionService =
             QueryOauthSessionServiceImpl(
                 mockOauthAuthorizeStateRedisRepository,
                 mockClientJpaRepository,
+                mockOauthEnvironment,
             )
 
         afterEach {
@@ -60,12 +66,22 @@ class QueryOauthSessionServiceTest :
                     beforeEach {
                         every { mockOauthAuthorizeStateRedisRepository.findById(testToken) } returns Optional.of(mockStateEntity)
                         every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(mockClient)
+                        every { mockOauthEnvironment.authorizeStateExpirationMs } returns 600000L
                     }
 
                     it("클라이언트의 서비스 이름이 반환되어야 한다") {
                         val result = queryOauthSessionService.execute(testToken)
 
                         result.serviceName shouldBe "Test Service"
+                    }
+
+                    it("expiresAt이 현재 시각 + TTL 근방이어야 한다") {
+                        val before = Instant.now().toEpochMilli() + 600000L
+                        val result = queryOauthSessionService.execute(testToken)
+                        val after = Instant.now().toEpochMilli() + 600000L
+
+                        result.expiresAt shouldBeGreaterThanOrEqual before
+                        result.expiresAt shouldBeLessThanOrEqual after
                     }
                 }
 
