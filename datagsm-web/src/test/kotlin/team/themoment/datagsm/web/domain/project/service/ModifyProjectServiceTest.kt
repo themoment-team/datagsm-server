@@ -366,6 +366,34 @@ class ModifyProjectServiceTest :
                     }
                 }
 
+                context("동아리 없이 프로젝트를 수정할 때") {
+                    val updateRequest =
+                        ProjectReqDto(
+                            name = "기존프로젝트",
+                            description = "기존 설명",
+                            clubId = null,
+                            participantIds = emptyList(),
+                        )
+
+                    beforeEach {
+                        every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
+                        every {
+                            mockProjectRepository.existsByNameAndIdNot(
+                                updateRequest.name,
+                                projectId,
+                            )
+                        } returns false
+                    }
+
+                    it("동아리 없이 프로젝트가 수정되어야 한다") {
+                        val result = modifyProjectService.execute(projectId, updateRequest)
+
+                        result.club shouldBe null
+
+                        verify(exactly = 0) { mockClubRepository.findById(any()) }
+                    }
+                }
+
                 context("존재하지 않는 참여자 ID로 수정 요청할 때") {
                     val updateRequest =
                         ProjectReqDto(
