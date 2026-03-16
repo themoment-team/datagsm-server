@@ -15,11 +15,11 @@ import team.themoment.datagsm.common.domain.student.repository.StudentJpaReposit
 import team.themoment.datagsm.openapi.domain.club.service.QueryClubService
 
 @Service
-@Transactional
 class QueryClubServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
 ) : QueryClubService {
+    @Transactional(readOnly = true)
     override fun execute(queryReq: QueryClubReqDto): ClubListResDto {
         val clubPage =
             clubJpaRepository.searchClubWithPaging(
