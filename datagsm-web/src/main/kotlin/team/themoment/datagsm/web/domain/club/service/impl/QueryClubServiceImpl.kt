@@ -19,7 +19,7 @@ class QueryClubServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
 ) : QueryClubService {
-    @Transactional
+    @Transactional(readOnly = true)
     override fun execute(queryReq: QueryClubReqDto): ClubListResDto {
         val clubPage =
             clubJpaRepository.searchClubWithPaging(
