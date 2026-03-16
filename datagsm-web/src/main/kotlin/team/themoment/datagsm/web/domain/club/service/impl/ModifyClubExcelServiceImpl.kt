@@ -194,17 +194,20 @@ class ModifyClubExcelServiceImpl(
 
                     val foundedYearCell = row.getCell(FOUNDED_YEAR_COL_IDX)
                     val foundedYear =
-                        try {
-                            foundedYearCell?.numericCellValue?.toInt()
-                                ?: throw ExpectedException(
-                                    "창설 학년도가 비어있습니다. (행: ${rowIdx + 1})",
-                                    HttpStatus.BAD_REQUEST,
-                                )
-                        } catch (e: IllegalStateException) {
+                        if (foundedYearCell == null || foundedYearCell.toString().trim().isBlank()) {
                             throw ExpectedException(
                                 "창설 학년도가 비어있습니다. (행: ${rowIdx + 1})",
                                 HttpStatus.BAD_REQUEST,
                             )
+                        } else {
+                            try {
+                                foundedYearCell.numericCellValue.toInt()
+                            } catch (e: IllegalStateException) {
+                                throw ExpectedException(
+                                    "창설 학년도는 숫자여야 합니다. (행: ${rowIdx + 1})",
+                                    HttpStatus.BAD_REQUEST,
+                                )
+                            }
                         }
 
                     val statusName = row.getCell(STATUS_COL_IDX)?.toString()?.trim() ?: ""
