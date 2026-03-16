@@ -4,4 +4,6 @@ enum class ClubSortBy {
     ID,
     NAME,
     TYPE,
+    FOUNDED_YEAR,
+    STATUS,
 }
