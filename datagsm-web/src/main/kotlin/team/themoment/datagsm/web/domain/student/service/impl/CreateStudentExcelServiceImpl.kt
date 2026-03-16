@@ -130,25 +130,27 @@ class CreateStudentExcelServiceImpl(
     }
 
     private fun getStudentData(allStudents: List<StudentJpaEntity>): List<ExcelRowDto> {
-        val byGrade = allStudents
-            .filter { it.role != StudentRole.GRADUATE }
-            .groupBy { it.studentNumber?.studentGrade }
+        val byGrade =
+            allStudents
+                .filter { it.role != StudentRole.GRADUATE }
+                .groupBy { it.studentNumber?.studentGrade }
 
         return (1..3).map { grade ->
             ExcelRowDto(
-                columns = (byGrade[grade] ?: emptyList()).map { student ->
-                    ExcelColumnDto(
-                        name = student.name,
-                        number = student.studentNumber?.fullStudentNumber,
-                        email = student.email,
-                        major = student.major,
-                        majorClub = student.majorClub?.name,
-                        autonomousClub = student.autonomousClub?.name,
-                        dormitoryRoomNumber = student.dormitoryRoomNumber?.dormitoryRoomNumber,
-                        role = student.role,
-                        sex = student.sex,
-                    )
-                },
+                columns =
+                    (byGrade[grade] ?: emptyList()).map { student ->
+                        ExcelColumnDto(
+                            name = student.name,
+                            number = student.studentNumber?.fullStudentNumber,
+                            email = student.email,
+                            major = student.major,
+                            majorClub = student.majorClub?.name,
+                            autonomousClub = student.autonomousClub?.name,
+                            dormitoryRoomNumber = student.dormitoryRoomNumber?.dormitoryRoomNumber,
+                            role = student.role,
+                            sex = student.sex,
+                        )
+                    },
             )
         }
     }
