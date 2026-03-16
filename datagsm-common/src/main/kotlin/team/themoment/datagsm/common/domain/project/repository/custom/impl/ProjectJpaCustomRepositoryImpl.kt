@@ -66,8 +66,10 @@ class ProjectJpaCustomRepositoryImpl(
             } else {
                 jpaQueryFactory
                     .selectFrom(projectJpaEntity)
-                    .leftJoin(projectJpaEntity.club).fetchJoin()
-                    .leftJoin(projectJpaEntity.participants).fetchJoin()
+                    .leftJoin(projectJpaEntity.club)
+                    .fetchJoin()
+                    .leftJoin(projectJpaEntity.participants)
+                    .fetchJoin()
                     .where(projectJpaEntity.id.`in`(projectIds))
                     .apply { orderSpecifier?.let { orderBy(it) } }
                     .fetch()

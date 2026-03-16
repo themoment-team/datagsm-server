@@ -38,7 +38,8 @@ class ClientJpaCustomRepositoryImpl(
             } else {
                 jpaQueryFactory
                     .selectFrom(clientJpaEntity)
-                    .leftJoin(clientJpaEntity.account).fetchJoin()
+                    .leftJoin(clientJpaEntity.account)
+                    .fetchJoin()
                     .where(clientJpaEntity.id.`in`(clientIds))
                     .fetch()
             }
@@ -76,7 +77,8 @@ class ClientJpaCustomRepositoryImpl(
             } else {
                 jpaQueryFactory
                     .selectFrom(clientJpaEntity)
-                    .leftJoin(clientJpaEntity.account).fetchJoin()
+                    .leftJoin(clientJpaEntity.account)
+                    .fetchJoin()
                     .where(clientJpaEntity.id.`in`(clientIds))
                     .fetch()
             }

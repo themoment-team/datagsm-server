@@ -73,8 +73,10 @@ class StudentJpaCustomRepositoryImpl(
             } else {
                 jpaQueryFactory
                     .selectFrom(studentJpaEntity)
-                    .leftJoin(studentJpaEntity.majorClub).fetchJoin()
-                    .leftJoin(studentJpaEntity.autonomousClub).fetchJoin()
+                    .leftJoin(studentJpaEntity.majorClub)
+                    .fetchJoin()
+                    .leftJoin(studentJpaEntity.autonomousClub)
+                    .fetchJoin()
                     .where(studentJpaEntity.id.`in`(studentIds))
                     .apply { orderSpecifier?.let { orderBy(*it) } }
                     .fetch()
@@ -304,8 +306,10 @@ class StudentJpaCustomRepositoryImpl(
             } else {
                 jpaQueryFactory
                     .selectFrom(studentJpaEntity)
-                    .leftJoin(studentJpaEntity.majorClub).fetchJoin()
-                    .leftJoin(studentJpaEntity.autonomousClub).fetchJoin()
+                    .leftJoin(studentJpaEntity.majorClub)
+                    .fetchJoin()
+                    .leftJoin(studentJpaEntity.autonomousClub)
+                    .fetchJoin()
                     .where(studentJpaEntity.id.`in`(studentIds))
                     .apply { orderSpecifier?.let { orderBy(*it) } }
                     .fetch()

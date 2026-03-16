@@ -67,7 +67,8 @@ class ClubJpaCustomRepositoryImpl(
             } else {
                 jpaQueryFactory
                     .selectFrom(clubJpaEntity)
-                    .leftJoin(clubJpaEntity.leader).fetchJoin()
+                    .leftJoin(clubJpaEntity.leader)
+                    .fetchJoin()
                     .where(clubJpaEntity.id.`in`(clubIds))
                     .apply { orderSpecifier?.let { orderBy(it) } }
                     .fetch()
