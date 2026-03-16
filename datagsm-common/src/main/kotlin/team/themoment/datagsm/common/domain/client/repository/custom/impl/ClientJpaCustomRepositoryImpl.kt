@@ -33,16 +33,12 @@ class ClientJpaCustomRepositoryImpl(
 
         // 2쿼리: ID IN절로 account fetchJoin
         val content =
-            if (clientIds.isEmpty()) {
-                emptyList()
-            } else {
-                jpaQueryFactory
-                    .selectFrom(clientJpaEntity)
-                    .leftJoin(clientJpaEntity.account)
-                    .fetchJoin()
-                    .where(clientJpaEntity.id.`in`(clientIds))
-                    .fetch()
-            }
+            jpaQueryFactory
+                .selectFrom(clientJpaEntity)
+                .leftJoin(clientJpaEntity.account)
+                .fetchJoin()
+                .where(clientJpaEntity.id.`in`(clientIds))
+                .fetch()
 
         val countQuery =
             jpaQueryFactory
