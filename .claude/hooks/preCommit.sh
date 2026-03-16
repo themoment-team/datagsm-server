@@ -14,7 +14,7 @@ if [[ ! "$COMMIT_MSG" =~ $PATTERN ]]; then
     echo "Example: fix(auth): API 키 로테이션 시 트랜잭션 롤백 방지"
     echo ""
     echo "Types: add/update/fix/refactor/test/docs/merge"
-    echo "Scopes: auth, student, club, neis, oauth, ci/cd, global"
+    echo "Scopes: auth, student, club, neis, oauth, utility, ci/cd, global"
     exit 1
 fi
 
