@@ -16,6 +16,6 @@ class ApiKeyCleanupScheduler(
     fun cleanupExpiredApiKeys() {
         val cutoffDate = LocalDateTime.now().minusDays(apiKeyEnvironment.renewalPeriodDays)
         val deletedCount = expireApiKeyService.execute(cutoffDate)
-        logger().info("Deleted $deletedCount expired API keys")
+        logger().info("Deleted {} expired API keys", deletedCount)
     }
 }
