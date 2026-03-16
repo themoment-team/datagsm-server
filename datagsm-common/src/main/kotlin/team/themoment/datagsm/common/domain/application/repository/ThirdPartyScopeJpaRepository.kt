@@ -8,4 +8,6 @@ interface ThirdPartyScopeJpaRepository : JpaRepository<ThirdPartyScopeJpaEntity,
         applicationId: String,
         scopeName: String,
     ): ThirdPartyScopeJpaEntity?
+
+    fun findAllByApplicationIdIn(applicationIds: Set<String>): List<ThirdPartyScopeJpaEntity>
 }

@@ -24,6 +24,7 @@ import team.themoment.datagsm.oauth.authorization.domain.oauth.service.Oauth2Tok
 import team.themoment.datagsm.oauth.authorization.global.security.jwt.JwtProvider
 import team.themoment.datagsm.oauth.authorization.global.util.PkceVerifier
 import team.themoment.sdk.exception.ExpectedException
+import team.themoment.sdk.logging.logger.logger
 import java.security.MessageDigest
 
 @Service
@@ -242,24 +243,33 @@ class Oauth2TokenServiceImpl(
                 requestedScopes.intersect(clientScopes)
             }
 
-        return scopesToGrant
-            .map { scopeStr ->
-                OAuthScope.fromString(scopeStr)
-                    ?: resolveThirdPartyScope(scopeStr)
-            }.toSet()
+        return stringsToScopes(scopesToGrant)
     }
 
-    private fun resolveThirdPartyScope(scopeStr: String): ThirdPartyScope {
-        val colonIdx = scopeStr.indexOf(':')
-        if (colonIdx <= 0) {
-            throw ExpectedException("유효하지 않은 scope: $scopeStr", HttpStatus.BAD_REQUEST)
-        }
-        val appId = scopeStr.substring(0, colonIdx)
-        val scopeName = scopeStr.substring(colonIdx + 1)
-        val entity =
-            thirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(appId, scopeName)
-                ?: throw ExpectedException("유효하지 않은 ThirdPartyScope: $scopeStr", HttpStatus.BAD_REQUEST)
-        return ThirdPartyScope(appId, scopeName, entity.description)
+    private fun stringsToScopes(strings: Set<String>): Set<OAuthScope> {
+        val builtin = strings.mapNotNull { OAuthScope.fromString(it) }
+        val thirdPartyStrings = strings.subtract(builtin.map { it.scope }.toSet())
+
+        if (thirdPartyStrings.isEmpty()) return builtin.toSet()
+
+        val appIds = thirdPartyStrings.map { it.substringBefore(':') }.toSet()
+        val fetched =
+            thirdPartyScopeJpaRepository
+                .findAllByApplicationIdIn(appIds)
+                .associateBy { "${it.application.id}:${it.scopeName}" }
+
+        val thirdParty =
+            thirdPartyStrings.map { scopeStr ->
+                val entity =
+                    fetched[scopeStr]
+                if (entity == null) {
+                    logger().error("Oauth 토큰 발급 에러. Client에서 요청한 ThirdPartyScope이지만 DB에서 찾을 수 없음. scopeStr: $scopeStr")
+                    throw ExpectedException("Client에서 가지고 있는 ThirdPartyScope 정보가 잘못되었습니다. 관리자에게 문의하세요.", HttpStatus.INTERNAL_SERVER_ERROR)
+                }
+                ThirdPartyScope(entity.application.id, entity.scopeName, entity.description)
+            }
+
+        return (builtin + thirdParty).toSet()
     }
 
     private fun saveRefreshToken(
