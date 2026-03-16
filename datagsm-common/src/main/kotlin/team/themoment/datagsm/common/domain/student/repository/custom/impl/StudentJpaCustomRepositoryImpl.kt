@@ -213,6 +213,19 @@ class StudentJpaCustomRepositoryImpl(
                 studentJpaEntity.studentNumber.studentNumber.asc(),
             ).fetch()
 
+    override fun findAllStudentsWithClubs(): List<StudentJpaEntity> =
+        jpaQueryFactory
+            .selectFrom(studentJpaEntity)
+            .leftJoin(studentJpaEntity.majorClub)
+            .fetchJoin()
+            .leftJoin(studentJpaEntity.autonomousClub)
+            .fetchJoin()
+            .orderBy(
+                studentJpaEntity.studentNumber.studentGrade.asc(),
+                studentJpaEntity.studentNumber.studentClass.asc(),
+                studentJpaEntity.studentNumber.studentNumber.asc(),
+            ).fetch()
+
     override fun findAllGraduates(): List<StudentJpaEntity> =
         jpaQueryFactory
             .selectFrom(studentJpaEntity)
