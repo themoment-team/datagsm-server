@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.web.domain.utility.service.ModifyAccountRoleService
-import team.themoment.sdk.response.CommonApiResponse
 
 @Tag(name = "Utility", description = "개발용 유틸리티 API")
 @RestController
@@ -36,5 +35,5 @@ class UtilityController(
         @RequestParam email: String,
         @Parameter(description = "변경할 계정 권한", required = true)
         @RequestParam role: AccountRole,
-    ): CommonApiResponse<Nothing> = modifyAccountRoleService.execute(email, role)
+    ) = modifyAccountRoleService.execute(email, role)
 }
