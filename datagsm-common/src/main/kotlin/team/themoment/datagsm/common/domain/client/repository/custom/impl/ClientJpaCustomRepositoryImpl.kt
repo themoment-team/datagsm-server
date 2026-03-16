@@ -19,15 +19,29 @@ class ClientJpaCustomRepositoryImpl(
         serviceName: String?,
         pageable: Pageable,
     ): Page<ClientJpaEntity> {
-        val content =
+        // 1쿼리: 페이지네이션 적용하여 client ID만 조회
+        val clientIds =
             jpaQueryFactory
-                .selectFrom(clientJpaEntity)
+                .select(clientJpaEntity.id)
+                .from(clientJpaEntity)
                 .where(
                     clientName?.let { clientJpaEntity.clientName.startsWith(it) },
                     serviceName?.let { clientJpaEntity.serviceName.startsWith(it) },
                 ).offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
+
+        // 2쿼리: ID IN절로 account fetchJoin
+        val content =
+            if (clientIds.isEmpty()) {
+                emptyList()
+            } else {
+                jpaQueryFactory
+                    .selectFrom(clientJpaEntity)
+                    .leftJoin(clientJpaEntity.account).fetchJoin()
+                    .where(clientJpaEntity.id.`in`(clientIds))
+                    .fetch()
+            }
 
         val countQuery =
             jpaQueryFactory
@@ -45,13 +59,27 @@ class ClientJpaCustomRepositoryImpl(
         account: AccountJpaEntity,
         pageable: Pageable,
     ): Page<ClientJpaEntity> {
-        val content =
+        // 1쿼리: 페이지네이션 적용하여 client ID만 조회
+        val clientIds =
             jpaQueryFactory
-                .selectFrom(clientJpaEntity)
+                .select(clientJpaEntity.id)
+                .from(clientJpaEntity)
                 .where(clientJpaEntity.account.eq(account))
                 .offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
+
+        // 2쿼리: ID IN절로 account fetchJoin
+        val content =
+            if (clientIds.isEmpty()) {
+                emptyList()
+            } else {
+                jpaQueryFactory
+                    .selectFrom(clientJpaEntity)
+                    .leftJoin(clientJpaEntity.account).fetchJoin()
+                    .where(clientJpaEntity.id.`in`(clientIds))
+                    .fetch()
+            }
 
         val countQuery =
             jpaQueryFactory
