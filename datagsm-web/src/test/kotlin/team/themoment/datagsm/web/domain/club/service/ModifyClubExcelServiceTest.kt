@@ -110,32 +110,8 @@ class ModifyClubExcelServiceTest :
                     beforeEach {
                         every { mockClubRepository.findAllByNameIn(any()) } returns emptyList()
                         every {
-                            mockStudentRepository
-                                .findByStudentNumberStudentGradeAndStudentNumberStudentClassAndStudentNumberStudentNumberAndName(
-                                    2,
-                                    4,
-                                    4,
-                                    "김철수",
-                                )
-                        } returns leader1
-                        every {
-                            mockStudentRepository
-                                .findByStudentNumberStudentGradeAndStudentNumberStudentClassAndStudentNumberStudentNumberAndName(
-                                    2,
-                                    3,
-                                    5,
-                                    "이영희",
-                                )
-                        } returns leader2
-                        every {
-                            mockStudentRepository
-                                .findByStudentNumberStudentGradeAndStudentNumberStudentClassAndStudentNumberStudentNumberAndName(
-                                    1,
-                                    2,
-                                    10,
-                                    "박민수",
-                                )
-                        } returns leader3
+                            mockStudentRepository.findAllByStudentNumberCodes(any())
+                        } returns listOf(leader1, leader3)
                         every { mockClubRepository.saveAll(any<List<ClubJpaEntity>>()) } returns emptyList()
                         every { mockClubRepository.findByNameNotIn(any()) } returns emptyList()
                     }
@@ -437,14 +413,8 @@ class ModifyClubExcelServiceTest :
                     beforeEach {
                         every { mockClubRepository.findAllByNameIn(any()) } returns emptyList()
                         every {
-                            mockStudentRepository
-                                .findByStudentNumberStudentGradeAndStudentNumberStudentClassAndStudentNumberStudentNumberAndName(
-                                    any(),
-                                    any(),
-                                    any(),
-                                    any(),
-                                )
-                        } returns null
+                            mockStudentRepository.findAllByStudentNumberCodes(any())
+                        } returns emptyList()
                     }
 
                     it("ExpectedException이 발생해야 한다") {
@@ -485,17 +455,21 @@ class ModifyClubExcelServiceTest :
                             sex = Sex.MAN
                         }
 
+                    val anotherLeader =
+                        StudentJpaEntity().apply {
+                            id = 3L
+                            name = "박민수"
+                            studentNumber = StudentNumber(1, 2, 10)
+                            email = "park@gsm.hs.kr"
+                            major = Major.SMART_IOT
+                            sex = Sex.MAN
+                        }
+
                     beforeEach {
                         every { mockClubRepository.findAllByNameIn(any()) } returns listOf(existingClub)
                         every {
-                            mockStudentRepository
-                                .findByStudentNumberStudentGradeAndStudentNumberStudentClassAndStudentNumberStudentNumberAndName(
-                                    any(),
-                                    any(),
-                                    any(),
-                                    any(),
-                                )
-                        } returns newLeader
+                            mockStudentRepository.findAllByStudentNumberCodes(any())
+                        } returns listOf(newLeader, anotherLeader)
                         every { mockClubRepository.saveAll(any<List<ClubJpaEntity>>()) } returns emptyList()
                         every { mockClubRepository.findByNameNotIn(any()) } returns emptyList()
                     }
@@ -540,17 +514,21 @@ class ModifyClubExcelServiceTest :
                             sex = Sex.MAN
                         }
 
+                    val leader2 =
+                        StudentJpaEntity().apply {
+                            id = 3L
+                            name = "박민수"
+                            studentNumber = StudentNumber(1, 2, 10)
+                            email = "park@gsm.hs.kr"
+                            major = Major.SMART_IOT
+                            sex = Sex.MAN
+                        }
+
                     beforeEach {
                         every { mockClubRepository.findAllByNameIn(any()) } returns emptyList()
                         every {
-                            mockStudentRepository
-                                .findByStudentNumberStudentGradeAndStudentNumberStudentClassAndStudentNumberStudentNumberAndName(
-                                    any(),
-                                    any(),
-                                    any(),
-                                    any(),
-                                )
-                        } returns leader1
+                            mockStudentRepository.findAllByStudentNumberCodes(any())
+                        } returns listOf(leader1, leader2)
                         every { mockClubRepository.saveAll(any<List<ClubJpaEntity>>()) } returns emptyList()
                         every { mockClubRepository.findByNameNotIn(any()) } returns listOf(orphanClub)
                         every { mockStudentRepository.bulkClearClubReferences(any()) } just Runs
