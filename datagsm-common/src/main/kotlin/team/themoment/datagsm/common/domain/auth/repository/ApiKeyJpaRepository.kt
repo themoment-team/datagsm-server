@@ -5,7 +5,6 @@ import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.auth.entity.ApiKey
 import team.themoment.datagsm.common.domain.auth.repository.custom.ApiKeyJpaCustomRepository
-import java.time.LocalDateTime
 import java.util.Optional
 import java.util.UUID
 
@@ -18,6 +17,4 @@ interface ApiKeyJpaRepository :
     fun findByValue(apiKeyValue: UUID): Optional<ApiKey>
 
     fun deleteByAccount(account: AccountJpaEntity)
-
-    fun findAllByExpiresAtLessThanEqual(dateTime: LocalDateTime): List<ApiKey>
 }
