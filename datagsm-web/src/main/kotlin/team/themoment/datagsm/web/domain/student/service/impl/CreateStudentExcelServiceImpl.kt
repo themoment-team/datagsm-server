@@ -38,7 +38,7 @@ class CreateStudentExcelServiceImpl(
 
     override fun execute(includeGraduates: Boolean): ResponseEntity<ByteArray> {
         val allStudents = studentJpaRepository.findAllStudentsWithClubs()
-        val data: List<ExcelRowDto> = getStudentData(allStudents)
+        val data = getStudentData(allStudents)
         val workbook = XSSFWorkbook()
 
         data.forEachIndexed { idx, excelRowDto ->
