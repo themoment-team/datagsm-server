@@ -9,8 +9,14 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 
-@Table(name = "tb_thirdparty_scope")
+@Table(
+    name = "tb_thirdparty_scope",
+    uniqueConstraints = [
+        UniqueConstraint(columnNames = ["application_id", "scope_name"], name = "uk_application_scope_name"),
+    ],
+)
 @Entity
 class ThirdPartyScopeJpaEntity {
     @Id
