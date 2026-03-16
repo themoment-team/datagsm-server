@@ -10,6 +10,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
@@ -56,6 +57,8 @@ class ModifyClubServiceTest :
                             name = "기존동아리"
                             type = ClubType.MAJOR_CLUB
                             this.leader = oldLeader
+                            foundedYear = 2022
+                            status = ClubStatus.ACTIVE
                         }
                 }
 
@@ -66,6 +69,8 @@ class ModifyClubServiceTest :
                             type = ClubType.MAJOR_CLUB,
                             leaderId = 20L,
                             participantIds = listOf(30L, 40L),
+                            foundedYear = 2022,
+                            status = ClubStatus.ACTIVE,
                         )
                     lateinit var newLeader: StudentJpaEntity
 
@@ -81,7 +86,7 @@ class ModifyClubServiceTest :
                             }
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
-                        every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(newLeader)
+                        every { mockStudentRepository.findById(req.leaderId!!) } returns Optional.of(newLeader)
                         every { mockStudentRepository.findAllById(any<Iterable<Long>>()) } returns emptyList()
                         every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
@@ -98,7 +103,7 @@ class ModifyClubServiceTest :
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
                         verify(exactly = 1) { mockClubRepository.existsByNameAndIdNot(req.name, clubId) }
-                        verify(exactly = 1) { mockStudentRepository.findById(req.leaderId) }
+                        verify(exactly = 1) { mockStudentRepository.findById(req.leaderId!!) }
                     }
                 }
 
@@ -109,12 +114,14 @@ class ModifyClubServiceTest :
                             type = ClubType.AUTONOMOUS_CLUB,
                             leaderId = 10L,
                             participantIds = listOf(30L),
+                            foundedYear = 2022,
+                            status = ClubStatus.ACTIVE,
                         )
 
                     beforeEach {
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
-                        every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(oldLeader)
+                        every { mockStudentRepository.findById(req.leaderId!!) } returns Optional.of(oldLeader)
                         every { mockStudentRepository.findAllById(any<Iterable<Long>>()) } returns emptyList()
                         every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
@@ -130,7 +137,7 @@ class ModifyClubServiceTest :
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
                         verify(exactly = 1) { mockClubRepository.existsByNameAndIdNot(req.name, clubId) }
-                        verify(exactly = 1) { mockStudentRepository.findById(req.leaderId) }
+                        verify(exactly = 1) { mockStudentRepository.findById(req.leaderId!!) }
                     }
                 }
 
@@ -141,6 +148,8 @@ class ModifyClubServiceTest :
                             type = ClubType.MAJOR_CLUB,
                             leaderId = 10L,
                             participantIds = listOf(10L),
+                            foundedYear = 2022,
+                            status = ClubStatus.ACTIVE,
                         )
 
                     beforeEach {
@@ -167,6 +176,8 @@ class ModifyClubServiceTest :
                             type = ClubType.MAJOR_CLUB,
                             leaderId = 10L,
                             participantIds = listOf(10L),
+                            foundedYear = 2022,
+                            status = ClubStatus.ACTIVE,
                         )
 
                     beforeEach {
@@ -191,6 +202,8 @@ class ModifyClubServiceTest :
                             type = ClubType.AUTONOMOUS_CLUB,
                             leaderId = 20L,
                             participantIds = listOf(30L),
+                            foundedYear = 2022,
+                            status = ClubStatus.ACTIVE,
                         )
                     lateinit var newLeader: StudentJpaEntity
 
@@ -206,7 +219,7 @@ class ModifyClubServiceTest :
                             }
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
-                        every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(newLeader)
+                        every { mockStudentRepository.findById(req.leaderId!!) } returns Optional.of(newLeader)
                         every { mockStudentRepository.findAllById(listOf(30L)) } returns emptyList()
                         every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
@@ -228,6 +241,8 @@ class ModifyClubServiceTest :
                             type = ClubType.MAJOR_CLUB,
                             leaderId = 20L,
                             participantIds = listOf(20L, 30L),
+                            foundedYear = 2022,
+                            status = ClubStatus.ACTIVE,
                         )
                     lateinit var newLeader: StudentJpaEntity
                     lateinit var participant: StudentJpaEntity
@@ -253,7 +268,7 @@ class ModifyClubServiceTest :
                             }
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
-                        every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(newLeader)
+                        every { mockStudentRepository.findById(req.leaderId!!) } returns Optional.of(newLeader)
                         every { mockStudentRepository.findAllById(listOf(30L)) } returns listOf(participant)
                         every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
@@ -276,6 +291,8 @@ class ModifyClubServiceTest :
                             type = ClubType.MAJOR_CLUB,
                             leaderId = 20L,
                             participantIds = listOf(30L),
+                            foundedYear = 2022,
+                            status = ClubStatus.ACTIVE,
                         )
                     lateinit var newLeader: StudentJpaEntity
                     lateinit var participant: StudentJpaEntity
@@ -301,7 +318,7 @@ class ModifyClubServiceTest :
                             }
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
-                        every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(newLeader)
+                        every { mockStudentRepository.findById(req.leaderId!!) } returns Optional.of(newLeader)
                         every { mockStudentRepository.findAllById(listOf(30L)) } returns listOf(participant)
                         every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
@@ -322,6 +339,8 @@ class ModifyClubServiceTest :
                             type = ClubType.MAJOR_CLUB,
                             leaderId = 20L,
                             participantIds = listOf(30L),
+                            foundedYear = 2022,
+                            status = ClubStatus.ACTIVE,
                         )
                     lateinit var newLeader: StudentJpaEntity
                     lateinit var otherClub: ClubJpaEntity
@@ -342,10 +361,12 @@ class ModifyClubServiceTest :
                                 this.name = "다른동아리"
                                 this.type = ClubType.MAJOR_CLUB
                                 this.leader = newLeader
+                                this.foundedYear = 2022
+                                this.status = ClubStatus.ACTIVE
                             }
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
-                        every { mockStudentRepository.findById(req.leaderId) } returns Optional.of(newLeader)
+                        every { mockStudentRepository.findById(req.leaderId!!) } returns Optional.of(newLeader)
                         every { mockStudentRepository.findAllById(listOf(30L)) } returns emptyList()
                         every { mockClubRepository.findAllByLeader(newLeader) } returns listOf(otherClub)
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
@@ -357,6 +378,65 @@ class ModifyClubServiceTest :
 
                         otherClub.leader shouldBe null
                         verify { mockClubRepository.findAllByLeader(newLeader) }
+                    }
+                }
+
+                context("ACTIVE → ABOLISHED 변경 시 leaderId=null인 경우") {
+                    val req =
+                        ClubReqDto(
+                            name = "기존동아리",
+                            type = ClubType.MAJOR_CLUB,
+                            leaderId = null,
+                            participantIds = listOf(30L),
+                            foundedYear = 2022,
+                            status = ClubStatus.ABOLISHED,
+                            abolishedYear = 2024,
+                        )
+                    lateinit var participant: StudentJpaEntity
+
+                    beforeEach {
+                        participant =
+                            StudentJpaEntity().apply {
+                                this.id = 30L
+                                this.name = "부원"
+                                this.email = "p@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(2, 2, 3)
+                                this.major = Major.AI
+                                this.sex = Sex.MAN
+                            }
+                        every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
+                        every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
+                        every { mockStudentRepository.findAllById(listOf(30L)) } returns listOf(participant)
+                        every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
+                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
+                    }
+
+                    it("club.leader가 null이 되고 clearClubReferencesByType이 호출되어야 한다") {
+                        val res = modifyClubService.execute(clubId, req)
+
+                        res.leader shouldBe null
+                        existing.leader shouldBe null
+                        verify { mockStudentRepository.clearClubReferencesByType(existing, ClubType.MAJOR_CLUB) }
+                    }
+                }
+
+                context("ABOLISHED 상태인데 leaderId가 null이 아닐 때") {
+                    val req =
+                        ClubReqDto(
+                            name = "기존동아리",
+                            type = ClubType.MAJOR_CLUB,
+                            leaderId = 20L,
+                            participantIds = listOf(30L),
+                            foundedYear = 2022,
+                            status = ClubStatus.ABOLISHED,
+                        )
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val ex =
+                            shouldThrow<ExpectedException> {
+                                modifyClubService.execute(clubId, req)
+                            }
+                        ex.message shouldBe "폐지된 동아리에는 부장을 지정할 수 없습니다."
                     }
                 }
             }

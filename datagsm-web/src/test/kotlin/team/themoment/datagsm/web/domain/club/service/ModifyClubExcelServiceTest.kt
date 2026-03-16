@@ -14,6 +14,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.springframework.http.HttpStatus
 import org.springframework.mock.web.MockMultipartFile
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
@@ -25,10 +26,12 @@ import team.themoment.datagsm.web.domain.club.service.impl.ModifyClubExcelServic
 import team.themoment.sdk.exception.ExpectedException
 import java.io.ByteArrayOutputStream
 
-private const val MAJOR_CLUB_COL_IDX = 0
-private const val MAJOR_CLUB_LEADER_COL_IDX = 1
-private const val AUTONOMOUS_CLUB_COL_IDX = 2
-private const val AUTONOMOUS_CLUB_LEADER_COL_IDX = 3
+private const val CLUB_NAME_COL_IDX = 0
+private const val CLUB_TYPE_COL_IDX = 1
+private const val LEADER_COL_IDX = 2
+private const val FOUNDED_YEAR_COL_IDX = 3
+private const val STATUS_COL_IDX = 4
+private const val ABOLISHED_YEAR_COL_IDX = 5
 
 class ModifyClubExcelServiceTest :
     DescribeSpec({
@@ -43,21 +46,35 @@ class ModifyClubExcelServiceTest :
             modifyClubExcelService = ModifyClubExcelServiceImpl(mockClubRepository, mockStudentRepository)
         }
 
-        fun createValidExcelFile(): ByteArray =
+        fun createValidExcelFile(includeAbolished: Boolean = false): ByteArray =
             ByteArrayOutputStream().use { output ->
                 XSSFWorkbook().use { workbook ->
                     val sheet = workbook.createSheet("동아리")
                     val headerRow = sheet.createRow(0)
-                    headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("전공동아리")
-                    headerRow.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("전공동아리 부장")
-                    headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("창체동아리")
-                    headerRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("창체동아리 부장")
+                    headerRow.createCell(CLUB_NAME_COL_IDX).setCellValue("동아리명")
+                    headerRow.createCell(CLUB_TYPE_COL_IDX).setCellValue("동아리종류")
+                    headerRow.createCell(LEADER_COL_IDX).setCellValue("부장")
+                    headerRow.createCell(FOUNDED_YEAR_COL_IDX).setCellValue("창설학년도")
+                    headerRow.createCell(STATUS_COL_IDX).setCellValue("운영상태")
+                    headerRow.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("폐지학년도")
 
                     val dataRow = sheet.createRow(1)
-                    dataRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("SW개발동아리")
-                    dataRow.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("2404 김철수")
-                    dataRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("창체동아리B")
-                    dataRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("1210 박민수")
+                    dataRow.createCell(CLUB_NAME_COL_IDX).setCellValue("SW개발동아리")
+                    dataRow.createCell(CLUB_TYPE_COL_IDX).setCellValue("MAJOR_CLUB")
+                    dataRow.createCell(LEADER_COL_IDX).setCellValue("2404 김철수")
+                    dataRow.createCell(FOUNDED_YEAR_COL_IDX).setCellValue(2022.0)
+                    dataRow.createCell(STATUS_COL_IDX).setCellValue("ACTIVE")
+                    dataRow.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("")
+
+                    if (includeAbolished) {
+                        val abolishedRow = sheet.createRow(2)
+                        abolishedRow.createCell(CLUB_NAME_COL_IDX).setCellValue("폐지된동아리")
+                        abolishedRow.createCell(CLUB_TYPE_COL_IDX).setCellValue("MAJOR_CLUB")
+                        abolishedRow.createCell(LEADER_COL_IDX).setCellValue("")
+                        abolishedRow.createCell(FOUNDED_YEAR_COL_IDX).setCellValue(2020.0)
+                        abolishedRow.createCell(STATUS_COL_IDX).setCellValue("ABOLISHED")
+                        abolishedRow.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue(2023.0)
+                    }
 
                     workbook.write(output)
                 }
@@ -87,26 +104,6 @@ class ModifyClubExcelServiceTest :
                             sex = Sex.MAN
                         }
 
-                    val leader2 =
-                        StudentJpaEntity().apply {
-                            id = 2L
-                            name = "이영희"
-                            studentNumber = StudentNumber(2, 3, 5)
-                            email = "lee@gsm.hs.kr"
-                            major = Major.AI
-                            sex = Sex.WOMAN
-                        }
-
-                    val leader3 =
-                        StudentJpaEntity().apply {
-                            id = 3L
-                            name = "박민수"
-                            studentNumber = StudentNumber(1, 2, 10)
-                            email = "park@gsm.hs.kr"
-                            major = Major.SMART_IOT
-                            sex = Sex.MAN
-                        }
-
                     beforeEach {
                         every { mockClubRepository.findAllByNameIn(any()) } returns emptyList()
                         every {
@@ -118,24 +115,6 @@ class ModifyClubExcelServiceTest :
                                     "김철수",
                                 )
                         } returns leader1
-                        every {
-                            mockStudentRepository
-                                .findByStudentNumberStudentGradeAndStudentNumberStudentClassAndStudentNumberStudentNumberAndName(
-                                    2,
-                                    3,
-                                    5,
-                                    "이영희",
-                                )
-                        } returns leader2
-                        every {
-                            mockStudentRepository
-                                .findByStudentNumberStudentGradeAndStudentNumberStudentClassAndStudentNumberStudentNumberAndName(
-                                    1,
-                                    2,
-                                    10,
-                                    "박민수",
-                                )
-                        } returns leader3
                         every { mockClubRepository.saveAll(any<List<ClubJpaEntity>>()) } returns emptyList()
                         every { mockClubRepository.findByNameNotIn(any()) } returns emptyList()
                     }
@@ -150,10 +129,64 @@ class ModifyClubExcelServiceTest :
                         verify(exactly = 1) { mockClubRepository.saveAll(capture(clubsSlot)) }
 
                         val savedClubs = clubsSlot.captured
-                        savedClubs.size shouldBe 2
+                        savedClubs.size shouldBe 1
                         savedClubs[0].name shouldBe "SW개발동아리"
                         savedClubs[0].type shouldBe ClubType.MAJOR_CLUB
                         savedClubs[0].leader?.name shouldBe "김철수"
+                        savedClubs[0].foundedYear shouldBe 2022
+                        savedClubs[0].status shouldBe ClubStatus.ACTIVE
+                    }
+                }
+
+                context("ABOLISHED 동아리가 포함된 Excel을 업로드할 때") {
+                    val excelBytes = createValidExcelFile(includeAbolished = true)
+                    val file =
+                        MockMultipartFile(
+                            "file",
+                            "clubs.xlsx",
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            excelBytes,
+                        )
+
+                    val leader1 =
+                        StudentJpaEntity().apply {
+                            id = 1L
+                            name = "김철수"
+                            studentNumber = StudentNumber(2, 4, 4)
+                            email = "kim@gsm.hs.kr"
+                            major = Major.SW_DEVELOPMENT
+                            sex = Sex.MAN
+                        }
+
+                    beforeEach {
+                        every { mockClubRepository.findAllByNameIn(any()) } returns emptyList()
+                        every {
+                            mockStudentRepository
+                                .findByStudentNumberStudentGradeAndStudentNumberStudentClassAndStudentNumberStudentNumberAndName(
+                                    2,
+                                    4,
+                                    4,
+                                    "김철수",
+                                )
+                        } returns leader1
+                        every { mockClubRepository.saveAll(any<List<ClubJpaEntity>>()) } returns emptyList()
+                        every { mockClubRepository.findByNameNotIn(any()) } returns emptyList()
+                    }
+
+                    it("ABOLISHED 동아리는 leader=null로 저장되고 findByStudentNumber가 호출되지 않아야 한다") {
+                        val result = modifyClubExcelService.execute(file)
+
+                        result.message shouldBe "엑셀 업로드 성공"
+
+                        val clubsSlot = slot<List<ClubJpaEntity>>()
+                        verify(exactly = 1) { mockClubRepository.saveAll(capture(clubsSlot)) }
+
+                        val savedClubs = clubsSlot.captured
+                        savedClubs.size shouldBe 2
+                        val abolishedClub = savedClubs.find { it.name == "폐지된동아리" }!!
+                        abolishedClub.leader shouldBe null
+                        abolishedClub.status shouldBe ClubStatus.ABOLISHED
+                        abolishedClub.abolishedYear shouldBe 2023
                     }
                 }
 
@@ -183,16 +216,28 @@ class ModifyClubExcelServiceTest :
                             XSSFWorkbook().use { workbook ->
                                 val sheet = workbook.createSheet("동아리")
                                 val headerRow = sheet.createRow(0)
-                                headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("전공동아리")
-                                headerRow.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("전공동아리 부장")
-                                headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("창체동아리")
-                                headerRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("창체동아리 부장")
+                                headerRow.createCell(CLUB_NAME_COL_IDX).setCellValue("동아리명")
+                                headerRow.createCell(CLUB_TYPE_COL_IDX).setCellValue("동아리종류")
+                                headerRow.createCell(LEADER_COL_IDX).setCellValue("부장")
+                                headerRow.createCell(FOUNDED_YEAR_COL_IDX).setCellValue("창설학년도")
+                                headerRow.createCell(STATUS_COL_IDX).setCellValue("운영상태")
+                                headerRow.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("폐지학년도")
 
                                 val row1 = sheet.createRow(1)
-                                row1.createCell(MAJOR_CLUB_COL_IDX).setCellValue("중복동아리")
-                                row1.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("2404 김철수")
-                                row1.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("중복동아리")
-                                row1.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("1210 박민수")
+                                row1.createCell(CLUB_NAME_COL_IDX).setCellValue("중복동아리")
+                                row1.createCell(CLUB_TYPE_COL_IDX).setCellValue("MAJOR_CLUB")
+                                row1.createCell(LEADER_COL_IDX).setCellValue("2404 김철수")
+                                row1.createCell(FOUNDED_YEAR_COL_IDX).setCellValue(2022.0)
+                                row1.createCell(STATUS_COL_IDX).setCellValue("ACTIVE")
+                                row1.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("")
+
+                                val row2 = sheet.createRow(2)
+                                row2.createCell(CLUB_NAME_COL_IDX).setCellValue("중복동아리")
+                                row2.createCell(CLUB_TYPE_COL_IDX).setCellValue("AUTONOMOUS_CLUB")
+                                row2.createCell(LEADER_COL_IDX).setCellValue("1210 박민수")
+                                row2.createCell(FOUNDED_YEAR_COL_IDX).setCellValue(2022.0)
+                                row2.createCell(STATUS_COL_IDX).setCellValue("ACTIVE")
+                                row2.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("")
 
                                 workbook.write(output)
                             }
@@ -227,14 +272,15 @@ class ModifyClubExcelServiceTest :
                             XSSFWorkbook().use { workbook ->
                                 val sheet = workbook.createSheet("동아리")
                                 val headerRow = sheet.createRow(0)
-                                headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("전공동아리")
-                                headerRow.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("전공동아리 부장")
-                                headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("창체동아리")
-                                headerRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("창체동아리 부장")
+                                headerRow.createCell(CLUB_NAME_COL_IDX).setCellValue("동아리명")
+                                headerRow.createCell(CLUB_TYPE_COL_IDX).setCellValue("동아리종류")
+                                headerRow.createCell(LEADER_COL_IDX).setCellValue("부장")
+                                headerRow.createCell(FOUNDED_YEAR_COL_IDX).setCellValue("창설학년도")
+                                headerRow.createCell(STATUS_COL_IDX).setCellValue("운영상태")
+                                headerRow.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("폐지학년도")
 
                                 val row1 = sheet.createRow(1)
-                                row1.createCell(MAJOR_CLUB_COL_IDX).setCellValue("")
-                                row1.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("")
+                                row1.createCell(CLUB_NAME_COL_IDX).setCellValue("")
 
                                 workbook.write(output)
                             }
@@ -266,10 +312,12 @@ class ModifyClubExcelServiceTest :
                             XSSFWorkbook().use { workbook ->
                                 val sheet = workbook.createSheet("동아리")
                                 val headerRow = sheet.createRow(0)
-                                headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("잘못된헤더")
-                                headerRow.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("전공동아리 부장")
-                                headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("창체동아리")
-                                headerRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("창체동아리 부장")
+                                headerRow.createCell(CLUB_NAME_COL_IDX).setCellValue("잘못된헤더")
+                                headerRow.createCell(CLUB_TYPE_COL_IDX).setCellValue("동아리종류")
+                                headerRow.createCell(LEADER_COL_IDX).setCellValue("부장")
+                                headerRow.createCell(FOUNDED_YEAR_COL_IDX).setCellValue("창설학년도")
+                                headerRow.createCell(STATUS_COL_IDX).setCellValue("운영상태")
+                                headerRow.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("폐지학년도")
 
                                 workbook.write(output)
                             }
@@ -295,20 +343,161 @@ class ModifyClubExcelServiceTest :
                     }
                 }
 
-                context("부장 정보가 비어있을 때") {
+                context("알 수 없는 동아리종류일 때") {
                     val excelBytes =
                         ByteArrayOutputStream().use { output ->
                             XSSFWorkbook().use { workbook ->
                                 val sheet = workbook.createSheet("동아리")
                                 val headerRow = sheet.createRow(0)
-                                headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("전공동아리")
-                                headerRow.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("전공동아리 부장")
-                                headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("창체동아리")
-                                headerRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("창체동아리 부장")
+                                headerRow.createCell(CLUB_NAME_COL_IDX).setCellValue("동아리명")
+                                headerRow.createCell(CLUB_TYPE_COL_IDX).setCellValue("동아리종류")
+                                headerRow.createCell(LEADER_COL_IDX).setCellValue("부장")
+                                headerRow.createCell(FOUNDED_YEAR_COL_IDX).setCellValue("창설학년도")
+                                headerRow.createCell(STATUS_COL_IDX).setCellValue("운영상태")
+                                headerRow.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("폐지학년도")
 
                                 val row1 = sheet.createRow(1)
-                                row1.createCell(MAJOR_CLUB_COL_IDX).setCellValue("SW개발동아리")
-                                row1.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("")
+                                row1.createCell(CLUB_NAME_COL_IDX).setCellValue("SW개발동아리")
+                                row1.createCell(CLUB_TYPE_COL_IDX).setCellValue("UNKNOWN_TYPE")
+                                row1.createCell(LEADER_COL_IDX).setCellValue("2404 김철수")
+                                row1.createCell(FOUNDED_YEAR_COL_IDX).setCellValue(2022.0)
+                                row1.createCell(STATUS_COL_IDX).setCellValue("ACTIVE")
+                                row1.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("")
+
+                                workbook.write(output)
+                            }
+                            output.toByteArray()
+                        }
+
+                    val file =
+                        MockMultipartFile(
+                            "file",
+                            "clubs.xlsx",
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            excelBytes,
+                        )
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                modifyClubExcelService.execute(file)
+                            }
+
+                        exception.message shouldContain "알 수 없는 동아리 종류입니다"
+                        exception.statusCode shouldBe HttpStatus.BAD_REQUEST
+                    }
+                }
+
+                context("알 수 없는 운영상태일 때") {
+                    val excelBytes =
+                        ByteArrayOutputStream().use { output ->
+                            XSSFWorkbook().use { workbook ->
+                                val sheet = workbook.createSheet("동아리")
+                                val headerRow = sheet.createRow(0)
+                                headerRow.createCell(CLUB_NAME_COL_IDX).setCellValue("동아리명")
+                                headerRow.createCell(CLUB_TYPE_COL_IDX).setCellValue("동아리종류")
+                                headerRow.createCell(LEADER_COL_IDX).setCellValue("부장")
+                                headerRow.createCell(FOUNDED_YEAR_COL_IDX).setCellValue("창설학년도")
+                                headerRow.createCell(STATUS_COL_IDX).setCellValue("운영상태")
+                                headerRow.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("폐지학년도")
+
+                                val row1 = sheet.createRow(1)
+                                row1.createCell(CLUB_NAME_COL_IDX).setCellValue("SW개발동아리")
+                                row1.createCell(CLUB_TYPE_COL_IDX).setCellValue("MAJOR_CLUB")
+                                row1.createCell(LEADER_COL_IDX).setCellValue("2404 김철수")
+                                row1.createCell(FOUNDED_YEAR_COL_IDX).setCellValue(2022.0)
+                                row1.createCell(STATUS_COL_IDX).setCellValue("UNKNOWN_STATUS")
+                                row1.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("")
+
+                                workbook.write(output)
+                            }
+                            output.toByteArray()
+                        }
+
+                    val file =
+                        MockMultipartFile(
+                            "file",
+                            "clubs.xlsx",
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            excelBytes,
+                        )
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                modifyClubExcelService.execute(file)
+                            }
+
+                        exception.message shouldContain "알 수 없는 운영 상태입니다"
+                        exception.statusCode shouldBe HttpStatus.BAD_REQUEST
+                    }
+                }
+
+                context("창설학년도가 비어있을 때") {
+                    val excelBytes =
+                        ByteArrayOutputStream().use { output ->
+                            XSSFWorkbook().use { workbook ->
+                                val sheet = workbook.createSheet("동아리")
+                                val headerRow = sheet.createRow(0)
+                                headerRow.createCell(CLUB_NAME_COL_IDX).setCellValue("동아리명")
+                                headerRow.createCell(CLUB_TYPE_COL_IDX).setCellValue("동아리종류")
+                                headerRow.createCell(LEADER_COL_IDX).setCellValue("부장")
+                                headerRow.createCell(FOUNDED_YEAR_COL_IDX).setCellValue("창설학년도")
+                                headerRow.createCell(STATUS_COL_IDX).setCellValue("운영상태")
+                                headerRow.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("폐지학년도")
+
+                                val row1 = sheet.createRow(1)
+                                row1.createCell(CLUB_NAME_COL_IDX).setCellValue("SW개발동아리")
+                                row1.createCell(CLUB_TYPE_COL_IDX).setCellValue("MAJOR_CLUB")
+                                row1.createCell(LEADER_COL_IDX).setCellValue("2404 김철수")
+                                row1.createCell(FOUNDED_YEAR_COL_IDX).setCellValue("")
+                                row1.createCell(STATUS_COL_IDX).setCellValue("ACTIVE")
+                                row1.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("")
+
+                                workbook.write(output)
+                            }
+                            output.toByteArray()
+                        }
+
+                    val file =
+                        MockMultipartFile(
+                            "file",
+                            "clubs.xlsx",
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            excelBytes,
+                        )
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                modifyClubExcelService.execute(file)
+                            }
+
+                        exception.message shouldContain "창설 학년도가 비어있습니다"
+                        exception.statusCode shouldBe HttpStatus.BAD_REQUEST
+                    }
+                }
+
+                context("ACTIVE인데 부장 정보가 비어있을 때") {
+                    val excelBytes =
+                        ByteArrayOutputStream().use { output ->
+                            XSSFWorkbook().use { workbook ->
+                                val sheet = workbook.createSheet("동아리")
+                                val headerRow = sheet.createRow(0)
+                                headerRow.createCell(CLUB_NAME_COL_IDX).setCellValue("동아리명")
+                                headerRow.createCell(CLUB_TYPE_COL_IDX).setCellValue("동아리종류")
+                                headerRow.createCell(LEADER_COL_IDX).setCellValue("부장")
+                                headerRow.createCell(FOUNDED_YEAR_COL_IDX).setCellValue("창설학년도")
+                                headerRow.createCell(STATUS_COL_IDX).setCellValue("운영상태")
+                                headerRow.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("폐지학년도")
+
+                                val row1 = sheet.createRow(1)
+                                row1.createCell(CLUB_NAME_COL_IDX).setCellValue("SW개발동아리")
+                                row1.createCell(CLUB_TYPE_COL_IDX).setCellValue("MAJOR_CLUB")
+                                row1.createCell(LEADER_COL_IDX).setCellValue("")
+                                row1.createCell(FOUNDED_YEAR_COL_IDX).setCellValue(2022.0)
+                                row1.createCell(STATUS_COL_IDX).setCellValue("ACTIVE")
+                                row1.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("")
 
                                 workbook.write(output)
                             }
@@ -344,14 +533,20 @@ class ModifyClubExcelServiceTest :
                             XSSFWorkbook().use { workbook ->
                                 val sheet = workbook.createSheet("동아리")
                                 val headerRow = sheet.createRow(0)
-                                headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("전공동아리")
-                                headerRow.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("전공동아리 부장")
-                                headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("창체동아리")
-                                headerRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("창체동아리 부장")
+                                headerRow.createCell(CLUB_NAME_COL_IDX).setCellValue("동아리명")
+                                headerRow.createCell(CLUB_TYPE_COL_IDX).setCellValue("동아리종류")
+                                headerRow.createCell(LEADER_COL_IDX).setCellValue("부장")
+                                headerRow.createCell(FOUNDED_YEAR_COL_IDX).setCellValue("창설학년도")
+                                headerRow.createCell(STATUS_COL_IDX).setCellValue("운영상태")
+                                headerRow.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("폐지학년도")
 
                                 val row1 = sheet.createRow(1)
-                                row1.createCell(MAJOR_CLUB_COL_IDX).setCellValue("SW개발동아리")
-                                row1.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("2404김철수")
+                                row1.createCell(CLUB_NAME_COL_IDX).setCellValue("SW개발동아리")
+                                row1.createCell(CLUB_TYPE_COL_IDX).setCellValue("MAJOR_CLUB")
+                                row1.createCell(LEADER_COL_IDX).setCellValue("2404김철수")
+                                row1.createCell(FOUNDED_YEAR_COL_IDX).setCellValue(2022.0)
+                                row1.createCell(STATUS_COL_IDX).setCellValue("ACTIVE")
+                                row1.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("")
 
                                 workbook.write(output)
                             }
@@ -387,14 +582,20 @@ class ModifyClubExcelServiceTest :
                             XSSFWorkbook().use { workbook ->
                                 val sheet = workbook.createSheet("동아리")
                                 val headerRow = sheet.createRow(0)
-                                headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue("전공동아리")
-                                headerRow.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("전공동아리 부장")
-                                headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue("창체동아리")
-                                headerRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("창체동아리 부장")
+                                headerRow.createCell(CLUB_NAME_COL_IDX).setCellValue("동아리명")
+                                headerRow.createCell(CLUB_TYPE_COL_IDX).setCellValue("동아리종류")
+                                headerRow.createCell(LEADER_COL_IDX).setCellValue("부장")
+                                headerRow.createCell(FOUNDED_YEAR_COL_IDX).setCellValue("창설학년도")
+                                headerRow.createCell(STATUS_COL_IDX).setCellValue("운영상태")
+                                headerRow.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("폐지학년도")
 
                                 val row1 = sheet.createRow(1)
-                                row1.createCell(MAJOR_CLUB_COL_IDX).setCellValue("SW개발동아리")
-                                row1.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("240 김철수")
+                                row1.createCell(CLUB_NAME_COL_IDX).setCellValue("SW개발동아리")
+                                row1.createCell(CLUB_TYPE_COL_IDX).setCellValue("MAJOR_CLUB")
+                                row1.createCell(LEADER_COL_IDX).setCellValue("240 김철수")
+                                row1.createCell(FOUNDED_YEAR_COL_IDX).setCellValue(2022.0)
+                                row1.createCell(STATUS_COL_IDX).setCellValue("ACTIVE")
+                                row1.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("")
 
                                 workbook.write(output)
                             }
@@ -473,6 +674,8 @@ class ModifyClubExcelServiceTest :
                             id = 100L
                             name = "SW개발동아리"
                             type = ClubType.MAJOR_CLUB
+                            foundedYear = 2022
+                            status = ClubStatus.ACTIVE
                         }
 
                     val newLeader =
@@ -528,6 +731,8 @@ class ModifyClubExcelServiceTest :
                             id = 999L
                             name = "삭제될동아리"
                             type = ClubType.MAJOR_CLUB
+                            foundedYear = 2022
+                            status = ClubStatus.ACTIVE
                         }
 
                     val leader1 =

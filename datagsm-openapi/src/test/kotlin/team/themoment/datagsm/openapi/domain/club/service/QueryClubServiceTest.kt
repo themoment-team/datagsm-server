@@ -8,6 +8,7 @@ import io.mockk.verify
 import org.springframework.data.domain.PageImpl
 import team.themoment.datagsm.common.domain.club.dto.request.QueryClubReqDto
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
@@ -40,6 +41,8 @@ class QueryClubServiceTest :
                                 id = null,
                                 name = null,
                                 type = null,
+                                status = null,
+                                foundedYear = null,
                                 pageable = any(),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -55,7 +58,7 @@ class QueryClubServiceTest :
                         result.clubs.size shouldBe 0
 
                         verify(exactly = 1) {
-                            mockClubRepository.searchClubWithPaging(null, null, null, any(), any(), any())
+                            mockClubRepository.searchClubWithPaging(null, null, null, null, null, any(), any(), any())
                         }
                     }
                 }
@@ -90,12 +93,16 @@ class QueryClubServiceTest :
                                 name = "SW개발동아리"
                                 type = ClubType.MAJOR_CLUB
                                 this.leader = leader
+                                foundedYear = 2022
+                                status = ClubStatus.ACTIVE
                             }
                         every {
                             mockClubRepository.searchClubWithPaging(
                                 id = null,
                                 name = null,
                                 type = ClubType.MAJOR_CLUB,
+                                status = null,
+                                foundedYear = null,
                                 pageable = any(),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -150,12 +157,16 @@ class QueryClubServiceTest :
                                 name = "SW개발동아리"
                                 type = ClubType.MAJOR_CLUB
                                 this.leader = leader
+                                foundedYear = 2022
+                                status = ClubStatus.ACTIVE
                             }
                         every {
                             mockClubRepository.searchClubWithPaging(
                                 id = null,
                                 name = null,
                                 type = ClubType.MAJOR_CLUB,
+                                status = null,
+                                foundedYear = null,
                                 pageable = any(),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -200,12 +211,16 @@ class QueryClubServiceTest :
                                 name = "자율동아리"
                                 type = ClubType.AUTONOMOUS_CLUB
                                 this.leader = leader
+                                foundedYear = 2022
+                                status = ClubStatus.ACTIVE
                             }
                         every {
                             mockClubRepository.searchClubWithPaging(
                                 id = null,
                                 name = null,
                                 type = ClubType.AUTONOMOUS_CLUB,
+                                status = null,
+                                foundedYear = null,
                                 pageable = any(),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -245,12 +260,16 @@ class QueryClubServiceTest :
                                 name = "검색동아리"
                                 type = ClubType.MAJOR_CLUB
                                 this.leader = leader
+                                foundedYear = 2022
+                                status = ClubStatus.ACTIVE
                             }
                         every {
                             mockClubRepository.searchClubWithPaging(
                                 id = null,
                                 name = "검색동아리",
                                 type = null,
+                                status = null,
+                                foundedYear = null,
                                 pageable = any(),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -268,7 +287,7 @@ class QueryClubServiceTest :
                         result.clubs[0].name shouldBe "검색동아리"
 
                         verify(exactly = 1) {
-                            mockClubRepository.searchClubWithPaging(null, "검색동아리", null, any(), any(), any())
+                            mockClubRepository.searchClubWithPaging(null, "검색동아리", null, null, null, any(), any(), any())
                         }
                     }
                 }

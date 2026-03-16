@@ -10,6 +10,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
@@ -42,6 +43,8 @@ class CreateClubServiceTest :
                             type = ClubType.MAJOR_CLUB,
                             leaderId = 1L,
                             participantIds = listOf(2L),
+                            foundedYear = 2022,
+                            status = ClubStatus.ACTIVE,
                         )
 
                     beforeEach {
@@ -67,6 +70,8 @@ class CreateClubServiceTest :
                             type = ClubType.AUTONOMOUS_CLUB,
                             leaderId = 100L,
                             participantIds = listOf(200L, 300L),
+                            foundedYear = 2022,
+                            status = ClubStatus.ACTIVE,
                         )
                     lateinit var mockLeader: StudentJpaEntity
                     lateinit var participant1: StudentJpaEntity
@@ -101,7 +106,7 @@ class CreateClubServiceTest :
                                 this.sex = Sex.WOMAN
                             }
                         every { mockClubRepository.existsByName(req.name) } returns false
-                        every { mockStudentRepository.findById(req.leaderId) } returns java.util.Optional.of(mockLeader)
+                        every { mockStudentRepository.findById(req.leaderId!!) } returns java.util.Optional.of(mockLeader)
                         every { mockClubRepository.save(any()) } answers {
                             val entity = firstArg<ClubJpaEntity>()
                             entity.apply { this.id = 10L }
@@ -120,7 +125,7 @@ class CreateClubServiceTest :
                         res.participants.size shouldBe 2
 
                         verify(exactly = 1) { mockClubRepository.existsByName(req.name) }
-                        verify(exactly = 1) { mockStudentRepository.findById(req.leaderId) }
+                        verify(exactly = 1) { mockStudentRepository.findById(req.leaderId!!) }
                         verify(exactly = 1) { mockClubRepository.save(any()) }
                         verify(exactly = 1) { mockStudentRepository.findAllById(listOf(200L, 300L)) }
                         verify(exactly = 1) { mockStudentRepository.bulkAssignClub(any(), any(), any()) }
@@ -134,6 +139,8 @@ class CreateClubServiceTest :
                             type = ClubType.MAJOR_CLUB,
                             leaderId = 100L,
                             participantIds = listOf(100L, 200L),
+                            foundedYear = 2022,
+                            status = ClubStatus.ACTIVE,
                         )
                     lateinit var mockLeader: StudentJpaEntity
                     lateinit var participant: StudentJpaEntity
@@ -158,7 +165,7 @@ class CreateClubServiceTest :
                                 this.sex = Sex.MAN
                             }
                         every { mockClubRepository.existsByName(req.name) } returns false
-                        every { mockStudentRepository.findById(req.leaderId) } returns java.util.Optional.of(mockLeader)
+                        every { mockStudentRepository.findById(req.leaderId!!) } returns java.util.Optional.of(mockLeader)
                         every { mockClubRepository.save(any()) } answers {
                             val entity = firstArg<ClubJpaEntity>()
                             entity.apply { this.id = 10L }
@@ -183,6 +190,8 @@ class CreateClubServiceTest :
                             type = ClubType.MAJOR_CLUB,
                             leaderId = 100L,
                             participantIds = listOf(200L),
+                            foundedYear = 2022,
+                            status = ClubStatus.ACTIVE,
                         )
                     lateinit var mockLeader: StudentJpaEntity
                     lateinit var participant: StudentJpaEntity
@@ -207,7 +216,7 @@ class CreateClubServiceTest :
                                 this.sex = Sex.MAN
                             }
                         every { mockClubRepository.existsByName(req.name) } returns false
-                        every { mockStudentRepository.findById(req.leaderId) } returns java.util.Optional.of(mockLeader)
+                        every { mockStudentRepository.findById(req.leaderId!!) } returns java.util.Optional.of(mockLeader)
                         every { mockClubRepository.save(any()) } answers {
                             val entity = firstArg<ClubJpaEntity>()
                             entity.apply { this.id = 10L }
@@ -226,6 +235,87 @@ class CreateClubServiceTest :
                                 ClubType.MAJOR_CLUB,
                             )
                         }
+                    }
+                }
+
+                context("ACTIVE 상태인데 leaderId가 null일 때") {
+                    val req =
+                        ClubReqDto(
+                            name = "동아리E",
+                            type = ClubType.MAJOR_CLUB,
+                            leaderId = null,
+                            participantIds = listOf(200L),
+                            foundedYear = 2022,
+                            status = ClubStatus.ACTIVE,
+                        )
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val ex =
+                            shouldThrow<ExpectedException> {
+                                createClubService.execute(req)
+                            }
+                        ex.message shouldBe "운영 중인 동아리에는 부장을 지정해야 합니다."
+                    }
+                }
+
+                context("ABOLISHED 상태인데 leaderId가 null이 아닐 때") {
+                    val req =
+                        ClubReqDto(
+                            name = "동아리F",
+                            type = ClubType.MAJOR_CLUB,
+                            leaderId = 100L,
+                            participantIds = listOf(200L),
+                            foundedYear = 2022,
+                            status = ClubStatus.ABOLISHED,
+                        )
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val ex =
+                            shouldThrow<ExpectedException> {
+                                createClubService.execute(req)
+                            }
+                        ex.message shouldBe "폐지된 동아리에는 부장을 지정할 수 없습니다."
+                    }
+                }
+
+                context("ABOLISHED 상태이고 leaderId가 null일 때") {
+                    val req =
+                        ClubReqDto(
+                            name = "동아리G",
+                            type = ClubType.MAJOR_CLUB,
+                            leaderId = null,
+                            participantIds = listOf(200L),
+                            foundedYear = 2022,
+                            status = ClubStatus.ABOLISHED,
+                            abolishedYear = 2024,
+                        )
+                    lateinit var participant: StudentJpaEntity
+
+                    beforeEach {
+                        participant =
+                            StudentJpaEntity().apply {
+                                this.id = 200L
+                                this.name = "부원"
+                                this.email = "p@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(2, 1, 6)
+                                this.major = Major.AI
+                                this.sex = Sex.MAN
+                            }
+                        every { mockClubRepository.existsByName(req.name) } returns false
+                        every { mockClubRepository.save(any()) } answers {
+                            val entity = firstArg<ClubJpaEntity>()
+                            entity.apply { this.id = 10L }
+                        }
+                        every { mockStudentRepository.findAllById(listOf(200L)) } returns listOf(participant)
+                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
+                    }
+
+                    it("leader=null로 저장되어야 하고 findById가 호출되지 않아야 한다") {
+                        val res = createClubService.execute(req)
+
+                        res.leader shouldBe null
+                        verify(exactly = 0) { mockStudentRepository.findById(any()) }
+                        verify(exactly = 1) { mockClubRepository.save(any()) }
                     }
                 }
             }
