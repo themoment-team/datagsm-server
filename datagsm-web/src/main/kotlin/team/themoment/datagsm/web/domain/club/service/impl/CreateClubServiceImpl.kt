@@ -46,71 +46,53 @@ class CreateClubServiceImpl(
                 abolishedYear = if (clubReqDto.status == ClubStatus.ABOLISHED) clubReqDto.abolishedYear else null
             }
 
-        return when (clubReqDto.status) {
-            ClubStatus.ACTIVE -> {
-                val leader =
-                    studentJpaRepository
-                        .findByIdOrNull(clubReqDto.leaderId!!)
-                        ?: throw ExpectedException(
-                            "부장으로 지정한 학생을 찾을 수 없습니다. studentId: ${clubReqDto.leaderId}",
-                            HttpStatus.NOT_FOUND,
-                        )
-                clubEntity.leader = leader
-                val savedClub = clubJpaRepository.save(clubEntity)
+        val leader: StudentJpaEntity?
+        val participants: List<StudentJpaEntity>
+        val participantIdsForBulkAssign: List<Long>
 
-                val leaderIdNonNull: Long = clubReqDto.leaderId!!
-                val filteredParticipantIds = clubReqDto.participantIds.filter { it != leaderIdNonNull }
-                val participants = studentJpaRepository.findAllById(filteredParticipantIds)
+        if (clubReqDto.status == ClubStatus.ACTIVE) {
+            val leaderId = clubReqDto.leaderId!!
+            leader =
+                studentJpaRepository
+                    .findByIdOrNull(leaderId)
+                    ?: throw ExpectedException(
+                        "부장으로 지정한 학생을 찾을 수 없습니다. studentId: $leaderId",
+                        HttpStatus.NOT_FOUND,
+                    )
+            clubEntity.leader = leader
+            val filteredParticipantIds = clubReqDto.participantIds.filter { it != leaderId }
+            participants = studentJpaRepository.findAllById(filteredParticipantIds)
+            participantIdsForBulkAssign = listOf(leaderId) + filteredParticipantIds
+        } else {
+            leader = null
+            clubEntity.leader = null
+            participants = studentJpaRepository.findAllById(clubReqDto.participantIds)
+            participantIdsForBulkAssign = clubReqDto.participantIds
+        }
 
-                (listOf(leader) + participants).forEach { student ->
-                    clubJpaRepository
-                        .findAllByLeader(student)
-                        .filter { it.type == clubReqDto.type && it.id != savedClub.id }
-                        .forEach { otherClub -> otherClub.leader = null }
-                }
+        val savedClub = clubJpaRepository.save(clubEntity)
 
-                studentJpaRepository.bulkAssignClub(listOf(leaderIdNonNull) + filteredParticipantIds, savedClub, clubReqDto.type)
-
-                ClubResDto(
-                    id = savedClub.id!!,
-                    name = savedClub.name,
-                    type = savedClub.type,
-                    leader =
-                        ParticipantInfoDto(
-                            id = leader.id!!,
-                            name = leader.name,
-                            email = leader.email,
-                            studentNumber = leader.studentNumber?.fullStudentNumber,
-                            major = leader.major,
-                            sex = leader.sex,
-                        ),
-                    participants =
-                        participants.map { student -> student.toParticipantInfoDto() },
-                    foundedYear = savedClub.foundedYear,
-                    status = savedClub.status,
-                    abolishedYear = savedClub.abolishedYear,
-                )
-            }
-            ClubStatus.ABOLISHED -> {
-                clubEntity.leader = null
-                val savedClub = clubJpaRepository.save(clubEntity)
-
-                val participants = studentJpaRepository.findAllById(clubReqDto.participantIds)
-                studentJpaRepository.bulkAssignClub(clubReqDto.participantIds, savedClub, clubReqDto.type)
-
-                ClubResDto(
-                    id = savedClub.id!!,
-                    name = savedClub.name,
-                    type = savedClub.type,
-                    leader = null,
-                    participants =
-                        participants.map { student -> student.toParticipantInfoDto() },
-                    foundedYear = savedClub.foundedYear,
-                    status = savedClub.status,
-                    abolishedYear = savedClub.abolishedYear,
-                )
+        if (leader != null) {
+            (listOf(leader) + participants).forEach { student ->
+                clubJpaRepository
+                    .findAllByLeader(student)
+                    .filter { it.type == clubReqDto.type && it.id != savedClub.id }
+                    .forEach { otherClub -> otherClub.leader = null }
             }
         }
+
+        studentJpaRepository.bulkAssignClub(participantIdsForBulkAssign, savedClub, clubReqDto.type)
+
+        return ClubResDto(
+            id = savedClub.id!!,
+            name = savedClub.name,
+            type = savedClub.type,
+            leader = leader?.toParticipantInfoDto(),
+            participants = participants.map { it.toParticipantInfoDto() },
+            foundedYear = savedClub.foundedYear,
+            status = savedClub.status,
+            abolishedYear = savedClub.abolishedYear,
+        )
     }
 
     private fun StudentJpaEntity.toParticipantInfoDto() =
