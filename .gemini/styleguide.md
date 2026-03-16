@@ -317,12 +317,17 @@ fun findStudent(id: Long): Student {
 
 ### Type Inference
 
-Use explicit types for public APIs, allow inference for local variables.
+Use explicit types for public APIs, allow inference for local variables. `Unit` return type is omitted by convention.
 
 ```kotlin
 // Public API - explicit types
 interface StudentService {
     fun execute(reqDto: CreateStudentReqDto): StudentResDto
+}
+
+// Unit return type - omit explicitly (convention)
+interface DeleteStudentService {
+    fun execute(studentId: Long)  // NOT `: Unit`
 }
 
 // Local variables - inference allowed
