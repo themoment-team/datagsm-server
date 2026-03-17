@@ -31,6 +31,13 @@ class ModifyThirdPartyScopeServiceImpl(
             throw ExpectedException("ThirdPartyScope를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
         }
 
+        thirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)?.let {
+            throw ExpectedException(
+                "이미 동일한 scopeName이 존재합니다: ${reqDto.scopeName}",
+                HttpStatus.CONFLICT,
+            )
+        }
+
         val currentAccount = currentUserProvider.getCurrentAccount()
         val isAdmin = currentAccount.role == AccountRole.ADMIN || currentAccount.role == AccountRole.ROOT
 
