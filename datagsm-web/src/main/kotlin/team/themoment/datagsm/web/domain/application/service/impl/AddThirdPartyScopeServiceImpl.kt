@@ -36,6 +36,13 @@ class AddThirdPartyScopeServiceImpl(
             throw ExpectedException("ThirdPartyScope 추가 권한이 없습니다.", HttpStatus.FORBIDDEN)
         }
 
+        thirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)?.let {
+            throw ExpectedException(
+                "이미 동일한 scopeName이 존재합니다: ${reqDto.scopeName}",
+                HttpStatus.CONFLICT,
+            )
+        }
+
         val scope =
             ThirdPartyScopeJpaEntity().apply {
                 scopeName = reqDto.scopeName

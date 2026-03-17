@@ -1,5 +1,6 @@
 package team.themoment.datagsm.web.domain.application.service.impl
 
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.application.dto.request.CreateApplicationReqDto
@@ -9,6 +10,7 @@ import team.themoment.datagsm.common.domain.application.entity.ThirdPartyScopeJp
 import team.themoment.datagsm.common.domain.application.repository.ApplicationJpaRepository
 import team.themoment.datagsm.web.domain.application.service.CreateApplicationService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
+import team.themoment.sdk.exception.ExpectedException
 import java.util.UUID
 
 @Service
@@ -19,6 +21,19 @@ class CreateApplicationServiceImpl(
     @Transactional
     override fun execute(reqDto: CreateApplicationReqDto): ApplicationResDto {
         val currentAccount = currentUserProvider.getCurrentAccount()
+
+        val duplicateScopeNames =
+            reqDto.scopes
+                .groupingBy { it.scopeName }
+                .eachCount()
+                .filter { it.value > 1 }
+                .keys
+        if (duplicateScopeNames.isNotEmpty()) {
+            throw ExpectedException(
+                "중복된 scopeName이 존재합니다: ${duplicateScopeNames.joinToString(", ")}",
+                HttpStatus.CONFLICT,
+            )
+        }
 
         val application =
             ApplicationJpaEntity().apply {

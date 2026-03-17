@@ -1,6 +1,7 @@
 package team.themoment.datagsm.web.domain.application.service
 
 import io.kotest.assertions.throwables.shouldNotThrowAny
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -9,6 +10,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import org.springframework.http.HttpStatus
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.application.dto.request.CreateApplicationReqDto
@@ -16,6 +18,7 @@ import team.themoment.datagsm.common.domain.application.entity.ApplicationJpaEnt
 import team.themoment.datagsm.common.domain.application.repository.ApplicationJpaRepository
 import team.themoment.datagsm.web.domain.application.service.impl.CreateApplicationServiceImpl
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
+import team.themoment.sdk.exception.ExpectedException
 
 class CreateApplicationServiceTest :
     DescribeSpec({
@@ -153,6 +156,38 @@ class CreateApplicationServiceTest :
                         savedApplicationSlot.captured.account.email shouldBe "owner@gsm.hs.kr"
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
+                    }
+                }
+
+                context("중복된 scopeName이 포함된 스코프로 Application을 생성할 때") {
+                    val reqDto =
+                        CreateApplicationReqDto(
+                            name = "My Application",
+                            scopes =
+                                listOf(
+                                    CreateApplicationReqDto.ScopeReqDto(
+                                        scopeName = "profile",
+                                        description = "사용자 프로필 정보 조회",
+                                    ),
+                                    CreateApplicationReqDto.ScopeReqDto(
+                                        scopeName = "profile",
+                                        description = "중복 프로필 스코프",
+                                    ),
+                                ),
+                        )
+
+                    beforeEach {
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns ownerAccount
+                    }
+
+                    it("409 CONFLICT 예외가 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                service.execute(reqDto)
+                            }
+
+                        exception.statusCode shouldBe HttpStatus.CONFLICT
+                        verify(exactly = 0) { mockApplicationJpaRepository.save(any()) }
                     }
                 }
 
