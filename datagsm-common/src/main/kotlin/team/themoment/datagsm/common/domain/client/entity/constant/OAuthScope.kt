@@ -12,6 +12,14 @@ open class OAuthScope(
 
     val categoryDisplayName: String get() = CATEGORY_DISPLAY_NAMES[category] ?: category
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is OAuthScope) return false
+        return scope == other.scope
+    }
+
+    override fun hashCode(): Int = scope.hashCode()
+
     companion object {
         val SELF_READ = OAuthScope("self:read", "내 정보 조회")
         val builtinValues: List<OAuthScope> = listOf(SELF_READ)
