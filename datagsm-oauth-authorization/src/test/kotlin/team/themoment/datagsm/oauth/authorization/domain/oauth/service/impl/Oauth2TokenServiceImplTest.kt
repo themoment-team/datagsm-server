@@ -22,7 +22,7 @@ import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisE
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
-import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtEnvironment
+import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
 import team.themoment.datagsm.oauth.authorization.global.security.jwt.JwtProvider
 import java.util.Optional
 
@@ -35,7 +35,7 @@ class Oauth2TokenServiceImplTest :
         val mockAccountJpaRepository = mockk<AccountJpaRepository>()
         val mockPasswordEncoder = mockk<PasswordEncoder>()
         val mockJwtProvider = mockk<JwtProvider>()
-        val mockJwtEnvironment = mockk<OauthJwtEnvironment>()
+        val mockJwtEnvironment = mockk<OauthJwtProvisionEnvironment>()
         val mockThirdPartyScopeJpaRepository = mockk<ThirdPartyScopeJpaRepository>()
 
         val service =

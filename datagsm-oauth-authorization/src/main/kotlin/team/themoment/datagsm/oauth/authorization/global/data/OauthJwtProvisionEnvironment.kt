@@ -3,7 +3,7 @@ package team.themoment.datagsm.oauth.authorization.global.data
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "spring.security.oauth-jwt")
-data class OauthJwtEnvironment(
+data class OauthJwtProvisionEnvironment(
     val privateKey: String,
     val publicKey: String,
     val keyId: String,
