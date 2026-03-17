@@ -77,6 +77,9 @@ class ModifyThirdPartyScopeServiceTest :
 
                     beforeEach {
                         every { mockThirdPartyScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
+                        every {
+                            mockThirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
+                        } returns null
                         every { mockCurrentUserProvider.getCurrentAccount() } returns ownerAccount
                     }
 
@@ -107,6 +110,9 @@ class ModifyThirdPartyScopeServiceTest :
 
                     beforeEach {
                         every { mockThirdPartyScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
+                        every {
+                            mockThirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
+                        } returns null
                         every { mockCurrentUserProvider.getCurrentAccount() } returns adminAccount
                     }
 
@@ -133,6 +139,9 @@ class ModifyThirdPartyScopeServiceTest :
 
                     beforeEach {
                         every { mockThirdPartyScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
+                        every {
+                            mockThirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
+                        } returns null
                         every { mockCurrentUserProvider.getCurrentAccount() } returns rootAccount
                     }
 
@@ -159,6 +168,9 @@ class ModifyThirdPartyScopeServiceTest :
 
                     beforeEach {
                         every { mockThirdPartyScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
+                        every {
+                            mockThirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
+                        } returns null
                         every { mockCurrentUserProvider.getCurrentAccount() } returns otherAccount
                     }
 
@@ -170,6 +182,40 @@ class ModifyThirdPartyScopeServiceTest :
 
                         exception.statusCode shouldBe HttpStatus.FORBIDDEN
                         exception.message shouldBe "ThirdPartyScope 수정 권한이 없습니다."
+                    }
+                }
+
+                context("이미 동일한 scopeName이 존재할 때") {
+                    val duplicateScopeName = "profile"
+                    val reqDto =
+                        ModifyThirdPartyScopeReqDto(
+                            scopeName = duplicateScopeName,
+                            description = "변경된 설명",
+                        )
+
+                    val existingScope =
+                        ThirdPartyScopeJpaEntity().apply {
+                            id = 20L
+                            scopeName = duplicateScopeName
+                            description = "기존 스코프"
+                            this.application = application
+                        }
+
+                    beforeEach {
+                        every { mockThirdPartyScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
+                        every {
+                            mockThirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, duplicateScopeName)
+                        } returns existingScope
+                    }
+
+                    it("409 CONFLICT 예외가 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                service.execute(applicationId, scopeId, reqDto)
+                            }
+
+                        exception.statusCode shouldBe HttpStatus.CONFLICT
+                        exception.message shouldBe "${duplicateScopeName}은 이미 사용 중인 권한 범위 명칭입니다."
                     }
                 }
 
