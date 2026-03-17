@@ -38,7 +38,7 @@ class AddThirdPartyScopeServiceImpl(
 
         thirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)?.let {
             throw ExpectedException(
-                "이미 동일한 scopeName이 존재합니다: ${reqDto.scopeName}",
+                "${reqDto.scopeName}은 이미 사용 중인 권한 범위 명칭입니다.",
                 HttpStatus.CONFLICT,
             )
         }

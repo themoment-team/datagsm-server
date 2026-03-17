@@ -30,7 +30,7 @@ class CreateApplicationServiceImpl(
                 .keys
         if (duplicateScopeNames.isNotEmpty()) {
             throw ExpectedException(
-                "중복된 scopeName이 존재합니다: ${duplicateScopeNames.joinToString(", ")}",
+                "${duplicateScopeNames.joinToString(", ")}은 이미 사용 중인 권한 범위 명칭입니다",
                 HttpStatus.CONFLICT,
             )
         }
