@@ -404,6 +404,27 @@ class StudentJpaCustomRepositoryImpl(
             .execute()
     }
 
+    override fun findAllByStudentNumberCodes(codes: List<Int>): List<StudentJpaEntity> {
+        if (codes.isEmpty()) return emptyList()
+
+        val condition =
+            codes
+                .map { code ->
+                    val grade = code / 1000
+                    val classNum = (code % 1000) / 100
+                    val number = code % 100
+                    studentJpaEntity.studentNumber.studentGrade
+                        .eq(grade)
+                        .and(studentJpaEntity.studentNumber.studentClass.eq(classNum))
+                        .and(studentJpaEntity.studentNumber.studentNumber.eq(number))
+                }.reduce { a, b -> a.or(b) }
+
+        return jpaQueryFactory
+            .selectFrom(studentJpaEntity)
+            .where(condition)
+            .fetch()
+    }
+
     private fun buildEmailCaseExpr(pairs: List<Pair<Long, String>>): Expression<String> =
         pairs
             .drop(1)
