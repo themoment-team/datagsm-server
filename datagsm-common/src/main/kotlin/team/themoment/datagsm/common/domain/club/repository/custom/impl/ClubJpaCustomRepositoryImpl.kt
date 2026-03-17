@@ -43,9 +43,11 @@ class ClubJpaCustomRepositoryImpl(
     ): Page<ClubJpaEntity> {
         val orderSpecifier = createOrderSpecifier(sortBy, sortDirection)
 
-        val content =
+        // 1쿼리: 페이지네이션 적용하여 club ID만 조회
+        val clubIds =
             jpaQueryFactory
-                .selectFrom(clubJpaEntity)
+                .select(clubJpaEntity.id)
+                .from(clubJpaEntity)
                 .where(
                     clubId?.let { clubJpaEntity.id.eq(it) },
                     clubName?.let {
@@ -57,6 +59,21 @@ class ClubJpaCustomRepositoryImpl(
                 }.offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
+
+        // 2쿼리: ID IN절로 leader fetchJoin
+        val content =
+            if (clubIds.isEmpty()) {
+                emptyList()
+            } else {
+                jpaQueryFactory
+                    .selectFrom(clubJpaEntity)
+                    .leftJoin(clubJpaEntity.leader)
+                    .fetchJoin()
+                    .where(clubJpaEntity.id.`in`(clubIds))
+                    .apply { orderSpecifier?.let { orderBy(it) } }
+                    .fetch()
+            }
+
         val countQuery =
             jpaQueryFactory
                 .select(clubJpaEntity.count())
