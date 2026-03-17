@@ -24,7 +24,7 @@ class DeleteApplicationServiceImpl(
         val currentAccount = currentUserProvider.getCurrentAccount()
         val isAdmin = currentAccount.role == AccountRole.ADMIN || currentAccount.role == AccountRole.ROOT
 
-        if (application.account != currentAccount && !isAdmin) {
+        if (application.account.id != currentAccount.id && !isAdmin) {
             throw ExpectedException("Application 삭제 권한이 없습니다.", HttpStatus.FORBIDDEN)
         }
 
