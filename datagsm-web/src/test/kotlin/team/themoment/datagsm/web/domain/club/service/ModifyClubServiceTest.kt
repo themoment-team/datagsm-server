@@ -420,6 +420,44 @@ class ModifyClubServiceTest :
                     }
                 }
 
+                context("ACTIVE 상태이고 leaderId가 null일 때") {
+                    val req =
+                        ClubReqDto(
+                            name = "기존동아리",
+                            type = ClubType.MAJOR_CLUB,
+                            leaderId = null,
+                            participantIds = listOf(30L),
+                            foundedYear = 2022,
+                            status = ClubStatus.ACTIVE,
+                        )
+                    lateinit var participant: StudentJpaEntity
+
+                    beforeEach {
+                        participant =
+                            StudentJpaEntity().apply {
+                                this.id = 30L
+                                this.name = "부원"
+                                this.email = "p@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(2, 2, 3)
+                                this.major = Major.AI
+                                this.sex = Sex.MAN
+                            }
+                        every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
+                        every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
+                        every { mockStudentRepository.findAllById(listOf(30L)) } returns listOf(participant)
+                        every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
+                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
+                    }
+
+                    it("leader=null로 저장되어야 하고 findById가 호출되지 않아야 한다") {
+                        val res = modifyClubService.execute(clubId, req)
+
+                        res.leader shouldBe null
+                        existing.leader shouldBe null
+                        verify(exactly = 0) { mockStudentRepository.findById(any()) }
+                    }
+                }
+
                 context("ABOLISHED 상태인데 leaderId가 null이 아닐 때") {
                     val req =
                         ClubReqDto(

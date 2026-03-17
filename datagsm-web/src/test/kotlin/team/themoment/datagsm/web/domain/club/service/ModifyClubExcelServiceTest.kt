@@ -514,16 +514,21 @@ class ModifyClubExcelServiceTest :
 
                     beforeEach {
                         every { mockClubRepository.findAllByNameIn(any()) } returns emptyList()
+                        every { mockClubRepository.saveAll(any<List<ClubJpaEntity>>()) } returns emptyList()
+                        every { mockClubRepository.findByNameNotIn(any()) } returns emptyList()
                     }
 
-                    it("ExpectedException이 발생해야 한다") {
-                        val exception =
-                            shouldThrow<ExpectedException> {
-                                modifyClubExcelService.execute(file)
-                            }
+                    it("leader=null로 저장되어야 한다") {
+                        val result = modifyClubExcelService.execute(file)
 
-                        exception.message shouldBe "동아리 부장 정보가 비어있습니다."
-                        exception.statusCode shouldBe HttpStatus.BAD_REQUEST
+                        result.message shouldBe "엑셀 업로드 성공"
+
+                        val clubsSlot = slot<List<ClubJpaEntity>>()
+                        verify(exactly = 1) { mockClubRepository.saveAll(capture(clubsSlot)) }
+
+                        val savedClubs = clubsSlot.captured
+                        savedClubs[0].leader shouldBe null
+                        savedClubs[0].status shouldBe ClubStatus.ACTIVE
                     }
                 }
 
