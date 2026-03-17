@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "mathiasfrohlich.kotlin",
+    "vscjava.vscode-spring-boot-dashboard",
+    "vmware.vscode-spring-boot",
+    "vscjava.vscode-gradle",
+    "redhat.vscode-yaml"
+  ],
+  "unwantedRecommendations": []
+}
