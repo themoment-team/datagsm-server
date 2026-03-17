@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalDependencies">
+    <plugin id="org.jetbrains.kotlin" />
+    <plugin id="com.nbadal.ktlint" />
+    <plugin id="com.intellij.spring.boot" />
+    <plugin id="com.intellij.gradle" />
+    <plugin optional="true" id="com.anthropic.code.plugin" />
+    <plugin optional="true" id="me.solohic.gemini-cli-companion" />
+    <plugin optional="true" id="com.dsoftware.ghtoolbar" />
+  </component>
+</project>

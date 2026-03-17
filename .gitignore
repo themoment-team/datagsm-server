@@ -18,7 +18,9 @@ bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
-.idea
+.idea/*
+!.idea/externalDependencies.xml
+!.idea/icon.svg
 *.iws
 *.iml
 *.ipr
