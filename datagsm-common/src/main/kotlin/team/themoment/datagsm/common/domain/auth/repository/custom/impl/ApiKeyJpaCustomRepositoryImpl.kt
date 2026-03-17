@@ -19,6 +19,12 @@ class ApiKeyJpaCustomRepositoryImpl(
     private val jpaQueryFactory: JPAQueryFactory,
     private val apiKeyEnvironment: ApiKeyEnvironment,
 ) : ApiKeyJpaCustomRepository {
+    override fun deleteExpiredKeys(cutoffDate: LocalDateTime): Long =
+        jpaQueryFactory
+            .delete(apiKey)
+            .where(apiKey.expiresAt.loe(cutoffDate))
+            .execute()
+
     override fun searchApiKeyWithPaging(
         id: Long?,
         accountId: Long?,
