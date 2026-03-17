@@ -36,7 +36,9 @@ out/
 /.nb-gradle/
 
 ### VS Code ###
-.vscode/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 
 ### Kotlin ###
 .kotlin
