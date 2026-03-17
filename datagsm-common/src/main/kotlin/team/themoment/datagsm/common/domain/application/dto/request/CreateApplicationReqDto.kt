@@ -12,6 +12,7 @@ data class CreateApplicationReqDto(
     @param:Schema(description = "Application 이름", example = "My Application", maxLength = 100)
     val name: String,
     @field:Valid
+    @field:Size(min = 1, max = 100)
     @param:Schema(description = "Third-party 스코프 목록")
     val scopes: List<ScopeReqDto>,
 ) {
