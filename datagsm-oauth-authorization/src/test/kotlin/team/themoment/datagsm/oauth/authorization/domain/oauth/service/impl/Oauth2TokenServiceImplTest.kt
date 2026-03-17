@@ -22,7 +22,7 @@ import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisE
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
-import team.themoment.datagsm.common.global.data.OauthJwtEnvironment
+import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtEnvironment
 import team.themoment.datagsm.oauth.authorization.global.security.jwt.JwtProvider
 import java.util.Optional
 

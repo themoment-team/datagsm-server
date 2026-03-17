@@ -8,7 +8,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.entity.constant.ThirdPartyScope
-import team.themoment.datagsm.common.global.data.OauthJwtEnvironment
+import team.themoment.datagsm.oauth.userinfo.global.data.OauthJwtVerificationEnvironment
 import team.themoment.datagsm.oauth.userinfo.global.security.authentication.OauthAuthenticationToken
 import team.themoment.datagsm.oauth.userinfo.global.security.authentication.principal.OauthUserPrincipal
 import team.themoment.sdk.exception.ExpectedException
@@ -20,7 +20,7 @@ import java.util.Date
 
 @Component
 class JwtProvider(
-    oauthJwtEnvironment: OauthJwtEnvironment,
+    oauthJwtEnvironment: OauthJwtVerificationEnvironment,
 ) {
     private val publicKey: PublicKey = loadPublicKey(oauthJwtEnvironment.publicKey)
 

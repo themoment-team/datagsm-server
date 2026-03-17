@@ -1,4 +1,4 @@
-package team.themoment.datagsm.common.global.data
+package team.themoment.datagsm.oauth.authorization.global.data
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 

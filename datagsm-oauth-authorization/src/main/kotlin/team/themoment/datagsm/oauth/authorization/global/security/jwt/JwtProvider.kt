@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.entity.constant.ThirdPartyScope
-import team.themoment.datagsm.common.global.data.OauthJwtEnvironment
+import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtEnvironment
 import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.logging.logger.logger
 import java.security.KeyFactory

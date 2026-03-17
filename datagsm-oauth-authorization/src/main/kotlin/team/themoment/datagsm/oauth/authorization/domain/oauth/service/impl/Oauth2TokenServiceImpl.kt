@@ -19,8 +19,8 @@ import team.themoment.datagsm.common.domain.oauth.entity.constant.PkceChallengeM
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
-import team.themoment.datagsm.common.global.data.OauthJwtEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.Oauth2TokenService
+import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtEnvironment
 import team.themoment.datagsm.oauth.authorization.global.security.jwt.JwtProvider
 import team.themoment.datagsm.oauth.authorization.global.util.PkceVerifier
 import team.themoment.sdk.exception.ExpectedException
