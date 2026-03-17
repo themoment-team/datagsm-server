@@ -72,7 +72,8 @@ class ModifyClubExcelServiceImpl(
                     club.leader =
                         when (dto.status) {
                             ClubStatus.ABOLISHED -> null
-                            ClubStatus.ACTIVE -> parseAndFindLeader(dto.leaderInfo)
+                            ClubStatus.ACTIVE ->
+                                dto.leaderInfo?.takeIf { it.isNotBlank() }?.let { parseAndFindLeader(it) }
                         }
                 }
             }
@@ -88,14 +89,7 @@ class ModifyClubExcelServiceImpl(
         return CommonApiResponse.success("엑셀 업로드 성공")
     }
 
-    private fun parseAndFindLeader(leaderInfo: String?): StudentJpaEntity {
-        if (leaderInfo.isNullOrBlank()) {
-            throw ExpectedException(
-                "동아리 부장 정보가 비어있습니다.",
-                HttpStatus.BAD_REQUEST,
-            )
-        }
-
+    private fun parseAndFindLeader(leaderInfo: String): StudentJpaEntity {
         val parts = leaderInfo.trim().split(" ")
         if (parts.size != 2) {
             throw ExpectedException(

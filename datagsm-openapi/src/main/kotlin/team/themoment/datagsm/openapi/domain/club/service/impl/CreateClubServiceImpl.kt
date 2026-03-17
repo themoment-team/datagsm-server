@@ -22,15 +22,8 @@ class CreateClubServiceImpl(
 ) : CreateClubService {
     @Transactional
     override fun execute(clubReqDto: ClubReqDto): ClubResDto {
-        when (clubReqDto.status) {
-            ClubStatus.ACTIVE ->
-                if (clubReqDto.leaderId == null) {
-                    throw ExpectedException("운영 중인 동아리에는 부장을 지정해야 합니다.", HttpStatus.BAD_REQUEST)
-                }
-            ClubStatus.ABOLISHED ->
-                if (clubReqDto.leaderId != null) {
-                    throw ExpectedException("폐지된 동아리에는 부장을 지정할 수 없습니다.", HttpStatus.BAD_REQUEST)
-                }
+        if (clubReqDto.status == ClubStatus.ABOLISHED && clubReqDto.leaderId != null) {
+            throw ExpectedException("폐지된 동아리에는 부장을 지정할 수 없습니다.", HttpStatus.BAD_REQUEST)
         }
 
         if (clubJpaRepository.existsByName(clubReqDto.name)) {
@@ -50,8 +43,8 @@ class CreateClubServiceImpl(
         val participants: List<StudentJpaEntity>
         val participantIdsForBulkAssign: List<Long>
 
-        if (clubReqDto.status == ClubStatus.ACTIVE) {
-            val leaderId = clubReqDto.leaderId!!
+        val leaderId = clubReqDto.leaderId
+        if (leaderId != null) {
             leader =
                 studentJpaRepository
                     .findByIdOrNull(leaderId)

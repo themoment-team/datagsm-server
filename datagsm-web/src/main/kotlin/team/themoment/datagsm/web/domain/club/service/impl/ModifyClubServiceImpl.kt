@@ -24,15 +24,8 @@ class ModifyClubServiceImpl(
         clubId: Long,
         reqDto: ClubReqDto,
     ): ClubResDto {
-        when (reqDto.status) {
-            ClubStatus.ACTIVE ->
-                if (reqDto.leaderId == null) {
-                    throw ExpectedException("운영 중인 동아리에는 부장을 지정해야 합니다.", HttpStatus.BAD_REQUEST)
-                }
-            ClubStatus.ABOLISHED ->
-                if (reqDto.leaderId != null) {
-                    throw ExpectedException("폐지된 동아리에는 부장을 지정할 수 없습니다.", HttpStatus.BAD_REQUEST)
-                }
+        if (reqDto.status == ClubStatus.ABOLISHED && reqDto.leaderId != null) {
+            throw ExpectedException("폐지된 동아리에는 부장을 지정할 수 없습니다.", HttpStatus.BAD_REQUEST)
         }
 
         val club =
@@ -55,8 +48,8 @@ class ModifyClubServiceImpl(
         val participants: List<StudentJpaEntity>
         val participantIdsForBulkAssign: List<Long>
 
-        if (reqDto.status == ClubStatus.ACTIVE) {
-            val leaderId = reqDto.leaderId!!
+        val leaderId = reqDto.leaderId
+        if (leaderId != null) {
             newLeader =
                 studentJpaRepository
                     .findByIdOrNull(leaderId)
