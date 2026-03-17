@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
+import team.themoment.datagsm.common.domain.application.repository.ThirdPartyScopeJpaRepository
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
@@ -21,7 +22,7 @@ import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisE
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
-import team.themoment.datagsm.common.global.data.OauthJwtEnvironment
+import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
 import team.themoment.datagsm.oauth.authorization.global.security.jwt.JwtProvider
 import java.util.Optional
 
@@ -34,7 +35,8 @@ class Oauth2TokenServiceImplTest :
         val mockAccountJpaRepository = mockk<AccountJpaRepository>()
         val mockPasswordEncoder = mockk<PasswordEncoder>()
         val mockJwtProvider = mockk<JwtProvider>()
-        val mockJwtEnvironment = mockk<OauthJwtEnvironment>()
+        val mockJwtEnvironment = mockk<OauthJwtProvisionEnvironment>()
+        val mockThirdPartyScopeJpaRepository = mockk<ThirdPartyScopeJpaRepository>()
 
         val service =
             Oauth2TokenServiceImpl(
@@ -45,6 +47,7 @@ class Oauth2TokenServiceImplTest :
                 mockPasswordEncoder,
                 mockJwtProvider,
                 mockJwtEnvironment,
+                mockThirdPartyScopeJpaRepository,
             )
 
         afterEach {

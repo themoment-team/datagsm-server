@@ -7,17 +7,16 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.unmockkObject
 import io.mockk.verify
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.client.dto.request.CreateClientReqDto
+import team.themoment.datagsm.common.domain.client.dto.response.OAuthScopeGroupListResDto
+import team.themoment.datagsm.common.domain.client.dto.response.OAuthScopeResDto
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.web.domain.client.service.impl.CreateClientServiceImpl
-import team.themoment.datagsm.web.domain.client.util.ClientUtil
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 
@@ -27,21 +26,26 @@ class CreateClientServiceTest :
         val mockCurrentUserProvider = mockk<CurrentUserProvider>()
         val mockPasswordEncoder = mockk<PasswordEncoder>()
         val mockClientJpaRepository = mockk<ClientJpaRepository>()
+        val mockQueryAvailableOauthScopesService = mockk<QueryAvailableOauthScopesService>()
 
         val createClientService =
             CreateClientServiceImpl(
                 mockCurrentUserProvider,
                 mockPasswordEncoder,
                 mockClientJpaRepository,
+                mockQueryAvailableOauthScopesService,
             )
 
-        beforeSpec {
-            mockkObject(ClientUtil)
-        }
-
-        afterSpec {
-            unmockkObject(ClientUtil)
-        }
+        fun buildScopeGroupList(vararg scopes: String): OAuthScopeGroupListResDto =
+            OAuthScopeGroupListResDto(
+                list =
+                    listOf(
+                        OAuthScopeGroupListResDto.OAuthScopeGroupResDto(
+                            title = "사용자",
+                            scopes = scopes.map { OAuthScopeResDto(it, "") },
+                        ),
+                    ),
+            )
 
         afterEach {
             clearAllMocks()
@@ -66,8 +70,7 @@ class CreateClientServiceTest :
                         )
 
                     beforeEach {
-                        every { ClientUtil.getAvailableOauthScopes() } returns
-                            setOf("self:read")
+                        every { mockQueryAvailableOauthScopesService.execute() } returns buildScopeGroupList("self:read")
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
                         every { mockClientJpaRepository.save(any()) } answers {
@@ -85,25 +88,24 @@ class CreateClientServiceTest :
                         result.redirectUrls shouldBe emptySet()
                         result.scopes shouldBe setOf("self:read")
 
-                        verify(exactly = 1) { ClientUtil.getAvailableOauthScopes() }
+                        verify(exactly = 1) { mockQueryAvailableOauthScopesService.execute() }
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
                         verify(exactly = 1) { mockPasswordEncoder.encode(any()) }
                         verify(exactly = 1) { mockClientJpaRepository.save(any()) }
                     }
                 }
 
-                context("허용되지 않는 scope를 포함하여 클라이언트 생성 요청할 때") {
+                context("허용되지 않는 builtin scope를 포함하여 클라이언트 생성 요청할 때") {
                     val reqDto =
                         CreateClientReqDto(
                             clientName = "Invalid Client",
                             serviceName = "잘못된 서비스",
-                            scopes = setOf("self:read", "invalid:scope"),
+                            scopes = setOf("self:read", "unknown"),
                             redirectUrls = emptySet(),
                         )
 
                     beforeEach {
-                        every { ClientUtil.getAvailableOauthScopes() } returns
-                            setOf("self:read")
+                        every { mockQueryAvailableOauthScopesService.execute() } returns buildScopeGroupList("self:read")
                     }
 
                     it("400 BAD_REQUEST 예외가 발생해야 한다") {
@@ -113,39 +115,36 @@ class CreateClientServiceTest :
                             }
 
                         exception.statusCode shouldBe HttpStatus.BAD_REQUEST
-                        exception.message shouldBe "허용되지 않는 OAuth 권한이 포함되어 있습니다: [invalid:scope]"
 
-                        verify(exactly = 1) { ClientUtil.getAvailableOauthScopes() }
+                        verify(exactly = 1) { mockQueryAvailableOauthScopesService.execute() }
                         verify(exactly = 0) { mockCurrentUserProvider.getCurrentAccount() }
                         verify(exactly = 0) { mockPasswordEncoder.encode(any()) }
                         verify(exactly = 0) { mockClientJpaRepository.save(any()) }
                     }
                 }
 
-                context("여러 개의 허용되지 않는 scope를 포함하여 클라이언트 생성 요청할 때") {
+                context("가용하지 않은 ThirdPartyScope를 포함하여 클라이언트 생성 요청할 때") {
                     val reqDto =
                         CreateClientReqDto(
                             clientName = "Invalid Client",
                             serviceName = "잘못된 서비스",
-                            scopes = setOf("self:read", "invalid:scope1", "invalid:scope2"),
+                            scopes = setOf("self:read", "appId:scopeName"),
                             redirectUrls = emptySet(),
                         )
 
                     beforeEach {
-                        every { ClientUtil.getAvailableOauthScopes() } returns
-                            setOf("self:read")
+                        every { mockQueryAvailableOauthScopesService.execute() } returns buildScopeGroupList("self:read")
                     }
 
-                    it("400 BAD_REQUEST 예외가 발생하고 모든 유효하지 않은 scope를 포함해야 한다") {
+                    it("400 BAD_REQUEST 예외가 발생해야 한다") {
                         val exception =
                             shouldThrow<ExpectedException> {
                                 createClientService.execute(reqDto)
                             }
 
                         exception.statusCode shouldBe HttpStatus.BAD_REQUEST
-                        exception.message shouldBe "허용되지 않는 OAuth 권한이 포함되어 있습니다: [invalid:scope1, invalid:scope2]"
 
-                        verify(exactly = 1) { ClientUtil.getAvailableOauthScopes() }
+                        verify(exactly = 1) { mockQueryAvailableOauthScopesService.execute() }
                         verify(exactly = 0) { mockClientJpaRepository.save(any()) }
                     }
                 }
@@ -161,8 +160,7 @@ class CreateClientServiceTest :
                     lateinit var savedClient: ClientJpaEntity
 
                     beforeEach {
-                        every { ClientUtil.getAvailableOauthScopes() } returns
-                            setOf("self:read")
+                        every { mockQueryAvailableOauthScopesService.execute() } returns buildScopeGroupList("self:read")
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockPasswordEncoder.encode(any()) } returns "hashed_secret_value"
                         every { mockClientJpaRepository.save(any()) } answers {
@@ -192,8 +190,7 @@ class CreateClientServiceTest :
                     lateinit var savedClient: ClientJpaEntity
 
                     beforeEach {
-                        every { ClientUtil.getAvailableOauthScopes() } returns
-                            setOf("self:read")
+                        every { mockQueryAvailableOauthScopesService.execute() } returns buildScopeGroupList("self:read")
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
                         every { mockClientJpaRepository.save(any()) } answers {
@@ -223,8 +220,7 @@ class CreateClientServiceTest :
                     lateinit var savedClient: ClientJpaEntity
 
                     beforeEach {
-                        every { ClientUtil.getAvailableOauthScopes() } returns
-                            setOf("self:read")
+                        every { mockQueryAvailableOauthScopesService.execute() } returns buildScopeGroupList("self:read")
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
                         every { mockClientJpaRepository.save(any()) } answers {
@@ -254,8 +250,7 @@ class CreateClientServiceTest :
                     lateinit var savedClient: ClientJpaEntity
 
                     beforeEach {
-                        every { ClientUtil.getAvailableOauthScopes() } returns
-                            setOf("self:read")
+                        every { mockQueryAvailableOauthScopesService.execute() } returns buildScopeGroupList("self:read")
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
                         every { mockClientJpaRepository.save(any()) } answers {
@@ -284,8 +279,7 @@ class CreateClientServiceTest :
                     lateinit var savedClient: ClientJpaEntity
 
                     beforeEach {
-                        every { ClientUtil.getAvailableOauthScopes() } returns
-                            setOf("self:read")
+                        every { mockQueryAvailableOauthScopesService.execute() } returns buildScopeGroupList("self:read")
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
                         every { mockClientJpaRepository.save(any()) } answers {
@@ -315,8 +309,7 @@ class CreateClientServiceTest :
                         )
 
                     beforeEach {
-                        every { ClientUtil.getAvailableOauthScopes() } returns
-                            setOf("self:read")
+                        every { mockQueryAvailableOauthScopesService.execute() } returns buildScopeGroupList("self:read")
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
                         every { mockClientJpaRepository.save(any()) } answers {
@@ -344,8 +337,7 @@ class CreateClientServiceTest :
                         )
 
                     beforeEach {
-                        every { ClientUtil.getAvailableOauthScopes() } returns
-                            setOf("self:read")
+                        every { mockQueryAvailableOauthScopesService.execute() } returns buildScopeGroupList("self:read")
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockPasswordEncoder.encode(any()) } returns "encoded_secret"
                         every { mockClientJpaRepository.save(any()) } answers {
