@@ -6,8 +6,10 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.common.domain.club.dto.response.ClubResDto
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
+import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.openapi.domain.club.service.ModifyClubService
 import team.themoment.sdk.exception.ExpectedException
@@ -22,6 +24,10 @@ class ModifyClubServiceImpl(
         clubId: Long,
         reqDto: ClubReqDto,
     ): ClubResDto {
+        if (reqDto.status == ClubStatus.ABOLISHED && reqDto.leaderId != null) {
+            throw ExpectedException("폐지된 동아리에는 부장을 지정할 수 없습니다.", HttpStatus.BAD_REQUEST)
+        }
+
         val club =
             clubJpaRepository
                 .findByIdOrNull(clubId)
@@ -30,50 +36,60 @@ class ModifyClubServiceImpl(
             throw ExpectedException("이미 존재하는 동아리 이름입니다: ${reqDto.name}", HttpStatus.CONFLICT)
         }
 
-        val newLeader =
-            studentJpaRepository
-                .findByIdOrNull(reqDto.leaderId)
-                ?: throw ExpectedException(
-                    "부장으로 지정한 학생을 찾을 수 없습니다. studentId: ${reqDto.leaderId}",
-                    HttpStatus.NOT_FOUND,
-                )
-
         val oldType = club.type
+
         club.name = reqDto.name
         club.type = reqDto.type
-        club.leader = newLeader
+        club.foundedYear = reqDto.foundedYear
+        club.status = reqDto.status
+        club.abolishedYear = if (reqDto.status == ClubStatus.ABOLISHED) reqDto.abolishedYear else null
+
+        val newLeader: StudentJpaEntity?
+        val participants: List<StudentJpaEntity>
+        val participantIdsForBulkAssign: List<Long>
+
+        val leaderId = reqDto.leaderId
+        if (leaderId != null) {
+            newLeader =
+                studentJpaRepository
+                    .findByIdOrNull(leaderId)
+                    ?: throw ExpectedException(
+                        "부장으로 지정한 학생을 찾을 수 없습니다. studentId: $leaderId",
+                        HttpStatus.NOT_FOUND,
+                    )
+            club.leader = newLeader
+            val filteredParticipantIds = reqDto.participantIds.filter { it != leaderId }
+            participants = studentJpaRepository.findAllById(filteredParticipantIds)
+            participantIdsForBulkAssign = listOf(leaderId) + filteredParticipantIds
+        } else {
+            newLeader = null
+            club.leader = null
+            participants = studentJpaRepository.findAllById(reqDto.participantIds)
+            participantIdsForBulkAssign = reqDto.participantIds
+        }
 
         studentJpaRepository.clearClubReferencesByType(club, oldType)
-
-        val filteredParticipantIds = reqDto.participantIds.filter { it != reqDto.leaderId }
-        val participants = studentJpaRepository.findAllById(filteredParticipantIds)
-
-        studentJpaRepository.bulkAssignClub(listOf(reqDto.leaderId) + filteredParticipantIds, club, reqDto.type)
+        studentJpaRepository.bulkAssignClub(participantIdsForBulkAssign, club, reqDto.type)
 
         return ClubResDto(
             id = club.id!!,
             name = club.name,
             type = club.type,
-            leader =
-                ParticipantInfoDto(
-                    id = newLeader.id!!,
-                    name = newLeader.name,
-                    email = newLeader.email,
-                    studentNumber = newLeader.studentNumber?.fullStudentNumber,
-                    major = newLeader.major,
-                    sex = newLeader.sex,
-                ),
-            participants =
-                participants.map { student ->
-                    ParticipantInfoDto(
-                        id = student.id!!,
-                        name = student.name,
-                        email = student.email,
-                        studentNumber = student.studentNumber?.fullStudentNumber,
-                        major = student.major,
-                        sex = student.sex,
-                    )
-                },
+            leader = newLeader?.toParticipantInfoDto(),
+            participants = participants.map { it.toParticipantInfoDto() },
+            foundedYear = club.foundedYear,
+            status = club.status,
+            abolishedYear = club.abolishedYear,
         )
     }
+
+    private fun StudentJpaEntity.toParticipantInfoDto() =
+        ParticipantInfoDto(
+            id = this.id!!,
+            name = this.name,
+            email = this.email,
+            studentNumber = this.studentNumber?.fullStudentNumber,
+            major = this.major,
+            sex = this.sex,
+        )
 }

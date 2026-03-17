@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.dto.internal.ClubInfoDto
-import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.web.domain.club.service.CreateClubExcelService
 import java.io.ByteArrayOutputStream
@@ -22,10 +22,12 @@ class CreateClubExcelServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
 ) : CreateClubExcelService {
     companion object {
-        private const val MAJOR_CLUB_COL_IDX = 0
-        private const val MAJOR_CLUB_LEADER_COL_IDX = 1
-        private const val AUTONOMOUS_CLUB_COL_IDX = 2
-        private const val AUTONOMOUS_CLUB_LEADER_COL_IDX = 3
+        private const val CLUB_NAME_COL_IDX = 0
+        private const val CLUB_TYPE_COL_IDX = 1
+        private const val LEADER_COL_IDX = 2
+        private const val FOUNDED_YEAR_COL_IDX = 3
+        private const val STATUS_COL_IDX = 4
+        private const val ABOLISHED_YEAR_COL_IDX = 5
 
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
     }
@@ -38,34 +40,31 @@ class CreateClubExcelServiceImpl(
             val sheet = workbook.createSheet("동아리")
             val headerRow = sheet.createRow(0)
 
-            headerRow.createCell(MAJOR_CLUB_COL_IDX).setCellValue(ClubType.MAJOR_CLUB.value)
-            headerRow.createCell(MAJOR_CLUB_LEADER_COL_IDX).setCellValue("${ClubType.MAJOR_CLUB.value} 부장")
-            headerRow.createCell(AUTONOMOUS_CLUB_COL_IDX).setCellValue(ClubType.AUTONOMOUS_CLUB.value)
-            headerRow.createCell(AUTONOMOUS_CLUB_LEADER_COL_IDX).setCellValue("${ClubType.AUTONOMOUS_CLUB.value} 부장")
+            headerRow.createCell(CLUB_NAME_COL_IDX).setCellValue("동아리명")
+            headerRow.createCell(CLUB_TYPE_COL_IDX).setCellValue("동아리종류")
+            headerRow.createCell(LEADER_COL_IDX).setCellValue("부장")
+            headerRow.createCell(FOUNDED_YEAR_COL_IDX).setCellValue("창설학년도")
+            headerRow.createCell(STATUS_COL_IDX).setCellValue("운영상태")
+            headerRow.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("폐지학년도")
 
-            val dataByType = data.groupBy { it.clubType }
-            val maxRows = ClubType.entries.maxOf { dataByType[it]?.size ?: 0 }
-            val clubTypeColumnMap =
-                mapOf(
-                    ClubType.MAJOR_CLUB to (MAJOR_CLUB_COL_IDX to MAJOR_CLUB_LEADER_COL_IDX),
-                    ClubType.AUTONOMOUS_CLUB to (AUTONOMOUS_CLUB_COL_IDX to AUTONOMOUS_CLUB_LEADER_COL_IDX),
-                )
-
-            for (rowIdx in 0 until maxRows) {
-                val dataRow = sheet.createRow(rowIdx + 1)
-                clubTypeColumnMap.forEach { (clubType, columnIndices) ->
-                    val (clubNameColIdx, clubLeaderColIdx) = columnIndices
-                    dataByType[clubType]?.getOrNull(rowIdx)?.let { dto ->
-                        dataRow.createCell(clubNameColIdx).setCellValue(dto.clubName)
-                        dataRow.createCell(clubLeaderColIdx).setCellValue(dto.leaderInfo ?: "")
-                    }
+            data.forEachIndexed { index, dto ->
+                val dataRow = sheet.createRow(index + 1)
+                dataRow.createCell(CLUB_NAME_COL_IDX).setCellValue(dto.clubName)
+                dataRow.createCell(CLUB_TYPE_COL_IDX).setCellValue(dto.clubType.name)
+                dataRow.createCell(LEADER_COL_IDX).setCellValue(dto.leaderInfo ?: "")
+                dataRow.createCell(FOUNDED_YEAR_COL_IDX).setCellValue(dto.foundedYear.toDouble())
+                dataRow.createCell(STATUS_COL_IDX).setCellValue(dto.status.name)
+                val abolishedYear = dto.abolishedYear
+                if (abolishedYear != null) {
+                    dataRow.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue(abolishedYear.toDouble())
+                } else {
+                    dataRow.createCell(ABOLISHED_YEAR_COL_IDX).setCellValue("")
                 }
             }
 
-            sheet.autoSizeColumn(MAJOR_CLUB_COL_IDX)
-            sheet.autoSizeColumn(MAJOR_CLUB_LEADER_COL_IDX)
-            sheet.autoSizeColumn(AUTONOMOUS_CLUB_COL_IDX)
-            sheet.autoSizeColumn(AUTONOMOUS_CLUB_LEADER_COL_IDX)
+            for (i in 0..ABOLISHED_YEAR_COL_IDX) {
+                sheet.autoSizeColumn(i)
+            }
 
             val byteArrayFile =
                 ByteArrayOutputStream().use { outputStream ->
@@ -95,17 +94,22 @@ class CreateClubExcelServiceImpl(
     }
 
     private fun getClubData(): List<ClubInfoDto> =
-        ClubType.entries.flatMap { clubType ->
-            clubJpaRepository.findByType(clubType).map { club ->
-                val leaderStr =
-                    club.leader
-                        ?.let { leader ->
-                            leader.studentNumber
-                                ?.fullStudentNumber
-                                ?.let { "$it " }
-                                .orEmpty() + leader.name
-                        }
-                ClubInfoDto(clubName = club.name, clubType = clubType, leaderInfo = leaderStr)
-            }
+        clubJpaRepository.findAll().map { club ->
+            val leaderStr =
+                club.leader
+                    ?.let { leader ->
+                        leader.studentNumber
+                            ?.fullStudentNumber
+                            ?.let { "$it " }
+                            .orEmpty() + leader.name
+                    }
+            ClubInfoDto(
+                clubName = club.name,
+                clubType = club.type,
+                leaderInfo = if (club.status == ClubStatus.ABOLISHED) null else leaderStr,
+                foundedYear = club.foundedYear,
+                status = club.status,
+                abolishedYear = club.abolishedYear,
+            )
         }
 }

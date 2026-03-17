@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import team.themoment.datagsm.common.domain.club.dto.request.QueryClubReqDto
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
@@ -46,6 +47,8 @@ class QueryClubServiceTest :
                                 id = clubId,
                                 name = clubName,
                                 type = clubType,
+                                status = null,
+                                foundedYear = null,
                                 pageable = any(),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -69,7 +72,7 @@ class QueryClubServiceTest :
                         res.clubs.size shouldBe 0
 
                         verify(exactly = 1) {
-                            mockClubRepository.searchClubWithPaging(clubId, clubName, clubType, any(), any(), any())
+                            mockClubRepository.searchClubWithPaging(clubId, clubName, clubType, null, null, any(), any(), any())
                         }
                     }
                 }
@@ -110,6 +113,8 @@ class QueryClubServiceTest :
                                 this.name = "A"
                                 this.type = ClubType.MAJOR_CLUB
                                 this.leader = leader1
+                                this.foundedYear = 2022
+                                this.status = ClubStatus.ACTIVE
                             }
                         e2 =
                             ClubJpaEntity().apply {
@@ -117,12 +122,16 @@ class QueryClubServiceTest :
                                 this.name = "B"
                                 this.type = ClubType.MAJOR_CLUB
                                 this.leader = leader2
+                                this.foundedYear = 2022
+                                this.status = ClubStatus.ACTIVE
                             }
                         every {
                             mockClubRepository.searchClubWithPaging(
                                 id = clubId,
                                 name = clubName,
                                 type = clubType,
+                                status = null,
+                                foundedYear = null,
                                 pageable = any(),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -157,7 +166,7 @@ class QueryClubServiceTest :
                         res.clubs[1].leader?.name shouldBe "Leader2"
 
                         verify(exactly = 1) {
-                            mockClubRepository.searchClubWithPaging(clubId, clubName, clubType, any(), any(), any())
+                            mockClubRepository.searchClubWithPaging(clubId, clubName, clubType, null, null, any(), any(), any())
                         }
                     }
                 }
@@ -226,6 +235,8 @@ class QueryClubServiceTest :
                                 this.name = "A"
                                 this.type = ClubType.MAJOR_CLUB
                                 this.leader = leader1
+                                this.foundedYear = 2022
+                                this.status = ClubStatus.ACTIVE
                             }
                         e2 =
                             ClubJpaEntity().apply {
@@ -233,6 +244,8 @@ class QueryClubServiceTest :
                                 this.name = "B"
                                 this.type = ClubType.MAJOR_CLUB
                                 this.leader = leader2
+                                this.foundedYear = 2022
+                                this.status = ClubStatus.ACTIVE
                             }
                         e3 =
                             ClubJpaEntity().apply {
@@ -240,6 +253,8 @@ class QueryClubServiceTest :
                                 this.name = "C"
                                 this.type = ClubType.MAJOR_CLUB
                                 this.leader = leader3
+                                this.foundedYear = 2022
+                                this.status = ClubStatus.ACTIVE
                             }
                         e4 =
                             ClubJpaEntity().apply {
@@ -247,6 +262,8 @@ class QueryClubServiceTest :
                                 this.name = "D"
                                 this.type = ClubType.MAJOR_CLUB
                                 this.leader = leader4
+                                this.foundedYear = 2022
+                                this.status = ClubStatus.ACTIVE
                             }
                         e5 =
                             ClubJpaEntity().apply {
@@ -254,10 +271,12 @@ class QueryClubServiceTest :
                                 this.name = "E"
                                 this.type = ClubType.MAJOR_CLUB
                                 this.leader = leader5
+                                this.foundedYear = 2022
+                                this.status = ClubStatus.ACTIVE
                             }
 
-                        every { mockClubRepository.searchClubWithPaging(any(), any(), any(), any(), any(), any()) } answers {
-                            val pageable = arg<Pageable>(3)
+                        every { mockClubRepository.searchClubWithPaging(any(), any(), any(), any(), any(), any(), any(), any()) } answers {
+                            val pageable = arg<Pageable>(5)
                             val all = listOf(e1, e2, e3, e4, e5)
                             val start = pageable.offset.toInt()
                             val end = kotlin.math.min(start + pageable.pageSize, all.size)
@@ -289,7 +308,7 @@ class QueryClubServiceTest :
                         res.clubs[1].type shouldBe ClubType.MAJOR_CLUB
                         res.clubs[1].leader?.id shouldBe 40L
 
-                        verify(exactly = 1) { mockClubRepository.searchClubWithPaging(null, null, null, any(), any(), any()) }
+                        verify(exactly = 1) { mockClubRepository.searchClubWithPaging(null, null, null, null, null, any(), any(), any()) }
                     }
                 }
             }

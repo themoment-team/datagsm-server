@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.DynamicUpdate
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 
@@ -29,6 +30,16 @@ class ClubJpaEntity {
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
     lateinit var type: ClubType
+
+    @Column(name = "founded_year", nullable = false)
+    var foundedYear: Int = 0
+
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    lateinit var status: ClubStatus
+
+    @Column(name = "abolished_year", nullable = true)
+    var abolishedYear: Int? = null
 
     @ManyToOne(optional = true)
     @JoinColumn(name = "leader_id", nullable = true, referencedColumnName = "id")
