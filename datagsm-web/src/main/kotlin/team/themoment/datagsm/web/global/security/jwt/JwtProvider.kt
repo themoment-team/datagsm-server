@@ -2,23 +2,21 @@ package team.themoment.datagsm.web.global.security.jwt
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.security.Keys
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
-import team.themoment.datagsm.common.global.data.InternalJwtEnvironment
+import team.themoment.datagsm.web.global.data.OauthJwtVerificationEnvironment
 import team.themoment.sdk.exception.ExpectedException
-import java.nio.charset.StandardCharsets
-import javax.crypto.SecretKey
+import java.security.KeyFactory
+import java.security.PublicKey
+import java.security.spec.X509EncodedKeySpec
+import java.util.Base64
 
 @Component
 class JwtProvider(
-    internalJwtEnvironment: InternalJwtEnvironment,
+    oauthJwtEnvironment: OauthJwtVerificationEnvironment,
 ) {
-    private val secretKey: SecretKey =
-        Keys.hmacShaKeyFor(
-            internalJwtEnvironment.secret.toByteArray(StandardCharsets.UTF_8),
-        )
+    private val publicKey: PublicKey = loadPublicKey(oauthJwtEnvironment.publicKey)
 
     fun getEmailFromToken(token: String): String = parseClaims(token).subject
 
@@ -39,8 +37,20 @@ class JwtProvider(
     private fun parseClaims(token: String): Claims =
         Jwts
             .parser()
-            .verifyWith(secretKey)
+            .verifyWith(publicKey)
             .build()
             .parseSignedClaims(token)
             .payload
+
+    companion object {
+        private fun loadPublicKey(pem: String): PublicKey {
+            val stripped =
+                pem
+                    .replace("-----BEGIN PUBLIC KEY-----", "")
+                    .replace("-----END PUBLIC KEY-----", "")
+                    .replace("\\s".toRegex(), "")
+            val decoded = Base64.getDecoder().decode(stripped)
+            return KeyFactory.getInstance("RSA").generatePublic(X509EncodedKeySpec(decoded))
+        }
+    }
 }
