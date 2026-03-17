@@ -238,7 +238,7 @@ class CreateClubServiceTest :
                     }
                 }
 
-                context("ACTIVE 상태인데 leaderId가 null일 때") {
+                context("ACTIVE 상태이고 leaderId가 null일 때") {
                     val req =
                         ClubReqDto(
                             name = "동아리E",
@@ -248,13 +248,33 @@ class CreateClubServiceTest :
                             foundedYear = 2022,
                             status = ClubStatus.ACTIVE,
                         )
+                    lateinit var participant: StudentJpaEntity
 
-                    it("ExpectedException이 발생해야 한다") {
-                        val ex =
-                            shouldThrow<ExpectedException> {
-                                createClubService.execute(req)
+                    beforeEach {
+                        participant =
+                            StudentJpaEntity().apply {
+                                this.id = 200L
+                                this.name = "부원"
+                                this.email = "p@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(2, 1, 6)
+                                this.major = Major.AI
+                                this.sex = Sex.MAN
                             }
-                        ex.message shouldBe "운영 중인 동아리에는 부장을 지정해야 합니다."
+                        every { mockClubRepository.existsByName(req.name) } returns false
+                        every { mockClubRepository.save(any()) } answers {
+                            val entity = firstArg<ClubJpaEntity>()
+                            entity.apply { this.id = 10L }
+                        }
+                        every { mockStudentRepository.findAllById(listOf(200L)) } returns listOf(participant)
+                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
+                    }
+
+                    it("leader=null로 저장되어야 하고 findById가 호출되지 않아야 한다") {
+                        val res = createClubService.execute(req)
+
+                        res.leader shouldBe null
+                        verify(exactly = 0) { mockStudentRepository.findById(any()) }
+                        verify(exactly = 1) { mockClubRepository.save(any()) }
                     }
                 }
 
