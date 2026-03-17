@@ -29,4 +29,13 @@ class StudentNumber {
             val number = studentNumber ?: return null
             return grade * 1000 + classNum * 100 + number
         }
+
+    companion object {
+        fun fromCode(code: Int): StudentNumber =
+            StudentNumber(
+                grade = code / 1000,
+                classNum = (code % 1000) / 100,
+                number = code % 100,
+            )
+    }
 }

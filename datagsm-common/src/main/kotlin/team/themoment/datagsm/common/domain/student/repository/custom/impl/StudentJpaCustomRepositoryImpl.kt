@@ -13,6 +13,7 @@ import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.student.entity.QStudentJpaEntity.Companion.studentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentSortBy
@@ -410,13 +411,11 @@ class StudentJpaCustomRepositoryImpl(
         val condition =
             codes
                 .map { code ->
-                    val grade = code / 1000
-                    val classNum = (code % 1000) / 100
-                    val number = code % 100
+                    val sn = StudentNumber.fromCode(code)
                     studentJpaEntity.studentNumber.studentGrade
-                        .eq(grade)
-                        .and(studentJpaEntity.studentNumber.studentClass.eq(classNum))
-                        .and(studentJpaEntity.studentNumber.studentNumber.eq(number))
+                        .eq(sn.studentGrade)
+                        .and(studentJpaEntity.studentNumber.studentClass.eq(sn.studentClass))
+                        .and(studentJpaEntity.studentNumber.studentNumber.eq(sn.studentNumber))
                 }.reduce { a, b -> a.or(b) }
 
         return jpaQueryFactory
