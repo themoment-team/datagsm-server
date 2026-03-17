@@ -13,6 +13,7 @@ import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.student.entity.QStudentJpaEntity.Companion.studentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentSortBy
@@ -438,6 +439,25 @@ class StudentJpaCustomRepositoryImpl(
             .set(clubPath, club)
             .where(studentJpaEntity.id.`in`(studentIds))
             .execute()
+    }
+
+    override fun findAllByStudentNumberCodes(codes: List<Int>): List<StudentJpaEntity> {
+        if (codes.isEmpty()) return emptyList()
+
+        val condition =
+            codes
+                .map { code ->
+                    val sn = StudentNumber.fromCode(code)
+                    studentJpaEntity.studentNumber.studentGrade
+                        .eq(sn.studentGrade)
+                        .and(studentJpaEntity.studentNumber.studentClass.eq(sn.studentClass))
+                        .and(studentJpaEntity.studentNumber.studentNumber.eq(sn.studentNumber))
+                }.reduce { a, b -> a.or(b) }
+
+        return jpaQueryFactory
+            .selectFrom(studentJpaEntity)
+            .where(condition)
+            .fetch()
     }
 
     private fun buildEmailCaseExpr(pairs: List<Pair<Long, String>>): Expression<String> =

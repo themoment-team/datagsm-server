@@ -93,4 +93,6 @@ interface StudentJpaCustomRepository {
     fun findRegisteredStudentsByMajorClub(club: ClubJpaEntity): List<StudentJpaEntity>
 
     fun findRegisteredStudentsByAutonomousClub(club: ClubJpaEntity): List<StudentJpaEntity>
+
+    fun findAllByStudentNumberCodes(codes: List<Int>): List<StudentJpaEntity>
 }
