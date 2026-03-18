@@ -5,6 +5,6 @@ object PluginVersions {
     const val KOTLIN_VERSION = "2.3.10"
     const val SPRING_DEPENDENCY_MANAGEMENT_VERSION = "1.1.7"
     const val KSP_VERSION = "2.3.6"
-    const val KTLINT_VERSION = "14.1.0"
+    const val KTLINT_VERSION = "14.2.0"
     const val GIT_PROPERTIES_VERSION = "2.5.7"
 }
