@@ -1,4 +1,7 @@
 #!/bin/bash
+# .claude/hooks/postToolUse.sh
+# Run ktlintFormat after Edit or Write tool if the file is a Kotlin file
+
 if [[ "$TOOL_NAME" == "Edit" ]] || [[ "$TOOL_NAME" == "Write" ]]; then
     FILE_PATH="${TOOL_PARAMS_FILE_PATH:-$TOOL_RESULT_FILE_PATH}"
     if [[ "$FILE_PATH" == *.kt ]]; then

@@ -2,12 +2,21 @@
 # .claude/hooks/preCommit.sh
 # Validate commit message format before committing
 
-# 커밋 메시지 형식 검증
-COMMIT_MSG="$TOOL_PARAMS_MESSAGE"
-
-# 정규식: type(scope): description
-PATTERN="^(add|update|fix|refactor|test|docs|merge)\([a-z/-]+\): .+"
-
+if [[ "$TOOL_NAME" != "Bash" ]]; then
+    exit 0
+fi
+COMMAND="$TOOL_PARAMS_COMMAND"
+if [[ ! "$COMMAND" =~ git[[:space:]]+commit ]]; then
+    exit 0
+fi
+if [[ "$COMMAND" =~ \$\( || "$COMMAND" =~ "<<" ]]; then
+    exit 0
+fi
+COMMIT_MSG=$(echo "$COMMAND" | sed -n -e 's/.*-m[[:space:]]*"\([^"]*\)".*/\1/p' -e "s/.*-m[[:space:]]*'\([^']*\)'.*/\1/p" | head -n 1)
+if [[ -z "$COMMIT_MSG" ]]; then
+    exit 0
+fi
+PATTERN="^(add|update|fix|refactor|test|docs|merge)\\(([^)]+)\\): .+"
 if [[ ! "$COMMIT_MSG" =~ $PATTERN ]]; then
     echo "[Hook] ✗ Invalid commit message format"
     echo "Expected: type(scope): description"
@@ -15,19 +24,13 @@ if [[ ! "$COMMIT_MSG" =~ $PATTERN ]]; then
     echo ""
     echo "Types: add/update/fix/refactor/test/docs/merge"
     echo "Scopes: auth, account, student, club, project, neis, client, oauth, utility, ci/cd, global"
-    exit 1
+    exit 2
 fi
-
-# 도메인명 우선 경고
-SCOPE=$(echo "$COMMIT_MSG" | sed -n 's/.*(\([^)]*\)).*/\1/p')
+SCOPE=${BASH_REMATCH[2]}
 MODULE_NAMES=("web" "oauth" "openapi" "common")
-
 if [[ " ${MODULE_NAMES[@]} " =~ " ${SCOPE} " ]]; then
     echo "[Hook] ⚠ Warning: Using module name '$SCOPE' as scope"
     echo "Consider using domain name instead (auth, student, club, etc.)"
     echo "Module names should only be used for cross-cutting concerns."
-    echo ""
-    # Warning only, not blocking
 fi
-
 echo "[Hook] ✓ Commit message format valid"

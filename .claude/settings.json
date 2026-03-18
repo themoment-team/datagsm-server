@@ -1,35 +1,30 @@
 {
-  "version": "1.0",
-  "project": {
-    "name": "DataGSM Server",
-    "description": "Gwangju Software Meister High School API Server",
-    "language": "ko"
-  },
-  "permissions": {
-    "mode": "ask",
-    "allowedCommands": [
-      "./gradlew",
-      "git",
-      "find",
-      "grep"
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/preToolUse.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/preCommit.sh"
+          }
+        ]
+      }
     ],
-    "blockedCommands": [
-      "rm -rf /",
-      "sudo",
-      "curl.*| sh",
-      "wget.*| sh"
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/postToolUse.sh"
+          }
+        ]
+      }
     ]
-  },
-  "autoFormat": {
-    "enabled": true,
-    "command": "./gradlew ktlintFormat",
-    "onSave": false,
-    "beforeCommit": true
-  },
-  "defaultBranch": "develop",
-  "conventions": {
-    "commitFormat": "type(scope): description",
-    "language": "korean",
-    "scopePriority": "domain-first"
   }
 }
