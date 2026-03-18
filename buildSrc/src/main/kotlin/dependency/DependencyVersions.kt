@@ -10,7 +10,7 @@ object DependencyVersions {
     const val QUERY_DSL_JSON_EXTENSION_VERSION = "0.2.4"
 
     const val SPRING_CLOUD_VERSION = "2025.1.1"
-    const val AWS_SDK_VERSION = "2.42.13"
+    const val AWS_SDK_VERSION = "2.42.15"
 
     const val THE_MOMENT_THE_SDK_VERSION = "1.5"
 
@@ -19,5 +19,4 @@ object DependencyVersions {
     const val BUCKET4J_VERSION = "8.17.0"
 
     const val POI_VERSION = "5.5.1"
-
 }
