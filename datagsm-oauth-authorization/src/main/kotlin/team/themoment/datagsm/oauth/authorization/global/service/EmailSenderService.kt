@@ -21,7 +21,7 @@ import team.themoment.datagsm.oauth.authorization.global.template.EmailTemplate
 @Service
 class EmailSenderService(
     private val javaMailSender: JavaMailSender,
-    @param:Value("\${spring.mail.from-address}")
+    @param:Value($$"${spring.mail.from-address}")
     private val fromAddress: String,
 ) {
     fun sendEmail(

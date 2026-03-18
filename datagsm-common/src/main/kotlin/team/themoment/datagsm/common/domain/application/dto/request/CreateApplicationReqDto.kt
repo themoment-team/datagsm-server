@@ -1,0 +1,33 @@
+package team.themoment.datagsm.common.domain.application.dto.request
+
+import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Size
+
+data class CreateApplicationReqDto(
+    @field:NotBlank
+    @field:Size(max = 100)
+    @param:Schema(description = "Application 이름", example = "My Application", maxLength = 100)
+    val name: String,
+    @field:Valid
+    @field:Size(min = 1, max = 100)
+    @param:Schema(description = "Third-party 스코프 목록")
+    val scopes: List<ScopeReqDto>,
+) {
+    data class ScopeReqDto(
+        @field:NotBlank
+        @field:Size(max = 100)
+        @field:Pattern(
+            regexp = "^[a-z0-9_-]+$",
+            message = "scopeName은 소문자 영문, 숫자, 언더스코어, 하이픈만 포함할 수 있습니다. (콜론 불가)",
+        )
+        @param:Schema(description = "스코프 이름", example = "profile")
+        val scopeName: String,
+        @field:NotBlank
+        @field:Size(max = 255)
+        @param:Schema(description = "스코프 설명", example = "사용자 프로필 정보 조회")
+        val description: String,
+    )
+}

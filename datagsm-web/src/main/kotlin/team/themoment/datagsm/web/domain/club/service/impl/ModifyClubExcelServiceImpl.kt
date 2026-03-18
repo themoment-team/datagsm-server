@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.common.domain.club.dto.internal.ClubInfoDto
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
@@ -22,10 +23,12 @@ class ModifyClubExcelServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
 ) : ModifyClubExcelService {
     companion object {
-        private const val MAJOR_CLUB_COL_IDX = 0
-        private const val MAJOR_CLUB_LEADER_COL_IDX = 1
-        private const val AUTONOMOUS_CLUB_COL_IDX = 2
-        private const val AUTONOMOUS_CLUB_LEADER_COL_IDX = 3
+        private const val CLUB_NAME_COL_IDX = 0
+        private const val CLUB_TYPE_COL_IDX = 1
+        private const val LEADER_COL_IDX = 2
+        private const val FOUNDED_YEAR_COL_IDX = 3
+        private const val STATUS_COL_IDX = 4
+        private const val ABOLISHED_YEAR_COL_IDX = 5
     }
 
     @Transactional
@@ -63,7 +66,15 @@ class ModifyClubExcelServiceImpl(
                 (existingClubs[dto.clubName] ?: ClubJpaEntity()).also { club ->
                     club.name = dto.clubName
                     club.type = dto.clubType
-                    club.leader = parseAndFindLeader(dto.leaderInfo)
+                    club.foundedYear = dto.foundedYear
+                    club.status = dto.status
+                    club.abolishedYear = dto.abolishedYear
+                    club.leader =
+                        when (dto.status) {
+                            ClubStatus.ABOLISHED -> null
+                            ClubStatus.ACTIVE ->
+                                dto.leaderInfo?.takeIf { it.isNotBlank() }?.let { parseAndFindLeader(it) }
+                        }
                 }
             }
         clubJpaRepository.saveAll(clubsToSave)
@@ -78,14 +89,7 @@ class ModifyClubExcelServiceImpl(
         return CommonApiResponse.success("엑셀 업로드 성공")
     }
 
-    private fun parseAndFindLeader(leaderInfo: String?): StudentJpaEntity {
-        if (leaderInfo.isNullOrBlank()) {
-            throw ExpectedException(
-                "동아리 부장 정보가 비어있습니다.",
-                HttpStatus.BAD_REQUEST,
-            )
-        }
-
+    private fun parseAndFindLeader(leaderInfo: String): StudentJpaEntity {
         val parts = leaderInfo.trim().split(" ")
         if (parts.size != 2) {
             throw ExpectedException(
@@ -134,17 +138,21 @@ class ModifyClubExcelServiceImpl(
         val headerRow = sheet?.getRow(0)
         val headerColumns =
             listOf(
-                headerRow?.getCell(MAJOR_CLUB_COL_IDX)?.stringCellValue ?: "",
-                headerRow?.getCell(MAJOR_CLUB_LEADER_COL_IDX)?.stringCellValue ?: "",
-                headerRow?.getCell(AUTONOMOUS_CLUB_COL_IDX)?.stringCellValue ?: "",
-                headerRow?.getCell(AUTONOMOUS_CLUB_LEADER_COL_IDX)?.stringCellValue ?: "",
+                headerRow?.getCell(CLUB_NAME_COL_IDX)?.stringCellValue ?: "",
+                headerRow?.getCell(CLUB_TYPE_COL_IDX)?.stringCellValue ?: "",
+                headerRow?.getCell(LEADER_COL_IDX)?.stringCellValue ?: "",
+                headerRow?.getCell(FOUNDED_YEAR_COL_IDX)?.stringCellValue ?: "",
+                headerRow?.getCell(STATUS_COL_IDX)?.stringCellValue ?: "",
+                headerRow?.getCell(ABOLISHED_YEAR_COL_IDX)?.stringCellValue ?: "",
             )
         val expectedHeaders =
             listOf(
-                "전공동아리",
-                "전공동아리 부장",
-                "창체동아리",
-                "창체동아리 부장",
+                "동아리명",
+                "동아리종류",
+                "부장",
+                "창설학년도",
+                "운영상태",
+                "폐지학년도",
             )
         workbook.use { _ ->
             if (
@@ -152,38 +160,75 @@ class ModifyClubExcelServiceImpl(
                 headerColumns != expectedHeaders
             ) {
                 throw ExpectedException(
-                    "헤더 행의 열은 순서대로 전공동아리, 전공동아리 부장, 창체동아리, 창체동아리 부장여야 합니다.",
+                    "헤더 행의 열은 순서대로 동아리명, 동아리종류, 부장, 창설학년도, 운영상태, 폐지학년도여야 합니다.",
                     HttpStatus.BAD_REQUEST,
                 )
             }
-            val headerToClubType = ClubType.entries.associateBy { it.value }
-            val data =
-                headerColumns
-                    .filterIndexed { index, _ -> index % 2 == 0 }
-                    .mapIndexed { idx, header ->
-                        val clubType = headerToClubType[header]!!
-                        val clubNameColIdx = idx * 2
-                        val clubLeaderColIdx = idx * 2 + 1
-                        val clubAndLeaderPairs =
-                            (1..sheet.lastRowNum).mapNotNull { rowIdx ->
-                                val row = sheet.getRow(rowIdx)
-                                val clubName =
-                                    row
-                                        ?.getCell(clubNameColIdx)
-                                        ?.toString()
-                                        ?.trim()
-                                        ?.takeIf { it.isNotBlank() }
 
-                                clubName?.let {
-                                    val clubLeader =
-                                        row.getCell(clubLeaderColIdx)?.toString()?.trim() ?: ""
-                                    it to clubLeader
-                                }
+            val data =
+                (1..sheet.lastRowNum).mapNotNull { rowIdx ->
+                    val row = sheet.getRow(rowIdx) ?: return@mapNotNull null
+                    val clubName =
+                        row
+                            .getCell(CLUB_NAME_COL_IDX)
+                            ?.toString()
+                            ?.trim()
+                            ?.takeIf { it.isNotBlank() }
+                            ?: return@mapNotNull null
+
+                    val typeName = row.getCell(CLUB_TYPE_COL_IDX)?.toString()?.trim() ?: ""
+                    val clubType =
+                        ClubType.entries.find { it.name == typeName }
+                            ?: throw ExpectedException(
+                                "알 수 없는 동아리 종류입니다. (입력값: $typeName)",
+                                HttpStatus.BAD_REQUEST,
+                            )
+
+                    val leaderInfo = row.getCell(LEADER_COL_IDX)?.toString()?.trim()
+
+                    val foundedYearCell = row.getCell(FOUNDED_YEAR_COL_IDX)
+                    val foundedYear =
+                        if (foundedYearCell == null || foundedYearCell.toString().trim().isBlank()) {
+                            throw ExpectedException(
+                                "창설 학년도가 비어있습니다. (행: ${rowIdx + 1})",
+                                HttpStatus.BAD_REQUEST,
+                            )
+                        } else {
+                            try {
+                                foundedYearCell.numericCellValue.toInt()
+                            } catch (e: IllegalStateException) {
+                                throw ExpectedException(
+                                    "창설 학년도는 숫자여야 합니다. (행: ${rowIdx + 1})",
+                                    HttpStatus.BAD_REQUEST,
+                                )
                             }
-                        clubAndLeaderPairs.map { (name, leader) ->
-                            ClubInfoDto(clubName = name, clubType = clubType, leaderInfo = leader)
                         }
-                    }.flatten()
+
+                    val statusName = row.getCell(STATUS_COL_IDX)?.toString()?.trim() ?: ""
+                    val status =
+                        ClubStatus.entries.find { it.name == statusName }
+                            ?: throw ExpectedException(
+                                "알 수 없는 운영 상태입니다. (입력값: $statusName)",
+                                HttpStatus.BAD_REQUEST,
+                            )
+
+                    val abolishedYearCell = row.getCell(ABOLISHED_YEAR_COL_IDX)
+                    val abolishedYear =
+                        try {
+                            abolishedYearCell?.numericCellValue?.toInt()
+                        } catch (e: IllegalStateException) {
+                            null
+                        }
+
+                    ClubInfoDto(
+                        clubName = clubName,
+                        clubType = clubType,
+                        leaderInfo = leaderInfo,
+                        foundedYear = foundedYear,
+                        status = status,
+                        abolishedYear = abolishedYear,
+                    )
+                }
             return data
         }
     }

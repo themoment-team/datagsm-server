@@ -6,4 +6,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 data class OauthEnvironment(
     val codeExpirationSeconds: Long,
     val frontendUrl: String,
+    val authorizeStateExpirationMs: Long,
 )

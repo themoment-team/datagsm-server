@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.QClubJpaEntity.Companion.clubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubSortBy
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.custom.ClubJpaCustomRepository
 import team.themoment.datagsm.common.global.constant.SortDirection
@@ -21,13 +22,17 @@ class ClubJpaCustomRepositoryImpl(
         id: Long?,
         name: String?,
         type: ClubType?,
+        status: ClubStatus?,
+        foundedYear: Int?,
         pageable: Pageable,
         sortBy: ClubSortBy?,
         sortDirection: SortDirection,
     ): Page<ClubJpaEntity> {
-        var searchResult = searchClubWithCondition(id, name, type, pageable, sortBy, sortDirection, useStartsWith = true)
+        var searchResult =
+            searchClubWithCondition(id, name, type, status, foundedYear, pageable, sortBy, sortDirection, useStartsWith = true)
         if (searchResult.content.isEmpty() && name != null) {
-            searchResult = searchClubWithCondition(id, name, type, pageable, sortBy, sortDirection, useStartsWith = false)
+            searchResult =
+                searchClubWithCondition(id, name, type, status, foundedYear, pageable, sortBy, sortDirection, useStartsWith = false)
         }
         return searchResult
     }
@@ -36,6 +41,8 @@ class ClubJpaCustomRepositoryImpl(
         clubId: Long?,
         clubName: String?,
         clubType: ClubType?,
+        clubStatus: ClubStatus?,
+        clubFoundedYear: Int?,
         pageable: Pageable,
         sortBy: ClubSortBy?,
         sortDirection: SortDirection,
@@ -43,20 +50,39 @@ class ClubJpaCustomRepositoryImpl(
     ): Page<ClubJpaEntity> {
         val orderSpecifier = createOrderSpecifier(sortBy, sortDirection)
 
-        val content =
+        // 1쿼리: 페이지네이션 적용하여 club ID만 조회
+        val clubIds =
             jpaQueryFactory
-                .selectFrom(clubJpaEntity)
+                .select(clubJpaEntity.id)
+                .from(clubJpaEntity)
                 .where(
                     clubId?.let { clubJpaEntity.id.eq(it) },
                     clubName?.let {
                         if (useStartsWith) clubJpaEntity.name.startsWith(it) else clubJpaEntity.name.contains(it)
                     },
                     clubType?.let { clubJpaEntity.type.eq(it) },
+                    clubStatus?.let { clubJpaEntity.status.eq(it) },
+                    clubFoundedYear?.let { clubJpaEntity.foundedYear.eq(it) },
                 ).apply {
                     orderSpecifier?.let { orderBy(it) }
                 }.offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
+
+        // 2쿼리: ID IN절로 leader fetchJoin
+        val content =
+            if (clubIds.isEmpty()) {
+                emptyList()
+            } else {
+                jpaQueryFactory
+                    .selectFrom(clubJpaEntity)
+                    .leftJoin(clubJpaEntity.leader)
+                    .fetchJoin()
+                    .where(clubJpaEntity.id.`in`(clubIds))
+                    .apply { orderSpecifier?.let { orderBy(it) } }
+                    .fetch()
+            }
+
         val countQuery =
             jpaQueryFactory
                 .select(clubJpaEntity.count())
@@ -67,6 +93,8 @@ class ClubJpaCustomRepositoryImpl(
                         if (useStartsWith) clubJpaEntity.name.startsWith(it) else clubJpaEntity.name.contains(it)
                     },
                     clubType?.let { clubJpaEntity.type.eq(it) },
+                    clubStatus?.let { clubJpaEntity.status.eq(it) },
+                    clubFoundedYear?.let { clubJpaEntity.foundedYear.eq(it) },
                 )
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
     }
@@ -82,6 +110,8 @@ class ClubJpaCustomRepositoryImpl(
                 ClubSortBy.ID -> clubJpaEntity.id
                 ClubSortBy.NAME -> clubJpaEntity.name
                 ClubSortBy.TYPE -> clubJpaEntity.type
+                ClubSortBy.FOUNDED_YEAR -> clubJpaEntity.foundedYear
+                ClubSortBy.STATUS -> clubJpaEntity.status
             }
 
         return when (sortDirection) {

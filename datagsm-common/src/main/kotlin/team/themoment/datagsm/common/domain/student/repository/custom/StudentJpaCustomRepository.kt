@@ -51,6 +51,8 @@ interface StudentJpaCustomRepository {
 
     fun findStudentsByGrade(grade: Int): List<StudentJpaEntity>
 
+    fun findAllStudentsWithClubs(): List<StudentJpaEntity>
+
     fun findAllGraduates(): List<StudentJpaEntity>
 
     fun findAllStudents(): List<StudentJpaEntity>

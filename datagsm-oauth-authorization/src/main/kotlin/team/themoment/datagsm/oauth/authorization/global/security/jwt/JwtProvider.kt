@@ -2,26 +2,29 @@ package team.themoment.datagsm.oauth.authorization.global.security.jwt
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.security.Keys
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
-import team.themoment.datagsm.common.global.data.OauthJwtEnvironment
+import team.themoment.datagsm.common.domain.client.entity.constant.ThirdPartyScope
+import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
 import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.logging.logger.logger
-import java.nio.charset.StandardCharsets
+import java.security.KeyFactory
+import java.security.PrivateKey
+import java.security.PublicKey
+import java.security.spec.PKCS8EncodedKeySpec
+import java.security.spec.X509EncodedKeySpec
+import java.util.Base64
 import java.util.Date
-import javax.crypto.SecretKey
 
 @Component
 class JwtProvider(
-    private val jwtEnvironment: OauthJwtEnvironment,
+    private val jwtEnvironment: OauthJwtProvisionEnvironment,
 ) {
-    private val secretKey: SecretKey =
-        Keys.hmacShaKeyFor(
-            jwtEnvironment.secret.toByteArray(StandardCharsets.UTF_8),
-        )
+    private val privateKey: PrivateKey = loadPrivateKey(jwtEnvironment.privateKey)
+    private val publicKey: PublicKey = loadPublicKey(jwtEnvironment.publicKey)
+    private val keyId: String = jwtEnvironment.keyId
 
     fun generateOauthAccessToken(
         email: String,
@@ -34,13 +37,16 @@ class JwtProvider(
 
         return Jwts
             .builder()
+            .header()
+            .keyId(keyId)
+            .and()
             .subject(email)
             .claim("role", role.name)
             .claim("clientId", clientId)
-            .claim("scopes", scopes)
+            .claim("scopes", scopes.map { it.scope })
             .issuedAt(now)
             .expiration(expiration)
-            .signWith(secretKey)
+            .signWith(privateKey, Jwts.SIG.RS256)
             .compact()
     }
 
@@ -53,11 +59,14 @@ class JwtProvider(
 
         return Jwts
             .builder()
+            .header()
+            .keyId(keyId)
+            .and()
             .subject(email)
             .claim("clientId", clientId)
             .issuedAt(now)
             .expiration(expiration)
-            .signWith(secretKey)
+            .signWith(privateKey, Jwts.SIG.RS256)
             .compact()
     }
 
@@ -70,13 +79,16 @@ class JwtProvider(
 
         return Jwts
             .builder()
+            .header()
+            .keyId(keyId)
+            .and()
             .subject(clientId)
             .claim("clientId", clientId)
-            .claim("scopes", scopes)
+            .claim("scopes", scopes.map { it.scope })
             .claim("grant_type", "client_credentials")
             .issuedAt(now)
             .expiration(expiration)
-            .signWith(secretKey)
+            .signWith(privateKey, Jwts.SIG.RS256)
             .compact()
     }
 
@@ -95,19 +107,18 @@ class JwtProvider(
         val rawScopes =
             parseClaims(token)["scopes"] as? List<*>
                 ?: throw ExpectedException("토큰에 scope 권한 정보가 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
-        val scopes =
-            rawScopes
-                .map {
-                    runCatching { OAuthScope.valueOf(it as String) }
-                        .getOrElse {
-                            throw ExpectedException("토큰에 잘못된 scope 권한 정보가 존재합니다.", HttpStatus.UNAUTHORIZED)
-                        }
-                }.toSet()
-        return scopes
+        return rawScopes
+            .map { s ->
+                val scopeStr = s as String
+                OAuthScope.fromString(scopeStr)
+                    ?: ThirdPartyScope.fromScopeString(scopeStr)
+                    ?: throw ExpectedException("토큰에 잘못된 scope 권한 정보가 존재합니다.", HttpStatus.UNAUTHORIZED)
+            }.toSet()
     }
 
     fun getClientIdFromToken(token: String): String =
-        parseClaims(token)["clientId"] as? String ?: throw ExpectedException("토큰에 클라이언트 아이디가 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
+        parseClaims(token)["clientId"] as? String
+            ?: throw ExpectedException("토큰에 클라이언트 아이디가 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
 
     fun extractToken(bearerToken: String?): String? =
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
@@ -116,11 +127,37 @@ class JwtProvider(
             null
         }
 
+    fun getPublicKey(): PublicKey = publicKey
+
+    fun getKeyId(): String = keyId
+
     private fun parseClaims(token: String): Claims =
         Jwts
             .parser()
-            .verifyWith(secretKey)
+            .verifyWith(publicKey)
             .build()
             .parseSignedClaims(token)
             .payload
+
+    companion object {
+        private fun loadPrivateKey(pem: String): PrivateKey {
+            val stripped =
+                pem
+                    .replace("-----BEGIN PRIVATE KEY-----", "")
+                    .replace("-----END PRIVATE KEY-----", "")
+                    .replace("\\s".toRegex(), "")
+            val decoded = Base64.getDecoder().decode(stripped)
+            return KeyFactory.getInstance("RSA").generatePrivate(PKCS8EncodedKeySpec(decoded))
+        }
+
+        private fun loadPublicKey(pem: String): PublicKey {
+            val stripped =
+                pem
+                    .replace("-----BEGIN PUBLIC KEY-----", "")
+                    .replace("-----END PUBLIC KEY-----", "")
+                    .replace("\\s".toRegex(), "")
+            val decoded = Base64.getDecoder().decode(stripped)
+            return KeyFactory.getInstance("RSA").generatePublic(X509EncodedKeySpec(decoded))
+        }
+    }
 }

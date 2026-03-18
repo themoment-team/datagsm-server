@@ -42,9 +42,11 @@ class StudentJpaCustomRepositoryImpl(
     ): Page<StudentJpaEntity> {
         val orderSpecifier = createOrderSpecifier(sortBy, sortDirection)
 
-        val content =
+        // 1쿼리: 페이지네이션 적용하여 student ID만 조회
+        val studentIds =
             jpaQueryFactory
-                .selectFrom(studentJpaEntity)
+                .select(studentJpaEntity.id)
+                .from(studentJpaEntity)
                 .where(
                     id?.let { studentJpaEntity.id.eq(it) },
                     name?.let { studentJpaEntity.name.contains(it) },
@@ -63,6 +65,22 @@ class StudentJpaCustomRepositoryImpl(
                 }.offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
+
+        // 2쿼리: ID IN절로 majorClub + autonomousClub 한 번에 fetchJoin
+        val content =
+            if (studentIds.isEmpty()) {
+                emptyList()
+            } else {
+                jpaQueryFactory
+                    .selectFrom(studentJpaEntity)
+                    .leftJoin(studentJpaEntity.majorClub)
+                    .fetchJoin()
+                    .leftJoin(studentJpaEntity.autonomousClub)
+                    .fetchJoin()
+                    .where(studentJpaEntity.id.`in`(studentIds))
+                    .apply { orderSpecifier?.let { orderBy(*it) } }
+                    .fetch()
+            }
 
         val countQuery =
             jpaQueryFactory
@@ -213,6 +231,19 @@ class StudentJpaCustomRepositoryImpl(
                 studentJpaEntity.studentNumber.studentNumber.asc(),
             ).fetch()
 
+    override fun findAllStudentsWithClubs(): List<StudentJpaEntity> =
+        jpaQueryFactory
+            .selectFrom(studentJpaEntity)
+            .leftJoin(studentJpaEntity.majorClub)
+            .fetchJoin()
+            .leftJoin(studentJpaEntity.autonomousClub)
+            .fetchJoin()
+            .orderBy(
+                studentJpaEntity.studentNumber.studentGrade.asc(),
+                studentJpaEntity.studentNumber.studentClass.asc(),
+                studentJpaEntity.studentNumber.studentNumber.asc(),
+            ).fetch()
+
     override fun findAllGraduates(): List<StudentJpaEntity> =
         jpaQueryFactory
             .selectFrom(studentJpaEntity)
@@ -255,9 +286,11 @@ class StudentJpaCustomRepositoryImpl(
     ): Page<StudentJpaEntity> {
         val orderSpecifier = createOrderSpecifier(sortBy, sortDirection)
 
-        val content =
+        // 1쿼리: 페이지네이션 적용하여 student ID만 조회
+        val studentIds =
             jpaQueryFactory
-                .selectFrom(studentJpaEntity)
+                .select(studentJpaEntity.id)
+                .from(studentJpaEntity)
                 .innerJoin(accountJpaEntity)
                 .on(accountJpaEntity.student.id.eq(studentJpaEntity.id))
                 .where(
@@ -278,6 +311,22 @@ class StudentJpaCustomRepositoryImpl(
                 }.offset(pageable.offset)
                 .limit(pageable.pageSize.toLong())
                 .fetch()
+
+        // 2쿼리: ID IN절로 majorClub + autonomousClub 한 번에 fetchJoin
+        val content =
+            if (studentIds.isEmpty()) {
+                emptyList()
+            } else {
+                jpaQueryFactory
+                    .selectFrom(studentJpaEntity)
+                    .leftJoin(studentJpaEntity.majorClub)
+                    .fetchJoin()
+                    .leftJoin(studentJpaEntity.autonomousClub)
+                    .fetchJoin()
+                    .where(studentJpaEntity.id.`in`(studentIds))
+                    .apply { orderSpecifier?.let { orderBy(*it) } }
+                    .fetch()
+            }
 
         val countQuery =
             jpaQueryFactory

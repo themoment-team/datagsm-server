@@ -56,7 +56,7 @@ class StartOauthAuthorizeFlowServiceImpl(
                 state = state,
                 codeChallenge = codeChallenge,
                 codeChallengeMethod = codeChallengeMethod,
-                ttl = 600,
+                ttl = oauthEnvironment.authorizeStateExpirationMs / 1000,
             )
 
         oauthAuthorizeStateRedisRepository.save(stateEntity)

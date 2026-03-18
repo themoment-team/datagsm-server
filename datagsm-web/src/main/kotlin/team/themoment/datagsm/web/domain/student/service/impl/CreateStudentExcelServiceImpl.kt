@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelColumnDto
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelRowDto
+import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.student.service.CreateStudentExcelService
 import java.io.ByteArrayOutputStream
@@ -35,7 +37,8 @@ class CreateStudentExcelServiceImpl(
     }
 
     override fun execute(includeGraduates: Boolean): ResponseEntity<ByteArray> {
-        val data: List<ExcelRowDto> = getStudentData()
+        val allStudents = studentJpaRepository.findAllStudentsWithClubs()
+        val data = getStudentData(allStudents)
         val workbook = XSSFWorkbook()
 
         data.forEachIndexed { idx, excelRowDto ->
@@ -82,7 +85,7 @@ class CreateStudentExcelServiceImpl(
             headerRow.createCell(STUDENT_ROLE_COL_IDX).setCellValue("소속")
             headerRow.createCell(SEX_COL_IDX).setCellValue("성별")
 
-            studentJpaRepository.findAllGraduates().forEachIndexed { rowIndex, student ->
+            allStudents.filter { it.role == StudentRole.GRADUATE }.forEachIndexed { rowIndex, student ->
                 val row = graduateSheet.createRow(rowIndex + 1)
                 row.createCell(NAME_COL_IDX).setCellValue(student.name)
                 row.createCell(STUDENT_NUMBER_COL_IDX).setCellValue(student.studentNumber?.fullStudentNumber?.toString() ?: "")
@@ -126,29 +129,29 @@ class CreateStudentExcelServiceImpl(
             .body(byteArrayFile)
     }
 
-    private fun getStudentData(): List<ExcelRowDto> {
-        val data = mutableListOf<ExcelRowDto>()
-        for (i: Int in 1..3) {
-            val list = studentJpaRepository.findStudentsByGrade(i)
-            val excelRowDto =
-                ExcelRowDto(
-                    columns =
-                        list.map { student ->
-                            ExcelColumnDto(
-                                name = student.name,
-                                number = student.studentNumber?.fullStudentNumber,
-                                email = student.email,
-                                major = student.major,
-                                majorClub = student.majorClub?.name,
-                                autonomousClub = student.autonomousClub?.name,
-                                dormitoryRoomNumber = student.dormitoryRoomNumber?.dormitoryRoomNumber,
-                                role = student.role,
-                                sex = student.sex,
-                            )
-                        },
-                )
-            data.add(excelRowDto)
+    private fun getStudentData(allStudents: List<StudentJpaEntity>): List<ExcelRowDto> {
+        val byGrade =
+            allStudents
+                .filter { it.role != StudentRole.GRADUATE }
+                .groupBy { it.studentNumber?.studentGrade }
+
+        return (1..3).map { grade ->
+            ExcelRowDto(
+                columns =
+                    (byGrade[grade] ?: emptyList()).map { student ->
+                        ExcelColumnDto(
+                            name = student.name,
+                            number = student.studentNumber?.fullStudentNumber,
+                            email = student.email,
+                            major = student.major,
+                            majorClub = student.majorClub?.name,
+                            autonomousClub = student.autonomousClub?.name,
+                            dormitoryRoomNumber = student.dormitoryRoomNumber?.dormitoryRoomNumber,
+                            role = student.role,
+                            sex = student.sex,
+                        )
+                    },
+            )
         }
-        return data
     }
 }

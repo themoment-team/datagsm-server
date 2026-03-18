@@ -19,13 +19,15 @@ class QueryClubServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
 ) : QueryClubService {
-    @Transactional
+    @Transactional(readOnly = true)
     override fun execute(queryReq: QueryClubReqDto): ClubListResDto {
         val clubPage =
             clubJpaRepository.searchClubWithPaging(
                 id = queryReq.clubId,
                 name = queryReq.clubName,
                 type = queryReq.clubType,
+                status = queryReq.clubStatus,
+                foundedYear = queryReq.foundedYear,
                 pageable = PageRequest.of(queryReq.page, queryReq.size),
                 sortBy = queryReq.sortBy,
                 sortDirection = queryReq.sortDirection,
@@ -53,6 +55,9 @@ class QueryClubServiceImpl(
                         type = entity.type,
                         leader = leader,
                         participants = participantList,
+                        foundedYear = entity.foundedYear,
+                        status = entity.status,
+                        abolishedYear = entity.abolishedYear,
                     )
                 },
         )

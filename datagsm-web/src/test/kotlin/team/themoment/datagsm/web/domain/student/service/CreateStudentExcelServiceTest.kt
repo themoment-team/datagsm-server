@@ -61,7 +61,7 @@ class CreateStudentExcelServiceTest :
                             type = ClubType.AUTONOMOUS_CLUB
                         }
 
-                    val grade1Students =
+                    val allStudents =
                         listOf(
                             StudentJpaEntity().apply {
                                 id = 1L
@@ -75,10 +75,6 @@ class CreateStudentExcelServiceTest :
                                 role = StudentRole.GENERAL_STUDENT
                                 sex = Sex.MAN
                             },
-                        )
-
-                    val grade2Students =
-                        listOf(
                             StudentJpaEntity().apply {
                                 id = 2L
                                 name = "김철수"
@@ -91,10 +87,6 @@ class CreateStudentExcelServiceTest :
                                 role = StudentRole.STUDENT_COUNCIL
                                 sex = Sex.MAN
                             },
-                        )
-
-                    val grade3Students =
-                        listOf(
                             StudentJpaEntity().apply {
                                 id = 3L
                                 name = "이영희"
@@ -110,9 +102,7 @@ class CreateStudentExcelServiceTest :
                         )
 
                     beforeEach {
-                        every { mockStudentRepository.findStudentsByGrade(1) } returns grade1Students
-                        every { mockStudentRepository.findStudentsByGrade(2) } returns grade2Students
-                        every { mockStudentRepository.findStudentsByGrade(3) } returns grade3Students
+                        every { mockStudentRepository.findAllStudentsWithClubs() } returns allStudents
                     }
 
                     it("학년별 시트가 포함된 Excel 파일을 생성해야 한다") {
@@ -124,9 +114,7 @@ class CreateStudentExcelServiceTest :
                             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                         result.headers.contentDisposition.filename shouldMatch Regex("학생_현황_\\d{8}\\.xlsx")
 
-                        verify(exactly = 1) { mockStudentRepository.findStudentsByGrade(1) }
-                        verify(exactly = 1) { mockStudentRepository.findStudentsByGrade(2) }
-                        verify(exactly = 1) { mockStudentRepository.findStudentsByGrade(3) }
+                        verify(exactly = 1) { mockStudentRepository.findAllStudentsWithClubs() }
 
                         // Excel 내용 검증
                         val workbook = XSSFWorkbook(ByteArrayInputStream(result.body))
@@ -181,9 +169,7 @@ class CreateStudentExcelServiceTest :
 
                 context("빈 학생 리스트로 Excel을 생성할 때") {
                     beforeEach {
-                        every { mockStudentRepository.findStudentsByGrade(1) } returns emptyList()
-                        every { mockStudentRepository.findStudentsByGrade(2) } returns emptyList()
-                        every { mockStudentRepository.findStudentsByGrade(3) } returns emptyList()
+                        every { mockStudentRepository.findAllStudentsWithClubs() } returns emptyList()
                     }
 
                     it("헤더만 있는 3개의 시트를 생성해야 한다") {
@@ -224,9 +210,7 @@ class CreateStudentExcelServiceTest :
                         }
 
                     beforeEach {
-                        every { mockStudentRepository.findStudentsByGrade(1) } returns emptyList()
-                        every { mockStudentRepository.findStudentsByGrade(2) } returns students
-                        every { mockStudentRepository.findStudentsByGrade(3) } returns emptyList()
+                        every { mockStudentRepository.findAllStudentsWithClubs() } returns students
                     }
 
                     it("모든 학생이 포함된 Excel 파일을 생성해야 한다") {
@@ -254,7 +238,7 @@ class CreateStudentExcelServiceTest :
 
                 context("파일명 형식을 검증할 때") {
                     beforeEach {
-                        every { mockStudentRepository.findStudentsByGrade(any()) } returns emptyList()
+                        every { mockStudentRepository.findAllStudentsWithClubs() } returns emptyList()
                     }
 
                     it("파일명은 '학생_현황_yyyyMMdd.xlsx' 형식이어야 한다") {
@@ -279,10 +263,7 @@ class CreateStudentExcelServiceTest :
                         }
 
                     beforeEach {
-                        every { mockStudentRepository.findStudentsByGrade(1) } returns emptyList()
-                        every { mockStudentRepository.findStudentsByGrade(2) } returns emptyList()
-                        every { mockStudentRepository.findStudentsByGrade(3) } returns emptyList()
-                        every { mockStudentRepository.findAllGraduates() } returns listOf(graduateStudent)
+                        every { mockStudentRepository.findAllStudentsWithClubs() } returns listOf(graduateStudent)
                     }
 
                     it("4번째 '졸업생' 시트가 추가되어야 한다") {
@@ -319,9 +300,7 @@ class CreateStudentExcelServiceTest :
                         }
 
                     beforeEach {
-                        every { mockStudentRepository.findStudentsByGrade(1) } returns emptyList()
-                        every { mockStudentRepository.findStudentsByGrade(2) } returns emptyList()
-                        every { mockStudentRepository.findStudentsByGrade(3) } returns listOf(graduateStudent)
+                        every { mockStudentRepository.findAllStudentsWithClubs() } returns listOf(graduateStudent)
                     }
 
                     it("졸업생 시트가 없어야 하고 학년 시트에 졸업생이 포함되지 않아야 한다") {
@@ -333,10 +312,11 @@ class CreateStudentExcelServiceTest :
 
                         workbook.numberOfSheets shouldBe 3
 
-                        // findStudentsByGrade는 이미 GRADUATE를 제외하므로, 반환된 목록이 그대로 사용됨
-                        // 이 테스트에서는 mock이 graduateStudent를 반환하지만,
-                        // 실제 Repository에서는 GRADUATE가 제외됨을 검증하는 것임
-                        verify(exactly = 0) { mockStudentRepository.findAllGraduates() }
+                        // 졸업생은 학년 시트에서 필터링되므로 3학년 시트에 데이터 행이 없어야 함
+                        val sheet3 = workbook.getSheetAt(2)
+                        sheet3.lastRowNum shouldBe 0
+
+                        verify(exactly = 1) { mockStudentRepository.findAllStudentsWithClubs() }
 
                         workbook.close()
                     }
@@ -383,9 +363,8 @@ class CreateStudentExcelServiceTest :
                         }
 
                     beforeEach {
-                        every { mockStudentRepository.findStudentsByGrade(1) } returns grade1Students
-                        every { mockStudentRepository.findStudentsByGrade(2) } returns grade2Students
-                        every { mockStudentRepository.findStudentsByGrade(3) } returns grade3Students
+                        every { mockStudentRepository.findAllStudentsWithClubs() } returns
+                            grade1Students + grade2Students + grade3Students
                     }
 
                     it("각 시트에 해당 학년의 학생 수만큼 행을 생성해야 한다") {

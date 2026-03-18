@@ -17,10 +17,12 @@ import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.oauth.dto.request.Oauth2TokenReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeSubmitReqDto
+import team.themoment.datagsm.common.domain.oauth.dto.response.JwkSetResDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.Oauth2TokenResDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.OauthSessionResDto
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthAuthorizeFlowService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.Oauth2TokenService
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryJwkSetService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryOauthSessionService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.StartOauthAuthorizeFlowService
 
@@ -32,6 +34,7 @@ class OauthController(
     val startOauthAuthorizeFlowService: StartOauthAuthorizeFlowService,
     val completeOauthAuthorizeFlowService: CompleteOauthAuthorizeFlowService,
     val queryOauthSessionService: QueryOauthSessionService,
+    val queryJwkSetService: QueryJwkSetService,
 ) {
     @GetMapping("/authorize")
     @Operation(
@@ -80,6 +83,18 @@ class OauthController(
     fun queryOauthSession(
         @PathVariable token: String,
     ): OauthSessionResDto = queryOauthSessionService.execute(token)
+
+    @Operation(
+        summary = "JWK Set 조회",
+        description = "JWT 서명 검증을 위한 RSA 공개키를 JWK Set 형식으로 반환합니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "JWK Set 조회 성공"),
+        ],
+    )
+    @GetMapping("/jwks")
+    fun getJwkSet(): JwkSetResDto = queryJwkSetService.execute()
 
     @Operation(
         summary = "OAuth2 토큰 발급/갱신",

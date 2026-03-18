@@ -47,12 +47,15 @@ spring:
       allowed-origins:
         - ${CORS_ALLOWED_ORIGINS:*}
     oauth-jwt:
-      secret: ${JWT_SECRET_KEY}
+      key-id: ${JWT_KEY_ID}
+      private-key: ${JWT_PRIVATE_KEY}
+      public-key: ${JWT_PUBLIC_KEY}
       access-token-expiration: ${OAUTH_ACCESS_TOKEN_EXPIRATION:3600000}
       refresh-token-expiration: ${OAUTH_REFRESH_TOKEN_EXPIRATION:2592000000}
     oauth:
       code-expiration-seconds: ${OAUTH_CODE_EXPIRATION:300}
       frontend-url: ${OAUTH_FRONTEND_URL:http://localhost:3000}
+      authorize-state-expiration-ms: ${OAUTH_AUTHORIZE_STATE_EXPIRATION_MS:600000}
     password-reset-rate-limit:
       enabled: true
       send:
