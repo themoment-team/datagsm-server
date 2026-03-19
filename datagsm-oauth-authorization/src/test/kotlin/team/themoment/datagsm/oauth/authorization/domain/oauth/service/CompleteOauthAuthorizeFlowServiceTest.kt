@@ -84,6 +84,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                             state = "random-state",
                             codeChallenge = "challenge",
                             codeChallengeMethod = "S256",
+                            scopes = "self:read",
                             ttl = 600,
                         )
 
@@ -118,6 +119,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         savedEntitySlot.captured.redirectUri shouldBe testRedirectUri
                         savedEntitySlot.captured.codeChallenge shouldBe "challenge"
                         savedEntitySlot.captured.codeChallengeMethod shouldBe "S256"
+                        savedEntitySlot.captured.scopes shouldBe "self:read"
                         savedEntitySlot.captured.ttl shouldBe codeExpirationSeconds
                     }
 
@@ -125,6 +127,43 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         completeOauthAuthorizeFlowService.execute(reqDto)
 
                         verify(exactly = 1) { mockOauthAuthorizeStateRedisRepository.deleteById(testToken) }
+                    }
+                }
+
+                context("state entity의 scopes가 null일 때") {
+                    val reqDto =
+                        OauthAuthorizeSubmitReqDto(
+                            email = testEmail,
+                            password = "password123!",
+                            token = testToken,
+                        )
+
+                    val mockStateEntityWithNullScopes =
+                        OauthAuthorizeStateRedisEntity(
+                            token = testToken,
+                            clientId = testClientId,
+                            redirectUri = testRedirectUri,
+                            state = null,
+                            codeChallenge = null,
+                            codeChallengeMethod = null,
+                            scopes = null,
+                            ttl = 600,
+                        )
+
+                    val savedEntitySlot = slot<OauthCodeRedisEntity>()
+
+                    beforeEach {
+                        every { mockOauthAuthorizeStateRedisRepository.findById(testToken) } returns
+                            Optional.of(mockStateEntityWithNullScopes)
+                        every { mockAccountJpaRepository.findByEmail(testEmail) } returns Optional.of(mockAccount)
+                        every { mockPasswordEncoder.matches("password123!", mockAccount.password) } returns true
+                        every { mockOauthCodeRedisRepository.save(capture(savedEntitySlot)) } answers { firstArg() }
+                    }
+
+                    it("code entity의 scopes도 null이어야 한다") {
+                        completeOauthAuthorizeFlowService.execute(reqDto)
+
+                        savedEntitySlot.captured.scopes shouldBe null
                     }
                 }
 
@@ -169,6 +208,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                             state = "random-state",
                             codeChallenge = "challenge",
                             codeChallengeMethod = "S256",
+                            scopes = "self:read",
                             ttl = 600,
                         )
 
@@ -206,6 +246,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                             state = "random-state",
                             codeChallenge = "challenge",
                             codeChallengeMethod = "S256",
+                            scopes = "self:read",
                             ttl = 600,
                         )
 
