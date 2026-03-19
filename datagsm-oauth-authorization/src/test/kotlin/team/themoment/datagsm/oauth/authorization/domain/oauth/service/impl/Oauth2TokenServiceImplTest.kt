@@ -187,7 +187,7 @@ class Oauth2TokenServiceImplTest :
                                 clientId = "test-client",
                                 clientSecret = "test-secret",
                                 redirectUri = "https://example.com/callback",
-                                scope = "self:read",
+                                scope = setOf("self:read"),
                             )
 
                         val result = service.execute(reqDto)
@@ -204,7 +204,7 @@ class Oauth2TokenServiceImplTest :
                                 clientId = "test-client",
                                 clientSecret = "test-secret",
                                 redirectUri = "https://example.com/callback",
-                                scope = "admin:write",
+                                scope = setOf("admin:write"),
                             )
 
                         val exception =
@@ -328,7 +328,7 @@ class Oauth2TokenServiceImplTest :
                             grantType = "client_credentials",
                             clientId = "test-client",
                             clientSecret = "test-secret",
-                            scope = "self:read",
+                            scope = setOf("self:read"),
                         )
 
                     val client =

@@ -137,7 +137,7 @@ class StartOauthAuthorizeFlowServiceTest :
                                 client_id = testClientId,
                                 redirect_uri = testRedirectUri,
                                 response_type = "code",
-                                scope = "self:read",
+                                scope = setOf("self:read"),
                             )
                         startOauthAuthorizeFlowService.execute(reqDto)
 
@@ -156,7 +156,7 @@ class StartOauthAuthorizeFlowServiceTest :
                                 client_id = testClientId,
                                 redirect_uri = testRedirectUri,
                                 response_type = "code",
-                                scope = "admin:write",
+                                scope = setOf("admin:write"),
                             )
                         val exception =
                             shouldThrow<OAuthException.InvalidScope> {
