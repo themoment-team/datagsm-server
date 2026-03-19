@@ -11,7 +11,7 @@ data class OauthCodeRedisEntity(
     val redirectUri: String?,
     val codeChallenge: String?,
     val codeChallengeMethod: String?,
-    val scopes: String?,
+    val scopes: String,
     @Id
     val code: String,
     @TimeToLive

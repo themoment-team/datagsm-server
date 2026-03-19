@@ -31,12 +31,7 @@ class QueryOauthSessionServiceImpl(
                 .findByIdOrNull(stateEntity.clientId)
                 ?: throw ExpectedException("유효하지 않은 클라이언트입니다.", HttpStatus.UNAUTHORIZED)
         val expiresAt = Instant.now().toEpochMilli() + oauthEnvironment.authorizeStateExpirationMs
-        // scopes=null인 기존 세션은 client 전체 scope로 fallback
-        val requestedScopes =
-            stateEntity.scopes
-                ?.split(" ")
-                ?.filter { it.isNotBlank() }
-                ?: client.scopes.toList()
+        val requestedScopes = stateEntity.scopes.split(" ").filter { it.isNotBlank() }
         return OauthSessionResDto(serviceName = client.serviceName, expiresAt = expiresAt, requestedScopes = requestedScopes)
     }
 }
