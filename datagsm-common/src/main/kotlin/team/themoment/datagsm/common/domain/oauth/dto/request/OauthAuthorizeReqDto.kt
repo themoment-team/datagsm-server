@@ -28,9 +28,9 @@ data class OauthAuthorizeReqDto(
     )
     val code_challenge_method: String? = null,
     @param:Schema(
-        description = "요청할 OAuth Scope (공백 구분, 미입력 시 client의 전체 허용 scope 사용)",
-        example = "self:read",
+        description = "요청할 OAuth Scope 목록 (미입력 시 client의 전체 허용 scope 사용)",
+        example = "[\"self:read\"]",
         requiredMode = Schema.RequiredMode.NOT_REQUIRED,
     )
-    val scope: String? = null,
+    val scope: Set<String>? = null,
 )

@@ -78,18 +78,15 @@ class StartOauthAuthorizeFlowServiceImpl(
             .build()
     }
 
-    // scope가 null이면 client 전체 scope 사용, 있으면 client 허용 범위 내인지 검증
-    // DB 조회 없이 문자열 집합 비교만 수행 (ThirdPartyScope DB 조회는 token 발급 시에만)
     private fun resolveScopes(
-        requestedScopeStr: String?,
+        requestedScopes: Set<String>?,
         clientScopes: Set<String>,
     ): String {
-        if (requestedScopeStr.isNullOrBlank()) return clientScopes.joinToString(" ")
-        val requested = requestedScopeStr.split(" ").filter { it.isNotBlank() }.toSet()
-        val invalid = requested - clientScopes
+        if (requestedScopes.isNullOrEmpty()) return clientScopes.joinToString(" ")
+        val invalid = requestedScopes - clientScopes
         if (invalid.isNotEmpty()) {
             throw OAuthException.InvalidScope("클라이언트에 허용되지 않은 scope입니다: ${invalid.joinToString(", ")}")
         }
-        return requested.joinToString(" ")
+        return requestedScopes.joinToString(" ")
     }
 }

@@ -30,9 +30,9 @@ data class Oauth2TokenReqDto(
     @field:JsonProperty("refresh_token")
     @field:JsonAlias("refreshToken")
     val refreshToken: String? = null,
-    @param:Schema(description = "OAuth Scopes (space-separated)", example = "read write")
+    @param:Schema(description = "OAuth Scopes", example = "[\"self:read\"]")
     @field:JsonProperty("scope")
-    val scope: String? = null,
+    val scope: Set<String>? = null,
     @param:Schema(description = "PKCE Code Verifier", example = "dBjftJeSSVPxgS31dKTHlEpQMZlzvvMpqHN0KT9LM5E")
     @field:JsonProperty("code_verifier")
     @field:JsonAlias("codeVerifier")

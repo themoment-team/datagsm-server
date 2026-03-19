@@ -110,7 +110,7 @@ class Oauth2TokenServiceImpl(
                 .orElseThrow { ExpectedException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
 
         val codeScopes = parseScopes(oauthCode.scopes)
-        val tokenScopes = parseScopes(reqDto.scope)
+        val tokenScopes = reqDto.scope ?: emptySet()
         if (tokenScopes.isNotEmpty() && !codeScopes.containsAll(tokenScopes)) {
             throw OAuthException.InvalidScope("요청한 scope가 인가 코드의 scope를 초과합니다.")
         }
@@ -180,7 +180,7 @@ class Oauth2TokenServiceImpl(
                 .findByEmail(email)
                 .orElseThrow { ExpectedException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
 
-        val requestedScopes = parseScopes(reqDto.scope)
+        val requestedScopes = reqDto.scope ?: emptySet()
         val grantedScopes = calculateGrantedScopes(client.scopes, requestedScopes)
 
         val newAccessToken = jwtProvider.generateOauthAccessToken(email, account.role, clientIdFromToken, grantedScopes)
@@ -202,7 +202,7 @@ class Oauth2TokenServiceImpl(
 
         val client = validateClient(reqDto.clientId!!, reqDto.clientSecret!!)
 
-        val requestedScopes = parseScopes(reqDto.scope)
+        val requestedScopes = reqDto.scope ?: emptySet()
         val grantedScopes = calculateGrantedScopes(client.scopes, requestedScopes)
 
         val accessToken = jwtProvider.generateClientCredentialsAccessToken(client.id, grantedScopes)
