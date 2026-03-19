@@ -8,5 +8,6 @@
     <plugin optional="true" id="com.anthropic.code.plugin" />
     <plugin optional="true" id="me.solohic.gemini-cli-companion" />
     <plugin optional="true" id="com.dsoftware.ghtoolbar" />
+    <plugin optional="true" id="com.github.x0x0b.codex-launcher" />
   </component>
 </project>
