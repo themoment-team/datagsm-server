@@ -11,7 +11,7 @@ description: Kotlin + Spring Boot 4.0 architecture detailed guide for this proje
 - Role: Request validation, DTO conversion, HTTP response
 - Annotations: `@RestController`, `@RequestMapping`
 - Validation: `@Valid`, `@Validated`
-- Response: Use `CommonApiResponse` wrapper
+- Response: Return DTO directly (SDK wrapper auto-wraps with `CommonApiResponse`)
 
 ### Service
 - Role: Business logic, transaction management
@@ -52,11 +52,11 @@ fun findAllWithRelated(): List<Entity>
 ## Exception Handling
 
 ### Custom Exception
+Do NOT create subclasses of `ExpectedException`. Instantiate it directly:
 ```kotlin
-class ApiKeyNotFoundException : ExpectedException(
-    status = HttpStatus.NOT_FOUND,
-    message = "API key not found"
-)
+studentRepository.findById(id).orElseThrow {
+    ExpectedException("Student not found. studentId: $id", HttpStatus.NOT_FOUND)
+}
 ```
 
 ### Global Handler

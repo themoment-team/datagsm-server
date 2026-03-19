@@ -9,7 +9,7 @@ description: Kotest + MockK testing guide with Given-When-Then pattern for this 
 
 ```kotlin
 @Test
-fun `create API key successfully`() = runTest {
+fun `API 키를 성공적으로 생성한다`() = runTest {
     // Given
     val reqDto = CreateApiKeyReqDto(clientId = "test-client")
     val apiKey = ApiKey(id = 1L, key = "generated-key")
