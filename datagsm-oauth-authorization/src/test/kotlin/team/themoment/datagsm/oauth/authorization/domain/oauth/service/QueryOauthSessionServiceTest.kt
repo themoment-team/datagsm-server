@@ -50,7 +50,7 @@ class QueryOauthSessionServiceTest :
                         state = null,
                         codeChallenge = null,
                         codeChallengeMethod = null,
-                        scopes = "self:read",
+                        scopes = setOf("self:read"),
                     )
 
                 val mockClient =

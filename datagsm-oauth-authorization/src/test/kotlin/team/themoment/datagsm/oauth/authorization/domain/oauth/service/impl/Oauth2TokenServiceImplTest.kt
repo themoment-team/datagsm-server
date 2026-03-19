@@ -74,7 +74,7 @@ class Oauth2TokenServiceImplTest :
                             redirectUri = "https://example.com/callback",
                             codeChallenge = null,
                             codeChallengeMethod = null,
-                            scopes = "self:read",
+                            scopes = setOf("self:read"),
                             code = "test-code",
                             ttl = 300,
                         )
@@ -129,7 +129,7 @@ class Oauth2TokenServiceImplTest :
                             redirectUri = "https://example.com/callback",
                             codeChallenge = null,
                             codeChallengeMethod = null,
-                            scopes = "self:read",
+                            scopes = setOf("self:read"),
                             code = "test-code",
                             ttl = 300,
                         )
@@ -234,7 +234,7 @@ class Oauth2TokenServiceImplTest :
                             redirectUri = null,
                             codeChallenge = "challenge-hash",
                             codeChallengeMethod = "S256",
-                            scopes = "self:read",
+                            scopes = setOf("self:read"),
                             code = "test-code",
                             ttl = 300,
                         )

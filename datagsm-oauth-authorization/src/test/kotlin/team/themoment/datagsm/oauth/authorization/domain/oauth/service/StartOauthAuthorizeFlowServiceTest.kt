@@ -94,7 +94,7 @@ class StartOauthAuthorizeFlowServiceTest :
                         savedEntitySlot.captured.codeChallenge shouldBe "challenge"
                         savedEntitySlot.captured.codeChallengeMethod shouldBe "S256"
                         savedEntitySlot.captured.ttl shouldBe 600
-                        savedEntitySlot.captured.scopes shouldBe "self:read"
+                        savedEntitySlot.captured.scopes shouldBe setOf("self:read")
                     }
                 }
 
@@ -117,7 +117,7 @@ class StartOauthAuthorizeFlowServiceTest :
                             )
                         startOauthAuthorizeFlowService.execute(reqDto)
 
-                        savedEntitySlot.captured.scopes shouldBe "self:read"
+                        savedEntitySlot.captured.scopes shouldBe setOf("self:read")
                     }
                 }
 
@@ -141,7 +141,7 @@ class StartOauthAuthorizeFlowServiceTest :
                             )
                         startOauthAuthorizeFlowService.execute(reqDto)
 
-                        savedEntitySlot.captured.scopes shouldBe "self:read"
+                        savedEntitySlot.captured.scopes shouldBe setOf("self:read")
                     }
                 }
 
