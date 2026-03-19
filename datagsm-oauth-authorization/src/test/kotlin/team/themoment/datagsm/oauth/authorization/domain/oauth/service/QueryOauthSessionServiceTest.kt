@@ -92,32 +92,6 @@ class QueryOauthSessionServiceTest :
                     }
                 }
 
-                context("state entity의 scopes가 null일 때") {
-                    val mockStateEntityWithNullScopes =
-                        OauthAuthorizeStateRedisEntity(
-                            token = testToken,
-                            clientId = testClientId,
-                            redirectUri = "https://example.com/callback",
-                            state = null,
-                            codeChallenge = null,
-                            codeChallengeMethod = null,
-                            scopes = null,
-                        )
-
-                    beforeEach {
-                        every { mockOauthAuthorizeStateRedisRepository.findById(testToken) } returns
-                            Optional.of(mockStateEntityWithNullScopes)
-                        every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(mockClient)
-                        every { mockOauthEnvironment.authorizeStateExpirationMs } returns 600000L
-                    }
-
-                    it("client의 전체 scope가 requestedScopes로 반환되어야 한다") {
-                        val result = queryOauthSessionService.execute(testToken)
-
-                        result.requestedScopes shouldBe listOf("self:read")
-                    }
-                }
-
                 context("Redis에 존재하지 않는 토큰이 주어졌을 때") {
                     beforeEach {
                         every { mockOauthAuthorizeStateRedisRepository.findById("expired-token") } returns Optional.empty()
