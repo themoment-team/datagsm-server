@@ -258,7 +258,7 @@ class ModifyClubServiceTest :
                     }
                 }
 
-                context("ACTIVE → ABOLISHED 변경 시 leaderId=null인 경우") {
+                context("ABOLISHED 상태이고 participantIds가 비어있지 않을 때") {
                     val clubId = 10L
                     val req =
                         ClubReqDto(
@@ -266,6 +266,27 @@ class ModifyClubServiceTest :
                             type = ClubType.MAJOR_CLUB,
                             leaderId = null,
                             participantIds = listOf(300L),
+                            foundedYear = 2022,
+                            status = ClubStatus.ABOLISHED,
+                        )
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val ex =
+                            shouldThrow<ExpectedException> {
+                                modifyClubService.execute(clubId, req)
+                            }
+                        ex.message shouldBe "폐지된 동아리에는 구성원을 지정할 수 없습니다."
+                    }
+                }
+
+                context("ACTIVE → ABOLISHED 변경 시 leaderId=null인 경우") {
+                    val clubId = 10L
+                    val req =
+                        ClubReqDto(
+                            name = "기존동아리",
+                            type = ClubType.MAJOR_CLUB,
+                            leaderId = null,
+                            participantIds = emptyList(),
                             foundedYear = 2022,
                             status = ClubStatus.ABOLISHED,
                             abolishedYear = 2024,
@@ -294,17 +315,17 @@ class ModifyClubServiceTest :
 
                         every { mockClubRepository.findById(clubId) } returns java.util.Optional.of(existingClub)
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
-                        every { mockStudentRepository.findAllById(listOf(300L)) } returns emptyList()
+                        every { mockStudentRepository.findAllById(emptyList<Long>()) } returns emptyList()
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
-                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
-                    it("club.leader가 null이 되고 clearClubReferencesByType이 호출되어야 한다") {
+                    it("club.leader가 null이 되고 bulkAssignClub이 호출되지 않아야 한다") {
                         val res = modifyClubService.execute(clubId, req)
 
                         res.leader shouldBe null
                         existingClub.leader shouldBe null
                         verify { mockStudentRepository.clearClubReferencesByType(existingClub, ClubType.MAJOR_CLUB) }
+                        verify(exactly = 0) { mockStudentRepository.bulkAssignClub(any(), any(), any()) }
                     }
                 }
 
