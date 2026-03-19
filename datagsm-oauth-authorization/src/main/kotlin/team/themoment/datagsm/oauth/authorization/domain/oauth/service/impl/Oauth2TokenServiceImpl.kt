@@ -109,12 +109,11 @@ class Oauth2TokenServiceImpl(
                 .findByEmail(oauthCode.email)
                 .orElseThrow { ExpectedException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
 
-        val codeScopes = parseScopes(oauthCode.scopes)
         val tokenScopes = reqDto.scope ?: emptySet()
-        if (tokenScopes.isNotEmpty() && !codeScopes.containsAll(tokenScopes)) {
+        if (tokenScopes.isNotEmpty() && !oauthCode.scopes.containsAll(tokenScopes)) {
             throw OAuthException.InvalidScope("요청한 scope가 인가 코드의 scope를 초과합니다.")
         }
-        val scopesToGrant = if (tokenScopes.isNotEmpty()) tokenScopes else codeScopes
+        val scopesToGrant = if (tokenScopes.isNotEmpty()) tokenScopes else oauthCode.scopes
         val grantedScopes = stringsToScopes(scopesToGrant)
 
         val accessToken = jwtProvider.generateOauthAccessToken(account.email, account.role, client.id, grantedScopes)
@@ -234,8 +233,6 @@ class Oauth2TokenServiceImpl(
     private fun validateClientWithoutSecret(clientId: String): ClientJpaEntity =
         clientJpaRepository.findByIdOrNull(clientId)
             ?: throw OAuthException.InvalidClient("존재하지 않는 클라이언트입니다.")
-
-    private fun parseScopes(scopeString: String?): Set<String> = scopeString?.split(" ")?.filter { it.isNotBlank() }?.toSet() ?: emptySet()
 
     private fun calculateGrantedScopes(
         clientScopes: Set<String>,
