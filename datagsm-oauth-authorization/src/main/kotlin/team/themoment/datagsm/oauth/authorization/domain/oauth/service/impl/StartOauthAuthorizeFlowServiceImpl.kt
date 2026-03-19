@@ -46,6 +46,8 @@ class StartOauthAuthorizeFlowServiceImpl(
                 ?: throw OAuthException.InvalidRequest("지원하지 않는 code_challenge_method입니다.")
         }
 
+        val resolvedScopes = resolveScopes(reqDto.scope, client.scopes)
+
         val token = UUID.randomUUID().toString()
 
         val stateEntity =
@@ -56,6 +58,7 @@ class StartOauthAuthorizeFlowServiceImpl(
                 state = state,
                 codeChallenge = codeChallenge,
                 codeChallengeMethod = codeChallengeMethod,
+                scopes = resolvedScopes,
                 ttl = oauthEnvironment.authorizeStateExpirationMs / 1000,
             )
 
@@ -73,5 +76,20 @@ class StartOauthAuthorizeFlowServiceImpl(
             .status(HttpStatus.FOUND)
             .location(location)
             .build()
+    }
+
+    // scope가 null이면 client 전체 scope 사용, 있으면 client 허용 범위 내인지 검증
+    // DB 조회 없이 문자열 집합 비교만 수행 (ThirdPartyScope DB 조회는 token 발급 시에만)
+    private fun resolveScopes(
+        requestedScopeStr: String?,
+        clientScopes: Set<String>,
+    ): String {
+        if (requestedScopeStr.isNullOrBlank()) return clientScopes.joinToString(" ")
+        val requested = requestedScopeStr.split(" ").filter { it.isNotBlank() }.toSet()
+        val invalid = requested - clientScopes
+        if (invalid.isNotEmpty()) {
+            throw OAuthException.InvalidScope("클라이언트에 허용되지 않은 scope입니다: ${invalid.joinToString(", ")}")
+        }
+        return requested.joinToString(" ")
     }
 }
