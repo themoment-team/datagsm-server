@@ -77,6 +77,14 @@ class ModifyClubExcelServiceImpl(
                         }
                 }
             }
+        val abolishedExisting =
+            clubInfos
+                .filter { it.status == ClubStatus.ABOLISHED }
+                .mapNotNull { dto -> existingClubs[dto.clubName] }
+        if (abolishedExisting.isNotEmpty()) {
+            studentJpaRepository.bulkClearClubReferences(abolishedExisting)
+        }
+
         clubJpaRepository.saveAll(clubsToSave)
 
         val excelClubNames = clubInfos.map { it.clubName }

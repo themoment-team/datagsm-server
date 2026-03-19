@@ -27,6 +27,9 @@ class ModifyClubServiceImpl(
         if (reqDto.status == ClubStatus.ABOLISHED && reqDto.leaderId != null) {
             throw ExpectedException("폐지된 동아리에는 부장을 지정할 수 없습니다.", HttpStatus.BAD_REQUEST)
         }
+        if (reqDto.status == ClubStatus.ABOLISHED && reqDto.participantIds.isNotEmpty()) {
+            throw ExpectedException("폐지된 동아리에는 구성원을 지정할 수 없습니다.", HttpStatus.BAD_REQUEST)
+        }
 
         val club =
             clubJpaRepository
@@ -69,7 +72,9 @@ class ModifyClubServiceImpl(
         }
 
         studentJpaRepository.clearClubReferencesByType(club, oldType)
-        studentJpaRepository.bulkAssignClub(participantIdsForBulkAssign, club, reqDto.type)
+        if (reqDto.status != ClubStatus.ABOLISHED) {
+            studentJpaRepository.bulkAssignClub(participantIdsForBulkAssign, club, reqDto.type)
+        }
 
         return ClubResDto(
             id = club.id!!,
