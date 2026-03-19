@@ -13,6 +13,7 @@ data class OauthAuthorizeStateRedisEntity(
     val state: String?,
     val codeChallenge: String?,
     val codeChallengeMethod: String?,
+    val scopes: String?,
     @TimeToLive
     val ttl: Long = 600,
 )
