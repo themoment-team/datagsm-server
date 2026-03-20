@@ -82,7 +82,7 @@ class StartOauthAuthorizeFlowServiceImpl(
         requestedScopes: Set<String>?,
         clientScopes: Set<String>,
     ): Set<String> {
-        if (requestedScopes.isNullOrEmpty()) return clientScopes
+        if (requestedScopes == null) return clientScopes
         val invalid = requestedScopes - clientScopes
         if (invalid.isNotEmpty()) {
             throw OAuthException.InvalidScope("클라이언트에 허용되지 않은 scope입니다: ${invalid.joinToString(", ")}")
