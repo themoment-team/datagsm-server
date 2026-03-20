@@ -1,20 +1,20 @@
 ---
-description: Create Git commits by splitting changes into logical units
-allowed-tools: Bash
+name: commit
+description: Create Git commits by splitting changes into logical units following project conventions
 ---
 
 Create Git commits following these rules:
 
-- Follow commit message format: `type(scope): description`
-    - Types: add/update/fix/refactor/test/docs/merge
-    - Scopes:
+- Follow commit message format: `type(scope): 설명`
+    - Types: add/update/fix/refactor/test/docs/merge (English)
+    - Scopes (English):
         - **Primary**: Domain names (auth, account, student, club, project, neis, client, oauth, utility)
         - **Cross-cutting concerns only**: Module names (web, oauth, openapi) or global
         - Use domain names by default. Only use module names when changes affect multiple modules or cross-cutting concerns.
-    - Description: Korean, no period, do NOT use any of these endings: "~한다/~된다", "~하기/~하기 위해", "~합니다/~됩니다", "~했습니다"
+    - Description: **Korean**, no period, do NOT use any of these endings: "~한다/~된다", "~하기/~하기 위해", "~합니다/~됩니다", "~했습니다"
     - Use concise verb stem or noun phrase: e.g., "엔티티 필드 추가", "트랜잭션 롤백 방지", "로직 개선"
 - Use subject line only (no commit body)
-- Do NOT add Claude as co-author
+- Do NOT add AI tool as co-author
 - Split changes into appropriate logical units with multiple commits
 - Each commit should have a single responsibility
 

@@ -1,5 +1,8 @@
 {
   "general": {
-    "defaultApprovalMode": "yolo"
+    "defaultApprovalMode": "auto_edit"
+  },
+  "context": {
+    "fileName": ["AGENTS.md", "GEMINI.md"]
   }
 }

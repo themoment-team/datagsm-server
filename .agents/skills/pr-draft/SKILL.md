@@ -1,13 +1,20 @@
-description = "Generate PR body and title suggestions"
-prompt = """Based on the following information, generate PR title suggestions and PR body:
+---
+name: pr-draft
+description: Generate PR body and title suggestions based on commits diff from develop branch
+---
 
-## Context
+## Context gathering
 
-- Current branch: !{git branch --show-current}
-- Commits diff from develop: !{git log develop..HEAD --oneline}
-- File changes stats from develop: !{git diff develop...HEAD --stat}
-- Detailed changes from develop: !{git diff develop...HEAD}
-- PR template: @{.github/PULL_REQUEST_TEMPLATE.md}
+Run the following to collect context:
+
+```bash
+git branch --show-current
+git log develop..HEAD --oneline
+git diff develop...HEAD --stat
+git diff develop...HEAD
+```
+
+Read `.github/PULL_REQUEST_TEMPLATE.md` for the PR template structure.
 
 ## PR Title Convention
 
@@ -31,7 +38,7 @@ This project uses the following PR title format: `[scope] description`
 
 ## Your task
 
-Generate PR title suggestions and PR body following these rules:
+Based on the above information, perform the following tasks:
 
 1. **PR Title Suggestions**:
    - Suggest 3 appropriate titles based on the convention above
@@ -47,26 +54,23 @@ Generate PR title suggestions and PR body following these rules:
    - Write in Korean
    - Be clear and specific
 
-3. **Save to file**:
-   - Use the write_file tool to save the PR body to PR_BODY.md in the project root
-   - File path: PR_BODY.md (relative to current directory)
-   - This will overwrite the file if it already exists
+3. **Writing Style**:
+   - Use formal Korean ending style: "~하였습니다", "~되었습니다", "~추가하였습니다" (not "~했어요", "~합니다", "~했습니다")
 
-4. **Output format**:
+4. **Save to file**:
+   - Save the content to `PR_BODY.md`
+   - Overwrite if file already exists
 
-First, output the title suggestions:
+5. **Output format**:
 
-## 추천 PR 제목
+   ```
+   ## 추천 PR 제목
 
-1. [title1]
-2. [title2]
-3. [title3]
+   1. [title1]
+   2. [title2]
+   3. [title3]
 
----
+   ## PR 본문 (PR_BODY.md에 저장됨)
 
-Then use write_file tool to save the PR body to PR_BODY.md and show a preview:
-
-## PR 본문 (PR_BODY.md에 저장됨)
-
-[preview of generated content]
-"""
+   [preview of generated content]
+   ```
