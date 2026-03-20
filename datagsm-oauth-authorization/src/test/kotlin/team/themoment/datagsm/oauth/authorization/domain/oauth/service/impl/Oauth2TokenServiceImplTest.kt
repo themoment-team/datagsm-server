@@ -289,6 +289,7 @@ class Oauth2TokenServiceImplTest :
                             email = "test@gsm.hs.kr",
                             clientId = "test-client",
                             token = "valid-refresh-token",
+                            scopes = setOf("self:read"),
                             ttl = 2592000L,
                         )
 
@@ -319,6 +320,26 @@ class Oauth2TokenServiceImplTest :
 
                         verify(exactly = 1) { mockJwtProvider.validateToken("valid-refresh-token") }
                         verify(exactly = 1) { mockOauthRefreshTokenRedisRepository.save(any()) }
+                    }
+
+                    it("저장된 scope가 그대로 access token에 사용된다") {
+                        val result = service.execute(reqDto)
+
+                        result.scope shouldBe "self:read"
+                    }
+
+                    it("client scope가 변경되어도 저장된 scope를 사용한다") {
+                        val clientWithDifferentScopes =
+                            ClientJpaEntity().apply {
+                                id = "test-client"
+                                secret = "hashed-secret"
+                                scopes = setOf("admin:write") // storedToken.scopes와 다름
+                            }
+                        every { mockClientJpaRepository.findById("test-client") } returns Optional.of(clientWithDifferentScopes)
+
+                        val result = service.execute(reqDto)
+
+                        result.scope shouldBe "self:read"
                     }
                 }
 
