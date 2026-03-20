@@ -119,7 +119,7 @@ class Oauth2TokenServiceImpl(
         val accessToken = jwtProvider.generateOauthAccessToken(account.email, account.role, client.id, grantedScopes)
         val refreshToken = jwtProvider.generateOauthRefreshToken(account.email, client.id)
 
-        saveRefreshToken(account.email, client.id, refreshToken)
+        saveRefreshToken(account.email, client.id, refreshToken, scopesToGrant)
         oauthCodeRedisRepository.delete(oauthCode)
 
         return Oauth2TokenResDto(
@@ -179,13 +179,12 @@ class Oauth2TokenServiceImpl(
                 .findByEmail(email)
                 .orElseThrow { ExpectedException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
 
-        val requestedScopes = reqDto.scope ?: emptySet()
-        val grantedScopes = calculateGrantedScopes(client.scopes, requestedScopes)
+        val grantedScopes = stringsToScopes(storedToken.scopes)
 
         val newAccessToken = jwtProvider.generateOauthAccessToken(email, account.role, clientIdFromToken, grantedScopes)
         val newRefreshToken = jwtProvider.generateOauthRefreshToken(email, clientIdFromToken)
 
-        saveRefreshToken(email, clientIdFromToken, newRefreshToken)
+        saveRefreshToken(email, clientIdFromToken, newRefreshToken, storedToken.scopes)
 
         return Oauth2TokenResDto(
             accessToken = newAccessToken,
@@ -278,6 +277,7 @@ class Oauth2TokenServiceImpl(
         email: String,
         clientId: String,
         token: String,
+        scopes: Set<String>,
     ) {
         oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(email, clientId)
         val ttlSeconds = jwtEnvironment.refreshTokenExpiration / 1000
@@ -286,6 +286,7 @@ class Oauth2TokenServiceImpl(
                 email = email,
                 clientId = clientId,
                 token = token,
+                scopes = scopes,
                 ttl = ttlSeconds,
             )
         oauthRefreshTokenRedisRepository.save(entity)
