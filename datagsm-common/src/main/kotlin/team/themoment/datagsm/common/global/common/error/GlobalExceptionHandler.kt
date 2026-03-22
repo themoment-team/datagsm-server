@@ -32,7 +32,7 @@ class GlobalExceptionHandler(
 ) {
     @ExceptionHandler(OAuthException::class)
     fun handleOAuthException(ex: OAuthException): ResponseEntity<OAuthErrorResDto> {
-        logger().warn("OAuth error {} {}", ex.error, ex.errorDescription)
+        logger().warn("Caught OAuth error with code {} and description {}", ex.error, ex.errorDescription)
         logger().trace("OAuth Error Details: ", ex)
 
         val errorResponse =

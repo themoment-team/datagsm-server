@@ -97,7 +97,7 @@ class JwtProvider(
             val claims = parseClaims(token)
             claims.expiration?.after(Date()) ?: false
         } catch (e: Exception) {
-            logger().error("Invalid JWT token {}", e.message)
+            logger().error("Caught exception during JWT token validation {}", e.message)
             false
         }
 
