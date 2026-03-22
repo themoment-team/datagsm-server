@@ -114,6 +114,9 @@ fun updateStudent(@PathVariable id: Long, @Valid @RequestBody reqDto: UpdateStud
 - Use `ExpectedException` for custom exceptions
 - Map to appropriate HTTP status codes
 - Exception Handler: `datagsm-common/.../global/common/error/`
+- **Message format**: Korean (합쇼체) + period, no dynamic data — messages are displayed directly to end users
+  - CORRECT: `ExpectedException("학생을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)`
+  - WRONG: `ExpectedException("학생을 찾을 수 없습니다. ID: $id", HttpStatus.NOT_FOUND)`
 
 ## Custom Commands
 

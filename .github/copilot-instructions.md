@@ -87,7 +87,8 @@ fun updateStudent(@PathVariable id: Long, @Valid @RequestBody reqDto: UpdateStud
 - JPA: Avoid N+1 problems, use `@Transactional(readOnly = true)` for queries
 - API: Use `CommonApiResponse` wrapper, validate with `@Valid`
 - Testing: Write Kotest tests for business logic using Given-When-Then pattern
-- Exceptions: Use `ExpectedException` for custom exceptions with appropriate HTTP status
+- Exceptions: Use `ExpectedException` for custom exceptions with appropriate HTTP status. Message must be Korean (합쇼체) ending with a period, no dynamic data. Example: `ExpectedException("학생을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)`
+- Logging: English only, verb-led sentences, SLF4J `{}` placeholder (not string interpolation, no colon separators). Example: `logger().error("Failed to process {}", message)`
 
 ## Common Mistakes (Avoid These!)
 

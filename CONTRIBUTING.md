@@ -722,6 +722,39 @@ fun findStudent(id: Long): Student {
 - 줄 끝: LF
 - 파일 끝 개행: 필수
 
+## 예외 처리 규칙
+
+### ExpectedException 메시지 형식
+
+비즈니스 예외는 `ExpectedException`을 직접 사용합니다. 메시지는 **한국어 합쇼체 + 마침표**로 작성하고 동적 데이터(ID, 이름 등)를 포함하지 않습니다. 메시지는 FE가 toast/alert에 바로 노출하는 용도입니다.
+
+```kotlin
+// Good
+throw ExpectedException("학생을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
+throw ExpectedException("이미 존재하는 이메일입니다.", HttpStatus.CONFLICT)
+
+// Bad
+throw ExpectedException("학생을 찾을 수 없습니다. ID: $id", HttpStatus.NOT_FOUND)  // 동적 데이터 포함
+throw ExpectedException("이미 존재하는 이메일입니다", HttpStatus.CONFLICT)           // 마침표 없음
+```
+
+## 로깅 규칙
+
+### 로그 메시지 스타일
+
+모든 로그 메시지는 **영문 동사형 문장**으로 작성하고 SLF4J `{}` 플레이스홀더를 사용합니다. Kotlin string interpolation(`$var`, `${...}`)은 사용하지 않습니다.
+
+```kotlin
+// Good
+logger().info("Deleted {} expired API keys", deletedCount)
+logger().error("Failed to issue OAuth token: scopeStr={}", scopeStr)
+logger().warn("ExpectedException occurred with message {}", ex.message)
+
+// Bad
+logger().error("오류 발생: $message")             // 한국어 사용
+logger().error("Error occurred: ${ex.message}")  // string interpolation 사용
+```
+
 ## 테스트 작성
 
 프로젝트는 **Kotest**와 **MockK**를 사용합니다.
