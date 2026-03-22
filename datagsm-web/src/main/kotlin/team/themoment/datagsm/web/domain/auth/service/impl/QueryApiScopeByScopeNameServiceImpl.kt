@@ -12,7 +12,7 @@ class QueryApiScopeByScopeNameServiceImpl : QueryApiScopeByScopeNameService {
     override fun execute(scopeName: String): ApiScopeResDto {
         val apiScope =
             ApiKeyScope.fromString(scopeName)
-                ?: throw ExpectedException("해당 권한 범위 $scopeName 는 존재하지 않습니다.", HttpStatus.NOT_FOUND)
+                ?: throw ExpectedException("존재하지 않는 권한 범위입니다.", HttpStatus.NOT_FOUND)
 
         return ApiScopeResDto(
             scope = apiScope.scope,

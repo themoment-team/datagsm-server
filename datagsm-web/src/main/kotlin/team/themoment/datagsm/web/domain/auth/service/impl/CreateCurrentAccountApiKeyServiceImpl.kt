@@ -37,9 +37,9 @@ class CreateCurrentAccountApiKeyServiceImpl(
         if (invalidScopes.isNotEmpty()) {
             throw ExpectedException(
                 if (isAdmin) {
-                    "유효하지 않은 scope입니다: ${invalidScopes.joinToString(", ")}"
+                    "유효하지 않은 권한 범위입니다."
                 } else {
-                    "일반 사용자는 READ scope만 사용 가능합니다. 사용 불가능한 scope: ${invalidScopes.joinToString(", ")}"
+                    "일반 사용자는 읽기 전용 권한 범위만 사용 가능합니다."
                 },
                 HttpStatus.BAD_REQUEST,
             )
