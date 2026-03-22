@@ -16,7 +16,7 @@ class DeleteProjectServiceImpl(
         val project =
             projectJpaRepository
                 .findById(projectId)
-                .orElseThrow { ExpectedException("프로젝트를 찾을 수 없습니다. projectId: $projectId", HttpStatus.NOT_FOUND) }
+                .orElseThrow { ExpectedException("프로젝트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
         projectJpaRepository.delete(project)
     }
 }

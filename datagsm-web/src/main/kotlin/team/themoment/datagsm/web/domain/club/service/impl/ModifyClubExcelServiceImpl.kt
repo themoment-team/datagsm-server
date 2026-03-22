@@ -138,7 +138,7 @@ class ModifyClubExcelServiceImpl(
                 when (file.originalFilename?.substringAfterLast(".")) {
                     "xlsx" -> XSSFWorkbook(inputStream)
                     "xls" -> HSSFWorkbook(inputStream)
-                    else -> throw ExpectedException("지원하지 않는 파일 형식입니다. (xlsx, xls만 지원)", HttpStatus.BAD_REQUEST)
+                    else -> throw ExpectedException("지원하지 않는 파일 형식입니다.", HttpStatus.BAD_REQUEST)
                 }
             }
 
