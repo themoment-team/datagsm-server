@@ -28,12 +28,12 @@ class ModifyStudentServiceImpl(
         val student =
             studentJpaRepository
                 .findById(studentId)
-                .orElseThrow { ExpectedException("학생을 찾을 수 없습니다. studentId: $studentId", HttpStatus.NOT_FOUND) }
+                .orElseThrow { ExpectedException("학생을 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
         if (student.role == StudentRole.GRADUATE || student.role == StudentRole.WITHDRAWN) {
             throw ExpectedException("졸업생이나 자퇴생은 수정 API를 사용할 수 없습니다.", HttpStatus.BAD_REQUEST)
         }
         if (studentJpaRepository.existsByStudentEmailAndNotId(reqDto.email, studentId)) {
-            throw ExpectedException("이미 존재하는 이메일입니다: ${reqDto.email}", HttpStatus.CONFLICT)
+            throw ExpectedException("이미 존재하는 이메일입니다.", HttpStatus.CONFLICT)
         }
         if (studentJpaRepository.existsByStudentNumberAndNotId(
                 reqDto.grade,
@@ -49,7 +49,7 @@ class ModifyStudentServiceImpl(
         }
         val major =
             Major.fromClassNum(reqDto.classNum)
-                ?: throw ExpectedException("유효하지 않은 학급입니다: ${reqDto.classNum}", HttpStatus.BAD_REQUEST)
+                ?: throw ExpectedException("유효하지 않은 학급 번호입니다.", HttpStatus.BAD_REQUEST)
         if (reqDto.role == StudentRole.GRADUATE || reqDto.role == StudentRole.WITHDRAWN) {
             throw ExpectedException(
                 "졸업생이나 자퇴생으로의 role 변경은 전용 API를 사용해야 합니다.",
