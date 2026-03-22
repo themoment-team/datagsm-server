@@ -43,7 +43,7 @@ class ModifyStudentServiceImpl(
             )
         ) {
             throw ExpectedException(
-                "이미 존재하는 학번입니다: ${reqDto.grade}학년 ${reqDto.classNum}반 ${reqDto.number}번",
+                "이미 존재하는 학번입니다.",
                 HttpStatus.CONFLICT,
             )
         }

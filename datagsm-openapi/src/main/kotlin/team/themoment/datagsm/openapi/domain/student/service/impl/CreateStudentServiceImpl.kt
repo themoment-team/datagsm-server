@@ -53,7 +53,7 @@ class CreateStudentServiceImpl(
         if (reqDto.grade != null && reqDto.classNum != null && reqDto.number != null) {
             if (studentJpaRepository.existsByStudentNumber(reqDto.grade!!, reqDto.classNum!!, reqDto.number!!)) {
                 throw ExpectedException(
-                    "이미 존재하는 학번입니다: ${reqDto.grade}학년 ${reqDto.classNum}반 ${reqDto.number}번",
+                    "이미 존재하는 학번입니다.",
                     HttpStatus.CONFLICT,
                 )
             }

@@ -172,7 +172,7 @@ class CreateStudentServiceTest :
                                 createStudentService.execute(createRequest)
                             }
 
-                        exception.message shouldBe "이미 존재하는 이메일입니다: ${createRequest.email}"
+                        exception.message shouldBe "이미 존재하는 이메일입니다."
 
                         verify(exactly = 1) { mockStudentRepository.existsByEmail(createRequest.email) }
                         verify(exactly = 0) { mockStudentRepository.save(any()) }
@@ -209,9 +209,7 @@ class CreateStudentServiceTest :
                                 createStudentService.execute(createRequest)
                             }
 
-                        exception.message shouldBe
-                            "이미 존재하는 학번입니다: ${createRequest.grade}학년 ${createRequest.classNum}반" +
-                            " ${createRequest.number}번"
+                        exception.message shouldBe "이미 존재하는 학번입니다."
 
                         verify(exactly = 1) { mockStudentRepository.existsByEmail(createRequest.email) }
                         verify(exactly = 1) {
@@ -255,7 +253,7 @@ class CreateStudentServiceTest :
                                 createStudentService.execute(createRequest)
                             }
 
-                        exception.message shouldBe "유효하지 않은 학급입니다: ${createRequest.classNum}"
+                        exception.message shouldBe "유효하지 않은 학급 번호입니다."
                     }
                 }
 
