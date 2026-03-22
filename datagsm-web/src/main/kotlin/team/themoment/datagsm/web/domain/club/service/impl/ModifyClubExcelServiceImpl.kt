@@ -127,7 +127,7 @@ class ModifyClubExcelServiceImpl(
                 number,
                 studentName,
             ) ?: throw ExpectedException(
-            "학번 $studentNumberStr 이름 $studentName 에 해당하는 학생을 찾을 수 없습니다.",
+            "해당하는 학생을 찾을 수 없습니다.",
             HttpStatus.NOT_FOUND,
         )
     }

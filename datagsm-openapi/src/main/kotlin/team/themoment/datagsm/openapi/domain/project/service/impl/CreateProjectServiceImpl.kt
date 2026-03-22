@@ -31,7 +31,7 @@ class CreateProjectServiceImpl(
             projectReqDto.clubId?.let { clubId ->
                 clubJpaRepository.findByIdOrNull(clubId)
                     ?: throw ExpectedException(
-                        "동아리를 찾을 수 없습니다. clubId: $clubId",
+                        "동아리를 찾을 수 없습니다.",
                         HttpStatus.NOT_FOUND,
                     )
             }
@@ -43,7 +43,7 @@ class CreateProjectServiceImpl(
                 val notFoundIds = projectReqDto.participantIds.filterNot { it in foundIds }
                 if (notFoundIds.isNotEmpty()) {
                     throw ExpectedException(
-                        "${notFoundIds.joinToString(", ")} 에 대응하는 학생 데이터를 찾을 수 없습니다.",
+                        "해당 학생 데이터를 찾을 수 없습니다.",
                         HttpStatus.NOT_FOUND,
                     )
                 }

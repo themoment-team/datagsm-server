@@ -116,7 +116,7 @@ class ModifyProjectServiceTest :
                                 modifyProjectService.execute(999L, updateRequest)
                             }
 
-                        exception.message shouldBe "프로젝트를 찾을 수 없습니다. projectId: 999"
+                        exception.message shouldBe "프로젝트를 찾을 수 없습니다."
 
                         verify(exactly = 1) { mockProjectRepository.findById(999L) }
                         verify(exactly = 0) { mockProjectRepository.existsByNameAndIdNot(any(), any()) }
@@ -218,7 +218,7 @@ class ModifyProjectServiceTest :
                                 modifyProjectService.execute(projectId, updateRequest)
                             }
 
-                        exception.message shouldBe "999 에 대응하는 학생 데이터를 찾을 수 없습니다."
+                        exception.message shouldBe "해당 학생 데이터를 찾을 수 없습니다."
 
                         verify(exactly = 1) { mockStudentRepository.findAllById(listOf(999L)) }
                     }

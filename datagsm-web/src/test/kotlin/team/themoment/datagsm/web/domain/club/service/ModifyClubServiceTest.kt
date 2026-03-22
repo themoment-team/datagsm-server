@@ -162,7 +162,7 @@ class ModifyClubServiceTest :
                             shouldThrow<ExpectedException> {
                                 modifyClubService.execute(clubId, req)
                             }
-                        ex.message shouldBe "이미 존재하는 동아리 이름입니다: ${req.name}"
+                        ex.message shouldBe "이미 존재하는 동아리 이름입니다."
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
                         verify(exactly = 1) { mockClubRepository.existsByNameAndIdNot(req.name, clubId) }
@@ -189,7 +189,7 @@ class ModifyClubServiceTest :
                             shouldThrow<ExpectedException> {
                                 modifyClubService.execute(clubId, req)
                             }
-                        ex.message shouldBe "동아리를 찾을 수 없습니다. clubId: $clubId"
+                        ex.message shouldBe "동아리를 찾을 수 없습니다."
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
                     }

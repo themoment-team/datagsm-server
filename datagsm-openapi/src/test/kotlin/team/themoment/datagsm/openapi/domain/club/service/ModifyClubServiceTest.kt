@@ -56,7 +56,7 @@ class ModifyClubServiceTest :
                             shouldThrow<ExpectedException> {
                                 modifyClubService.execute(999L, req)
                             }
-                        ex.message shouldBe "동아리를 찾을 수 없습니다. clubId: 999"
+                        ex.message shouldBe "동아리를 찾을 수 없습니다."
 
                         verify(exactly = 1) { mockClubRepository.findById(999L) }
                     }

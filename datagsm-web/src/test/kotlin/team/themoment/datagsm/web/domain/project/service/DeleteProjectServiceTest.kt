@@ -73,7 +73,7 @@ class DeleteProjectServiceTest :
                                 deleteProjectService.execute(projectId)
                             }
 
-                        exception.message shouldBe "프로젝트를 찾을 수 없습니다. projectId: $projectId"
+                        exception.message shouldBe "프로젝트를 찾을 수 없습니다."
 
                         verify(exactly = 1) { mockProjectRepository.findById(projectId) }
                         verify(exactly = 0) { mockProjectRepository.delete(any()) }

@@ -101,7 +101,7 @@ class CreateProjectServiceTest :
                                 createProjectService.execute(createRequest)
                             }
 
-                        exception.message shouldBe "이미 존재하는 프로젝트 이름입니다: ${createRequest.name}"
+                        exception.message shouldBe "이미 존재하는 프로젝트 이름입니다."
 
                         verify(exactly = 1) { mockProjectRepository.existsByName(createRequest.name) }
                         verify(exactly = 0) { mockClubRepository.findById(any()) }
@@ -129,7 +129,7 @@ class CreateProjectServiceTest :
                                 createProjectService.execute(createRequest)
                             }
 
-                        exception.message shouldBe "동아리를 찾을 수 없습니다. clubId: ${createRequest.clubId}"
+                        exception.message shouldBe "동아리를 찾을 수 없습니다."
 
                         verify(exactly = 1) { mockProjectRepository.existsByName(createRequest.name) }
                         verify(exactly = 1) { mockClubRepository.findById(createRequest.clubId!!) }
@@ -252,7 +252,7 @@ class CreateProjectServiceTest :
                                 createProjectService.execute(createRequest)
                             }
 
-                        exception.message shouldBe "999 에 대응하는 학생 데이터를 찾을 수 없습니다."
+                        exception.message shouldBe "해당 학생 데이터를 찾을 수 없습니다."
 
                         verify(exactly = 1) { mockStudentRepository.findAllById(listOf(999L)) }
                         verify(exactly = 0) { mockProjectRepository.save(any()) }
