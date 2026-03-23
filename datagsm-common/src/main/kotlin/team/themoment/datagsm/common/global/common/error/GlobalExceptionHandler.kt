@@ -32,7 +32,7 @@ class GlobalExceptionHandler(
 ) {
     @ExceptionHandler(OAuthException::class)
     fun handleOAuthException(ex: OAuthException): ResponseEntity<OAuthErrorResDto> {
-        logger().warn("OAuth Error: {} - {}", ex.error, ex.errorDescription)
+        logger().warn("Caught OAuth error with code {} and description {}", ex.error, ex.errorDescription)
         logger().trace("OAuth Error Details: ", ex)
 
         val errorResponse =
@@ -47,15 +47,15 @@ class GlobalExceptionHandler(
 
     @ExceptionHandler(ExpectedException::class)
     fun expectedException(ex: ExpectedException): ResponseEntity<CommonApiResponse<Nothing>> {
-        logger().warn("ExpectedException : {} ", ex.message)
-        logger().trace("ExpectedException Details : ", ex)
-        return createErrorResponse(ex.statusCode, ex.message ?: "오류가 발생했습니다")
+        logger().warn("ExpectedException occurred with message {}", ex.message)
+        logger().trace("ExpectedException details", ex)
+        return createErrorResponse(ex.statusCode, ex.message ?: "오류가 발생했습니다.")
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun validationException(ex: MethodArgumentNotValidException): ResponseEntity<*> {
-        logger().warn("Validation Failed : {}", ex.message)
-        logger().trace("Validation Failed Details : ", ex)
+        logger().warn("Validation failed {}", ex.message)
+        logger().trace("Validation failed details", ex)
 
         if (isOAuthTokenEndpoint()) {
             val errorResponse =
@@ -72,37 +72,37 @@ class GlobalExceptionHandler(
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun httpMessageNotReadableException(ex: HttpMessageNotReadableException): ResponseEntity<CommonApiResponse<Nothing>> {
-        logger().warn("Invalid Request Body : {}", ex.message)
-        logger().trace("Invalid Request Body Details : ", ex)
-        return createErrorResponse(HttpStatus.BAD_REQUEST, "요청 본문 형식이 올바르지 않습니다")
+        logger().warn("Invalid request body {}", ex.message)
+        logger().trace("Invalid request body details", ex)
+        return createErrorResponse(HttpStatus.BAD_REQUEST, "요청 본문 형식이 올바르지 않습니다.")
     }
 
     @ExceptionHandler(ConstraintViolationException::class)
     fun validationException(ex: ConstraintViolationException): ResponseEntity<CommonApiResponse<Nothing>> {
-        logger().warn("field validation failed : {}", ex.message)
-        logger().trace("field validation failed : ", ex)
-        return createErrorResponse(HttpStatus.BAD_REQUEST, "필드 유효성 검증에 실패했습니다: ${ex.message}")
+        logger().warn("Field validation failed {}", ex.message)
+        logger().trace("Field validation failed details", ex)
+        return createErrorResponse(HttpStatus.BAD_REQUEST, "필드 유효성 검증에 실패했습니다.")
     }
 
     @ExceptionHandler(AuthorizationDeniedException::class, AccessDeniedException::class)
     fun authorizationDeniedException(ex: Exception): ResponseEntity<CommonApiResponse<Nothing>> {
-        logger().warn("Authorization Denied : {}", ex.message)
-        logger().trace("Authorization Denied Details : ", ex)
-        return createErrorResponse(HttpStatus.FORBIDDEN, "접근 권한이 부족합니다")
+        logger().warn("Authorization denied {}", ex.message)
+        logger().trace("Authorization denied details", ex)
+        return createErrorResponse(HttpStatus.FORBIDDEN, "접근 권한이 부족합니다.")
     }
 
     @ExceptionHandler(IllegalStateException::class)
     fun illegalStateException(ex: IllegalStateException): ResponseEntity<CommonApiResponse<Nothing>> {
         if (ex.message?.contains("creationTime key must not be null") == true) {
-            logger().warn("Corrupted session detected, treating as invalid session: {}", ex.message)
-            return createErrorResponse(HttpStatus.UNAUTHORIZED, "세션이 유효하지 않거나 만료되었습니다")
+            logger().warn("Corrupted session detected treating as invalid session {}", ex.message)
+            return createErrorResponse(HttpStatus.UNAUTHORIZED, "세션이 유효하지 않거나 만료되었습니다.")
         }
         return unExpectedException(ex)
     }
 
     @ExceptionHandler(RuntimeException::class)
     fun unExpectedException(ex: RuntimeException): ResponseEntity<CommonApiResponse<Nothing>> {
-        logger().error("UnExpectedException Occur : \n${ex.stackTraceToString()}")
+        logger().error("Unexpected exception occurred", ex)
 
         discordErrorNotificationService?.notifyError(
             exception = ex,
@@ -115,24 +115,21 @@ class GlobalExceptionHandler(
                 ),
         )
 
-        return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다")
+        return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다.")
     }
 
     @ExceptionHandler(NoHandlerFoundException::class)
     fun noHandlerFoundException(ex: NoHandlerFoundException): ResponseEntity<CommonApiResponse<Nothing>> {
-        logger().warn("Not Found Endpoint : {}", ex.message)
-        logger().trace("Not Found Endpoint Details : ", ex)
-        return createErrorResponse(HttpStatus.NOT_FOUND, "요청하신 엔드포인트를 찾을 수 없습니다")
+        logger().warn("No handler found for endpoint {}", ex.message)
+        logger().trace("No handler found for endpoint details", ex)
+        return createErrorResponse(HttpStatus.NOT_FOUND, "요청하신 엔드포인트를 찾을 수 없습니다.")
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException::class)
     fun maxUploadSizeExceededException(ex: MaxUploadSizeExceededException): ResponseEntity<CommonApiResponse<Nothing>> {
-        logger().warn("The file is too big : {}", ex.message)
-        logger().trace("The file is too big Details : ", ex)
-        return createErrorResponse(
-            HttpStatus.BAD_REQUEST,
-            "파일 크기가 너무 큽니다. 최대 파일 크기: ${ex.maxUploadSize}",
-        )
+        logger().warn("File upload size exceeded {}", ex.message)
+        logger().trace("File upload size exceeded details", ex)
+        return createErrorResponse(HttpStatus.BAD_REQUEST, "파일 크기가 허용 범위를 초과했습니다.")
     }
 
     private fun createErrorResponse(
@@ -161,7 +158,7 @@ class GlobalExceptionHandler(
     private fun extractValidationErrorMessage(ex: MethodArgumentNotValidException): String {
         val fieldErrors =
             ex.bindingResult.fieldErrors
-                .joinToString(", ") { "${it.field}: ${it.defaultMessage}" }
+                .joinToString(", ") { it.defaultMessage ?: "" }
         val globalErrors =
             ex.bindingResult.globalErrors
                 .joinToString(", ") { it.defaultMessage ?: "" }
@@ -169,7 +166,7 @@ class GlobalExceptionHandler(
         return when {
             fieldErrors.isNotEmpty() -> fieldErrors
             globalErrors.isNotEmpty() -> globalErrors
-            else -> "유효성 검증에 실패했습니다"
+            else -> "유효성 검증에 실패했습니다."
         }
     }
 }

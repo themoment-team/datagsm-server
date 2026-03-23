@@ -30,7 +30,7 @@ class CreateClubServiceImpl(
         }
 
         if (clubJpaRepository.existsByName(clubReqDto.name)) {
-            throw ExpectedException("이미 존재하는 동아리 이름입니다: ${clubReqDto.name}", HttpStatus.CONFLICT)
+            throw ExpectedException("이미 존재하는 동아리 이름입니다.", HttpStatus.CONFLICT)
         }
 
         val clubEntity =

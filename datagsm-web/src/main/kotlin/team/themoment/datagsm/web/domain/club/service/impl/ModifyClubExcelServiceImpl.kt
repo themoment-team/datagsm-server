@@ -127,7 +127,7 @@ class ModifyClubExcelServiceImpl(
                 number,
                 studentName,
             ) ?: throw ExpectedException(
-            "학번 $studentNumberStr 이름 $studentName 에 해당하는 학생을 찾을 수 없습니다.",
+            "해당하는 학생을 찾을 수 없습니다.",
             HttpStatus.NOT_FOUND,
         )
     }
@@ -138,7 +138,7 @@ class ModifyClubExcelServiceImpl(
                 when (file.originalFilename?.substringAfterLast(".")) {
                     "xlsx" -> XSSFWorkbook(inputStream)
                     "xls" -> HSSFWorkbook(inputStream)
-                    else -> throw ExpectedException("지원하지 않는 파일 형식입니다. (xlsx, xls만 지원)", HttpStatus.BAD_REQUEST)
+                    else -> throw ExpectedException("지원하지 않는 파일 형식입니다.", HttpStatus.BAD_REQUEST)
                 }
             }
 

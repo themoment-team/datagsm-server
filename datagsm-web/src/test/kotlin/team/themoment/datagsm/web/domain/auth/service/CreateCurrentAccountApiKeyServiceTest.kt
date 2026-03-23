@@ -204,7 +204,7 @@ class CreateCurrentAccountApiKeyServiceTest :
                             }
 
                         exception.statusCode.value() shouldBe 400
-                        exception.message shouldBe "일반 사용자는 READ scope만 사용 가능합니다. 사용 불가능한 scope: student:write"
+                        exception.message shouldBe "일반 사용자는 읽기 전용 권한 범위만 사용 가능합니다."
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
                         verify(exactly = 1) { mockApiKeyRepository.findByAccount(mockAccount) }
@@ -230,7 +230,7 @@ class CreateCurrentAccountApiKeyServiceTest :
                             }
 
                         exception.statusCode.value() shouldBe 400
-                        exception.message shouldBe "일반 사용자는 READ scope만 사용 가능합니다. 사용 불가능한 scope: student:*"
+                        exception.message shouldBe "일반 사용자는 읽기 전용 권한 범위만 사용 가능합니다."
 
                         verify(exactly = 0) { mockApiKeyRepository.save(any()) }
                     }
@@ -254,7 +254,7 @@ class CreateCurrentAccountApiKeyServiceTest :
                             }
 
                         exception.statusCode.value() shouldBe 400
-                        exception.message shouldBe "일반 사용자는 READ scope만 사용 가능합니다. 사용 불가능한 scope: club:write"
+                        exception.message shouldBe "일반 사용자는 읽기 전용 권한 범위만 사용 가능합니다."
 
                         verify(exactly = 0) { mockApiKeyRepository.save(any()) }
                     }
@@ -324,7 +324,7 @@ class CreateCurrentAccountApiKeyServiceTest :
                             }
 
                         exception.statusCode.value() shouldBe 400
-                        exception.message shouldBe "유효하지 않은 scope입니다: invalid:scope"
+                        exception.message shouldBe "유효하지 않은 권한 범위입니다."
 
                         verify(exactly = 0) { mockApiKeyRepository.save(any()) }
                     }

@@ -54,7 +54,7 @@ class ModifyStudentServiceTest :
                             shouldThrow<ExpectedException> {
                                 modifyStudentService.execute(999L, req)
                             }
-                        ex.message shouldBe "학생을 찾을 수 없습니다. studentId: 999"
+                        ex.message shouldBe "학생을 찾을 수 없습니다."
 
                         verify(exactly = 1) { mockStudentRepository.findById(999L) }
                     }

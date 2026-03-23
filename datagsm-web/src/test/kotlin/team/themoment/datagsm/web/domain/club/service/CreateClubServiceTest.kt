@@ -57,7 +57,7 @@ class CreateClubServiceTest :
                             shouldThrow<ExpectedException> {
                                 createClubService.execute(req)
                             }
-                        ex.message shouldBe "이미 존재하는 동아리 이름입니다: ${req.name}"
+                        ex.message shouldBe "이미 존재하는 동아리 이름입니다."
 
                         verify(exactly = 1) { mockClubRepository.existsByName(req.name) }
                         verify(exactly = 0) { mockClubRepository.save(any()) }

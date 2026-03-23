@@ -40,7 +40,7 @@ class DiscordErrorNotificationService(
 
                 discordWebhookClient.sendMessage(payload)
             }.onFailure { sendException ->
-                logger().error("Discord 에러 알림 전송 실패", sendException)
+                logger().error("Failed to send Discord error notification", sendException)
             }
         }
     }

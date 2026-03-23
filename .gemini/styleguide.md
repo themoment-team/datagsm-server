@@ -351,14 +351,16 @@ fun processStudent() {
 
 For business scenario exceptions (resource not found, duplicate, insufficient permissions, etc.), instantiate `ExpectedException` directly.
 
+Messages must be Korean (합쇼체) ending with a period. Do not include dynamic data (IDs, names, etc.) — messages are displayed directly to end users as toast/alert notifications.
+
 ```kotlin
 val student =
     studentRepository.findById(id).orElseThrow {
-        ExpectedException("Student not found. studentId: $id", HttpStatus.NOT_FOUND)
+        ExpectedException("학생을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
     }
 
 if (studentRepository.existsByEmail(email)) {
-    throw ExpectedException("Email already exists: $email", HttpStatus.CONFLICT)
+    throw ExpectedException("이미 존재하는 이메일입니다.", HttpStatus.CONFLICT)
 }
 ```
 
@@ -383,7 +385,7 @@ class StudentService {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     fun execute(reqDto: CreateStudentReqDto): StudentResDto {
-        logger.info("Creating student: {}", reqDto.name)
+        logger.info("Creating student with name {}", reqDto.name)
         // ...
     }
 }
@@ -392,6 +394,23 @@ class StudentService {
 fun execute(reqDto: CreateStudentReqDto) {
     println("Creating student: ${reqDto.name}")  // Never do this
 }
+```
+
+### Log Message Style
+
+- **Language**: English only — verb-led sentences
+- **Format**: SLF4J `{}` placeholder, not string interpolation
+- **Pattern**: `"<Verb> <subject/context>: {}"`, value
+
+```kotlin
+// CORRECT
+logger().info("Deleted {} expired API keys", deletedCount)
+logger().error("Failed to issue OAuth token for scopeStr {}", scopeStr)
+logger().warn("ExpectedException occurred with message {}", ex.message)
+
+// WRONG
+logger().error("오류 발생: $message")            // Korean
+logger().error("Error occurred: ${ex.message}") // string interpolation
 ```
 
 ### Log Levels

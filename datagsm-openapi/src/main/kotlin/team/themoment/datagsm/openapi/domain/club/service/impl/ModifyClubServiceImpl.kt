@@ -34,9 +34,9 @@ class ModifyClubServiceImpl(
         val club =
             clubJpaRepository
                 .findByIdOrNull(clubId)
-                ?: throw ExpectedException("동아리를 찾을 수 없습니다. clubId: $clubId", HttpStatus.NOT_FOUND)
+                ?: throw ExpectedException("동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
         if (clubJpaRepository.existsByNameAndIdNot(reqDto.name, clubId)) {
-            throw ExpectedException("이미 존재하는 동아리 이름입니다: ${reqDto.name}", HttpStatus.CONFLICT)
+            throw ExpectedException("이미 존재하는 동아리 이름입니다.", HttpStatus.CONFLICT)
         }
 
         val oldType = club.type

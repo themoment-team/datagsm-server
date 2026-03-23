@@ -67,7 +67,7 @@ class DeleteClubServiceTest :
                             shouldThrow<ExpectedException> {
                                 deleteClubService.execute(clubId)
                             }
-                        ex.message shouldBe "동아리를 찾을 수 없습니다. clubId: $clubId"
+                        ex.message shouldBe "동아리를 찾을 수 없습니다."
 
                         verify(exactly = 1) { mockClubRepository.findById(clubId) }
                         verify(exactly = 0) { mockStudentRepository.bulkClearClubReferences(any()) }

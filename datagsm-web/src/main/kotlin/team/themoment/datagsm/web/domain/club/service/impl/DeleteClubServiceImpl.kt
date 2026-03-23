@@ -18,7 +18,7 @@ class DeleteClubServiceImpl(
         val club =
             clubJpaRepository
                 .findById(clubId)
-                .orElseThrow { ExpectedException("동아리를 찾을 수 없습니다. clubId: $clubId", HttpStatus.NOT_FOUND) }
+                .orElseThrow { ExpectedException("동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
         studentJpaRepository.bulkClearClubReferences(listOf(club))
         clubJpaRepository.deleteAllByIdInBatch(listOf(clubId))
     }

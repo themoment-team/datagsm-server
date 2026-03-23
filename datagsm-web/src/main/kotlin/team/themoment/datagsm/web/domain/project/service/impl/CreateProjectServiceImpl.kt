@@ -23,7 +23,7 @@ class CreateProjectServiceImpl(
     @Transactional
     override fun execute(projectReqDto: ProjectReqDto): ProjectResDto {
         if (projectJpaRepository.existsByName(projectReqDto.name)) {
-            throw ExpectedException("이미 존재하는 프로젝트 이름입니다: ${projectReqDto.name}", HttpStatus.CONFLICT)
+            throw ExpectedException("이미 존재하는 프로젝트 이름입니다.", HttpStatus.CONFLICT)
         }
 
         val ownerClub =
@@ -32,7 +32,7 @@ class CreateProjectServiceImpl(
                     .findById(clubId)
                     .orElseThrow {
                         ExpectedException(
-                            "동아리를 찾을 수 없습니다. clubId: $clubId",
+                            "동아리를 찾을 수 없습니다.",
                             HttpStatus.NOT_FOUND,
                         )
                     }
@@ -45,7 +45,7 @@ class CreateProjectServiceImpl(
                 val notFoundIds = projectReqDto.participantIds.filterNot { it in foundIds }
                 if (notFoundIds.isNotEmpty()) {
                     throw ExpectedException(
-                        "${notFoundIds.joinToString(", ")} 에 대응하는 학생 데이터를 찾을 수 없습니다.",
+                        "해당 학생 데이터를 찾을 수 없습니다.",
                         HttpStatus.NOT_FOUND,
                     )
                 }
