@@ -3,11 +3,14 @@ package team.themoment.datagsm.oauth.authorization.global.security.jwt
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.entity.constant.ThirdPartyScope
 import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
+import team.themoment.datagsm.oauth.authorization.global.security.authentication.OauthAuthenticationToken
+import team.themoment.datagsm.oauth.authorization.global.security.authentication.principal.OauthUserPrincipal
 import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.logging.logger.logger
 import java.security.KeyFactory
@@ -92,6 +95,16 @@ class JwtProvider(
             .compact()
     }
 
+    fun getAuthentication(token: String): Authentication {
+        val claims = parseClaims(token)
+        val email = claims.subject
+        val clientId =
+            claims["clientId"] as? String
+                ?: throw ExpectedException("토큰에 클라이언트 아이디가 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
+        val scopes = getScopesFromClaims(claims)
+        return OauthAuthenticationToken(OauthUserPrincipal(email, clientId), scopes)
+    }
+
     fun validateToken(token: String): Boolean =
         try {
             val claims = parseClaims(token)
@@ -103,9 +116,11 @@ class JwtProvider(
 
     fun getEmailFromToken(token: String): String = parseClaims(token).subject
 
-    fun getScopesFromToken(token: String): Set<OAuthScope> {
+    fun getScopesFromToken(token: String): Set<OAuthScope> = getScopesFromClaims(parseClaims(token))
+
+    private fun getScopesFromClaims(claims: Claims): Set<OAuthScope> {
         val rawScopes =
-            parseClaims(token)["scopes"] as? List<*>
+            claims["scopes"] as? List<*>
                 ?: throw ExpectedException("토큰에 scope 권한 정보가 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
         return rawScopes
             .map { s ->

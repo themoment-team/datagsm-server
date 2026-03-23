@@ -9,8 +9,6 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 import team.themoment.datagsm.common.global.security.util.SecurityFilterResponseUtil
-import team.themoment.datagsm.oauth.authorization.global.security.authentication.OauthAuthenticationToken
-import team.themoment.datagsm.oauth.authorization.global.security.authentication.principal.OauthUserPrincipal
 import team.themoment.datagsm.oauth.authorization.global.security.jwt.JwtProvider
 import team.themoment.sdk.logging.logger.logger
 import tools.jackson.databind.ObjectMapper
@@ -47,16 +45,7 @@ class JwtAuthenticationFilter(
         }
 
         try {
-            val email = jwtProvider.getEmailFromToken(token)
-            val clientId = jwtProvider.getClientIdFromToken(token)
-            val scopes = jwtProvider.getScopesFromToken(token)
-
-            val authentication =
-                OauthAuthenticationToken(
-                    OauthUserPrincipal(email, clientId),
-                    scopes,
-                )
-
+            val authentication = jwtProvider.getAuthentication(token)
             SecurityContextHolder.getContext().authentication = authentication
         } catch (_: ExpiredJwtException) {
             SecurityFilterResponseUtil.sendErrorResponse(response, objectMapper, "만료된 토큰입니다.")
