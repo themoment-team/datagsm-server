@@ -43,4 +43,7 @@ data class UpdateStudentReqDto(
     val majorClubId: Long? = null,
     @param:Schema(description = "자율 동아리 ID", example = "3")
     val autonomousClubId: Long? = null,
+    @field:Size(max = 50)
+    @param:Schema(description = "전공", example = "백엔드", maxLength = 50)
+    val specialty: String? = null,
 )

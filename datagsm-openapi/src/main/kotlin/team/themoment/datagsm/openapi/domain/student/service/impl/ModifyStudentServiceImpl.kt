@@ -59,6 +59,7 @@ class ModifyStudentServiceImpl(
         student.email = reqDto.email
         student.studentNumber = StudentNumber(reqDto.grade, reqDto.classNum, reqDto.number)
         student.major = major
+        student.specialty = reqDto.specialty
         student.role = reqDto.role
         student.dormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
         val clubIds = listOfNotNull(reqDto.majorClubId, reqDto.autonomousClubId)
@@ -86,6 +87,7 @@ class ModifyStudentServiceImpl(
             number = student.studentNumber?.studentNumber,
             studentNumber = student.studentNumber?.fullStudentNumber,
             major = student.major,
+            specialty = student.specialty,
             role = student.role,
             dormitoryFloor = student.dormitoryRoomNumber?.dormitoryRoomFloor,
             dormitoryRoom = student.dormitoryRoomNumber?.dormitoryRoomNumber,

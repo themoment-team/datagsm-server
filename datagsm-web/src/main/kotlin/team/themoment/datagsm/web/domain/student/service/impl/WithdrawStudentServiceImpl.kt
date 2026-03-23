@@ -26,6 +26,7 @@ class WithdrawStudentServiceImpl(
         student.apply {
             role = StudentRole.WITHDRAWN
             major = null
+            specialty = null
             studentNumber = null
             dormitoryRoomNumber = null
             majorClub = null
