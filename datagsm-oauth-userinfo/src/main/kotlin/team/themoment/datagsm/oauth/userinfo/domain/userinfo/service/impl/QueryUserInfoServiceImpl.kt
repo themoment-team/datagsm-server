@@ -40,6 +40,7 @@ class QueryUserInfoServiceImpl(
             number = student.studentNumber?.studentNumber,
             studentNumber = student.studentNumber?.fullStudentNumber,
             major = student.major,
+            specialty = student.specialty,
             role = student.role,
             dormitoryFloor = student.dormitoryRoomNumber?.dormitoryRoomFloor,
             dormitoryRoom = student.dormitoryRoomNumber?.dormitoryRoomNumber,

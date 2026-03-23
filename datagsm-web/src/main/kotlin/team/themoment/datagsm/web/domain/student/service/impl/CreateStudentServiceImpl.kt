@@ -65,6 +65,7 @@ class CreateStudentServiceImpl(
                 sex = reqDto.sex
                 email = reqDto.email
                 role = reqDto.role
+                specialty = reqDto.specialty
                 if (reqDto.grade != null && reqDto.classNum != null && reqDto.number != null) {
                     studentNumber = StudentNumber(reqDto.grade, reqDto.classNum, reqDto.number)
                 }
@@ -102,6 +103,7 @@ class CreateStudentServiceImpl(
             number = savedStudent.studentNumber?.studentNumber,
             studentNumber = savedStudent.studentNumber?.fullStudentNumber,
             major = savedStudent.major,
+            specialty = savedStudent.specialty,
             role = savedStudent.role,
             dormitoryFloor = savedStudent.dormitoryRoomNumber?.dormitoryRoomFloor,
             dormitoryRoom = savedStudent.dormitoryRoomNumber?.dormitoryRoomNumber,

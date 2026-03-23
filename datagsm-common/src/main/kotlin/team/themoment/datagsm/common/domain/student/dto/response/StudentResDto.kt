@@ -25,6 +25,8 @@ data class StudentResDto(
     val studentNumber: Int?,
     @field:Schema(description = "전공", example = "SW_DEVELOPMENT", allowableValues = ["SW_DEVELOPMENT", "SMART_IOT", "AI"])
     val major: Major?,
+    @field:Schema(description = "전공", example = "백엔드")
+    val specialty: String?,
     @field:Schema(description = "역할", example = "GENERAL_STUDENT")
     val role: StudentRole,
     @field:Schema(description = "기숙사 층", example = "3")
