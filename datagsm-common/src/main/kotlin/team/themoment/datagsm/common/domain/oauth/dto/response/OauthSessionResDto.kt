@@ -7,4 +7,6 @@ data class OauthSessionResDto(
     val serviceName: String,
     @field:Schema(description = "세션 만료 시각")
     val expiresAt: Long,
+    @field:Schema(description = "클라이언트가 요청한 OAuth Scope 목록")
+    val requestedScopes: List<String>,
 )

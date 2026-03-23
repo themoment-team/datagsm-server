@@ -84,6 +84,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                             state = "random-state",
                             codeChallenge = "challenge",
                             codeChallengeMethod = "S256",
+                            scopes = setOf("self:read"),
                             ttl = 600,
                         )
 
@@ -118,6 +119,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         savedEntitySlot.captured.redirectUri shouldBe testRedirectUri
                         savedEntitySlot.captured.codeChallenge shouldBe "challenge"
                         savedEntitySlot.captured.codeChallengeMethod shouldBe "S256"
+                        savedEntitySlot.captured.scopes shouldBe setOf("self:read")
                         savedEntitySlot.captured.ttl shouldBe codeExpirationSeconds
                     }
 
@@ -169,6 +171,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                             state = "random-state",
                             codeChallenge = "challenge",
                             codeChallengeMethod = "S256",
+                            scopes = setOf("self:read"),
                             ttl = 600,
                         )
 
@@ -206,6 +209,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                             state = "random-state",
                             codeChallenge = "challenge",
                             codeChallengeMethod = "S256",
+                            scopes = setOf("self:read"),
                             ttl = 600,
                         )
 

@@ -14,6 +14,7 @@ data class OauthRefreshTokenRedisEntity(
     @Indexed
     val clientId: String,
     val token: String,
+    val scopes: Set<String>,
     @TimeToLive
     val ttl: Long,
 ) {
@@ -22,6 +23,7 @@ data class OauthRefreshTokenRedisEntity(
             email: String,
             clientId: String,
             token: String,
+            scopes: Set<String>,
             ttl: Long,
         ): OauthRefreshTokenRedisEntity =
             OauthRefreshTokenRedisEntity(
@@ -29,6 +31,7 @@ data class OauthRefreshTokenRedisEntity(
                 email = email,
                 clientId = clientId,
                 token = token,
+                scopes = scopes,
                 ttl = ttl,
             )
     }

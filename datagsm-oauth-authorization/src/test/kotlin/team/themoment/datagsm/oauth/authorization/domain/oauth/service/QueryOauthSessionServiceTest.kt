@@ -50,6 +50,7 @@ class QueryOauthSessionServiceTest :
                         state = null,
                         codeChallenge = null,
                         codeChallengeMethod = null,
+                        scopes = setOf("self:read"),
                     )
 
                 val mockClient =
@@ -82,6 +83,12 @@ class QueryOauthSessionServiceTest :
 
                         result.expiresAt shouldBeGreaterThanOrEqual before
                         result.expiresAt shouldBeLessThanOrEqual after
+                    }
+
+                    it("state entity의 scopes가 requestedScopes로 반환되어야 한다") {
+                        val result = queryOauthSessionService.execute(testToken)
+
+                        result.requestedScopes shouldBe listOf("self:read")
                     }
                 }
 

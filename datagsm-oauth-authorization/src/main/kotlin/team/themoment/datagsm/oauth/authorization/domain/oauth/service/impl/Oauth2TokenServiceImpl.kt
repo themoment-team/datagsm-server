@@ -109,13 +109,16 @@ class Oauth2TokenServiceImpl(
                 .findByEmail(oauthCode.email)
                 .orElseThrow { ExpectedException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
 
-        val requestedScopes = parseScopes(reqDto.scope)
-        val grantedScopes = calculateGrantedScopes(client.scopes, requestedScopes)
+        val scopesToGrant = reqDto.scope ?: oauthCode.scopes
+        if (!oauthCode.scopes.containsAll(scopesToGrant)) {
+            throw OAuthException.InvalidScope("요청한 scope가 인가 코드의 scope를 초과합니다.")
+        }
+        val grantedScopes = stringsToScopes(scopesToGrant)
 
         val accessToken = jwtProvider.generateOauthAccessToken(account.email, account.role, client.id, grantedScopes)
         val refreshToken = jwtProvider.generateOauthRefreshToken(account.email, client.id)
 
-        saveRefreshToken(account.email, client.id, refreshToken)
+        saveRefreshToken(account.email, client.id, refreshToken, scopesToGrant)
         oauthCodeRedisRepository.delete(oauthCode)
 
         return Oauth2TokenResDto(
@@ -175,13 +178,12 @@ class Oauth2TokenServiceImpl(
                 .findByEmail(email)
                 .orElseThrow { ExpectedException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
 
-        val requestedScopes = parseScopes(reqDto.scope)
-        val grantedScopes = calculateGrantedScopes(client.scopes, requestedScopes)
+        val grantedScopes = stringsToScopes(storedToken.scopes)
 
         val newAccessToken = jwtProvider.generateOauthAccessToken(email, account.role, clientIdFromToken, grantedScopes)
         val newRefreshToken = jwtProvider.generateOauthRefreshToken(email, clientIdFromToken)
 
-        saveRefreshToken(email, clientIdFromToken, newRefreshToken)
+        saveRefreshToken(email, clientIdFromToken, newRefreshToken, storedToken.scopes)
 
         return Oauth2TokenResDto(
             accessToken = newAccessToken,
@@ -197,7 +199,7 @@ class Oauth2TokenServiceImpl(
 
         val client = validateClient(reqDto.clientId!!, reqDto.clientSecret!!)
 
-        val requestedScopes = parseScopes(reqDto.scope)
+        val requestedScopes = reqDto.scope ?: emptySet()
         val grantedScopes = calculateGrantedScopes(client.scopes, requestedScopes)
 
         val accessToken = jwtProvider.generateClientCredentialsAccessToken(client.id, grantedScopes)
@@ -229,8 +231,6 @@ class Oauth2TokenServiceImpl(
     private fun validateClientWithoutSecret(clientId: String): ClientJpaEntity =
         clientJpaRepository.findByIdOrNull(clientId)
             ?: throw OAuthException.InvalidClient("존재하지 않는 클라이언트입니다.")
-
-    private fun parseScopes(scopeString: String?): Set<String> = scopeString?.split(" ")?.filter { it.isNotBlank() }?.toSet() ?: emptySet()
 
     private fun calculateGrantedScopes(
         clientScopes: Set<String>,
@@ -276,6 +276,7 @@ class Oauth2TokenServiceImpl(
         email: String,
         clientId: String,
         token: String,
+        scopes: Set<String>,
     ) {
         oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(email, clientId)
         val ttlSeconds = jwtEnvironment.refreshTokenExpiration / 1000
@@ -284,6 +285,7 @@ class Oauth2TokenServiceImpl(
                 email = email,
                 clientId = clientId,
                 token = token,
+                scopes = scopes,
                 ttl = ttlSeconds,
             )
         oauthRefreshTokenRedisRepository.save(entity)
