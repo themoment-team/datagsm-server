@@ -11,6 +11,8 @@ interface ClubJpaRepository :
     ClubJpaCustomRepository {
     fun findAllByLeader(leader: StudentJpaEntity): List<ClubJpaEntity>
 
+    fun findAllByLeaderIn(leaders: Collection<StudentJpaEntity>): List<ClubJpaEntity>
+
     fun existsByName(clubName: String): Boolean
 
     fun existsByNameAndIdNot(

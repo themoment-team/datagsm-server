@@ -67,11 +67,11 @@ class ModifyClubServiceImpl(
             val filteredParticipantIds = reqDto.participantIds.filter { it != leaderId }
             participants = studentJpaRepository.findAllById(filteredParticipantIds)
             participantIdsForBulkAssign = listOf(leaderId) + filteredParticipantIds
-            val clubsToUnsetLeader =
-                (listOf(newLeader) + participants)
-                    .flatMap { student -> clubJpaRepository.findAllByLeader(student) }
-                    .filter { it.type == reqDto.type && it.id != clubId }
-            clubsToUnsetLeader.forEach { otherClub -> otherClub.leader = null }
+            val members = listOf(newLeader) + participants
+            clubJpaRepository
+                .findAllByLeaderIn(members)
+                .filter { it.type == reqDto.type && it.id != clubId }
+                .forEach { otherClub -> otherClub.leader = null }
         } else {
             newLeader = null
             club.leader = null

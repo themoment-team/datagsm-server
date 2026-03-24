@@ -113,7 +113,7 @@ class CreateClubServiceTest :
                             entity.apply { this.id = 10L }
                         }
                         every { mockStudentRepository.findAllById(listOf(200L, 300L)) } returns listOf(participant1, participant2)
-                        every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns emptyList()
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
@@ -173,7 +173,7 @@ class CreateClubServiceTest :
                             entity.apply { this.id = 10L }
                         }
                         every { mockStudentRepository.findAllById(listOf(200L)) } returns listOf(participant)
-                        every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns emptyList()
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
@@ -225,7 +225,7 @@ class CreateClubServiceTest :
                             entity.apply { this.id = 10L }
                         }
                         every { mockStudentRepository.findAllById(listOf(200L)) } returns listOf(participant)
-                        every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns emptyList()
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
@@ -281,7 +281,7 @@ class CreateClubServiceTest :
                             entity.apply { this.id = 10L }
                         }
                         every { mockStudentRepository.findAllById(emptyList()) } returns emptyList()
-                        every { mockClubRepository.findAllByLeader(mockLeader) } returns listOf(otherClub)
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns listOf(otherClub)
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
@@ -292,7 +292,7 @@ class CreateClubServiceTest :
                     }
                 }
 
-                context("findAllByLeader가 새로 생성한 동아리 자신을 반환하는 경우") {
+                context("findAllByLeaderIn이 새로 생성한 동아리 자신을 반환하는 경우") {
                     val req =
                         ClubReqDto(
                             name = "동아리F",
