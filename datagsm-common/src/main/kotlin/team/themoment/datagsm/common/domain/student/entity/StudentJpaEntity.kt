@@ -8,6 +8,7 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.Index
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
@@ -25,6 +26,10 @@ import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
             name = "uk_student_number",
             columnNames = ["student_grade", "student_class", "student_number"],
         ),
+    ],
+    indexes = [
+        Index(name = "idx_student_major_club_id", columnList = "major_club_id"),
+        Index(name = "idx_student_autonomous_club_id", columnList = "autonomous_club_id"),
     ],
 )
 @Entity
