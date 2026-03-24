@@ -48,6 +48,8 @@ class SecurityConfig(
                 it
                     .requestMatchers(*AuthenticationPathConfig.PUBLIC_PATHS.toTypedArray())
                     .permitAll()
+                    .requestMatchers(HttpMethod.PATCH, "/v1/students/me/specialty")
+                    .authenticated()
                     .requestMatchers(
                         "/v1/students/**",
                         "/v1/projects/**",
