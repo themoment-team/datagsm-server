@@ -36,7 +36,7 @@ class ExtendApiKeyByIdServiceImpl(
 
         val now = LocalDateTime.now()
         apiKey.expiresAt = now.plusDays(reqDto.days)
-        logger().info("API key expiration extended for apiKeyId $apiKeyId, days=${reqDto.days}")
+        logger().info("Extended API key expiration for apiKeyId {} by {} days", apiKeyId, reqDto.days)
         return ApiKeyResDto(
             id = apiKey.id!!,
             apiKey = apiKey.maskedValue,

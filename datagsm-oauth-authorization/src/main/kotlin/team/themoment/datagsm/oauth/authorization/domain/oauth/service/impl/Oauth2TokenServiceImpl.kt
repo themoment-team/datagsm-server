@@ -263,7 +263,7 @@ class Oauth2TokenServiceImpl(
                 val entity =
                     fetched[scopeStr]
                 if (entity == null) {
-                    logger().error("Oauth 토큰 발급 에러. Client에서 요청한 ThirdPartyScope이지만 DB에서 찾을 수 없음. scopeStr: $scopeStr")
+                    logger().error("Failed to issue OAuth token, ThirdPartyScope not found in DB for scopeStr {}", scopeStr)
                     throw ExpectedException("Client에서 가지고 있는 ThirdPartyScope 정보가 잘못되었습니다. 관리자에게 문의하세요.", HttpStatus.INTERNAL_SERVER_ERROR)
                 }
                 ThirdPartyScope(entity.application.id, entity.scopeName, entity.description)

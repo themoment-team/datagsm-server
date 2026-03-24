@@ -88,6 +88,14 @@ fun updateStudent(@PathVariable id: Long, @Valid @RequestBody reqDto: UpdateStud
 - WRONG: `update(common):` → CORRECT: `update(student):`
 - Only use module names for cross-cutting concerns: `refactor(global):`, `update(ci/cd):`
 
+### Logging Style
+- WRONG: `logger().error("에러 발생: $message")` → CORRECT: `logger().error("Failed to process {}", message)`
+- English verb-led sentences, SLF4J `{}` placeholders only (no string interpolation, no colon separators)
+
+### Exception Messages (ExpectedException)
+- WRONG: `ExpectedException("학생을 찾을 수 없습니다. ID: $id", ...)` → CORRECT: `ExpectedException("학생을 찾을 수 없습니다.", ...)`
+- Korean 합쇼체 + period, no dynamic data — message is shown directly to users as toast/alert
+
 ## Context Compaction Rules
 
 Priority order when compressing conversation history:

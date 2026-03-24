@@ -33,7 +33,7 @@ class QueryApiScopeByScopeNameServiceTest :
                                 queryApiScopeByScopeNameService.execute(invalidScopeName)
                             }
 
-                        exception.message shouldBe "해당 권한 범위 $invalidScopeName 는 존재하지 않습니다."
+                        exception.message shouldBe "존재하지 않는 권한 범위입니다."
                     }
                 }
             }

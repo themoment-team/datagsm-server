@@ -25,9 +25,12 @@ class CreateClubServiceImpl(
         if (clubReqDto.status == ClubStatus.ABOLISHED && clubReqDto.leaderId != null) {
             throw ExpectedException("폐지된 동아리에는 부장을 지정할 수 없습니다.", HttpStatus.BAD_REQUEST)
         }
+        if (clubReqDto.status == ClubStatus.ABOLISHED && clubReqDto.participantIds.isNotEmpty()) {
+            throw ExpectedException("폐지된 동아리에는 구성원을 지정할 수 없습니다.", HttpStatus.BAD_REQUEST)
+        }
 
         if (clubJpaRepository.existsByName(clubReqDto.name)) {
-            throw ExpectedException("이미 존재하는 동아리 이름입니다: ${clubReqDto.name}", HttpStatus.CONFLICT)
+            throw ExpectedException("이미 존재하는 동아리 이름입니다.", HttpStatus.CONFLICT)
         }
 
         val clubEntity =

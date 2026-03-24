@@ -205,7 +205,7 @@ class ModifyClubExcelServiceTest :
                                 modifyClubExcelService.execute(file)
                             }
 
-                        exception.message shouldBe "지원하지 않는 파일 형식입니다. (xlsx, xls만 지원)"
+                        exception.message shouldBe "지원하지 않는 파일 형식입니다."
                         exception.statusCode shouldBe HttpStatus.BAD_REQUEST
                     }
                 }
@@ -659,7 +659,7 @@ class ModifyClubExcelServiceTest :
                                 modifyClubExcelService.execute(file)
                             }
 
-                        exception.message shouldContain "에 해당하는 학생을 찾을 수 없습니다"
+                        exception.message shouldBe "해당하는 학생을 찾을 수 없습니다."
                         exception.statusCode shouldBe HttpStatus.NOT_FOUND
                     }
                 }

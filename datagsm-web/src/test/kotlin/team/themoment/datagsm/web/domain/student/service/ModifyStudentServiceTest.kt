@@ -136,7 +136,7 @@ class ModifyStudentServiceTest :
                                 modifyStudentService.execute(studentId, updateRequest)
                             }
 
-                        exception.message shouldBe "이미 존재하는 이메일입니다: duplicate@gsm.hs.kr"
+                        exception.message shouldBe "이미 존재하는 이메일입니다."
                     }
                 }
 
@@ -165,7 +165,7 @@ class ModifyStudentServiceTest :
                                 modifyStudentService.execute(studentId, updateRequest)
                             }
 
-                        exception.message shouldBe "이미 존재하는 학번입니다: 2학년 2반 10번"
+                        exception.message shouldBe "이미 존재하는 학번입니다."
                     }
                 }
 
@@ -192,7 +192,7 @@ class ModifyStudentServiceTest :
                                 modifyStudentService.execute(studentId, updateRequest)
                             }
 
-                        exception.message shouldBe "학생을 찾을 수 없습니다. studentId: $studentId"
+                        exception.message shouldBe "학생을 찾을 수 없습니다."
                     }
                 }
 
@@ -221,7 +221,7 @@ class ModifyStudentServiceTest :
                                 modifyStudentService.execute(studentId, updateRequest)
                             }
 
-                        exception.message shouldBe "유효하지 않은 학급입니다: 5"
+                        exception.message shouldBe "유효하지 않은 학급 번호입니다."
                     }
                 }
 

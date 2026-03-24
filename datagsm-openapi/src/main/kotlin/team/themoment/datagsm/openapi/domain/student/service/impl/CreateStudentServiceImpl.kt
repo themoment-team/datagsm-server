@@ -24,7 +24,7 @@ class CreateStudentServiceImpl(
     @Transactional
     override fun execute(reqDto: CreateStudentReqDto): StudentResDto {
         if (studentJpaRepository.existsByEmail(reqDto.email)) {
-            throw ExpectedException("이미 존재하는 이메일입니다: ${reqDto.email}", HttpStatus.CONFLICT)
+            throw ExpectedException("이미 존재하는 이메일입니다.", HttpStatus.CONFLICT)
         }
 
         when (reqDto.role) {
@@ -53,7 +53,7 @@ class CreateStudentServiceImpl(
         if (reqDto.grade != null && reqDto.classNum != null && reqDto.number != null) {
             if (studentJpaRepository.existsByStudentNumber(reqDto.grade!!, reqDto.classNum!!, reqDto.number!!)) {
                 throw ExpectedException(
-                    "이미 존재하는 학번입니다: ${reqDto.grade}학년 ${reqDto.classNum}반 ${reqDto.number}번",
+                    "이미 존재하는 학번입니다.",
                     HttpStatus.CONFLICT,
                 )
             }
@@ -65,12 +65,13 @@ class CreateStudentServiceImpl(
                 sex = reqDto.sex
                 email = reqDto.email
                 role = reqDto.role
+                specialty = reqDto.specialty
                 if (reqDto.grade != null && reqDto.classNum != null && reqDto.number != null) {
                     studentNumber = StudentNumber(reqDto.grade, reqDto.classNum, reqDto.number)
                 }
                 if (reqDto.role != StudentRole.GRADUATE && reqDto.role != StudentRole.WITHDRAWN) {
                     major = Major.fromClassNum(reqDto.classNum!!)
-                        ?: throw ExpectedException("유효하지 않은 학급입니다: ${reqDto.classNum}", HttpStatus.BAD_REQUEST)
+                        ?: throw ExpectedException("유효하지 않은 학급 번호입니다.", HttpStatus.BAD_REQUEST)
                     dormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
                     val clubIds = listOfNotNull(reqDto.majorClubId, reqDto.autonomousClubId)
                     val clubs =
@@ -102,6 +103,7 @@ class CreateStudentServiceImpl(
             number = savedStudent.studentNumber?.studentNumber,
             studentNumber = savedStudent.studentNumber?.fullStudentNumber,
             major = savedStudent.major,
+            specialty = savedStudent.specialty,
             role = savedStudent.role,
             dormitoryFloor = savedStudent.dormitoryRoomNumber?.dormitoryRoomFloor,
             dormitoryRoom = savedStudent.dormitoryRoomNumber?.dormitoryRoomNumber,

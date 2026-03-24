@@ -25,12 +25,12 @@ class RequireScopeAspect(
 
         val authentication = SecurityContextHolder.getContext().authentication
         if (authentication == null || authentication is AnonymousAuthenticationToken) {
-            throw ExpectedException("인증이 필요합니다", HttpStatus.UNAUTHORIZED)
+            throw ExpectedException("인증이 필요합니다.", HttpStatus.UNAUTHORIZED)
         }
 
         val requiredScope = requireScope.scope.scope
         if (!scopeChecker.hasScope(authentication, requiredScope)) {
-            throw ExpectedException("접근 권한이 부족합니다", HttpStatus.FORBIDDEN)
+            throw ExpectedException("접근 권한이 부족합니다.", HttpStatus.FORBIDDEN)
         }
     }
 }

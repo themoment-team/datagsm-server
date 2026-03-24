@@ -29,7 +29,7 @@ class ModifyStudentServiceImpl(
         val student =
             studentJpaRepository
                 .findByIdOrNull(studentId)
-                ?: throw ExpectedException("학생을 찾을 수 없습니다. studentId: $studentId", HttpStatus.NOT_FOUND)
+                ?: throw ExpectedException("학생을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
         if (student.role == StudentRole.GRADUATE || student.role == StudentRole.WITHDRAWN) {
             throw ExpectedException("졸업생이나 자퇴생은 수정 API를 사용할 수 없습니다.", HttpStatus.BAD_REQUEST)
         }
@@ -37,7 +37,7 @@ class ModifyStudentServiceImpl(
             throw ExpectedException("졸업생이나 자퇴생으로의 role 변경은 허용되지 않습니다.", HttpStatus.BAD_REQUEST)
         }
         if (studentJpaRepository.existsByStudentEmailAndNotId(reqDto.email, studentId)) {
-            throw ExpectedException("이미 존재하는 이메일입니다: ${reqDto.email}", HttpStatus.CONFLICT)
+            throw ExpectedException("이미 존재하는 이메일입니다.", HttpStatus.CONFLICT)
         }
         if (studentJpaRepository.existsByStudentNumberAndNotId(
                 reqDto.grade,
@@ -47,18 +47,19 @@ class ModifyStudentServiceImpl(
             )
         ) {
             throw ExpectedException(
-                "이미 존재하는 학번입니다: ${reqDto.grade}학년 ${reqDto.classNum}반 ${reqDto.number}번",
+                "이미 존재하는 학번입니다.",
                 HttpStatus.CONFLICT,
             )
         }
         val major =
             Major.fromClassNum(reqDto.classNum)
-                ?: throw ExpectedException("유효하지 않은 학급입니다: ${reqDto.classNum}", HttpStatus.BAD_REQUEST)
+                ?: throw ExpectedException("유효하지 않은 학급 번호입니다.", HttpStatus.BAD_REQUEST)
         student.name = reqDto.name
         student.sex = reqDto.sex
         student.email = reqDto.email
         student.studentNumber = StudentNumber(reqDto.grade, reqDto.classNum, reqDto.number)
         student.major = major
+        student.specialty = reqDto.specialty
         student.role = reqDto.role
         student.dormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
         val clubIds = listOfNotNull(reqDto.majorClubId, reqDto.autonomousClubId)
@@ -86,6 +87,7 @@ class ModifyStudentServiceImpl(
             number = student.studentNumber?.studentNumber,
             studentNumber = student.studentNumber?.fullStudentNumber,
             major = student.major,
+            specialty = student.specialty,
             role = student.role,
             dormitoryFloor = student.dormitoryRoomNumber?.dormitoryRoomFloor,
             dormitoryRoom = student.dormitoryRoomNumber?.dormitoryRoomNumber,

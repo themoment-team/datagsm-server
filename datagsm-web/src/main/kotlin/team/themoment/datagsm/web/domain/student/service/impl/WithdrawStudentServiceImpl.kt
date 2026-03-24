@@ -19,13 +19,14 @@ class WithdrawStudentServiceImpl(
     override fun execute(studentId: Long) {
         val student =
             studentJpaRepository.findByIdOrNull(studentId)
-                ?: throw ExpectedException("학생을 찾을 수 없습니다. ID: $studentId", HttpStatus.NOT_FOUND)
+                ?: throw ExpectedException("학생을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
 
         clubJpaRepository.findAllByLeader(student).forEach { it.leader = null }
 
         student.apply {
             role = StudentRole.WITHDRAWN
             major = null
+            specialty = null
             studentNumber = null
             dormitoryRoomNumber = null
             majorClub = null

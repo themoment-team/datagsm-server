@@ -56,10 +56,11 @@ class RotateCurrentAccountApiKeyServiceImpl(
         }
 
         logger().info(
-            "API Key rotated: accountId=${account.id}, " +
-                "oldKey=${oldValue.toString().take(8)}****, " +
-                "newKey=${apiKey.value.toString().take(8)}****, " +
-                "scopes=${apiKey.scopes.joinToString(",")}",
+            "Rotated API key for account {} oldKey {}**** newKey {}**** scopes {}",
+            account.id,
+            oldValue.toString().take(8),
+            apiKey.value.toString().take(8),
+            apiKey.scopes.joinToString(","),
         )
 
         val savedApiKey = apiKeyJpaRepository.save(apiKey)

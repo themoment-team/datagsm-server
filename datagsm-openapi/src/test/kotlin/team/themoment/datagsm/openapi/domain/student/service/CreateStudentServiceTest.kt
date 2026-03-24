@@ -53,7 +53,7 @@ class CreateStudentServiceTest :
                             shouldThrow<ExpectedException> {
                                 createStudentService.execute(req)
                             }
-                        ex.message shouldBe "이미 존재하는 이메일입니다: ${req.email}"
+                        ex.message shouldBe "이미 존재하는 이메일입니다."
 
                         verify(exactly = 1) { mockStudentRepository.existsByEmail(req.email) }
                         verify(exactly = 0) { mockStudentRepository.save(any()) }

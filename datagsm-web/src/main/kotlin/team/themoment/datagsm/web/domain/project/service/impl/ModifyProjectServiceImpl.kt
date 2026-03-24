@@ -27,9 +27,9 @@ class ModifyProjectServiceImpl(
         val project =
             projectJpaRepository
                 .findById(projectId)
-                .orElseThrow { ExpectedException("프로젝트를 찾을 수 없습니다. projectId: $projectId", HttpStatus.NOT_FOUND) }
+                .orElseThrow { ExpectedException("프로젝트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
         if (projectJpaRepository.existsByNameAndIdNot(reqDto.name, projectId)) {
-            throw ExpectedException("이미 존재하는 프로젝트 이름입니다: ${reqDto.name}", HttpStatus.CONFLICT)
+            throw ExpectedException("이미 존재하는 프로젝트 이름입니다.", HttpStatus.CONFLICT)
         }
         val ownerClub =
             reqDto.clubId?.let { clubId ->
@@ -37,7 +37,7 @@ class ModifyProjectServiceImpl(
                     .findById(clubId)
                     .orElseThrow {
                         ExpectedException(
-                            "동아리를 찾을 수 없습니다. clubId: $clubId",
+                            "동아리를 찾을 수 없습니다.",
                             HttpStatus.NOT_FOUND,
                         )
                     }
@@ -51,7 +51,7 @@ class ModifyProjectServiceImpl(
 
                 if (notFoundIds.isNotEmpty()) {
                     throw ExpectedException(
-                        "${notFoundIds.joinToString(", ")} 에 대응하는 학생 데이터를 찾을 수 없습니다.",
+                        "해당 학생 데이터를 찾을 수 없습니다.",
                         HttpStatus.NOT_FOUND,
                     )
                 }

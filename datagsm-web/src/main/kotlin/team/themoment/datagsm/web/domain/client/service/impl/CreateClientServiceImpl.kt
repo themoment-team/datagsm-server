@@ -32,7 +32,7 @@ class CreateClientServiceImpl(
         val invalidScopes = reqDto.scopes.filter { it !in availableScopes }
 
         if (invalidScopes.isNotEmpty()) {
-            throw ExpectedException("허용되지 않는 OAuth 권한이 포함되어 있습니다: $invalidScopes", HttpStatus.BAD_REQUEST)
+            throw ExpectedException("허용되지 않는 OAuth 권한이 포함되어 있습니다.", HttpStatus.BAD_REQUEST)
         }
 
         val currentAccount = currentUserProvider.getCurrentAccount()

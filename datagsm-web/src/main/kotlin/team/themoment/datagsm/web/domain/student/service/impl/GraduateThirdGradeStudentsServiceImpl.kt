@@ -18,6 +18,7 @@ class GraduateThirdGradeStudentsServiceImpl(
         thirdGradeStudents.forEach { student ->
             student.role = StudentRole.GRADUATE
             student.major = null
+            student.specialty = null
             student.studentNumber = null
             student.dormitoryRoomNumber = null
             student.majorClub = null

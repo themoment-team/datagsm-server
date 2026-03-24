@@ -35,6 +35,8 @@ data class QueryStudentReqDto(
     val role: StudentRole? = null,
     @param:Schema(description = "기숙사 호실")
     val dormitoryRoom: Int? = null,
+    @param:Schema(description = "전공")
+    val specialty: String? = null,
     @param:Schema(description = "졸업생 포함 여부", defaultValue = "false")
     val includeGraduates: Boolean = false,
     @param:Schema(description = "자퇴생 포함 여부", defaultValue = "false")

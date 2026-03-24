@@ -56,7 +56,7 @@ class CreateClubServiceTest :
                             shouldThrow<ExpectedException> {
                                 createClubService.execute(req)
                             }
-                        ex.message shouldBe "이미 존재하는 동아리 이름입니다: ${req.name}"
+                        ex.message shouldBe "이미 존재하는 동아리 이름입니다."
 
                         verify(exactly = 1) { mockClubRepository.existsByName(req.name) }
                         verify(exactly = 0) { mockClubRepository.save(any()) }
@@ -298,7 +298,7 @@ class CreateClubServiceTest :
                     }
                 }
 
-                context("ABOLISHED 상태이고 leaderId가 null일 때") {
+                context("ABOLISHED 상태이고 participantIds가 비어있지 않을 때") {
                     val req =
                         ClubReqDto(
                             name = "동아리G",
@@ -309,33 +309,13 @@ class CreateClubServiceTest :
                             status = ClubStatus.ABOLISHED,
                             abolishedYear = 2024,
                         )
-                    lateinit var participant: StudentJpaEntity
 
-                    beforeEach {
-                        participant =
-                            StudentJpaEntity().apply {
-                                this.id = 200L
-                                this.name = "부원"
-                                this.email = "p@gsm.hs.kr"
-                                this.studentNumber = StudentNumber(2, 1, 6)
-                                this.major = Major.AI
-                                this.sex = Sex.MAN
+                    it("ExpectedException이 발생해야 한다") {
+                        val ex =
+                            shouldThrow<ExpectedException> {
+                                createClubService.execute(req)
                             }
-                        every { mockClubRepository.existsByName(req.name) } returns false
-                        every { mockClubRepository.save(any()) } answers {
-                            val entity = firstArg<ClubJpaEntity>()
-                            entity.apply { this.id = 10L }
-                        }
-                        every { mockStudentRepository.findAllById(listOf(200L)) } returns listOf(participant)
-                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
-                    }
-
-                    it("leader=null로 저장되어야 하고 findById가 호출되지 않아야 한다") {
-                        val res = createClubService.execute(req)
-
-                        res.leader shouldBe null
-                        verify(exactly = 0) { mockStudentRepository.findById(any()) }
-                        verify(exactly = 1) { mockClubRepository.save(any()) }
+                        ex.message shouldBe "폐지된 동아리에는 구성원을 지정할 수 없습니다."
                     }
                 }
             }

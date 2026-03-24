@@ -48,8 +48,10 @@ class ModifyCurrentAccountApiKeyServiceImpl(
         val invalidScopes = reqDto.scopes.filter { it !in validScopes }
         if (invalidScopes.isNotEmpty()) {
             logger().warn(
-                "Invalid scopes attempted: user=${account.email}, isAdmin=$isAdmin, " +
-                    "invalidScopes=${invalidScopes.joinToString(", ")}",
+                "Invalid scopes attempted by user {} isAdmin {} invalidScopes {}",
+                account.email,
+                isAdmin,
+                invalidScopes.joinToString(", "),
             )
             throw ExpectedException(
                 "요청한 권한 범위가 유효하지 않습니다.",
@@ -73,14 +75,19 @@ class ModifyCurrentAccountApiKeyServiceImpl(
                     updateScopes(reqDto.scopes)
                 }
                 logger().info(
-                    "API Key reissued: accountId=${account.id}, " +
-                        "oldKey=${oldValue.toString().take(8)}****, newKey=${value.toString().take(8)}****, " +
-                        "scopeChanged=$isScopeChanged, descriptionChanged=$isDescriptionChanged",
+                    "Reissued API key for account {} oldKey {}**** newKey {}**** scopeChanged {} descriptionChanged {}",
+                    account.id,
+                    oldValue.toString().take(8),
+                    value.toString().take(8),
+                    isScopeChanged,
+                    isDescriptionChanged,
                 )
             } else {
                 logger().info(
-                    "API Key renewed: accountId=${account.id}, " +
-                        "key=${value.toString().take(8)}****, expiresAt=$expiresAt",
+                    "Renewed API key for account {} key {}**** expiresAt {}",
+                    account.id,
+                    value.toString().take(8),
+                    expiresAt,
                 )
             }
         }
