@@ -238,6 +238,56 @@ class CreateClubServiceTest :
                     }
                 }
 
+                context("부장이 같은 타입의 다른 동아리 부장인 경우") {
+                    val req =
+                        ClubReqDto(
+                            name = "동아리E",
+                            type = ClubType.AUTONOMOUS_CLUB,
+                            leaderId = 100L,
+                            participantIds = emptyList(),
+                            foundedYear = 2022,
+                            status = ClubStatus.ACTIVE,
+                        )
+                    lateinit var mockLeader: StudentJpaEntity
+                    lateinit var otherClub: ClubJpaEntity
+
+                    beforeEach {
+                        mockLeader =
+                            StudentJpaEntity().apply {
+                                this.id = 100L
+                                this.name = "부장이름"
+                                this.email = "leader@gsm.hs.kr"
+                                this.studentNumber = StudentNumber(2, 1, 5)
+                                this.major = Major.AI
+                                this.sex = Sex.WOMAN
+                            }
+                        otherClub =
+                            ClubJpaEntity().apply {
+                                this.id = 99L
+                                this.name = "기존자율동아리"
+                                this.type = ClubType.AUTONOMOUS_CLUB
+                                this.leader = mockLeader
+                                this.foundedYear = 2022
+                                this.status = ClubStatus.ACTIVE
+                            }
+                        every { mockClubRepository.existsByName(req.name) } returns false
+                        every { mockStudentRepository.findById(req.leaderId!!) } returns java.util.Optional.of(mockLeader)
+                        every { mockClubRepository.save(any()) } answers {
+                            val entity = firstArg<ClubJpaEntity>()
+                            entity.apply { this.id = 10L }
+                        }
+                        every { mockStudentRepository.findAllById(emptyList()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeader(mockLeader) } returns listOf(otherClub)
+                        every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
+                    }
+
+                    it("기존 동아리의 leader가 null로 해제되어야 한다") {
+                        createClubService.execute(req)
+
+                        otherClub.leader shouldBe null
+                    }
+                }
+
                 context("ACTIVE 상태이고 leaderId가 null일 때") {
                     val req =
                         ClubReqDto(
@@ -275,6 +325,26 @@ class CreateClubServiceTest :
                         res.leader shouldBe null
                         verify(exactly = 0) { mockStudentRepository.findById(any()) }
                         verify(exactly = 1) { mockClubRepository.save(any()) }
+                    }
+                }
+
+                context("ACTIVE 상태이고 leaderId가 null이며 participantIds도 비어있을 때") {
+                    val req =
+                        ClubReqDto(
+                            name = "동아리F",
+                            type = ClubType.MAJOR_CLUB,
+                            leaderId = null,
+                            participantIds = emptyList(),
+                            foundedYear = 2022,
+                            status = ClubStatus.ACTIVE,
+                        )
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val ex =
+                            shouldThrow<ExpectedException> {
+                                createClubService.execute(req)
+                            }
+                        ex.message shouldBe "운영 중인 동아리에는 부장 또는 부원이 최소 1명 이상 있어야 합니다."
                     }
                 }
 

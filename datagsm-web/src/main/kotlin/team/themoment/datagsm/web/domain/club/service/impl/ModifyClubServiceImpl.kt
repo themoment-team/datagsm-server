@@ -30,6 +30,9 @@ class ModifyClubServiceImpl(
         if (reqDto.status == ClubStatus.ABOLISHED && reqDto.participantIds.isNotEmpty()) {
             throw ExpectedException("폐지된 동아리에는 구성원을 지정할 수 없습니다.", HttpStatus.BAD_REQUEST)
         }
+        if (reqDto.status == ClubStatus.ACTIVE && reqDto.leaderId == null && reqDto.participantIds.isEmpty()) {
+            throw ExpectedException("운영 중인 동아리에는 부장 또는 부원이 최소 1명 이상 있어야 합니다.", HttpStatus.BAD_REQUEST)
+        }
 
         val club =
             clubJpaRepository

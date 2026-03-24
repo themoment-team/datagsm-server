@@ -448,6 +448,26 @@ class ModifyClubServiceTest :
                     }
                 }
 
+                context("ACTIVE 상태이고 leaderId가 null이며 participantIds도 비어있을 때") {
+                    val req =
+                        ClubReqDto(
+                            name = "기존동아리",
+                            type = ClubType.MAJOR_CLUB,
+                            leaderId = null,
+                            participantIds = emptyList(),
+                            foundedYear = 2022,
+                            status = ClubStatus.ACTIVE,
+                        )
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val ex =
+                            shouldThrow<ExpectedException> {
+                                modifyClubService.execute(clubId, req)
+                            }
+                        ex.message shouldBe "운영 중인 동아리에는 부장 또는 부원이 최소 1명 이상 있어야 합니다."
+                    }
+                }
+
                 context("ABOLISHED 상태이고 participantIds가 비어있지 않을 때") {
                     val req =
                         ClubReqDto(
