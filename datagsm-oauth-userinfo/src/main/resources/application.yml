@@ -58,6 +58,7 @@ sdk:
     not-wrapping-urls:
       - "/v3/api-docs/**"
       - "/swagger-ui/**"
+      - "/userinfo"
   swagger:
     enabled: true
     title: "DataGSM OAuth Userinfo Server API"
