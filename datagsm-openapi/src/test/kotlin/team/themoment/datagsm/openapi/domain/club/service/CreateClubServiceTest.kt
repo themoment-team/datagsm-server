@@ -277,7 +277,7 @@ class CreateClubServiceTest :
                             entity.apply { this.id = 10L }
                         }
                         every { mockStudentRepository.findAllById(emptyList()) } returns emptyList()
-                        every { mockClubRepository.findAllByLeader(mockLeader) } returns listOf(otherClub)
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns listOf(otherClub)
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 

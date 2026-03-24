@@ -88,7 +88,7 @@ class ModifyClubServiceTest :
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId!!) } returns Optional.of(newLeader)
                         every { mockStudentRepository.findAllById(any<Iterable<Long>>()) } returns emptyList()
-                        every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns emptyList()
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
@@ -123,7 +123,7 @@ class ModifyClubServiceTest :
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId!!) } returns Optional.of(oldLeader)
                         every { mockStudentRepository.findAllById(any<Iterable<Long>>()) } returns emptyList()
-                        every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns emptyList()
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
@@ -221,7 +221,7 @@ class ModifyClubServiceTest :
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId!!) } returns Optional.of(newLeader)
                         every { mockStudentRepository.findAllById(listOf(30L)) } returns emptyList()
-                        every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns emptyList()
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
@@ -270,7 +270,7 @@ class ModifyClubServiceTest :
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId!!) } returns Optional.of(newLeader)
                         every { mockStudentRepository.findAllById(listOf(30L)) } returns listOf(participant)
-                        every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns emptyList()
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
@@ -320,7 +320,7 @@ class ModifyClubServiceTest :
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId!!) } returns Optional.of(newLeader)
                         every { mockStudentRepository.findAllById(listOf(30L)) } returns listOf(participant)
-                        every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns emptyList()
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
@@ -368,7 +368,7 @@ class ModifyClubServiceTest :
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId!!) } returns Optional.of(newLeader)
                         every { mockStudentRepository.findAllById(listOf(30L)) } returns emptyList()
-                        every { mockClubRepository.findAllByLeader(newLeader) } returns listOf(otherClub)
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns listOf(otherClub)
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
@@ -377,7 +377,7 @@ class ModifyClubServiceTest :
                         modifyClubService.execute(clubId, req)
 
                         otherClub.leader shouldBe null
-                        verify { mockClubRepository.findAllByLeader(newLeader) }
+                        verify { mockClubRepository.findAllByLeaderIn(any()) }
                     }
                 }
 

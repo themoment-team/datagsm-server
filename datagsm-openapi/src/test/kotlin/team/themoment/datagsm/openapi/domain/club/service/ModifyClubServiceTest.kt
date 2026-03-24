@@ -314,7 +314,7 @@ class ModifyClubServiceTest :
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId!!) } returns java.util.Optional.of(newLeader)
                         every { mockStudentRepository.findAllById(listOf(300L)) } returns emptyList()
-                        every { mockClubRepository.findAllByLeader(newLeader) } returns listOf(otherClub)
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns listOf(otherClub)
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
@@ -323,7 +323,7 @@ class ModifyClubServiceTest :
                         modifyClubService.execute(clubId, req)
 
                         otherClub.leader shouldBe null
-                        verify { mockClubRepository.findAllByLeader(newLeader) }
+                        verify { mockClubRepository.findAllByLeaderIn(any()) }
                     }
                 }
 
