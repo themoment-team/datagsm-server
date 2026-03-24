@@ -104,6 +104,7 @@ sdk:
       - "/actuator/**"
       - "/v1/oauth/authorize"
       - "/v1/oauth/token"
+      - "/v1/oauth/jwks"
   swagger:
     enabled: true
     title: "DataGSM Authorization Server API"
