@@ -112,6 +112,7 @@ class CreateClubServiceTest :
                             entity.apply { this.id = 10L }
                         }
                         every { mockStudentRepository.findAllById(listOf(200L, 300L)) } returns listOf(participant1, participant2)
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns emptyList()
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
@@ -171,6 +172,7 @@ class CreateClubServiceTest :
                             entity.apply { this.id = 10L }
                         }
                         every { mockStudentRepository.findAllById(listOf(200L)) } returns listOf(participant)
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns emptyList()
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
@@ -222,6 +224,7 @@ class CreateClubServiceTest :
                             entity.apply { this.id = 10L }
                         }
                         every { mockStudentRepository.findAllById(listOf(200L)) } returns listOf(participant)
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns emptyList()
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
