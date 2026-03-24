@@ -7,6 +7,7 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.Index
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
@@ -17,7 +18,12 @@ import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import java.time.LocalDateTime
 
-@Table(name = "tb_account")
+@Table(
+    name = "tb_account",
+    indexes = [
+        Index(name = "idx_account_student_id", columnList = "student_id"),
+    ],
+)
 @Entity
 @DynamicUpdate
 class AccountJpaEntity {

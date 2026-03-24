@@ -6,6 +6,7 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.Index
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
@@ -15,7 +16,10 @@ import team.themoment.datagsm.common.global.converter.StringSetConverter
 import java.time.LocalDateTime
 import java.util.UUID
 
-@Table(name = "tb_api_key")
+@Table(
+    name = "tb_api_key",
+    indexes = [Index(name = "idx_api_key_expires_at", columnList = "expires_at")],
+)
 @Entity
 @DynamicUpdate
 class ApiKey {
@@ -37,7 +41,7 @@ class ApiKey {
     var expiresAt: LocalDateTime = LocalDateTime.now()
 
     @OneToOne
-    @JoinColumn(name = "account_id", nullable = false, referencedColumnName = "id")
+    @JoinColumn(name = "account_id", nullable = false, referencedColumnName = "id", unique = true)
     lateinit var account: AccountJpaEntity
 
     @Convert(converter = StringSetConverter::class)

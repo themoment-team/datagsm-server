@@ -4,13 +4,21 @@ import jakarta.persistence.Column
 import jakarta.persistence.Convert
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
+import jakarta.persistence.Index
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.global.converter.StringSetConverter
 
-@Table(name = "tb_client")
+@Table(
+    name = "tb_client",
+    indexes = [
+        Index(name = "idx_client_account_id", columnList = "account_id"),
+        Index(name = "idx_client_client_name", columnList = "client_name"),
+        Index(name = "idx_client_service_name", columnList = "service_name"),
+    ],
+)
 @Entity
 class ClientJpaEntity {
     @Id
