@@ -28,6 +28,9 @@ class CreateClubServiceImpl(
         if (clubReqDto.status == ClubStatus.ABOLISHED && clubReqDto.participantIds.isNotEmpty()) {
             throw ExpectedException("폐지된 동아리에는 구성원을 지정할 수 없습니다.", HttpStatus.BAD_REQUEST)
         }
+        if (clubReqDto.status == ClubStatus.ACTIVE && clubReqDto.leaderId == null && clubReqDto.participantIds.isEmpty()) {
+            throw ExpectedException("운영 중인 동아리에는 부장 또는 부원이 최소 1명 이상 있어야 합니다.", HttpStatus.BAD_REQUEST)
+        }
 
         if (clubJpaRepository.existsByName(clubReqDto.name)) {
             throw ExpectedException("이미 존재하는 동아리 이름입니다.", HttpStatus.CONFLICT)
@@ -69,12 +72,11 @@ class CreateClubServiceImpl(
         val savedClub = clubJpaRepository.save(clubEntity)
 
         if (leader != null) {
-            (listOf(leader) + participants).forEach { student ->
-                clubJpaRepository
-                    .findAllByLeader(student)
-                    .filter { it.type == clubReqDto.type && it.id != savedClub.id }
-                    .forEach { otherClub -> otherClub.leader = null }
-            }
+            val members = listOf(leader) + participants
+            clubJpaRepository
+                .findAllByLeaderIn(members)
+                .filter { it.type == clubReqDto.type && it.id != savedClub.id }
+                .forEach { otherClub -> otherClub.leader = null }
         }
 
         studentJpaRepository.bulkAssignClub(participantIdsForBulkAssign, savedClub, clubReqDto.type)

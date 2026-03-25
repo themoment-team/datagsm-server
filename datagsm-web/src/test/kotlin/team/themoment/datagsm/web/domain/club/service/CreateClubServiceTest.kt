@@ -113,7 +113,7 @@ class CreateClubServiceTest :
                             entity.apply { this.id = 10L }
                         }
                         every { mockStudentRepository.findAllById(listOf(200L, 300L)) } returns listOf(participant1, participant2)
-                        every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns emptyList()
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
@@ -173,7 +173,7 @@ class CreateClubServiceTest :
                             entity.apply { this.id = 10L }
                         }
                         every { mockStudentRepository.findAllById(listOf(200L)) } returns listOf(participant)
-                        every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns emptyList()
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
@@ -225,7 +225,7 @@ class CreateClubServiceTest :
                             entity.apply { this.id = 10L }
                         }
                         every { mockStudentRepository.findAllById(listOf(200L)) } returns listOf(participant)
-                        every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns emptyList()
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
@@ -281,7 +281,7 @@ class CreateClubServiceTest :
                             entity.apply { this.id = 10L }
                         }
                         every { mockStudentRepository.findAllById(emptyList()) } returns emptyList()
-                        every { mockClubRepository.findAllByLeader(mockLeader) } returns listOf(otherClub)
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns listOf(otherClub)
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
@@ -292,7 +292,7 @@ class CreateClubServiceTest :
                     }
                 }
 
-                context("findAllByLeader가 새로 생성한 동아리 자신을 반환하는 경우") {
+                context("findAllByLeaderIn이 새로 생성한 동아리 자신을 반환하는 경우") {
                     val req =
                         ClubReqDto(
                             name = "동아리F",
@@ -322,7 +322,7 @@ class CreateClubServiceTest :
                             entity.apply { this.id = 10L }.also { savedClubRef = it }
                         }
                         every { mockStudentRepository.findAllById(emptyList()) } returns emptyList()
-                        every { mockClubRepository.findAllByLeader(mockLeader) } answers { listOf(savedClubRef) }
+                        every { mockClubRepository.findAllByLeaderIn(any()) } answers { listOf(savedClubRef) }
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
 
@@ -370,6 +370,26 @@ class CreateClubServiceTest :
                         res.leader shouldBe null
                         verify(exactly = 0) { mockStudentRepository.findById(any()) }
                         verify(exactly = 1) { mockClubRepository.save(any()) }
+                    }
+                }
+
+                context("ACTIVE 상태이고 leaderId가 null이며 participantIds도 비어있을 때") {
+                    val req =
+                        ClubReqDto(
+                            name = "동아리H",
+                            type = ClubType.MAJOR_CLUB,
+                            leaderId = null,
+                            participantIds = emptyList(),
+                            foundedYear = 2022,
+                            status = ClubStatus.ACTIVE,
+                        )
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val ex =
+                            shouldThrow<ExpectedException> {
+                                createClubService.execute(req)
+                            }
+                        ex.message shouldBe "운영 중인 동아리에는 부장 또는 부원이 최소 1명 이상 있어야 합니다."
                     }
                 }
 

@@ -88,7 +88,7 @@ class ModifyClubServiceTest :
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId!!) } returns Optional.of(newLeader)
                         every { mockStudentRepository.findAllById(any<Iterable<Long>>()) } returns emptyList()
-                        every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns emptyList()
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
@@ -123,7 +123,7 @@ class ModifyClubServiceTest :
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId!!) } returns Optional.of(oldLeader)
                         every { mockStudentRepository.findAllById(any<Iterable<Long>>()) } returns emptyList()
-                        every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns emptyList()
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
@@ -221,7 +221,7 @@ class ModifyClubServiceTest :
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId!!) } returns Optional.of(newLeader)
                         every { mockStudentRepository.findAllById(listOf(30L)) } returns emptyList()
-                        every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns emptyList()
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
@@ -270,7 +270,7 @@ class ModifyClubServiceTest :
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId!!) } returns Optional.of(newLeader)
                         every { mockStudentRepository.findAllById(listOf(30L)) } returns listOf(participant)
-                        every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns emptyList()
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
@@ -320,7 +320,7 @@ class ModifyClubServiceTest :
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId!!) } returns Optional.of(newLeader)
                         every { mockStudentRepository.findAllById(listOf(30L)) } returns listOf(participant)
-                        every { mockClubRepository.findAllByLeader(any()) } returns emptyList()
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns emptyList()
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
@@ -368,7 +368,7 @@ class ModifyClubServiceTest :
                         every { mockClubRepository.existsByNameAndIdNot(req.name, clubId) } returns false
                         every { mockStudentRepository.findById(req.leaderId!!) } returns Optional.of(newLeader)
                         every { mockStudentRepository.findAllById(listOf(30L)) } returns emptyList()
-                        every { mockClubRepository.findAllByLeader(newLeader) } returns listOf(otherClub)
+                        every { mockClubRepository.findAllByLeaderIn(any()) } returns listOf(otherClub)
                         every { mockStudentRepository.clearClubReferencesByType(any(), any()) } just Runs
                         every { mockStudentRepository.bulkAssignClub(any(), any(), any()) } just Runs
                     }
@@ -377,7 +377,7 @@ class ModifyClubServiceTest :
                         modifyClubService.execute(clubId, req)
 
                         otherClub.leader shouldBe null
-                        verify { mockClubRepository.findAllByLeader(newLeader) }
+                        verify { mockClubRepository.findAllByLeaderIn(any()) }
                     }
                 }
 
@@ -445,6 +445,26 @@ class ModifyClubServiceTest :
                         res.leader shouldBe null
                         existing.leader shouldBe null
                         verify(exactly = 0) { mockStudentRepository.findById(any()) }
+                    }
+                }
+
+                context("ACTIVE 상태이고 leaderId가 null이며 participantIds도 비어있을 때") {
+                    val req =
+                        ClubReqDto(
+                            name = "기존동아리",
+                            type = ClubType.MAJOR_CLUB,
+                            leaderId = null,
+                            participantIds = emptyList(),
+                            foundedYear = 2022,
+                            status = ClubStatus.ACTIVE,
+                        )
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val ex =
+                            shouldThrow<ExpectedException> {
+                                modifyClubService.execute(clubId, req)
+                            }
+                        ex.message shouldBe "운영 중인 동아리에는 부장 또는 부원이 최소 1명 이상 있어야 합니다."
                     }
                 }
 
