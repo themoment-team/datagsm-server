@@ -1,7 +1,6 @@
 package team.themoment.datagsm.oauth.userinfo.global.security.jwt
 
 import io.jsonwebtoken.Claims
-import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
@@ -16,7 +15,6 @@ import java.security.KeyFactory
 import java.security.PublicKey
 import java.security.spec.X509EncodedKeySpec
 import java.util.Base64
-import java.util.Date
 
 @Component
 class JwtProvider(
@@ -33,18 +31,10 @@ class JwtProvider(
 
     fun getAuthentication(token: String): Authentication {
         val claims = parseClaims(token)
-        if (claims.expiration?.before(Date()) == true) {
-            throw ExpiredJwtException(null, claims, "JWT token has expired")
-        }
-
-        val scopes = getScopesFromClaims(claims)
         val email = claims.subject
         val clientId = getClientIdFromClaims(claims)
-
-        return OauthAuthenticationToken(
-            OauthUserPrincipal(email, clientId),
-            scopes,
-        )
+        val scopes = getScopesFromClaims(claims)
+        return OauthAuthenticationToken(OauthUserPrincipal(email, clientId), scopes)
     }
 
     private fun getScopesFromClaims(claims: Claims): Set<OAuthScope> {
