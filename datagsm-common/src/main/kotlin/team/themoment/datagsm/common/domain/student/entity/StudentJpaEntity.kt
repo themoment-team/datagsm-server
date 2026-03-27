@@ -56,6 +56,9 @@ class StudentJpaEntity {
     @field:Column(name = "specialty", nullable = true, length = 50)
     var specialty: String? = null
 
+    @field:Column(name = "github_id", nullable = true, length = 39)
+    var githubId: String? = null
+
     @field:JoinColumn(name = "major_club_id", nullable = true, referencedColumnName = "id")
     @field:ManyToOne(optional = true)
     var majorClub: ClubJpaEntity? = null

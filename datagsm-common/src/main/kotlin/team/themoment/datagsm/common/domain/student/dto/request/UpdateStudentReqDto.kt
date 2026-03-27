@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
@@ -46,4 +47,8 @@ data class UpdateStudentReqDto(
     @field:Size(max = 50)
     @param:Schema(description = "전공", example = "백엔드", maxLength = 50)
     val specialty: String? = null,
+    @field:Size(max = 39)
+    @field:Pattern(regexp = "^[a-zA-Z0-9]([a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$", message = "유효하지 않은 GitHub 아이디 형식입니다.")
+    @param:Schema(description = "GitHub 아이디", example = "torvalds", maxLength = 39)
+    val githubId: String? = null,
 )
