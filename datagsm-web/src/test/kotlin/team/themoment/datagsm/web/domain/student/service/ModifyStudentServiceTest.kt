@@ -515,6 +515,62 @@ class ModifyStudentServiceTest :
                         result.role shouldBe StudentRole.STUDENT_COUNCIL
                     }
                 }
+
+                context("githubId를 포함하여 수정할 때") {
+                    val updateRequest =
+                        UpdateStudentReqDto(
+                            name = "수정된이름",
+                            sex = Sex.MAN,
+                            email = "existing@gsm.hs.kr",
+                            grade = 2,
+                            classNum = 1,
+                            number = 5,
+                            role = StudentRole.GENERAL_STUDENT,
+                            dormitoryRoomNumber = 201,
+                            githubId = "torvalds",
+                        )
+
+                    beforeEach {
+                        every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
+                        every { mockStudentRepository.existsByStudentEmailAndNotId("existing@gsm.hs.kr", studentId) } returns false
+                        every { mockStudentRepository.existsByStudentNumberAndNotId(2, 1, 5, studentId) } returns false
+                    }
+
+                    it("githubId와 githubUrl이 응답에 포함되어야 한다") {
+                        val result = modifyStudentService.execute(studentId, updateRequest)
+
+                        result.githubId shouldBe "torvalds"
+                        result.githubUrl shouldBe "https://github.com/torvalds"
+                    }
+                }
+
+                context("githubId를 null로 설정하여 수정할 때") {
+                    val updateRequest =
+                        UpdateStudentReqDto(
+                            name = "수정된이름",
+                            sex = Sex.MAN,
+                            email = "existing@gsm.hs.kr",
+                            grade = 2,
+                            classNum = 1,
+                            number = 5,
+                            role = StudentRole.GENERAL_STUDENT,
+                            dormitoryRoomNumber = 201,
+                            githubId = null,
+                        )
+
+                    beforeEach {
+                        every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
+                        every { mockStudentRepository.existsByStudentEmailAndNotId("existing@gsm.hs.kr", studentId) } returns false
+                        every { mockStudentRepository.existsByStudentNumberAndNotId(2, 1, 5, studentId) } returns false
+                    }
+
+                    it("githubId와 githubUrl이 null이어야 한다") {
+                        val result = modifyStudentService.execute(studentId, updateRequest)
+
+                        result.githubId shouldBe null
+                        result.githubUrl shouldBe null
+                    }
+                }
             }
         }
     })
