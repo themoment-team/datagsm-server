@@ -60,6 +60,7 @@ class ModifyStudentServiceImpl(
         student.studentNumber = StudentNumber(reqDto.grade, reqDto.classNum, reqDto.number)
         student.major = major
         student.specialty = reqDto.specialty
+        student.githubId = reqDto.githubId
         student.role = reqDto.role
         student.dormitoryRoomNumber = DormitoryRoomNumber(reqDto.dormitoryRoomNumber)
         val clubIds = listOfNotNull(reqDto.majorClubId, reqDto.autonomousClubId)
@@ -93,6 +94,8 @@ class ModifyStudentServiceImpl(
             dormitoryRoom = student.dormitoryRoomNumber?.dormitoryRoomNumber,
             majorClub = student.majorClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             autonomousClub = student.autonomousClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
+            githubId = student.githubId,
+            githubUrl = student.githubId?.let { "https://github.com/$it" },
         )
     }
 }
