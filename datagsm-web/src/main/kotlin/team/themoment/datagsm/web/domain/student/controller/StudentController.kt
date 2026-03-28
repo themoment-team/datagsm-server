@@ -27,12 +27,14 @@ import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentSta
 import team.themoment.datagsm.common.domain.student.dto.response.GraduateStudentResDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentListResDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
+import team.themoment.datagsm.web.domain.student.dto.request.UpdateMyGithubIdReqDto
 import team.themoment.datagsm.web.domain.student.dto.request.UpdateMySpecialtyReqDto
 import team.themoment.datagsm.web.domain.student.service.BatchOperationService
 import team.themoment.datagsm.web.domain.student.service.CreateStudentExcelService
 import team.themoment.datagsm.web.domain.student.service.CreateStudentService
 import team.themoment.datagsm.web.domain.student.service.GraduateStudentService
 import team.themoment.datagsm.web.domain.student.service.GraduateThirdGradeStudentsService
+import team.themoment.datagsm.web.domain.student.service.ModifyMyGithubIdService
 import team.themoment.datagsm.web.domain.student.service.ModifyMySpecialtyService
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentExcelService
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentService
@@ -55,6 +57,7 @@ class StudentController(
     private val modifyStudentStatusService: ModifyStudentStatusService,
     private val batchOperationService: BatchOperationService,
     private val modifyMySpecialtyService: ModifyMySpecialtyService,
+    private val modifyMyGithubIdService: ModifyMyGithubIdService,
 ) {
     @Operation(summary = "학생 정보 조회", description = "필터 조건에 맞는 학생 정보를 조회합니다.")
     @ApiResponses(
@@ -196,5 +199,19 @@ class StudentController(
         @RequestBody @Valid reqDto: UpdateMySpecialtyReqDto,
     ) {
         modifyMySpecialtyService.execute(reqDto)
+    }
+
+    @Operation(summary = "내 GitHub 아이디 수정", description = "로그인한 학생 본인의 GitHub 아이디를 수정합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "수정 성공"),
+            ApiResponse(responseCode = "403", description = "학생 정보가 연결되지 않은 계정", content = [Content()]),
+        ],
+    )
+    @PatchMapping("/me/github-id")
+    fun updateMyGithubId(
+        @RequestBody @Valid reqDto: UpdateMyGithubIdReqDto,
+    ) {
+        modifyMyGithubIdService.execute(reqDto)
     }
 }

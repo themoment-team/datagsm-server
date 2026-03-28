@@ -57,6 +57,8 @@ class QueryStudentServiceImpl(
                         dormitoryRoom = entity.dormitoryRoomNumber?.dormitoryRoomNumber,
                         majorClub = entity.majorClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
                         autonomousClub = entity.autonomousClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
+                        githubId = entity.githubId,
+                        githubUrl = entity.githubId?.let { "https://github.com/$it" },
                     )
                 },
         )

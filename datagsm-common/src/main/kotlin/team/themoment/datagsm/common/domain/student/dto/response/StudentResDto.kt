@@ -37,4 +37,8 @@ data class StudentResDto(
     val majorClub: ClubSummaryDto?,
     @field:Schema(description = "자율 동아리")
     val autonomousClub: ClubSummaryDto?,
+    @field:Schema(description = "GitHub 아이디", example = "torvalds")
+    val githubId: String?,
+    @field:Schema(description = "GitHub 프로필 URL", example = "https://github.com/torvalds")
+    val githubUrl: String?,
 )

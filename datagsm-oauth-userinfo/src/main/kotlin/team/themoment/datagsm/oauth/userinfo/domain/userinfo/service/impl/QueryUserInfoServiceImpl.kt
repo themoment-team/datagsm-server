@@ -46,5 +46,7 @@ class QueryUserInfoServiceImpl(
             dormitoryRoom = student.dormitoryRoomNumber?.dormitoryRoomNumber,
             majorClub = student.majorClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             autonomousClub = student.autonomousClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
+            githubId = student.githubId,
+            githubUrl = student.githubId?.let { "https://github.com/$it" },
         )
 }
