@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentSortBy
@@ -22,6 +23,8 @@ interface StudentJpaCustomRepository {
         role: StudentRole?,
         dormitoryRoom: Int?,
         specialty: String? = null,
+        major: Major? = null,
+        githubId: String? = null,
         includeGraduates: Boolean = false,
         includeWithdrawn: Boolean = false,
         onlyEnrolled: Boolean = false,
@@ -84,6 +87,8 @@ interface StudentJpaCustomRepository {
         role: StudentRole?,
         dormitoryRoom: Int?,
         specialty: String? = null,
+        major: Major? = null,
+        githubId: String? = null,
         includeGraduates: Boolean = false,
         includeWithdrawn: Boolean = false,
         onlyEnrolled: Boolean = false,

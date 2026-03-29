@@ -28,6 +28,8 @@ class QueryStudentServiceImpl(
                 role = queryReq.role,
                 dormitoryRoom = queryReq.dormitoryRoom,
                 specialty = queryReq.specialty,
+                major = queryReq.major,
+                githubId = queryReq.githubId,
                 includeGraduates = queryReq.includeGraduates,
                 includeWithdrawn = queryReq.includeWithdrawn,
                 onlyEnrolled = queryReq.onlyEnrolled,

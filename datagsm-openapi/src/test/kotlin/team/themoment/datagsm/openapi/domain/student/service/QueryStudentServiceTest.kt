@@ -315,6 +315,127 @@ class QueryStudentServiceTest :
                     }
                 }
 
+                context("major 필터로 조회할 때") {
+                    beforeEach {
+                        every {
+                            mockStudentRepository.searchRegisteredStudentsWithPaging(
+                                id = null,
+                                name = null,
+                                email = null,
+                                grade = null,
+                                classNum = null,
+                                number = null,
+                                sex = null,
+                                role = null,
+                                dormitoryRoom = null,
+                                major = Major.SW_DEVELOPMENT,
+                                includeGraduates = false,
+                                includeWithdrawn = false,
+                                onlyEnrolled = false,
+                                pageable = PageRequest.of(0, 300),
+                                sortBy = any(),
+                                sortDirection = any(),
+                            )
+                        } returns PageImpl(listOf(testStudent), PageRequest.of(0, 300), 1L)
+                    }
+
+                    it("major 파라미터가 repository에 전달되어야 한다") {
+                        val queryReq = QueryStudentReqDto(major = Major.SW_DEVELOPMENT)
+                        val result = queryStudentService.execute(queryReq)
+
+                        result.totalElements shouldBe 1L
+                        result.students[0].major shouldBe Major.SW_DEVELOPMENT
+
+                        verify(exactly = 1) {
+                            mockStudentRepository.searchRegisteredStudentsWithPaging(
+                                id = null,
+                                name = null,
+                                email = null,
+                                grade = null,
+                                classNum = null,
+                                number = null,
+                                sex = null,
+                                role = null,
+                                dormitoryRoom = null,
+                                major = Major.SW_DEVELOPMENT,
+                                includeGraduates = false,
+                                includeWithdrawn = false,
+                                onlyEnrolled = false,
+                                pageable = PageRequest.of(0, 300),
+                                sortBy = any(),
+                                sortDirection = any(),
+                            )
+                        }
+                    }
+                }
+
+                context("githubId 필터로 조회할 때") {
+                    val studentWithGithub =
+                        StudentJpaEntity().apply {
+                            id = 3L
+                            name = "이민준"
+                            sex = Sex.MAN
+                            email = "lee@gsm.hs.kr"
+                            studentNumber = StudentNumber(2, 1, 5)
+                            major = Major.AI
+                            role = StudentRole.GENERAL_STUDENT
+                            githubId = "snowykte0426"
+                        }
+
+                    beforeEach {
+                        every {
+                            mockStudentRepository.searchRegisteredStudentsWithPaging(
+                                id = null,
+                                name = null,
+                                email = null,
+                                grade = null,
+                                classNum = null,
+                                number = null,
+                                sex = null,
+                                role = null,
+                                dormitoryRoom = null,
+                                githubId = "snowy",
+                                includeGraduates = false,
+                                includeWithdrawn = false,
+                                onlyEnrolled = false,
+                                pageable = PageRequest.of(0, 300),
+                                sortBy = any(),
+                                sortDirection = any(),
+                            )
+                        } returns PageImpl(listOf(studentWithGithub), PageRequest.of(0, 300), 1L)
+                    }
+
+                    it("githubId 파라미터가 repository에 전달되어야 한다") {
+                        val queryReq = QueryStudentReqDto(githubId = "snowy")
+                        val result = queryStudentService.execute(queryReq)
+
+                        result.totalElements shouldBe 1L
+                        result.students[0].githubId shouldBe "snowykte0426"
+                        result.students[0].githubUrl shouldBe "https://github.com/snowykte0426"
+
+                        verify(exactly = 1) {
+                            mockStudentRepository.searchRegisteredStudentsWithPaging(
+                                id = null,
+                                name = null,
+                                email = null,
+                                grade = null,
+                                classNum = null,
+                                number = null,
+                                sex = null,
+                                role = null,
+                                dormitoryRoom = null,
+                                githubId = "snowy",
+                                includeGraduates = false,
+                                includeWithdrawn = false,
+                                onlyEnrolled = false,
+                                pageable = PageRequest.of(0, 300),
+                                sortBy = any(),
+                                sortDirection = any(),
+                            )
+                        }
+                    }
+                }
+
                 context("onlyEnrolled = true로 조회할 때") {
                     beforeEach {
                         every {
