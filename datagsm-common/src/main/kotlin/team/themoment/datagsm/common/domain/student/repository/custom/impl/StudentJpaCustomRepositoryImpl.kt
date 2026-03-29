@@ -13,6 +13,7 @@ import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.student.entity.QStudentJpaEntity.Companion.studentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentSortBy
@@ -34,6 +35,8 @@ class StudentJpaCustomRepositoryImpl(
         role: StudentRole?,
         dormitoryRoom: Int?,
         specialty: String?,
+        major: Major?,
+        githubId: String?,
         includeGraduates: Boolean,
         includeWithdrawn: Boolean,
         onlyEnrolled: Boolean,
@@ -58,7 +61,9 @@ class StudentJpaCustomRepositoryImpl(
                     sex?.let { studentJpaEntity.sex.eq(it) },
                     role?.let { studentJpaEntity.role.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
-                    specialty?.let { studentJpaEntity.specialty.eq(it) },
+                    specialty?.let { studentJpaEntity.specialty.contains(it) },
+                    major?.let { studentJpaEntity.major.eq(it) },
+                    githubId?.let { studentJpaEntity.githubId.contains(it) },
                     if (!onlyEnrolled && !includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
                     if (!onlyEnrolled && !includeWithdrawn) studentJpaEntity.role.ne(StudentRole.WITHDRAWN) else null,
                     if (onlyEnrolled) studentJpaEntity.role.notIn(StudentRole.GRADUATE, StudentRole.WITHDRAWN) else null,
@@ -98,7 +103,9 @@ class StudentJpaCustomRepositoryImpl(
                     sex?.let { studentJpaEntity.sex.eq(it) },
                     role?.let { studentJpaEntity.role.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
-                    specialty?.let { studentJpaEntity.specialty.eq(it) },
+                    specialty?.let { studentJpaEntity.specialty.contains(it) },
+                    major?.let { studentJpaEntity.major.eq(it) },
+                    githubId?.let { studentJpaEntity.githubId.contains(it) },
                     if (!onlyEnrolled && !includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
                     if (!onlyEnrolled && !includeWithdrawn) studentJpaEntity.role.ne(StudentRole.WITHDRAWN) else null,
                     if (onlyEnrolled) studentJpaEntity.role.notIn(StudentRole.GRADUATE, StudentRole.WITHDRAWN) else null,
@@ -281,6 +288,8 @@ class StudentJpaCustomRepositoryImpl(
         role: StudentRole?,
         dormitoryRoom: Int?,
         specialty: String?,
+        major: Major?,
+        githubId: String?,
         includeGraduates: Boolean,
         includeWithdrawn: Boolean,
         onlyEnrolled: Boolean,
@@ -307,7 +316,9 @@ class StudentJpaCustomRepositoryImpl(
                     sex?.let { studentJpaEntity.sex.eq(it) },
                     role?.let { studentJpaEntity.role.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
-                    specialty?.let { studentJpaEntity.specialty.eq(it) },
+                    specialty?.let { studentJpaEntity.specialty.contains(it) },
+                    major?.let { studentJpaEntity.major.eq(it) },
+                    githubId?.let { studentJpaEntity.githubId.contains(it) },
                     if (!onlyEnrolled && !includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
                     if (!onlyEnrolled && !includeWithdrawn) studentJpaEntity.role.ne(StudentRole.WITHDRAWN) else null,
                     if (onlyEnrolled) studentJpaEntity.role.notIn(StudentRole.GRADUATE, StudentRole.WITHDRAWN) else null,
@@ -349,7 +360,9 @@ class StudentJpaCustomRepositoryImpl(
                     sex?.let { studentJpaEntity.sex.eq(it) },
                     role?.let { studentJpaEntity.role.eq(it) },
                     dormitoryRoom?.let { studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber.eq(it) },
-                    specialty?.let { studentJpaEntity.specialty.eq(it) },
+                    specialty?.let { studentJpaEntity.specialty.contains(it) },
+                    major?.let { studentJpaEntity.major.eq(it) },
+                    githubId?.let { studentJpaEntity.githubId.contains(it) },
                     if (!onlyEnrolled && !includeGraduates) studentJpaEntity.role.ne(StudentRole.GRADUATE) else null,
                     if (!onlyEnrolled && !includeWithdrawn) studentJpaEntity.role.ne(StudentRole.WITHDRAWN) else null,
                     if (onlyEnrolled) studentJpaEntity.role.notIn(StudentRole.GRADUATE, StudentRole.WITHDRAWN) else null,
