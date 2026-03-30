@@ -12,18 +12,14 @@ BASE=$(gh pr view "$PR_NUMBER" --json baseRefName -q .baseRefName)
 
 mkdir -p .pr-tmp
 
-# Inline review comments only (not issue-level comments)
 gh api "repos/$REPO/pulls/$PR_NUMBER/comments" \
   --jq '[.[] | {id, path, line, body, user: .user.login}]' \
   > .pr-tmp/pr_comments.json
 
-# Commits in this PR
 git log "origin/$BASE..HEAD" --pretty=format:"%H %h %s" > .pr-tmp/pr_commits.txt
 
-# Changed files
 git diff "origin/$BASE...HEAD" --name-only > .pr-tmp/pr_changed_files.txt
 
-# Full diff
 git diff "origin/$BASE...HEAD" > .pr-tmp/pr_diff.txt
 
 echo "PR #$PR_NUMBER | Repo: $REPO | Base: $BASE"

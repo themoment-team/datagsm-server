@@ -10,21 +10,20 @@ if [ ! -f "$BODY_FILE" ]; then
   exit 1
 fi
 
-# Detect base branch from remote tracking info, fallback to develop
-BASE=$(git for-each-ref --format='%(upstream:short)' "$(git symbolic-ref HEAD)" 2>/dev/null \
-  | cut -d'/' -f2- \
-  | xargs git log --format='%D' 2>/dev/null \
-  | grep -oE 'origin/[^ ,]+' | head -1 | sed 's|origin/||' \
-  || echo "develop")
+CURRENT=$(git branch --show-current)
+case "$CURRENT" in
+  feature/*)  BASE="develop" ;;
+  develop)    BASE="master" ;;
+  *)          BASE=$(gh pr view --json baseRefName -q .baseRefName 2>/dev/null || echo "develop") ;;
+esac
 
-# Build gh pr create args array
 ARGS=(gh pr create --title "$TITLE" --body-file "$BODY_FILE" --base "$BASE")
 
 if [ -n "$LABELS" ]; then
   IFS=',' read -ra LABEL_ARRAY <<< "$LABELS"
   for label in "${LABEL_ARRAY[@]}"; do
-    trimmed="${label#"${label%%[![:space:]]*}"}"  # trim leading space
-    trimmed="${trimmed%"${trimmed##*[![:space:]]}"}"  # trim trailing space
+    trimmed="${label#"${label%%[![:space:]]*}"}"
+    trimmed="${trimmed%"${trimmed##*[![:space:]]}"}"
     [ -n "$trimmed" ] && ARGS+=(--label "$trimmed")
   done
 fi
