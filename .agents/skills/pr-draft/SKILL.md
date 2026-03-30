@@ -1,6 +1,6 @@
 ---
 name: pr-draft
-description: Generate PR body and title suggestions based on commits diff from develop branch
+description: Generate PR title suggestions and a Korean formal-style PR body based on commits since the base branch. Writes output to PR_BODY.md.
 ---
 
 ## Context gathering

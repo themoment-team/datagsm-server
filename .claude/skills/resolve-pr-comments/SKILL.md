@@ -1,6 +1,7 @@
 ---
 name: resolve-pr-comments
 description: For each inline PR review comment, judge whether it has been resolved in the current branch diff and reply with the resolving commit hash. Use after addressing PR feedback.
+allowed-tools: Bash(bash *get-pr-data.sh:*), Bash(gh api:*), Bash(gh pr view:*), Bash(gh repo:*), Bash(git log:*), Bash(rm:*), Read
 ---
 
 ## Step 1 — Collect PR Data

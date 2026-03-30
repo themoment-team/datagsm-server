@@ -1,6 +1,7 @@
 ---
+name: plan-deep-dive
 argument-hint: [instructions]
-description: Interview user in-depth to create a detailed spec
+description: Conduct an in-depth structured interview with the user to uncover non-obvious requirements, tradeoffs, and constraints, then produce a detailed implementation spec file.
 allowed-tools: AskUserQuestion, Write
 ---
 
