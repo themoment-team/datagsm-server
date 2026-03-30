@@ -9,8 +9,8 @@ Quick reference for all available skills. Claude loads skill details only when i
 | [commit](commit/SKILL.md) | Creating Git commits | Auto Git Flow: detects `develop` branch and checks out `feature/*` before committing |
 | [format](format/SKILL.md) | Formatting `.kt` files | Runs `./gradlew ktlintFormat` |
 | [test](test/SKILL.md) | Running tests | Scoped by class / module / all; analyzes failures |
-| [pr-draft](pr-draft/SKILL.md) | Writing PR title & body | Generates 3 title options + Korean formal-style body in `PR_BODY.md` |
-| [resolve-pr-comments](resolve-pr-comments/SKILL.md) | Replying to PR review comments | Judges resolution from diff and posts commit hash replies. Script: [get-pr-data.sh](resolve-pr-comments/get-pr-data.sh) |
+| [pr-draft](pr-draft/SKILL.md) | Creating PRs end-to-end | Generates titles, body, selects labels, creates PR. Labels: [references/labels.md](pr-draft/references/labels.md) |
+| [resolve-pr-comments](resolve-pr-comments/SKILL.md) | Replying to PR review comments | Judges resolution from diff and posts commit hash replies. Script: [scripts/get-pr-data.sh](resolve-pr-comments/scripts/get-pr-data.sh) |
 
 ## Reference Skills (loaded on demand)
 

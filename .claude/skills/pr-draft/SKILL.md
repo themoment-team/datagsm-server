@@ -1,50 +1,66 @@
 ---
 name: pr-draft
-description: Generate PR title suggestions and a Korean formal-style PR body based on commits since the base branch. Writes output to PR_BODY.md.
-allowed-tools: Bash, Read, Write
+description: Generate PR title, body, and labels from commits since the base branch, then create the PR on GitHub. Handles base branch detection, label selection, and PR creation end-to-end.
+allowed-tools: Bash(git *:*), Bash(bash *create-pr.sh:*), Bash(cat *:*), Read, Write
 ---
 
-## Gather Context
+## Step 1 — Gather Context
 
 ```bash
-# Get base branch and commits
-gh pr view --json baseRefName,number 2>/dev/null || git log --oneline -20
-git log origin/$(git log --oneline -1 | head -1)..HEAD --oneline 2>/dev/null || git log --oneline -10
+git branch --show-current
+git log origin/develop..HEAD --oneline 2>/dev/null || git log --oneline -15
 git diff origin/develop...HEAD --stat 2>/dev/null || git diff HEAD~5...HEAD --stat
+git diff origin/develop...HEAD 2>/dev/null || git diff HEAD~5...HEAD
 ```
 
-## PR Title
+Also read the PR template:
 
-Generate **3 title suggestions** in the format `[scope] description`:
-
-- Scope: domain name (e.g., `[student]`, `[auth]`)
-- Description: concise, in Korean
-- Max 50 characters total
-
-## PR Body
-
-Write to `PR_BODY.md` using the following template (Korean 합쇼체, max 2500 characters):
-
-```markdown
-## 개요
-
-<!-- 변경 사유와 목적을 1-3문장으로 작성 -->
-
-## 변경 사항
-
-<!-- 주요 변경 내용을 불릿으로 작성 -->
--
-
-## 테스트
-
-<!-- 테스트 방법 또는 테스트 케이스 -->
-- [ ]
-
-## 참고 사항
-
-<!-- 리뷰어가 알아야 할 사항 (선택) -->
+```bash
+cat .github/PULL_REQUEST_TEMPLATE.md
 ```
 
-Use formal endings: `~하였습니다`, `~되었습니다`, `~추가하였습니다`.
+## Step 2 — Determine Labels
 
-After writing the file, display the 3 title suggestions and the path to `PR_BODY.md`.
+Read `${CLAUDE_SKILL_DIR}/references/labels.md` and select 1–2 appropriate labels based on the nature of the changes.
+
+## Step 3 — Generate PR Content
+
+**Title** — Generate 3 options in the format `[scope] description`:
+- Scope: domain name (`[student]`, `[auth]`, `[club]`, etc.) or `[global]` / `[ci/cd]` for cross-cutting changes
+- Description: Korean, concise, no emojis, max 50 characters total
+- Mark the best option with `← 추천`
+
+**Body** — Follow the `.github/PULL_REQUEST_TEMPLATE.md` structure:
+- Korean 합쇼체: `~하였습니다`, `~되었습니다`, `~추가하였습니다`
+- No emojis
+- Max 2500 characters
+
+## Step 4 — Write Body & Show Preview
+
+Write the body to `PR_BODY.md`, then display:
+
+```
+## 추천 PR 제목
+1. [title1]
+2. [title2]
+3. [title3] ← 추천
+
+## 선택된 라벨
+- label1, label2
+
+## PR 본문 미리보기
+[body content]
+```
+
+Ask the user to confirm which title to use. If no answer is given, proceed with the recommended (marked) title.
+
+## Step 5 — Create PR
+
+Run the creation script with the confirmed title and labels:
+
+```bash
+bash "${CLAUDE_SKILL_DIR}/scripts/create-pr.sh" "<confirmed-title>" "PR_BODY.md" "<label1>,<label2>"
+```
+
+After creation, display the PR URL.
+Cleanup: remove `PR_BODY.md`.
