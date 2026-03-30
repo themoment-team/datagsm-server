@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Positive
+import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentSortBy
@@ -37,6 +38,10 @@ data class QueryStudentReqDto(
     val dormitoryRoom: Int? = null,
     @param:Schema(description = "전공")
     val specialty: String? = null,
+    @param:Schema(description = "학과")
+    val major: Major? = null,
+    @param:Schema(description = "GitHub ID")
+    val githubId: String? = null,
     @param:Schema(description = "졸업생 포함 여부", defaultValue = "false")
     val includeGraduates: Boolean = false,
     @param:Schema(description = "자퇴생 포함 여부", defaultValue = "false")

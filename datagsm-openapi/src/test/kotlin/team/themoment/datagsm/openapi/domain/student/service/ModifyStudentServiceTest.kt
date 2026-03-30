@@ -246,6 +246,49 @@ class ModifyStudentServiceTest :
                         verify(exactly = 0) { mockStudentRepository.existsByStudentEmailAndNotId(any(), any()) }
                     }
                 }
+
+                context("githubId를 포함하여 수정할 때") {
+                    val studentId = 8L
+                    lateinit var existingStudent: StudentJpaEntity
+                    val req =
+                        UpdateStudentReqDto(
+                            name = "수정된이름",
+                            sex = Sex.WOMAN,
+                            email = "updated@gsm.hs.kr",
+                            grade = 3,
+                            classNum = 2,
+                            number = 15,
+                            role = StudentRole.GENERAL_STUDENT,
+                            githubId = "torvalds",
+                        )
+
+                    beforeEach {
+                        existingStudent =
+                            StudentJpaEntity().apply {
+                                this.id = studentId
+                                name = "기존이름"
+                                sex = Sex.MAN
+                                email = "old@gsm.hs.kr"
+                                studentNumber = StudentNumber(2, 1, 10)
+                                role = StudentRole.GENERAL_STUDENT
+                            }
+
+                        every { mockStudentRepository.findById(studentId) } returns Optional.of(existingStudent)
+                        every {
+                            mockStudentRepository.existsByStudentEmailAndNotId(req.email, studentId)
+                        } returns false
+                        every {
+                            mockStudentRepository.existsByStudentNumberAndNotId(req.grade, req.classNum, req.number, studentId)
+                        } returns false
+                    }
+
+                    it("githubId와 githubUrl이 응답에 포함되어야 한다") {
+                        val res = modifyStudentService.execute(studentId, req)
+
+                        res.githubId shouldBe "torvalds"
+                        res.githubUrl shouldBe "https://github.com/torvalds"
+                    }
+                }
             }
         }
     })

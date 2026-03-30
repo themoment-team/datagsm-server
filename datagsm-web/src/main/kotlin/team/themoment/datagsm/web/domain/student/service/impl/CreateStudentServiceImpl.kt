@@ -109,6 +109,8 @@ class CreateStudentServiceImpl(
             dormitoryRoom = savedStudent.dormitoryRoomNumber?.dormitoryRoomNumber,
             majorClub = savedStudent.majorClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             autonomousClub = savedStudent.autonomousClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
+            githubId = savedStudent.githubId,
+            githubUrl = savedStudent.githubId?.let { "https://github.com/$it" },
         )
     }
 }

@@ -48,7 +48,7 @@ class SecurityConfig(
                 it
                     .requestMatchers(*AuthenticationPathConfig.PUBLIC_PATHS.toTypedArray())
                     .permitAll()
-                    .requestMatchers(HttpMethod.PATCH, "/v1/students/me/specialty")
+                    .requestMatchers(HttpMethod.PATCH, "/v1/students/me/specialty", "/v1/students/me/github-id")
                     .authenticated()
                     .requestMatchers(
                         "/v1/students/**",
