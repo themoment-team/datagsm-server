@@ -22,8 +22,7 @@ ARGS=(gh pr create --title "$TITLE" --body-file "$BODY_FILE" --base "$BASE")
 if [ -n "$LABELS" ]; then
   IFS=',' read -ra LABEL_ARRAY <<< "$LABELS"
   for label in "${LABEL_ARRAY[@]}"; do
-    trimmed="${label#"${label%%[![:space:]]*}"}"
-    trimmed="${trimmed%"${trimmed##*[![:space:]]}"}"
+    trimmed=$(echo "$label" | xargs)
     [ -n "$trimmed" ] && ARGS+=(--label "$trimmed")
   done
 fi
