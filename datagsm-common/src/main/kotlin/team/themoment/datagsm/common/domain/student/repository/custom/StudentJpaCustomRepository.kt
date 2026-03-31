@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
+import team.themoment.datagsm.common.domain.student.dto.internal.StudentBulkUpdateDto
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -62,6 +63,8 @@ interface StudentJpaCustomRepository {
     fun findAllStudents(): List<StudentJpaEntity>
 
     fun bulkUpdateEmails(emailUpdates: Map<Long, String>)
+
+    fun bulkUpdateStudentFields(updates: List<StudentBulkUpdateDto>)
 
     fun bulkClearClubReferences(clubs: List<ClubJpaEntity>)
 

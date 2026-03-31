@@ -12,7 +12,7 @@ import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelColumnDto
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelRowDto
-import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
+import team.themoment.datagsm.common.domain.student.dto.internal.StudentBulkUpdateDto
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
@@ -116,27 +116,34 @@ class ModifyStudentExcelServiceImpl(
                     .associateBy { it.name }
             }
 
-        excelData.forEach { dto ->
-            dto.number?.let { number ->
-                existingStudents.getValue(number).also { student ->
-                    student.name = dto.name
-                    student.major = dto.major
-                    student.majorClub =
+        val bulkUpdates =
+            excelData.mapNotNull { dto ->
+                dto.number?.let { number ->
+                    val student = existingStudents.getValue(number)
+                    val majorClub =
                         dto.majorClub?.let { clubName ->
                             existingMajorClubs[clubName]
                                 ?: throw ExpectedException("존재하지 않는 전공동아리입니다.", HttpStatus.BAD_REQUEST)
                         }
-                    student.autonomousClub =
+                    val autonomousClub =
                         dto.autonomousClub?.let { clubName ->
                             existingAutonomousClubs[clubName]
                                 ?: throw ExpectedException("존재하지 않는 창체동아리입니다.", HttpStatus.BAD_REQUEST)
                         }
-                    student.dormitoryRoomNumber = getDormitoryEmbedded(dto.dormitoryRoomNumber)
-                    student.role = dto.role
-                    student.sex = dto.sex
+                    StudentBulkUpdateDto(
+                        id = student.id!!,
+                        name = dto.name,
+                        major = dto.major,
+                        majorClub = majorClub,
+                        autonomousClub = autonomousClub,
+                        dormitoryRoomNumber = dto.dormitoryRoomNumber,
+                        role = dto.role,
+                        sex = dto.sex,
+                    )
                 }
             }
-        }
+
+        studentJpaRepository.bulkUpdateStudentFields(bulkUpdates)
 
         val emailUpdates =
             excelData
@@ -264,5 +271,4 @@ class ModifyStudentExcelServiceImpl(
         return studentNumber
     }
 
-    private fun getDormitoryEmbedded(room: Int?): DormitoryRoomNumber = DormitoryRoomNumber(room)
 }
