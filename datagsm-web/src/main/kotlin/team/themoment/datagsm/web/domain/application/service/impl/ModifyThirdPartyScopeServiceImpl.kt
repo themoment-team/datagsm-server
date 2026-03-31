@@ -6,14 +6,14 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.application.dto.request.ModifyThirdPartyScopeReqDto
 import team.themoment.datagsm.common.domain.application.dto.response.ApplicationResDto
-import team.themoment.datagsm.common.domain.application.repository.ThirdPartyScopeJpaRepository
+import team.themoment.datagsm.common.domain.application.repository.OAuthScopeJpaRepository
 import team.themoment.datagsm.web.domain.application.service.ModifyThirdPartyScopeService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
 class ModifyThirdPartyScopeServiceImpl(
-    private val thirdPartyScopeJpaRepository: ThirdPartyScopeJpaRepository,
+    private val oauthScopeJpaRepository: OAuthScopeJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
 ) : ModifyThirdPartyScopeService {
     @Transactional
@@ -23,7 +23,7 @@ class ModifyThirdPartyScopeServiceImpl(
         reqDto: ModifyThirdPartyScopeReqDto,
     ): ApplicationResDto {
         val scope =
-            thirdPartyScopeJpaRepository.findById(scopeId).orElseThrow {
+            oauthScopeJpaRepository.findById(scopeId).orElseThrow {
                 ExpectedException("ThirdPartyScope를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
             }
 
@@ -31,7 +31,7 @@ class ModifyThirdPartyScopeServiceImpl(
             throw ExpectedException("ThirdPartyScope를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
         }
 
-        thirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)?.let {
+        oauthScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)?.let {
             throw ExpectedException(
                 "${reqDto.scopeName}은 이미 사용 중인 권한 범위 명칭입니다.",
                 HttpStatus.CONFLICT,

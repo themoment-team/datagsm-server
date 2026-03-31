@@ -6,9 +6,9 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.application.dto.request.AddThirdPartyScopeReqDto
 import team.themoment.datagsm.common.domain.application.dto.response.ApplicationResDto
-import team.themoment.datagsm.common.domain.application.entity.ThirdPartyScopeJpaEntity
+import team.themoment.datagsm.common.domain.application.entity.OAuthScopeJpaEntity
 import team.themoment.datagsm.common.domain.application.repository.ApplicationJpaRepository
-import team.themoment.datagsm.common.domain.application.repository.ThirdPartyScopeJpaRepository
+import team.themoment.datagsm.common.domain.application.repository.OAuthScopeJpaRepository
 import team.themoment.datagsm.web.domain.application.service.AddThirdPartyScopeService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
@@ -16,7 +16,7 @@ import team.themoment.sdk.exception.ExpectedException
 @Service
 class AddThirdPartyScopeServiceImpl(
     private val applicationJpaRepository: ApplicationJpaRepository,
-    private val thirdPartyScopeJpaRepository: ThirdPartyScopeJpaRepository,
+    private val oauthScopeJpaRepository: OAuthScopeJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
 ) : AddThirdPartyScopeService {
     @Transactional
@@ -36,7 +36,7 @@ class AddThirdPartyScopeServiceImpl(
             throw ExpectedException("ThirdPartyScope 추가 권한이 없습니다.", HttpStatus.FORBIDDEN)
         }
 
-        thirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)?.let {
+        oauthScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)?.let {
             throw ExpectedException(
                 "${reqDto.scopeName}은 이미 사용 중인 권한 범위 명칭입니다.",
                 HttpStatus.CONFLICT,
@@ -44,14 +44,14 @@ class AddThirdPartyScopeServiceImpl(
         }
 
         val scope =
-            ThirdPartyScopeJpaEntity().apply {
+            OAuthScopeJpaEntity().apply {
                 scopeName = reqDto.scopeName
                 description = reqDto.description
                 this.application = application
             }
 
-        val savedScope = thirdPartyScopeJpaRepository.save(scope)
-        application.thirdPartyScopes.add(savedScope)
+        val savedScope = oauthScopeJpaRepository.save(scope)
+        application.oauthScopes.add(savedScope)
 
         return application.toResDto()
     }
