@@ -428,13 +428,20 @@ class StudentJpaCustomRepositoryImpl(
                     updates.map { it.id to it.dormitoryRoomNumber },
                     studentJpaEntity.dormitoryRoomNumber.dormitoryRoomNumber,
                 ),
-            )
-            .where(studentJpaEntity.id.`in`(ids))
+            ).where(studentJpaEntity.id.`in`(ids))
             .execute()
 
         // 동아리 FK 초기화 후 동아리별 그룹으로 재할당
-        jpaQueryFactory.update(studentJpaEntity).setNull(studentJpaEntity.majorClub).where(studentJpaEntity.id.`in`(ids)).execute()
-        jpaQueryFactory.update(studentJpaEntity).setNull(studentJpaEntity.autonomousClub).where(studentJpaEntity.id.`in`(ids)).execute()
+        jpaQueryFactory
+            .update(studentJpaEntity)
+            .setNull(studentJpaEntity.majorClub)
+            .where(studentJpaEntity.id.`in`(ids))
+            .execute()
+        jpaQueryFactory
+            .update(studentJpaEntity)
+            .setNull(studentJpaEntity.autonomousClub)
+            .where(studentJpaEntity.id.`in`(ids))
+            .execute()
 
         updates.filter { it.majorClub != null }.groupBy { it.majorClub!! }.forEach { (club, group) ->
             jpaQueryFactory
