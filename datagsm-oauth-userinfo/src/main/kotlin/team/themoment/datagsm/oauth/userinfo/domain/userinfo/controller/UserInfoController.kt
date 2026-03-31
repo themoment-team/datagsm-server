@@ -14,7 +14,7 @@ class UserInfoController(
     private val queryUserInfoService: QueryUserInfoService,
 ) {
     @GetMapping("/userinfo")
-    @PreAuthorize("hasAuthority('SCOPE_self:read')")
+    @PreAuthorize("hasAuthority('SCOPE_' + @oauthJwtVerificationEnvironment.datagsmApplicationId + ':self_read')")
     @Operation(
         summary = "사용자 정보 조회",
         description = "OAuth2 Access Token을 사용하여 현재 사용자 정보를 조회합니다.",
