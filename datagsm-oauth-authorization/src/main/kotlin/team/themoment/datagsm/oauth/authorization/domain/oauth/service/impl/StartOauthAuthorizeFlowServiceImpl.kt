@@ -46,10 +46,11 @@ class StartOauthAuthorizeFlowServiceImpl(
                 ?: throw OAuthException.InvalidRequest("지원하지 않는 code_challenge_method입니다.")
         }
 
-        val requestedScopes = reqDto.scope
-            ?.split(" ")
-            ?.filter { it.isNotBlank() }
-            ?.toSet()
+        val requestedScopes =
+            reqDto.scope
+                ?.split(" ")
+                ?.filter { it.isNotBlank() }
+                ?.toSet()
         val resolvedScopes = resolveScopes(requestedScopes, client.scopes)
 
         val token = UUID.randomUUID().toString()
