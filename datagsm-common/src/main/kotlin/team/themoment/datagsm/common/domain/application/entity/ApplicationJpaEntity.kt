@@ -25,5 +25,5 @@ class ApplicationJpaEntity {
     lateinit var account: AccountJpaEntity
 
     @OneToMany(mappedBy = "application", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var thirdPartyScopes: MutableList<ThirdPartyScopeJpaEntity> = mutableListOf()
+    var oauthScopes: MutableList<OAuthScopeJpaEntity> = mutableListOf()
 }

@@ -7,7 +7,7 @@ import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.application.entity.ApplicationJpaEntity
 import team.themoment.datagsm.common.domain.application.entity.QApplicationJpaEntity.Companion.applicationJpaEntity
-import team.themoment.datagsm.common.domain.application.entity.QThirdPartyScopeJpaEntity.Companion.thirdPartyScopeJpaEntity
+import team.themoment.datagsm.common.domain.application.entity.QOAuthScopeJpaEntity.Companion.oAuthScopeJpaEntity
 import team.themoment.datagsm.common.domain.application.repository.custom.ApplicationJpaCustomRepository
 
 @Repository
@@ -38,7 +38,7 @@ class ApplicationJpaCustomRepositoryImpl(
                     .selectFrom(applicationJpaEntity)
                     .leftJoin(applicationJpaEntity.account)
                     .fetchJoin()
-                    .leftJoin(applicationJpaEntity.thirdPartyScopes, thirdPartyScopeJpaEntity)
+                    .leftJoin(applicationJpaEntity.oauthScopes, oAuthScopeJpaEntity)
                     .fetchJoin()
                     .where(applicationJpaEntity.id.`in`(ids))
                     .fetch()
@@ -62,7 +62,7 @@ class ApplicationJpaCustomRepositoryImpl(
             .selectFrom(applicationJpaEntity)
             .leftJoin(applicationJpaEntity.account)
             .fetchJoin()
-            .leftJoin(applicationJpaEntity.thirdPartyScopes, thirdPartyScopeJpaEntity)
+            .leftJoin(applicationJpaEntity.oauthScopes, oAuthScopeJpaEntity)
             .fetchJoin()
             .fetch()
             .distinctBy { it.id }
