@@ -7,7 +7,6 @@ import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
-import team.themoment.datagsm.common.domain.client.entity.constant.ThirdPartyScope
 import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
 import team.themoment.datagsm.oauth.authorization.global.security.authentication.OauthAuthenticationToken
 import team.themoment.datagsm.oauth.authorization.global.security.authentication.principal.OauthUserPrincipal
@@ -125,8 +124,7 @@ class JwtProvider(
         return rawScopes
             .map { s ->
                 val scopeStr = s as String
-                OAuthScope.fromString(scopeStr)
-                    ?: ThirdPartyScope.fromScopeString(scopeStr)
+                OAuthScope.fromScopeString(scopeStr)
                     ?: throw ExpectedException("토큰에 잘못된 scope 권한 정보가 존재합니다.", HttpStatus.UNAUTHORIZED)
             }.toSet()
     }
