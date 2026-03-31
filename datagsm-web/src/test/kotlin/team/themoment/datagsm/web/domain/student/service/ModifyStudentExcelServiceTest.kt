@@ -9,6 +9,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import team.themoment.datagsm.common.domain.student.dto.internal.StudentBulkUpdateDto
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.springframework.http.HttpStatus
 import org.springframework.mock.web.MockMultipartFile
@@ -136,6 +137,7 @@ class ModifyStudentExcelServiceTest :
                             listOf(majorClub)
                         every { mockClubRepository.findAllByNameInAndType(listOf("창체동아리B"), ClubType.AUTONOMOUS_CLUB) } returns
                             listOf(autonomousClub)
+                        every { mockStudentRepository.bulkUpdateStudentFields(any<List<StudentBulkUpdateDto>>()) } just Runs
                         every { mockStudentRepository.bulkUpdateEmails(any()) } just Runs
                     }
 
@@ -145,11 +147,18 @@ class ModifyStudentExcelServiceTest :
                         result.message shouldBe "엑셀 업로드 성공"
                         result.code shouldBe HttpStatus.OK.value()
 
-                        existingStudent.name shouldBe "홍길동"
-                        existingStudent.major shouldBe Major.SW_DEVELOPMENT
-                        existingStudent.majorClub shouldBe majorClub
-                        existingStudent.sex shouldBe Sex.MAN
-
+                        verify {
+                            mockStudentRepository.bulkUpdateStudentFields(
+                                match { updates ->
+                                    updates.size == 1 &&
+                                        updates[0].id == 1L &&
+                                        updates[0].name == "홍길동" &&
+                                        updates[0].major == Major.SW_DEVELOPMENT &&
+                                        updates[0].majorClub == majorClub &&
+                                        updates[0].sex == Sex.MAN
+                                },
+                            )
+                        }
                         verify { mockStudentRepository.bulkUpdateEmails(match { it[1L] == "hong@gsm.hs.kr" }) }
                     }
                 }
