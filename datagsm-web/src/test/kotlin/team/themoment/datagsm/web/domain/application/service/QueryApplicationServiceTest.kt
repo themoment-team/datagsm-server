@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.application.entity.ApplicationJpaEntity
-import team.themoment.datagsm.common.domain.application.entity.ThirdPartyScopeJpaEntity
+import team.themoment.datagsm.common.domain.application.entity.OAuthScopeJpaEntity
 import team.themoment.datagsm.common.domain.application.repository.ApplicationJpaRepository
 import team.themoment.datagsm.web.domain.application.service.impl.QueryApplicationServiceImpl
 import team.themoment.sdk.exception.ExpectedException
@@ -42,7 +42,7 @@ class QueryApplicationServiceTest :
                     val applicationId = "app-uuid-1234"
 
                     val scope1 =
-                        ThirdPartyScopeJpaEntity().apply {
+                        OAuthScopeJpaEntity().apply {
                             id = 1L
                             scopeName = "profile"
                             description = "사용자 프로필 정보 조회"
@@ -53,7 +53,7 @@ class QueryApplicationServiceTest :
                             id = applicationId
                             name = "My Application"
                             account = ownerAccount
-                            thirdPartyScopes = mutableListOf(scope1)
+                            oauthScopes = mutableListOf(scope1)
                         }
                     scope1.application = application
 
@@ -83,7 +83,7 @@ class QueryApplicationServiceTest :
                             id = applicationId
                             name = "Empty Application"
                             account = ownerAccount
-                            thirdPartyScopes = mutableListOf()
+                            oauthScopes = mutableListOf()
                         }
 
                     beforeEach {

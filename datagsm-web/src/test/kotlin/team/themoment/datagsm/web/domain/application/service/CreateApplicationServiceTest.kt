@@ -94,7 +94,7 @@ class CreateApplicationServiceTest :
                         every { mockCurrentUserProvider.getCurrentAccount() } returns ownerAccount
                         every { mockApplicationJpaRepository.save(capture(savedApplicationSlot)) } answers {
                             val app = firstArg<ApplicationJpaEntity>()
-                            app.thirdPartyScopes.forEachIndexed { index, scope ->
+                            app.oauthScopes.forEachIndexed { index, scope ->
                                 if (scope.id == null) scope.id = (index + 1).toLong()
                             }
                             app
@@ -110,7 +110,7 @@ class CreateApplicationServiceTest :
                         result.scopes[1].scopeName shouldBe "email"
                         result.scopes[1].description shouldBe "이메일 주소 조회"
 
-                        savedApplicationSlot.captured.thirdPartyScopes.size shouldBe 2
+                        savedApplicationSlot.captured.oauthScopes.size shouldBe 2
                     }
                 }
 
@@ -210,7 +210,7 @@ class CreateApplicationServiceTest :
                         every { mockCurrentUserProvider.getCurrentAccount() } returns ownerAccount
                         every { mockApplicationJpaRepository.save(capture(savedApplicationSlot)) } answers {
                             val app = firstArg<ApplicationJpaEntity>()
-                            app.thirdPartyScopes.forEachIndexed { index, scope ->
+                            app.oauthScopes.forEachIndexed { index, scope ->
                                 if (scope.id == null) scope.id = (index + 1).toLong()
                             }
                             app
@@ -221,7 +221,7 @@ class CreateApplicationServiceTest :
                         shouldNotThrowAny { service.execute(reqDto) }
 
                         val savedApp = savedApplicationSlot.captured
-                        savedApp.thirdPartyScopes[0].application shouldBe savedApp
+                        savedApp.oauthScopes[0].application shouldBe savedApp
                     }
                 }
             }

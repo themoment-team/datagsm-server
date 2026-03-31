@@ -11,8 +11,8 @@ import org.springframework.http.HttpStatus
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.application.entity.ApplicationJpaEntity
-import team.themoment.datagsm.common.domain.application.entity.ThirdPartyScopeJpaEntity
-import team.themoment.datagsm.common.domain.application.repository.ThirdPartyScopeJpaRepository
+import team.themoment.datagsm.common.domain.application.entity.OAuthScopeJpaEntity
+import team.themoment.datagsm.common.domain.application.repository.OAuthScopeJpaRepository
 import team.themoment.datagsm.web.domain.application.service.impl.DeleteThirdPartyScopeServiceImpl
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
@@ -21,12 +21,12 @@ import java.util.Optional
 class DeleteThirdPartyScopeServiceTest :
     DescribeSpec({
 
-        val mockThirdPartyScopeJpaRepository = mockk<ThirdPartyScopeJpaRepository>()
+        val mockOauthScopeJpaRepository = mockk<OAuthScopeJpaRepository>()
         val mockCurrentUserProvider = mockk<CurrentUserProvider>()
 
         val service =
             DeleteThirdPartyScopeServiceImpl(
-                mockThirdPartyScopeJpaRepository,
+                mockOauthScopeJpaRepository,
                 mockCurrentUserProvider,
             )
 
@@ -55,7 +55,7 @@ class DeleteThirdPartyScopeServiceTest :
                     }
 
                 val scope =
-                    ThirdPartyScopeJpaEntity().apply {
+                    OAuthScopeJpaEntity().apply {
                         id = scopeId
                         scopeName = "profile"
                         description = "사용자 프로필 정보 조회"
@@ -64,17 +64,17 @@ class DeleteThirdPartyScopeServiceTest :
 
                 context("소유자가 스코프를 삭제할 때") {
                     beforeEach {
-                        every { mockThirdPartyScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
+                        every { mockOauthScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
                         every { mockCurrentUserProvider.getCurrentAccount() } returns ownerAccount
-                        every { mockThirdPartyScopeJpaRepository.delete(scope) } returns Unit
+                        every { mockOauthScopeJpaRepository.delete(scope) } returns Unit
                     }
 
                     it("스코프가 성공적으로 삭제되어야 한다") {
                         service.execute(applicationId, scopeId)
 
-                        verify(exactly = 1) { mockThirdPartyScopeJpaRepository.findById(scopeId) }
+                        verify(exactly = 1) { mockOauthScopeJpaRepository.findById(scopeId) }
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
-                        verify(exactly = 1) { mockThirdPartyScopeJpaRepository.delete(scope) }
+                        verify(exactly = 1) { mockOauthScopeJpaRepository.delete(scope) }
                     }
                 }
 
@@ -87,15 +87,15 @@ class DeleteThirdPartyScopeServiceTest :
                         }
 
                     beforeEach {
-                        every { mockThirdPartyScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
+                        every { mockOauthScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
                         every { mockCurrentUserProvider.getCurrentAccount() } returns adminAccount
-                        every { mockThirdPartyScopeJpaRepository.delete(scope) } returns Unit
+                        every { mockOauthScopeJpaRepository.delete(scope) } returns Unit
                     }
 
                     it("성공적으로 삭제되어야 한다") {
                         service.execute(applicationId, scopeId)
 
-                        verify(exactly = 1) { mockThirdPartyScopeJpaRepository.delete(scope) }
+                        verify(exactly = 1) { mockOauthScopeJpaRepository.delete(scope) }
                     }
                 }
 
@@ -108,15 +108,15 @@ class DeleteThirdPartyScopeServiceTest :
                         }
 
                     beforeEach {
-                        every { mockThirdPartyScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
+                        every { mockOauthScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
                         every { mockCurrentUserProvider.getCurrentAccount() } returns rootAccount
-                        every { mockThirdPartyScopeJpaRepository.delete(scope) } returns Unit
+                        every { mockOauthScopeJpaRepository.delete(scope) } returns Unit
                     }
 
                     it("성공적으로 삭제되어야 한다") {
                         service.execute(applicationId, scopeId)
 
-                        verify(exactly = 1) { mockThirdPartyScopeJpaRepository.delete(scope) }
+                        verify(exactly = 1) { mockOauthScopeJpaRepository.delete(scope) }
                     }
                 }
 
@@ -129,7 +129,7 @@ class DeleteThirdPartyScopeServiceTest :
                         }
 
                     beforeEach {
-                        every { mockThirdPartyScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
+                        every { mockOauthScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
                         every { mockCurrentUserProvider.getCurrentAccount() } returns otherAccount
                     }
 
@@ -142,7 +142,7 @@ class DeleteThirdPartyScopeServiceTest :
                         exception.statusCode shouldBe HttpStatus.FORBIDDEN
                         exception.message shouldBe "ThirdPartyScope 삭제 권한이 없습니다."
 
-                        verify(exactly = 0) { mockThirdPartyScopeJpaRepository.delete(any()) }
+                        verify(exactly = 0) { mockOauthScopeJpaRepository.delete(any()) }
                     }
                 }
 
@@ -150,7 +150,7 @@ class DeleteThirdPartyScopeServiceTest :
                     val nonExistingScopeId = 999L
 
                     beforeEach {
-                        every { mockThirdPartyScopeJpaRepository.findById(nonExistingScopeId) } returns Optional.empty()
+                        every { mockOauthScopeJpaRepository.findById(nonExistingScopeId) } returns Optional.empty()
                     }
 
                     it("404 NOT_FOUND 예외가 발생해야 한다") {
@@ -162,7 +162,7 @@ class DeleteThirdPartyScopeServiceTest :
                         exception.statusCode shouldBe HttpStatus.NOT_FOUND
                         exception.message shouldBe "ThirdPartyScope를 찾을 수 없습니다."
 
-                        verify(exactly = 0) { mockThirdPartyScopeJpaRepository.delete(any()) }
+                        verify(exactly = 0) { mockOauthScopeJpaRepository.delete(any()) }
                     }
                 }
 
@@ -175,7 +175,7 @@ class DeleteThirdPartyScopeServiceTest :
                         }
 
                     val scopeOfOtherApp =
-                        ThirdPartyScopeJpaEntity().apply {
+                        OAuthScopeJpaEntity().apply {
                             id = scopeId
                             scopeName = "profile"
                             description = "사용자 프로필 정보 조회"
@@ -183,7 +183,7 @@ class DeleteThirdPartyScopeServiceTest :
                         }
 
                     beforeEach {
-                        every { mockThirdPartyScopeJpaRepository.findById(scopeId) } returns Optional.of(scopeOfOtherApp)
+                        every { mockOauthScopeJpaRepository.findById(scopeId) } returns Optional.of(scopeOfOtherApp)
                     }
 
                     it("404 NOT_FOUND 예외가 발생해야 한다") {
@@ -195,7 +195,7 @@ class DeleteThirdPartyScopeServiceTest :
                         exception.statusCode shouldBe HttpStatus.NOT_FOUND
                         exception.message shouldBe "ThirdPartyScope를 찾을 수 없습니다."
 
-                        verify(exactly = 0) { mockThirdPartyScopeJpaRepository.delete(any()) }
+                        verify(exactly = 0) { mockOauthScopeJpaRepository.delete(any()) }
                     }
                 }
             }

@@ -10,7 +10,6 @@ import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.client.dto.request.ModifyClientReqDto
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
-import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.web.domain.client.service.impl.ModifyClientServiceImpl
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
@@ -57,7 +56,7 @@ class ModifyClientServiceTest :
                             serviceName = "기존 서비스"
                             account = ownerAccount
                             redirectUrls = setOf("https://example.com")
-                            scopes = setOf(OAuthScope.SELF_READ.scope)
+                            scopes = setOf("self:read")
                         }
                 }
 

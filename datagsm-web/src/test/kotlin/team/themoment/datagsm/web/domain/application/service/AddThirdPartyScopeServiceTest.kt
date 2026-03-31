@@ -12,9 +12,9 @@ import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.application.dto.request.AddThirdPartyScopeReqDto
 import team.themoment.datagsm.common.domain.application.entity.ApplicationJpaEntity
-import team.themoment.datagsm.common.domain.application.entity.ThirdPartyScopeJpaEntity
+import team.themoment.datagsm.common.domain.application.entity.OAuthScopeJpaEntity
 import team.themoment.datagsm.common.domain.application.repository.ApplicationJpaRepository
-import team.themoment.datagsm.common.domain.application.repository.ThirdPartyScopeJpaRepository
+import team.themoment.datagsm.common.domain.application.repository.OAuthScopeJpaRepository
 import team.themoment.datagsm.web.domain.application.service.impl.AddThirdPartyScopeServiceImpl
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
@@ -24,13 +24,13 @@ class AddThirdPartyScopeServiceTest :
     DescribeSpec({
 
         val mockApplicationJpaRepository = mockk<ApplicationJpaRepository>()
-        val mockThirdPartyScopeJpaRepository = mockk<ThirdPartyScopeJpaRepository>()
+        val mockOauthScopeJpaRepository = mockk<OAuthScopeJpaRepository>()
         val mockCurrentUserProvider = mockk<CurrentUserProvider>()
 
         val service =
             AddThirdPartyScopeServiceImpl(
                 mockApplicationJpaRepository,
-                mockThirdPartyScopeJpaRepository,
+                mockOauthScopeJpaRepository,
                 mockCurrentUserProvider,
             )
 
@@ -72,10 +72,10 @@ class AddThirdPartyScopeServiceTest :
                         every { mockApplicationJpaRepository.findById(applicationId) } returns Optional.of(existingApplication)
                         every { mockCurrentUserProvider.getCurrentAccount() } returns ownerAccount
                         every {
-                            mockThirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
+                            mockOauthScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
                         } returns null
-                        every { mockThirdPartyScopeJpaRepository.save(any()) } answers {
-                            firstArg<ThirdPartyScopeJpaEntity>().apply { id = 1L }
+                        every { mockOauthScopeJpaRepository.save(any()) } answers {
+                            firstArg<OAuthScopeJpaEntity>().apply { id = 1L }
                         }
                     }
 
@@ -88,7 +88,7 @@ class AddThirdPartyScopeServiceTest :
 
                         verify(exactly = 1) { mockApplicationJpaRepository.findById(applicationId) }
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
-                        verify(exactly = 1) { mockThirdPartyScopeJpaRepository.save(any()) }
+                        verify(exactly = 1) { mockOauthScopeJpaRepository.save(any()) }
                     }
                 }
 
@@ -110,10 +110,10 @@ class AddThirdPartyScopeServiceTest :
                         every { mockApplicationJpaRepository.findById(applicationId) } returns Optional.of(existingApplication)
                         every { mockCurrentUserProvider.getCurrentAccount() } returns adminAccount
                         every {
-                            mockThirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
+                            mockOauthScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
                         } returns null
-                        every { mockThirdPartyScopeJpaRepository.save(any()) } answers {
-                            firstArg<ThirdPartyScopeJpaEntity>().apply { id = 2L }
+                        every { mockOauthScopeJpaRepository.save(any()) } answers {
+                            firstArg<OAuthScopeJpaEntity>().apply { id = 2L }
                         }
                     }
 
@@ -143,10 +143,10 @@ class AddThirdPartyScopeServiceTest :
                         every { mockApplicationJpaRepository.findById(applicationId) } returns Optional.of(existingApplication)
                         every { mockCurrentUserProvider.getCurrentAccount() } returns rootAccount
                         every {
-                            mockThirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
+                            mockOauthScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
                         } returns null
-                        every { mockThirdPartyScopeJpaRepository.save(any()) } answers {
-                            firstArg<ThirdPartyScopeJpaEntity>().apply { id = 3L }
+                        every { mockOauthScopeJpaRepository.save(any()) } answers {
+                            firstArg<OAuthScopeJpaEntity>().apply { id = 3L }
                         }
                     }
 
@@ -165,7 +165,7 @@ class AddThirdPartyScopeServiceTest :
                         )
 
                     val existingScope =
-                        ThirdPartyScopeJpaEntity().apply {
+                        OAuthScopeJpaEntity().apply {
                             id = 10L
                             scopeName = "profile"
                             description = "기존 프로필 스코프"
@@ -176,7 +176,7 @@ class AddThirdPartyScopeServiceTest :
                         every { mockApplicationJpaRepository.findById(applicationId) } returns Optional.of(existingApplication)
                         every { mockCurrentUserProvider.getCurrentAccount() } returns ownerAccount
                         every {
-                            mockThirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
+                            mockOauthScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
                         } returns existingScope
                     }
 
@@ -187,7 +187,7 @@ class AddThirdPartyScopeServiceTest :
                             }
 
                         exception.statusCode shouldBe HttpStatus.CONFLICT
-                        verify(exactly = 0) { mockThirdPartyScopeJpaRepository.save(any()) }
+                        verify(exactly = 0) { mockOauthScopeJpaRepository.save(any()) }
                     }
                 }
 
@@ -219,7 +219,7 @@ class AddThirdPartyScopeServiceTest :
                         exception.statusCode shouldBe HttpStatus.FORBIDDEN
                         exception.message shouldBe "ThirdPartyScope 추가 권한이 없습니다."
 
-                        verify(exactly = 0) { mockThirdPartyScopeJpaRepository.save(any()) }
+                        verify(exactly = 0) { mockOauthScopeJpaRepository.save(any()) }
                     }
                 }
 
@@ -244,7 +244,7 @@ class AddThirdPartyScopeServiceTest :
                         exception.statusCode shouldBe HttpStatus.NOT_FOUND
                         exception.message shouldBe "Application을 찾을 수 없습니다."
 
-                        verify(exactly = 0) { mockThirdPartyScopeJpaRepository.save(any()) }
+                        verify(exactly = 0) { mockOauthScopeJpaRepository.save(any()) }
                     }
                 }
             }

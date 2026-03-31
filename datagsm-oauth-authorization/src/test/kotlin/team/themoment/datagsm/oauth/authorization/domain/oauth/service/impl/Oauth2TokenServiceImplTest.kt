@@ -12,7 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
-import team.themoment.datagsm.common.domain.application.repository.ThirdPartyScopeJpaRepository
+import team.themoment.datagsm.common.domain.application.entity.ApplicationJpaEntity
+import team.themoment.datagsm.common.domain.application.entity.OAuthScopeJpaEntity
+import team.themoment.datagsm.common.domain.application.repository.OAuthScopeJpaRepository
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
@@ -36,7 +38,7 @@ class Oauth2TokenServiceImplTest :
         val mockPasswordEncoder = mockk<PasswordEncoder>()
         val mockJwtProvider = mockk<JwtProvider>()
         val mockJwtEnvironment = mockk<OauthJwtProvisionEnvironment>()
-        val mockThirdPartyScopeJpaRepository = mockk<ThirdPartyScopeJpaRepository>()
+        val mockOAuthScopeJpaRepository = mockk<OAuthScopeJpaRepository>()
 
         val service =
             Oauth2TokenServiceImpl(
@@ -47,8 +49,21 @@ class Oauth2TokenServiceImplTest :
                 mockPasswordEncoder,
                 mockJwtProvider,
                 mockJwtEnvironment,
-                mockThirdPartyScopeJpaRepository,
+                mockOAuthScopeJpaRepository,
             )
+
+        val mockApplication =
+            ApplicationJpaEntity().apply {
+                id = "self"
+                name = "Test App"
+                account = mockk()
+            }
+        val mockScopeEntity =
+            OAuthScopeJpaEntity().apply {
+                scopeName = "read"
+                description = "내 정보 조회"
+                application = mockApplication
+            }
 
         afterEach {
             clearAllMocks()
@@ -105,6 +120,7 @@ class Oauth2TokenServiceImplTest :
                         every { mockOauthRefreshTokenRedisRepository.deleteByEmailAndClientId(any(), any()) } returns Unit
                         every { mockOauthRefreshTokenRedisRepository.save(any()) } answers { firstArg() }
                         every { mockOauthCodeRedisRepository.delete(any()) } returns Unit
+                        every { mockOAuthScopeJpaRepository.findAllByApplicationIdIn(setOf("self")) } returns listOf(mockScopeEntity)
                     }
 
                     it("표준 응답 형식으로 토큰이 반환된다") {
@@ -160,6 +176,7 @@ class Oauth2TokenServiceImplTest :
                         every { mockOauthRefreshTokenRedisRepository.deleteByEmailAndClientId(any(), any()) } returns Unit
                         every { mockOauthRefreshTokenRedisRepository.save(any()) } answers { firstArg() }
                         every { mockOauthCodeRedisRepository.delete(any()) } returns Unit
+                        every { mockOAuthScopeJpaRepository.findAllByApplicationIdIn(setOf("self")) } returns listOf(mockScopeEntity)
                     }
 
                     it("reqDto.scope가 null이면 code의 scope로 토큰이 발급된다") {
@@ -308,6 +325,7 @@ class Oauth2TokenServiceImplTest :
                         every { mockJwtEnvironment.refreshTokenExpiration } returns 2592000000L
                         every { mockOauthRefreshTokenRedisRepository.deleteByEmailAndClientId(any(), any()) } returns Unit
                         every { mockOauthRefreshTokenRedisRepository.save(any()) } answers { firstArg() }
+                        every { mockOAuthScopeJpaRepository.findAllByApplicationIdIn(setOf("self")) } returns listOf(mockScopeEntity)
                     }
 
                     it("새로운 토큰이 발급된다") {
@@ -364,6 +382,7 @@ class Oauth2TokenServiceImplTest :
                         every { mockPasswordEncoder.matches("test-secret", "hashed-secret") } returns true
                         every { mockJwtProvider.generateClientCredentialsAccessToken(any(), any()) } returns "client-access-token"
                         every { mockJwtEnvironment.accessTokenExpiration } returns 3600000L
+                        every { mockOAuthScopeJpaRepository.findAllByApplicationIdIn(setOf("self")) } returns listOf(mockScopeEntity)
                     }
 
                     it("refresh_token 없이 access_token만 발급된다") {
@@ -374,9 +393,12 @@ class Oauth2TokenServiceImplTest :
                         result.expiresIn shouldBe 3600L
                         result.refreshToken shouldBe null
 
-                        verify(
-                            exactly = 1,
-                        ) { mockJwtProvider.generateClientCredentialsAccessToken("test-client", setOf(OAuthScope.SELF_READ)) }
+                        verify(exactly = 1) {
+                            mockJwtProvider.generateClientCredentialsAccessToken(
+                                "test-client",
+                                setOf(OAuthScope("self", "read", "내 정보 조회")),
+                            )
+                        }
                         verify(exactly = 0) { mockJwtProvider.generateOauthRefreshToken(any(), any()) }
                     }
                 }

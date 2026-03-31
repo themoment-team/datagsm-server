@@ -12,8 +12,8 @@ import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.application.dto.request.ModifyThirdPartyScopeReqDto
 import team.themoment.datagsm.common.domain.application.entity.ApplicationJpaEntity
-import team.themoment.datagsm.common.domain.application.entity.ThirdPartyScopeJpaEntity
-import team.themoment.datagsm.common.domain.application.repository.ThirdPartyScopeJpaRepository
+import team.themoment.datagsm.common.domain.application.entity.OAuthScopeJpaEntity
+import team.themoment.datagsm.common.domain.application.repository.OAuthScopeJpaRepository
 import team.themoment.datagsm.web.domain.application.service.impl.ModifyThirdPartyScopeServiceImpl
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
@@ -22,12 +22,12 @@ import java.util.Optional
 class ModifyThirdPartyScopeServiceTest :
     DescribeSpec({
 
-        val mockThirdPartyScopeJpaRepository = mockk<ThirdPartyScopeJpaRepository>()
+        val mockOauthScopeJpaRepository = mockk<OAuthScopeJpaRepository>()
         val mockCurrentUserProvider = mockk<CurrentUserProvider>()
 
         val service =
             ModifyThirdPartyScopeServiceImpl(
-                mockThirdPartyScopeJpaRepository,
+                mockOauthScopeJpaRepository,
                 mockCurrentUserProvider,
             )
 
@@ -56,7 +56,7 @@ class ModifyThirdPartyScopeServiceTest :
                     }
 
                 val scope =
-                    ThirdPartyScopeJpaEntity().apply {
+                    OAuthScopeJpaEntity().apply {
                         id = scopeId
                         scopeName = "profile"
                         description = "사용자 프로필 정보 조회"
@@ -64,8 +64,8 @@ class ModifyThirdPartyScopeServiceTest :
                     }
 
                 beforeEach {
-                    application.thirdPartyScopes.clear()
-                    application.thirdPartyScopes.add(scope)
+                    application.oauthScopes.clear()
+                    application.oauthScopes.add(scope)
                 }
 
                 context("소유자가 스코프를 수정할 때") {
@@ -76,9 +76,9 @@ class ModifyThirdPartyScopeServiceTest :
                         )
 
                     beforeEach {
-                        every { mockThirdPartyScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
+                        every { mockOauthScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
                         every {
-                            mockThirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
+                            mockOauthScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
                         } returns null
                         every { mockCurrentUserProvider.getCurrentAccount() } returns ownerAccount
                     }
@@ -89,7 +89,7 @@ class ModifyThirdPartyScopeServiceTest :
                         result.scopes[0].scopeName shouldBe "email"
                         result.scopes[0].description shouldBe "이메일 주소 조회"
 
-                        verify(exactly = 1) { mockThirdPartyScopeJpaRepository.findById(scopeId) }
+                        verify(exactly = 1) { mockOauthScopeJpaRepository.findById(scopeId) }
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
                     }
                 }
@@ -109,9 +109,9 @@ class ModifyThirdPartyScopeServiceTest :
                         )
 
                     beforeEach {
-                        every { mockThirdPartyScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
+                        every { mockOauthScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
                         every {
-                            mockThirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
+                            mockOauthScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
                         } returns null
                         every { mockCurrentUserProvider.getCurrentAccount() } returns adminAccount
                     }
@@ -138,9 +138,9 @@ class ModifyThirdPartyScopeServiceTest :
                         )
 
                     beforeEach {
-                        every { mockThirdPartyScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
+                        every { mockOauthScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
                         every {
-                            mockThirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
+                            mockOauthScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
                         } returns null
                         every { mockCurrentUserProvider.getCurrentAccount() } returns rootAccount
                     }
@@ -167,9 +167,9 @@ class ModifyThirdPartyScopeServiceTest :
                         )
 
                     beforeEach {
-                        every { mockThirdPartyScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
+                        every { mockOauthScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
                         every {
-                            mockThirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
+                            mockOauthScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
                         } returns null
                         every { mockCurrentUserProvider.getCurrentAccount() } returns otherAccount
                     }
@@ -194,7 +194,7 @@ class ModifyThirdPartyScopeServiceTest :
                         )
 
                     val existingScope =
-                        ThirdPartyScopeJpaEntity().apply {
+                        OAuthScopeJpaEntity().apply {
                             id = 20L
                             scopeName = duplicateScopeName
                             description = "기존 스코프"
@@ -202,9 +202,9 @@ class ModifyThirdPartyScopeServiceTest :
                         }
 
                     beforeEach {
-                        every { mockThirdPartyScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
+                        every { mockOauthScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
                         every {
-                            mockThirdPartyScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, duplicateScopeName)
+                            mockOauthScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, duplicateScopeName)
                         } returns existingScope
                     }
 
@@ -228,7 +228,7 @@ class ModifyThirdPartyScopeServiceTest :
                         )
 
                     beforeEach {
-                        every { mockThirdPartyScopeJpaRepository.findById(nonExistingScopeId) } returns Optional.empty()
+                        every { mockOauthScopeJpaRepository.findById(nonExistingScopeId) } returns Optional.empty()
                     }
 
                     it("404 NOT_FOUND 예외가 발생해야 한다") {
@@ -251,7 +251,7 @@ class ModifyThirdPartyScopeServiceTest :
                         }
 
                     val scopeOfOtherApp =
-                        ThirdPartyScopeJpaEntity().apply {
+                        OAuthScopeJpaEntity().apply {
                             id = scopeId
                             scopeName = "profile"
                             description = "사용자 프로필 정보 조회"
@@ -265,7 +265,7 @@ class ModifyThirdPartyScopeServiceTest :
                         )
 
                     beforeEach {
-                        every { mockThirdPartyScopeJpaRepository.findById(scopeId) } returns Optional.of(scopeOfOtherApp)
+                        every { mockOauthScopeJpaRepository.findById(scopeId) } returns Optional.of(scopeOfOtherApp)
                     }
 
                     it("404 NOT_FOUND 예외가 발생해야 한다") {
