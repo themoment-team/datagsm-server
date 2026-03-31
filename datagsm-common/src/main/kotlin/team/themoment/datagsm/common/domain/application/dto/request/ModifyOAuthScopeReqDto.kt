@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 
-data class ModifyThirdPartyScopeReqDto(
+data class ModifyOAuthScopeReqDto(
     @field:NotBlank
     @field:Size(max = 100)
     @field:Pattern(
