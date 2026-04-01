@@ -13,14 +13,16 @@ git branch --show-current
 
 **If current branch is `develop`:**
 
+This project uses Git Flow. Feature branches must be created from `develop` and merged back into `develop`.
+
 1. Analyze all changes with `git status` and `git diff`
-2. Infer an appropriate feature branch name from the changes:
-   - Format: `feature/<kebab-case-description>`
+2. Infer an appropriate branch name from the changes:
+   - Format: `<type>/<kebab-case-description>` — use the same type as the planned commit (exception: use `cicd/` for `ci/cd` type)
    - Reflect the domain scope in the name
-   - Examples: `feature/add-student-major-filter`, `feature/fix-auth-api-key-deletion`
-3. Create and checkout the feature branch:
+   - Examples: `add/add-student-major-filter`, `fix/auth-api-key-deletion`, `refactor/optimize-club-query`
+3. Create and checkout the branch:
    ```bash
-   git checkout -b feature/<inferred-name>
+   git checkout -b <type>/<inferred-name>
    ```
 4. Proceed with the commit flow below
 
@@ -32,7 +34,7 @@ git branch --show-current
 
 Format: `type(scope): 설명`
 
-- **Types**: `add` / `update` / `fix` / `refactor` / `test` / `docs` / `merge` (English)
+- **Types**: `add` / `update` / `fix` / `refactor` / `ci/cd` / `docs` / `test` / `merge` (English)
 - **Scopes** (English):
   - **Primary**: Domain names (`auth`, `account`, `student`, `club`, `project`, `neis`, `client`, `oauth`, `utility`)
   - **Cross-cutting concerns only**: Module names (`web`, `oauth`, `openapi`) or `global`
