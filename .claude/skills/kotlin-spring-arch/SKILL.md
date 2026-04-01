@@ -1,5 +1,6 @@
 ---
-description: Kotlin + Spring Boot 4.0 architecture detailed guide
+name: kotlin-spring-arch
+description: Architecture reference for this project — Controller/Service/Repository layer responsibilities, @Transactional strategy (readOnly optimization, N+1 prevention), ExpectedException usage (no subclasses), and Entity↔DTO conversion patterns.
 ---
 
 # Kotlin + Spring Boot Architecture Guide

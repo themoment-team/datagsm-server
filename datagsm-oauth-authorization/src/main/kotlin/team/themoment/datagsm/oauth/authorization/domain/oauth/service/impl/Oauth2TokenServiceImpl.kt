@@ -22,6 +22,7 @@ import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRe
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.Oauth2TokenService
 import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
 import team.themoment.datagsm.oauth.authorization.global.security.jwt.JwtProvider
+import team.themoment.datagsm.oauth.authorization.global.security.service.OAuthClientRateLimitService
 import team.themoment.datagsm.oauth.authorization.global.util.PkceVerifier
 import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.logging.logger.logger
@@ -37,10 +38,18 @@ class Oauth2TokenServiceImpl(
     private val jwtProvider: JwtProvider,
     private val jwtEnvironment: OauthJwtProvisionEnvironment,
     private val thirdPartyScopeJpaRepository: ThirdPartyScopeJpaRepository,
+    private val oauthClientRateLimitService: OAuthClientRateLimitService,
 ) : Oauth2TokenService {
     @Transactional(readOnly = true)
     override fun execute(reqDto: Oauth2TokenReqDto): Oauth2TokenResDto {
         val grantType = GrantType.from(reqDto.grantType)
+
+        reqDto.clientId?.let { clientId ->
+            val result = oauthClientRateLimitService.tryConsumeAndReturnRemaining(clientId)
+            if (!result.consumed) {
+                throw ExpectedException("요청 한도를 초과했습니다.", HttpStatus.TOO_MANY_REQUESTS)
+            }
+        }
 
         return when (grantType) {
             GrantType.AUTHORIZATION_CODE -> handleAuthorizationCode(reqDto)

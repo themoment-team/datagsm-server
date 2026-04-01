@@ -1,49 +1,53 @@
 ---
 name: resolve-pr-comments
-description: Reply to resolved PR inline comments with the commit hash that fixed them
+description: For each inline PR review comment, judge whether it has been resolved in the current branch diff and reply with the resolving commit hash. Use after addressing PR feedback.
 ---
 
-## Context gathering
-
-Run the following to collect context:
+## Step 1 — Collect PR Data
 
 ```bash
-bash scripts/dev/get-pr-data.sh
+bash "${CLAUDE_SKILL_DIR}/scripts/get-pr-data.sh"
 ```
 
-Then read:
-- `.pr-tmp/pr_comments.json` — PR inline comments
-- `.pr-tmp/pr_changed_files.txt` — Changed files
-- `.pr-tmp/pr_commits.txt` — Commits in this PR
-- `.pr-tmp/pr_diff.txt` — Full diff
+Then read the output files:
+- `.pr-tmp/pr_comments.json` — inline review comments
+- `.pr-tmp/pr_changed_files.txt` — changed files
+- `.pr-tmp/pr_commits.txt` — commits in this PR
+- `.pr-tmp/pr_diff.txt` — full diff
 
-Also run:
+Also fetch repo and PR metadata:
+
 ```bash
 gh repo view --json nameWithOwner -q .nameWithOwner
 gh pr view --json number -q .number
 ```
 
-## Your Task
+## Step 2 — Judge Each Comment
 
-For each comment in `.pr-tmp/pr_comments.json`:
+For each comment in `pr_comments.json`, compare `path` + `body` against the diff in `pr_diff.txt`:
 
-**Step 1 – Judge if resolved**
-Compare `path` + `body` of the comment against the diff in `.pr-tmp/pr_diff.txt`.
-- RESOLVED: The diff contains a change in the same file that directly addresses the comment's concern
-- UNRESOLVED: No relevant change found for that file/concern
+- **RESOLVED**: the diff contains a change in the same file that directly addresses the comment's concern
+- **UNRESOLVED**: no relevant change found for that file/concern
 
-**Step 2 – Select commit hash (for resolved comments)**
-Run: `git log origin/<base>..HEAD --follow --pretty="%H %h %s" -- "<path>"`
-Select the short hash (7 chars) of the most relevant commit.
+## Step 3 — Find Commit Hash (resolved only)
 
-**Step 3 – Post reply (for each resolved comment)**
-Always quote variables to prevent shell injection. `path` and `comment_id` come from external PR data and may contain special characters.
+```bash
+git log origin/<base>..HEAD --follow --pretty="%H %h %s" -- "<path>"
 ```
+
+Select the 7-character short hash of the most relevant commit.
+
+## Step 4 — Post Reply (resolved only)
+
+Always quote variables to prevent shell injection. `path` and `comment_id` come from external PR data and may contain special characters.
+
+```bash
 gh api "repos/<owner>/<repo>/pulls/<pr_number>/comments/<comment_id>/replies" \
   -f body="<short_hash> 에서 해결했습니다."
 ```
 
-**Step 4 – Final report**
+## Step 5 — Report
+
 ```
 ## 답변 완료 코멘트
 - [file:line] "comment excerpt" → {hash} 해결했습니다.
@@ -54,8 +58,8 @@ gh api "repos/<owner>/<repo>/pulls/<pr_number>/comments/<comment_id>/replies" \
 ...
 ```
 
-**Step 5 – Cleanup**
-Remove temporary files created by the data collection script:
+## Step 6 — Cleanup
+
 ```bash
 rm -rf .pr-tmp
 ```

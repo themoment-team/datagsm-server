@@ -1,6 +1,6 @@
 ---
 name: test
-description: Run tests with coverage and analyze results
+description: Run tests with coverage analysis and report results. Determines appropriate test scope (single test / module / all) based on context and analyzes failures in detail.
 ---
 
 Run tests following these steps:

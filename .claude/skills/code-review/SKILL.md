@@ -1,5 +1,6 @@
 ---
-description: Code review checklist and automatic verification
+name: code-review
+description: Run a structured checklist over changed files — DTO annotations, Kotlin style, JPA/transaction correctness, test coverage, commit conventions, and security basics. Produces a ✓/⚠/✗ report.
 ---
 
 # Code Review Guide

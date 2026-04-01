@@ -33,6 +33,12 @@ spring:
   security:
     oauth-jwt:
       public-key: ${JWT_PUBLIC_KEY}
+    oauth-client:
+      rate-limit:
+        enabled: true
+        capacity: 300
+        refill-tokens: 300
+        refill-duration-seconds: 60
   web:
     error:
       whitelabel:

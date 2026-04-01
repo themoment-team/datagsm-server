@@ -1,6 +1,6 @@
 ---
 name: api-design
-description: REST API design guide for this project
+description: REST API design guide for new endpoints — RESTful URL structure, query parameter binding rules (@RequestParam vs @ModelAttribute), OpenAPI annotations, and CommonApiResponse usage.
 ---
 
 # REST API Design Guide

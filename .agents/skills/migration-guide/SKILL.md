@@ -1,6 +1,6 @@
 ---
 name: migration-guide
-description: DB migration and schema change guide for this project
+description: Guide for DB schema changes and Entity modifications — impact analysis, correct change order (Entity → DTO → Repository → Service → Tests), JPA DDL strategy, and 2-phase column deletion.
 ---
 
 # DB Migration Guide
