@@ -38,6 +38,7 @@ class OAuthClientRateLimitFilter(
 
         if (!result.consumed) {
             response.status = HttpStatus.TOO_MANY_REQUESTS.value()
+            response.characterEncoding = "UTF-8"
             response.contentType = MediaType.APPLICATION_JSON_VALUE
             response.setHeader(HttpHeaders.RETRY_AFTER, result.secondsToWaitForRefill.toString())
             val errorResponse =
