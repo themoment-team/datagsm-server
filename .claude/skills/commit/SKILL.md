@@ -18,9 +18,9 @@ This project uses Git Flow. Feature branches must be created from `develop` and 
 
 1. Analyze all changes with `git status` and `git diff`
 2. Infer an appropriate branch name from the changes:
-   - Format: `<type>/<kebab-case-description>` — use the same type as the planned commit
+   - Format: `<type>/<kebab-case-description>` — use the same type as the planned commit (exception: use `cicd/` for `ci/cd` type)
    - Reflect the domain scope in the name
-   - Examples: `feat/add-student-major-filter`, `fix/auth-api-key-deletion`, `refactor/optimize-club-query`
+   - Examples: `add/add-student-major-filter`, `fix/auth-api-key-deletion`, `refactor/optimize-club-query`
 3. Create and checkout the branch:
    ```bash
    git checkout -b <type>/<inferred-name>
