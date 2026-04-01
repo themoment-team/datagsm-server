@@ -120,12 +120,12 @@ class JwtProvider(
     private fun getScopesFromClaims(claims: Claims): Set<OAuthScope> {
         val rawScopes =
             claims["scopes"] as? List<*>
-                ?: throw ExpectedException("토큰에 scope 권한 정보가 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
+                ?: throw ExpectedException("토큰에 권한 범위가 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
         return rawScopes
             .map { s ->
                 val scopeStr = s as String
                 OAuthScope.fromScopeString(scopeStr)
-                    ?: throw ExpectedException("토큰에 잘못된 scope 권한 정보가 존재합니다.", HttpStatus.UNAUTHORIZED)
+                    ?: throw ExpectedException("토큰에 잘못된 권한 범위가 존재합니다.", HttpStatus.UNAUTHORIZED)
             }.toSet()
     }
 

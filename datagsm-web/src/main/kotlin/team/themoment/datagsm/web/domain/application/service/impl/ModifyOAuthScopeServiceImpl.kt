@@ -24,11 +24,11 @@ class ModifyOAuthScopeServiceImpl(
     ): ApplicationResDto {
         val scope =
             oauthScopeJpaRepository.findById(scopeId).orElseThrow {
-                ExpectedException("OAuthScope를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
+                ExpectedException("OAuth 권한 범위를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
             }
 
         if (scope.application.id != applicationId) {
-            throw ExpectedException("OAuthScope를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
+            throw ExpectedException("OAuth 권한 범위를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
         }
 
         oauthScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)?.let {
@@ -42,7 +42,7 @@ class ModifyOAuthScopeServiceImpl(
         val isAdmin = currentAccount.role == AccountRole.ADMIN || currentAccount.role == AccountRole.ROOT
 
         if (scope.application.account.id != currentAccount.id && !isAdmin) {
-            throw ExpectedException("OAuthScope 수정 권한이 없습니다.", HttpStatus.FORBIDDEN)
+            throw ExpectedException("OAuth 권한 범위 수정 권한이 없습니다.", HttpStatus.FORBIDDEN)
         }
 
         scope.scopeName = reqDto.scopeName

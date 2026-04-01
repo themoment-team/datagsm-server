@@ -46,7 +46,7 @@ class CreateApplicationServiceTest :
                         role = AccountRole.USER
                     }
 
-                context("스코프 없이 Application을 생성할 때") {
+                context("권한 범위 없이 Application을 생성할 때") {
                     val reqDto =
                         CreateApplicationReqDto(
                             name = "My Application",
@@ -71,7 +71,7 @@ class CreateApplicationServiceTest :
                     }
                 }
 
-                context("스코프를 포함하여 Application을 생성할 때") {
+                context("권한 범위를 포함하여 Application을 생성할 때") {
                     val reqDto =
                         CreateApplicationReqDto(
                             name = "My Application",
@@ -101,7 +101,7 @@ class CreateApplicationServiceTest :
                         }
                     }
 
-                    it("스코프가 포함된 Application이 생성되어야 한다") {
+                    it("권한 범위가 포함된 Application이 생성되어야 한다") {
                         val result = service.execute(reqDto)
 
                         result.scopes.size shouldBe 2
@@ -159,7 +159,7 @@ class CreateApplicationServiceTest :
                     }
                 }
 
-                context("중복된 scopeName이 포함된 스코프로 Application을 생성할 때") {
+                context("중복된 scopeName이 포함된 권한 범위로 Application을 생성할 때") {
                     val reqDto =
                         CreateApplicationReqDto(
                             name = "My Application",
@@ -171,7 +171,7 @@ class CreateApplicationServiceTest :
                                     ),
                                     CreateApplicationReqDto.ScopeReqDto(
                                         scopeName = "profile",
-                                        description = "중복 프로필 스코프",
+                                        description = "중복 프로필 권한 범위",
                                     ),
                                 ),
                         )
@@ -191,7 +191,7 @@ class CreateApplicationServiceTest :
                     }
                 }
 
-                context("스코프의 application 역참조가 올바르게 설정될 때") {
+                context("권한 범위의 application 역참조가 올바르게 설정될 때") {
                     val reqDto =
                         CreateApplicationReqDto(
                             name = "My Application",
@@ -217,7 +217,7 @@ class CreateApplicationServiceTest :
                         }
                     }
 
-                    it("각 스코프의 application 참조가 올바르게 설정되어야 한다") {
+                    it("각 권한 범위의 application 참조가 올바르게 설정되어야 한다") {
                         shouldNotThrowAny { service.execute(reqDto) }
 
                         val savedApp = savedApplicationSlot.captured

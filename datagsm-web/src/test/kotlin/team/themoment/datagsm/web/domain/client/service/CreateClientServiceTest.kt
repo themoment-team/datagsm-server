@@ -117,7 +117,7 @@ class CreateClientServiceTest :
                     }
                 }
 
-                context("가용하지 않은 OAuthScope를 포함하여 클라이언트 생성 요청할 때") {
+                context("가용하지 않은 OAuth 권한 범위를 포함하여 클라이언트 생성 요청할 때") {
                     val reqDto =
                         CreateClientReqDto(
                             clientName = "Invalid Client",
@@ -325,7 +325,7 @@ class CreateClientServiceTest :
                     val reqDto =
                         CreateClientReqDto(
                             clientName = "Empty Scope Client",
-                            serviceName = "빈 스코프 서비스",
+                            serviceName = "빈 권한 범위 서비스",
                             scopes = emptySet(),
                             redirectUrls = emptySet(),
                         )

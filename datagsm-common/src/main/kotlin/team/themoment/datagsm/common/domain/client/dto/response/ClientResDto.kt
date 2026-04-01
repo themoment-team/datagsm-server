@@ -11,6 +11,6 @@ data class ClientResDto(
     val serviceName: String,
     @field:Schema(description = "리다이렉트 URL 목록", example = "[\"https://example.com/callback\"]")
     val redirectUrl: Set<String>,
-    @field:Schema(description = "허용된 OAuth 스코프 목록", example = "[\"self:read\"]")
+    @field:Schema(description = "허용된 OAuth 권한 범위 목록", example = "[\"self:read\"]")
     val scopes: Set<String>,
 )

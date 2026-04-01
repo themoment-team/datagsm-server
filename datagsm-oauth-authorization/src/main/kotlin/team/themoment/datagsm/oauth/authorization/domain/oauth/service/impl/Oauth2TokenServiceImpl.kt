@@ -257,7 +257,7 @@ class Oauth2TokenServiceImpl(
                 val entity = fetched[scopeStr]
                 if (entity == null) {
                     logger().error("Failed to issue OAuth token, OAuthScope not found in DB for scopeStr {}", scopeStr)
-                    throw ExpectedException("Client에서 가지고 있는 OAuthScope 정보가 잘못되었습니다. 관리자에게 문의하세요.", HttpStatus.INTERNAL_SERVER_ERROR)
+                    throw ExpectedException("Client에서 가지고 있는 OAuth 권한 범위 데이터가 잘못되었습니다. 관리자에게 문의하세요.", HttpStatus.INTERNAL_SERVER_ERROR)
                 }
                 OAuthScope(entity.application.id, entity.scopeName, entity.description)
             }.toSet()

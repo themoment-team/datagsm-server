@@ -61,7 +61,7 @@ class AddOAuthScopeServiceTest :
                         }
                 }
 
-                context("소유자가 스코프를 추가할 때") {
+                context("소유자가 권한 범위를 추가할 때") {
                     val reqDto =
                         AddOAuthScopeReqDto(
                             scopeName = "profile",
@@ -79,7 +79,7 @@ class AddOAuthScopeServiceTest :
                         }
                     }
 
-                    it("스코프가 추가된 Application이 반환되어야 한다") {
+                    it("권한 범위가 추가된 Application이 반환되어야 한다") {
                         val result = service.execute(applicationId, reqDto)
 
                         result.scopes.size shouldBe 1
@@ -92,7 +92,7 @@ class AddOAuthScopeServiceTest :
                     }
                 }
 
-                context("ADMIN이 다른 사용자의 Application에 스코프를 추가할 때") {
+                context("ADMIN이 다른 사용자의 Application에 권한 범위를 추가할 때") {
                     val adminAccount =
                         AccountJpaEntity().apply {
                             id = 99L
@@ -125,7 +125,7 @@ class AddOAuthScopeServiceTest :
                     }
                 }
 
-                context("ROOT가 다른 사용자의 Application에 스코프를 추가할 때") {
+                context("ROOT가 다른 사용자의 Application에 권한 범위를 추가할 때") {
                     val rootAccount =
                         AccountJpaEntity().apply {
                             id = 100L
@@ -168,7 +168,7 @@ class AddOAuthScopeServiceTest :
                         OAuthScopeJpaEntity().apply {
                             id = 10L
                             scopeName = "profile"
-                            description = "기존 프로필 스코프"
+                            description = "기존 프로필 권한 범위"
                             application = existingApplication
                         }
 
@@ -191,7 +191,7 @@ class AddOAuthScopeServiceTest :
                     }
                 }
 
-                context("소유자가 아닌 일반 사용자가 스코프 추가를 시도할 때") {
+                context("소유자가 아닌 일반 사용자가 권한 범위 추가를 시도할 때") {
                     val otherAccount =
                         AccountJpaEntity().apply {
                             id = 2L
@@ -217,13 +217,13 @@ class AddOAuthScopeServiceTest :
                             }
 
                         exception.statusCode shouldBe HttpStatus.FORBIDDEN
-                        exception.message shouldBe "OAuthScope 추가 권한이 없습니다."
+                        exception.message shouldBe "OAuth 권한 범위 추가 권한이 없습니다."
 
                         verify(exactly = 0) { mockOauthScopeJpaRepository.save(any()) }
                     }
                 }
 
-                context("존재하지 않는 Application ID로 스코프 추가를 시도할 때") {
+                context("존재하지 않는 Application ID로 권한 범위 추가를 시도할 때") {
                     val nonExistingId = "non-existing-id"
                     val reqDto =
                         AddOAuthScopeReqDto(

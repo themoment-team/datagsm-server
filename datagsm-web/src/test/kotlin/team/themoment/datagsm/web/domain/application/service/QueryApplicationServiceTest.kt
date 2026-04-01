@@ -75,7 +75,7 @@ class QueryApplicationServiceTest :
                     }
                 }
 
-                context("스코프가 없는 Application을 조회할 때") {
+                context("권한 범위가 없는 Application을 조회할 때") {
                     val applicationId = "app-no-scopes"
 
                     val application =
@@ -90,7 +90,7 @@ class QueryApplicationServiceTest :
                         every { mockApplicationJpaRepository.findById(applicationId) } returns Optional.of(application)
                     }
 
-                    it("빈 스코프 목록이 반환되어야 한다") {
+                    it("빈 권한 범위 목록이 반환되어야 한다") {
                         val result = service.execute(applicationId)
 
                         result.scopes shouldBe emptyList()

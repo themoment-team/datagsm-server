@@ -37,7 +37,7 @@ class QueryAvailableOauthScopesServiceTest :
                     }
                 }
 
-                context("OAuthScope가 있는 Application이 존재할 때") {
+                context("OAuth 권한 범위가 있는 Application이 존재할 때") {
                     val application =
                         ApplicationJpaEntity().apply {
                             id = "app1"
@@ -56,7 +56,7 @@ class QueryAvailableOauthScopesServiceTest :
                         every { mockApplicationJpaRepository.findAllByEager() } returns listOf(application)
                     }
 
-                    it("OAuthScope가 반환값에 포함되어야 한다") {
+                    it("OAuth 권한 범위가 반환값에 포함되어야 한다") {
                         val result = queryAvailableOauthScopesService.execute()
 
                         val allScopes = result.list.map { it.scope }
@@ -72,7 +72,7 @@ class QueryAvailableOauthScopesServiceTest :
                     }
                 }
 
-                context("OAuthScope가 없는 Application만 존재할 때") {
+                context("OAuth 권한 범위가 없는 Application만 존재할 때") {
                     val emptyApplication =
                         ApplicationJpaEntity().apply {
                             id = "app2"

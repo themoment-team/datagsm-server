@@ -33,7 +33,7 @@ class AddOAuthScopeServiceImpl(
         val isAdmin = currentAccount.role == AccountRole.ADMIN || currentAccount.role == AccountRole.ROOT
 
         if (application.account.id != currentAccount.id && !isAdmin) {
-            throw ExpectedException("OAuthScope 추가 권한이 없습니다.", HttpStatus.FORBIDDEN)
+            throw ExpectedException("OAuth 권한 범위 추가 권한이 없습니다.", HttpStatus.FORBIDDEN)
         }
 
         oauthScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)?.let {

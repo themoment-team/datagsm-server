@@ -59,7 +59,7 @@ class QueryOauthSessionServiceTest :
                         serviceName = "Test Service"
                     }
 
-                context("단일 OAuthScope가 포함된 유효한 세션 토큰이 주어졌을 때") {
+                context("단일 OAuth 권한 범위가 포함된 유효한 세션 토큰이 주어졌을 때") {
                     val mockStateEntity =
                         OauthAuthorizeStateRedisEntity(
                             token = testToken,
@@ -122,7 +122,7 @@ class QueryOauthSessionServiceTest :
                     }
                 }
 
-                context("여러 Application의 OAuthScope가 포함된 유효한 세션 토큰이 주어졌을 때") {
+                context("여러 Application의 OAuth 권한 범위가 포함된 유효한 세션 토큰이 주어졌을 때") {
                     val multiScopeStateEntity =
                         OauthAuthorizeStateRedisEntity(
                             token = testToken,
@@ -170,7 +170,7 @@ class QueryOauthSessionServiceTest :
                             listOf(selfReadScope, mockOAuthScopeEntity)
                     }
 
-                    it("모든 OAuthScope에 description과 applicationName이 포함되어 반환되어야 한다") {
+                    it("모든 OAuth 권한 범위에 description과 applicationName이 포함되어 반환되어야 한다") {
                         val result = queryOauthSessionService.execute(testToken)
 
                         result.requestedScopes shouldContainExactlyInAnyOrder

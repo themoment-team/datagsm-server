@@ -68,7 +68,7 @@ class ModifyOAuthScopeServiceTest :
                     application.oauthScopes.add(scope)
                 }
 
-                context("소유자가 스코프를 수정할 때") {
+                context("소유자가 권한 범위를 수정할 때") {
                     val reqDto =
                         ModifyOAuthScopeReqDto(
                             scopeName = "email",
@@ -83,7 +83,7 @@ class ModifyOAuthScopeServiceTest :
                         every { mockCurrentUserProvider.getCurrentAccount() } returns ownerAccount
                     }
 
-                    it("스코프가 수정된 Application이 반환되어야 한다") {
+                    it("권한 범위가 수정된 Application이 반환되어야 한다") {
                         val result = service.execute(applicationId, scopeId, reqDto)
 
                         result.scopes[0].scopeName shouldBe "email"
@@ -94,7 +94,7 @@ class ModifyOAuthScopeServiceTest :
                     }
                 }
 
-                context("ADMIN이 다른 사용자의 스코프를 수정할 때") {
+                context("ADMIN이 다른 사용자의 권한 범위를 수정할 때") {
                     val adminAccount =
                         AccountJpaEntity().apply {
                             id = 99L
@@ -123,7 +123,7 @@ class ModifyOAuthScopeServiceTest :
                     }
                 }
 
-                context("ROOT가 다른 사용자의 스코프를 수정할 때") {
+                context("ROOT가 다른 사용자의 권한 범위를 수정할 때") {
                     val rootAccount =
                         AccountJpaEntity().apply {
                             id = 100L
@@ -181,7 +181,7 @@ class ModifyOAuthScopeServiceTest :
                             }
 
                         exception.statusCode shouldBe HttpStatus.FORBIDDEN
-                        exception.message shouldBe "OAuthScope 수정 권한이 없습니다."
+                        exception.message shouldBe "OAuth 권한 범위 수정 권한이 없습니다."
                     }
                 }
 
@@ -197,7 +197,7 @@ class ModifyOAuthScopeServiceTest :
                         OAuthScopeJpaEntity().apply {
                             id = 20L
                             scopeName = duplicateScopeName
-                            description = "기존 스코프"
+                            description = "기존 권한 범위"
                             this.application = application
                         }
 
@@ -238,11 +238,11 @@ class ModifyOAuthScopeServiceTest :
                             }
 
                         exception.statusCode shouldBe HttpStatus.NOT_FOUND
-                        exception.message shouldBe "OAuthScope를 찾을 수 없습니다."
+                        exception.message shouldBe "OAuth 권한 범위를 찾을 수 없습니다."
                     }
                 }
 
-                context("scopeId는 존재하지만 다른 Application의 스코프일 때") {
+                context("scopeId는 존재하지만 다른 Application의 권한 범위일 때") {
                     val otherApplication =
                         ApplicationJpaEntity().apply {
                             id = "other-app-id"
@@ -275,7 +275,7 @@ class ModifyOAuthScopeServiceTest :
                             }
 
                         exception.statusCode shouldBe HttpStatus.NOT_FOUND
-                        exception.message shouldBe "OAuthScope를 찾을 수 없습니다."
+                        exception.message shouldBe "OAuth 권한 범위를 찾을 수 없습니다."
                     }
                 }
             }

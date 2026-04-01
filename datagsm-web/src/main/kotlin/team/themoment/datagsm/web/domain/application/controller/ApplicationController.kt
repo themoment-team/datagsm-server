@@ -116,7 +116,7 @@ class ApplicationController(
         return CommonApiResponse.success("Application을 성공적으로 삭제했습니다.")
     }
 
-    @Operation(summary = "OAuthScope 추가", description = "Application에 스코프를 추가합니다.")
+    @Operation(summary = "OAuth 권한 범위 추가", description = "Application에 권한 범위를 추가합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "추가 성공"),
@@ -132,14 +132,14 @@ class ApplicationController(
         @RequestBody @Valid reqDto: AddOAuthScopeReqDto,
     ): ApplicationResDto = addOAuthScopeService.execute(id, reqDto)
 
-    @Operation(summary = "OAuthScope 수정", description = "Application의 스코프를 수정합니다.")
+    @Operation(summary = "OAuth 권한 범위 수정", description = "Application의 권한 범위를 수정합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "수정 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
             ApiResponse(responseCode = "401", description = "인증되지 않은 요청", content = [Content()]),
             ApiResponse(responseCode = "403", description = "권한이 없는 요청", content = [Content()]),
-            ApiResponse(responseCode = "404", description = "Application 또는 OAuthScope를 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "Application 또는 OAuth 권한 범위를 찾을 수 없음", content = [Content()]),
         ],
     )
     @PatchMapping("/{id}/scopes/{scopeId}")
@@ -149,13 +149,13 @@ class ApplicationController(
         @RequestBody @Valid reqDto: ModifyOAuthScopeReqDto,
     ): ApplicationResDto = modifyOAuthScopeService.execute(id, scopeId, reqDto)
 
-    @Operation(summary = "OAuthScope 삭제", description = "Application에서 스코프를 삭제합니다.")
+    @Operation(summary = "OAuth 권한 범위 삭제", description = "Application에서 권한 범위를 삭제합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "삭제 성공"),
             ApiResponse(responseCode = "401", description = "인증되지 않은 요청", content = [Content()]),
             ApiResponse(responseCode = "403", description = "권한이 없는 요청", content = [Content()]),
-            ApiResponse(responseCode = "404", description = "Application 또는 OAuthScope를 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "Application 또는 OAuth 권한 범위를 찾을 수 없음", content = [Content()]),
         ],
     )
     @DeleteMapping("/{id}/scopes/{scopeId}")
@@ -164,6 +164,6 @@ class ApplicationController(
         @PathVariable scopeId: Long,
     ): CommonApiResponse<Nothing> {
         deleteOAuthScopeService.execute(id, scopeId)
-        return CommonApiResponse.success("스코프를 성공적으로 삭제했습니다.")
+        return CommonApiResponse.success("권한 범위를 성공적으로 삭제했습니다.")
     }
 }
