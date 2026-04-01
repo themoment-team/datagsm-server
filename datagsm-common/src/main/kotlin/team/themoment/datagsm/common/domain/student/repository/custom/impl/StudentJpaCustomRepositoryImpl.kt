@@ -532,6 +532,7 @@ class StudentJpaCustomRepositoryImpl(
         val nonNullPairs = pairs.filter { it.second != null }.map { it.first to it.second!! }
         if (nonNullPairs.isEmpty()) return otherwise
 
+        // CaseBuilder().otherwise()의 반환 타입이 Expression<T?>로 추론되지만, non-null otherwise 표현식을 전달하므로 안전한 캐스트
         @Suppress("UNCHECKED_CAST")
         return nonNullPairs
             .drop(1)
@@ -544,6 +545,7 @@ class StudentJpaCustomRepositoryImpl(
             }.otherwise(otherwise) as Expression<T>
     }
 
+    // Expressions.nullExpression()이 NullExpression<T>를 반환하므로 Expression<Int>로 맞추기 위한 캐스트
     @Suppress("UNCHECKED_CAST")
     private fun buildNullableIntCaseExpr(
         pairs: List<Pair<Long, Int?>>,
