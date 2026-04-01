@@ -1,6 +1,6 @@
 ---
 name: kotest-guide
-description: Kotest + MockK testing guide with Given-When-Then pattern for this project
+description: Kotest + MockK testing patterns for this project — Given/When/Then structure, mock creation, stubbing, argument capture, coroutine testing, and exception assertions. Reference when writing or reviewing test code.
 ---
 
 # Kotest + MockK Testing Guide
