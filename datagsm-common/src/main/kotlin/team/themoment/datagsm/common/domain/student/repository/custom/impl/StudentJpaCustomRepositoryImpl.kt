@@ -527,18 +527,18 @@ class StudentJpaCustomRepositoryImpl(
         pairs: List<Pair<Long, T?>>,
         otherwise: Expression<T>,
     ): Expression<T> {
-        val first = pairs[0]
-        val firstExpr: Expression<T> =
-            first.second?.let { Expressions.constant(it) } ?: Expressions.nullExpression<T>() as Expression<T>
+        if (pairs.isEmpty()) return otherwise
 
+        fun toExpr(value: T?): Expression<T> =
+            value?.let { Expressions.constant(it) } ?: Expressions.nullExpression<T>() as Expression<T>
+
+        val first = pairs[0]
         return pairs
             .drop(1)
             .fold(
-                CaseBuilder().`when`(studentJpaEntity.id.eq(first.first)).then(firstExpr),
+                CaseBuilder().`when`(studentJpaEntity.id.eq(first.first)).then(toExpr(first.second)),
             ) { caseWhen, (id, value) ->
-                val expr: Expression<T> =
-                    value?.let { Expressions.constant(it) } ?: Expressions.nullExpression<T>() as Expression<T>
-                caseWhen.`when`(studentJpaEntity.id.eq(id)).then(expr)
+                caseWhen.`when`(studentJpaEntity.id.eq(id)).then(toExpr(value))
             }.otherwise(otherwise) as Expression<T>
     }
 
