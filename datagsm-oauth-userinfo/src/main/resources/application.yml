@@ -33,6 +33,7 @@ spring:
   security:
     oauth-jwt:
       public-key: ${JWT_PUBLIC_KEY}
+      datagsm-application-id: ${DATAGSM_APPLICATION_ID}
   web:
     error:
       whitelabel:

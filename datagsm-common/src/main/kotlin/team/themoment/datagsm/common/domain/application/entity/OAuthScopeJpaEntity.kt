@@ -12,13 +12,13 @@ import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
 
 @Table(
-    name = "tb_thirdparty_scope",
+    name = "tb_oauth_scope",
     uniqueConstraints = [
         UniqueConstraint(columnNames = ["application_id", "scope_name"], name = "uk_application_scope_name"),
     ],
 )
 @Entity
-class ThirdPartyScopeJpaEntity {
+class OAuthScopeJpaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null

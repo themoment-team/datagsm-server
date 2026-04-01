@@ -27,7 +27,7 @@ class CreateClientServiceImpl(
             queryAvailableOauthScopesService
                 .execute()
                 .list
-                .flatMap { group -> group.scopes.map { it.scope } }
+                .map { it.scope }
                 .toSet()
         val invalidScopes = reqDto.scopes.filter { it !in availableScopes }
 

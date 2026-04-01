@@ -6,10 +6,9 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
-import team.themoment.datagsm.common.domain.application.repository.ThirdPartyScopeJpaRepository
+import team.themoment.datagsm.common.domain.application.repository.OAuthScopeJpaRepository
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
-import team.themoment.datagsm.common.domain.client.entity.constant.ThirdPartyScope
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.oauth.dto.request.Oauth2TokenReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.Oauth2TokenResDto
@@ -36,7 +35,7 @@ class Oauth2TokenServiceImpl(
     private val passwordEncoder: PasswordEncoder,
     private val jwtProvider: JwtProvider,
     private val jwtEnvironment: OauthJwtProvisionEnvironment,
-    private val thirdPartyScopeJpaRepository: ThirdPartyScopeJpaRepository,
+    private val oauthScopeJpaRepository: OAuthScopeJpaRepository,
 ) : Oauth2TokenService {
     @Transactional(readOnly = true)
     override fun execute(reqDto: Oauth2TokenReqDto): Oauth2TokenResDto {
@@ -247,29 +246,21 @@ class Oauth2TokenServiceImpl(
     }
 
     private fun stringsToScopes(strings: Set<String>): Set<OAuthScope> {
-        val builtin = strings.mapNotNull { OAuthScope.fromString(it) }
-        val thirdPartyStrings = strings.subtract(builtin.map { it.scope }.toSet())
-
-        if (thirdPartyStrings.isEmpty()) return builtin.toSet()
-
-        val appIds = thirdPartyStrings.map { it.substringBefore(':') }.toSet()
+        val appIds = strings.map { it.substringBefore(':') }.toSet()
         val fetched =
-            thirdPartyScopeJpaRepository
+            oauthScopeJpaRepository
                 .findAllByApplicationIdIn(appIds)
                 .associateBy { "${it.application.id}:${it.scopeName}" }
 
-        val thirdParty =
-            thirdPartyStrings.map { scopeStr ->
-                val entity =
-                    fetched[scopeStr]
+        return strings
+            .map { scopeStr ->
+                val entity = fetched[scopeStr]
                 if (entity == null) {
-                    logger().error("Failed to issue OAuth token, ThirdPartyScope not found in DB for scopeStr {}", scopeStr)
-                    throw ExpectedException("Client에서 가지고 있는 ThirdPartyScope 정보가 잘못되었습니다. 관리자에게 문의하세요.", HttpStatus.INTERNAL_SERVER_ERROR)
+                    logger().error("Failed to issue OAuth token, OAuthScope not found in DB for scopeStr {}", scopeStr)
+                    throw ExpectedException("Client에서 가지고 있는 OAuth 권한 범위 데이터가 잘못되었습니다. 관리자에게 문의하세요.", HttpStatus.INTERNAL_SERVER_ERROR)
                 }
-                ThirdPartyScope(entity.application.id, entity.scopeName, entity.description)
-            }
-
-        return (builtin + thirdParty).toSet()
+                OAuthScope(entity.application.id, entity.scopeName, entity.description)
+            }.toSet()
     }
 
     private fun saveRefreshToken(

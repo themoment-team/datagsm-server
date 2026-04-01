@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
-import team.themoment.datagsm.common.domain.client.entity.constant.ThirdPartyScope
 import team.themoment.datagsm.oauth.userinfo.global.data.OauthJwtVerificationEnvironment
 import team.themoment.datagsm.oauth.userinfo.global.security.authentication.OauthAuthenticationToken
 import team.themoment.datagsm.oauth.userinfo.global.security.authentication.principal.OauthUserPrincipal
@@ -40,13 +39,12 @@ class JwtProvider(
     private fun getScopesFromClaims(claims: Claims): Set<OAuthScope> {
         val rawScopes =
             claims["scopes"] as? List<*>
-                ?: throw ExpectedException("토큰에 scope 권한 정보가 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
+                ?: throw ExpectedException("토큰에 권한 범위가 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
         return rawScopes
             .map { s ->
                 val scopeStr = s as String
-                OAuthScope.fromString(scopeStr)
-                    ?: ThirdPartyScope.fromScopeString(scopeStr)
-                    ?: throw ExpectedException("토큰에 잘못된 scope 권한 정보가 존재합니다.", HttpStatus.UNAUTHORIZED)
+                OAuthScope.fromScopeString(scopeStr)
+                    ?: throw ExpectedException("토큰에 잘못된 권한 범위가 존재합니다.", HttpStatus.UNAUTHORIZED)
             }.toSet()
     }
 
