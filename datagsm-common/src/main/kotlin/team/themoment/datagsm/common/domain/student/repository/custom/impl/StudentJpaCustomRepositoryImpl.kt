@@ -435,10 +435,6 @@ class StudentJpaCustomRepositoryImpl(
         jpaQueryFactory
             .update(studentJpaEntity)
             .setNull(studentJpaEntity.majorClub)
-            .where(studentJpaEntity.id.`in`(ids))
-            .execute()
-        jpaQueryFactory
-            .update(studentJpaEntity)
             .setNull(studentJpaEntity.autonomousClub)
             .where(studentJpaEntity.id.`in`(ids))
             .execute()
@@ -525,23 +521,24 @@ class StudentJpaCustomRepositoryImpl(
                 caseWhen.`when`(studentJpaEntity.id.eq(id)).then(value)
             }.otherwise(otherwise)
 
+    // Expressions.nullExpression()과 CaseBuilder().otherwise()의 반환 타입 불일치로 인한 안전한 캐스트
+    @Suppress("UNCHECKED_CAST")
     private fun <T : Comparable<T>> buildComparableCaseExpr(
         pairs: List<Pair<Long, T?>>,
         otherwise: Expression<T>,
     ): Expression<T> {
-        val nonNullPairs = pairs.filter { it.second != null }.map { it.first to it.second!! }
-        if (nonNullPairs.isEmpty()) return otherwise
+        val first = pairs[0]
+        val firstExpr: Expression<T> =
+            first.second?.let { Expressions.constant(it) } ?: Expressions.nullExpression<T>() as Expression<T>
 
-        // CaseBuilder().otherwise()의 반환 타입이 Expression<T?>로 추론되지만, non-null otherwise 표현식을 전달하므로 안전한 캐스트
-        @Suppress("UNCHECKED_CAST")
-        return nonNullPairs
+        return pairs
             .drop(1)
             .fold(
-                CaseBuilder()
-                    .`when`(studentJpaEntity.id.eq(nonNullPairs[0].first))
-                    .then(nonNullPairs[0].second),
+                CaseBuilder().`when`(studentJpaEntity.id.eq(first.first)).then(firstExpr),
             ) { caseWhen, (id, value) ->
-                caseWhen.`when`(studentJpaEntity.id.eq(id)).then(value)
+                val expr: Expression<T> =
+                    value?.let { Expressions.constant(it) } ?: Expressions.nullExpression<T>() as Expression<T>
+                caseWhen.`when`(studentJpaEntity.id.eq(id)).then(expr)
             }.otherwise(otherwise) as Expression<T>
     }
 
