@@ -529,8 +529,7 @@ class StudentJpaCustomRepositoryImpl(
     ): Expression<T> {
         if (pairs.isEmpty()) return otherwise
 
-        fun toExpr(value: T?): Expression<T> =
-            value?.let { Expressions.constant(it) } ?: Expressions.nullExpression<T>() as Expression<T>
+        fun toExpr(value: T?): Expression<T> = value?.let { Expressions.constant(it) } ?: Expressions.nullExpression<T>() as Expression<T>
 
         val first = pairs[0]
         return pairs
