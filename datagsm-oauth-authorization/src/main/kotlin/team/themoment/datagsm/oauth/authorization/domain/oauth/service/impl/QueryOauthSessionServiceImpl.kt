@@ -4,6 +4,8 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.application.repository.OAuthScopeJpaRepository
+import team.themoment.datagsm.common.domain.client.dto.response.OAuthScopeResDto
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.oauth.dto.response.OauthSessionResDto
 import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
@@ -17,6 +19,7 @@ class QueryOauthSessionServiceImpl(
     private val oauthAuthorizeStateRedisRepository: OauthAuthorizeStateRedisRepository,
     private val clientJpaRepository: ClientJpaRepository,
     private val oauthEnvironment: OauthEnvironment,
+    private val oauthScopeJpaRepository: OAuthScopeJpaRepository,
 ) : QueryOauthSessionService {
     // OAuth 모듈이지만 OAuthException을 사용하지 않는 이유는 해당 API는 공개적으로 공인된 API가 아니며 서비스 내부에서만 사용되기 때문입니다.
     // 따라서 일반적인 인증 실패로 간주하여 ExpectedException을 사용합니다.
@@ -31,6 +34,26 @@ class QueryOauthSessionServiceImpl(
                 .findByIdOrNull(stateEntity.clientId)
                 ?: throw ExpectedException("유효하지 않은 클라이언트입니다.", HttpStatus.UNAUTHORIZED)
         val expiresAt = Instant.now().toEpochMilli() + oauthEnvironment.authorizeStateExpirationMs
-        return OauthSessionResDto(serviceName = client.serviceName, expiresAt = expiresAt)
+        val requestedScopes = resolveScopes(stateEntity.scopes)
+        return OauthSessionResDto(serviceName = client.serviceName, expiresAt = expiresAt, requestedScopes = requestedScopes)
+    }
+
+    private fun resolveScopes(scopeStrings: Set<String>): List<OAuthScopeResDto> {
+        val appIds = scopeStrings.map { it.substringBefore(':') }.toSet()
+        val fetched =
+            oauthScopeJpaRepository
+                .findAllByApplicationIdIn(appIds)
+                .associateBy { "${it.application.id}:${it.scopeName}" }
+
+        return scopeStrings.map { scopeStr ->
+            val entity =
+                fetched[scopeStr]
+                    ?: throw ExpectedException("유효하지 않은 scope 정보입니다.", HttpStatus.INTERNAL_SERVER_ERROR)
+            OAuthScopeResDto(
+                scope = "${entity.application.id}:${entity.scopeName}",
+                description = entity.description,
+                applicationName = entity.application.name,
+            )
+        }
     }
 }

@@ -13,7 +13,7 @@ data class CreateApplicationReqDto(
     val name: String,
     @field:Valid
     @field:Size(min = 1, max = 100)
-    @param:Schema(description = "Third-party 스코프 목록")
+    @param:Schema(description = "Third-party 권한 범위 목록")
     val scopes: List<ScopeReqDto>,
 ) {
     data class ScopeReqDto(
@@ -23,11 +23,11 @@ data class CreateApplicationReqDto(
             regexp = "^[a-z0-9_-]+$",
             message = "scopeName은 소문자 영문, 숫자, 언더스코어, 하이픈만 포함할 수 있습니다. (콜론 불가)",
         )
-        @param:Schema(description = "스코프 이름", example = "profile")
+        @param:Schema(description = "권한 범위 이름", example = "profile")
         val scopeName: String,
         @field:NotBlank
         @field:Size(max = 255)
-        @param:Schema(description = "스코프 설명", example = "사용자 프로필 정보 조회")
+        @param:Schema(description = "권한 범위 설명", example = "사용자 프로필 정보 조회")
         val description: String,
     )
 }

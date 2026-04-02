@@ -14,7 +14,7 @@ class QueryApiScopeGroupServiceTest :
         describe("QueryApiScopeGroupService 클래스의") {
             describe("execute 메서드는") {
                 context("USER 역할로 조회할 때") {
-                    it("USER가 사용 가능한 스코프 목록을 카테고리별로 그룹핑하여 반환해야 한다") {
+                    it("USER가 사용 가능한 권한 범위 목록을 카테고리별로 그룹핑하여 반환해야 한다") {
                         val result = queryApiScopeGroupService.execute(AccountRole.USER)
 
                         result shouldNotBe null
@@ -24,7 +24,7 @@ class QueryApiScopeGroupServiceTest :
                 }
 
                 context("ADMIN 역할로 조회할 때") {
-                    it("ADMIN이 사용 가능한 스코프 목록을 카테고리별로 그룹핑하여 반환해야 한다") {
+                    it("ADMIN이 사용 가능한 권한 범위 목록을 카테고리별로 그룹핑하여 반환해야 한다") {
                         val result = queryApiScopeGroupService.execute(AccountRole.ADMIN)
 
                         result shouldNotBe null

@@ -12,7 +12,7 @@ data class SearchApiKeyReqDto(
     @field:Positive
     @param:Schema(description = "계정 ID")
     val accountId: Long? = null,
-    @param:Schema(description = "권한 스코프")
+    @param:Schema(description = "권한 범위")
     val scope: String? = null,
     @param:Schema(description = "만료 여부")
     val isExpired: Boolean? = null,

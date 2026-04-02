@@ -12,7 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
-import team.themoment.datagsm.common.domain.application.repository.ThirdPartyScopeJpaRepository
+import team.themoment.datagsm.common.domain.application.entity.ApplicationJpaEntity
+import team.themoment.datagsm.common.domain.application.entity.OAuthScopeJpaEntity
+import team.themoment.datagsm.common.domain.application.repository.OAuthScopeJpaRepository
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
 import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
@@ -38,7 +40,7 @@ class Oauth2TokenServiceImplTest :
         val mockPasswordEncoder = mockk<PasswordEncoder>()
         val mockJwtProvider = mockk<JwtProvider>()
         val mockJwtEnvironment = mockk<OauthJwtProvisionEnvironment>()
-        val mockThirdPartyScopeJpaRepository = mockk<ThirdPartyScopeJpaRepository>()
+        val mockOAuthScopeJpaRepository = mockk<OAuthScopeJpaRepository>()
         val mockOauthClientRateLimitService = mockk<OAuthClientRateLimitService>()
 
         val service =
@@ -50,9 +52,22 @@ class Oauth2TokenServiceImplTest :
                 mockPasswordEncoder,
                 mockJwtProvider,
                 mockJwtEnvironment,
-                mockThirdPartyScopeJpaRepository,
+                mockOAuthScopeJpaRepository,
                 mockOauthClientRateLimitService,
             )
+
+        val mockApplication =
+            ApplicationJpaEntity().apply {
+                id = "self"
+                name = "Test App"
+                account = mockk()
+            }
+        val mockScopeEntity =
+            OAuthScopeJpaEntity().apply {
+                scopeName = "read"
+                description = "내 정보 조회"
+                application = mockApplication
+            }
 
         afterEach {
             clearAllMocks()
@@ -83,6 +98,7 @@ class Oauth2TokenServiceImplTest :
                             redirectUri = "https://example.com/callback",
                             codeChallenge = null,
                             codeChallengeMethod = null,
+                            scopes = setOf("self:read"),
                             code = "test-code",
                             ttl = 300,
                         )
@@ -113,6 +129,7 @@ class Oauth2TokenServiceImplTest :
                         every { mockOauthRefreshTokenRedisRepository.deleteByEmailAndClientId(any(), any()) } returns Unit
                         every { mockOauthRefreshTokenRedisRepository.save(any()) } answers { firstArg() }
                         every { mockOauthCodeRedisRepository.delete(any()) } returns Unit
+                        every { mockOAuthScopeJpaRepository.findAllByApplicationIdIn(setOf("self")) } returns listOf(mockScopeEntity)
                     }
 
                     it("표준 응답 형식으로 토큰이 반환된다") {
@@ -126,6 +143,103 @@ class Oauth2TokenServiceImplTest :
 
                         verify(exactly = 1) { mockOauthCodeRedisRepository.findById("test-code") }
                         verify(exactly = 1) { mockOauthCodeRedisRepository.delete(code) }
+                    }
+                }
+
+                context("code에 scopes가 저장된 신규 flow일 때") {
+                    val codeWithScopes =
+                        OauthCodeRedisEntity(
+                            email = "test@gsm.hs.kr",
+                            clientId = "test-client",
+                            redirectUri = "https://example.com/callback",
+                            codeChallenge = null,
+                            codeChallengeMethod = null,
+                            scopes = setOf("self:read"),
+                            code = "test-code",
+                            ttl = 300,
+                        )
+
+                    val client =
+                        ClientJpaEntity().apply {
+                            id = "test-client"
+                            secret = "hashed-secret"
+                            redirectUrls = setOf("https://example.com/callback")
+                            scopes = setOf("self:read")
+                        }
+
+                    val account =
+                        AccountJpaEntity().apply {
+                            email = "test@gsm.hs.kr"
+                            role = AccountRole.USER
+                        }
+
+                    val baseSetup = {
+                        every { mockOauthCodeRedisRepository.findById("test-code") } returns Optional.of(codeWithScopes)
+                        every { mockClientJpaRepository.findById("test-client") } returns Optional.of(client)
+                        every { mockPasswordEncoder.matches("test-secret", "hashed-secret") } returns true
+                        every { mockAccountJpaRepository.findByEmail("test@gsm.hs.kr") } returns Optional.of(account)
+                        every { mockJwtProvider.generateOauthAccessToken(any(), any(), any(), any()) } returns "access-token"
+                        every { mockJwtProvider.generateOauthRefreshToken(any(), any()) } returns "refresh-token"
+                        every { mockJwtEnvironment.accessTokenExpiration } returns 3600000L
+                        every { mockJwtEnvironment.refreshTokenExpiration } returns 2592000000L
+                        every { mockOauthRefreshTokenRedisRepository.deleteByEmailAndClientId(any(), any()) } returns Unit
+                        every { mockOauthRefreshTokenRedisRepository.save(any()) } answers { firstArg() }
+                        every { mockOauthCodeRedisRepository.delete(any()) } returns Unit
+                        every { mockOAuthScopeJpaRepository.findAllByApplicationIdIn(setOf("self")) } returns listOf(mockScopeEntity)
+                    }
+
+                    it("reqDto.scope가 null이면 code의 scope로 토큰이 발급된다") {
+                        baseSetup()
+                        val reqDto =
+                            Oauth2TokenReqDto(
+                                grantType = "authorization_code",
+                                code = "test-code",
+                                clientId = "test-client",
+                                clientSecret = "test-secret",
+                                redirectUri = "https://example.com/callback",
+                            )
+
+                        val result = service.execute(reqDto)
+
+                        result.scope shouldBe "self:read"
+                    }
+
+                    it("reqDto.scope가 code scope의 부분집합이면 허용된다") {
+                        baseSetup()
+                        val reqDto =
+                            Oauth2TokenReqDto(
+                                grantType = "authorization_code",
+                                code = "test-code",
+                                clientId = "test-client",
+                                clientSecret = "test-secret",
+                                redirectUri = "https://example.com/callback",
+                                scope = setOf("self:read"),
+                            )
+
+                        val result = service.execute(reqDto)
+
+                        result.scope shouldBe "self:read"
+                    }
+
+                    it("reqDto.scope가 code scope를 초과하면 InvalidScope 예외가 발생한다") {
+                        baseSetup()
+                        val reqDto =
+                            Oauth2TokenReqDto(
+                                grantType = "authorization_code",
+                                code = "test-code",
+                                clientId = "test-client",
+                                clientSecret = "test-secret",
+                                redirectUri = "https://example.com/callback",
+                                scope = setOf("admin:write"),
+                            )
+
+                        val exception =
+                            shouldThrow<OAuthException.InvalidScope> {
+                                service.execute(reqDto)
+                            }
+
+                        exception.error shouldBe "invalid_scope"
+                        exception.errorDescription shouldBe "요청한 scope가 인가 코드의 scope를 초과합니다."
                     }
                 }
 
@@ -146,6 +260,7 @@ class Oauth2TokenServiceImplTest :
                             redirectUri = null,
                             codeChallenge = "challenge-hash",
                             codeChallengeMethod = "S256",
+                            scopes = setOf("self:read"),
                             code = "test-code",
                             ttl = 300,
                         )
@@ -200,6 +315,7 @@ class Oauth2TokenServiceImplTest :
                             email = "test@gsm.hs.kr",
                             clientId = "test-client",
                             token = "valid-refresh-token",
+                            scopes = setOf("self:read"),
                             ttl = 2592000L,
                         )
 
@@ -218,6 +334,7 @@ class Oauth2TokenServiceImplTest :
                         every { mockJwtEnvironment.refreshTokenExpiration } returns 2592000000L
                         every { mockOauthRefreshTokenRedisRepository.deleteByEmailAndClientId(any(), any()) } returns Unit
                         every { mockOauthRefreshTokenRedisRepository.save(any()) } answers { firstArg() }
+                        every { mockOAuthScopeJpaRepository.findAllByApplicationIdIn(setOf("self")) } returns listOf(mockScopeEntity)
                     }
 
                     it("새로운 토큰이 발급된다") {
@@ -231,6 +348,83 @@ class Oauth2TokenServiceImplTest :
                         verify(exactly = 1) { mockJwtProvider.validateToken("valid-refresh-token") }
                         verify(exactly = 1) { mockOauthRefreshTokenRedisRepository.save(any()) }
                     }
+
+                    it("저장된 scope가 그대로 access token에 사용된다") {
+                        val result = service.execute(reqDto)
+
+                        result.scope shouldBe "self:read"
+                    }
+
+                    it("client scope가 변경되어도 저장된 scope를 사용한다") {
+                        val clientWithDifferentScopes =
+                            ClientJpaEntity().apply {
+                                id = "test-client"
+                                secret = "hashed-secret"
+                                scopes = setOf("admin:write") // storedToken.scopes와 다름
+                            }
+                        every { mockClientJpaRepository.findById("test-client") } returns Optional.of(clientWithDifferentScopes)
+
+                        val result = service.execute(reqDto)
+
+                        result.scope shouldBe "self:read"
+                    }
+
+                    context("scope 파라미터를 지정한 경우") {
+                        val multiScopeStoredToken =
+                            OauthRefreshTokenRedisEntity(
+                                id = "test@gsm.hs.kr:test-client",
+                                email = "test@gsm.hs.kr",
+                                clientId = "test-client",
+                                token = "valid-refresh-token",
+                                scopes = setOf("self:read", "self:write"),
+                                ttl = 2592000L,
+                            )
+
+                        beforeEach {
+                            every {
+                                mockOauthRefreshTokenRedisRepository.findByEmailAndClientId("test@gsm.hs.kr", "test-client")
+                            } returns Optional.of(multiScopeStoredToken)
+                        }
+
+                        it("reqDto.scope가 storedToken scope의 부분집합이면 허용된다") {
+                            val downscopedReqDto =
+                                Oauth2TokenReqDto(
+                                    grantType = "refresh_token",
+                                    refreshToken = "valid-refresh-token",
+                                    clientId = "test-client",
+                                    clientSecret = "test-secret",
+                                    scope = setOf("self:read"),
+                                )
+
+                            val result = service.execute(downscopedReqDto)
+
+                            result.scope shouldBe "self:read"
+                            verify {
+                                mockOauthRefreshTokenRedisRepository.save(
+                                    match { it.scopes == setOf("self:read", "self:write") },
+                                )
+                            }
+                        }
+
+                        it("reqDto.scope가 storedToken scope를 초과하면 InvalidScope 예외가 발생한다") {
+                            val overscopedReqDto =
+                                Oauth2TokenReqDto(
+                                    grantType = "refresh_token",
+                                    refreshToken = "valid-refresh-token",
+                                    clientId = "test-client",
+                                    clientSecret = "test-secret",
+                                    scope = setOf("self:read", "admin:write"),
+                                )
+
+                            val exception =
+                                shouldThrow<OAuthException.InvalidScope> {
+                                    service.execute(overscopedReqDto)
+                                }
+
+                            exception.error shouldBe "invalid_scope"
+                            exception.errorDescription shouldBe "재발급 요청한 권한 범위가 기존 권한 범위를 초과합니다."
+                        }
+                    }
                 }
 
                 context("grant_type=client_credentials로 토큰을 요청할 때") {
@@ -239,7 +433,7 @@ class Oauth2TokenServiceImplTest :
                             grantType = "client_credentials",
                             clientId = "test-client",
                             clientSecret = "test-secret",
-                            scope = "self:read",
+                            scope = setOf("self:read"),
                         )
 
                     val client =
@@ -254,6 +448,7 @@ class Oauth2TokenServiceImplTest :
                         every { mockPasswordEncoder.matches("test-secret", "hashed-secret") } returns true
                         every { mockJwtProvider.generateClientCredentialsAccessToken(any(), any()) } returns "client-access-token"
                         every { mockJwtEnvironment.accessTokenExpiration } returns 3600000L
+                        every { mockOAuthScopeJpaRepository.findAllByApplicationIdIn(setOf("self")) } returns listOf(mockScopeEntity)
                     }
 
                     it("refresh_token 없이 access_token만 발급된다") {
@@ -264,9 +459,12 @@ class Oauth2TokenServiceImplTest :
                         result.expiresIn shouldBe 3600L
                         result.refreshToken shouldBe null
 
-                        verify(
-                            exactly = 1,
-                        ) { mockJwtProvider.generateClientCredentialsAccessToken("test-client", setOf(OAuthScope.SELF_READ)) }
+                        verify(exactly = 1) {
+                            mockJwtProvider.generateClientCredentialsAccessToken(
+                                "test-client",
+                                setOf(OAuthScope("self", "read", "내 정보 조회")),
+                            )
+                        }
                         verify(exactly = 0) { mockJwtProvider.generateOauthRefreshToken(any(), any()) }
                     }
                 }
