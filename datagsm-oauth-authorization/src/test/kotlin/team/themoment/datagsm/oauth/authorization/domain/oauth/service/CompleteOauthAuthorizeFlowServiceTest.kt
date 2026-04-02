@@ -22,7 +22,9 @@ import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
+import team.themoment.datagsm.common.global.dto.internal.RateLimitConsumeResult
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl.CompleteOauthAuthorizeFlowServiceImpl
+import team.themoment.datagsm.oauth.authorization.global.security.service.OAuthClientRateLimitService
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 
@@ -34,6 +36,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
         val mockOauthAuthorizeStateRedisRepository = mockk<OauthAuthorizeStateRedisRepository>(relaxed = true)
         val mockPasswordEncoder = mockk<PasswordEncoder>()
         val mockOauthEnvironment = mockk<OauthEnvironment>()
+        val mockOauthClientRateLimitService = mockk<OAuthClientRateLimitService>()
 
         val completeOauthAuthorizeFlowService =
             CompleteOauthAuthorizeFlowServiceImpl(
@@ -42,6 +45,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                 mockOauthAuthorizeStateRedisRepository,
                 mockPasswordEncoder,
                 mockOauthEnvironment,
+                mockOauthClientRateLimitService,
             )
 
         afterEach {
@@ -66,6 +70,8 @@ class CompleteOauthAuthorizeFlowServiceTest :
 
                 beforeEach {
                     every { mockOauthEnvironment.codeExpirationSeconds } returns codeExpirationSeconds
+                    every { mockOauthClientRateLimitService.tryConsumeAndReturnRemaining(any()) } returns
+                        RateLimitConsumeResult(consumed = true, remainingTokens = 299, secondsToWaitForRefill = 0)
                 }
 
                 context("유효한 토큰과 인증 정보가 주어졌을 때") {

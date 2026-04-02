@@ -24,8 +24,10 @@ import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisE
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
+import team.themoment.datagsm.common.global.dto.internal.RateLimitConsumeResult
 import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
 import team.themoment.datagsm.oauth.authorization.global.security.jwt.JwtProvider
+import team.themoment.datagsm.oauth.authorization.global.security.service.OAuthClientRateLimitService
 import java.util.Optional
 
 class Oauth2TokenServiceImplTest :
@@ -39,6 +41,7 @@ class Oauth2TokenServiceImplTest :
         val mockJwtProvider = mockk<JwtProvider>()
         val mockJwtEnvironment = mockk<OauthJwtProvisionEnvironment>()
         val mockOAuthScopeJpaRepository = mockk<OAuthScopeJpaRepository>()
+        val mockOauthClientRateLimitService = mockk<OAuthClientRateLimitService>()
 
         val service =
             Oauth2TokenServiceImpl(
@@ -50,6 +53,7 @@ class Oauth2TokenServiceImplTest :
                 mockJwtProvider,
                 mockJwtEnvironment,
                 mockOAuthScopeJpaRepository,
+                mockOauthClientRateLimitService,
             )
 
         val mockApplication =
@@ -67,6 +71,11 @@ class Oauth2TokenServiceImplTest :
 
         afterEach {
             clearAllMocks()
+        }
+
+        beforeEach {
+            every { mockOauthClientRateLimitService.tryConsumeAndReturnRemaining(any()) } returns
+                RateLimitConsumeResult(consumed = true, remainingTokens = 299, secondsToWaitForRefill = 0)
         }
 
         describe("Oauth2TokenServiceImpl 클래스의") {

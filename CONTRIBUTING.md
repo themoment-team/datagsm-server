@@ -198,7 +198,7 @@ master (프로덕션)
   ↑
 develop (스테이징)
   ↑
-feat/*, fix/*, refactor/*, ci/cd/*
+add/*, fix/*, refactor/*, cicd/*
 ```
 
 ### 브랜치 규칙
@@ -207,7 +207,7 @@ feat/*, fix/*, refactor/*, ci/cd/*
 |--------------|----------|-----------|-----------|
 | `master`     | 프로덕션 환경  | -         | -         |
 | `develop`    | 개발 환경    | `master`  | `master`  |
-| `feat/*`     | 새 기능 개발  | `develop` | `develop` |
+| `add/*`      | 새 기능 개발  | `develop` | `develop` |
 | `fix/*`      | 버그 수정    | `develop` | `develop` |
 | `refactor/*` | 코드 리팩토링  | `develop` | `develop` |
 | `cicd/*`     | CI/CD 설정 | `develop` | `develop` |
@@ -220,7 +220,7 @@ feat/*, fix/*, refactor/*, ci/cd/*
 # 새 기능 개발
 git checkout develop
 git pull origin develop
-git checkout -b feat/add-meal-api
+git checkout -b add/add-meal-api
 
 # 버그 수정
 git checkout -b fix/student-search-error
@@ -245,7 +245,7 @@ git checkout -b refactor/optimize-club-query
 |------------|-------------|----------------------------------------|
 | `update`   | 기능 개선       | `update(auth): API 키 삭제 엔드포인트 경로 변경`   |
 | `fix`      | 버그 수정       | `fix(student): 학생 검색 시 빈 문자열 처리 오류 수정` |
-| `feat`     | 새 기능 추가     | `feat(neis): 급식 조회 API 추가`             |
+| `add`      | 새 기능 추가     | `add(neis): 급식 조회 API 추가`              |
 | `refactor` | 코드 리팩토링     | `refactor(club): 동아리 조회 쿼리 최적화`        |
 | `ci/cd`    | CI/CD 설정 변경 | `ci/cd(global): PR 제목 검증 규칙 추가`        |
 | `docs`     | 문서 수정       | `docs(readme): 환경 설정 가이드 추가`           |
@@ -272,7 +272,7 @@ git checkout -b refactor/optimize-club-query
 # 좋은 예시
 git commit -m "update(auth): 변경된 API 키 삭제 엔드포인트의 경로 변수 이름 수정"
 git commit -m "fix(global): 올바르지 않은 공개 API 경로 설정 수정"
-git commit -m "feat(club): 동아리 멤버 조회 API 추가"
+git commit -m "add(club): 동아리 멤버 조회 API 추가"
 git commit -m "refactor(student): 학생 검색 로직 개선 및 중복 제거"
 
 # 나쁜 예시

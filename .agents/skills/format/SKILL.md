@@ -1,6 +1,6 @@
 ---
 name: format
-description: Run KtLint formatting on Kotlin source files
+description: Run KtLint formatting on all Kotlin source files via Gradle. Use when .kt files need formatting or after bulk edits.
 ---
 
 Run KtLint formatting:

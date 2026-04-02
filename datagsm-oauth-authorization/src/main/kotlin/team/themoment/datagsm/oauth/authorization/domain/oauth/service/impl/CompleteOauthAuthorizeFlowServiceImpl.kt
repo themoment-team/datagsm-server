@@ -12,6 +12,7 @@ import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeState
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthAuthorizeFlowService
+import team.themoment.datagsm.oauth.authorization.global.security.service.OAuthClientRateLimitService
 import team.themoment.sdk.exception.ExpectedException
 import java.net.URI
 import java.security.SecureRandom
@@ -24,6 +25,7 @@ class CompleteOauthAuthorizeFlowServiceImpl(
     private val oauthAuthorizeStateRedisRepository: OauthAuthorizeStateRedisRepository,
     private val passwordEncoder: PasswordEncoder,
     private val oauthEnvironment: OauthEnvironment,
+    private val oauthClientRateLimitService: OAuthClientRateLimitService,
 ) : CompleteOauthAuthorizeFlowService {
     companion object {
         private val secureRandom = SecureRandom()
@@ -43,6 +45,11 @@ class CompleteOauthAuthorizeFlowServiceImpl(
         val codeChallenge = stateEntity.codeChallenge
         val codeChallengeMethod = stateEntity.codeChallengeMethod
         val scopes = stateEntity.scopes
+
+        val rateLimitResult = oauthClientRateLimitService.tryConsumeAndReturnRemaining(clientId)
+        if (!rateLimitResult.consumed) {
+            throw ExpectedException("요청 한도를 초과했습니다.", HttpStatus.TOO_MANY_REQUESTS)
+        }
 
         val account =
             accountJpaRepository

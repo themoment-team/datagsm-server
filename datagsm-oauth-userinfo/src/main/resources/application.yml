@@ -34,6 +34,12 @@ spring:
     oauth-jwt:
       public-key: ${JWT_PUBLIC_KEY}
       datagsm-application-id: ${DATAGSM_APPLICATION_ID}
+    oauth-client:
+      rate-limit:
+        enabled: true
+        capacity: 300
+        refill-tokens: 300
+        refill-duration-seconds: 60
   web:
     error:
       whitelabel:
