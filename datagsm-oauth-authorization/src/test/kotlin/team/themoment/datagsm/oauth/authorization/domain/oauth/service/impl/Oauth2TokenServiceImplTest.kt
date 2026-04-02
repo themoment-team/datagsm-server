@@ -368,6 +368,63 @@ class Oauth2TokenServiceImplTest :
 
                         result.scope shouldBe "self:read"
                     }
+
+                    context("scope 파라미터를 지정한 경우") {
+                        val multiScopeStoredToken =
+                            OauthRefreshTokenRedisEntity(
+                                id = "test@gsm.hs.kr:test-client",
+                                email = "test@gsm.hs.kr",
+                                clientId = "test-client",
+                                token = "valid-refresh-token",
+                                scopes = setOf("self:read", "self:write"),
+                                ttl = 2592000L,
+                            )
+
+                        beforeEach {
+                            every {
+                                mockOauthRefreshTokenRedisRepository.findByEmailAndClientId("test@gsm.hs.kr", "test-client")
+                            } returns Optional.of(multiScopeStoredToken)
+                        }
+
+                        it("reqDto.scope가 storedToken scope의 부분집합이면 허용된다") {
+                            val downscopedReqDto =
+                                Oauth2TokenReqDto(
+                                    grantType = "refresh_token",
+                                    refreshToken = "valid-refresh-token",
+                                    clientId = "test-client",
+                                    clientSecret = "test-secret",
+                                    scope = setOf("self:read"),
+                                )
+
+                            val result = service.execute(downscopedReqDto)
+
+                            result.scope shouldBe "self:read"
+                            verify {
+                                mockOauthRefreshTokenRedisRepository.save(
+                                    match { it.scopes == setOf("self:read", "self:write") },
+                                )
+                            }
+                        }
+
+                        it("reqDto.scope가 storedToken scope를 초과하면 InvalidScope 예외가 발생한다") {
+                            val overscopedReqDto =
+                                Oauth2TokenReqDto(
+                                    grantType = "refresh_token",
+                                    refreshToken = "valid-refresh-token",
+                                    clientId = "test-client",
+                                    clientSecret = "test-secret",
+                                    scope = setOf("self:read", "admin:write"),
+                                )
+
+                            val exception =
+                                shouldThrow<OAuthException.InvalidScope> {
+                                    service.execute(overscopedReqDto)
+                                }
+
+                            exception.error shouldBe "invalid_scope"
+                            exception.errorDescription shouldBe "재발급 요청한 권한 범위가 기존 권한 범위를 초과합니다."
+                        }
+                    }
                 }
 
                 context("grant_type=client_credentials로 토큰을 요청할 때") {

@@ -186,7 +186,11 @@ class Oauth2TokenServiceImpl(
                 .findByEmail(email)
                 .orElseThrow { ExpectedException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
 
-        val grantedScopes = stringsToScopes(storedToken.scopes)
+        val scopesToGrant = reqDto.scope ?: storedToken.scopes
+        if (!storedToken.scopes.containsAll(scopesToGrant)) {
+            throw OAuthException.InvalidScope("재발급 요청한 권한 범위가 기존 권한 범위를 초과합니다.")
+        }
+        val grantedScopes = stringsToScopes(scopesToGrant)
 
         val newAccessToken = jwtProvider.generateOauthAccessToken(email, account.role, clientIdFromToken, grantedScopes)
         val newRefreshToken = jwtProvider.generateOauthRefreshToken(email, clientIdFromToken)
