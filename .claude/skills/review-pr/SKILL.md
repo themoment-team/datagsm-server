@@ -2,7 +2,7 @@
 name: review-pr
 description: Collect PR review comments, critically assess each one against project conventions, auto-apply valid ones, post refutation replies for invalid ones, and prompt for partial ones. Replaces resolve-pr-comments.
 disable-model-invocation: true
-allowed-tools: Bash(bash *get-pr-data.sh:*), Bash(gh api:*), Bash(gh pr view:*), Bash(gh repo:*), Bash(git log:*), Bash(rm:*), Read, Edit
+allowed-tools: Bash(bash *get-pr-data.sh:*), Bash(gh api:*), Bash(gh pr view:*), Bash(gh repo:*), Bash(git add:*), Bash(git commit:*), Bash(git log:*), Bash(git rev-parse:*), Bash(rm:*), Edit, Read
 ---
 
 ## Step 1 — Collect PR Data
