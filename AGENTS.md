@@ -124,7 +124,7 @@ Use the following slash commands for common tasks:
 - `/pr-draft` - Generate PR title suggestions and body
 - `/format` - Run KtLint formatting
 - `/commit` - Create Git commits by splitting changes into logical units
-- `/resolve-pr-comments` - Replies to resolved PR inline review comments with commit hash
+- `/review-pr` - Assess PR review comments against conventions, auto-apply valid ones, refute invalid ones
 
 ## Notes
 
