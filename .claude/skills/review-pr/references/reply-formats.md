@@ -2,41 +2,42 @@
 
 Use these templates when posting inline replies in Step 5.
 Always quote `comment_id` to prevent shell injection.
+All replies must be written in Korean.
 
 ## VALID — fix succeeded
 
 ```
-Addressed in <abc1234>. (Ref: <source>)
+<abc1234>에서 반영했습니다. (근거: <출처>)
 ```
 
 ## VALID — fix failed
 
 ```
-The concern is valid. Manual intervention required — will handle separately.
+지적 사항이 타당합니다. 직접 수정이 필요하여 별도 처리하겠습니다.
 ```
 
 ## INVALID
 
 ```
-This suggestion conflicts with the project's conventions.
-Ref: <source> — "<rule quote>"
-The current code correctly follows the rule and will not be changed.
+해당 지적은 이 프로젝트의 컨벤션과 다릅니다.
+근거: <출처> — "<규칙 인용>"
+현재 코드가 규칙을 올바르게 따르고 있어 변경하지 않겠습니다.
 ```
 
 ## PARTIAL — accepted
 
 ```
-Partially agreed and addressed in <abc1234>.
+부분적으로 타당하다고 판단하여 <abc1234>에서 반영했습니다.
 ```
 
 ## PARTIAL — rejected
 
 ```
-After review, decided not to apply this change.
+검토 결과 이 방향으로는 적용하지 않기로 결정했습니다.
 ```
 
 ## PARTIAL — pending
 
 ```
-Under review. Will follow up.
+검토 중입니다. 추후 답변드리겠습니다.
 ```

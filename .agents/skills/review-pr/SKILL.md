@@ -48,7 +48,15 @@ Always cite a specific source in the rationale (e.g. `CLAUDE.md §Logging Style`
 
 1. Read the target file with the Read tool
 2. Apply the reviewer's concern with the Edit tool
-3. Record the commit hash for use in Step 5
+3. If the changes have not been committed yet, commit them:
+   ```bash
+   git add <file>
+   git commit -m "<commit message>"
+   ```
+4. Record the short commit hash for use in Step 5:
+   ```bash
+   git rev-parse --short HEAD
+   ```
 
 On failure: record the reason and fall back to PARTIAL console prompt.
 
