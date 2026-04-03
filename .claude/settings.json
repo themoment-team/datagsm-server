@@ -7,10 +7,6 @@
           {
             "type": "command",
             "command": ".claude/hooks/preToolUse.sh"
-          },
-          {
-            "type": "command",
-            "command": ".claude/hooks/preCommit.sh"
           }
         ]
       }
