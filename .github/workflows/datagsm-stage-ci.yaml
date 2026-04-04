@@ -28,7 +28,7 @@ jobs:
             const title = context.payload.pull_request.title;
             const prNumber = context.payload.pull_request.number;
             const allowedScopes = [
-              'global', 'account', 'application', 'auth', 'client', 'club',
+              'global', 'account', 'auth', 'client', 'club',
               'neis', 'oauth', 'project', 'student', 'utility',
               'web', 'oauth', 'openapi', 'ci/cd'
             ];
