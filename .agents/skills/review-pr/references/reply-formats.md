@@ -7,7 +7,7 @@ All replies must be written in Korean.
 ## VALID — fix succeeded
 
 ```
-<abc1234>에서 반영했습니다. (근거: <출처>)
+<abc1234> 에서 반영했습니다. (근거: <출처>)
 ```
 
 ## VALID — fix failed
@@ -27,7 +27,7 @@ All replies must be written in Korean.
 ## PARTIAL — accepted
 
 ```
-부분적으로 타당하다고 판단하여 <abc1234>에서 반영했습니다.
+부분적으로 타당하다고 판단하여 <abc1234> 에서 반영했습니다.
 ```
 
 ## PARTIAL — rejected
