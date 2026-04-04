@@ -52,9 +52,9 @@ class CreateApplicationServiceImpl(
             application.oauthScopes.add(scopeEntity)
         }
 
-        applicationJpaRepository.save(application)
+        val savedApplication = applicationJpaRepository.save(application)
 
-        return application.toResDto()
+        return savedApplication.toResDto()
     }
 }
 

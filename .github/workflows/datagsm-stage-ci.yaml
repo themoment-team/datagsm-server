@@ -30,7 +30,7 @@ jobs:
             const allowedScopes = [
               'global', 'account', 'auth', 'client', 'club',
               'neis', 'oauth', 'project', 'student', 'utility',
-              'web', 'oauth', 'openapi', 'ci/cd'
+              'web', 'oauth', 'openapi', 'ci/cd', 'application'
             ];
 
             const versionPattern = /^v\d{8}\.\d+$/;
