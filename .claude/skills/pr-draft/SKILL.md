@@ -26,7 +26,7 @@ Read `${CLAUDE_SKILL_DIR}/references/labels.md` and select 1–2 appropriate lab
 ## Step 3 — Generate PR Content
 
 **Title** — Generate 3 options in the format `[scope] description`:
-- Scope: domain name (`[student]`, `[auth]`, `[club]`, etc.) or `[global]` / `[ci/cd]` for cross-cutting changes
+- Scope: domain name (`[student]`, `[auth]`, `[application]`, `[club]`, etc.) or `[global]` / `[ci/cd]` for cross-cutting changes
 - Description: Korean, concise, no emojis, max 50 characters total
 - Mark the best option with `← 추천`
 

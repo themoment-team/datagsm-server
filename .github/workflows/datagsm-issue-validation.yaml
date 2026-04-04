@@ -18,7 +18,7 @@ jobs:
             const title = context.payload.issue.title;
             const issueNumber = context.payload.issue.number;
             const allowedScopes = [
-              'global', 'account', 'auth', 'client', 'club',
+              'global', 'account', 'application', 'auth', 'client', 'club',
               'neis', 'oauth', 'project', 'student',
               'web', 'oauth', 'openapi', 'ci/cd'
             ];

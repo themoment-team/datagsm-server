@@ -256,7 +256,7 @@ git checkout -b refactor/optimize-club-query
 **기본 원칙: 도메인명을 우선 사용하고, 모듈명은 횡단관심사에서만 사용**합니다.
 
 **도메인 레벨:**
-- `auth`, `account`, `oauth`, `club`, `student`, `neis`, `project`, `client`
+- `auth`, `account`, `application`, `oauth`, `club`, `student`, `neis`, `project`, `client`
 - 특정 기능이나 도메인에 관련된 변경사항에 사용
 
 **모듈 레벨 (횡단관심사만):**
@@ -301,7 +301,7 @@ vYYYYMMDD.n (릴리즈용)
 ```
 
 **유효한 Scope:**
-- **도메인명 (기본 사용)**: `auth`, `account`, `client`, `club`, `neis`, `oauth`, `project`, `student`
+- **도메인명 (기본 사용)**: `auth`, `account`, `application`, `client`, `club`, `neis`, `oauth`, `project`, `student`
 - **모듈명 (횡단관심사만)**: `web`, `oauth`, `openapi`, `global`
 - **기타**: `global`, `ci/cd`
 
