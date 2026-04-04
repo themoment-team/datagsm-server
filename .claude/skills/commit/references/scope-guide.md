@@ -8,16 +8,18 @@ Always use a domain name. Only fall back to a module name when the change is gen
 
 ## Domain Names (Primary)
 
-| Scope     | When to use                |
-|-----------|----------------------------|
-| `auth`    | Authentication, API keys   |
-| `account` | Account management         |
-| `student` | Student information        |
-| `club`    | Club / project information |
-| `neis`    | NEIS integration           |
-| `client`  | OAuth client               |
-| `oauth`   | OAuth2 flow                |
-| `utility` | Shared utilities           |
+| Scope         | When to use                |
+|---------------|----------------------------|
+| `account`     | Account management         |
+| `application` | Registered API application |
+| `auth`        | Authentication, API keys   |
+| `client`      | OAuth client               |
+| `club`        | Club / project information |
+| `neis`        | NEIS integration           |
+| `oauth`       | OAuth2 flow                |
+| `project`     | Project information        |
+| `student`     | Student information        |
+| `utility`     | Shared utilities           |
 
 ## Module / Cross-cutting Names (Secondary)
 
