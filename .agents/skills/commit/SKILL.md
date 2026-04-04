@@ -46,7 +46,7 @@ Format: `type(scope): 설명`
 
 ## Scope Selection
 
-For the full scope selection table and examples, read `${CLAUDE_SKILL_DIR}/references/scope-guide.md`.
+For the full scope selection table and examples, read `references/scope-guide.md`.
 
 Quick rule: use domain name (`auth`, `student`, `club`, `neis`, etc.) by default. Use `global` / `ci/cd` / module names only for cross-cutting changes.
 

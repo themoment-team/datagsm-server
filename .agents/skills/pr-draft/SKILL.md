@@ -20,7 +20,7 @@ cat .github/PULL_REQUEST_TEMPLATE.md
 
 ## Step 2 — Determine Labels
 
-Read `${CLAUDE_SKILL_DIR}/references/labels.md` and select 1–2 appropriate labels based on the nature of the changes.
+Read `references/labels.md` and select 1–2 appropriate labels based on the nature of the changes.
 
 ## Step 3 — Generate PR Content
 
@@ -58,7 +58,7 @@ Ask the user to confirm which title to use. If no answer is given, proceed with 
 Run the creation script with the confirmed title and labels:
 
 ```bash
-bash "${CLAUDE_SKILL_DIR}/scripts/create-pr.sh" "<confirmed-title>" "PR_BODY.md" "<label1>,<label2>"
+bash scripts/create-pr.sh "<confirmed-title>" "PR_BODY.md" "<label1>,<label2>"
 ```
 
 After creation, display the PR URL.
