@@ -36,7 +36,7 @@ Format: `type(scope): 설명`
 
 - **Types**: `add` / `update` / `fix` / `refactor` / `ci/cd` / `docs` / `test` / `merge` (English)
 - **Scopes** (English):
-  - **Primary**: Domain names (`auth`, `account`, `application`, `student`, `club`, `project`, `neis`, `client`, `oauth`, `utility`)
+  - **Primary**: Domain names (`account`, `application`, `auth`, `client`, `club`, `neis`, `oauth`, `project`, `student`, `utility`)
   - **Cross-cutting concerns only**: Module names (`web`, `oauth`, `openapi`) or `global`
   - Use domain names by default. Only use module names when changes affect multiple modules or are cross-cutting.
 - **Description**: Korean, no period, avoid endings: `~한다/~된다`, `~하기/~하기 위해`, `~합니다/~됩니다`, `~했습니다`

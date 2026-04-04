@@ -10,14 +10,15 @@ Always use a domain name. Only fall back to a module name when the change is gen
 
 | Scope         | When to use                |
 |---------------|----------------------------|
-| `auth`        | Authentication, API keys   |
 | `account`     | Account management         |
 | `application` | Registered API application |
-| `student`     | Student information        |
+| `auth`        | Authentication, API keys   |
+| `client`      | OAuth client               |
 | `club`        | Club / project information |
 | `neis`        | NEIS integration           |
-| `client`      | OAuth client               |
 | `oauth`       | OAuth2 flow                |
+| `project`     | Project information        |
+| `student`     | Student information        |
 | `utility`     | Shared utilities           |
 
 ## Module / Cross-cutting Names (Secondary)

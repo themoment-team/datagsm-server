@@ -98,5 +98,5 @@ fun updateStudent(@PathVariable id: Long, @Valid @RequestBody reqDto: UpdateStud
 
 ### Commit Scope
 - WRONG: `fix(web):` (module name) → CORRECT: `fix(auth):` (domain name)
-- Domain names first: auth, application, student, club, neis, oauth
+- Domain names first: account, application, auth, client, club, neis, oauth, project, student, utility
 - Module names only for cross-cutting: global, ci/cd
