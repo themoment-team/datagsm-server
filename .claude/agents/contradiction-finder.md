@@ -94,7 +94,7 @@ grep -rn 'logger\(\)\.[a-z]*(".*\$[{a-zA-Z]' --include="*.kt" . --exclude-dir=bu
 grep -rn 'ExpectedException(".*\$' --include="*.kt" . --exclude-dir=build --exclude-dir=.gradle
 
 # var declarations outside of test and entity files (val preferred)
-grep -rn "^\s*var " --include="*.kt" . --exclude-dir=build --exclude-dir=test --exclude-dir=.gradle
+grep -rn "^\s*var " --include="*.kt" . --exclude-dir=build --exclude-dir=test --exclude-dir=entity --exclude-dir=.gradle
 ```
 
 For each query that returns results, those results are candidate doc↔code contradictions. Verify each result is a genuine violation (not a false positive from test files or build-generated code).
