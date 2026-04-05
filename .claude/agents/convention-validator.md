@@ -6,6 +6,7 @@ model: sonnet
 color: yellow
 memory: none
 maxTurns: 5
+permissionMode: auto
 ---
 
 You are a Kotlin/Spring Boot convention enforcement agent for the datagsm-server project. Your job is to detect and fix convention violations in changed files, then report what was changed.
