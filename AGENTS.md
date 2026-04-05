@@ -1,5 +1,3 @@
-# DataGSM Server
-
 **한국어로 응답하고 작업해주세요 (Please respond and work in Korean).**
 
 ## Project Overview

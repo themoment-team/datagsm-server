@@ -22,5 +22,18 @@
         ]
       }
     ]
+  },
+  "language": "korean",
+  "effortLevel": "medium",
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "includeGitInstructions": false,
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch"
+    ]
   }
 }

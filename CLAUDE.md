@@ -1,7 +1,3 @@
-# DataGSM Server
-
-**Please respond and work in Korean.**
-
 ## Project Overview
 
 School information API server for Gwangju Software Meister High School (students, clubs, meals, schedules)
