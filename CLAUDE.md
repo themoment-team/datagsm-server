@@ -1,7 +1,3 @@
-# DataGSM Server
-
-**Please respond and work in Korean.**
-
 ## Project Overview
 
 School information API server for Gwangju Software Meister High School (students, clubs, meals, schedules)
@@ -61,7 +57,7 @@ fun getStudents(@Valid @ModelAttribute queryReq: QueryStudentReqDto): StudentLis
 
 - **@RequestBody (Create/Update)**: Use `reqDto` → `service.execute(reqDto)`
 - **@ModelAttribute (Query)**: Use `queryReq` → `service.execute(queryReq)`
-- **@ModelAttribute (Search)**: Use `searchReq` (검색 의미가 명확한 경우)
+- **@ModelAttribute (Search)**: Use `searchReq` (If search meaning is clear)
 
 ### Controller-Service Value Passing
 

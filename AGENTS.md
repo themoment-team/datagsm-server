@@ -1,5 +1,3 @@
-# DataGSM Server
-
 **한국어로 응답하고 작업해주세요 (Please respond and work in Korean).**
 
 ## Project Overview
@@ -125,7 +123,6 @@ Use the following slash commands for common tasks:
 - `/format` - Run KtLint formatting
 - `/commit` - Create Git commits by splitting changes into logical units
 - `/review-pr` - Assess PR review comments against conventions, auto-apply valid ones, refute invalid ones
-
 ## Notes
 
 - This project uses Java 25 for Gradle builds

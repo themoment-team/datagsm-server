@@ -54,8 +54,8 @@ class ApplicationController(
     )
     @GetMapping
     fun searchApplications(
-        @Valid @ModelAttribute queryReq: SearchApplicationReqDto,
-    ): ApplicationListResDto = searchApplicationService.execute(queryReq)
+        @Valid @ModelAttribute searchReq: SearchApplicationReqDto,
+    ): ApplicationListResDto = searchApplicationService.execute(searchReq)
 
     @Operation(summary = "Application 단일 조회", description = "ID로 Application을 조회합니다.")
     @ApiResponses(
