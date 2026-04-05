@@ -19,8 +19,8 @@ class CreateApiKeyServiceTest : DescribeSpec({
         service = CreateApiKeyServiceImpl(repository)
     }
 
-    describe("CreateApiKeyService") {
-        describe("execute") {
+    describe("CreateApiKeyService 클래스의") {
+        describe("execute 메서드는") {
             context("유효한 요청인 경우") {
                 it("API 키를 생성하고 반환한다") {
                     // Given
