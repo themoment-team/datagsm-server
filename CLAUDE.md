@@ -110,14 +110,6 @@ For more details, execute the corresponding skill:
 - **code-review**: Checklist-based automatic validation
 - **security-checklist**: Hardcoded secrets, SQL Injection, JWT validation checks
 
-## Sub-Agents
-
-프롬프트/문서 품질 관련 전담 에이전트:
-
-- **Prompt-Polisher**: 에이전트/스킬 .md 파일 품질 제안 출력 (편집 없음) — `'프롬프트 다듬어줘'`
-- **Doc-Polisher**: CLAUDE.md, CONTRIBUTING.md 등 문서 직접 갱신 (커밋 안 함) — `'문서 갱신해줘'`
-- **Contradiction-Finder**: 문서↔코드↔에이전트 간 4-레이어 모순 리포트 출력 (편집 없음) — `'모순 찾아줘'`
-
 ## Key Paths
 
 - Common Entity: `datagsm-common/src/main/kotlin/.../domain/`
