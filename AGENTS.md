@@ -116,13 +116,6 @@ fun updateStudent(@PathVariable id: Long, @Valid @RequestBody reqDto: UpdateStud
   - CORRECT: `ExpectedException("학생을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)`
   - WRONG: `ExpectedException("학생을 찾을 수 없습니다. ID: $id", HttpStatus.NOT_FOUND)`
 
-## Custom Commands
-
-Use the following slash commands for common tasks:
-- `/pr-draft` - Generate PR title suggestions and body
-- `/format` - Run KtLint formatting
-- `/commit` - Create Git commits by splitting changes into logical units
-- `/review-pr` - Assess PR review comments against conventions, auto-apply valid ones, refute invalid ones
 ## Notes
 
 - This project uses Java 25 for Gradle builds

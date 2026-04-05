@@ -102,14 +102,6 @@ Priority order when compressing conversation history:
 5. Tech Stack
 6. Reduce: Commands, Key Paths
 
-## Detailed Guides (Skills)
-
-For more details, execute the corresponding skill:
-- **kotlin-spring-arch**: Detailed layer structure, transaction strategy, exception handling patterns
-- **kotest-guide**: Kotest + MockK Given-When-Then pattern, coroutine testing
-- **code-review**: Checklist-based automatic validation
-- **security-checklist**: Hardcoded secrets, SQL Injection, JWT validation checks
-
 ## Key Paths
 
 - Common Entity: `datagsm-common/src/main/kotlin/.../domain/`
