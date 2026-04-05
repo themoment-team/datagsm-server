@@ -747,7 +747,7 @@ throw ExpectedException("이미 존재하는 이메일입니다", HttpStatus.CON
 ```kotlin
 // Good
 logger().info("Deleted {} expired API keys", deletedCount)
-logger().error("Failed to issue OAuth token: scopeStr={}", scopeStr)
+logger().error("Failed to issue OAuth token for scopeStr {}", scopeStr)
 logger().warn("ExpectedException occurred with message {}", ex.message)
 
 // Bad

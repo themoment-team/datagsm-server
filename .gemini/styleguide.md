@@ -400,7 +400,7 @@ fun execute(reqDto: CreateStudentReqDto) {
 
 - **Language**: English only — verb-led sentences
 - **Format**: SLF4J `{}` placeholder, not string interpolation
-- **Pattern**: `"<Verb> <subject/context>: {}"`, value
+- **Pattern**: `"<Verb> <subject/context> {}"`, value
 
 ```kotlin
 // CORRECT
