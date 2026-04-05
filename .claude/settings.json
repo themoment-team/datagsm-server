@@ -43,9 +43,11 @@
       }
     ]
   },
-  "language": "korean",
-  "effortLevel": "medium",
   "enabledPlugins": {
-    "claude-hud@claude-hud": true
-  }
+    "claude-hud@claude-hud": true,
+    "github@claude-plugins-official": true,
+    "context7@claude-plugins-official": true
+  },
+  "language": "korean",
+  "effortLevel": "medium"
 }
