@@ -26,7 +26,7 @@ Read `${CLAUDE_SKILL_DIR}/references/labels.md` and select 1–2 appropriate lab
 ## Step 3 — Generate PR Content
 
 **Title** — Generate 3 options in the format `[scope] description`:
-- Scope: domain name (`[student]`, `[auth]`, `[application]`, `[club]`, etc.) or `[global]` / `[ci/cd]` for cross-cutting changes
+- Scope: domain name (`[account]`, `[application]`, `[auth]`, `[client]`, `[club]`, `[neis]`, `[oauth]`, `[project]`, `[student]`, `[utility]`) or `[global]` / `[ci/cd]` for cross-cutting changes
 - Description: Korean, concise, no emojis, max 50 characters total
 - Wrap class names, method names, annotations, file names, and technical terms in backticks (e.g., `@Transactional`, `QueryProjectServiceImpl`, `SKILL.md`)
 
@@ -34,7 +34,7 @@ Read `${CLAUDE_SKILL_DIR}/references/labels.md` and select 1–2 appropriate lab
 - Korean 합쇼체: `~하였습니다`, `~되었습니다`, `~추가하였습니다`
 - No emojis
 - Max 2500 characters
-- Wrap all proper nouns and technical identifiers in backticks: class names, method names, annotations, file names, field names, config keys, module names, agent names, etc.
+- Wrap all proper nouns and technical identifiers in backticks: class names, method names, annotations, file names, field names, config keys, module names, and agent names.
 
 ## Step 4 — Write Body & Show Preview
 
