@@ -13,16 +13,22 @@ You are a read-only consistency auditor for the datagsm-server project. Your job
 
 ## Layer Overview
 
-| Layer               | What is checked                                                                  |
-|---------------------|----------------------------------------------------------------------------------|
-| L1: doc↔doc         | CLAUDE.md vs .gemini/styleguide.md vs CONTRIBUTING.md vs copilot-instructions.md |
-| L2: doc↔code        | Documented rules vs actual `.kt` file patterns (full codebase, grep-based)       |
-| L3: doc↔agent/skill | CLAUDE.md rules vs agent `.md` and skill `SKILL.md` definitions                  |
-| L4: agent↔agent     | Trigger condition overlap and scope conflict between agent definitions           |
+| Layer               | What is checked                                                                                          |
+|---------------------|----------------------------------------------------------------------------------------------------------|
+| L1: doc↔doc         | `.claude/rules/**` vs CLAUDE.md vs .gemini/styleguide.md vs CONTRIBUTING.md vs copilot-instructions.md  |
+| L2: doc↔code        | Documented rules vs actual `.kt` file patterns (full codebase, grep-based)                              |
+| L3: doc↔agent/skill | CLAUDE.md + `.claude/rules/**` rules vs agent `.md` and skill `SKILL.md` definitions                    |
+| L4: agent↔agent     | Trigger condition overlap and scope conflict between agent definitions                                   |
 
 **Independence rule**: `.claude/` and `.agents/` are independent systems. Differences between equivalent files in those two directories are NOT contradictions and must not be reported as such.
 
 ## Step 1 — Collect All Source Material
+
+### Rule Files (discover dynamically)
+```bash
+find .claude/rules -name "*.md" 2>/dev/null
+```
+Read every file returned. These files are the primary rule source.
 
 ### Documentation
 Read these files in full:
@@ -46,21 +52,11 @@ Collect the file list. Do NOT read every file — use targeted Grep queries in S
 
 ## Step 2 — Layer 1: doc↔doc
 
-Extract the stated rule for each of the following topics from every documentation file. Then compare across files for contradictions.
+After reading all rule files in Step 1, extract the topics they define (e.g., DTO annotations, logging format, exception messages). For each topic found, cross-check the same rule across all documentation files and look for contradictions.
 
-Topics to cross-check:
-- DTO annotation targets: `@field:JsonProperty` vs `@param:JsonProperty`
-- `@Transactional` placement: class-level vs method-level
-- DTO variable naming: `reqDto`, `queryReq`, `searchReq` — when each is used
-- Logging language: English only? Korean allowed?
-- Logging format: `{}` placeholder vs string interpolation
-- `ExpectedException` message constraints: Korean 합쇼체, no dynamic data
-- `@RequestParam` vs `@ModelAttribute` threshold (1–2 params vs 3+ params)
-- Constructor injection requirement
-- Commit scope convention: domain name vs module name
-- `val` vs `var` preference
+Do not use a hardcoded topic list — derive topics from the rule files you actually read. Common areas include but are not limited to: annotation targets, `@Transactional` placement, DTO naming, logging language/format, exception message constraints, `@RequestParam` vs `@ModelAttribute` threshold, injection style, commit scope convention, `val`/`var` preference.
 
-**Authority order**: CLAUDE.md is authoritative. When CLAUDE.md states a rule, any conflicting statement in another document is a contradiction. When CLAUDE.md is silent, .gemini/styleguide.md takes precedence over CONTRIBUTING.md.
+**Authority order**: `CLAUDE.md` > `.claude/rules/**` > `.gemini/styleguide.md` > `CONTRIBUTING.md`. When CLAUDE.md states a rule, any conflicting statement in another document is a contradiction. When CLAUDE.md is silent, `.gemini/styleguide.md` takes precedence over `CONTRIBUTING.md`.
 
 Distinguish:
 - **Hard contradiction**: Rule A says X, Rule B says not-X

@@ -13,6 +13,14 @@ You are a documentation maintenance agent for the datagsm-server project. Your j
 
 ## Target Files
 
+Discover all target files dynamically at runtime. Do not assume a fixed list — new files may have been added since this agent was written.
+
+### Rule Files (discover first)
+```bash
+find .claude/rules -name "*.md" 2>/dev/null
+```
+Read every file returned. These define the authoritative conventions for the project.
+
 ### Documentation
 - `CLAUDE.md`
 - `AGENTS.md`
@@ -21,6 +29,7 @@ You are a documentation maintenance agent for the datagsm-server project. Your j
 - `.github/copilot-instructions.md`
 
 ### Agent and Skill Definitions (treated independently)
+Use Glob to collect:
 - `.claude/agents/*.md`
 - `.claude/skills/**/*.md`
 - `.agents/skills/**/*.md`
@@ -89,7 +98,7 @@ For each identified issue, apply the edit using the Edit tool:
 3. **Type C (missing conventions)**: Insert the new convention into the most relevant existing section. Do not create new top-level sections unless no suitable section exists.
 4. **Type D (structural)**: Reorder headings or fix table-of-contents entries. Limit to the specific misaligned section — do not reorganize entire files.
 
-**Priority when rules conflict**: CLAUDE.md > .gemini/styleguide.md > CONTRIBUTING.md
+**Priority when rules conflict**: CLAUDE.md > `.claude/rules/**` > `.gemini/styleguide.md` > `CONTRIBUTING.md`
 
 **Independence rule**: Changes to `.claude/skills/X/SKILL.md` do NOT automatically apply to `.agents/skills/X/SKILL.md`. Treat each as a separate file requiring its own audit.
 

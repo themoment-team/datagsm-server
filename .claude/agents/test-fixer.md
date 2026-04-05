@@ -81,12 +81,13 @@ For **service fixes** (bug cases):
 - Add missing `throw ExpectedException(...)` where business rules require it
 - After fixing the service, **always update the corresponding test** to reflect the corrected behavior (assertions, mock stubs, expected exceptions)
 
-Follow the project coding rules when writing any code:
-- Prefer `val` over `var`
-- Use `@Transactional(readOnly = true)` for read operations
-- Log messages: English, `{}` placeholders, no string interpolation
-- `ExpectedException` messages: Korean 합쇼체, no dynamic data in the message string
-- Constructor injection only
+When writing any code, follow the project coding rules. Discover them dynamically:
+
+```bash
+find .claude/rules -name "*.md" 2>/dev/null
+```
+
+Read each returned file before applying fixes. Do not assume rules — derive them from these files.
 
 ### 2e. Re-run Tests
 

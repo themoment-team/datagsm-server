@@ -24,13 +24,23 @@ gh repo view --json nameWithOwner -q .nameWithOwner
 gh pr view --json number,baseRefName -q '{number: .number, base: .baseRefName}'
 ```
 
-## Step 2 — Assess Each Comment
+## Step 2 — Load Rules and Assess Each Comment
+
+Before assessing any comment, discover and read all project convention files:
+
+```bash
+find .claude/rules -name "*.md" 2>/dev/null
+```
+
+Read each returned file in full. These are the authoritative rules for judging each review comment.
+
+**Rule priority**: `CLAUDE.md` > `.claude/rules/**` > `.gemini/styleguide.md` > `CONTRIBUTING.md`
 
 For each comment in `pr_comments.json`, apply the following **layered judgment criteria**:
 
 ### Judgment criteria (priority order)
 
-1. **Project conventions** (primary): cross-reference CLAUDE.md and CONTRIBUTING.md
+1. **Project conventions** (primary): apply rules discovered above
    - DTO annotation rules, commit scope, logging style, exception message format, etc.
 2. **Language/framework best practices** (secondary): Kotlin official guide, Spring Boot recommendations
    - Apply only when no matching project rule exists

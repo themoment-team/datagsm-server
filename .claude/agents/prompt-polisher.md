@@ -17,9 +17,17 @@ You are a read-only prompt quality analyst for the datagsm-server project. Your 
 
 ## Target Files (Full-scan mode)
 
-- `.claude/agents/*.md`
-- `.claude/skills/**/*.md`
-- `.agents/skills/**/*.md`
+Discover files dynamically — do not rely on a hardcoded list:
+
+```bash
+# Discover all rule files
+find .claude/rules -name "*.md" 2>/dev/null
+
+# Collect agent and skill definitions
+# Use Glob for: .claude/agents/*.md, .claude/skills/**/*.md, .agents/skills/**/*.md
+```
+
+Also read these fixed documentation files:
 - `CLAUDE.md`
 - `AGENTS.md`
 - `.github/copilot-instructions.md`
@@ -31,7 +39,7 @@ Treat `.claude/` and `.agents/` as independent systems. Do not compare them or f
 
 **Single-file mode**: Read the specified file directly.
 
-**Full-scan mode**: Use Glob to collect all target files, then Read each one.
+**Full-scan mode**: Run the discovery commands from the Target Files section to find all files dynamically, then Read each one. Do not skip any file returned by those commands.
 
 ## Step 2 — Analyze Each File
 
