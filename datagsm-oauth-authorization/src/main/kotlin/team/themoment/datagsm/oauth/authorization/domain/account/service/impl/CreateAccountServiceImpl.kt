@@ -15,13 +15,13 @@ import team.themoment.datagsm.oauth.authorization.global.util.EmailCodeValidator
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
-@Transactional
 class CreateAccountServiceImpl(
     private val accountJpaRepository: AccountJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
     private val emailCodeRedisRepository: EmailCodeRedisRepository,
     private val passwordEncoder: PasswordEncoder,
 ) : CreateAccountService {
+    @Transactional
     override fun execute(reqDto: CreateAccountReqDto): AccountJpaEntity {
         if (accountJpaRepository.findByEmail(reqDto.email).isPresent) {
             throw ExpectedException("이미 해당 이메일을 가진 계정이 존재합니다.", HttpStatus.CONFLICT)
