@@ -124,6 +124,21 @@ Use the following slash commands for common tasks:
 - `/commit` - Create Git commits by splitting changes into logical units
 - `/review-pr` - Assess PR review comments against conventions, auto-apply valid ones, refute invalid ones
 
+## Sub-Agents
+
+Claude Code sub-agents are defined in `.claude/agents/`. Each agent activates on specific trigger phrases.
+
+| Agent | Model | Mode | Trigger (예시) |
+|-------|-------|------|----------------|
+| Test-Fixer | sonnet | Edit | '테스트 고쳐줘', 'test-fixer 실행해줘' |
+| Convention-Validator | sonnet | Edit | '컨벤션 검사해줘', 'convention-validator 실행해' |
+| Web-Researcher | haiku | Read-only | 최신 정보 검색, 릴리즈 노트 조사 필요 시 |
+| Prompt-Polisher | haiku | 제안 출력 (no edit) | '프롬프트 다듬어줘', 'prompt-polisher 실행해' |
+| Doc-Polisher | sonnet | Edit | '문서 갱신해줘', 'doc-polisher 실행해' |
+| Contradiction-Finder | sonnet | 리포트 출력 (no edit) | '모순 찾아줘', 'contradiction-finder 실행해' |
+
+`.claude/` and `.agents/` are managed independently — agent definitions exist only in `.claude/agents/` and are not synchronized to `.agents/`.
+
 ## Notes
 
 - This project uses Java 25 for Gradle builds
