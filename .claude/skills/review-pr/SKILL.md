@@ -39,7 +39,7 @@ For each comment in `pr_comments.json`, apply the following **layered judgment c
 
 - **VALID**: reviewer is correct → attempt auto code fix
 - **INVALID**: reviewer is wrong with a clear refutation → skip, post refutation reply
-- **PARTIAL**: intent is correct but application method or scope is ambiguous → console confirm
+- **PARTIAL**: intent is correct but application method or scope is ambiguous → confirm with AskUserQuestion
 
 Always cite a specific source in the rationale (e.g. `CLAUDE.md §Logging Style`, `Kotlin: prefer val over var`).
 
@@ -55,19 +55,21 @@ Always cite a specific source in the rationale (e.g. `CLAUDE.md §Logging Style`
    git rev-parse --short HEAD
    ```
 
-On failure: record the reason and fall back to PARTIAL console prompt.
+On failure: record the reason and fall back to PARTIAL.
 
 ### INVALID → Skip
 
 Do not modify any code. Record the refutation rationale for Step 5.
 
-### PARTIAL → Console confirm
+### PARTIAL → Confirm with AskUserQuestion
+
+Use the AskUserQuestion tool to ask:
 
 ```
-⚠️  PARTIAL: [file:line] (reviewer)
+⚠️ PARTIAL: [file:line] (reviewer)
 Review: "..."
 Rationale: ...
-Accept? (y/n/s = skip for now):
+Accept? (y / n / s = skip for now)
 ```
 
 - `y`: treat as VALID, attempt code fix
