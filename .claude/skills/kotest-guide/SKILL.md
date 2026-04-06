@@ -123,6 +123,7 @@ context("API 키가 존재하지 않는 경우") {
 
 ## Reference Files
 
-Real test examples:
-- `datagsm-oauth-authorization/src/test/kotlin/.../auth/service/ApiKeyServiceTest.kt`
-- `datagsm-web/src/test/kotlin/.../student/service/StudentServiceTest.kt`
+Discover real test examples dynamically:
+```bash
+find . -name "*ServiceTest.kt" -not -path "*/build/*" | head -5
+```

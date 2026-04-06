@@ -5,7 +5,7 @@ tools: Bash, Glob, Grep, Read, Edit
 model: sonnet
 color: yellow
 memory: none
-maxTurns: 5
+maxTurns: 8
 permissionMode: auto
 ---
 
