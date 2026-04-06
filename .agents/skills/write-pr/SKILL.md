@@ -1,5 +1,5 @@
 ---
-name: pr-draft
+name: write-pr
 description: Generate PR title, body, and labels from commits since the base branch, then create the PR on GitHub. Handles base branch detection, label selection, and PR creation end-to-end.
 ---
 
