@@ -12,10 +12,10 @@ import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfo
 import team.themoment.datagsm.openapi.domain.project.service.QueryProjectService
 
 @Service
-@Transactional(readOnly = true)
 class QueryProjectServiceImpl(
     private val projectJpaRepository: ProjectJpaRepository,
 ) : QueryProjectService {
+    @Transactional(readOnly = true)
     override fun execute(queryReq: QueryProjectReqDto): ProjectListResDto {
         val projectPage =
             projectJpaRepository.searchProjectWithPaging(

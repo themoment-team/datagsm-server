@@ -1,4 +1,24 @@
 {
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "includeGitInstructions": false,
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch",
+      "Bash(./gradlew *)",
+      "Bash(git diff*)",
+      "Bash(git status)",
+      "Bash(git log*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git branch*)",
+      "Bash(git checkout*)",
+      "Bash(git rev-parse*)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {
@@ -23,17 +43,11 @@
       }
     ]
   },
-  "language": "korean",
-  "effortLevel": "medium",
-  "attribution": {
-    "commit": "",
-    "pr": ""
+  "enabledPlugins": {
+    "claude-hud@claude-hud": true,
+    "github@claude-plugins-official": true,
+    "context7@claude-plugins-official": true
   },
-  "includeGitInstructions": false,
-  "permissions": {
-    "allow": [
-      "WebSearch",
-      "WebFetch"
-    ]
-  }
+  "language": "korean",
+  "effortLevel": "medium"
 }
