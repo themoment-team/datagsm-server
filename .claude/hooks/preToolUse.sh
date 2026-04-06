@@ -11,7 +11,7 @@ if [[ "$TOOL_NAME" == "Bash" ]]; then
     mkdir -p "$(dirname "$LOG_FILE")"
     echo "[$TIMESTAMP] $COMMAND" >> "$LOG_FILE"
     BLOCKED_PATTERNS=(
-        "rm -rf /"
+        "rm -rf[[:space:]]*/[[:space:]]*$"
         "sudo rm"
         "> /dev/"
         "dd if="
