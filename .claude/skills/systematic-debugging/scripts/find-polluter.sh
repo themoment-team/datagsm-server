@@ -1,122 +1,63 @@
-# Defense-in-Depth Validation
+#!/usr/bin/env bash
+# Bisection script to find which test creates unwanted files/state
+# Usage: ./find-polluter.sh <file_or_dir_to_check> <test_pattern>
+# Example: ./find-polluter.sh '.git' 'src/**/*.test.ts'
 
-## Overview
+set -e
 
-When you fix a bug caused by invalid data, adding validation at one place feels sufficient. But that single check can be bypassed by different code paths, refactoring, or mocks.
+if [ $# -ne 2 ]; then
+  echo "Usage: $0 <file_to_check> <test_pattern>"
+  echo "Example: $0 '.git' 'src/**/*.test.ts'"
+  exit 1
+fi
 
-**Core principle:** Validate at EVERY layer data passes through. Make the bug structurally impossible.
+POLLUTION_CHECK="$1"
+TEST_PATTERN="$2"
 
-## Why Multiple Layers
+echo "🔍 Searching for test that creates: $POLLUTION_CHECK"
+echo "Test pattern: $TEST_PATTERN"
+echo ""
 
-Single validation: "We fixed the bug"
-Multiple layers: "We made the bug impossible"
+# Get list of test files
+TEST_FILES=$(find . -path "$TEST_PATTERN" | sort)
+TOTAL=$(echo "$TEST_FILES" | wc -l | tr -d ' ')
 
-Different layers catch different cases:
-- Entry validation catches most bugs
-- Business logic catches edge cases
-- Environment guards prevent context-specific dangers
-- Debug logging helps when other layers fail
+echo "Found $TOTAL test files"
+echo ""
 
-## The Four Layers
+COUNT=0
+for TEST_FILE in $TEST_FILES; do
+  COUNT=$((COUNT + 1))
 
-### Layer 1: Entry Point Validation
-**Purpose:** Reject obviously invalid input at API boundary
+  # Skip if pollution already exists
+  if [ -e "$POLLUTION_CHECK" ]; then
+    echo "⚠️  Pollution already exists before test $COUNT/$TOTAL"
+    echo "   Skipping: $TEST_FILE"
+    continue
+  fi
 
-```typescript
-function createProject(name: string, workingDirectory: string) {
-  if (!workingDirectory || workingDirectory.trim() === '') {
-    throw new Error('workingDirectory cannot be empty');
-  }
-  if (!existsSync(workingDirectory)) {
-    throw new Error(`workingDirectory does not exist: ${workingDirectory}`);
-  }
-  if (!statSync(workingDirectory).isDirectory()) {
-    throw new Error(`workingDirectory is not a directory: ${workingDirectory}`);
-  }
-  // ... proceed
-}
-```
+  echo "[$COUNT/$TOTAL] Testing: $TEST_FILE"
 
-### Layer 2: Business Logic Validation
-**Purpose:** Ensure data makes sense for this operation
+  # Run the test
+  npm test "$TEST_FILE" > /dev/null 2>&1 || true
 
-```typescript
-function initializeWorkspace(projectDir: string, sessionId: string) {
-  if (!projectDir) {
-    throw new Error('projectDir required for workspace initialization');
-  }
-  // ... proceed
-}
-```
+  # Check if pollution appeared
+  if [ -e "$POLLUTION_CHECK" ]; then
+    echo ""
+    echo "🎯 FOUND POLLUTER!"
+    echo "   Test: $TEST_FILE"
+    echo "   Created: $POLLUTION_CHECK"
+    echo ""
+    echo "Pollution details:"
+    ls -la "$POLLUTION_CHECK"
+    echo ""
+    echo "To investigate:"
+    echo "  npm test $TEST_FILE    # Run just this test"
+    echo "  cat $TEST_FILE         # Review test code"
+    exit 1
+  fi
+done
 
-### Layer 3: Environment Guards
-**Purpose:** Prevent dangerous operations in specific contexts
-
-```typescript
-async function gitInit(directory: string) {
-  // In tests, refuse git init outside temp directories
-  if (process.env.NODE_ENV === 'test') {
-    const normalized = normalize(resolve(directory));
-    const tmpDir = normalize(resolve(tmpdir()));
-
-    if (!normalized.startsWith(tmpDir)) {
-      throw new Error(
-        `Refusing git init outside temp dir during tests: ${directory}`
-      );
-    }
-  }
-  // ... proceed
-}
-```
-
-### Layer 4: Debug Instrumentation
-**Purpose:** Capture context for forensics
-
-```typescript
-async function gitInit(directory: string) {
-  const stack = new Error().stack;
-  logger.debug('About to git init', {
-    directory,
-    cwd: process.cwd(),
-    stack,
-  });
-  // ... proceed
-}
-```
-
-## Applying the Pattern
-
-When you find a bug:
-
-1. **Trace the data flow** - Where does bad value originate? Where used?
-2. **Map all checkpoints** - List every point data passes through
-3. **Add validation at each layer** - Entry, business, environment, debug
-4. **Test each layer** - Try to bypass layer 1, verify layer 2 catches it
-
-## Example from Session
-
-Bug: Empty `projectDir` caused `git init` in source code
-
-**Data flow:**
-1. Test setup → empty string
-2. `Project.create(name, '')`
-3. `WorkspaceManager.createWorkspace('')`
-4. `git init` runs in `process.cwd()`
-
-**Four layers added:**
-- Layer 1: `Project.create()` validates not empty/exists/writable
-- Layer 2: `WorkspaceManager` validates projectDir not empty
-- Layer 3: `WorktreeManager` refuses git init outside tmpdir in tests
-- Layer 4: Stack trace logging before git init
-
-**Result:** All 1847 tests passed, bug impossible to reproduce
-
-## Key Insight
-
-All four layers were necessary. During testing, each layer caught bugs the others missed:
-- Different code paths bypassed entry validation
-- Mocks bypassed business logic checks
-- Edge cases on different platforms needed environment guards
-- Debug logging identified structural misuse
-
-**Don't stop at one validation point.** Add checks at every layer.
+echo ""
+echo "✅ No polluter found - all tests clean!"
+exit 0
