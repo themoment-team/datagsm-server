@@ -7,7 +7,7 @@ if [[ "$TOOL_NAME" == "Bash" ]]; then
     COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command')
     CWD=$(echo "$INPUT" | jq -r '.cwd')
     TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-    LOG_FILE="$HOME/.claude/command.log"
+    LOG_FILE="$CWD/.claude/command.log"
     mkdir -p "$(dirname "$LOG_FILE")"
     echo "[$TIMESTAMP] $COMMAND" >> "$LOG_FILE"
     BLOCKED_PATTERNS=(

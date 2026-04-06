@@ -20,8 +20,9 @@ if [[ "$TOOL_NAME" == "Edit" ]] || [[ "$TOOL_NAME" == "Write" ]]; then
             RELATIVE="${FILE_PATH#$CWD/}"
             MODULE=$(echo "$RELATIVE" | cut -d'/' -f1)
             if [[ -n "$MODULE" ]] && [[ -d "$CWD/$MODULE/src/test" ]]; then
-                echo "[Hook] Running tests for $MODULE after $FILE_NAME edit..." >&2
-                TEST_OUTPUT=$(./gradlew ":${MODULE}:test" 2>&1)
+                TEST_CLASS="${FILE_NAME%Impl.kt}Test"
+                echo "[Hook] Running test $TEST_CLASS in $MODULE..." >&2
+                TEST_OUTPUT=$(./gradlew ":${MODULE}:test" --tests "$TEST_CLASS" 2>&1)
                 TEST_EXIT=$?
                 TAIL=$(echo "$TEST_OUTPUT" | tail -5)
                 if [[ $TEST_EXIT -ne 0 ]]; then
