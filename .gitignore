@@ -54,3 +54,4 @@ out/
 ### LLM Outputs ###
 PR_BODY.md
 .pr-tmp/
+/.claude/command.log

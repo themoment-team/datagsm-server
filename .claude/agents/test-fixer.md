@@ -1,6 +1,6 @@
 ---
 name: test-fixer
-description: "Runs Kotlin/Kotest tests at module level, diagnoses failures, and fixes mismatches between service and test code. Service code is the source of truth — tests are updated when service behavior changes, and service bugs (NPE, wrong logic) are fixed at the source. After any service fix, the corresponding test is always updated too. Retries up to 3 times, re-runs tests after each fix to confirm pass. Does NOT auto-commit. Trigger when the user says things like '테스트 고쳐줘', 'test-fixer 실행해줘', or specifies a module like 'datagsm-web 테스트 고쳐줘'. DO NOT trigger for convention style fixes or documentation updates — use Convention-Validator or Doc-Polisher instead."
+description: "Runs Kotlin/Kotest tests at module level, diagnoses failures, and fixes mismatches between service and test code. Service code is the source of truth — tests are updated when service behavior changes, and service bugs (NPE, wrong logic) are fixed at the source. After any service fix, the corresponding test is always updated too. Retries up to 3 times, re-runs tests after each fix to confirm pass. Does NOT auto-commit. Trigger when the user says things like '테스트 고쳐줘', 'test-fixer 실행해줘', or specifies a module like 'datagsm-web 테스트 고쳐줘'. Also trigger when the user modifies service code (files matching *ServiceImpl.kt or *Service.kt) and asks to verify or run tests, or after completing a service-level feature/fix and the user asks to check if tests still pass. DO NOT trigger for convention style fixes or documentation updates — use Convention-Validator or Doc-Polisher instead."
 tools: Bash, Glob, Grep, Read, Edit
 model: sonnet
 color: green
@@ -55,14 +55,14 @@ For each failing test class `FooServiceTest`:
 
 Use the following decision table:
 
-| Failure Pattern | Root Cause | Fix Target |
-|----------------|-----------|-----------|
-| `UnsatisfiedMockKStubbing` / `no answer for` | Service method signature changed | Update test mock setup |
-| `shouldBe` / `shouldNotBe` assertion mismatch (value differs) | Service logic changed or has a bug | Inspect service first, then decide |
-| `NullPointerException` inside service implementation | Service null-safety issue | Fix service |
-| `shouldThrow<ExpectedException>` but no exception thrown | Service missing throw, or test scenario is wrong | Inspect service logic to decide |
-| Compilation error in test (unresolved reference, type mismatch) | Service API changed (method renamed/removed/signature changed) | Update test to match new API |
-| `ClassCastException` or wrong type returned | Service return type or DTO mapping changed | Inspect service, fix accordingly |
+| Failure Pattern                                                 | Root Cause                                                     | Fix Target                         |
+|-----------------------------------------------------------------|----------------------------------------------------------------|------------------------------------|
+| `UnsatisfiedMockKStubbing` / `no answer for`                    | Service method signature changed                               | Update test mock setup             |
+| `shouldBe` / `shouldNotBe` assertion mismatch (value differs)   | Service logic changed or has a bug                             | Inspect service first, then decide |
+| `NullPointerException` inside service implementation            | Service null-safety issue                                      | Fix service                        |
+| `shouldThrow<ExpectedException>` but no exception thrown        | Service missing throw, or test scenario is wrong               | Inspect service logic to decide    |
+| Compilation error in test (unresolved reference, type mismatch) | Service API changed (method renamed/removed/signature changed) | Update test to match new API       |
+| `ClassCastException` or wrong type returned                     | Service return type or DTO mapping changed                     | Inspect service, fix accordingly   |
 
 **Default bias**: Service code is correct. Only fix service code when there is clear evidence of a bug (NPE, wrong condition, missing null check, logic error).
 
