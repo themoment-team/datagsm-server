@@ -192,7 +192,7 @@ class ModifyStudentExcelServiceImpl(
                                 major =
                                     Major.fromMajor(getRequiredString(row, 3, "학과"))
                                         ?: throw ExpectedException(
-                                            "올바르지 않은 학과 값이 존재합니다.",
+                                            "학과는 'SW개발과', '스마트IoT과', '인공지능과' 중 하나여야 합니다.",
                                             HttpStatus.BAD_REQUEST,
                                         ),
                                 majorClub = getOptionalString(row, 4),
@@ -201,13 +201,13 @@ class ModifyStudentExcelServiceImpl(
                                 role =
                                     StudentRole.fromRole(getRequiredString(row, 7, "소속"))
                                         ?: throw ExpectedException(
-                                            "올바르지 않은 소속 값이 존재합니다.",
+                                            "소속은 '일반학생', '기숙사자치위원회', '학생회' 중 하나여야 합니다.",
                                             HttpStatus.BAD_REQUEST,
                                         ),
                                 sex =
                                     Sex.fromSex(getRequiredString(row, 8, "성별"))
                                         ?: throw ExpectedException(
-                                            "올바르지 않은 성별 값이 존재합니다.",
+                                            "성별은 '남자' 또는 '여자'여야 합니다.",
                                             HttpStatus.BAD_REQUEST,
                                         ),
                             )

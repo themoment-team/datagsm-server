@@ -531,7 +531,7 @@ class ModifyStudentExcelServiceTest :
                                 modifyStudentExcelService.execute(file)
                             }
 
-                        exception.message shouldBe "올바르지 않은 학과 값이 존재합니다."
+                        exception.message shouldBe "학과는 'SW개발과', '스마트IoT과', '인공지능과' 중 하나여야 합니다."
                         exception.statusCode shouldBe HttpStatus.BAD_REQUEST
                     }
                 }
@@ -584,7 +584,7 @@ class ModifyStudentExcelServiceTest :
                                 modifyStudentExcelService.execute(file)
                             }
 
-                        exception.message shouldBe "올바르지 않은 소속 값이 존재합니다."
+                        exception.message shouldBe "소속은 '일반학생', '기숙사자치위원회', '학생회' 중 하나여야 합니다."
                         exception.statusCode shouldBe HttpStatus.BAD_REQUEST
                     }
                 }
@@ -636,7 +636,7 @@ class ModifyStudentExcelServiceTest :
                                 modifyStudentExcelService.execute(file)
                             }
 
-                        exception.message shouldBe "올바르지 않은 성별 값이 존재합니다."
+                        exception.message shouldBe "성별은 '남자' 또는 '여자'여야 합니다."
                         exception.statusCode shouldBe HttpStatus.BAD_REQUEST
                     }
                 }
