@@ -3,7 +3,6 @@ package team.themoment.datagsm.web.domain.student.service
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -219,7 +218,7 @@ class ModifyStudentExcelServiceTest :
                                 modifyStudentExcelService.execute(file)
                             }
 
-                        exception.message shouldContain "엑셀 파일에 다음 학번이 중복으로 존재합니다"
+                        exception.message shouldBe "엑셀 파일에 중복된 학번이 존재합니다."
                         exception.statusCode shouldBe HttpStatus.BAD_REQUEST
                     }
                 }
@@ -280,7 +279,7 @@ class ModifyStudentExcelServiceTest :
                                 modifyStudentExcelService.execute(file)
                             }
 
-                        exception.message shouldContain "엑셀 파일에 다음 이메일이 중복으로 존재합니다"
+                        exception.message shouldBe "엑셀 파일에 중복된 이메일이 존재합니다."
                         exception.statusCode shouldBe HttpStatus.BAD_REQUEST
                     }
                 }
@@ -411,7 +410,7 @@ class ModifyStudentExcelServiceTest :
                                 modifyStudentExcelService.execute(file)
                             }
 
-                        exception.message shouldContain "DB에 존재하지 않는 학번이 엑셀 파일에 존재합니다"
+                        exception.message shouldBe "데이터베이스에 존재하지 않는 학번이 포함되어 있습니다."
                         exception.statusCode shouldBe HttpStatus.BAD_REQUEST
                     }
                 }
@@ -446,7 +445,7 @@ class ModifyStudentExcelServiceTest :
                                 modifyStudentExcelService.execute(file)
                             }
 
-                        exception.message shouldContain "엑셀에 존재하지 않는 학번이 데이터베이스에 존재합니다"
+                        exception.message shouldBe "엑셀 파일에 존재하지 않는 학번이 있습니다."
                         exception.statusCode shouldBe HttpStatus.BAD_REQUEST
                     }
                 }
@@ -532,7 +531,7 @@ class ModifyStudentExcelServiceTest :
                                 modifyStudentExcelService.execute(file)
                             }
 
-                        exception.message shouldContain "학과는 'SW개발과', '스마트IoT과', '인공지능과'여야 합니다"
+                        exception.message shouldBe "올바르지 않은 학과 값이 존재합니다."
                         exception.statusCode shouldBe HttpStatus.BAD_REQUEST
                     }
                 }
@@ -585,7 +584,7 @@ class ModifyStudentExcelServiceTest :
                                 modifyStudentExcelService.execute(file)
                             }
 
-                        exception.message shouldContain "소속은 '일반학생', '기숙사자치위원회', '학생회'여야 합니다"
+                        exception.message shouldBe "올바르지 않은 소속 값이 존재합니다."
                         exception.statusCode shouldBe HttpStatus.BAD_REQUEST
                     }
                 }
@@ -637,7 +636,7 @@ class ModifyStudentExcelServiceTest :
                                 modifyStudentExcelService.execute(file)
                             }
 
-                        exception.message shouldContain "성별은 '남자' 또는 '여자'여야 합니다"
+                        exception.message shouldBe "올바르지 않은 성별 값이 존재합니다."
                         exception.statusCode shouldBe HttpStatus.BAD_REQUEST
                     }
                 }

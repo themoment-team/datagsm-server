@@ -60,7 +60,7 @@ class ModifyClubServiceImpl(
                 studentJpaRepository
                     .findByIdOrNull(leaderId)
                     ?: throw ExpectedException(
-                        "부장으로 지정한 학생을 찾을 수 없습니다. studentId: $leaderId",
+                        "부장으로 지정한 학생을 찾을 수 없습니다.",
                         HttpStatus.NOT_FOUND,
                     )
             club.leader = newLeader
