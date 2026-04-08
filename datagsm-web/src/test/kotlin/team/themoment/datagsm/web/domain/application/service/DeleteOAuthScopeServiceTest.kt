@@ -13,6 +13,7 @@ import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.application.entity.ApplicationJpaEntity
 import team.themoment.datagsm.common.domain.application.entity.OAuthScopeJpaEntity
 import team.themoment.datagsm.common.domain.application.repository.OAuthScopeJpaRepository
+import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.web.domain.application.service.impl.DeleteOAuthScopeServiceImpl
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
@@ -22,11 +23,13 @@ class DeleteOAuthScopeServiceTest :
     DescribeSpec({
 
         val mockOauthScopeJpaRepository = mockk<OAuthScopeJpaRepository>()
+        val mockClientJpaRepository = mockk<ClientJpaRepository>()
         val mockCurrentUserProvider = mockk<CurrentUserProvider>()
 
         val service =
             DeleteOAuthScopeServiceImpl(
                 mockOauthScopeJpaRepository,
+                mockClientJpaRepository,
                 mockCurrentUserProvider,
             )
 
@@ -66,6 +69,7 @@ class DeleteOAuthScopeServiceTest :
                     beforeEach {
                         every { mockOauthScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
                         every { mockCurrentUserProvider.getCurrentAccount() } returns ownerAccount
+                        every { mockClientJpaRepository.removeScopeFromClients("$applicationId:profile") } returns Unit
                         every { mockOauthScopeJpaRepository.delete(scope) } returns Unit
                     }
 
@@ -74,6 +78,7 @@ class DeleteOAuthScopeServiceTest :
 
                         verify(exactly = 1) { mockOauthScopeJpaRepository.findById(scopeId) }
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
+                        verify(exactly = 1) { mockClientJpaRepository.removeScopeFromClients("$applicationId:profile") }
                         verify(exactly = 1) { mockOauthScopeJpaRepository.delete(scope) }
                     }
                 }
@@ -89,12 +94,14 @@ class DeleteOAuthScopeServiceTest :
                     beforeEach {
                         every { mockOauthScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
                         every { mockCurrentUserProvider.getCurrentAccount() } returns adminAccount
+                        every { mockClientJpaRepository.removeScopeFromClients("$applicationId:profile") } returns Unit
                         every { mockOauthScopeJpaRepository.delete(scope) } returns Unit
                     }
 
                     it("성공적으로 삭제되어야 한다") {
                         service.execute(applicationId, scopeId)
 
+                        verify(exactly = 1) { mockClientJpaRepository.removeScopeFromClients("$applicationId:profile") }
                         verify(exactly = 1) { mockOauthScopeJpaRepository.delete(scope) }
                     }
                 }
@@ -110,12 +117,14 @@ class DeleteOAuthScopeServiceTest :
                     beforeEach {
                         every { mockOauthScopeJpaRepository.findById(scopeId) } returns Optional.of(scope)
                         every { mockCurrentUserProvider.getCurrentAccount() } returns rootAccount
+                        every { mockClientJpaRepository.removeScopeFromClients("$applicationId:profile") } returns Unit
                         every { mockOauthScopeJpaRepository.delete(scope) } returns Unit
                     }
 
                     it("성공적으로 삭제되어야 한다") {
                         service.execute(applicationId, scopeId)
 
+                        verify(exactly = 1) { mockClientJpaRepository.removeScopeFromClients("$applicationId:profile") }
                         verify(exactly = 1) { mockOauthScopeJpaRepository.delete(scope) }
                     }
                 }

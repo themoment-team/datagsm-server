@@ -56,7 +56,7 @@ class ModifyClientServiceTest :
                             serviceName = "기존 서비스"
                             account = ownerAccount
                             redirectUrls = setOf("https://example.com")
-                            scopes = setOf("self:read")
+                            scopes = mutableSetOf("self:read")
                         }
                 }
 
