@@ -15,9 +15,13 @@ interface ClientJpaRepository :
 
     @Modifying
     @Query("DELETE FROM tb_client_scope WHERE scope = :scope", nativeQuery = true)
-    fun removeScopeFromClients(@Param("scope") scope: String)
+    fun removeScopeFromClients(
+        @Param("scope") scope: String,
+    )
 
     @Modifying
     @Query("DELETE FROM tb_client_scope WHERE scope LIKE CONCAT(:prefix, '%')", nativeQuery = true)
-    fun removeScopesByApplicationId(@Param("prefix") prefix: String)
+    fun removeScopesByApplicationId(
+        @Param("prefix") prefix: String,
+    )
 }
