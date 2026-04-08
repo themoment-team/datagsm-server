@@ -44,7 +44,7 @@ class SearchClientServiceTest :
                         serviceName = "테스트 서비스"
                         account = testAccount
                         redirectUrls = setOf("https://test.com")
-                        scopes = mutableSetOf("self:read")
+                        scopes.add("self:read")
                     }
 
                 context("클라이언트 이름으로 검색할 때") {
@@ -97,7 +97,7 @@ class SearchClientServiceTest :
                                 serviceName = "서비스$index"
                                 account = testAccount
                                 redirectUrls = setOf("https://example$index.com")
-                                scopes = mutableSetOf("self:read")
+                                scopes.add("self:read")
                             }
                         }
 
@@ -166,7 +166,7 @@ class SearchClientServiceTest :
                                 serviceName = "서비스$index"
                                 account = testAccount
                                 redirectUrls = emptySet()
-                                scopes = mutableSetOf("self:read")
+                                scopes.add("self:read")
                             }
                         }
 
@@ -209,7 +209,7 @@ class SearchClientServiceTest :
                                 serviceName = "서비스$index"
                                 account = testAccount
                                 redirectUrls = emptySet()
-                                scopes = mutableSetOf("self:read")
+                                scopes.add("self:read")
                             }
                         }
 
@@ -252,7 +252,7 @@ class SearchClientServiceTest :
                                 serviceName = "API 서비스1"
                                 account = testAccount
                                 redirectUrls = emptySet()
-                                scopes = mutableSetOf("self:read")
+                                scopes.add("self:read")
                             },
                             ClientJpaEntity().apply {
                                 id = "client-2"
@@ -261,7 +261,7 @@ class SearchClientServiceTest :
                                 serviceName = "API 서비스2"
                                 account = testAccount
                                 redirectUrls = emptySet()
-                                scopes = mutableSetOf("self:read")
+                                scopes.add("self:read")
                             },
                         )
 
@@ -302,7 +302,7 @@ class SearchClientServiceTest :
                                 serviceName = "서비스$index"
                                 account = testAccount
                                 redirectUrls = emptySet()
-                                scopes = mutableSetOf("self:read")
+                                scopes.add("self:read")
                             }
                         }
 

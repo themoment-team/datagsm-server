@@ -54,7 +54,7 @@ class QueryOauthSessionServiceTest :
                         id = testClientId
                         secret = "encodedSecret"
                         redirectUrls = setOf("https://example.com/callback")
-                        scopes = mutableSetOf("self:read")
+                        scopes.add("self:read")
                         clientName = "Test Client"
                         serviceName = "Test Service"
                     }

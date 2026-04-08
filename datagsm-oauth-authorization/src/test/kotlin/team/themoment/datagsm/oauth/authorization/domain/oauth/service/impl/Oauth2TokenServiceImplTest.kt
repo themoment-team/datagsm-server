@@ -108,7 +108,7 @@ class Oauth2TokenServiceImplTest :
                             id = "test-client"
                             secret = "hashed-secret"
                             redirectUrls = setOf("https://example.com/callback")
-                            scopes = mutableSetOf("self:read")
+                            scopes.add("self:read")
                         }
 
                     val account =
@@ -164,7 +164,7 @@ class Oauth2TokenServiceImplTest :
                             id = "test-client"
                             secret = "hashed-secret"
                             redirectUrls = setOf("https://example.com/callback")
-                            scopes = mutableSetOf("self:read")
+                            scopes.add("self:read")
                         }
 
                     val account =
@@ -300,7 +300,7 @@ class Oauth2TokenServiceImplTest :
                         ClientJpaEntity().apply {
                             id = "test-client"
                             secret = "hashed-secret"
-                            scopes = mutableSetOf("self:read")
+                            scopes.add("self:read")
                         }
 
                     val account =
@@ -360,7 +360,7 @@ class Oauth2TokenServiceImplTest :
                             ClientJpaEntity().apply {
                                 id = "test-client"
                                 secret = "hashed-secret"
-                                scopes = mutableSetOf("admin:write") // storedToken.scopes와 다름
+                                scopes.add("admin:write") // storedToken.scopes와 다름
                             }
                         every { mockClientJpaRepository.findById("test-client") } returns Optional.of(clientWithDifferentScopes)
 
@@ -440,7 +440,7 @@ class Oauth2TokenServiceImplTest :
                         ClientJpaEntity().apply {
                             id = "test-client"
                             secret = "hashed-secret"
-                            scopes = mutableSetOf("self:read")
+                            scopes.add("self:read")
                         }
 
                     beforeEach {

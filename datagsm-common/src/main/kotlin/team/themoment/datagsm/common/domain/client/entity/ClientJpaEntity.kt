@@ -45,7 +45,7 @@ class ClientJpaEntity {
     )
     @OnDelete(action = OnDeleteAction.CASCADE)
     @Column(name = "scope")
-    var scopes: MutableSet<String> = mutableSetOf()
+    val scopes: MutableSet<String> = mutableSetOf()
 
     @Column(name = "client_name")
     lateinit var clientName: String
