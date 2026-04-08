@@ -31,37 +31,31 @@ class SyncTimetableServiceImpl(
 
         val allTimetableEntities = mutableListOf<TimetableRedisEntity>()
 
-        for (grade in 1..MAX_GRADE) {
-            for (classNum in 1..MAX_CLASS) {
-                var pageIndex = 1
-                val pageSize = 1000
+        var pageIndex = 1
+        val pageSize = 1000
 
-                do {
-                    val apiResponse =
-                        neisApiClient.getHisTimetable(
-                            key = neisEnvironment.key,
-                            pIndex = pageIndex,
-                            pSize = pageSize,
-                            atptOfcdcScCode = neisEnvironment.officeCode,
-                            sdSchulCode = neisEnvironment.schoolCode,
-                            grade = grade.toString(),
-                            classNm = classNum.toString(),
-                            tiFromYmd = tiFromYmd,
-                            tiToYmd = tiToYmd,
-                        )
+        do {
+            val apiResponse =
+                neisApiClient.getHisTimetable(
+                    key = neisEnvironment.key,
+                    pIndex = pageIndex,
+                    pSize = pageSize,
+                    atptOfcdcScCode = neisEnvironment.officeCode,
+                    sdSchulCode = neisEnvironment.schoolCode,
+                    tiFromYmd = tiFromYmd,
+                    tiToYmd = tiToYmd,
+                )
 
-                    val timetables =
-                        apiResponse.hisTimetable
-                            ?.find { it.row != null }
-                            ?.row
-                            ?.map { convertToEntity(it) }
-                            ?: emptyList()
+            val timetables =
+                apiResponse.hisTimetable
+                    ?.find { it.row != null }
+                    ?.row
+                    ?.map { convertToEntity(it) }
+                    ?: emptyList()
 
-                    allTimetableEntities.addAll(timetables)
-                    pageIndex++
-                } while (timetables.size == pageSize)
-            }
-        }
+            allTimetableEntities.addAll(timetables)
+            pageIndex++
+        } while (timetables.size == pageSize)
 
         if (allTimetableEntities.isNotEmpty()) {
             timetableRedisRepository.deleteAll()
@@ -93,8 +87,6 @@ class SyncTimetableServiceImpl(
     }
 
     companion object {
-        private const val MAX_GRADE = 3
-        private const val MAX_CLASS = 4
         private val DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd")
     }
 }
