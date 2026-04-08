@@ -2,6 +2,7 @@ package team.themoment.datagsm.openapi.domain.neis.meal.service.impl
 
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.neis.dto.meal.request.QueryMealReqDto
+import team.themoment.datagsm.common.domain.neis.dto.meal.response.MealInfoResDto
 import team.themoment.datagsm.common.domain.neis.dto.meal.response.MealResDto
 import team.themoment.datagsm.common.domain.neis.meal.repository.MealRedisRepository
 import team.themoment.datagsm.openapi.domain.neis.meal.service.SearchMealService
@@ -10,7 +11,7 @@ import team.themoment.datagsm.openapi.domain.neis.meal.service.SearchMealService
 class SearchMealServiceImpl(
     private val mealRedisRepository: MealRedisRepository,
 ) : SearchMealService {
-    override fun execute(reqDto: QueryMealReqDto): List<MealResDto> {
+    override fun execute(reqDto: QueryMealReqDto): MealResDto {
         val date = reqDto.date
         val fromDate = reqDto.fromDate
         val toDate = reqDto.toDate
@@ -27,22 +28,25 @@ class SearchMealServiceImpl(
                 else -> mealRedisRepository.findAll().toList()
             }
 
-        return meals.map { meal ->
-            MealResDto(
-                mealId = meal.id,
-                schoolCode = meal.schoolCode,
-                schoolName = meal.schoolName,
-                officeCode = meal.officeCode,
-                officeName = meal.officeName,
-                mealDate = meal.date,
-                mealType = meal.type,
-                mealMenu = meal.menu,
-                mealAllergyInfo = meal.allergyInfo,
-                mealCalories = meal.calories,
-                originInfo = meal.originInfo,
-                nutritionInfo = meal.nutritionInfo,
-                mealServeCount = meal.serveCount,
-            )
-        }
+        return MealResDto(
+            meals =
+                meals.map { meal ->
+                    MealInfoResDto(
+                        mealId = meal.id,
+                        schoolCode = meal.schoolCode,
+                        schoolName = meal.schoolName,
+                        officeCode = meal.officeCode,
+                        officeName = meal.officeName,
+                        mealDate = meal.date,
+                        mealType = meal.type,
+                        mealMenu = meal.menu,
+                        mealAllergyInfo = meal.allergyInfo,
+                        mealCalories = meal.calories,
+                        originInfo = meal.originInfo,
+                        nutritionInfo = meal.nutritionInfo,
+                        mealServeCount = meal.serveCount,
+                    )
+                },
+        )
     }
 }

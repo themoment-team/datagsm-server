@@ -4,5 +4,5 @@ import team.themoment.datagsm.common.domain.neis.dto.timetable.request.QueryTime
 import team.themoment.datagsm.common.domain.neis.dto.timetable.response.TimetableResDto
 
 interface SearchTimetableService {
-    fun execute(queryReq: QueryTimetableReqDto): List<TimetableResDto>
+    fun execute(queryReq: QueryTimetableReqDto): TimetableResDto
 }

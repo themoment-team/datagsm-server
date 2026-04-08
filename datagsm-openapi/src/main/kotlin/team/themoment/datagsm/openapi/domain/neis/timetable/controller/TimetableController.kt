@@ -43,5 +43,5 @@ class TimetableController(
     @GetMapping
     fun searchTimetables(
         @Valid @ModelAttribute queryReq: QueryTimetableReqDto,
-    ): List<TimetableResDto> = searchTimetableService.execute(queryReq)
+    ): TimetableResDto = searchTimetableService.execute(queryReq)
 }

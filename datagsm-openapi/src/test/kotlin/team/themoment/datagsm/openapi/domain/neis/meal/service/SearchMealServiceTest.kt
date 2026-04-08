@@ -68,12 +68,12 @@ class SearchMealServiceTest :
                     it("해당 날짜의 모든 급식 정보를 반환해야 한다") {
                         val result = searchMealService.execute(QueryMealReqDto(date = targetDate, fromDate = null, toDate = null))
 
-                        result.size shouldBe 2
-                        result[0].mealId shouldBe "7380292_20251216_1"
-                        result[0].mealType shouldBe MealType.BREAKFAST
-                        result[0].mealMenu shouldBe listOf("쌀밥", "김치찌개", "계란말이")
-                        result[1].mealId shouldBe "7380292_20251216_2"
-                        result[1].mealType shouldBe MealType.LUNCH
+                        result.meals.size shouldBe 2
+                        result.meals[0].mealId shouldBe "7380292_20251216_1"
+                        result.meals[0].mealType shouldBe MealType.BREAKFAST
+                        result.meals[0].mealMenu shouldBe listOf("쌀밥", "김치찌개", "계란말이")
+                        result.meals[1].mealId shouldBe "7380292_20251216_2"
+                        result.meals[1].mealType shouldBe MealType.LUNCH
 
                         verify(exactly = 1) { mockMealRepository.findByDate(targetDate) }
                     }
@@ -138,9 +138,9 @@ class SearchMealServiceTest :
                     it("날짜 범위 내의 급식 정보만 반환해야 한다") {
                         val result = searchMealService.execute(QueryMealReqDto(date = null, fromDate = fromDate, toDate = toDate))
 
-                        result.size shouldBe 2
-                        result[0].mealDate shouldBe LocalDate.of(2025, 12, 16)
-                        result[1].mealDate shouldBe LocalDate.of(2025, 12, 17)
+                        result.meals.size shouldBe 2
+                        result.meals[0].mealDate shouldBe LocalDate.of(2025, 12, 16)
+                        result.meals[1].mealDate shouldBe LocalDate.of(2025, 12, 17)
 
                         verify(exactly = 1) { mockMealRepository.findByDateBetween(fromDate, toDate) }
                     }
@@ -188,9 +188,9 @@ class SearchMealServiceTest :
                     it("fromDate 이후의 급식 정보를 반환해야 한다") {
                         val result = searchMealService.execute(QueryMealReqDto(date = null, fromDate = fromDate, toDate = null))
 
-                        result.size shouldBe 2
-                        result[0].mealDate shouldBe LocalDate.of(2025, 12, 17)
-                        result[1].mealDate shouldBe LocalDate.of(2025, 12, 18)
+                        result.meals.size shouldBe 2
+                        result.meals[0].mealDate shouldBe LocalDate.of(2025, 12, 17)
+                        result.meals[1].mealDate shouldBe LocalDate.of(2025, 12, 18)
 
                         verify(exactly = 1) { mockMealRepository.findByDateGreaterThanEqual(fromDate) }
                     }
@@ -238,9 +238,9 @@ class SearchMealServiceTest :
                     it("toDate 이전의 급식 정보를 반환해야 한다") {
                         val result = searchMealService.execute(QueryMealReqDto(date = null, fromDate = null, toDate = toDate))
 
-                        result.size shouldBe 2
-                        result[0].mealDate shouldBe LocalDate.of(2025, 12, 16)
-                        result[1].mealDate shouldBe LocalDate.of(2025, 12, 17)
+                        result.meals.size shouldBe 2
+                        result.meals[0].mealDate shouldBe LocalDate.of(2025, 12, 16)
+                        result.meals[1].mealDate shouldBe LocalDate.of(2025, 12, 17)
 
                         verify(exactly = 1) { mockMealRepository.findByDateLessThanEqual(toDate) }
                     }
@@ -256,7 +256,7 @@ class SearchMealServiceTest :
                     it("빈 목록을 반환해야 한다") {
                         val result = searchMealService.execute(QueryMealReqDto(date = searchDate, fromDate = null, toDate = null))
 
-                        result.size shouldBe 0
+                        result.meals.size shouldBe 0
 
                         verify(exactly = 1) { mockMealRepository.findByDate(searchDate) }
                     }
@@ -287,8 +287,8 @@ class SearchMealServiceTest :
                     it("모든 급식 정보를 반환해야 한다") {
                         val result = searchMealService.execute(QueryMealReqDto(date = null, fromDate = null, toDate = null))
 
-                        result.size shouldBe 1
-                        result[0].mealId shouldBe "7380292_20251216_1"
+                        result.meals.size shouldBe 1
+                        result.meals[0].mealId shouldBe "7380292_20251216_1"
 
                         verify(exactly = 1) { mockMealRepository.findAll() }
                     }

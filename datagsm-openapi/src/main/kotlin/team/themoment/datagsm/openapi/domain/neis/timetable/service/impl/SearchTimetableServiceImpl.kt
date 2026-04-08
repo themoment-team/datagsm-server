@@ -2,6 +2,7 @@ package team.themoment.datagsm.openapi.domain.neis.timetable.service.impl
 
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.neis.dto.timetable.request.QueryTimetableReqDto
+import team.themoment.datagsm.common.domain.neis.dto.timetable.response.TimetableInfoResDto
 import team.themoment.datagsm.common.domain.neis.dto.timetable.response.TimetableResDto
 import team.themoment.datagsm.common.domain.neis.timetable.entity.TimetableRedisEntity
 import team.themoment.datagsm.common.domain.neis.timetable.repository.TimetableRedisRepository
@@ -11,7 +12,7 @@ import team.themoment.datagsm.openapi.domain.neis.timetable.service.SearchTimeta
 class SearchTimetableServiceImpl(
     private val timetableRedisRepository: TimetableRedisRepository,
 ) : SearchTimetableService {
-    override fun execute(queryReq: QueryTimetableReqDto): List<TimetableResDto> {
+    override fun execute(queryReq: QueryTimetableReqDto): TimetableResDto {
         val grade = queryReq.grade
         val classNum = queryReq.classNum
         val date = queryReq.date
@@ -31,11 +32,11 @@ class SearchTimetableServiceImpl(
                 else -> emptyList()
             }
 
-        return timetables.map { it.toResDto() }
+        return TimetableResDto(timetables = timetables.map { it.toInfoResDto() })
     }
 
-    private fun TimetableRedisEntity.toResDto(): TimetableResDto =
-        TimetableResDto(
+    private fun TimetableRedisEntity.toInfoResDto(): TimetableInfoResDto =
+        TimetableInfoResDto(
             timetableId = id,
             schoolCode = schoolCode,
             schoolName = schoolName,
