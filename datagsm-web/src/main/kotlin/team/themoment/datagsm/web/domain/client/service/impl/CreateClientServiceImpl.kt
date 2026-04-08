@@ -46,7 +46,7 @@ class CreateClientServiceImpl(
                 serviceName = reqDto.serviceName
                 account = currentAccount
                 redirectUrls = reqDto.redirectUrls
-                scopes = reqDto.scopes
+                scopes = reqDto.scopes.toMutableSet()
             }
         clientJpaRepository.save(client)
 
