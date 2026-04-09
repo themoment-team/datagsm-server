@@ -16,19 +16,19 @@ class SearchTimetableServiceImpl(
         val grade = queryReq.grade
         val classNum = queryReq.classNum
         val date = queryReq.date
-        val startDate = queryReq.startDate
-        val endDate = queryReq.endDate
+        val fromDate = queryReq.fromDate
+        val toDate = queryReq.toDate
 
         val timetables =
             when {
                 date != null ->
                     timetableRedisRepository.findByGradeAndClassNumAndDate(grade, classNum, date)
-                startDate != null && endDate != null ->
-                    timetableRedisRepository.findByGradeAndClassNumAndDateBetween(grade, classNum, startDate, endDate)
-                startDate != null ->
-                    timetableRedisRepository.findByGradeAndClassNumAndDateGreaterThanEqual(grade, classNum, startDate)
-                endDate != null ->
-                    timetableRedisRepository.findByGradeAndClassNumAndDateLessThanEqual(grade, classNum, endDate)
+                fromDate != null && toDate != null ->
+                    timetableRedisRepository.findByGradeAndClassNumAndDateBetween(grade, classNum, fromDate, toDate)
+                fromDate != null ->
+                    timetableRedisRepository.findByGradeAndClassNumAndDateGreaterThanEqual(grade, classNum, fromDate)
+                toDate != null ->
+                    timetableRedisRepository.findByGradeAndClassNumAndDateLessThanEqual(grade, classNum, toDate)
                 else -> emptyList()
             }
 

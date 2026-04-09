@@ -84,8 +84,8 @@ class SearchTimetableServiceTest :
                 }
 
                 context("날짜 범위로 검색할 때") {
-                    val startDate = LocalDate.of(2025, 4, 1)
-                    val endDate = LocalDate.of(2025, 4, 2)
+                    val fromDate = LocalDate.of(2025, 4, 1)
+                    val toDate = LocalDate.of(2025, 4, 2)
                     val timetable1 =
                         TimetableRedisEntity(
                             id = "7380292_20250401_1_1_1",
@@ -93,7 +93,7 @@ class SearchTimetableServiceTest :
                             schoolName = "광주소프트웨어마이스터고등학교",
                             officeCode = "F10",
                             officeName = "광주광역시교육청",
-                            date = startDate,
+                            date = fromDate,
                             academicYear = "2025",
                             semester = "1",
                             grade = 1,
@@ -108,7 +108,7 @@ class SearchTimetableServiceTest :
                             schoolName = "광주소프트웨어마이스터고등학교",
                             officeCode = "F10",
                             officeName = "광주광역시교육청",
-                            date = endDate,
+                            date = toDate,
                             academicYear = "2025",
                             semester = "1",
                             grade = 1,
@@ -119,28 +119,29 @@ class SearchTimetableServiceTest :
 
                     beforeEach {
                         every {
-                            mockTimetableRepository.findByGradeAndClassNumAndDateBetween(1, 1, startDate, endDate)
+                            mockTimetableRepository.findByGradeAndClassNumAndDateBetween(1, 1, fromDate, toDate)
                         } returns listOf(timetable1, timetable2)
                     }
 
                     it("날짜 범위 내의 시간표 정보를 반환해야 한다") {
                         val result =
                             searchTimetableService.execute(
-                                QueryTimetableReqDto(grade = 1, classNum = 1, startDate = startDate, endDate = endDate),
+                                QueryTimetableReqDto(grade = 1, classNum = 1, fromDate = fromDate, toDate = toDate),
                             )
 
                         result.timetables.size shouldBe 2
-                        result.timetables[0].timetableDate shouldBe startDate
-                        result.timetables[1].timetableDate shouldBe endDate
+                        result.timetables[0].timetableDate shouldBe fromDate
+                        result.timetables[1].timetableDate shouldBe toDate
 
                         verify(exactly = 1) {
-                            mockTimetableRepository.findByGradeAndClassNumAndDateBetween(1, 1, startDate, endDate)
+                            mockTimetableRepository.findByGradeAndClassNumAndDateBetween(1, 1, fromDate, toDate)
                         }
                     }
                 }
 
-                context("startDate만 지정하여 검색할 때") {
-                    val startDate = LocalDate.of(2025, 4, 1)
+                context("fromDate만 지정하여 검색할 때") {
+
+                    val fromDate = LocalDate.of(2025, 4, 1)
                     val timetable =
                         TimetableRedisEntity(
                             id = "7380292_20250401_1_1_1",
@@ -148,7 +149,7 @@ class SearchTimetableServiceTest :
                             schoolName = "광주소프트웨어마이스터고등학교",
                             officeCode = "F10",
                             officeName = "광주광역시교육청",
-                            date = startDate,
+                            date = fromDate,
                             academicYear = "2025",
                             semester = "1",
                             grade = 1,
@@ -159,27 +160,27 @@ class SearchTimetableServiceTest :
 
                     beforeEach {
                         every {
-                            mockTimetableRepository.findByGradeAndClassNumAndDateGreaterThanEqual(1, 1, startDate)
+                            mockTimetableRepository.findByGradeAndClassNumAndDateGreaterThanEqual(1, 1, fromDate)
                         } returns listOf(timetable)
                     }
 
-                    it("startDate 이후의 시간표 정보를 반환해야 한다") {
+                    it("fromDate 이후의 시간표 정보를 반환해야 한다") {
                         val result =
                             searchTimetableService.execute(
-                                QueryTimetableReqDto(grade = 1, classNum = 1, startDate = startDate),
+                                QueryTimetableReqDto(grade = 1, classNum = 1, fromDate = fromDate),
                             )
 
                         result.timetables.size shouldBe 1
-                        result.timetables[0].timetableDate shouldBe startDate
+                        result.timetables[0].timetableDate shouldBe fromDate
 
                         verify(exactly = 1) {
-                            mockTimetableRepository.findByGradeAndClassNumAndDateGreaterThanEqual(1, 1, startDate)
+                            mockTimetableRepository.findByGradeAndClassNumAndDateGreaterThanEqual(1, 1, fromDate)
                         }
                     }
                 }
 
-                context("endDate만 지정하여 검색할 때") {
-                    val endDate = LocalDate.of(2025, 4, 30)
+                context("toDate만 지정하여 검색할 때") {
+                    val toDate = LocalDate.of(2025, 4, 30)
                     val timetable =
                         TimetableRedisEntity(
                             id = "7380292_20250430_1_1_1",
@@ -187,7 +188,7 @@ class SearchTimetableServiceTest :
                             schoolName = "광주소프트웨어마이스터고등학교",
                             officeCode = "F10",
                             officeName = "광주광역시교육청",
-                            date = endDate,
+                            date = toDate,
                             academicYear = "2025",
                             semester = "1",
                             grade = 1,
@@ -198,21 +199,21 @@ class SearchTimetableServiceTest :
 
                     beforeEach {
                         every {
-                            mockTimetableRepository.findByGradeAndClassNumAndDateLessThanEqual(1, 1, endDate)
+                            mockTimetableRepository.findByGradeAndClassNumAndDateLessThanEqual(1, 1, toDate)
                         } returns listOf(timetable)
                     }
 
-                    it("endDate 이전의 시간표 정보를 반환해야 한다") {
+                    it("toDate 이전의 시간표 정보를 반환해야 한다") {
                         val result =
                             searchTimetableService.execute(
-                                QueryTimetableReqDto(grade = 1, classNum = 1, endDate = endDate),
+                                QueryTimetableReqDto(grade = 1, classNum = 1, toDate = toDate),
                             )
 
                         result.timetables.size shouldBe 1
-                        result.timetables[0].timetableDate shouldBe endDate
+                        result.timetables[0].timetableDate shouldBe toDate
 
                         verify(exactly = 1) {
-                            mockTimetableRepository.findByGradeAndClassNumAndDateLessThanEqual(1, 1, endDate)
+                            mockTimetableRepository.findByGradeAndClassNumAndDateLessThanEqual(1, 1, toDate)
                         }
                     }
                 }
