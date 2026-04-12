@@ -4,5 +4,5 @@ import team.themoment.datagsm.common.domain.neis.dto.schedule.request.QuerySched
 import team.themoment.datagsm.common.domain.neis.dto.schedule.response.ScheduleResDto
 
 interface SearchScheduleService {
-    fun execute(reqDto: QueryScheduleReqDto): List<ScheduleResDto>
+    fun execute(reqDto: QueryScheduleReqDto): ScheduleResDto
 }

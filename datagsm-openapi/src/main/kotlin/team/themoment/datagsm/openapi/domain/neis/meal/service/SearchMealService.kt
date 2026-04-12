@@ -4,5 +4,5 @@ import team.themoment.datagsm.common.domain.neis.dto.meal.request.QueryMealReqDt
 import team.themoment.datagsm.common.domain.neis.dto.meal.response.MealResDto
 
 interface SearchMealService {
-    fun execute(reqDto: QueryMealReqDto): List<MealResDto>
+    fun execute(reqDto: QueryMealReqDto): MealResDto
 }
