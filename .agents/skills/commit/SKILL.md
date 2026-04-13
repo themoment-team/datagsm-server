@@ -1,6 +1,7 @@
 ---
 name: commit
 description: Create Git commits by splitting changes into logical units following project conventions. Handles Git Flow automatically — detects develop branch and checks out a feature branch before committing.
+allowed-tools: Bash
 ---
 
 ## Step 0 — Branch Check (Required)

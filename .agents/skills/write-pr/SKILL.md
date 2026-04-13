@@ -1,6 +1,7 @@
 ---
 name: write-pr
 description: Generate PR title, body, and labels from commits since the base branch, then create the PR on GitHub. Handles base branch detection, label selection, and PR creation end-to-end.
+allowed-tools: Bash(git *:*), Bash(bash *create-pr.sh:*), Bash(cat *:*), Read, Write
 ---
 
 ## Step 1 — Gather Context
@@ -25,24 +26,25 @@ Read `references/labels.md` and select 1–2 appropriate labels based on the nat
 ## Step 3 — Generate PR Content
 
 **Title** — Generate 3 options in the format `[scope] description`:
-- Scope: domain name (`[student]`, `[auth]`, `[application]`, `[club]`, etc.) or `[global]` / `[ci/cd]` for cross-cutting changes
+- Scope: domain name (`[account]`, `[application]`, `[auth]`, `[client]`, `[club]`, `[neis]`, `[oauth]`, `[project]`, `[student]`, `[utility]`) or `[global]` / `[ci/cd]` for cross-cutting changes
 - Description: Korean, concise, no emojis, max 50 characters total
-- Mark the best option with `← 추천`
+- Wrap class names, method names, annotations, and technical terms in backticks (e.g., `@Transactional`, `StudentServiceImpl`)
 
 **Body** — Follow the `.github/PULL_REQUEST_TEMPLATE.md` structure:
 - Korean 합쇼체: `~하였습니다`, `~되었습니다`, `~추가하였습니다`
 - No emojis
 - Max 2500 characters
+- Wrap all proper nouns and technical identifiers in backticks: class names, method names, annotations, file names, field names, config keys, module names
 
 ## Step 4 — Write Body & Show Preview
 
 Write the body to `PR_BODY.md`, then display:
 
 ```
-## 추천 PR 제목
+## PR 제목 후보
 1. [title1]
 2. [title2]
-3. [title3] ← 추천
+3. [title3]
 
 ## 선택된 라벨
 - label1, label2
@@ -51,7 +53,7 @@ Write the body to `PR_BODY.md`, then display:
 [body content]
 ```
 
-Ask the user to confirm which title to use. If no answer is given, proceed with the recommended (marked) title.
+Ask the user which title to use (present options 1/2/3). Wait for the answer before proceeding.
 
 ## Step 5 — Create PR
 
