@@ -54,7 +54,7 @@ class StartOauthAuthorizeFlowServiceTest :
                         id = testClientId
                         secret = "encodedSecret"
                         redirectUrls = setOf(testRedirectUri)
-                        scopes = setOf("self:read")
+                        scopes.add("self:read")
                         clientName = "Test Client"
                         serviceName = "Test Service"
                     }
@@ -151,7 +151,7 @@ class StartOauthAuthorizeFlowServiceTest :
                             id = testClientId
                             secret = "encodedSecret"
                             redirectUrls = setOf(testRedirectUri)
-                            scopes = setOf("self:read", "profile:read")
+                            scopes.addAll(setOf("self:read", "profile:read"))
                             clientName = "Test Client"
                             serviceName = "Test Service"
                         }

@@ -46,7 +46,7 @@ class QueryMyClientServiceTest :
                             serviceName = "나의 서비스"
                             account = currentAccount
                             redirectUrls = setOf("https://example.com")
-                            scopes = setOf("self:read")
+                            scopes.add("self:read")
                         }
 
                     beforeEach {
@@ -91,7 +91,7 @@ class QueryMyClientServiceTest :
                                 serviceName = "서비스$index"
                                 account = currentAccount
                                 redirectUrls = setOf("https://example$index.com")
-                                scopes = setOf("self:read")
+                                scopes.add("self:read")
                             }
                         }
 
@@ -153,7 +153,7 @@ class QueryMyClientServiceTest :
                             serviceName = "멀티 리다이렉트 서비스"
                             account = currentAccount
                             redirectUrls = setOf("https://url1.com", "https://url2.com", "https://url3.com")
-                            scopes = setOf("self:read")
+                            scopes.add("self:read")
                         }
 
                     val client2 =
@@ -164,7 +164,7 @@ class QueryMyClientServiceTest :
                             serviceName = "단일 리다이렉트 서비스"
                             account = currentAccount
                             redirectUrls = setOf("https://single.com")
-                            scopes = setOf("self:read")
+                            scopes.add("self:read")
                         }
 
                     val client3 =
@@ -175,7 +175,7 @@ class QueryMyClientServiceTest :
                             serviceName = "리다이렉트 없는 서비스"
                             account = currentAccount
                             redirectUrls = emptySet()
-                            scopes = setOf("self:read")
+                            scopes.add("self:read")
                         }
 
                     beforeEach {
@@ -215,7 +215,7 @@ class QueryMyClientServiceTest :
                             serviceName = "관리자 서비스"
                             account = adminAccount
                             redirectUrls = emptySet()
-                            scopes = setOf("self:read")
+                            scopes.add("self:read")
                         }
 
                     beforeEach {
@@ -249,7 +249,7 @@ class QueryMyClientServiceTest :
                                 serviceName = "서비스$index"
                                 account = currentAccount
                                 redirectUrls = setOf("https://example$index.com")
-                                scopes = setOf("self:read")
+                                scopes.add("self:read")
                             }
                         }
 
