@@ -11,7 +11,15 @@ description: Architecture reference for this project — Controller/Service/Repo
 - Role: Request validation, DTO conversion, HTTP response
 - Annotations: `@RestController`, `@RequestMapping`
 - Validation: `@Valid`, `@Validated`
-- Response: Use `CommonApiResponse` wrapper
+- Response: Return DTO directly — the framework auto-wraps it with `CommonApiResponse`
+
+```kotlin
+// CORRECT — return DTO directly
+fun getStudent(): StudentResDto = queryStudentService.execute(id)
+
+// WRONG — do not wrap manually
+fun getStudent(): CommonApiResponse<StudentResDto> = CommonApiResponse(queryStudentService.execute(id))
+```
 
 ### Service
 - Role: Business logic, transaction management
