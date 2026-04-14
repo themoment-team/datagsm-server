@@ -406,9 +406,10 @@ interface GetClubService {
 class GetClubServiceImpl(
     private val clubRepository: ClubJpaRepository
 ) : GetClubService {
+    @Transactional(readOnly = true)
     override fun execute(id: Long): ClubResDto {
         val club = clubRepository.findById(id)
-            .orElseThrow { ClubNotFoundException() }
+            .orElseThrow { ExpectedException("동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
         return ClubResDto.from(club)
     }
 }
@@ -812,7 +813,7 @@ class CreateClubServiceTest : DescribeSpec({
             }
 
             context("중복된 동아리 이름으로 생성을 시도할 때") {
-                it("DuplicateClubNameException을 발생시킨다") {
+                it("ExpectedException을 발생시킨다") {
                     // Given
                     val reqDto = CreateClubReqDto(
                         name = "이미 존재하는 동아리",
@@ -822,11 +823,9 @@ class CreateClubServiceTest : DescribeSpec({
                     every { mockClubRepository.existsByName(reqDto.name) } returns true
 
                     // When & Then
-                    val exception = shouldThrow<DuplicateClubNameException> {
+                    shouldThrow<ExpectedException> {
                         createClubService.execute(reqDto)
                     }
-
-                    exception.message shouldBe "이미 존재하는 동아리 이름입니다"
                     verify(exactly = 0) { mockClubRepository.save(any()) }
                 }
             }
@@ -850,7 +849,7 @@ every { mockRepository.existsByName("동아리") } returns false
 every { mockRepository.delete(any()) } just Runs
 
 // 예외 발생
-every { mockRepository.findById(999L) } throws ClubNotFoundException()
+every { mockRepository.findById(999L) } throws ExpectedException("동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
 
 // 호출 검증
 verify(exactly = 1) { mockRepository.save(any()) }

@@ -437,10 +437,10 @@ class CreateStudentServiceTest : DescribeSpec({
         service = CreateStudentServiceImpl(mockRepository)
     }
 
-    describe("CreateStudentService") {
-        describe("execute") {
-            context("when creating a new student") {
-                it("should save and return the student") {
+    describe("CreateStudentService 클래스의") {
+        describe("execute 메서드는") {
+            context("유효한 요청인 경우") {
+                it("학생을 저장하고 반환한다") {
                     // Given
                     val reqDto = CreateStudentReqDto(
                         name = "John Doe",
@@ -464,8 +464,8 @@ class CreateStudentServiceTest : DescribeSpec({
                 }
             }
 
-            context("when student already exists") {
-                it("should throw DuplicateStudentException") {
+            context("이미 존재하는 이메일인 경우") {
+                it("ExpectedException을 던진다") {
                     // Given
                     val reqDto = CreateStudentReqDto(
                         name = "John Doe",
@@ -475,7 +475,7 @@ class CreateStudentServiceTest : DescribeSpec({
                     every { mockRepository.existsByEmail(reqDto.email) } returns true
 
                     // When & Then
-                    shouldThrow<DuplicateStudentException> {
+                    shouldThrow<ExpectedException> {
                         service.execute(reqDto)
                     }
                 }
@@ -487,10 +487,14 @@ class CreateStudentServiceTest : DescribeSpec({
 
 ### Test Structure
 
-- Use Given-When-Then pattern
+- Use Given-When-Then pattern inside `it` blocks
 - One assertion per test
-- Clear test names in Korean
-- Mock external dependencies
+- Test names in Korean following the pattern:
+  - `describe("ClassName 클래스의")`
+  - `describe("methodName 메서드는")`
+  - `context("상황 설명")` — describe the scenario
+  - `it("기대 동작")` — describe the expected behavior
+- Mock external dependencies with MockK
 - Use `beforeEach` for setup, `afterEach` for cleanup
 
 ## Security

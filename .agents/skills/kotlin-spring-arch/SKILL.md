@@ -11,7 +11,15 @@ description: Architecture reference for this project — Controller/Service/Repo
 - Role: Request validation, DTO conversion, HTTP response
 - Annotations: `@RestController`, `@RequestMapping`
 - Validation: `@Valid`, `@Validated`
-- Response: Return DTO directly (SDK wrapper auto-wraps with `CommonApiResponse`)
+- Response: Return DTO directly — the framework auto-wraps it with `CommonApiResponse`
+
+```kotlin
+// CORRECT — return DTO directly
+fun getStudent(): StudentResDto = queryStudentService.execute(id)
+
+// WRONG — do not wrap manually
+fun getStudent(): CommonApiResponse<StudentResDto> = CommonApiResponse(queryStudentService.execute(id))
+```
 
 ### Service
 - Role: Business logic, transaction management
@@ -51,13 +59,14 @@ fun findAllWithRelated(): List<Entity>
 
 ## Exception Handling
 
-### Custom Exception
-Do NOT create subclasses of `ExpectedException`. Instantiate it directly:
+### Use ExpectedException Directly
 ```kotlin
-studentRepository.findById(id).orElseThrow {
-    ExpectedException("Student not found. studentId: $id", HttpStatus.NOT_FOUND)
+val student = studentRepository.findById(id).orElseThrow {
+    ExpectedException("학생을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
 }
 ```
+
+Do not create custom exception subclasses extending `ExpectedException`.
 
 ### Global Handler
 See `datagsm-common/.../global/common/error/GlobalExceptionHandler.kt`

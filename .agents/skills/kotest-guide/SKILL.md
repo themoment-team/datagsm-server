@@ -7,23 +7,39 @@ description: Kotest + MockK testing patterns for this project — Given/When/The
 
 ## Given-When-Then Pattern
 
+Use Kotest `DescribeSpec` with `describe` / `context` / `it` blocks.
+
 ```kotlin
-@Test
-fun `API 키를 성공적으로 생성한다`() = runTest {
-    // Given
-    val reqDto = CreateApiKeyReqDto(clientId = "test-client")
-    val apiKey = ApiKey(id = 1L, key = "generated-key")
+class CreateApiKeyServiceTest : DescribeSpec({
+    lateinit var repository: ApiKeyRepository
+    lateinit var service: CreateApiKeyService
 
-    every { repository.save(any()) } returns apiKey
+    beforeEach {
+        repository = mockk()
+        service = CreateApiKeyServiceImpl(repository)
+    }
 
-    // When
-    val result = service.execute(reqDto)
+    describe("CreateApiKeyService 클래스의") {
+        describe("execute 메서드는") {
+            context("유효한 요청인 경우") {
+                it("API 키를 생성하고 반환한다") {
+                    // Given
+                    val reqDto = CreateApiKeyReqDto(clientId = "test-client")
+                    val apiKey = ApiKey(id = 1L, key = "generated-key")
+                    every { repository.save(any()) } returns apiKey
 
-    // Then
-    result shouldNotBe null
-    result.apiKey shouldBe "generated-key"
-    verify(exactly = 1) { repository.save(any()) }
-}
+                    // When
+                    val result = service.execute(reqDto)
+
+                    // Then
+                    result shouldNotBe null
+                    result.apiKey shouldBe "generated-key"
+                    verify(exactly = 1) { repository.save(any()) }
+                }
+            }
+        }
+    }
+})
 ```
 
 ## MockK Patterns
@@ -72,39 +88,42 @@ slot.captured.key shouldBe "expected-key"
 ## Coroutine Testing
 
 ```kotlin
-@Test
-fun `test async operation`() = runTest {
-    // Given
-    coEvery { repository.findById(1L) } coAnswers {
-        delay(100)
-        Optional.of(apiKey)
+context("비동기 처리가 필요한 경우") {
+    it("결과를 정상적으로 반환한다") {
+        // Given
+        coEvery { repository.findById(1L) } coAnswers {
+            delay(100)
+            Optional.of(apiKey)
+        }
+
+        // When
+        val result = service.execute(1L)
+
+        // Then
+        result shouldNotBe null
     }
-
-    // When
-    val result = service.execute(1L)
-
-    // Then
-    result shouldNotBe null
 }
 ```
 
 ## Exception Testing
 
 ```kotlin
-@Test
-fun `throw exception when API key not found`() = runTest {
-    // Given
-    every { repository.findById(1L) } returns Optional.empty()
+context("API 키가 존재하지 않는 경우") {
+    it("ExpectedException을 던진다") {
+        // Given
+        every { repository.findById(1L) } returns Optional.empty()
 
-    // When & Then
-    shouldThrow<ApiKeyNotFoundException> {
-        service.execute(1L)
+        // When & Then
+        shouldThrow<ExpectedException> {
+            service.execute(1L)
+        }
     }
 }
 ```
 
 ## Reference Files
 
-Real test examples:
-- `datagsm-oauth-authorization/src/test/kotlin/.../auth/service/ApiKeyServiceTest.kt`
-- `datagsm-web/src/test/kotlin/.../student/service/StudentServiceTest.kt`
+Discover real test examples dynamically:
+```bash
+find . -name "*ServiceTest.kt" -not -path "*/build/*" | head -5
+```
