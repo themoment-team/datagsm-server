@@ -44,14 +44,8 @@ out/
 .kotlin
 
 ### Profile Files ###
-/datagsm-oauth-authorization/src/main/resources/application-stage.yml
-/datagsm-oauth-authorization/src/main/resources/application-prod.yml
-/datagsm-oauth-userinfo/src/main/resources/application-stage.yml
-/datagsm-oauth-userinfo/src/main/resources/application-prod.yml
-/datagsm-openapi/src/main/resources/application-stage.yml
-/datagsm-openapi/src/main/resources/application-prod.yml
-/datagsm-web/src/main/resources/application-stage.yml
-/datagsm-web/src/main/resources/application-prod.yml
+**/src/main/resources/application-stage.yml
+**/src/main/resources/application-prod.yml
 
 ### LLM Outputs ###
 PR_BODY.md
