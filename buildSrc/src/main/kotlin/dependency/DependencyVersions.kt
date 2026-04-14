@@ -19,4 +19,6 @@ object DependencyVersions {
     const val BUCKET4J_VERSION = "8.17.0"
 
     const val POI_VERSION = "5.5.1"
+
+    const val EMBEDDED_REDIS_VERSION = "1.4.3"
 }
