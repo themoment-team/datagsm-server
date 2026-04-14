@@ -1,4 +1,30 @@
 services:
+  mysql:
+    image: mysql:8.0
+    container_name: datagsm-mysql-stage
+    environment:
+      MYSQL_ROOT_PASSWORD: datagsm1234!
+      MYSQL_DATABASE: datagsm
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pdatagsm1234!"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  redis:
+    image: redis:7
+    container_name: datagsm-redis-stage
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   datagsm-web:
     build:
       context: ./datagsm-web
@@ -7,6 +33,11 @@ services:
     ports:
       - "8080:8080"
     restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   datagsm-oauth-authorization:
     build:
@@ -16,6 +47,11 @@ services:
     ports:
       - "8081:8081"
     restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   datagsm-openapi:
     build:
@@ -25,6 +61,11 @@ services:
     ports:
       - "8082:8082"
     restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   datagsm-oauth-userinfo:
     build:
@@ -34,3 +75,8 @@ services:
     ports:
       - "8083:8083"
     restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy

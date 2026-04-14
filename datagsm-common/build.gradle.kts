@@ -48,10 +48,6 @@ dependencies {
     // Database
     api(dependency.Dependencies.MYSQL_CONNECTOR)
 
-    // Stage profile: embedded infrastructure (no external Redis/MySQL needed)
-    runtimeOnly(dependency.Dependencies.H2)
-    implementation(dependency.Dependencies.EMBEDDED_REDIS)
-
     // Custom Libraries
     api(dependency.Dependencies.THE_MOMENT_THE_SDK)
     api(dependency.Dependencies.QUERY_DSL_JSON_EXTENSION)

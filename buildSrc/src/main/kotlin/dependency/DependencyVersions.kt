@@ -20,5 +20,4 @@ object DependencyVersions {
 
     const val POI_VERSION = "5.5.1"
 
-    const val EMBEDDED_REDIS_VERSION = "1.4.3"
 }

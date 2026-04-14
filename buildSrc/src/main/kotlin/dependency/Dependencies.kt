@@ -2,7 +2,6 @@ package dependency
 
 import dependency.DependencyVersions.AWS_SDK_VERSION
 import dependency.DependencyVersions.BUCKET4J_VERSION
-import dependency.DependencyVersions.EMBEDDED_REDIS_VERSION
 import dependency.DependencyVersions.JJWT_VERSION
 import dependency.DependencyVersions.KOTEST_VERSION
 import dependency.DependencyVersions.KOTLIN_COROUTINES_VERSION
@@ -64,11 +63,6 @@ object Dependencies {
 
     // Database
     const val MYSQL_CONNECTOR = "com.mysql:mysql-connector-j"
-    const val H2 = "com.h2database:h2"
-
-    // Stage profile embedded infrastructure
-    const val EMBEDDED_REDIS = "com.github.codemonstur:embedded-redis:${EMBEDDED_REDIS_VERSION}"
-
     // Custom Libraries
     const val THE_MOMENT_THE_SDK = "com.github.themoment-team:the-sdk:${THE_MOMENT_THE_SDK_VERSION}"
 
