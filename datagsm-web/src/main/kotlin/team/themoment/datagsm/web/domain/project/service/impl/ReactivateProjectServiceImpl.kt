@@ -1,5 +1,6 @@
 package team.themoment.datagsm.web.domain.project.service.impl
 
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -15,9 +16,8 @@ class ReactivateProjectServiceImpl(
     @Transactional
     override fun execute(projectId: Long) {
         val project =
-            projectJpaRepository
-                .findById(projectId)
-                .orElseThrow { ExpectedException("프로젝트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
+            projectJpaRepository.findByIdOrNull(projectId)
+                ?: throw ExpectedException("프로젝트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
         project.status = ProjectStatus.ACTIVE
         project.endYear = null
     }
