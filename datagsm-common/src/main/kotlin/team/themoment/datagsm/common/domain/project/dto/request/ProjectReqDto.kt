@@ -2,6 +2,7 @@ package team.themoment.datagsm.common.domain.project.dto.request
 
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.Size
 
 data class ProjectReqDto(
@@ -13,6 +14,9 @@ data class ProjectReqDto(
     @field:Size(max = 500)
     @param:Schema(description = "프로젝트 설명", example = "학교 데이터를 제공하는 API 서비스", maxLength = 500)
     val description: String,
+    @field:Positive
+    @param:Schema(description = "프로젝트 시작 연도", example = "2024")
+    val startYear: Int,
     @param:Schema(description = "프로젝트 소유 동아리 ID", example = "1")
     val clubId: Long?,
     @param:Schema(description = "프로젝트 참가자 학생 ID 목록", example = "[1, 2, 3]")

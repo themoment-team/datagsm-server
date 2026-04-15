@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectSortBy
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.global.constant.SortDirection
 
 interface ProjectJpaCustomRepository {
@@ -11,6 +12,7 @@ interface ProjectJpaCustomRepository {
         id: Long?,
         name: String?,
         clubId: Long?,
+        status: ProjectStatus?,
         pageable: Pageable,
         sortBy: ProjectSortBy?,
         sortDirection: SortDirection,
