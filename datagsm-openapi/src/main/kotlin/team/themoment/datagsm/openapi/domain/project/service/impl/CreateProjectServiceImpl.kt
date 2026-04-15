@@ -9,6 +9,7 @@ import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
@@ -56,6 +57,8 @@ class CreateProjectServiceImpl(
             ProjectJpaEntity().apply {
                 name = projectReqDto.name
                 description = projectReqDto.description
+                startYear = projectReqDto.startYear
+                status = ProjectStatus.ACTIVE
                 this.club = ownerClub
                 this.participants = participants
             }
@@ -65,6 +68,9 @@ class CreateProjectServiceImpl(
             id = savedProjectEntity.id!!,
             name = savedProjectEntity.name,
             description = savedProjectEntity.description,
+            startYear = savedProjectEntity.startYear,
+            endYear = savedProjectEntity.endYear,
+            status = savedProjectEntity.status,
             club = ownerClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             participants =
                 savedProjectEntity.participants.map { student ->

@@ -60,6 +60,7 @@ class ModifyProjectServiceImpl(
 
         project.name = reqDto.name
         project.description = reqDto.description
+        project.startYear = reqDto.startYear
         project.club = ownerClub
         project.participants = newParticipants
 
@@ -67,6 +68,9 @@ class ModifyProjectServiceImpl(
             id = project.id!!,
             name = project.name,
             description = project.description,
+            startYear = project.startYear,
+            endYear = project.endYear,
+            status = project.status,
             club = project.club?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             participants =
                 project.participants.map { student ->
