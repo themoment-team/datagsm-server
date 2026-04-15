@@ -12,6 +12,7 @@ import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -40,6 +41,7 @@ class CreateProjectServiceTest :
                         ProjectReqDto(
                             name = "DataGSM 프로젝트",
                             description = "학교 데이터를 제공하는 API 서비스",
+                            startYear = 2024,
                             clubId = 1L,
                             participantIds = emptyList(),
                         )
@@ -56,6 +58,8 @@ class CreateProjectServiceTest :
                             id = 1L
                             name = createRequest.name
                             description = createRequest.description
+                            startYear = createRequest.startYear
+                            status = ProjectStatus.ACTIVE
                             this.club = ownerClub
                         }
 
@@ -71,6 +75,9 @@ class CreateProjectServiceTest :
                         result.id shouldBe 1L
                         result.name shouldBe "DataGSM 프로젝트"
                         result.description shouldBe "학교 데이터를 제공하는 API 서비스"
+                        result.startYear shouldBe 2024
+                        result.endYear shouldBe null
+                        result.status shouldBe ProjectStatus.ACTIVE
                         result.club?.id shouldBe 1L
                         result.club?.name shouldBe "SW개발동아리"
                         result.club?.type shouldBe ClubType.MAJOR_CLUB
@@ -87,6 +94,7 @@ class CreateProjectServiceTest :
                         ProjectReqDto(
                             name = "중복프로젝트",
                             description = "중복된 프로젝트입니다",
+                            startYear = 2024,
                             clubId = 1L,
                             participantIds = emptyList(),
                         )
@@ -114,6 +122,7 @@ class CreateProjectServiceTest :
                         ProjectReqDto(
                             name = "신규프로젝트",
                             description = "신규 프로젝트입니다",
+                            startYear = 2024,
                             clubId = 999L,
                             participantIds = emptyList(),
                         )
@@ -142,6 +151,7 @@ class CreateProjectServiceTest :
                         ProjectReqDto(
                             name = "자율동아리 프로젝트",
                             description = "자율동아리 프로젝트입니다",
+                            startYear = 2024,
                             clubId = 2L,
                             participantIds = emptyList(),
                         )
@@ -158,6 +168,8 @@ class CreateProjectServiceTest :
                             id = 2L
                             name = createRequest.name
                             description = createRequest.description
+                            startYear = createRequest.startYear
+                            status = ProjectStatus.ACTIVE
                             this.club = ownerClub
                         }
 
@@ -189,6 +201,7 @@ class CreateProjectServiceTest :
                         ProjectReqDto(
                             name = "참여자 있는 프로젝트",
                             description = "참여자가 있는 프로젝트입니다",
+                            startYear = 2024,
                             clubId = 1L,
                             participantIds = listOf(1L),
                         )
@@ -205,6 +218,8 @@ class CreateProjectServiceTest :
                             id = 3L
                             name = createRequest.name
                             description = createRequest.description
+                            startYear = createRequest.startYear
+                            status = ProjectStatus.ACTIVE
                             this.club = ownerClub
                             this.participants = mutableSetOf(participant)
                         }
@@ -233,6 +248,7 @@ class CreateProjectServiceTest :
                         ProjectReqDto(
                             name = "동아리없는프로젝트",
                             description = "동아리가 없는 프로젝트입니다",
+                            startYear = 2024,
                             clubId = null,
                             participantIds = emptyList(),
                         )
@@ -242,6 +258,8 @@ class CreateProjectServiceTest :
                             id = 4L
                             name = createRequest.name
                             description = createRequest.description
+                            startYear = createRequest.startYear
+                            status = ProjectStatus.ACTIVE
                             this.club = null
                         }
 
@@ -268,6 +286,7 @@ class CreateProjectServiceTest :
                         ProjectReqDto(
                             name = "잘못된 참여자 프로젝트",
                             description = "존재하지 않는 참여자를 포함한 프로젝트입니다",
+                            startYear = 2024,
                             clubId = 1L,
                             participantIds = listOf(999L),
                         )

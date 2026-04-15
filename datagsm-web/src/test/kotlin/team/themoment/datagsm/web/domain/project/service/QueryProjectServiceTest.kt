@@ -12,6 +12,7 @@ import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.project.dto.request.QueryProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.web.domain.project.service.impl.QueryProjectServiceImpl
 
@@ -41,6 +42,8 @@ class QueryProjectServiceTest :
                         id = 1L
                         name = "DataGSM 프로젝트"
                         description = "학교 데이터를 제공하는 API 서비스"
+                        startYear = 2024
+                        status = ProjectStatus.ACTIVE
                         club = testClub
                     }
 
@@ -51,6 +54,7 @@ class QueryProjectServiceTest :
                                 id = 1L,
                                 name = null,
                                 clubId = null,
+                                status = ProjectStatus.ACTIVE,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -75,6 +79,9 @@ class QueryProjectServiceTest :
                         project.id shouldBe 1L
                         project.name shouldBe "DataGSM 프로젝트"
                         project.description shouldBe "학교 데이터를 제공하는 API 서비스"
+                        project.startYear shouldBe 2024
+                        project.endYear shouldBe null
+                        project.status shouldBe ProjectStatus.ACTIVE
                         project.club?.id shouldBe 1L
                         project.club?.name shouldBe "SW개발동아리"
                         project.club?.type shouldBe ClubType.MAJOR_CLUB
@@ -85,6 +92,7 @@ class QueryProjectServiceTest :
                                 id = 1L,
                                 name = null,
                                 clubId = null,
+                                status = ProjectStatus.ACTIVE,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -100,6 +108,7 @@ class QueryProjectServiceTest :
                                 id = null,
                                 name = "DataGSM",
                                 clubId = null,
+                                status = ProjectStatus.ACTIVE,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -128,6 +137,7 @@ class QueryProjectServiceTest :
                                 id = null,
                                 name = null,
                                 clubId = 1L,
+                                status = ProjectStatus.ACTIVE,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -150,6 +160,46 @@ class QueryProjectServiceTest :
                     }
                 }
 
+                context("status=ENDED 필터로 종료된 프로젝트를 검색할 때") {
+                    val endedProject =
+                        ProjectJpaEntity().apply {
+                            id = 2L
+                            name = "종료된 프로젝트"
+                            description = "운영이 종료된 프로젝트"
+                            startYear = 2022
+                            endYear = 2023
+                            status = ProjectStatus.ENDED
+                        }
+
+                    beforeEach {
+                        every {
+                            mockProjectRepository.searchProjectWithPaging(
+                                id = null,
+                                name = null,
+                                clubId = null,
+                                status = ProjectStatus.ENDED,
+                                pageable = PageRequest.of(0, 20),
+                                sortBy = any(),
+                                sortDirection = any(),
+                            )
+                        } returns PageImpl(listOf(endedProject), PageRequest.of(0, 20), 1L)
+                    }
+
+                    it("종료된 프로젝트가 반환되어야 한다") {
+                        val queryReq =
+                            QueryProjectReqDto(
+                                status = ProjectStatus.ENDED,
+                                page = 0,
+                                size = 20,
+                            )
+                        val result = queryProjectService.execute(queryReq)
+
+                        result.totalElements shouldBe 1L
+                        result.projects[0].status shouldBe ProjectStatus.ENDED
+                        result.projects[0].endYear shouldBe 2023
+                    }
+                }
+
                 context("프로젝트 이름과 동아리 ID로 다중 조건 검색할 때") {
                     beforeEach {
                         every {
@@ -157,6 +207,7 @@ class QueryProjectServiceTest :
                                 id = null,
                                 name = "DataGSM",
                                 clubId = 1L,
+                                status = ProjectStatus.ACTIVE,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -187,6 +238,7 @@ class QueryProjectServiceTest :
                                 id = 999L,
                                 name = null,
                                 clubId = null,
+                                status = ProjectStatus.ACTIVE,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -222,6 +274,8 @@ class QueryProjectServiceTest :
                             id = 2L
                             name = "모바일앱 프로젝트"
                             description = "학생 편의 모바일 앱"
+                            startYear = 2025
+                            status = ProjectStatus.ACTIVE
                             club = club2
                         }
 
@@ -231,6 +285,7 @@ class QueryProjectServiceTest :
                                 id = null,
                                 name = null,
                                 clubId = null,
+                                status = ProjectStatus.ACTIVE,
                                 pageable = PageRequest.of(0, 10),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -257,6 +312,7 @@ class QueryProjectServiceTest :
                                 id = null,
                                 name = null,
                                 clubId = null,
+                                status = ProjectStatus.ACTIVE,
                                 pageable = PageRequest.of(0, 10),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -278,6 +334,8 @@ class QueryProjectServiceTest :
                             id = 3L
                             name = "취업 포트폴리오"
                             description = "전공 동아리 프로젝트"
+                            startYear = 2024
+                            status = ProjectStatus.ACTIVE
                             club = majorClub
                         }
 
@@ -287,6 +345,7 @@ class QueryProjectServiceTest :
                                 id = null,
                                 name = null,
                                 clubId = 3L,
+                                status = ProjectStatus.ACTIVE,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
