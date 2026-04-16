@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.Size
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 
 data class ProjectReqDto(
     @field:NotBlank
@@ -21,4 +22,9 @@ data class ProjectReqDto(
     val clubId: Long?,
     @param:Schema(description = "프로젝트 참가자 학생 ID 목록", example = "[1, 2, 3]")
     val participantIds: List<Long>,
+    @param:Schema(description = "프로젝트 운영 상태", example = "ACTIVE")
+    val status: ProjectStatus = ProjectStatus.ACTIVE,
+    @field:Positive
+    @param:Schema(description = "프로젝트 종료 연도 (ENDED 시 설정)", example = "2025")
+    val endYear: Int? = null,
 )
