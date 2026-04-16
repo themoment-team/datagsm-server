@@ -236,6 +236,70 @@ class CreateProjectServiceTest :
                         verify(exactly = 0) { mockProjectRepository.save(any()) }
                     }
                 }
+
+                context("ENDED 상태로 프로젝트를 생성할 때") {
+                    val createRequest =
+                        ProjectReqDto(
+                            name = "종료된 프로젝트",
+                            description = "이미 종료된 프로젝트입니다",
+                            startYear = 2022,
+                            clubId = null,
+                            participantIds = emptyList(),
+                            status = ProjectStatus.ENDED,
+                            endYear = 2023,
+                        )
+
+                    val savedProject =
+                        ProjectJpaEntity().apply {
+                            id = 3L
+                            name = createRequest.name
+                            description = createRequest.description
+                            startYear = createRequest.startYear
+                            status = ProjectStatus.ENDED
+                            endYear = 2023
+                        }
+
+                    beforeEach {
+                        every { mockProjectRepository.existsByName(createRequest.name) } returns false
+                        every { mockProjectRepository.save(any()) } returns savedProject
+                    }
+
+                    it("ENDED 상태와 endYear가 설정된 프로젝트가 생성되어야 한다") {
+                        val result = createProjectService.execute(createRequest)
+
+                        result.status shouldBe ProjectStatus.ENDED
+                        result.endYear shouldBe 2023
+
+                        verify(exactly = 1) { mockProjectRepository.save(any()) }
+                    }
+                }
+
+                context("ENDED 상태이지만 endYear 없이 생성 요청할 때") {
+                    val createRequest =
+                        ProjectReqDto(
+                            name = "종료연도없는프로젝트",
+                            description = "종료 연도가 없는 프로젝트입니다",
+                            startYear = 2022,
+                            clubId = null,
+                            participantIds = emptyList(),
+                            status = ProjectStatus.ENDED,
+                        )
+
+                    beforeEach {
+                        every { mockProjectRepository.existsByName(createRequest.name) } returns false
+                    }
+
+                    it("ExpectedException이 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                createProjectService.execute(createRequest)
+                            }
+
+                        exception.message shouldBe "종료 연도를 입력해주세요."
+
+                        verify(exactly = 0) { mockProjectRepository.save(any()) }
+                    }
+                }
             }
         }
     })
