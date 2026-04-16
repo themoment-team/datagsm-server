@@ -11,6 +11,7 @@ import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -54,6 +55,8 @@ class ModifyProjectServiceTest :
                             this.id = projectId
                             name = "기존프로젝트"
                             description = "기존 설명"
+                            startYear = 2023
+                            status = ProjectStatus.ACTIVE
                             this.club = ownerClub
                         }
                 }
@@ -63,6 +66,7 @@ class ModifyProjectServiceTest :
                         ProjectReqDto(
                             name = "수정된프로젝트",
                             description = "기존 설명",
+                            startYear = 2023,
                             clubId = 1L,
                             participantIds = emptyList(),
                         )
@@ -84,6 +88,7 @@ class ModifyProjectServiceTest :
                         result.id shouldBe projectId
                         result.name shouldBe "수정된프로젝트"
                         result.description shouldBe "기존 설명"
+                        result.startYear shouldBe 2023
                         result.participants shouldBe emptyList()
 
                         verify(exactly = 1) { mockProjectRepository.findById(projectId) }
@@ -102,6 +107,7 @@ class ModifyProjectServiceTest :
                         ProjectReqDto(
                             name = "기존프로젝트",
                             description = "새로운 설명입니다",
+                            startYear = 2023,
                             clubId = 1L,
                             participantIds = emptyList(),
                         )
@@ -135,6 +141,34 @@ class ModifyProjectServiceTest :
                     }
                 }
 
+                context("프로젝트의 시작 연도를 변경할 때") {
+                    val updateRequest =
+                        ProjectReqDto(
+                            name = "기존프로젝트",
+                            description = "기존 설명",
+                            startYear = 2022,
+                            clubId = 1L,
+                            participantIds = emptyList(),
+                        )
+
+                    beforeEach {
+                        every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
+                        every {
+                            mockProjectRepository.existsByNameAndIdNot(
+                                updateRequest.name,
+                                projectId,
+                            )
+                        } returns false
+                        every { mockClubRepository.findById(1L) } returns Optional.of(ownerClub)
+                    }
+
+                    it("프로젝트 시작 연도가 변경되어야 한다") {
+                        val result = modifyProjectService.execute(projectId, updateRequest)
+
+                        result.startYear shouldBe 2022
+                    }
+                }
+
                 context("프로젝트의 소유 동아리를 변경할 때") {
                     val newClub =
                         ClubJpaEntity().apply {
@@ -147,6 +181,7 @@ class ModifyProjectServiceTest :
                         ProjectReqDto(
                             name = "기존프로젝트",
                             description = "기존 설명",
+                            startYear = 2023,
                             clubId = 2L,
                             participantIds = emptyList(),
                         )
@@ -192,6 +227,7 @@ class ModifyProjectServiceTest :
                         ProjectReqDto(
                             name = "완전새로운프로젝트",
                             description = "완전 새로운 설명",
+                            startYear = 2025,
                             clubId = 3L,
                             participantIds = emptyList(),
                         )
@@ -212,6 +248,7 @@ class ModifyProjectServiceTest :
 
                         result.name shouldBe "완전새로운프로젝트"
                         result.description shouldBe "완전 새로운 설명"
+                        result.startYear shouldBe 2025
                         result.club?.id shouldBe 3L
                         result.club?.name shouldBe "완전새로운동아리"
                         result.club?.type shouldBe ClubType.AUTONOMOUS_CLUB
@@ -231,6 +268,7 @@ class ModifyProjectServiceTest :
                         ProjectReqDto(
                             name = "수정프로젝트",
                             description = "설명",
+                            startYear = 2024,
                             clubId = 1L,
                             participantIds = emptyList(),
                         )
@@ -257,6 +295,7 @@ class ModifyProjectServiceTest :
                         ProjectReqDto(
                             name = "중복프로젝트",
                             description = "기존 설명",
+                            startYear = 2023,
                             clubId = 1L,
                             participantIds = emptyList(),
                         )
@@ -293,6 +332,7 @@ class ModifyProjectServiceTest :
                         ProjectReqDto(
                             name = "기존프로젝트",
                             description = "기존 설명",
+                            startYear = 2023,
                             clubId = 999L,
                             participantIds = emptyList(),
                         )
@@ -339,6 +379,7 @@ class ModifyProjectServiceTest :
                         ProjectReqDto(
                             name = "기존프로젝트",
                             description = "기존 설명",
+                            startYear = 2023,
                             clubId = 1L,
                             participantIds = listOf(1L),
                         )
@@ -371,6 +412,7 @@ class ModifyProjectServiceTest :
                         ProjectReqDto(
                             name = "기존프로젝트",
                             description = "기존 설명",
+                            startYear = 2023,
                             clubId = null,
                             participantIds = emptyList(),
                         )
@@ -399,6 +441,7 @@ class ModifyProjectServiceTest :
                         ProjectReqDto(
                             name = "기존프로젝트",
                             description = "기존 설명",
+                            startYear = 2023,
                             clubId = 1L,
                             participantIds = listOf(999L),
                         )

@@ -2,6 +2,8 @@ package team.themoment.datagsm.common.domain.project.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -12,6 +14,7 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.DynamicUpdate
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 
 @Table(name = "tb_project")
@@ -28,6 +31,16 @@ class ProjectJpaEntity {
 
     @field:Column(name = "description", nullable = false, length = 500, columnDefinition = "TEXT")
     lateinit var description: String
+
+    @field:Column(name = "start_year", nullable = false)
+    var startYear: Int = 0
+
+    @field:Column(name = "end_year", nullable = true)
+    var endYear: Int? = null
+
+    @field:Column(name = "status", nullable = false)
+    @field:Enumerated(EnumType.STRING)
+    lateinit var status: ProjectStatus
 
     @field:ManyToOne(optional = true)
     @field:JoinColumn(name = "club_id", nullable = true, referencedColumnName = "id")

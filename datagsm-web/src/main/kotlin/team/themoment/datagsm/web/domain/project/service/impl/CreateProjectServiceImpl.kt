@@ -8,6 +8,7 @@ import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
@@ -54,10 +55,22 @@ class CreateProjectServiceImpl(
                 mutableSetOf()
             }
 
+        if (projectReqDto.status == ProjectStatus.ENDED) {
+            val endYear =
+                projectReqDto.endYear
+                    ?: throw ExpectedException("종료 연도를 입력해주세요.", HttpStatus.BAD_REQUEST)
+            if (endYear < projectReqDto.startYear) {
+                throw ExpectedException("종료 연도는 시작 연도보다 크거나 같아야 합니다.", HttpStatus.BAD_REQUEST)
+            }
+        }
+
         val projectEntity =
             ProjectJpaEntity().apply {
                 name = projectReqDto.name
                 description = projectReqDto.description
+                startYear = projectReqDto.startYear
+                status = projectReqDto.status
+                endYear = projectReqDto.endYear
                 this.club = ownerClub
                 this.participants = participants
             }
@@ -67,6 +80,9 @@ class CreateProjectServiceImpl(
             id = savedProjectEntity.id!!,
             name = savedProjectEntity.name,
             description = savedProjectEntity.description,
+            startYear = savedProjectEntity.startYear,
+            endYear = savedProjectEntity.endYear,
+            status = savedProjectEntity.status,
             club = ownerClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             participants =
                 savedProjectEntity.participants.map { student ->
