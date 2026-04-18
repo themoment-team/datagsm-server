@@ -62,7 +62,7 @@ Always cite a specific source in the rationale (e.g. `CLAUDE.md §Logging Style`
 3. If the changes have not been committed yet, commit them
 4. Record the short commit hash for use in Step 5:
    ```bash
-   git rev-parse --short=8 HEAD
+   git rev-parse --short=7 HEAD
    ```
 
 On failure: record the reason and fall back to PARTIAL.
