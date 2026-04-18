@@ -7,7 +7,7 @@ All replies must be written in Korean.
 ## VALID — fix succeeded
 
 ```
-<abc1234> 에서 반영했습니다. (근거: <출처>)
+<abc12345> 에서 반영했습니다. (근거: <출처>)
 ```
 
 ## VALID — fix failed
