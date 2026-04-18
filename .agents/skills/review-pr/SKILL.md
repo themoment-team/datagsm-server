@@ -2,7 +2,7 @@
 name: review-pr
 description: Collect PR review comments, critically assess each one against project conventions, auto-apply valid ones, post refutation replies for invalid ones, and prompt for partial ones. Replaces resolve-pr-comments.
 compatibility: Requires git, gh (GitHub CLI), and jq
-allowed-tools: Bash(bash *get-pr-data.sh:*), Bash(gh api:*), Bash(gh pr view:*), Bash(gh repo:*), Bash(git add:*), Bash(git commit:*), Bash(git log:*), Bash(git rev-parse:*), Bash(rm:*), Edit, Read
+allowed-tools: Bash(bash *get-pr-data.sh:*), Bash(gh api:*), Bash(gh pr view:*), Bash(gh repo:*), Bash(git add:*), Bash(git commit:*), Bash(git log:*), Bash(git push:*), Bash(git rev-parse:*), Bash(rm:*), Edit, Read
 ---
 
 ## Step 1 — Collect PR Data
@@ -52,7 +52,7 @@ Always cite a specific source in the rationale (e.g. `CLAUDE.md §Logging Style`
 3. If the changes have not been committed yet, commit them
 4. Record the short commit hash for use in Step 5:
    ```bash
-   git rev-parse --short HEAD
+   git rev-parse --short=7 HEAD
    ```
 
 On failure: record the reason and fall back to PARTIAL.
@@ -88,7 +88,15 @@ Accept? (y / n / s = skip for now)
 | 3 | alice | Baz.kt:56 | ⚠️ PARTIAL | - | PENDING |
 ```
 
-## Step 5 — Post GitHub Replies
+## Step 5 — Push Commits
+
+If any VALID fixes were committed in Step 3, push them before posting replies so the referenced commit hashes are visible on GitHub:
+
+```bash
+git push
+```
+
+## Step 6 — Post GitHub Replies
 
 Post an inline reply for each comment. Always quote `path` and `comment_id` to prevent shell injection.
 
@@ -99,7 +107,7 @@ gh api "repos/<owner>/<repo>/pulls/<pr_number>/comments/<comment_id>/replies" \
 
 For reply body templates, read `references/reply-formats.md`.
 
-## Step 6 — Cleanup
+## Step 7 — Cleanup
 
 ```bash
 rm -rf .pr-tmp
