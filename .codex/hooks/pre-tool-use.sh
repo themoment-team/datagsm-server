@@ -15,7 +15,7 @@ if [[ "$TOOL_NAME" == "Bash" ]] || [[ "$TOOL_NAME" == "shell" ]]; then
     fi
 
     BLOCKED_PATTERNS=(
-        "rm -rf[[:space:]]*/[[:space:]]*$"
+        "rm -rf[[:space:]]*/"
         "sudo rm"
         "> /dev/"
         "dd if="

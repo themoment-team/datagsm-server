@@ -18,7 +18,7 @@ Discover available modules at runtime (full name for Gradle commands, no `datags
 
 ```bash
 sh scripts/discover-modules.sh   # display names (prefix stripped)
-grep 'include' settings.gradle.kts | grep -oE '"[^"]+"' | tr -d '"'  # full names for :module:test
+grep '^[[:space:]]*include' settings.gradle.kts | grep -oE '"[^"]+"' | tr -d '"'  # full names for :module:test
 ```
 
 ## Run Tests

@@ -8,8 +8,15 @@ if [[ "$TOOL_NAME" == "Edit" ]] || [[ "$TOOL_NAME" == "Write" ]] || [[ "$TOOL_NA
     CWD=$(echo "$INPUT" | jq -r '.cwd // empty')
 
     if [[ "$FILE_PATH" == *.kt ]] && [[ -n "$CWD" ]]; then
+        PROJECT_ROOT=$(git -C "$CWD" rev-parse --show-toplevel 2>/dev/null || printf '%s' "$CWD")
+        if [[ "$FILE_PATH" == /* ]]; then
+            FILE_ABS="$FILE_PATH"
+        else
+            FILE_ABS="$CWD/$FILE_PATH"
+        fi
+
         echo "[Hook] Running ktlintFormat for $(basename "$FILE_PATH")" >&2
-        cd "$CWD"
+        cd "$PROJECT_ROOT"
         if ./gradlew ktlintFormat -q 2>&1; then
             echo "[Hook] Format OK" >&2
         else
@@ -18,9 +25,9 @@ if [[ "$TOOL_NAME" == "Edit" ]] || [[ "$TOOL_NAME" == "Write" ]] || [[ "$TOOL_NA
 
         FILE_NAME=$(basename "$FILE_PATH")
         if [[ "$FILE_NAME" == *ServiceImpl.kt ]] && [[ "$FILE_PATH" != */test/* ]]; then
-            RELATIVE="${FILE_PATH#$CWD/}"
+            RELATIVE="${FILE_ABS#$PROJECT_ROOT/}"
             MODULE=$(echo "$RELATIVE" | cut -d'/' -f1)
-            if [[ -n "$MODULE" ]] && [[ -d "$CWD/$MODULE/src/test" ]]; then
+            if [[ "$FILE_ABS" == "$PROJECT_ROOT"/* ]] && [[ -n "$MODULE" ]] && [[ -d "$PROJECT_ROOT/$MODULE/src/test" ]]; then
                 TEST_CLASS="${FILE_NAME%Impl.kt}Test"
                 echo "[Hook] Running test $TEST_CLASS in $MODULE..." >&2
                 TEST_OUTPUT=$(./gradlew ":${MODULE}:test" --tests "$TEST_CLASS" 2>&1)
