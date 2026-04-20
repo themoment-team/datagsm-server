@@ -8,13 +8,18 @@ allowed-tools: Bash, Glob, Grep
 
 Based on the user's request or changed files, choose the appropriate scope:
 
-| Scope | Command |
-|-------|---------|
+| Scope               | Command                                              |
+|---------------------|------------------------------------------------------|
 | Specific test class | `./gradlew test --tests "fully.qualified.ClassName"` |
-| Specific module | `./gradlew :<module>:test` |
-| All modules | `./gradlew test` |
+| Specific module     | `./gradlew :<module>:test`                           |
+| All modules         | `./gradlew test`                                     |
 
-Available modules: `datagsm-common`, `datagsm-oauth-authorization`, `datagsm-oauth-userinfo`, `datagsm-openapi`, `datagsm-web`
+Discover available modules at runtime (full name for Gradle commands, no `datagsm-` prefix for display):
+
+```bash
+sh .agents/scripts/discover-modules.sh   # display names (prefix stripped)
+grep 'include' settings.gradle.kts | grep -oE '"[^"]+"' | tr -d '"'  # full names for :module:test
+```
 
 ## Run Tests
 

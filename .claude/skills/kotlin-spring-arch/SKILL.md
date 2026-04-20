@@ -61,7 +61,7 @@ val apiKey = repository.findById(id).orElseThrow {
 Do not create custom exception subclasses extending `ExpectedException`.
 
 ### Global Handler
-See `datagsm-common/.../global/common/error/GlobalExceptionHandler.kt`
+Locate with: `find . -name "GlobalExceptionHandler.kt" ! -path "*/build/*"`
 
 ## DTO Conversion Pattern
 

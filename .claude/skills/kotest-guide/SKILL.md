@@ -125,5 +125,5 @@ context("API 키가 존재하지 않는 경우") {
 
 Discover real test examples dynamically:
 ```bash
-find . -name "*ServiceTest.kt" -not -path "*/build/*" | head -5
+find . -name "*ServiceTest.kt" ! -path "*/build/*" | head -5
 ```
