@@ -37,7 +37,7 @@ Format: `type(scope): 설명`
 
 - **Types**: `add` / `update` / `fix` / `refactor` / `ci/cd` / `docs` / `test` / `merge` (English)
 - **Scopes** (English):
-  - **Primary**: Domain names — discover at runtime: `sh .agents/scripts/discover-domains.sh`
+  - **Primary**: Domain names — discover at runtime: `sh scripts/discover-domains.sh`
   - **Cross-cutting concerns only**: Module names (without `datagsm-` prefix) or `global`
   - Use domain names by default. Only use module names when changes affect multiple modules or are cross-cutting.
 - **Description**: Korean, no period, avoid endings: `~한다/~된다`, `~하기/~하기 위해`, `~합니다/~됩니다`, `~했습니다`
@@ -49,7 +49,7 @@ Format: `type(scope): 설명`
 
 For the full scope selection table and examples, read `references/scope-guide.md`.
 
-Quick rule: run `sh .agents/scripts/discover-domains.sh` to get available domains, then pick the one matching the changed files. Use `global` / `ci/cd` / module names only for cross-cutting changes.
+Quick rule: run `sh scripts/discover-domains.sh` to get available domains, then pick the one matching the changed files. Use `global` / `ci/cd` / module names only for cross-cutting changes.
 
 ## Commit Flow
 

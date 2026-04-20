@@ -11,7 +11,7 @@ Always use a domain name. Only fall back to a module name when the change is gen
 Run this before selecting a scope — do not use a hardcoded list:
 
 ```bash
-sh .agents/scripts/discover-domains.sh
+sh .agents/skills/commit/scripts/discover-domains.sh
 ```
 
 Use the output as the candidate domain scope list.
@@ -21,18 +21,18 @@ Use the output as the candidate domain scope list.
 Run this to get the module list (strips `datagsm-` prefix for use as scope):
 
 ```bash
-sh .agents/scripts/discover-modules.sh
+sh .agents/skills/commit/scripts/discover-modules.sh
 ```
 
 Module scopes are secondary — use only when changes are cross-cutting across multiple domains within that module.
 
 ## Module / Cross-cutting Names (Secondary)
 
-| Scope      | When to use                        |
-|------------|------------------------------------|
-| `global`   | Affects multiple modules           |
-| `ci/cd`    | Build / deployment pipelines       |
-| (module)   | Changes scoped to an entire module (use name without `datagsm-` prefix) |
+| Scope    | When to use                                                             |
+|----------|-------------------------------------------------------------------------|
+| `global` | Affects multiple modules                                                |
+| `ci/cd`  | Build / deployment pipelines                                            |
+| (module) | Changes scoped to an entire module (use name without `datagsm-` prefix) |
 
 ## Wrong vs Correct Examples
 

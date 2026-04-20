@@ -26,7 +26,7 @@ Read `${CLAUDE_SKILL_DIR}/references/labels.md` and select 1–2 appropriate lab
 ## Step 3 — Generate PR Content
 
 **Title** — Generate 3 options in the format `[scope] description`:
-- Scope: determine from changed files — run `sh .agents/scripts/discover-domains.sh` to get the current domain list, then pick the one matching the changes. Use `[global]` / `[ci/cd]` for cross-cutting changes only. Wrap in brackets: `[auth]`, `[student]`, etc.
+- Scope: determine from changed files — run `sh "${CLAUDE_SKILL_DIR}/scripts/discover-domains.sh"` to get the current domain list, then pick the one matching the changes. Use `[global]` / `[ci/cd]` for cross-cutting changes only. Wrap in brackets: `[auth]`, `[student]`, etc.
 - Description: Korean, concise, no emojis, max 50 characters total
 - Wrap class names, method names, annotations, file names, and technical terms in backticks (e.g., `@Transactional`, `QueryProjectServiceImpl`, `SKILL.md`)
 

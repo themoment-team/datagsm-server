@@ -1,6 +1,4 @@
 #!/bin/sh
-# Discover domain names from the project's domain directory structure.
-# Works on Linux and macOS (POSIX-compatible).
 find . -type d -path "*/domain/*" \
   ! -path "*/build/*" \
   ! -path "*/test/*" \

@@ -17,7 +17,7 @@ Based on the user's request or changed files, choose the appropriate scope:
 Discover available modules at runtime (full name for Gradle commands, no `datagsm-` prefix for display):
 
 ```bash
-sh .agents/scripts/discover-modules.sh   # display names (prefix stripped)
+sh "${CLAUDE_SKILL_DIR}/scripts/discover-modules.sh"   # display names (prefix stripped)
 grep 'include' settings.gradle.kts | grep -oE '"[^"]+"' | tr -d '"'  # full names for :module:test
 ```
 

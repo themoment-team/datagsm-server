@@ -11,7 +11,7 @@ Always use a domain name. Only fall back to a module name when the change is gen
 Run this before selecting a scope — do not use a hardcoded list:
 
 ```bash
-sh .agents/scripts/discover-domains.sh
+sh "${CLAUDE_SKILL_DIR}/scripts/discover-domains.sh"
 ```
 
 Use the output as the candidate domain scope list.
@@ -21,7 +21,7 @@ Use the output as the candidate domain scope list.
 Run this to get the module list (strips `datagsm-` prefix for use as scope):
 
 ```bash
-sh .agents/scripts/discover-modules.sh
+sh "${CLAUDE_SKILL_DIR}/scripts/discover-modules.sh"
 ```
 
 Module scopes are secondary — use only when changes are cross-cutting across multiple domains within that module.
