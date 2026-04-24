@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "command": ".codex/hooks/pre-tool-use.sh"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "command": ".codex/hooks/post-tool-use.sh"
+      }
+    ]
+  }
+}
