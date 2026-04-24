@@ -6,29 +6,33 @@
 
 Always use a domain name. Only fall back to a module name when the change is genuinely cross-cutting (affects multiple domains or the entire module).
 
-## Domain Names (Primary)
+## Discover Domains at Runtime
 
-| Scope         | When to use                |
-|---------------|----------------------------|
-| `account`     | Account management         |
-| `application` | Registered API application |
-| `auth`        | Authentication, API keys   |
-| `client`      | OAuth client               |
-| `club`        | Club / project information |
-| `neis`        | NEIS integration           |
-| `oauth`       | OAuth2 flow                |
-| `project`     | Project information        |
-| `student`     | Student information        |
-| `utility`     | Shared utilities           |
+Run this before selecting a scope — do not use a hardcoded list:
+
+```bash
+sh "${CLAUDE_SKILL_DIR}/scripts/discover-domains.sh"
+```
+
+Use the output as the candidate domain scope list.
+
+## Discover Modules at Runtime
+
+Run this to get the module list (strips `datagsm-` prefix for use as scope):
+
+```bash
+sh "${CLAUDE_SKILL_DIR}/scripts/discover-modules.sh"
+```
+
+Module scopes are secondary — use only when changes are cross-cutting across multiple domains within that module.
 
 ## Module / Cross-cutting Names (Secondary)
 
-| Scope     | When to use                                         |
-|-----------|-----------------------------------------------------|
-| `global`  | Affects multiple modules                            |
-| `ci/cd`   | Build / deployment pipelines                        |
-| `web`     | Changes scoped to the entire datagsm-web module     |
-| `openapi` | Changes scoped to the entire datagsm-openapi module |
+| Scope      | When to use                        |
+|------------|------------------------------------|
+| `global`   | Affects multiple modules           |
+| `ci/cd`    | Build / deployment pipelines       |
+| (module)   | Changes scoped to an entire module (use name without `datagsm-` prefix) |
 
 ## Wrong vs Correct Examples
 

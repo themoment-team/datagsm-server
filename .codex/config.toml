@@ -1,0 +1,12 @@
+model = "gpt-5.4"
+model_reasoning_effort = "high"
+web_search = "live"
+
+[approval]
+policy = "on-request"
+
+[shell]
+login_shell_allowed = true
+
+[features]
+codex_hooks = true

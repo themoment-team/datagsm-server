@@ -54,5 +54,9 @@ grep -rE "['\"]([A-Za-z0-9+/]{40,}={0,2})['\"]" --include="*.kt"
 
 ## References
 
-- `datagsm-oauth-authorization/.../auth/service/ApiKeyService.kt` - API Key security example
-- `datagsm-common/.../global/common/security/` - Security configuration
+Locate reference files at runtime:
+
+```bash
+find . -name "ApiKeyService.kt" ! -path "*/build/*"
+find . -type d -name "security" -path "*/main/*" ! -path "*/build/*"
+```
