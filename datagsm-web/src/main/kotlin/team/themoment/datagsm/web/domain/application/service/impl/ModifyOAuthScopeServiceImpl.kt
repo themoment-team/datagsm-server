@@ -32,10 +32,7 @@ class ModifyOAuthScopeServiceImpl(
         }
 
         oauthScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)?.let {
-            throw ExpectedException(
-                "${reqDto.scopeName}은 이미 사용 중인 권한 범위 명칭입니다.",
-                HttpStatus.CONFLICT,
-            )
+            throw ExpectedException("이미 사용 중인 권한 범위 명칭입니다.", HttpStatus.CONFLICT)
         }
 
         val currentAccount = currentUserProvider.getCurrentAccount()
