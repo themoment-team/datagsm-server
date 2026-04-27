@@ -3,6 +3,6 @@
     "defaultApprovalMode": "auto_edit"
   },
   "context": {
-    "fileName": ["AGENTS.md", "GEMINI.md"]
+    "fileName": ["AGENTS.md"]
   }
 }

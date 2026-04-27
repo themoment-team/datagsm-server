@@ -1,0 +1,252 @@
+package team.themoment.datagsm.web.domain.application.service
+
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.shouldBe
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import org.springframework.http.HttpStatus
+import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
+import team.themoment.datagsm.common.domain.application.dto.request.AddOAuthScopeReqDto
+import team.themoment.datagsm.common.domain.application.entity.ApplicationJpaEntity
+import team.themoment.datagsm.common.domain.application.entity.OAuthScopeJpaEntity
+import team.themoment.datagsm.common.domain.application.repository.ApplicationJpaRepository
+import team.themoment.datagsm.common.domain.application.repository.OAuthScopeJpaRepository
+import team.themoment.datagsm.web.domain.application.service.impl.AddOAuthScopeServiceImpl
+import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
+import team.themoment.sdk.exception.ExpectedException
+import java.util.Optional
+
+class AddOAuthScopeServiceTest :
+    DescribeSpec({
+
+        val mockApplicationJpaRepository = mockk<ApplicationJpaRepository>()
+        val mockOauthScopeJpaRepository = mockk<OAuthScopeJpaRepository>()
+        val mockCurrentUserProvider = mockk<CurrentUserProvider>()
+
+        val service =
+            AddOAuthScopeServiceImpl(
+                mockApplicationJpaRepository,
+                mockOauthScopeJpaRepository,
+                mockCurrentUserProvider,
+            )
+
+        afterEach {
+            clearAllMocks()
+        }
+
+        describe("AddOAuthScopeService 클래스의") {
+            describe("execute 메서드는") {
+
+                val applicationId = "app-uuid-1234"
+
+                val ownerAccount =
+                    AccountJpaEntity().apply {
+                        id = 1L
+                        email = "owner@gsm.hs.kr"
+                        role = AccountRole.USER
+                    }
+
+                lateinit var existingApplication: ApplicationJpaEntity
+
+                beforeEach {
+                    existingApplication =
+                        ApplicationJpaEntity().apply {
+                            id = applicationId
+                            name = "My Application"
+                            account = ownerAccount
+                        }
+                }
+
+                context("소유자가 권한 범위를 추가할 때") {
+                    val reqDto =
+                        AddOAuthScopeReqDto(
+                            scopeName = "profile",
+                            description = "사용자 프로필 정보 조회",
+                        )
+
+                    beforeEach {
+                        every { mockApplicationJpaRepository.findById(applicationId) } returns Optional.of(existingApplication)
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns ownerAccount
+                        every {
+                            mockOauthScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
+                        } returns null
+                        every { mockOauthScopeJpaRepository.save(any()) } answers {
+                            firstArg<OAuthScopeJpaEntity>().apply { id = 1L }
+                        }
+                    }
+
+                    it("권한 범위가 추가된 Application이 반환되어야 한다") {
+                        val result = service.execute(applicationId, reqDto)
+
+                        result.scopes.size shouldBe 1
+                        result.scopes[0].scopeName shouldBe "profile"
+                        result.scopes[0].description shouldBe "사용자 프로필 정보 조회"
+
+                        verify(exactly = 1) { mockApplicationJpaRepository.findById(applicationId) }
+                        verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
+                        verify(exactly = 1) { mockOauthScopeJpaRepository.save(any()) }
+                    }
+                }
+
+                context("ADMIN이 다른 사용자의 Application에 권한 범위를 추가할 때") {
+                    val adminAccount =
+                        AccountJpaEntity().apply {
+                            id = 99L
+                            email = "admin@gsm.hs.kr"
+                            role = AccountRole.ADMIN
+                        }
+
+                    val reqDto =
+                        AddOAuthScopeReqDto(
+                            scopeName = "email",
+                            description = "이메일 주소 조회",
+                        )
+
+                    beforeEach {
+                        every { mockApplicationJpaRepository.findById(applicationId) } returns Optional.of(existingApplication)
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns adminAccount
+                        every {
+                            mockOauthScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
+                        } returns null
+                        every { mockOauthScopeJpaRepository.save(any()) } answers {
+                            firstArg<OAuthScopeJpaEntity>().apply { id = 2L }
+                        }
+                    }
+
+                    it("성공적으로 추가되어야 한다") {
+                        val result = service.execute(applicationId, reqDto)
+
+                        result.scopes.size shouldBe 1
+                        result.scopes[0].scopeName shouldBe "email"
+                    }
+                }
+
+                context("ROOT가 다른 사용자의 Application에 권한 범위를 추가할 때") {
+                    val rootAccount =
+                        AccountJpaEntity().apply {
+                            id = 100L
+                            email = "root@gsm.hs.kr"
+                            role = AccountRole.ROOT
+                        }
+
+                    val reqDto =
+                        AddOAuthScopeReqDto(
+                            scopeName = "phone",
+                            description = "전화번호 조회",
+                        )
+
+                    beforeEach {
+                        every { mockApplicationJpaRepository.findById(applicationId) } returns Optional.of(existingApplication)
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns rootAccount
+                        every {
+                            mockOauthScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
+                        } returns null
+                        every { mockOauthScopeJpaRepository.save(any()) } answers {
+                            firstArg<OAuthScopeJpaEntity>().apply { id = 3L }
+                        }
+                    }
+
+                    it("성공적으로 추가되어야 한다") {
+                        val result = service.execute(applicationId, reqDto)
+
+                        result.scopes.size shouldBe 1
+                    }
+                }
+
+                context("이미 동일한 scopeName이 존재할 때") {
+                    val reqDto =
+                        AddOAuthScopeReqDto(
+                            scopeName = "profile",
+                            description = "사용자 프로필 정보 조회",
+                        )
+
+                    val existingScope =
+                        OAuthScopeJpaEntity().apply {
+                            id = 10L
+                            scopeName = "profile"
+                            description = "기존 프로필 권한 범위"
+                            application = existingApplication
+                        }
+
+                    beforeEach {
+                        every { mockApplicationJpaRepository.findById(applicationId) } returns Optional.of(existingApplication)
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns ownerAccount
+                        every {
+                            mockOauthScopeJpaRepository.findByApplicationIdAndScopeName(applicationId, reqDto.scopeName)
+                        } returns existingScope
+                    }
+
+                    it("409 CONFLICT 예외가 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                service.execute(applicationId, reqDto)
+                            }
+
+                        exception.statusCode shouldBe HttpStatus.CONFLICT
+                        verify(exactly = 0) { mockOauthScopeJpaRepository.save(any()) }
+                    }
+                }
+
+                context("소유자가 아닌 일반 사용자가 권한 범위 추가를 시도할 때") {
+                    val otherAccount =
+                        AccountJpaEntity().apply {
+                            id = 2L
+                            email = "other@gsm.hs.kr"
+                            role = AccountRole.USER
+                        }
+
+                    val reqDto =
+                        AddOAuthScopeReqDto(
+                            scopeName = "profile",
+                            description = "사용자 프로필 정보 조회",
+                        )
+
+                    beforeEach {
+                        every { mockApplicationJpaRepository.findById(applicationId) } returns Optional.of(existingApplication)
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns otherAccount
+                    }
+
+                    it("403 FORBIDDEN 예외가 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                service.execute(applicationId, reqDto)
+                            }
+
+                        exception.statusCode shouldBe HttpStatus.FORBIDDEN
+                        exception.message shouldBe "OAuth 권한 범위 추가 권한이 없습니다."
+
+                        verify(exactly = 0) { mockOauthScopeJpaRepository.save(any()) }
+                    }
+                }
+
+                context("존재하지 않는 Application ID로 권한 범위 추가를 시도할 때") {
+                    val nonExistingId = "non-existing-id"
+                    val reqDto =
+                        AddOAuthScopeReqDto(
+                            scopeName = "profile",
+                            description = "사용자 프로필 정보 조회",
+                        )
+
+                    beforeEach {
+                        every { mockApplicationJpaRepository.findById(nonExistingId) } returns Optional.empty()
+                    }
+
+                    it("404 NOT_FOUND 예외가 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                service.execute(nonExistingId, reqDto)
+                            }
+
+                        exception.statusCode shouldBe HttpStatus.NOT_FOUND
+                        exception.message shouldBe "Application을 찾을 수 없습니다."
+
+                        verify(exactly = 0) { mockOauthScopeJpaRepository.save(any()) }
+                    }
+                }
+            }
+        }
+    })

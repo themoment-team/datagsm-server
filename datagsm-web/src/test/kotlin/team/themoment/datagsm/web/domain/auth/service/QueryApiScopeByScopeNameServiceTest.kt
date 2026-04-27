@@ -14,8 +14,8 @@ class QueryApiScopeByScopeNameServiceTest :
 
         describe("QueryApiScopeByScopeNameService 클래스의") {
             describe("execute 메서드는") {
-                context("존재하는 스코프 이름으로 조회할 때") {
-                    it("해당 스코프의 상세 정보를 반환해야 한다") {
+                context("존재하는 권한 범위 이름으로 조회할 때") {
+                    it("해당 권한 범위의 상세 정보를 반환해야 한다") {
                         val scopeName = ApiKeyScope.STUDENT_READ.scope
                         val result = queryApiScopeByScopeNameService.execute(scopeName)
 
@@ -24,7 +24,7 @@ class QueryApiScopeByScopeNameServiceTest :
                     }
                 }
 
-                context("존재하지 않는 스코프 이름으로 조회할 때") {
+                context("존재하지 않는 권한 범위 이름으로 조회할 때") {
                     it("ExpectedException이 발생해야 한다") {
                         val invalidScopeName = "invalid:scope"
 

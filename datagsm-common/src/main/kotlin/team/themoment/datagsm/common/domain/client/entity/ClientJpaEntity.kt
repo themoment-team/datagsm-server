@@ -1,13 +1,18 @@
 package team.themoment.datagsm.common.domain.client.entity
 
+import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.Convert
+import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.Index
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import org.hibernate.annotations.OnDelete
+import org.hibernate.annotations.OnDeleteAction
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.global.converter.StringSetConverter
 
@@ -33,9 +38,14 @@ class ClientJpaEntity {
     @Column(columnDefinition = "text")
     lateinit var redirectUrls: Set<String>
 
-    @Convert(converter = StringSetConverter::class)
-    @Column(columnDefinition = "text")
-    lateinit var scopes: Set<String>
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+        name = "tb_client_scope",
+        joinColumns = [JoinColumn(name = "client_id")],
+    )
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @Column(name = "scope")
+    val scopes: MutableSet<String> = mutableSetOf()
 
     @Column(name = "client_name")
     lateinit var clientName: String

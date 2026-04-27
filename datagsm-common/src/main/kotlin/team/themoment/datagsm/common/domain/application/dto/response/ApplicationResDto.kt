@@ -9,15 +9,15 @@ data class ApplicationResDto(
     val name: String,
     @field:Schema(description = "소유자 계정 ID")
     val accountId: Long,
-    @field:Schema(description = "Third-party 스코프 목록")
+    @field:Schema(description = "Third-party 권한 범위 목록")
     val scopes: List<ScopeResDto>,
 ) {
     data class ScopeResDto(
-        @field:Schema(description = "스코프 ID")
+        @field:Schema(description = "권한 범위 ID")
         val id: Long,
-        @field:Schema(description = "스코프 이름", example = "profile")
+        @field:Schema(description = "권한 범위 이름", example = "profile")
         val scopeName: String,
-        @field:Schema(description = "스코프 설명", example = "사용자 프로필 정보 조회")
+        @field:Schema(description = "권한 범위 설명", example = "사용자 프로필 정보 조회")
         val description: String,
     )
 }

@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotEmpty
 data class ModifyApiKeyReqDto(
     @field:NotEmpty(message = "scope는 최소 1개 이상 선택해야 합니다.")
     @param:Schema(
-        description = "API 키 권한 스코프 목록",
+        description = "API 키 권한 범위 목록",
         example = "[\"student:read\", \"club:read\", \"club:write\"]",
     )
     val scopes: Set<String>,

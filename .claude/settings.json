@@ -1,4 +1,24 @@
 {
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "includeGitInstructions": false,
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch",
+      "Bash(./gradlew *)",
+      "Bash(git diff*)",
+      "Bash(git status)",
+      "Bash(git log*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git branch*)",
+      "Bash(git checkout*)",
+      "Bash(git rev-parse*)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {
@@ -7,10 +27,6 @@
           {
             "type": "command",
             "command": ".claude/hooks/preToolUse.sh"
-          },
-          {
-            "type": "command",
-            "command": ".claude/hooks/preCommit.sh"
           }
         ]
       }
@@ -26,5 +42,12 @@
         ]
       }
     ]
-  }
+  },
+  "enabledPlugins": {
+    "claude-hud@claude-hud": true,
+    "github@claude-plugins-official": true,
+    "context7@claude-plugins-official": true
+  },
+  "language": "korean",
+  "effortLevel": "high"
 }

@@ -12,6 +12,7 @@ import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.application.entity.ApplicationJpaEntity
 import team.themoment.datagsm.common.domain.application.repository.ApplicationJpaRepository
+import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.web.domain.application.service.impl.DeleteApplicationServiceImpl
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
@@ -21,11 +22,13 @@ class DeleteApplicationServiceTest :
     DescribeSpec({
 
         val mockApplicationJpaRepository = mockk<ApplicationJpaRepository>()
+        val mockClientJpaRepository = mockk<ClientJpaRepository>()
         val mockCurrentUserProvider = mockk<CurrentUserProvider>()
 
         val service =
             DeleteApplicationServiceImpl(
                 mockApplicationJpaRepository,
+                mockClientJpaRepository,
                 mockCurrentUserProvider,
             )
 
@@ -56,6 +59,7 @@ class DeleteApplicationServiceTest :
                     beforeEach {
                         every { mockApplicationJpaRepository.findById(applicationId) } returns Optional.of(existingApplication)
                         every { mockCurrentUserProvider.getCurrentAccount() } returns ownerAccount
+                        every { mockClientJpaRepository.removeScopesByApplicationId("$applicationId:") } returns Unit
                         every { mockApplicationJpaRepository.delete(existingApplication) } returns Unit
                     }
 
@@ -64,6 +68,7 @@ class DeleteApplicationServiceTest :
 
                         verify(exactly = 1) { mockApplicationJpaRepository.findById(applicationId) }
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
+                        verify(exactly = 1) { mockClientJpaRepository.removeScopesByApplicationId("$applicationId:") }
                         verify(exactly = 1) { mockApplicationJpaRepository.delete(existingApplication) }
                     }
                 }
@@ -79,12 +84,14 @@ class DeleteApplicationServiceTest :
                     beforeEach {
                         every { mockApplicationJpaRepository.findById(applicationId) } returns Optional.of(existingApplication)
                         every { mockCurrentUserProvider.getCurrentAccount() } returns adminAccount
+                        every { mockClientJpaRepository.removeScopesByApplicationId("$applicationId:") } returns Unit
                         every { mockApplicationJpaRepository.delete(existingApplication) } returns Unit
                     }
 
                     it("성공적으로 삭제되어야 한다") {
                         service.execute(applicationId)
 
+                        verify(exactly = 1) { mockClientJpaRepository.removeScopesByApplicationId("$applicationId:") }
                         verify(exactly = 1) { mockApplicationJpaRepository.delete(existingApplication) }
                     }
                 }
@@ -100,12 +107,14 @@ class DeleteApplicationServiceTest :
                     beforeEach {
                         every { mockApplicationJpaRepository.findById(applicationId) } returns Optional.of(existingApplication)
                         every { mockCurrentUserProvider.getCurrentAccount() } returns rootAccount
+                        every { mockClientJpaRepository.removeScopesByApplicationId("$applicationId:") } returns Unit
                         every { mockApplicationJpaRepository.delete(existingApplication) } returns Unit
                     }
 
                     it("성공적으로 삭제되어야 한다") {
                         service.execute(applicationId)
 
+                        verify(exactly = 1) { mockClientJpaRepository.removeScopesByApplicationId("$applicationId:") }
                         verify(exactly = 1) { mockApplicationJpaRepository.delete(existingApplication) }
                     }
                 }

@@ -15,7 +15,7 @@ plugins {
 }
 
 group = "team.themoment"
-version = "v20260401.0"
+version = "v20260426.0"
 
 apply<TestSummaryPlugin>()
 

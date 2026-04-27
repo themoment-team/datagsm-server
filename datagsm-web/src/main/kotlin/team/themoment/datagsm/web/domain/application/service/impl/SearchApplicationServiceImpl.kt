@@ -13,12 +13,12 @@ class SearchApplicationServiceImpl(
     private val applicationJpaRepository: ApplicationJpaRepository,
 ) : SearchApplicationService {
     @Transactional(readOnly = true)
-    override fun execute(queryReq: SearchApplicationReqDto): ApplicationListResDto {
+    override fun execute(searchReq: SearchApplicationReqDto): ApplicationListResDto {
         val applicationPage =
             applicationJpaRepository.searchApplicationWithPaging(
-                name = queryReq.name,
-                id = queryReq.id,
-                pageable = PageRequest.of(queryReq.page, queryReq.size),
+                name = searchReq.name,
+                id = searchReq.id,
+                pageable = PageRequest.of(searchReq.page, searchReq.size),
             )
 
         return ApplicationListResDto(

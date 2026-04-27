@@ -4,5 +4,5 @@ import team.themoment.datagsm.common.domain.application.dto.request.SearchApplic
 import team.themoment.datagsm.common.domain.application.dto.response.ApplicationListResDto
 
 interface SearchApplicationService {
-    fun execute(queryReq: SearchApplicationReqDto): ApplicationListResDto
+    fun execute(searchReq: SearchApplicationReqDto): ApplicationListResDto
 }

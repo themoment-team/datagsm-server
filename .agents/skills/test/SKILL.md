@@ -1,38 +1,43 @@
 ---
 name: test
 description: Run tests with coverage analysis and report results. Determines appropriate test scope (single test / module / all) based on context and analyzes failures in detail.
+allowed-tools: Bash, Glob, Grep
 ---
 
-Run tests following these steps:
+## Determine Test Scope
 
-## Steps
+Based on the user's request or changed files, choose the appropriate scope:
 
-1. **Determine test scope**:
-    - If specific test class mentioned: run that test
-    - If specific module affected: run that module's tests
-    - Otherwise: run all tests
+| Scope               | Command                                              |
+|---------------------|------------------------------------------------------|
+| Specific test class | `./gradlew test --tests "fully.qualified.ClassName"` |
+| Specific module     | `./gradlew :<module>:test`                           |
+| All modules         | `./gradlew test`                                     |
 
-2. **Run tests**:
+Discover available modules at runtime (full name for Gradle commands, no `datagsm-` prefix for display):
 
-    ```bash
-    # Specific test
-    ./gradlew :datagsm-{module}:test --tests "*{TestClassName}*"
+```bash
+sh scripts/discover-modules.sh   # display names (prefix stripped)
+grep '^[[:space:]]*include' settings.gradle.kts | grep -oE '"[^"]+"' | tr -d '"'  # full names for :module:test
+```
 
-    # Module tests
-    ./gradlew :datagsm-{module}:test
+## Run Tests
 
-    # All tests
-    ./gradlew test
-    ```
+Execute the chosen command. Add `--info` if failures need detailed output:
 
-3. **Analyze results**:
-    - Show test summary
-    - If failures: show failure messages and suggest fixes
-    - If success: confirm all tests passed
+```bash
+./gradlew <scope> --info
+```
 
-4. **Report**:
-    - Total tests run
-    - Pass/Fail count
-    - Execution time
+## Analyze Results
 
-Do NOT proceed if tests fail - suggest fixes first.
+After the run, report:
+
+- Total tests / passed / failed / skipped
+- Execution time
+- For each failure:
+  - Test name and class
+  - Failure message and root cause
+  - Relevant stack trace lines
+
+If there are failures, read the relevant source files and suggest the most likely fix.

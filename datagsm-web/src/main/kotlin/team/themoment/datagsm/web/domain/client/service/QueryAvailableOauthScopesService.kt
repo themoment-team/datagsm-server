@@ -1,7 +1,7 @@
 package team.themoment.datagsm.web.domain.client.service
 
-import team.themoment.datagsm.common.domain.client.dto.response.OAuthScopeGroupListResDto
+import team.themoment.datagsm.common.domain.client.dto.response.OAuthScopeListResDto
 
 interface QueryAvailableOauthScopesService {
-    fun execute(): OAuthScopeGroupListResDto
+    fun execute(): OAuthScopeListResDto
 }

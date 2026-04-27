@@ -46,7 +46,7 @@ class CreateApplicationServiceTest :
                         role = AccountRole.USER
                     }
 
-                context("스코프 없이 Application을 생성할 때") {
+                context("권한 범위 없이 Application을 생성할 때") {
                     val reqDto =
                         CreateApplicationReqDto(
                             name = "My Application",
@@ -71,7 +71,7 @@ class CreateApplicationServiceTest :
                     }
                 }
 
-                context("스코프를 포함하여 Application을 생성할 때") {
+                context("권한 범위를 포함하여 Application을 생성할 때") {
                     val reqDto =
                         CreateApplicationReqDto(
                             name = "My Application",
@@ -94,14 +94,14 @@ class CreateApplicationServiceTest :
                         every { mockCurrentUserProvider.getCurrentAccount() } returns ownerAccount
                         every { mockApplicationJpaRepository.save(capture(savedApplicationSlot)) } answers {
                             val app = firstArg<ApplicationJpaEntity>()
-                            app.thirdPartyScopes.forEachIndexed { index, scope ->
+                            app.oauthScopes.forEachIndexed { index, scope ->
                                 if (scope.id == null) scope.id = (index + 1).toLong()
                             }
                             app
                         }
                     }
 
-                    it("스코프가 포함된 Application이 생성되어야 한다") {
+                    it("권한 범위가 포함된 Application이 생성되어야 한다") {
                         val result = service.execute(reqDto)
 
                         result.scopes.size shouldBe 2
@@ -110,7 +110,7 @@ class CreateApplicationServiceTest :
                         result.scopes[1].scopeName shouldBe "email"
                         result.scopes[1].description shouldBe "이메일 주소 조회"
 
-                        savedApplicationSlot.captured.thirdPartyScopes.size shouldBe 2
+                        savedApplicationSlot.captured.oauthScopes.size shouldBe 2
                     }
                 }
 
@@ -159,7 +159,7 @@ class CreateApplicationServiceTest :
                     }
                 }
 
-                context("중복된 scopeName이 포함된 스코프로 Application을 생성할 때") {
+                context("중복된 scopeName이 포함된 권한 범위로 Application을 생성할 때") {
                     val reqDto =
                         CreateApplicationReqDto(
                             name = "My Application",
@@ -171,7 +171,7 @@ class CreateApplicationServiceTest :
                                     ),
                                     CreateApplicationReqDto.ScopeReqDto(
                                         scopeName = "profile",
-                                        description = "중복 프로필 스코프",
+                                        description = "중복 프로필 권한 범위",
                                     ),
                                 ),
                         )
@@ -191,7 +191,7 @@ class CreateApplicationServiceTest :
                     }
                 }
 
-                context("스코프의 application 역참조가 올바르게 설정될 때") {
+                context("권한 범위의 application 역참조가 올바르게 설정될 때") {
                     val reqDto =
                         CreateApplicationReqDto(
                             name = "My Application",
@@ -210,18 +210,18 @@ class CreateApplicationServiceTest :
                         every { mockCurrentUserProvider.getCurrentAccount() } returns ownerAccount
                         every { mockApplicationJpaRepository.save(capture(savedApplicationSlot)) } answers {
                             val app = firstArg<ApplicationJpaEntity>()
-                            app.thirdPartyScopes.forEachIndexed { index, scope ->
+                            app.oauthScopes.forEachIndexed { index, scope ->
                                 if (scope.id == null) scope.id = (index + 1).toLong()
                             }
                             app
                         }
                     }
 
-                    it("각 스코프의 application 참조가 올바르게 설정되어야 한다") {
+                    it("각 권한 범위의 application 참조가 올바르게 설정되어야 한다") {
                         shouldNotThrowAny { service.execute(reqDto) }
 
                         val savedApp = savedApplicationSlot.captured
-                        savedApp.thirdPartyScopes[0].application shouldBe savedApp
+                        savedApp.oauthScopes[0].application shouldBe savedApp
                     }
                 }
             }

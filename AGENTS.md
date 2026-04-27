@@ -1,5 +1,3 @@
-# DataGSM Server
-
 **한국어로 응답하고 작업해주세요 (Please respond and work in Korean).**
 
 ## Project Overview
@@ -34,97 +32,66 @@ Each module follows: `controller/`, `service/`, `repository/`, `entity/`, `dto/`
 - Build: `./gradlew build`
 - Test: `./gradlew test`
 - Format: `./gradlew ktlintFormat`
-- Run: `./gradlew :<module>:bootRun` (modules: `datagsm-oauth-authorization`, `datagsm-openapi`, `datagsm-oauth-userinfo`, `datagsm-web`)
+- Run: `./gradlew :<module>:bootRun`
 
 ## Coding Conventions
 
 ### Kotlin Style
-- Use Kotlin idioms: `val` over `var`, null safety, extension functions
-- Naming: PascalCase (classes), camelCase (functions/variables)
-- DTO naming: Request/Response suffix (e.g., `UserReqDto`, `UserResDto`)
-- Follow KtLint rules
 
-### Architecture Pattern
-- **Layer Structure**: Controller → Service (interface + impl) → Repository
-- **Dependency Injection**: Always use constructor injection
-- **Entity vs DTO**: Separate Entity and DTO clearly
-- **Comments**: Do NOT add excessive comments - only where logic is not self-evident
+- Prefer `val` over `var`. Use `var` only when reassignment is strictly required.
+- Always use constructor injection — never `@Autowired` field injection.
+- Use Kotlin null-safety features (`?.`, `?:`) instead of `!!`.
+- Do NOT add excessive comments — only where logic is not self-evident.
 
 ### DTO Annotations
-- **Jackson**: Always use `@field:JsonProperty`, `@field:JsonAlias` (not `@param:`)
-- **Swagger**: Request DTO uses `@param:Schema`, Response DTO uses `@field:Schema`
-- See CONTRIBUTING.md for detailed examples
 
-### Query Parameter Binding (@RequestParam vs @ModelAttribute)
+- Jackson: always use `@field:` target — never `@param:` (e.g., `@field:JsonProperty("user_name")`)
+- Swagger/OpenAPI:
+  - Request DTOs (`*ReqDto`): use `@param:Schema`
+  - Response DTOs (`*ResDto`): use `@field:Schema`
 
-- **1-2 simple parameters**: Use `@RequestParam`
-- **3+ parameters or validation required**: Use `@ModelAttribute` + DTO
+### API Conventions
 
-```kotlin
-// 1-2 parameters → @RequestParam
-@GetMapping("/scopes")
-fun getScopes(@RequestParam role: AccountRole): ApiScopeListResDto
+- 1–2 query params: use `@RequestParam`; 3+ or with validation: use `@ModelAttribute` + DTO
+- `@RequestBody` variable: `reqDto`; `@ModelAttribute` query: `queryReq`
+- `@Transactional` must be at **method level only** — never class level
+- Read operations: `@Transactional(readOnly = true)` / Write operations: `@Transactional`
+- Use `CommonApiResponse` wrapper for all API responses
 
-// 3+ parameters → @ModelAttribute + DTO
-@GetMapping("/students")
-fun getStudents(@Valid @ModelAttribute queryReq: QueryStudentReqDto): StudentListResDto
-```
+### Logging
 
-### DTO Variable Naming
+- English only — verb-led sentences
+- SLF4J `{}` placeholder only — no Kotlin string interpolation, no colon separators
+- Correct: `logger().info("Deleted {} expired API keys", deletedCount)`
+- Wrong: `logger().error("에러 발생: $message")` or `logger().error("Failed: {}", msg)`
 
-- **@RequestBody (Create/Update)**: Use `reqDto` → `service.execute(reqDto)`
-- **@ModelAttribute (Query)**: Use `queryReq` → `service.execute(queryReq)`
-- **@ModelAttribute (Search)**: Use `searchReq` (검색 의미가 명확한 경우)
+### Exception Handling
 
-### Controller-Service Value Passing
+- Use `ExpectedException` directly — do NOT subclass it
+- Message: Korean (합쇼체) + period, no dynamic data (IDs, names, variables)
+- Correct: `ExpectedException("학생을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)`
+- Wrong: `ExpectedException("학생 ID: $id 없음", HttpStatus.NOT_FOUND)`
 
-Pass DTO objects to service layer as-is. PathVariable can be passed individually.
+### Commit Conventions
 
-```kotlin
-@PostMapping
-fun createStudent(@Valid @RequestBody reqDto: CreateStudentReqDto): StudentResDto =
-    createStudentService.execute(reqDto)
+Format: `type(scope): 설명`
 
-@PutMapping("/{id}")
-fun updateStudent(@PathVariable id: Long, @Valid @RequestBody reqDto: UpdateStudentReqDto): StudentResDto =
-    updateStudentService.execute(id, reqDto)
-```
+- Types: `add` / `update` / `fix` / `refactor` / `ci/cd` / `docs` / `test` / `merge`
+- Scope: domain name (`auth`, `student`, `club`, `application`, etc.) — NOT module names
+- Cross-cutting only: `global`, `ci/cd`, or module names (`web`, `openapi`, `oauth`)
+- Description: Korean, no period
 
 ## Key Practices
 
-### Security
-- No hardcoded secrets
-- Use SLF4J Logger with Logback (not println())
-- Validate JWT/API keys properly
-
 ### JPA
-- Avoid N+1 problems
+- Avoid N+1 problems — use Fetch Join or `@EntityGraph`
 - Use `@Transactional(readOnly = true)` for read operations
-
-### API
-- Use `CommonApiResponse` wrapper for all responses
-- Validate request DTOs with `@Valid`
 
 ### Testing
 - Write Kotest tests for business logic
-- Use Given-When-Then pattern
-- Use MockK for mocking
-
-### Exception Handling
-- Use `ExpectedException` for custom exceptions
-- Map to appropriate HTTP status codes
-- Exception Handler: `datagsm-common/.../global/common/error/`
-- **Message format**: Korean (합쇼체) + period, no dynamic data — messages are displayed directly to end users
-  - CORRECT: `ExpectedException("학생을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)`
-  - WRONG: `ExpectedException("학생을 찾을 수 없습니다. ID: $id", HttpStatus.NOT_FOUND)`
-
-## Custom Commands
-
-Use the following slash commands for common tasks:
-- `/pr-draft` - Generate PR title suggestions and body
-- `/format` - Run KtLint formatting
-- `/commit` - Create Git commits by splitting changes into logical units
-- `/resolve-pr-comments` - Replies to resolved PR inline review comments with commit hash
+- Use Kotest `DescribeSpec` with `describe/context/it` blocks
+- Use MockK for mocking; Given-When-Then structure inside `it` blocks
+- Test names in Korean: `describe("클래스명 클래스의")`, `describe("메서드명 메서드는")`
 
 ## Notes
 

@@ -39,7 +39,12 @@ class CompleteOauthAuthorizeFlowServiceImpl(
                     OAuthException.InvalidRequest("인증 토큰이 유효하지 않거나 만료되었습니다. 다시 시도해주세요.")
                 }
 
-        val (_, clientId, redirectUri, state, codeChallenge, codeChallengeMethod) = stateEntity
+        val clientId = stateEntity.clientId
+        val redirectUri = stateEntity.redirectUri
+        val state = stateEntity.state
+        val codeChallenge = stateEntity.codeChallenge
+        val codeChallengeMethod = stateEntity.codeChallengeMethod
+        val scopes = stateEntity.scopes
 
         val rateLimitResult = oauthClientRateLimitService.tryConsumeAndReturnRemaining(clientId)
         if (!rateLimitResult.consumed) {
@@ -64,6 +69,7 @@ class CompleteOauthAuthorizeFlowServiceImpl(
                 redirectUri = redirectUri,
                 codeChallenge = codeChallenge,
                 codeChallengeMethod = codeChallengeMethod,
+                scopes = scopes,
                 code = code,
                 ttl = oauthEnvironment.codeExpirationSeconds,
             )

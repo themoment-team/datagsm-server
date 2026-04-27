@@ -1,6 +1,7 @@
 ---
 name: commit
 description: Create Git commits by splitting changes into logical units following project conventions. Handles Git Flow automatically — detects develop branch and checks out a feature branch before committing.
+allowed-tools: Bash
 ---
 
 ## Step 0 — Branch Check (Required)
@@ -13,14 +14,16 @@ git branch --show-current
 
 **If current branch is `develop`:**
 
+This project uses Git Flow. Feature branches must be created from `develop` and merged back into `develop`.
+
 1. Analyze all changes with `git status` and `git diff`
-2. Infer an appropriate feature branch name from the changes:
-   - Format: `feature/<kebab-case-description>`
+2. Infer an appropriate branch name from the changes:
+   - Format: `<type>/<kebab-case-description>` — use the same type as the planned commit (exception: use `cicd/` for `ci/cd` type)
    - Reflect the domain scope in the name
-   - Examples: `feature/add-student-major-filter`, `feature/fix-auth-api-key-deletion`
-3. Create and checkout the feature branch:
+   - Examples: `add/add-student-major-filter`, `fix/auth-api-key-deletion`, `refactor/optimize-club-query`
+3. Create and checkout the branch:
    ```bash
-   git checkout -b feature/<inferred-name>
+   git checkout -b <type>/<inferred-name>
    ```
 4. Proceed with the commit flow below
 
@@ -32,10 +35,10 @@ git branch --show-current
 
 Format: `type(scope): 설명`
 
-- **Types**: `add` / `update` / `fix` / `refactor` / `test` / `docs` / `merge` (English)
+- **Types**: `add` / `update` / `fix` / `refactor` / `ci/cd` / `docs` / `test` / `merge` (English)
 - **Scopes** (English):
-  - **Primary**: Domain names (`auth`, `account`, `student`, `club`, `project`, `neis`, `client`, `oauth`, `utility`)
-  - **Cross-cutting concerns only**: Module names (`web`, `oauth`, `openapi`) or `global`
+  - **Primary**: Domain names — discover at runtime: `sh scripts/discover-domains.sh`
+  - **Cross-cutting concerns only**: Module names (without `datagsm-` prefix) or `global`
   - Use domain names by default. Only use module names when changes affect multiple modules or are cross-cutting.
 - **Description**: Korean, no period, avoid endings: `~한다/~된다`, `~하기/~하기 위해`, `~합니다/~됩니다`, `~했습니다`
   - Good examples: `엔티티 필드 추가`, `트랜잭션 롤백 방지`, `로직 개선`
@@ -44,9 +47,9 @@ Format: `type(scope): 설명`
 
 ## Scope Selection
 
-For the full scope selection table and examples, read `${CLAUDE_SKILL_DIR}/references/scope-guide.md`.
+For the full scope selection table and examples, read `references/scope-guide.md`.
 
-Quick rule: use domain name (`auth`, `student`, `club`, `neis`, etc.) by default. Use `global` / `ci/cd` / module names only for cross-cutting changes.
+Quick rule: run `sh scripts/discover-domains.sh` to get available domains, then pick the one matching the changed files. Use `global` / `ci/cd` / module names only for cross-cutting changes.
 
 ## Commit Flow
 

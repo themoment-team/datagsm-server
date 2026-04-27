@@ -21,7 +21,7 @@ import team.themoment.datagsm.common.domain.client.dto.request.CreateClientReqDt
 import team.themoment.datagsm.common.domain.client.dto.request.ModifyClientReqDto
 import team.themoment.datagsm.common.domain.client.dto.request.SearchClientReqDto
 import team.themoment.datagsm.common.domain.client.dto.response.ClientListResDto
-import team.themoment.datagsm.common.domain.client.dto.response.OAuthScopeGroupListResDto
+import team.themoment.datagsm.common.domain.client.dto.response.OAuthScopeListResDto
 import team.themoment.datagsm.web.domain.client.service.CreateClientService
 import team.themoment.datagsm.web.domain.client.service.DeleteClientService
 import team.themoment.datagsm.web.domain.client.service.ModifyClientService
@@ -123,5 +123,5 @@ class ClientController(
         ],
     )
     @GetMapping("/available-scopes")
-    fun getAvailableScopes(): OAuthScopeGroupListResDto = queryAvailableOauthScopesService.execute()
+    fun getAvailableScopes(): OAuthScopeListResDto = queryAvailableOauthScopesService.execute()
 }

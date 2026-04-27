@@ -54,7 +54,7 @@ class ModifyStudentExcelServiceImpl(
                 .keys
         if (duplicatesStudentNumber.isNotEmpty()) {
             throw ExpectedException(
-                "엑셀 파일에 다음 학번이 중복으로 존재합니다: $duplicatesStudentNumber",
+                "엑셀 파일에 중복된 학번이 존재합니다.",
                 HttpStatus.BAD_REQUEST,
             )
         }
@@ -67,7 +67,7 @@ class ModifyStudentExcelServiceImpl(
                 .keys
         if (duplicatesEmail.isNotEmpty()) {
             throw ExpectedException(
-                "엑셀 파일에 다음 이메일이 중복으로 존재합니다: $duplicatesEmail",
+                "엑셀 파일에 중복된 이메일이 존재합니다.",
                 HttpStatus.BAD_REQUEST,
             )
         }
@@ -84,14 +84,14 @@ class ModifyStudentExcelServiceImpl(
         val missingInDb = excelStudentNumbers - dbStudentNumbers
         if (missingInDb.isNotEmpty()) {
             throw ExpectedException(
-                "DB에 존재하지 않는 학번이 엑셀 파일에 존재합니다: $missingInDb",
+                "데이터베이스에 존재하지 않는 학번이 포함되어 있습니다.",
                 HttpStatus.BAD_REQUEST,
             )
         }
         val extraInDb = dbStudentNumbers - excelStudentNumbers
         if (extraInDb.isNotEmpty()) {
             throw ExpectedException(
-                "엑셀에 존재하지 않는 학번이 데이터베이스에 존재합니다: $extraInDb",
+                "엑셀 파일에 존재하지 않는 학번이 있습니다.",
                 HttpStatus.BAD_REQUEST,
             )
         }
@@ -192,7 +192,7 @@ class ModifyStudentExcelServiceImpl(
                                 major =
                                     Major.fromMajor(getRequiredString(row, 3, "학과"))
                                         ?: throw ExpectedException(
-                                            "${row.rowNum + 1}행: 학과는 'SW개발과', '스마트IoT과', '인공지능과'여야 합니다.",
+                                            "학과는 'SW개발과', '스마트IoT과', '인공지능과' 중 하나여야 합니다.",
                                             HttpStatus.BAD_REQUEST,
                                         ),
                                 majorClub = getOptionalString(row, 4),
@@ -201,13 +201,13 @@ class ModifyStudentExcelServiceImpl(
                                 role =
                                     StudentRole.fromRole(getRequiredString(row, 7, "소속"))
                                         ?: throw ExpectedException(
-                                            "${row.rowNum + 1}행: 소속은 '일반학생', '기숙사자치위원회', '학생회'여야 합니다.",
+                                            "소속은 '일반학생', '기숙사자치위원회', '학생회' 중 하나여야 합니다.",
                                             HttpStatus.BAD_REQUEST,
                                         ),
                                 sex =
                                     Sex.fromSex(getRequiredString(row, 8, "성별"))
                                         ?: throw ExpectedException(
-                                            "${row.rowNum + 1}행: 성별은 '남자' 또는 '여자'여야 합니다.",
+                                            "성별은 '남자' 또는 '여자'여야 합니다.",
                                             HttpStatus.BAD_REQUEST,
                                         ),
                             )
@@ -235,7 +235,7 @@ class ModifyStudentExcelServiceImpl(
         getCellValue(row, columnIndex)
             .takeIf { it.isNotBlank() }
             ?: throw ExpectedException(
-                "${row.rowNum + 1}행 ${fieldName}이(가) 비어있습니다.",
+                "필수 항목이 비어있습니다.",
                 HttpStatus.BAD_REQUEST,
             )
 
@@ -253,7 +253,7 @@ class ModifyStudentExcelServiceImpl(
     ): Int =
         getCellValue(row, columnIndex).toIntOrNull()
             ?: throw ExpectedException(
-                "${row.rowNum + 1}행 ${fieldName}이(가) 비어있습니다.",
+                "필수 항목이 비어있습니다.",
                 HttpStatus.BAD_REQUEST,
             )
 

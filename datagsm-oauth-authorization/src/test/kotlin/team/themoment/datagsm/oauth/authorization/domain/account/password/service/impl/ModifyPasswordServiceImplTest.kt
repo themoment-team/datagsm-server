@@ -174,6 +174,7 @@ class ModifyPasswordServiceImplTest :
                     email = email,
                     clientId = "client1",
                     token = "token1",
+                    scopes = emptySet(),
                     ttl = 3600,
                 )
             val token2 =
@@ -181,6 +182,7 @@ class ModifyPasswordServiceImplTest :
                     email = email,
                     clientId = "client2",
                     token = "token2",
+                    scopes = emptySet(),
                     ttl = 3600,
                 )
 

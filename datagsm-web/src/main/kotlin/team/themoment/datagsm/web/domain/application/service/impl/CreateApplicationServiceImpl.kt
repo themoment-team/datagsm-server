@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.application.dto.request.CreateApplicationReqDto
 import team.themoment.datagsm.common.domain.application.dto.response.ApplicationResDto
 import team.themoment.datagsm.common.domain.application.entity.ApplicationJpaEntity
-import team.themoment.datagsm.common.domain.application.entity.ThirdPartyScopeJpaEntity
+import team.themoment.datagsm.common.domain.application.entity.OAuthScopeJpaEntity
 import team.themoment.datagsm.common.domain.application.repository.ApplicationJpaRepository
 import team.themoment.datagsm.web.domain.application.service.CreateApplicationService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
@@ -44,17 +44,17 @@ class CreateApplicationServiceImpl(
 
         reqDto.scopes.forEach { scopeReq ->
             val scopeEntity =
-                ThirdPartyScopeJpaEntity().apply {
+                OAuthScopeJpaEntity().apply {
                     scopeName = scopeReq.scopeName
                     description = scopeReq.description
                     this.application = application
                 }
-            application.thirdPartyScopes.add(scopeEntity)
+            application.oauthScopes.add(scopeEntity)
         }
 
-        applicationJpaRepository.save(application)
+        val savedApplication = applicationJpaRepository.save(application)
 
-        return application.toResDto()
+        return savedApplication.toResDto()
     }
 }
 
@@ -64,7 +64,7 @@ internal fun ApplicationJpaEntity.toResDto(): ApplicationResDto =
         name = name,
         accountId = account.id!!,
         scopes =
-            thirdPartyScopes.map { scope ->
+            oauthScopes.map { scope ->
                 ApplicationResDto.ScopeResDto(
                     id = scope.id!!,
                     scopeName = scope.scopeName,

@@ -26,8 +26,17 @@ Analyze changed files and verify the following items.
 
 ### JPA/Database
 - [ ] Applied `@Transactional(readOnly = true)` for read operations?
+- [ ] `@Transactional` at method level only (not class level)?
 - [ ] No N+1 problem? (Need Fetch Join?)
-- [ ] Using QueryDSL correctly?
+
+### Logging
+- [ ] English only, SLF4J `{}` placeholders?
+- [ ] No Korean characters or string interpolation in log messages?
+- [ ] No colon separators before `{}`?
+
+### Exception
+- [ ] Using `ExpectedException` directly (no subclassing)?
+- [ ] Message is Korean 합쇼체 + period, no dynamic data?
 
 ### Test
 - [ ] Test code written?

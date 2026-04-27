@@ -51,16 +51,17 @@ fun findAllWithRelated(): List<Entity>
 
 ## Exception Handling
 
-### Custom Exception
+### Use ExpectedException Directly
 ```kotlin
-class ApiKeyNotFoundException : ExpectedException(
-    status = HttpStatus.NOT_FOUND,
-    message = "API key not found"
-)
+val apiKey = repository.findById(id).orElseThrow {
+    ExpectedException("API key를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
+}
 ```
 
+Do not create custom exception subclasses extending `ExpectedException`.
+
 ### Global Handler
-See `datagsm-common/.../global/common/error/GlobalExceptionHandler.kt`
+Locate with: `find . -name "GlobalExceptionHandler.kt" ! -path "*/build/*"`
 
 ## DTO Conversion Pattern
 

@@ -198,7 +198,7 @@ master (프로덕션)
   ↑
 develop (스테이징)
   ↑
-feat/*, fix/*, refactor/*, ci/cd/*
+add/*, fix/*, refactor/*, cicd/*
 ```
 
 ### 브랜치 규칙
@@ -207,7 +207,7 @@ feat/*, fix/*, refactor/*, ci/cd/*
 |--------------|----------|-----------|-----------|
 | `master`     | 프로덕션 환경  | -         | -         |
 | `develop`    | 개발 환경    | `master`  | `master`  |
-| `feat/*`     | 새 기능 개발  | `develop` | `develop` |
+| `add/*`      | 새 기능 개발  | `develop` | `develop` |
 | `fix/*`      | 버그 수정    | `develop` | `develop` |
 | `refactor/*` | 코드 리팩토링  | `develop` | `develop` |
 | `cicd/*`     | CI/CD 설정 | `develop` | `develop` |
@@ -220,7 +220,7 @@ feat/*, fix/*, refactor/*, ci/cd/*
 # 새 기능 개발
 git checkout develop
 git pull origin develop
-git checkout -b feat/add-meal-api
+git checkout -b add/add-meal-api
 
 # 버그 수정
 git checkout -b fix/student-search-error
@@ -245,7 +245,7 @@ git checkout -b refactor/optimize-club-query
 |------------|-------------|----------------------------------------|
 | `update`   | 기능 개선       | `update(auth): API 키 삭제 엔드포인트 경로 변경`   |
 | `fix`      | 버그 수정       | `fix(student): 학생 검색 시 빈 문자열 처리 오류 수정` |
-| `feat`     | 새 기능 추가     | `feat(neis): 급식 조회 API 추가`             |
+| `add`      | 새 기능 추가     | `add(neis): 급식 조회 API 추가`              |
 | `refactor` | 코드 리팩토링     | `refactor(club): 동아리 조회 쿼리 최적화`        |
 | `ci/cd`    | CI/CD 설정 변경 | `ci/cd(global): PR 제목 검증 규칙 추가`        |
 | `docs`     | 문서 수정       | `docs(readme): 환경 설정 가이드 추가`           |
@@ -256,7 +256,7 @@ git checkout -b refactor/optimize-club-query
 **기본 원칙: 도메인명을 우선 사용하고, 모듈명은 횡단관심사에서만 사용**합니다.
 
 **도메인 레벨:**
-- `auth`, `account`, `oauth`, `club`, `student`, `neis`, `project`, `client`
+- `account`, `application`, `auth`, `client`, `club`, `neis`, `oauth`, `project`, `student`, `utility`
 - 특정 기능이나 도메인에 관련된 변경사항에 사용
 
 **모듈 레벨 (횡단관심사만):**
@@ -272,7 +272,7 @@ git checkout -b refactor/optimize-club-query
 # 좋은 예시
 git commit -m "update(auth): 변경된 API 키 삭제 엔드포인트의 경로 변수 이름 수정"
 git commit -m "fix(global): 올바르지 않은 공개 API 경로 설정 수정"
-git commit -m "feat(club): 동아리 멤버 조회 API 추가"
+git commit -m "add(club): 동아리 멤버 조회 API 추가"
 git commit -m "refactor(student): 학생 검색 로직 개선 및 중복 제거"
 
 # 나쁜 예시
@@ -301,7 +301,7 @@ vYYYYMMDD.n (릴리즈용)
 ```
 
 **유효한 Scope:**
-- **도메인명 (기본 사용)**: `auth`, `account`, `client`, `club`, `neis`, `oauth`, `project`, `student`
+- **도메인명 (기본 사용)**: `account`, `application`, `auth`, `client`, `club`, `neis`, `oauth`, `project`, `student`, `utility`
 - **모듈명 (횡단관심사만)**: `web`, `oauth`, `openapi`, `global`
 - **기타**: `global`, `ci/cd`
 
@@ -406,9 +406,10 @@ interface GetClubService {
 class GetClubServiceImpl(
     private val clubRepository: ClubJpaRepository
 ) : GetClubService {
+    @Transactional(readOnly = true)
     override fun execute(id: Long): ClubResDto {
         val club = clubRepository.findById(id)
-            .orElseThrow { ClubNotFoundException() }
+            .orElseThrow { ExpectedException("동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
         return ClubResDto.from(club)
     }
 }
@@ -747,7 +748,7 @@ throw ExpectedException("이미 존재하는 이메일입니다", HttpStatus.CON
 ```kotlin
 // Good
 logger().info("Deleted {} expired API keys", deletedCount)
-logger().error("Failed to issue OAuth token: scopeStr={}", scopeStr)
+logger().error("Failed to issue OAuth token for scopeStr {}", scopeStr)
 logger().warn("ExpectedException occurred with message {}", ex.message)
 
 // Bad
@@ -812,7 +813,7 @@ class CreateClubServiceTest : DescribeSpec({
             }
 
             context("중복된 동아리 이름으로 생성을 시도할 때") {
-                it("DuplicateClubNameException을 발생시킨다") {
+                it("ExpectedException을 발생시킨다") {
                     // Given
                     val reqDto = CreateClubReqDto(
                         name = "이미 존재하는 동아리",
@@ -822,11 +823,9 @@ class CreateClubServiceTest : DescribeSpec({
                     every { mockClubRepository.existsByName(reqDto.name) } returns true
 
                     // When & Then
-                    val exception = shouldThrow<DuplicateClubNameException> {
+                    shouldThrow<ExpectedException> {
                         createClubService.execute(reqDto)
                     }
-
-                    exception.message shouldBe "이미 존재하는 동아리 이름입니다"
                     verify(exactly = 0) { mockClubRepository.save(any()) }
                 }
             }
@@ -850,7 +849,7 @@ every { mockRepository.existsByName("동아리") } returns false
 every { mockRepository.delete(any()) } just Runs
 
 // 예외 발생
-every { mockRepository.findById(999L) } throws ClubNotFoundException()
+every { mockRepository.findById(999L) } throws ExpectedException("동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
 
 // 호출 검증
 verify(exactly = 1) { mockRepository.save(any()) }

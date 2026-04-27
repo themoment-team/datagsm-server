@@ -31,11 +31,13 @@ class ClientJpaCustomRepositoryImpl(
                 .limit(pageable.pageSize.toLong())
                 .fetch()
 
-        // 2쿼리: ID IN절로 account fetchJoin
+        // 2쿼리: ID IN절로 account, scopes fetchJoin
         val content =
             jpaQueryFactory
                 .selectFrom(clientJpaEntity)
                 .leftJoin(clientJpaEntity.account)
+                .fetchJoin()
+                .leftJoin(clientJpaEntity.scopes)
                 .fetchJoin()
                 .where(clientJpaEntity.id.`in`(clientIds))
                 .fetch()
@@ -66,7 +68,7 @@ class ClientJpaCustomRepositoryImpl(
                 .limit(pageable.pageSize.toLong())
                 .fetch()
 
-        // 2쿼리: ID IN절로 account fetchJoin
+        // 2쿼리: ID IN절로 account, scopes fetchJoin
         val content =
             if (clientIds.isEmpty()) {
                 emptyList()
@@ -74,6 +76,8 @@ class ClientJpaCustomRepositoryImpl(
                 jpaQueryFactory
                     .selectFrom(clientJpaEntity)
                     .leftJoin(clientJpaEntity.account)
+                    .fetchJoin()
+                    .leftJoin(clientJpaEntity.scopes)
                     .fetchJoin()
                     .where(clientJpaEntity.id.`in`(clientIds))
                     .fetch()

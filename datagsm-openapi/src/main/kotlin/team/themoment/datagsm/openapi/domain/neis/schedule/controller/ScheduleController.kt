@@ -43,5 +43,5 @@ class ScheduleController(
     @GetMapping
     fun searchSchedules(
         @Valid @ModelAttribute queryReq: QueryScheduleReqDto,
-    ): List<ScheduleResDto> = searchScheduleService.execute(queryReq)
+    ): ScheduleResDto = searchScheduleService.execute(queryReq)
 }

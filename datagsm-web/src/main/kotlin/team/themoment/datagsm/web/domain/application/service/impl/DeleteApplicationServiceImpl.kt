@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.application.repository.ApplicationJpaRepository
+import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.web.domain.application.service.DeleteApplicationService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
@@ -12,6 +13,7 @@ import team.themoment.sdk.exception.ExpectedException
 @Service
 class DeleteApplicationServiceImpl(
     private val applicationJpaRepository: ApplicationJpaRepository,
+    private val clientJpaRepository: ClientJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
 ) : DeleteApplicationService {
     @Transactional
@@ -28,6 +30,7 @@ class DeleteApplicationServiceImpl(
             throw ExpectedException("Application 삭제 권한이 없습니다.", HttpStatus.FORBIDDEN)
         }
 
+        clientJpaRepository.removeScopesByApplicationId("${application.id}:")
         applicationJpaRepository.delete(application)
     }
 }

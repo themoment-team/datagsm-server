@@ -54,6 +54,7 @@ class StartOauthAuthorizeFlowServiceTest :
                         id = testClientId
                         secret = "encodedSecret"
                         redirectUrls = setOf(testRedirectUri)
+                        scopes.add("self:read")
                         clientName = "Test Client"
                         serviceName = "Test Service"
                     }
@@ -93,6 +94,111 @@ class StartOauthAuthorizeFlowServiceTest :
                         savedEntitySlot.captured.codeChallenge shouldBe "challenge"
                         savedEntitySlot.captured.codeChallengeMethod shouldBe "S256"
                         savedEntitySlot.captured.ttl shouldBe 600
+                        savedEntitySlot.captured.scopes shouldBe setOf("self:read")
+                    }
+                }
+
+                context("scope 파라미터가 null일 때") {
+                    val savedEntitySlot = slot<OauthAuthorizeStateRedisEntity>()
+
+                    beforeEach {
+                        every { mockOauthEnvironment.frontendUrl } returns "http://localhost:3000"
+                        every { mockOauthEnvironment.authorizeStateExpirationMs } returns 600000L
+                        every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(mockClient)
+                        every { mockOauthAuthorizeStateRedisRepository.save(capture(savedEntitySlot)) } answers { firstArg() }
+                    }
+
+                    it("client의 전체 scope가 state entity에 저장되어야 한다") {
+                        val reqDto =
+                            OauthAuthorizeReqDto(
+                                client_id = testClientId,
+                                redirect_uri = testRedirectUri,
+                                response_type = "code",
+                            )
+                        startOauthAuthorizeFlowService.execute(reqDto)
+
+                        savedEntitySlot.captured.scopes shouldBe setOf("self:read")
+                    }
+                }
+
+                context("허용된 scope를 요청할 때") {
+                    val savedEntitySlot = slot<OauthAuthorizeStateRedisEntity>()
+
+                    beforeEach {
+                        every { mockOauthEnvironment.frontendUrl } returns "http://localhost:3000"
+                        every { mockOauthEnvironment.authorizeStateExpirationMs } returns 600000L
+                        every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(mockClient)
+                        every { mockOauthAuthorizeStateRedisRepository.save(capture(savedEntitySlot)) } answers { firstArg() }
+                    }
+
+                    it("요청한 scope가 state entity에 저장되어야 한다") {
+                        val reqDto =
+                            OauthAuthorizeReqDto(
+                                client_id = testClientId,
+                                redirect_uri = testRedirectUri,
+                                response_type = "code",
+                                scope = "self:read",
+                            )
+                        startOauthAuthorizeFlowService.execute(reqDto)
+
+                        savedEntitySlot.captured.scopes shouldBe setOf("self:read")
+                    }
+                }
+
+                context("허용된 여러 scope를 공백으로 구분하여 요청할 때") {
+                    val multiScopeClient =
+                        ClientJpaEntity().apply {
+                            id = testClientId
+                            secret = "encodedSecret"
+                            redirectUrls = setOf(testRedirectUri)
+                            scopes.addAll(setOf("self:read", "profile:read"))
+                            clientName = "Test Client"
+                            serviceName = "Test Service"
+                        }
+                    val savedEntitySlot = slot<OauthAuthorizeStateRedisEntity>()
+
+                    beforeEach {
+                        every { mockOauthEnvironment.frontendUrl } returns "http://localhost:3000"
+                        every { mockOauthEnvironment.authorizeStateExpirationMs } returns 600000L
+                        every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(multiScopeClient)
+                        every { mockOauthAuthorizeStateRedisRepository.save(capture(savedEntitySlot)) } answers { firstArg() }
+                    }
+
+                    it("요청한 모든 scope가 state entity에 저장되어야 한다") {
+                        val reqDto =
+                            OauthAuthorizeReqDto(
+                                client_id = testClientId,
+                                redirect_uri = testRedirectUri,
+                                response_type = "code",
+                                scope = "self:read profile:read",
+                            )
+                        startOauthAuthorizeFlowService.execute(reqDto)
+
+                        savedEntitySlot.captured.scopes shouldBe setOf("self:read", "profile:read")
+                    }
+                }
+
+                context("허용되지 않은 scope를 요청할 때") {
+                    beforeEach {
+                        every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(mockClient)
+                    }
+
+                    it("InvalidScope 예외가 발생하고 Redis에 저장되지 않아야 한다") {
+                        val reqDto =
+                            OauthAuthorizeReqDto(
+                                client_id = testClientId,
+                                redirect_uri = testRedirectUri,
+                                response_type = "code",
+                                scope = "admin:write",
+                            )
+                        val exception =
+                            shouldThrow<OAuthException.InvalidScope> {
+                                startOauthAuthorizeFlowService.execute(reqDto)
+                            }
+
+                        exception.error shouldBe "invalid_scope"
+
+                        verify(exactly = 0) { mockOauthAuthorizeStateRedisRepository.save(any()) }
                     }
                 }
 

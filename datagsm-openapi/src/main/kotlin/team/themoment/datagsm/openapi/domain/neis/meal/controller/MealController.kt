@@ -43,5 +43,5 @@ class MealController(
     @GetMapping
     fun searchMeals(
         @Valid @ModelAttribute queryReq: QueryMealReqDto,
-    ): List<MealResDto> = searchMealService.execute(queryReq)
+    ): MealResDto = searchMealService.execute(queryReq)
 }
