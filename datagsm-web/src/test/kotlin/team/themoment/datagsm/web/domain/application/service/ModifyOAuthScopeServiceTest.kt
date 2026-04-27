@@ -215,7 +215,7 @@ class ModifyOAuthScopeServiceTest :
                             }
 
                         exception.statusCode shouldBe HttpStatus.CONFLICT
-                        exception.message shouldBe "${duplicateScopeName}은 이미 사용 중인 권한 범위 명칭입니다."
+                        exception.message shouldBe "이미 사용 중인 권한 범위 명칭입니다."
                     }
                 }
 
