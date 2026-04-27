@@ -23,7 +23,7 @@ description: REST API design guide for new endpoints — RESTful URL structure, 
 @Operation(summary = "Create API key", description = "...")
 @ApiResponse(responseCode = "200", description = "Success")
 @PostMapping("/api-keys")
-fun create(@Valid @RequestBody reqDto: CreateApiKeyReqDto): CommonApiResponse<ApiKeyResDto>
+fun create(@Valid @RequestBody reqDto: CreateApiKeyReqDto): ApiKeyResDto
 ```
 
 ## Response Format
