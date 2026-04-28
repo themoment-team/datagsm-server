@@ -2,7 +2,6 @@ package team.themoment.datagsm.oauth.userinfo.domain.userinfo.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.account.dto.response.AccountInfoResDto
@@ -14,7 +13,6 @@ class UserInfoController(
     private val queryUserInfoService: QueryUserInfoService,
 ) {
     @GetMapping("/userinfo")
-    @PreAuthorize("hasAuthority('SCOPE_' + @oauthJwtVerificationEnvironment.datagsmApplicationId + ':self_read')")
     @Operation(
         summary = "사용자 정보 조회",
         description = "OAuth2 Access Token을 사용하여 현재 사용자 정보를 조회합니다.",

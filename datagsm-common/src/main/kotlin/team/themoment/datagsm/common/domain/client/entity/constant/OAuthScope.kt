@@ -20,6 +20,11 @@ class OAuthScope(
     override fun hashCode(): Int = scope.hashCode()
 
     companion object {
+        fun authorityOf(
+            applicationId: String,
+            scopeName: String,
+        ): String = "SCOPE_$applicationId:$scopeName"
+
         fun fromScopeString(scopeStr: String): OAuthScope? {
             val colonIdx = scopeStr.indexOf(':')
             if (colonIdx <= 0 || colonIdx == scopeStr.lastIndex) return null
