@@ -13,6 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfigurationSource
+import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.global.data.OAuthClientRateLimitEnvironment
 import team.themoment.datagsm.oauth.userinfo.global.data.OauthJwtVerificationEnvironment
 import team.themoment.datagsm.oauth.userinfo.global.security.filter.OAuthClientRateLimitFilter
@@ -35,7 +36,7 @@ class SecurityConfig(
 ) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-        val selfReadAuthority = "SCOPE_${oauthJwtVerificationEnvironment.datagsmApplicationId}:self_read"
+        val selfReadAuthority = OAuthScope.authorityOf(oauthJwtVerificationEnvironment.datagsmApplicationId, "self_read")
 
         http
             .csrf(CsrfConfigurer<*>::disable)
