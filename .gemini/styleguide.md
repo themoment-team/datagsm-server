@@ -370,7 +370,7 @@ Other exceptions (e.g., `IOException`, `TimeoutException`) should only be used f
 
 ### Exception Handler
 
-All exceptions are caught by `GlobalExceptionHandler` in `datagsm-common` module.
+All exceptions are caught by `GlobalExceptionHandler` in a common/shared module.
 
 ## Logging
 
