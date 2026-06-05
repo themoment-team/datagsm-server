@@ -1,12 +1,12 @@
-package team.themoment.datagsm.openapi.domain.webhook.service.impl
+package team.themoment.datagsm.web.domain.webhook.service.impl
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.webhook.dto.response.WebhookListResDto
 import team.themoment.datagsm.common.domain.webhook.dto.response.WebhookResDto
 import team.themoment.datagsm.common.domain.webhook.repository.WebhookJpaRepository
-import team.themoment.datagsm.openapi.domain.webhook.service.QueryWebhookService
-import team.themoment.datagsm.openapi.global.security.provider.CurrentUserProvider
+import team.themoment.datagsm.web.domain.webhook.service.QueryWebhookService
+import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 
 @Service
 class QueryWebhookServiceImpl(
@@ -15,7 +15,7 @@ class QueryWebhookServiceImpl(
 ) : QueryWebhookService {
     @Transactional(readOnly = true)
     override fun execute(): WebhookListResDto {
-        val account = currentUserProvider.getPrincipal().apiKey.account
+        val account = currentUserProvider.getCurrentAccount()
         val webhooks =
             webhookJpaRepository
                 .findAllByAccount(account)
