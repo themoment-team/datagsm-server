@@ -1,6 +1,6 @@
 ---
 name: contradiction-finder
-description: "Performs a four-layer consistency audit across the entire project and outputs a file-based contradiction report — without editing anything. Layer 1 (doc↔doc): cross-checks CLAUDE.md, .gemini/styleguide.md, CONTRIBUTING.md, and copilot-instructions.md for conflicting rules. Layer 2 (doc↔code): verifies that documented rules are actually followed across all .kt source files via grep-based full codebase scan. Layer 3 (doc↔agent/skill): checks whether agent and skill definitions accurately reflect CLAUDE.md rules. Layer 4 (agent↔agent): detects overlapping trigger conditions and scope conflicts between agent definitions. Outputs a layered table report grouped by file. Use when the user asks to verify consistency across project documents and code. Trigger phrases: '모순 찾아줘', '충돌 검사해줘', '일관성 검사해줘', 'contradiction-finder 실행해', or asks to verify consistency between documents and code. DO NOT trigger for general code review or convention checking — use Convention-Validator instead."
+description: "Performs a four-layer consistency audit across the entire project and outputs a file-based contradiction report — without editing anything. Layer 1 (doc↔doc): cross-checks CLAUDE.md, .gemini/styleguide.md, CONTRIBUTING.md, and copilot-instructions.md for conflicting rules. Layer 2 (doc↔code): verifies that documented rules are actually followed across all .kt source files via grep-based full codebase scan. Layer 3 (doc↔agent/skill): checks whether agent and skill definitions accurately reflect CLAUDE.md rules. Layer 4 (agent↔agent): detects overlapping trigger conditions and scope conflicts between agent definitions. Outputs a layered table report grouped by file. Use when the user asks to verify consistency across project documents and code. Trigger phrases: '모순 찾아줘', '충돌 검사해줘', '일관성 검사해줘', 'contradiction-finder 실행해', or asks to verify consistency between documents and code. DO NOT trigger for general code review or convention checking — use kotlin-convention-validator instead."
 tools: Bash, Glob, Grep, Read
 model: sonnet
 color: purple
@@ -103,8 +103,8 @@ If a single rule has more than 20 violations, report the count and the first 3 s
 
 For each agent file in `.claude/agents/*.md` and each skill file in `.claude/skills/**/*.md`, read the body and check:
 
-1. **Convention-Validator**: Does it check all rules listed in CLAUDE.md §Coding Rules? Are any rules missing or stated differently?
-2. **Test-Fixer**: Does it reference Kotest as the test framework (not JUnit directly)?
+1. **kotlin-convention-validator**: Does it check all rules listed in CLAUDE.md §Coding Rules? Are any rules missing or stated differently?
+2. **kotlin-test-fixer**: Does it reference Kotest as the test framework (not JUnit directly)?
 3. **All skill files** that reference project conventions: Do they cite the correct priority order (CLAUDE.md > .gemini/styleguide.md > CONTRIBUTING.md)?
 4. **Any agent/skill** that states a rule contradicting CLAUDE.md (e.g., allowing a forbidden pattern in a specific context)?
 

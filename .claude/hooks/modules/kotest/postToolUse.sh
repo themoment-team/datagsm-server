@@ -18,7 +18,7 @@ if [[ "$TOOL_NAME" == "Edit" ]] || [[ "$TOOL_NAME" == "Write" ]]; then
                 if [[ $TEST_EXIT -ne 0 ]]; then
                     echo "[Hook] Test FAILED in $MODULE. Last 5 lines:"
                     echo "$TAIL"
-                    echo "Tests failed after editing $FILE_NAME. Consider running test-fixer agent."
+                    echo "Tests failed after editing $FILE_NAME. Consider running kotlin-test-fixer agent."
                 else
                     echo "[Hook] Tests passed in $MODULE. Last 5 lines:"
                     echo "$TAIL"
