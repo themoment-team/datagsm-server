@@ -58,8 +58,12 @@ class KmpExportProcessor(
     // Files are written directly to the filesystem (bypassing codeGenerator.createNewFile)
     // to prevent the KSP 2.x bug: KaInvalidLifetimeOwnerAccessException caused by
     // Analysis API PSI invalidation when createNewFile triggers a second round.
-    // TODO: revert to codeGenerator.createNewFile() after upgrading past KSP 2.3.6 once the
-    //  PSI invalidation issue is fixed upstream — restores incremental processing support.
+    // This workaround also forces ksp.incremental=false in gradle.properties.
+    // TODO: not version-gated. As of KSP 2.3.8 there is no release note confirming this
+    //  is fixed, and reverting requires also moving datagsm-shared's srcDir back to the
+    //  KSP standard output path. Before reverting to codeGenerator.createNewFile(), prove
+    //  the multi-round PSI invalidation no longer reproduces (a single clean build passing
+    //  is not sufficient — it only triggers under specific multi-round conditions).
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val symbols =
             resolver
@@ -107,11 +111,8 @@ class KmpExportProcessor(
         }
     }
 
-    // Writes directly to the filesystem to bypass codeGenerator.createNewFile(),
-    // preventing the KSP 2.x PSI invalidation bug.
-    // TODO: switch back to fileSpec.writeTo(codeGenerator) once KSP no longer triggers
-    //  KaInvalidLifetimeOwnerAccessException — this restores KSP-tracked output and
-    //  incremental processing.
+    // Writes directly to the filesystem to bypass codeGenerator.createNewFile().
+    // See the process() comment above for the rationale and revert conditions.
     private fun writeFileDirect(classInfo: ClassInfo) {
         val fileSpec = if (classInfo.isEnum) buildEnumFileSpec(classInfo) else buildDataClassFileSpec(classInfo)
         val pkgDir = classInfo.targetPackage.replace('.', File.separatorChar)
@@ -240,11 +241,5 @@ class KmpExportProcessor(
         AnnotationSpec
             .builder(ClassName("kotlinx.serialization", "SerialName"))
             .addMember("%S", name)
-            .build()
-
-    private fun suppressAnnotation(vararg keys: String) =
-        AnnotationSpec
-            .builder(ClassName("kotlin", "Suppress"))
-            .apply { keys.forEach { addMember("%S", it) } }
             .build()
 }

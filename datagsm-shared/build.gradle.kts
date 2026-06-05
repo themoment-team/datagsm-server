@@ -1,3 +1,8 @@
+// NOTE: This Kotlin Multiplatform module is the source of the configuration cache
+// WARNINGs reported during the build — the KMP plugin serializes org.gradle.api.Project,
+// which the configuration cache does not support. This is a KMP plugin limitation, not
+// our code. It is why gradle.properties keeps configuration-cache.problems=warn instead
+// of fail. JVM service modules are unaffected and cache fully.
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
