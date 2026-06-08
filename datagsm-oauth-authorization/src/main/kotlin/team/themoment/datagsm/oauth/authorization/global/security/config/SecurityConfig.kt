@@ -36,7 +36,7 @@ class SecurityConfig(
             .httpBasic(HttpBasicConfigurer<*>::disable)
             .formLogin(FormLoginConfigurer<*>::disable)
             .logout(LogoutConfigurer<*>::disable)
-            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) }
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .exceptionHandling { it.authenticationEntryPoint(customAuthenticationEntryPoint) }
             .addFilterBefore(
                 JwtAuthenticationFilter(jwtProvider, objectMapper),
