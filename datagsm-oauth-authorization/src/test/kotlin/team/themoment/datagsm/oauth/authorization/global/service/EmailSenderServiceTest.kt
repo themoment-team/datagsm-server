@@ -1,6 +1,6 @@
 package team.themoment.datagsm.oauth.authorization.global.service
 
-import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -63,8 +63,8 @@ class EmailSenderServiceTest :
             every { javaMailSender.send(any<SimpleMailMessage>()) } throws RuntimeException("발송 실패")
 
             When("sendEmail을 호출하면") {
-                Then("RuntimeException이 발생한다") {
-                    shouldThrow<RuntimeException> {
+                Then("예외가 전파되지 않고 내부에서 처리된다") {
+                    shouldNotThrowAny {
                         emailSenderService.sendEmail(email, EmailTemplate.SIGNUP, code)
                     }
                 }
