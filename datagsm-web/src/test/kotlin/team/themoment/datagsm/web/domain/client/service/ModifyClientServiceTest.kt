@@ -175,6 +175,58 @@ class ModifyClientServiceTest :
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
                     }
                 }
+
+                context("소유자가 아닌 ADMIN 사용자가 수정을 시도할 때") {
+                    val adminAccount =
+                        AccountJpaEntity().apply {
+                            id = 3L
+                            email = "admin@gsm.hs.kr"
+                            role = AccountRole.ADMIN
+                        }
+
+                    val updateRequest =
+                        ModifyClientReqDto(
+                            clientName = "관리자 수정",
+                        )
+
+                    beforeEach {
+                        every { mockClientRepository.findById(clientId) } returns Optional.of(existingClient)
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns adminAccount
+                    }
+
+                    it("클라이언트가 성공적으로 수정되어야 한다") {
+                        val result = modifyClientService.execute(clientId, updateRequest)
+
+                        result.id shouldBe clientId
+                        result.clientName shouldBe "관리자 수정"
+                    }
+                }
+
+                context("소유자가 아닌 ROOT 사용자가 수정을 시도할 때") {
+                    val rootAccount =
+                        AccountJpaEntity().apply {
+                            id = 4L
+                            email = "root@gsm.hs.kr"
+                            role = AccountRole.ROOT
+                        }
+
+                    val updateRequest =
+                        ModifyClientReqDto(
+                            clientName = "루트 수정",
+                        )
+
+                    beforeEach {
+                        every { mockClientRepository.findById(clientId) } returns Optional.of(existingClient)
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns rootAccount
+                    }
+
+                    it("클라이언트가 성공적으로 수정되어야 한다") {
+                        val result = modifyClientService.execute(clientId, updateRequest)
+
+                        result.id shouldBe clientId
+                        result.clientName shouldBe "루트 수정"
+                    }
+                }
             }
         }
     })
