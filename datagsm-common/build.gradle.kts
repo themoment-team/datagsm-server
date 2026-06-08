@@ -75,4 +75,5 @@ kotlin {
 
 ksp {
     arg("kmpOutputDir", "${layout.buildDirectory.get().asFile}/generated/kmp-export/main/kotlin")
+    arg("tsOutputDir", "${layout.buildDirectory.get().asFile}/generated/kmp-export/main/ts")
 }
