@@ -25,6 +25,7 @@ import java.io.File
 class KmpExportProcessor(
     private val logger: KSPLogger,
     private val outputDir: File,
+    private val tsOutputDir: File?,
 ) : SymbolProcessor {
     companion object {
         private val ARRAY_LIKE_COLLECTIONS =
@@ -38,12 +39,36 @@ class KmpExportProcessor(
                 "kotlin.collections.Iterable",
                 "kotlin.collections.MutableIterable",
             )
+
+        private val TS_NUMBER_TYPES =
+            setOf(
+                "kotlin.Long",
+                "kotlin.Int",
+                "kotlin.Short",
+                "kotlin.Byte",
+                "kotlin.Double",
+                "kotlin.Float",
+            )
+
+        private val TS_STRING_TYPES =
+            setOf(
+                "java.time.LocalDate",
+                "java.time.LocalDateTime",
+                "java.time.LocalTime",
+                "java.time.Instant",
+                "kotlinx.datetime.LocalDate",
+                "kotlinx.datetime.LocalDateTime",
+                "kotlinx.datetime.LocalTime",
+                "kotlinx.datetime.Instant",
+            )
     }
 
     private data class PropertyInfo(
         val name: String,
         val serialName: String,
         val typeName: TypeName,
+        val tsType: String,
+        val tsOptional: Boolean,
     )
 
     private data class ClassInfo(
@@ -71,6 +96,8 @@ class KmpExportProcessor(
 
         classInfos.forEach { writeFileDirect(it) }
 
+        tsOutputDir?.let { writeTsDefinitions(classInfos, it) }
+
         return emptyList()
     }
 
@@ -94,13 +121,25 @@ class KmpExportProcessor(
                         .mapNotNull { param ->
                             val propName = param.name?.asString() ?: return@mapNotNull null
                             val serialName = resolveSerialName(param, propName, className)
-                            val typeName =
-                                runCatching { mapType(param.type.resolve()) }
+                            val resolvedType =
+                                runCatching { param.type.resolve() }
                                     .getOrElse { e ->
                                         logger.error("Failed to resolve type for $className.$propName: ${e.message}")
                                         return@mapNotNull null
                                     }
-                            PropertyInfo(propName, serialName, typeName)
+                            val typeName =
+                                runCatching { mapType(resolvedType) }
+                                    .getOrElse { e ->
+                                        logger.error("Failed to map type for $className.$propName: ${e.message}")
+                                        return@mapNotNull null
+                                    }
+                            PropertyInfo(
+                                name = propName,
+                                serialName = serialName,
+                                typeName = typeName,
+                                tsType = mapTsType(resolvedType),
+                                tsOptional = resolvedType.isMarkedNullable,
+                            )
                         }
                 ClassInfo(targetPackage, className, isEnum = false, enumEntries = emptyList(), properties = properties)
             }
@@ -231,6 +270,91 @@ class KmpExportProcessor(
             "java.time.Instant" -> ClassName("kotlinx.datetime", "Instant")
             else -> null
         }
+
+    // Maps a Kotlin type to a plain TypeScript type string (matching the raw JSON shape).
+    // Nested @KmpExport DTOs and enums are flattened to their simple name (no namespace).
+    private fun mapTsType(type: KSType): String {
+        val declaration = type.declaration
+        val qualifiedName = declaration.qualifiedName?.asString() ?: ""
+
+        if (qualifiedName in ARRAY_LIKE_COLLECTIONS) {
+            val elementArg = type.arguments.firstOrNull()
+            val elementType =
+                when (elementArg?.variance) {
+                    Variance.STAR, null -> "unknown"
+                    else -> elementArg.type?.resolve()?.let { mapTsElementType(it) } ?: "unknown"
+                }
+            return "$elementType[]"
+        }
+
+        return when (qualifiedName) {
+            "kotlin.String", "kotlin.Char" -> "string"
+            "kotlin.Boolean" -> "boolean"
+            in TS_NUMBER_TYPES -> "number"
+            in TS_STRING_TYPES -> "string"
+            else -> declaration.simpleName.asString()
+        }
+    }
+
+    // Array elements keep their nullability inline as `(T | null)[]`, unlike top-level
+    // properties which become optional fields.
+    private fun mapTsElementType(type: KSType): String {
+        val base = mapTsType(type)
+        return if (type.isMarkedNullable) "($base | null)" else base
+    }
+
+    // Emits a single flat index.d.ts: CommonApiResponse<T> preamble, enums as string-literal
+    // unions, and DTOs as interfaces. Written directly to the filesystem like the Kotlin output.
+    private fun writeTsDefinitions(
+        classInfos: List<ClassInfo>,
+        outDir: File,
+    ) {
+        val duplicates =
+            classInfos
+                .groupBy { it.className }
+                .filterValues { it.size > 1 }
+                .keys
+        if (duplicates.isNotEmpty()) {
+            logger.error("KmpExport TS emitter found duplicate class names after flattening: ${duplicates.joinToString(", ")}")
+            return
+        }
+
+        val sb = StringBuilder()
+        sb.appendLine("// AUTO-GENERATED by KmpExport KSP processor — DO NOT EDIT")
+        sb.appendLine()
+        sb.appendLine("export interface CommonApiResponse<T> {")
+        sb.appendLine("  status: string;")
+        sb.appendLine("  code: number;")
+        sb.appendLine("  message: string;")
+        sb.appendLine("  data: T;")
+        sb.appendLine("}")
+        sb.appendLine()
+
+        classInfos
+            .filter { it.isEnum }
+            .sortedBy { it.className }
+            .forEach { info ->
+                val union = info.enumEntries.joinToString(" | ") { "'$it'" }
+                sb.appendLine("export type ${info.className} = $union;")
+            }
+        if (classInfos.any { it.isEnum }) sb.appendLine()
+
+        classInfos
+            .filter { !it.isEnum }
+            .sortedBy { it.className }
+            .forEach { info ->
+                sb.appendLine("export interface ${info.className} {")
+                info.properties.forEach { prop ->
+                    val optional = if (prop.tsOptional) "?" else ""
+                    sb.appendLine("  ${prop.serialName}$optional: ${prop.tsType};")
+                }
+                sb.appendLine("}")
+                sb.appendLine()
+            }
+
+        outDir.mkdirs()
+        outDir.resolve("index.d.ts").writeText(sb.toString().trimEnd() + "\n")
+    }
 
     private fun serializableAnnotation() = AnnotationSpec.builder(ClassName("kotlinx.serialization", "Serializable")).build()
 

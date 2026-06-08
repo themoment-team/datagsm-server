@@ -10,6 +10,7 @@ class KmpExportProcessorProvider : SymbolProcessorProvider {
         val outputDir =
             environment.options["kmpOutputDir"]
                 ?: error("KmpExport: kmpOutputDir option is required")
-        return KmpExportProcessor(environment.logger, File(outputDir))
+        val tsOutputDir = environment.options["tsOutputDir"]?.let { File(it) }
+        return KmpExportProcessor(environment.logger, File(outputDir), tsOutputDir)
     }
 }
