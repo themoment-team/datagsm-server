@@ -27,7 +27,7 @@ class ModifyClientServiceImpl(
                 .orElseThrow { ExpectedException("Id에 해당하는 Client를 찾지 못했습니다.", HttpStatus.NOT_FOUND) }
         val currentAccount = currentUserProvider.getCurrentAccount()
 
-        val isAdmin = currentAccount.role in setOf(AccountRole.ADMIN, AccountRole.ROOT)
+        val isAdmin = currentAccount.role == AccountRole.ADMIN || currentAccount.role == AccountRole.ROOT
 
         if (client.account != currentAccount && !isAdmin) {
             throw ExpectedException("Client 변경 권한이 없습니다.", HttpStatus.FORBIDDEN)
