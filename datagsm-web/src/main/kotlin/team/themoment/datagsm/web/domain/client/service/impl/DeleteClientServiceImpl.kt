@@ -1,7 +1,6 @@
 package team.themoment.datagsm.web.domain.client.service.impl
 
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
@@ -23,10 +22,7 @@ class DeleteClientServiceImpl(
                 .orElseThrow { ExpectedException("Id에 해당하는 Client를 찾지 못했습니다.", HttpStatus.NOT_FOUND) }
         val currentAccount = currentUserProvider.getCurrentAccount()
 
-        // ADMIN 권한 확인
-        val authentication = SecurityContextHolder.getContext().authentication
-        val authorities = authentication?.authorities?.map { it.authority } ?: emptyList()
-        val isAdmin = authorities.contains(AccountRole.ADMIN.name) || currentAccount.role == AccountRole.ADMIN
+        val isAdmin = currentAccount.role == AccountRole.ADMIN || currentAccount.role == AccountRole.ROOT
 
         if (client.account != currentAccount && !isAdmin) {
             throw ExpectedException("Client 삭제 권한이 없습니다.", HttpStatus.FORBIDDEN)

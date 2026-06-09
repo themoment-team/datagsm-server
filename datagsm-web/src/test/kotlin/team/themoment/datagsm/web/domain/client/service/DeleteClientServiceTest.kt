@@ -121,6 +121,48 @@ class DeleteClientServiceTest :
                         verify(exactly = 0) { mockClientRepository.delete(any()) }
                     }
                 }
+
+                context("소유자가 아닌 ADMIN 사용자가 삭제를 시도할 때") {
+                    val adminAccount =
+                        AccountJpaEntity().apply {
+                            id = 3L
+                            email = "admin@gsm.hs.kr"
+                            role = AccountRole.ADMIN
+                        }
+
+                    beforeEach {
+                        every { mockClientRepository.findById(clientId) } returns Optional.of(existingClient)
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns adminAccount
+                        every { mockClientRepository.delete(existingClient) } returns Unit
+                    }
+
+                    it("클라이언트가 성공적으로 삭제되어야 한다") {
+                        deleteClientService.execute(clientId)
+
+                        verify(exactly = 1) { mockClientRepository.delete(existingClient) }
+                    }
+                }
+
+                context("소유자가 아닌 ROOT 사용자가 삭제를 시도할 때") {
+                    val rootAccount =
+                        AccountJpaEntity().apply {
+                            id = 4L
+                            email = "root@gsm.hs.kr"
+                            role = AccountRole.ROOT
+                        }
+
+                    beforeEach {
+                        every { mockClientRepository.findById(clientId) } returns Optional.of(existingClient)
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns rootAccount
+                        every { mockClientRepository.delete(existingClient) } returns Unit
+                    }
+
+                    it("클라이언트가 성공적으로 삭제되어야 한다") {
+                        deleteClientService.execute(clientId)
+
+                        verify(exactly = 1) { mockClientRepository.delete(existingClient) }
+                    }
+                }
             }
         }
     })
