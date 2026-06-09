@@ -1,6 +1,5 @@
 package team.themoment.datagsm.oauth.authorization.domain.account.service.impl
 
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.account.dto.request.SendPasswordResetEmailReqDto
 import team.themoment.datagsm.common.domain.account.entity.PasswordResetCodeRedisEntity
@@ -12,7 +11,6 @@ import team.themoment.datagsm.oauth.authorization.global.security.annotation.Pas
 import team.themoment.datagsm.oauth.authorization.global.service.EmailSenderService
 import team.themoment.datagsm.oauth.authorization.global.template.EmailTemplate
 import team.themoment.datagsm.oauth.authorization.global.util.EmailCodeGenerator
-import team.themoment.sdk.exception.ExpectedException
 
 @Service
 class SendPasswordResetEmailServiceImpl(
@@ -22,10 +20,7 @@ class SendPasswordResetEmailServiceImpl(
 ) : SendPasswordResetEmailService {
     @PasswordResetRateLimited(type = PasswordResetRateLimitType.SEND_EMAIL)
     override fun execute(reqDto: SendPasswordResetEmailReqDto) {
-        val account =
-            accountJpaRepository
-                .findByEmail(reqDto.email)
-                .orElseThrow { ExpectedException("존재하지 않는 이메일입니다.", HttpStatus.NOT_FOUND) }
+        val account = accountJpaRepository.findByEmail(reqDto.email).orElse(null) ?: return
 
         val code = EmailCodeGenerator.generate()
         val passwordResetCodeRedisEntity =

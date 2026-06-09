@@ -3,8 +3,10 @@ package team.themoment.datagsm.oauth.authorization.global.service
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import team.themoment.datagsm.oauth.authorization.global.template.EmailTemplate
+import team.themoment.sdk.logging.logger.logger
 
 /**
  * 이메일 발송 Infrastructure Service
@@ -24,6 +26,7 @@ class EmailSenderService(
     @param:Value($$"${spring.mail.from-address}")
     private val fromAddress: String,
 ) {
+    @Async
     fun sendEmail(
         to: String,
         template: EmailTemplate,
@@ -36,6 +39,7 @@ class EmailSenderService(
                 subject = template.subject
                 text = template.formatBody(code)
             }
-        javaMailSender.send(message)
+        runCatching { javaMailSender.send(message) }
+            .onFailure { logger().error("Failed to send email to {}", to, it) }
     }
 }
