@@ -65,6 +65,20 @@ dependencies {
 
     // Jackson
     api(dependency.Dependencies.JACKSON_DATABIND)
+
+    // Apache HttpClient
+    api(dependency.Dependencies.HTTPCLIENT5)
+
+    // Testing
+    testImplementation(dependency.Dependencies.KOTLIN_JUNIT5)
+    testImplementation(dependency.Dependencies.KOTEST_ASSERTIONS)
+    testImplementation(dependency.Dependencies.KOTEST_RUNNER)
+    testImplementation(dependency.Dependencies.KOTEST_FRAMEWORK)
+    testRuntimeOnly(dependency.Dependencies.JUNIT_PLATFORM_LAUNCHER)
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
 
 kotlin {

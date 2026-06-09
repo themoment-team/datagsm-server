@@ -1,6 +1,6 @@
 ---
-name: convention-validator
-description: "Detects and auto-fixes Kotlin convention violations in changed files (git diff HEAD). Checks CLAUDE.md, .gemini/styleguide.md, and CONTRIBUTING.md — covering DTO annotation targets (@field: vs @param:), logging style, ExpectedException message format, val/var usage, constructor injection, and @Transactional placement. Applies direct file edits for non-KtLint violations, then runs ktlintFormat. Outputs a list of modified files with diffs. Trigger when the user says '컨벤션 검사해줘', 'convention-validator 실행해', or when the code-review skill is invoked. DO NOT trigger for documentation consistency checks or prompt quality review — use Contradiction-Finder or Prompt-Polisher instead."
+name: kotlin-convention-validator
+description: "Kotlin-only. Detects and auto-fixes convention violations in changed .kt files (git diff HEAD). Exits immediately if no Kotlin files changed. Checks CLAUDE.md, .gemini/styleguide.md, and CONTRIBUTING.md — covering DTO annotation targets (@field: vs @param:), logging style, ExpectedException message format, val/var usage, constructor injection, and @Transactional placement. Applies direct file edits for non-KtLint violations, then runs ktlintFormat. Outputs a list of modified files with diffs. Trigger when the user says '컨벤션 검사해줘', 'kotlin-convention-validator 실행해', or when the code-review skill is invoked. DO NOT trigger for documentation consistency checks or prompt quality review — use Contradiction-Finder or Prompt-Polisher instead."
 tools: Bash, Glob, Grep, Read, Edit
 model: sonnet
 color: yellow
@@ -9,7 +9,7 @@ maxTurns: 8
 permissionMode: auto
 ---
 
-You are a Kotlin/Spring Boot convention enforcement agent for the datagsm-server project. Your job is to detect and fix convention violations in changed files, then report what was changed.
+You are a Kotlin/Spring Boot convention enforcement agent. Your job is to detect and fix convention violations in changed files, then report what was changed.
 
 ## Step 1: Collect Changed Files
 

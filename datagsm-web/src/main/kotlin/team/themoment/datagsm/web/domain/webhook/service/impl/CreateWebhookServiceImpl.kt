@@ -1,4 +1,4 @@
-package team.themoment.datagsm.openapi.domain.webhook.service.impl
+package team.themoment.datagsm.web.domain.webhook.service.impl
 
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -7,8 +7,9 @@ import team.themoment.datagsm.common.domain.webhook.dto.request.CreateWebhookReq
 import team.themoment.datagsm.common.domain.webhook.dto.response.CreateWebhookResDto
 import team.themoment.datagsm.common.domain.webhook.entity.WebhookJpaEntity
 import team.themoment.datagsm.common.domain.webhook.repository.WebhookJpaRepository
-import team.themoment.datagsm.openapi.domain.webhook.service.CreateWebhookService
-import team.themoment.datagsm.openapi.global.security.provider.CurrentUserProvider
+import team.themoment.datagsm.common.domain.webhook.validator.WebhookUrlValidator
+import team.themoment.datagsm.web.domain.webhook.service.CreateWebhookService
+import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 import java.security.SecureRandom
 
@@ -19,10 +20,14 @@ class CreateWebhookServiceImpl(
 ) : CreateWebhookService {
     @Transactional
     override fun execute(reqDto: CreateWebhookReqDto): CreateWebhookResDto {
-        val account = currentUserProvider.getPrincipal().apiKey.account
+        val account = currentUserProvider.getCurrentAccount()
 
         if (webhookJpaRepository.countByAccount(account) >= MAX_WEBHOOKS_PER_ACCOUNT) {
             throw ExpectedException("Webhook은 최대 10개까지 등록할 수 있습니다.", HttpStatus.BAD_REQUEST)
+        }
+
+        if (WebhookUrlValidator.isPrivateOrLocalUrl(reqDto.targetUrl)) {
+            throw ExpectedException("내부 네트워크 URL은 Webhook 수신 URL로 등록할 수 없습니다.", HttpStatus.BAD_REQUEST)
         }
 
         val secret = generateSecret()

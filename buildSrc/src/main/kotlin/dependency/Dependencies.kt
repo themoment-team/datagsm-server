@@ -20,7 +20,7 @@ object Dependencies {
     const val SPRING_SECURITY = "org.springframework.boot:spring-boot-starter-security"
     const val SPRING_VALIDATION = "org.springframework.boot:spring-boot-starter-validation"
     const val SPRING_ASPECTJ = "org.springframework.boot:spring-boot-starter-aspectj"
-    const val SPRINT_MAIL = "org.springframework.boot:spring-boot-starter-mail"
+    const val SPRING_MAIL = "org.springframework.boot:spring-boot-starter-mail"
     const val SPRING_THYMELEAF = "org.springframework.boot:spring-boot-starter-thymeleaf"
 
     // Spring Data
@@ -83,6 +83,9 @@ object Dependencies {
 
     // Jackson
     const val JACKSON_DATABIND = "tools.jackson.core:jackson-databind"
+
+    // Apache HttpClient
+    const val HTTPCLIENT5 = "org.apache.httpcomponents.client5:httpclient5"
 
     // AWS SDK
     const val AWS_CLOUDWATCH_LOGS = "software.amazon.awssdk:cloudwatchlogs"
