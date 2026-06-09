@@ -19,11 +19,18 @@ kotlin {
         freeCompilerArgs.add("-opt-in=kotlin.js.ExperimentalJsExport")
     }
 
+    // Compile with the project-wide JDK 25 toolchain, but emit JVM 17 bytecode. This is the
+    // only externally published artifact, so a JVM 17 target keeps it consumable by any
+    // JDK 17+ client while the build itself stays aligned with the service modules.
+    jvmToolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+
     jvm {
         compilations.all {
             compileTaskProvider.configure {
                 compilerOptions {
-                    jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+                    jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
                 }
             }
         }
