@@ -25,6 +25,7 @@ import java.io.File
 class KmpExportProcessor(
     private val logger: KSPLogger,
     private val outputDir: File,
+    private val tsOutputDir: File?,
 ) : SymbolProcessor {
     companion object {
         private val ARRAY_LIKE_COLLECTIONS =
@@ -38,12 +39,37 @@ class KmpExportProcessor(
                 "kotlin.collections.Iterable",
                 "kotlin.collections.MutableIterable",
             )
+
+        private val TS_NUMBER_TYPES =
+            setOf(
+                "kotlin.Long",
+                "kotlin.Int",
+                "kotlin.Short",
+                "kotlin.Byte",
+                "kotlin.Double",
+                "kotlin.Float",
+            )
+
+        private val TS_STRING_TYPES =
+            setOf(
+                "java.time.LocalDate",
+                "java.time.LocalDateTime",
+                "java.time.LocalTime",
+                "java.time.Instant",
+                "kotlinx.datetime.LocalDate",
+                "kotlinx.datetime.LocalDateTime",
+                "kotlinx.datetime.LocalTime",
+                "kotlinx.datetime.Instant",
+            )
     }
 
     private data class PropertyInfo(
         val name: String,
         val serialName: String,
         val typeName: TypeName,
+        val tsType: String,
+        val tsOptional: Boolean,
+        val tsReferences: Set<String>,
     )
 
     private data class ClassInfo(
@@ -52,6 +78,7 @@ class KmpExportProcessor(
         val isEnum: Boolean,
         val enumEntries: List<String>,
         val properties: List<PropertyInfo>,
+        val typeParameters: List<String> = emptyList(),
     )
 
     // Phase 1 (KSP resolution) and Phase 2 (file writing) are separated.
@@ -74,6 +101,8 @@ class KmpExportProcessor(
         val classInfos = symbols.mapNotNull { collectClassInfo(it) }
 
         classInfos.forEach { writeFileDirect(it) }
+
+        tsOutputDir?.let { writeTsDefinitions(classInfos, it) }
 
         return emptyList()
     }
@@ -98,15 +127,37 @@ class KmpExportProcessor(
                         .mapNotNull { param ->
                             val propName = param.name?.asString() ?: return@mapNotNull null
                             val serialName = resolveSerialName(param, propName, className)
-                            val typeName =
-                                runCatching { mapType(param.type.resolve()) }
+                            val resolvedType =
+                                runCatching { param.type.resolve() }
                                     .getOrElse { e ->
                                         logger.error("Failed to resolve type for $className.$propName: ${e.message}")
                                         return@mapNotNull null
                                     }
-                            PropertyInfo(propName, serialName, typeName)
+                            val typeName =
+                                runCatching { mapType(resolvedType) }
+                                    .getOrElse { e ->
+                                        logger.error("Failed to map type for $className.$propName: ${e.message}")
+                                        return@mapNotNull null
+                                    }
+                            val tsReferences = mutableSetOf<String>()
+                            PropertyInfo(
+                                name = propName,
+                                serialName = serialName,
+                                typeName = typeName,
+                                tsType = mapTsType(resolvedType, tsReferences),
+                                tsOptional = resolvedType.isMarkedNullable,
+                                tsReferences = tsReferences,
+                            )
                         }
-                ClassInfo(targetPackage, className, isEnum = false, enumEntries = emptyList(), properties = properties)
+                val typeParameters = classDecl.typeParameters.map { it.name.asString() }
+                ClassInfo(
+                    targetPackage,
+                    className,
+                    isEnum = false,
+                    enumEntries = emptyList(),
+                    properties = properties,
+                    typeParameters = typeParameters,
+                )
             }
         }
     }
@@ -232,6 +283,101 @@ class KmpExportProcessor(
             "java.time.Instant" -> ClassName("kotlinx.datetime", "Instant")
             else -> null
         }
+
+    // Maps a Kotlin type to a plain TypeScript type string (matching the raw JSON shape).
+    // Nested @KmpExport DTOs and enums are flattened to their simple name (no namespace).
+    // Every flattened (non-builtin) name is collected into `refs` so the emitter can verify
+    // it is actually exported, instead of silently emitting a dangling type reference.
+    private fun mapTsType(
+        type: KSType,
+        refs: MutableSet<String>,
+    ): String {
+        val declaration = type.declaration
+        val qualifiedName = declaration.qualifiedName?.asString() ?: ""
+
+        if (qualifiedName in ARRAY_LIKE_COLLECTIONS) {
+            val elementArg = type.arguments.firstOrNull()
+            val elementType =
+                when (elementArg?.variance) {
+                    Variance.STAR, null -> "unknown"
+                    else -> elementArg.type?.resolve()?.let { mapTsElementType(it, refs) } ?: "unknown"
+                }
+            return "$elementType[]"
+        }
+
+        if (qualifiedName == "kotlin.collections.Map" || qualifiedName == "kotlin.collections.MutableMap") {
+            val keyType =
+                type.arguments
+                    .getOrNull(0)
+                    ?.type
+                    ?.resolve()
+                    ?.let { mapTsType(it, refs) } ?: "string"
+            val valueType =
+                type.arguments
+                    .getOrNull(1)
+                    ?.type
+                    ?.resolve()
+                    ?.let { mapTsType(it, refs) } ?: "unknown"
+            return "Record<$keyType, $valueType>"
+        }
+
+        return when (qualifiedName) {
+            "kotlin.String", "kotlin.Char" -> "string"
+            "kotlin.Boolean" -> "boolean"
+            "kotlin.Any" -> "any"
+            in TS_NUMBER_TYPES -> "number"
+            in TS_STRING_TYPES -> "string"
+            else -> declaration.simpleName.asString().also { refs.add(it) }
+        }
+    }
+
+    // Array elements keep their nullability inline as `(T | null)[]`, unlike top-level
+    // properties which become optional fields.
+    private fun mapTsElementType(
+        type: KSType,
+        refs: MutableSet<String>,
+    ): String {
+        val base = mapTsType(type, refs)
+        return if (type.isMarkedNullable) "($base | null)" else base
+    }
+
+    // Builds the KSP-free TsModel and delegates rendering/validation to TsDefinitionEmitter.
+    // Validation errors are reported via logger.error, which fails the KSP round, instead of
+    // emitting an index.d.ts with dangling type references that only tsc would later reject.
+    private fun writeTsDefinitions(
+        classInfos: List<ClassInfo>,
+        outDir: File,
+    ) {
+        val model =
+            TsModel(
+                enums =
+                    classInfos
+                        .filter { it.isEnum }
+                        .map { TsEnum(it.className, it.enumEntries) },
+                interfaces =
+                    classInfos
+                        .filter { !it.isEnum }
+                        .map { info ->
+                            TsInterface(
+                                name = info.className,
+                                typeParameters = info.typeParameters,
+                                properties =
+                                    info.properties.map { prop ->
+                                        TsProperty(prop.serialName, prop.tsType, prop.tsOptional, prop.tsReferences)
+                                    },
+                            )
+                        },
+            )
+
+        val errors = TsDefinitionEmitter.validate(model)
+        if (errors.isNotEmpty()) {
+            errors.forEach { logger.error(it) }
+            return
+        }
+
+        outDir.mkdirs()
+        outDir.resolve("index.d.ts").writeText(TsDefinitionEmitter.render(model))
+    }
 
     private fun serializableAnnotation() = AnnotationSpec.builder(ClassName("kotlinx.serialization", "Serializable")).build()
 

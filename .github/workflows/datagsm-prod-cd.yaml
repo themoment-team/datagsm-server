@@ -72,16 +72,15 @@ jobs:
           cache: 'gradle'
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
-      - name: Compile JS artifact
+      - name: Assemble type-only npm package
         run: >
-          ./gradlew :datagsm-common:kspKotlin
-          :datagsm-shared:jsBrowserProductionLibraryDistribution
+          ./gradlew :datagsm-shared:assembleTsPackage
           -PSHARED_VERSION=${{ needs.generate-version.outputs.version }}
       - name: Publish to npmjs.com
         run: npm publish --access public
-        working-directory: datagsm-shared/build/dist/js/productionLibrary
+        working-directory: datagsm-shared/build/npm-ts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
