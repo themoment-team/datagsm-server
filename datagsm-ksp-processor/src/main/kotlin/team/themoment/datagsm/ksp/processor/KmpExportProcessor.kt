@@ -69,6 +69,7 @@ class KmpExportProcessor(
         val typeName: TypeName,
         val tsType: String,
         val tsOptional: Boolean,
+        val tsReferences: Set<String>,
     )
 
     private data class ClassInfo(
@@ -138,12 +139,14 @@ class KmpExportProcessor(
                                         logger.error("Failed to map type for $className.$propName: ${e.message}")
                                         return@mapNotNull null
                                     }
+                            val tsReferences = mutableSetOf<String>()
                             PropertyInfo(
                                 name = propName,
                                 serialName = serialName,
                                 typeName = typeName,
-                                tsType = mapTsType(resolvedType),
+                                tsType = mapTsType(resolvedType, tsReferences),
                                 tsOptional = resolvedType.isMarkedNullable,
+                                tsReferences = tsReferences,
                             )
                         }
                 val typeParameters = classDecl.typeParameters.map { it.name.asString() }
@@ -283,7 +286,12 @@ class KmpExportProcessor(
 
     // Maps a Kotlin type to a plain TypeScript type string (matching the raw JSON shape).
     // Nested @KmpExport DTOs and enums are flattened to their simple name (no namespace).
-    private fun mapTsType(type: KSType): String {
+    // Every flattened (non-builtin) name is collected into `refs` so the emitter can verify
+    // it is actually exported, instead of silently emitting a dangling type reference.
+    private fun mapTsType(
+        type: KSType,
+        refs: MutableSet<String>,
+    ): String {
         val declaration = type.declaration
         val qualifiedName = declaration.qualifiedName?.asString() ?: ""
 
@@ -292,14 +300,24 @@ class KmpExportProcessor(
             val elementType =
                 when (elementArg?.variance) {
                     Variance.STAR, null -> "unknown"
-                    else -> elementArg.type?.resolve()?.let { mapTsElementType(it) } ?: "unknown"
+                    else -> elementArg.type?.resolve()?.let { mapTsElementType(it, refs) } ?: "unknown"
                 }
             return "$elementType[]"
         }
 
         if (qualifiedName == "kotlin.collections.Map" || qualifiedName == "kotlin.collections.MutableMap") {
-            val keyType = type.arguments.getOrNull(0)?.type?.resolve()?.let { mapTsType(it) } ?: "string"
-            val valueType = type.arguments.getOrNull(1)?.type?.resolve()?.let { mapTsType(it) } ?: "unknown"
+            val keyType =
+                type.arguments
+                    .getOrNull(0)
+                    ?.type
+                    ?.resolve()
+                    ?.let { mapTsType(it, refs) } ?: "string"
+            val valueType =
+                type.arguments
+                    .getOrNull(1)
+                    ?.type
+                    ?.resolve()
+                    ?.let { mapTsType(it, refs) } ?: "unknown"
             return "Record<$keyType, $valueType>"
         }
 
@@ -309,71 +327,56 @@ class KmpExportProcessor(
             "kotlin.Any" -> "any"
             in TS_NUMBER_TYPES -> "number"
             in TS_STRING_TYPES -> "string"
-            else -> declaration.simpleName.asString()
+            else -> declaration.simpleName.asString().also { refs.add(it) }
         }
     }
 
     // Array elements keep their nullability inline as `(T | null)[]`, unlike top-level
     // properties which become optional fields.
-    private fun mapTsElementType(type: KSType): String {
-        val base = mapTsType(type)
+    private fun mapTsElementType(
+        type: KSType,
+        refs: MutableSet<String>,
+    ): String {
+        val base = mapTsType(type, refs)
         return if (type.isMarkedNullable) "($base | null)" else base
     }
 
-    // Emits a single flat index.d.ts: CommonApiResponse<T> preamble, enums as string-literal
-    // unions, and DTOs as interfaces. Written directly to the filesystem like the Kotlin output.
+    // Builds the KSP-free TsModel and delegates rendering/validation to TsDefinitionEmitter.
+    // Validation errors are reported via logger.error, which fails the KSP round, instead of
+    // emitting an index.d.ts with dangling type references that only tsc would later reject.
     private fun writeTsDefinitions(
         classInfos: List<ClassInfo>,
         outDir: File,
     ) {
-        val duplicates =
-            classInfos
-                .groupBy { it.className }
-                .filterValues { it.size > 1 }
-                .keys
-        if (duplicates.isNotEmpty()) {
-            val names = duplicates.joinToString(", ")
-            logger.error("Duplicate class names found after flattening {}", names)
+        val model =
+            TsModel(
+                enums =
+                    classInfos
+                        .filter { it.isEnum }
+                        .map { TsEnum(it.className, it.enumEntries) },
+                interfaces =
+                    classInfos
+                        .filter { !it.isEnum }
+                        .map { info ->
+                            TsInterface(
+                                name = info.className,
+                                typeParameters = info.typeParameters,
+                                properties =
+                                    info.properties.map { prop ->
+                                        TsProperty(prop.serialName, prop.tsType, prop.tsOptional, prop.tsReferences)
+                                    },
+                            )
+                        },
+            )
+
+        val errors = TsDefinitionEmitter.validate(model)
+        if (errors.isNotEmpty()) {
+            errors.forEach { logger.error(it) }
             return
         }
 
-        val sb = StringBuilder()
-        sb.appendLine("// AUTO-GENERATED by KmpExport KSP processor — DO NOT EDIT")
-        sb.appendLine()
-        sb.appendLine("export interface CommonApiResponse<T> {")
-        sb.appendLine("  status: string;")
-        sb.appendLine("  code: number;")
-        sb.appendLine("  message: string;")
-        sb.appendLine("  data: T;")
-        sb.appendLine("}")
-        sb.appendLine()
-
-        classInfos
-            .filter { it.isEnum }
-            .sortedBy { it.className }
-            .forEach { info ->
-                val union = info.enumEntries.joinToString(" | ") { "'$it'" }
-                sb.appendLine("export type ${info.className} = $union;")
-            }
-        if (classInfos.any { it.isEnum }) sb.appendLine()
-
-        classInfos
-            .filter { !it.isEnum }
-            .sortedBy { it.className }
-            .forEach { info ->
-                val typeParams =
-                    if (info.typeParameters.isNotEmpty()) "<${info.typeParameters.joinToString(", ")}>" else ""
-                sb.appendLine("export interface ${info.className}$typeParams {")
-                info.properties.forEach { prop ->
-                    val optional = if (prop.tsOptional) "?" else ""
-                    sb.appendLine("  ${prop.serialName}$optional: ${prop.tsType};")
-                }
-                sb.appendLine("}")
-                sb.appendLine()
-            }
-
         outDir.mkdirs()
-        outDir.resolve("index.d.ts").writeText(sb.toString().trimEnd() + "\n")
+        outDir.resolve("index.d.ts").writeText(TsDefinitionEmitter.render(model))
     }
 
     private fun serializableAnnotation() = AnnotationSpec.builder(ClassName("kotlinx.serialization", "Serializable")).build()
