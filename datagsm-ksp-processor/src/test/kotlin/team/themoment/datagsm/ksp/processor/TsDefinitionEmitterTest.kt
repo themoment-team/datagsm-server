@@ -53,11 +53,11 @@ class TsDefinitionEmitterTest :
                     ),
             )
 
-        Given("a valid TsModel covering enums, references, arrays, maps and generics") {
-            When("rendering it to TypeScript") {
+        Given("enum, 참조, 배열, Map, 제네릭을 모두 포함한 유효한 TsModel이 주어졌을 때") {
+            When("TypeScript로 렌더링하면") {
                 val rendered = TsDefinitionEmitter.render(sampleModel())
 
-                Then("the output matches the golden index.d.ts byte-for-byte") {
+                Then("출력이 골든 index.d.ts와 바이트 단위로 일치한다") {
                     val golden =
                         this::class.java
                             .getResource("/golden/index.d.ts")!!
@@ -67,16 +67,16 @@ class TsDefinitionEmitterTest :
                 }
             }
 
-            When("validating it") {
+            When("검증하면") {
                 val errors = TsDefinitionEmitter.validate(sampleModel())
 
-                Then("there are no validation errors") {
+                Then("검증 오류가 없다") {
                     errors shouldBe emptyList()
                 }
             }
         }
 
-        Given("a model whose property references a type that was never exported") {
+        Given("내보내지지 않은 타입을 프로퍼티가 참조하는 모델이 주어졌을 때") {
             val model =
                 TsModel(
                     enums = emptyList(),
@@ -93,17 +93,17 @@ class TsDefinitionEmitterTest :
                         ),
                 )
 
-            When("validating it") {
+            When("검증하면") {
                 val errors = TsDefinitionEmitter.validate(model)
 
-                Then("it reports the dangling reference instead of emitting it silently") {
+                Then("dangling 참조를 조용히 내보내지 않고 오류로 보고한다") {
                     errors shouldContainExactlyInAnyOrder
                         listOf("Type 'TeacherDto' referenced by ClubResDto.owner is not exported (missing @KmpExport?)")
                 }
             }
         }
 
-        Given("a model with two types flattened to the same name") {
+        Given("두 타입이 같은 이름으로 평탄화된 모델이 주어졌을 때") {
             val model =
                 TsModel(
                     enums = listOf(TsEnum("Status", listOf("OK"))),
@@ -113,17 +113,17 @@ class TsDefinitionEmitterTest :
                         ),
                 )
 
-            When("validating it") {
+            When("검증하면") {
                 val errors = TsDefinitionEmitter.validate(model)
 
-                Then("it reports the duplicate name") {
+                Then("중복된 이름을 보고한다") {
                     errors shouldContainExactlyInAnyOrder
                         listOf("Duplicate type names after flattening Status")
                 }
             }
         }
 
-        Given("a generic interface whose property references its own type parameter") {
+        Given("프로퍼티가 자신의 타입 파라미터를 참조하는 제네릭 인터페이스가 주어졌을 때") {
             val model =
                 TsModel(
                     enums = emptyList(),
@@ -137,10 +137,10 @@ class TsDefinitionEmitterTest :
                         ),
                 )
 
-            When("validating it") {
+            When("검증하면") {
                 val errors = TsDefinitionEmitter.validate(model)
 
-                Then("the type parameter is treated as visible, not a dangling reference") {
+                Then("타입 파라미터가 dangling 참조가 아닌 가시적인 것으로 처리된다") {
                     errors shouldBe emptyList()
                 }
             }
