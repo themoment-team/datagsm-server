@@ -39,7 +39,7 @@ class Oauth2TokenServiceImpl(
     private val oauthScopeJpaRepository: OAuthScopeJpaRepository,
     private val oauthClientRateLimitService: OAuthClientRateLimitService,
 ) : Oauth2TokenService {
-    @Transactional(readOnly = true)
+    @Transactional
     override fun execute(reqDto: Oauth2TokenReqDto): Oauth2TokenResDto {
         val grantType = GrantType.from(reqDto.grantType)
 
