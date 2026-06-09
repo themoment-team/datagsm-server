@@ -77,6 +77,7 @@ class KmpExportProcessor(
         val isEnum: Boolean,
         val enumEntries: List<String>,
         val properties: List<PropertyInfo>,
+        val typeParameters: List<String> = emptyList(),
     )
 
     // Phase 1 (KSP resolution) and Phase 2 (file writing) are separated.
@@ -145,7 +146,15 @@ class KmpExportProcessor(
                                 tsOptional = resolvedType.isMarkedNullable,
                             )
                         }
-                ClassInfo(targetPackage, className, isEnum = false, enumEntries = emptyList(), properties = properties)
+                val typeParameters = classDecl.typeParameters.map { it.name.asString() }
+                ClassInfo(
+                    targetPackage,
+                    className,
+                    isEnum = false,
+                    enumEntries = emptyList(),
+                    properties = properties,
+                    typeParameters = typeParameters,
+                )
             }
         }
     }
@@ -288,9 +297,16 @@ class KmpExportProcessor(
             return "$elementType[]"
         }
 
+        if (qualifiedName == "kotlin.collections.Map" || qualifiedName == "kotlin.collections.MutableMap") {
+            val keyType = type.arguments.getOrNull(0)?.type?.resolve()?.let { mapTsType(it) } ?: "string"
+            val valueType = type.arguments.getOrNull(1)?.type?.resolve()?.let { mapTsType(it) } ?: "unknown"
+            return "Record<$keyType, $valueType>"
+        }
+
         return when (qualifiedName) {
             "kotlin.String", "kotlin.Char" -> "string"
             "kotlin.Boolean" -> "boolean"
+            "kotlin.Any" -> "any"
             in TS_NUMBER_TYPES -> "number"
             in TS_STRING_TYPES -> "string"
             else -> declaration.simpleName.asString()
@@ -316,7 +332,8 @@ class KmpExportProcessor(
                 .filterValues { it.size > 1 }
                 .keys
         if (duplicates.isNotEmpty()) {
-            logger.error("KmpExport TS emitter found duplicate class names after flattening: ${duplicates.joinToString(", ")}")
+            val names = duplicates.joinToString(", ")
+            logger.error("Duplicate class names found after flattening {}", names)
             return
         }
 
@@ -344,7 +361,9 @@ class KmpExportProcessor(
             .filter { !it.isEnum }
             .sortedBy { it.className }
             .forEach { info ->
-                sb.appendLine("export interface ${info.className} {")
+                val typeParams =
+                    if (info.typeParameters.isNotEmpty()) "<${info.typeParameters.joinToString(", ")}>" else ""
+                sb.appendLine("export interface ${info.className}$typeParams {")
                 info.properties.forEach { prop ->
                     val optional = if (prop.tsOptional) "?" else ""
                     sb.appendLine("  ${prop.serialName}$optional: ${prop.tsType};")
