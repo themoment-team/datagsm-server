@@ -1,8 +1,6 @@
 package team.themoment.datagsm.oauth.authorization.domain.account.password.service.impl
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -12,7 +10,6 @@ import team.themoment.datagsm.common.domain.account.repository.AccountJpaReposit
 import team.themoment.datagsm.common.domain.account.repository.PasswordResetCodeRedisRepository
 import team.themoment.datagsm.oauth.authorization.domain.account.service.impl.SendPasswordResetEmailServiceImpl
 import team.themoment.datagsm.oauth.authorization.global.service.EmailSenderService
-import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 
 class SendPasswordResetEmailServiceImplTest :
@@ -35,13 +32,11 @@ class SendPasswordResetEmailServiceImplTest :
             every { accountJpaRepository.findByEmail(email) } returns Optional.empty()
 
             When("비밀번호 재설정 이메일을 요청하면") {
-                Then("404 Not Found 예외가 발생한다") {
-                    val exception =
-                        shouldThrow<ExpectedException> {
-                            service.execute(reqDto)
-                        }
+                Then("예외 없이 정상 종료하며 코드 발송과 저장이 일어나지 않는다") {
+                    service.execute(reqDto)
 
-                    exception.message shouldBe "존재하지 않는 이메일입니다."
+                    verify(exactly = 0) { emailSenderService.sendEmail(any(), any(), any()) }
+                    verify(exactly = 0) { passwordResetCodeRedisRepository.save(any()) }
                 }
             }
         }

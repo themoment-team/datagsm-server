@@ -1,4 +1,4 @@
-package team.themoment.datagsm.openapi.domain.webhook.controller
+package team.themoment.datagsm.web.domain.webhook.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -15,17 +15,15 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import team.themoment.datagsm.common.domain.auth.entity.constant.ApiKeyScope
 import team.themoment.datagsm.common.domain.webhook.dto.request.CreateWebhookReqDto
 import team.themoment.datagsm.common.domain.webhook.dto.request.ModifyWebhookReqDto
 import team.themoment.datagsm.common.domain.webhook.dto.response.CreateWebhookResDto
 import team.themoment.datagsm.common.domain.webhook.dto.response.WebhookListResDto
 import team.themoment.datagsm.common.domain.webhook.dto.response.WebhookResDto
-import team.themoment.datagsm.openapi.domain.webhook.service.CreateWebhookService
-import team.themoment.datagsm.openapi.domain.webhook.service.DeleteWebhookService
-import team.themoment.datagsm.openapi.domain.webhook.service.ModifyWebhookService
-import team.themoment.datagsm.openapi.domain.webhook.service.QueryWebhookService
-import team.themoment.datagsm.openapi.global.security.annotation.RequireScope
+import team.themoment.datagsm.web.domain.webhook.service.CreateWebhookService
+import team.themoment.datagsm.web.domain.webhook.service.DeleteWebhookService
+import team.themoment.datagsm.web.domain.webhook.service.ModifyWebhookService
+import team.themoment.datagsm.web.domain.webhook.service.QueryWebhookService
 import team.themoment.sdk.response.CommonApiResponse
 
 @Tag(name = "Webhook", description = "Webhook 관련 API")
@@ -43,24 +41,20 @@ class WebhookController(
             ApiResponse(responseCode = "200", description = "등록 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패 또는 Webhook 최대 개수 초과)", content = [Content()]),
             ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
-            ApiResponse(responseCode = "403", description = "권한 없음", content = [Content()]),
         ],
     )
-    @RequireScope(ApiKeyScope.WEBHOOK_WRITE)
     @PostMapping
     fun createWebhook(
         @RequestBody @Valid reqDto: CreateWebhookReqDto,
     ): CreateWebhookResDto = createWebhookService.execute(reqDto)
 
-    @Operation(summary = "Webhook 목록 조회", description = "현재 API Key 소유자의 Webhook 목록을 조회합니다.")
+    @Operation(summary = "Webhook 목록 조회", description = "현재 로그인한 사용자의 Webhook 목록을 조회합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
             ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
-            ApiResponse(responseCode = "403", description = "권한 없음", content = [Content()]),
         ],
     )
-    @RequireScope(ApiKeyScope.WEBHOOK_WRITE)
     @GetMapping
     fun getWebhooks(): WebhookListResDto = queryWebhookService.execute()
 
@@ -70,11 +64,9 @@ class WebhookController(
             ApiResponse(responseCode = "200", description = "수정 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
             ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
-            ApiResponse(responseCode = "403", description = "권한 없음", content = [Content()]),
             ApiResponse(responseCode = "404", description = "Webhook을 찾을 수 없음", content = [Content()]),
         ],
     )
-    @RequireScope(ApiKeyScope.WEBHOOK_WRITE)
     @PatchMapping("/{webhookId}")
     fun updateWebhook(
         @Parameter(description = "Webhook ID") @PathVariable webhookId: Long,
@@ -86,11 +78,9 @@ class WebhookController(
         value = [
             ApiResponse(responseCode = "200", description = "삭제 성공"),
             ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
-            ApiResponse(responseCode = "403", description = "권한 없음", content = [Content()]),
             ApiResponse(responseCode = "404", description = "Webhook을 찾을 수 없음", content = [Content()]),
         ],
     )
-    @RequireScope(ApiKeyScope.WEBHOOK_WRITE)
     @DeleteMapping("/{webhookId}")
     fun deleteWebhook(
         @Parameter(description = "Webhook ID") @PathVariable webhookId: Long,

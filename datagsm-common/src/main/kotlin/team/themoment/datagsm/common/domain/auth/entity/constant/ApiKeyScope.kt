@@ -26,9 +26,6 @@ enum class ApiKeyScope(
     // NEIS scopes
     NEIS_ALL("neis:*", "NEIS 데이터 모든 권한", AccountRole.ADMIN),
     NEIS_READ("neis:read", "NEIS 데이터 조회", AccountRole.USER),
-
-    // Webhook scopes
-    WEBHOOK_WRITE("webhook:write", "Webhook 등록/수정/삭제", AccountRole.USER),
     ;
 
     override fun getAuthority(): String = "SCOPE_$scope"
@@ -50,7 +47,6 @@ enum class ApiKeyScope(
                 "neis" to "NEIS",
                 "admin" to "관리자",
                 "client" to "클라이언트",
-                "webhook" to "Webhook",
             )
 
         private val ALL_SCOPES by lazy { entries.map { it.scope }.toSet() }

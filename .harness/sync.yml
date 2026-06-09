@@ -27,3 +27,5 @@ overrides:
 
 branch_prefix: update/
 base_branch: develop
+
+language: ko
