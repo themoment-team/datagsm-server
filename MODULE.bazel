@@ -97,6 +97,9 @@ maven.install(
         "io.mockk:mockk-jvm:1.14.9",
         "org.junit.platform:junit-platform-launcher:1.11.4",
         "org.junit.platform:junit-platform-console:1.11.4",
+        # Service-module tests use Spring test utilities (MockMvc, MockMultipartFile, etc.).
+        "org.springframework.boot:spring-boot-starter-test",
+        "org.springframework.security:spring-security-test",
     ],
     # Root build.gradle.kts: configurations.all { exclude(group = "org.bouncycastle") }
     excluded_artifacts = [

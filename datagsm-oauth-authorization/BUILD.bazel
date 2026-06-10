@@ -1,4 +1,4 @@
-load("//bazel:defs.bzl", "datagsm_service", "datagsm_service_image")
+load("//bazel:defs.bzl", "datagsm_kotest_test", "datagsm_service", "datagsm_service_image")
 
 # Module-specific deps from datagsm-oauth-authorization/build.gradle.kts:
 # mail, OAuth2 client, JJWT.
@@ -19,4 +19,10 @@ datagsm_service(
 datagsm_service_image(
     name = "oauth-authorization",
     main_class = "team.themoment.datagsm.oauth.authorization.DatagsmAuthorizationApplicationKt",
+)
+
+datagsm_kotest_test(
+    name = "oauth-authorization_test",
+    associate = ":oauth-authorization_lib",
+    spring_test = True,
 )

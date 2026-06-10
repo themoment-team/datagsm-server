@@ -1,4 +1,4 @@
-load("//bazel:defs.bzl", "datagsm_service", "datagsm_service_image")
+load("//bazel:defs.bzl", "datagsm_kotest_test", "datagsm_service", "datagsm_service_image")
 
 # Module-specific deps from datagsm-web/build.gradle.kts: mail, JJWT, Apache POI.
 datagsm_service(
@@ -19,4 +19,10 @@ datagsm_service(
 datagsm_service_image(
     name = "web",
     main_class = "team.themoment.datagsm.web.DatagsmWebApplicationKt",
+)
+
+datagsm_kotest_test(
+    name = "web_test",
+    associate = ":web_lib",
+    spring_test = True,
 )

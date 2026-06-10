@@ -37,18 +37,25 @@ def datagsm_service_image(name, main_class):
         repo_tags = ["datagsm-" + name + ":bazel"],
     )
 
-def datagsm_kotest_test(name, associate, test_classes, extra_artifacts = []):
+def datagsm_kotest_test(name, associate, spring_test = False, extra_artifacts = []):
     """Runs a module's Kotest (+MockK) suite on the JUnit Platform via ConsoleLauncher.
 
     `associate` makes the test a friend module of the target under test, granting access
     to `internal` declarations (parity with Gradle's single main+test Kotlin module).
 
-    `test_classes` lists the fully-qualified Kotest spec classes. Explicit `--select-class`
-    is required because Bazel passes the classpath via a manifest jar (java.class.path holds
-    only the launcher jar), so `--scan-classpath` / `--select-package` discover nothing —
-    only direct class loading by name works. At scale, generate this list (or adopt
-    contrib_rules_jvm's java_test_suite, which derives per-class test targets from a glob).
+    Test classes are selected explicitly with `--select-class`, auto-derived from the
+    `**/*Test.kt` paths (package = dir, class = filename, per project convention). Explicit
+    selection is required because Bazel passes the classpath via a manifest jar (java.class.path
+    holds only the launcher jar), so `--scan-classpath` / `--select-package` discover nothing.
     """
+    select_args = [
+        "--select-class=" + f[len("src/test/kotlin/"):-len(".kt")].replace("/", ".")
+        for f in native.glob(["src/test/kotlin/**/*Test.kt"])
+    ]
+    spring_test_artifacts = [
+        "org.springframework.boot:spring-boot-starter-test",
+        "org.springframework.security:spring-security-test",
+    ] if spring_test else []
     kt_jvm_test(
         name = name,
         srcs = native.glob(["src/test/kotlin/**/*.kt"]),
@@ -58,7 +65,7 @@ def datagsm_kotest_test(name, associate, test_classes, extra_artifacts = []):
             "execute",
             "--details=summary",
             "--fail-if-no-tests",
-        ] + ["--select-class=" + c for c in test_classes],
+        ] + select_args,
         associates = [associate],
         deps = [
             artifact("io.kotest:kotest-runner-junit5-jvm"),
@@ -66,7 +73,7 @@ def datagsm_kotest_test(name, associate, test_classes, extra_artifacts = []):
             artifact("io.kotest:kotest-framework-engine-jvm"),
             artifact("io.mockk:mockk-jvm"),
             artifact("org.junit.platform:junit-platform-console"),
-        ] + [artifact(a) for a in extra_artifacts],
+        ] + [artifact(a) for a in spring_test_artifacts] + [artifact(a) for a in extra_artifacts],
     )
 
 def datagsm_service(name, main_class, extra_artifacts = [], extra_runtime_artifacts = []):

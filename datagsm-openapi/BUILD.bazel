@@ -1,6 +1,6 @@
 load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
-load("//bazel:defs.bzl", "datagsm_service", "datagsm_service_image")
+load("//bazel:defs.bzl", "datagsm_kotest_test", "datagsm_service", "datagsm_service_image")
 
 # Simplest service module — no module-specific deps (per its build.gradle.kts).
 # Proven to compile and run as a real Spring Boot app from a flat classpath.
@@ -21,4 +21,10 @@ datagsm_service(
 datagsm_service_image(
     name = "openapi",
     main_class = "team.themoment.datagsm.openapi.DatagsmResourceApplicationKt",
+)
+
+datagsm_kotest_test(
+    name = "openapi_test",
+    associate = ":openapi_lib",
+    spring_test = True,
 )

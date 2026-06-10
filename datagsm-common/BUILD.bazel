@@ -68,9 +68,6 @@ kt_jvm_library(
 datagsm_kotest_test(
     name = "common_test",
     associate = ":common",
-    test_classes = [
-        "team.themoment.datagsm.common.domain.webhook.validator.WebhookUrlValidatorTest",
-    ],
 )
 
 # --- KMP export codegen: run KmpExportProcessor over common's @KmpExport classes and expose

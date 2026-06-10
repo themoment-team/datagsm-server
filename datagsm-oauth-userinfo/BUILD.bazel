@@ -21,7 +21,5 @@ datagsm_service_image(
 datagsm_kotest_test(
     name = "oauth-userinfo_test",
     associate = ":oauth-userinfo_lib",
-    test_classes = [
-        "team.themoment.datagsm.oauth.userinfo.domain.userinfo.service.QueryUserInfoServiceTest",
-    ],
+    spring_test = True,
 )
