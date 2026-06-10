@@ -30,3 +30,14 @@ kt_compiler_plugin(
     visibility = ["//visibility:public"],
     deps = ["@rules_kotlin//kotlin/compiler:noarg-compiler-plugin"],
 )
+
+# Target platform for the container image (Docker Desktop on Apple Silicon runs linux/arm64
+# natively). Building the image under --platforms=//bazel:linux_arm64 makes the java_binary
+# bundle a LINUX remotejdk instead of the host's macOS JDK.
+platform(
+    name = "linux_arm64",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:arm64",
+    ],
+)

@@ -1,4 +1,7 @@
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("//bazel:defs.bzl", "datagsm_service")
+load("//bazel:jars.bzl", "runtime_classpath")
 
 # Simplest service module — no module-specific deps (per its build.gradle.kts).
 # Proven in Phase 3 to compile and run as a real Spring Boot app from a flat classpath.
@@ -15,4 +18,40 @@ load("//bazel:defs.bzl", "datagsm_service")
 datagsm_service(
     name = "openapi",
     main_class = "team.themoment.datagsm.openapi.DatagsmResourceApplicationKt",
+)
+
+# --- Container deployment (research): base-image JRE + the full transitive runtime
+# classpath as arch-independent jars. Preserves the SEPARATE-jar layered classpath that
+# boots correctly (the flat fat-jar broke Spring Data multi-store), with no JDK-bundling
+# platform transition (jars are bytecode; the base image supplies the JRE). ---
+
+runtime_classpath(
+    name = "openapi_runtime_jars",
+    deps = [":openapi_lib"],
+)
+
+pkg_tar(
+    name = "openapi_layer",
+    srcs = [":openapi_runtime_jars"],
+    package_dir = "/app/lib",
+)
+
+oci_image(
+    name = "openapi_image",
+    base = "@temurin_jre",
+    # Java expands `/app/lib/*` to every jar in the dir (classpath wildcard).
+    entrypoint = [
+        "java",
+        "-cp",
+        "/app/lib/*",
+        "team.themoment.datagsm.openapi.DatagsmResourceApplicationKt",
+    ],
+    tars = [":openapi_layer"],
+)
+
+# `bazel run //datagsm-openapi:openapi_image_load` loads it into the local Docker daemon.
+oci_load(
+    name = "openapi_image_load",
+    image = ":openapi_image",
+    repo_tags = ["datagsm-openapi:bazel"],
 )

@@ -8,6 +8,12 @@ module(
 bazel_dep(name = "rules_java", version = "9.3.0")
 bazel_dep(name = "rules_jvm_external", version = "7.0")
 
+# Container packaging — the recommended deploy path: containerize the kt_jvm_binary
+# (layered classpath) instead of a flat fat-jar that breaks Spring Data multi-store.
+bazel_dep(name = "rules_oci", version = "2.3.0")
+bazel_dep(name = "rules_pkg", version = "1.2.0")
+bazel_dep(name = "platforms", version = "0.0.11")
+
 # rules_kotlin 2.3.10 bundles the Kotlin 2.3.10 compiler — exactly matching
 # buildSrc PluginVersions.KOTLIN_VERSION. This alignment is the key reason the
 # migration is viable on this otherwise bleeding-edge toolchain.
@@ -100,3 +106,15 @@ maven.install(
     fail_if_repin_required = False,
 )
 use_repo(maven, "maven")
+
+# Base image for the service container — provides the JRE 21 that runs the app's jars.
+# Pinned to a single platform (linux/arm64, matching Docker Desktop on Apple Silicon) so
+# oci_image needs no platform transition: the app layer is just arch-independent jars.
+oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
+oci.pull(
+    name = "temurin_jre",
+    image = "docker.io/library/eclipse-temurin",
+    platforms = ["linux/arm64/v8"],
+    tag = "21-jre",
+)
+use_repo(oci, "temurin_jre")
