@@ -14,6 +14,7 @@ bazel_dep(name = "rules_oci", version = "2.3.0")
 bazel_dep(name = "rules_pkg", version = "1.2.0")
 bazel_dep(name = "rules_shell", version = "0.6.1")
 bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "bazel_skylib", version = "1.7.1")
 
 # rules_kotlin 2.3.10 bundles the Kotlin 2.3.10 compiler — exactly matching
 # buildSrc PluginVersions.KOTLIN_VERSION. This alignment is the key reason the
@@ -25,8 +26,12 @@ bazel_dep(name = "rules_kotlin", version = "2.3.10")
 # symbol (`name 'JavaInfo' is not defined`). Left unused; deployable-jar strategy is under
 # research (native _deploy.jar caveats, or a custom rules_pkg BOOT-INF assembler).
 
-# Custom Kotlin toolchain pinning language/api/jvm targets to project values.
-register_toolchains("//bazel:kotlin_toolchain")
+# Custom Kotlin toolchains: default JVM 25 (prod server); JVM 17 selected by the
+# //bazel:kt_jvm_target flag for datagsm-shared's published SDK (consumer floor 17).
+register_toolchains(
+    "//bazel:kotlin_toolchain",
+    "//bazel:kotlin_toolchain_jvm17",
+)
 
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 
@@ -118,14 +123,15 @@ maven.install(
 )
 use_repo(maven, "maven")
 
-# Base image for the service container — provides the JRE 21 that runs the app's jars.
-# Pinned to a single platform (linux/arm64, matching Docker Desktop on Apple Silicon) so
-# oci_image needs no platform transition: the app layer is just arch-independent jars.
+# Base image for the service container — JRE 25 matching the production server
+# (prod.dockerfile uses eclipse-temurin:25-jre). Pinned to a single platform (linux/arm64,
+# matching Docker Desktop on Apple Silicon) so oci_image needs no platform transition: the
+# app layer is just arch-independent jars.
 oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
 oci.pull(
     name = "temurin_jre",
     image = "docker.io/library/eclipse-temurin",
     platforms = ["linux/arm64/v8"],
-    tag = "21-jre",
+    tag = "25-jre",
 )
 use_repo(oci, "temurin_jre")

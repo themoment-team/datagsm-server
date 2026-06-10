@@ -53,7 +53,9 @@ jobs:
           disk-cache: true
           repository-cache: true
       - name: Publish JVM artifact to GitHub Packages
-        run: bazel run //datagsm-shared:publish -- ${{ needs.generate-version.outputs.version }}
+        # --//bazel:kt_jvm_target=17 emits JVM 17 bytecode (SDK consumer floor), not the
+        # default JVM 25 the service modules use.
+        run: bazel run //datagsm-shared:publish --//bazel:kt_jvm_target=17 -- ${{ needs.generate-version.outputs.version }}
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

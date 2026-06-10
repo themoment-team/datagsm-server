@@ -22,7 +22,7 @@ Primary build is **Bazel** (bazelisk). Modules: `datagsm-oauth-authorization`, `
 - Container image: `bazel run //<module>:<name>_image_load` then `docker run datagsm-<name>:bazel`
 - TS npm package: `bazel build //datagsm-shared:ts_package`
 - Lint (ktlint): `bazel run //bazel:ktlint` (check), `bazel run //bazel:ktlint -- -F` (format)
-- Publish datagsm-shared: `bazel run //datagsm-shared:publish -- <version>`
+- Publish datagsm-shared: `bazel run //datagsm-shared:publish --//bazel:kt_jvm_target=17 -- <version>` (SDK targets JVM 17; services default to JVM 25)
 
 The build is fully Bazel; Gradle has been removed.
 

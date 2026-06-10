@@ -1,14 +1,46 @@
+load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
 load("@rules_kotlin//kotlin:core.bzl", "define_kt_toolchain", "kt_compiler_plugin")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 
-# Project-wide Kotlin toolchain. Mirrors buildSrc PluginVersions.KOTLIN_VERSION (2.3.10)
-# and datagsm-ksp-processor's JVM 21 target. jsr305=strict matches the service-module
-# freeCompilerArgs in the root build.gradle.kts.
+# Kotlin bytecode target selector. Default 25 (production server); datagsm-shared's publish
+# builds with --//bazel:kt_jvm_target=17 so the SDK stays consumable on JDK 17+.
+string_flag(
+    name = "kt_jvm_target",
+    build_setting_default = "25",
+    values = [
+        "17",
+        "25",
+    ],
+)
+
+config_setting(
+    name = "kt_jvm_target_17",
+    flag_values = {":kt_jvm_target": "17"},
+)
+
+config_setting(
+    name = "kt_jvm_target_25",
+    flag_values = {":kt_jvm_target": "25"},
+)
+
+# Project-wide Kotlin toolchain (Kotlin 2.3.10). JVM 25 matches the production server;
+# selected when //bazel:kt_jvm_target is 25 (the default).
 define_kt_toolchain(
     name = "kotlin_toolchain",
     api_version = "2.3",
-    jvm_target = "21",
+    jvm_target = "25",
     language_version = "2.3",
+    target_settings = [":kt_jvm_target_25"],
+)
+
+# JVM 17 variant — selected only when //bazel:kt_jvm_target is 17 (datagsm-shared publish),
+# keeping the published SDK consumable on JDK 17+.
+define_kt_toolchain(
+    name = "kotlin_toolchain_jvm17",
+    api_version = "2.3",
+    jvm_target = "17",
+    language_version = "2.3",
+    target_settings = [":kt_jvm_target_17"],
 )
 
 # Shared Kotlin compiler plugins replicating the Gradle kotlin-spring / kotlin-jpa plugins.

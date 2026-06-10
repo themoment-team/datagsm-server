@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Publishes datagsm-shared to GitHub Packages (replaces the Gradle `publishing` block).
 # Credentials from env: GITHUB_ACTOR / GITHUB_TOKEN. Requires `mvn` on PATH.
-#   bazel run //datagsm-shared:publish -- <version>
+# Build with the JVM 17 target flag so the SDK stays consumable on JDK 17+:
+#   bazel run //datagsm-shared:publish --//bazel:kt_jvm_target=17 -- <version>
 set -euo pipefail
 
 version="${1:?usage: publish <version>}"
