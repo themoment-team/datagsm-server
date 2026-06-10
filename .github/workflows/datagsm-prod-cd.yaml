@@ -21,6 +21,15 @@ on:
         required: false
         default: 'master'
         type: string
+      target:
+        description: 'Deployment target'
+        required: false
+        default: 'deploy-server'
+        type: choice
+        options:
+          - deploy-server
+          - deploy-shared
+          - both
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -28,7 +37,9 @@ concurrency:
 
 jobs:
   generate-version:
-    if: github.event_name == 'push'
+    if: |
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && (inputs.target == 'deploy-shared' || inputs.target == 'both'))
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.value }}
@@ -87,7 +98,9 @@ jobs:
   CD:
     runs-on: ubuntu-latest
     environment: prod
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push') }}
+    if: |
+      (github.event_name == 'workflow_dispatch' && (inputs.target == 'deploy-server' || inputs.target == 'both')) ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
