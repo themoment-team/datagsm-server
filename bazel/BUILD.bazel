@@ -93,3 +93,12 @@ sh_binary(
     data = ["@maven//:com_pinterest_ktlint_ktlint_cli_all"],
     visibility = ["//visibility:public"],
 )
+
+# linux/amd64 — used to verify the OCI base resolves on amd64 CI runners.
+platform(
+    name = "linux_amd64",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+)

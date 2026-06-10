@@ -14,7 +14,7 @@ bazel_dep(name = "rules_oci", version = "2.3.0")
 bazel_dep(name = "rules_pkg", version = "1.2.0")
 bazel_dep(name = "rules_shell", version = "0.6.1")
 bazel_dep(name = "platforms", version = "1.0.0")
-bazel_dep(name = "bazel_skylib", version = "1.7.1")
+bazel_dep(name = "bazel_skylib", version = "1.8.2")
 
 # rules_kotlin 2.3.10 bundles the Kotlin 2.3.10 compiler — exactly matching
 # buildSrc PluginVersions.KOTLIN_VERSION. This alignment is the key reason the
@@ -124,14 +124,22 @@ maven.install(
 use_repo(maven, "maven")
 
 # Base image for the service container — JRE 25 matching the production server
-# (prod.dockerfile uses eclipse-temurin:25-jre). Pinned to a single platform (linux/arm64,
-# matching Docker Desktop on Apple Silicon) so oci_image needs no platform transition: the
-# app layer is just arch-independent jars.
+# (prod.dockerfile uses eclipse-temurin:25-jre). Pinned by digest (not the floating tag) for
+# reproducible, cacheable builds. Both platforms: linux/amd64 for the CI runners, linux/arm64
+# for production (AWS Graviton / t4g) and Apple-Silicon dev.
 oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
 oci.pull(
     name = "temurin_jre",
+    digest = "sha256:5cf92df78f6dba978777d5cffa3c856e583f86814fde82a6c3534ccdfd794f2f",
     image = "docker.io/library/eclipse-temurin",
-    platforms = ["linux/arm64/v8"],
-    tag = "25-jre",
+    platforms = [
+        "linux/amd64",
+        "linux/arm64/v8",
+    ],
 )
-use_repo(oci, "temurin_jre")
+use_repo(
+    oci,
+    "temurin_jre",
+    "temurin_jre_linux_amd64",
+    "temurin_jre_linux_arm64_v8",
+)
