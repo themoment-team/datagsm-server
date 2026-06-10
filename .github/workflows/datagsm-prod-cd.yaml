@@ -52,6 +52,11 @@ jobs:
           bazelisk-cache: true
           disk-cache: true
           repository-cache: true
+      - name: Setup JDK for mvn deploy
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
       - name: Publish JVM artifact to GitHub Packages
         # --//bazel:kt_jvm_target=17 emits JVM 17 bytecode (SDK consumer floor), not the
         # default JVM 25 the service modules use.

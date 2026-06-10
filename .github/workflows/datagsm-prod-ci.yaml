@@ -103,6 +103,9 @@ jobs:
       - name: Build and Test with Bazel
         run: bazel test //...
 
+      - name: Lint with ktlint
+        run: bazel run //bazel:ktlint
+
       - name: Assemble type-only npm package
         run: bazel build //datagsm-shared:ts_package
 
