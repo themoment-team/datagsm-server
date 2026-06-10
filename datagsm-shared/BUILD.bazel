@@ -43,3 +43,13 @@ JSON
 """,
     visibility = ["//visibility:public"],
 )
+
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
+
+# Publishes shared.jar to GitHub Packages (replaces the Gradle publishing block).
+sh_binary(
+    name = "publish",
+    srcs = ["publish.sh"],
+    data = [":shared"],
+    visibility = ["//visibility:public"],
+)

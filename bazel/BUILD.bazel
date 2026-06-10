@@ -1,4 +1,5 @@
 load("@rules_kotlin//kotlin:core.bzl", "define_kt_toolchain", "kt_compiler_plugin")
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 
 # Project-wide Kotlin toolchain. Mirrors buildSrc PluginVersions.KOTLIN_VERSION (2.3.10)
 # and datagsm-ksp-processor's JVM 21 target. jsr305=strict matches the service-module
@@ -50,4 +51,13 @@ platform(
         "@platforms//os:linux",
         "@platforms//cpu:arm64",
     ],
+)
+
+# --- ktlint (replaces the Gradle ktlint plugin) ---
+# Runs the official self-contained ktlint-cli `-all` jar directly (see ktlint.sh).
+sh_binary(
+    name = "ktlint",
+    srcs = ["ktlint.sh"],
+    data = ["@maven//:com_pinterest_ktlint_ktlint_cli_all"],
+    visibility = ["//visibility:public"],
 )

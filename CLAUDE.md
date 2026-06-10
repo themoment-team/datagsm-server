@@ -21,9 +21,10 @@ Primary build is **Bazel** (bazelisk). Modules: `datagsm-oauth-authorization`, `
 - Run a service: `bazel run //<module>:<name>` (e.g. `bazel run //datagsm-openapi:openapi`)
 - Container image: `bazel run //<module>:<name>_image_load` then `docker run datagsm-<name>:bazel`
 - TS npm package: `bazel build //datagsm-shared:ts_package`
-- Format (ktlint): `./gradlew ktlintFormat` — not yet ported to Bazel
+- Lint (ktlint): `bazel run //bazel:ktlint` (check), `bazel run //bazel:ktlint -- -F` (format)
+- Publish datagsm-shared: `bazel run //datagsm-shared:publish -- <version>`
 
-Gradle (`./gradlew build/test`) is being decommissioned; the Bazel build is authoritative.
+The build is fully Bazel; Gradle has been removed.
 
 ## Tech Stack
 

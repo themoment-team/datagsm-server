@@ -12,7 +12,8 @@ bazel_dep(name = "rules_jvm_external", version = "7.0")
 # (layered classpath) instead of a flat fat-jar that breaks Spring Data multi-store.
 bazel_dep(name = "rules_oci", version = "2.3.0")
 bazel_dep(name = "rules_pkg", version = "1.2.0")
-bazel_dep(name = "platforms", version = "0.0.11")
+bazel_dep(name = "rules_shell", version = "0.6.1")
+bazel_dep(name = "platforms", version = "1.0.0")
 
 # rules_kotlin 2.3.10 bundles the Kotlin 2.3.10 compiler — exactly matching
 # buildSrc PluginVersions.KOTLIN_VERSION. This alignment is the key reason the
@@ -100,6 +101,9 @@ maven.install(
         # Service-module tests use Spring test utilities (MockMvc, MockMultipartFile, etc.).
         "org.springframework.boot:spring-boot-starter-test",
         "org.springframework.security:spring-security-test",
+        # ktlint CLI (replaces the Gradle ktlint plugin) — the self-contained `-all` fat jar
+        # is run directly with `java -jar` (it carries its own version manifest).
+        "com.pinterest.ktlint:ktlint-cli:jar:all:1.6.0",
     ],
     # Root build.gradle.kts: configurations.all { exclude(group = "org.bouncycastle") }
     excluded_artifacts = [
