@@ -4,10 +4,10 @@ EXPOSE 8081
 
 WORKDIR /datagsm-server
 
-ARG JAR_FILE=build/libs/*.jar
-
-COPY ${JAR_FILE} datagsm-oauth-authorization.jar
+# Bazel-built layered runtime classpath (jars under lib/), run with `java -cp` — avoids the
+# Spring Data multi-store collision a merged fat-jar would cause.
+COPY lib/ lib/
 
 RUN ln -snf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
 
-ENTRYPOINT ["sh", "-c", "exec java -Dspring.profiles.active=stage -jar datagsm-oauth-authorization.jar"]
+ENTRYPOINT ["sh", "-c", "exec java -Dspring.profiles.active=stage -cp 'lib/*' team.themoment.datagsm.oauth.authorization.DatagsmAuthorizationApplicationKt"]

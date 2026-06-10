@@ -25,6 +25,15 @@ def datagsm_service_image(name, main_class):
         srcs = [":" + name + "_runtime_jars"],
         package_dir = "/app/lib",
     )
+
+    # Deploy tar (jars under lib/) for the CodeDeploy pipeline: extracted into the deploy
+    # package, then `java -cp 'lib/*'` from the module's prod.dockerfile.
+    pkg_tar(
+        name = name + "_deploy_tar",
+        srcs = [":" + name + "_runtime_jars"],
+        package_dir = "lib",
+        visibility = ["//visibility:public"],
+    )
     oci_image(
         name = name + "_image",
         base = "@temurin_jre",
