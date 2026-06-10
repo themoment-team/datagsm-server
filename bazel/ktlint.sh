@@ -4,7 +4,7 @@
 #   bazel run //bazel:ktlint -- -F  -> format
 set -euo pipefail
 
-jar="$(find "${RUNFILES_DIR:-$0.runfiles}" -name '*ktlint-cli-*-all.jar' 2>/dev/null | head -1)"
+jar="$(find "${RUNFILES_DIR:-$0.runfiles}" -name '*ktlint-cli-*-all.jar' -print -quit 2>/dev/null)"
 [ -n "$jar" ] || { echo "ktlint-cli -all jar not found in runfiles" >&2; exit 1; }
 
 cd "${BUILD_WORKSPACE_DIRECTORY:?must be run via 'bazel run'}"
