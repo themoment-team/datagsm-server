@@ -9,6 +9,8 @@ School information API server for Gwangju Software Meister High School (students
 - datagsm-oauth-userinfo: OAuth2 UserInfo endpoint (external clients)
 - datagsm-openapi: Public read-only API (students, clubs, NEIS integration)
 - datagsm-web: Web service API (user features, admin features, Excel processing)
+- datagsm-shared: Kotlin Multiplatform module — externally published type definitions (Maven + npm)
+- datagsm-ksp-processor: KSP processor — generates KMP/TypeScript types from `@KmpExport` (consumed by datagsm-common)
 
 **Note**: `/v1/health` endpoint is provided by `HealthController` in `datagsm-common` module and is shared across all modules.
 
