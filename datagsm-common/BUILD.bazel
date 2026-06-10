@@ -2,6 +2,7 @@ load("@rules_jvm_external//:defs.bzl", "artifact")
 load("@rules_kotlin//kotlin:core.bzl", "kt_ksp_plugin")
 load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
 load("//bazel:defs.bzl", "datagsm_kotest_test")
+load("//bazel:jars.bzl", "ksp_generated_classes", "ksp_generated_srcjar")
 
 # all-open (spring) / no-arg (jpa) compiler plugins are shared from //bazel.
 
@@ -70,4 +71,43 @@ datagsm_kotest_test(
     test_classes = [
         "team.themoment.datagsm.common.domain.webhook.validator.WebhookUrlValidatorTest",
     ],
+)
+
+# --- KMP export codegen: run KmpExportProcessor over common's @KmpExport classes and expose
+# the generated shared.* Kotlin + index.d.ts (consumed by //datagsm-shared and the TS pkg). ---
+kt_ksp_plugin(
+    name = "kmp_export_ksp",
+    processor_class = "team.themoment.datagsm.ksp.processor.KmpExportProcessorProvider",
+    deps = ["//datagsm-ksp-processor:processor"],
+)
+
+# Generator: only its KSP-produced source_jars are consumed (via :kmp_export_srcjar), not its
+# class output — so it needs common's deps for KSP type resolution but not serialization.
+kt_jvm_library(
+    name = "kmp_export_gen",
+    srcs = glob(["src/main/kotlin/**/*.kt"]),
+    # Only the KmpExport processor runs here — NOT querydsl_ksp. createNewFile triggers a
+    # second KSP round, and the (unguarded) QueryDSL processor crashes on PSI invalidation in
+    # that round (KaInvalidLifetimeOwnerAccessException). KMP export doesn't need Q-classes.
+    plugins = [
+        ":kmp_export_ksp",
+        "//bazel:allopen_spring",
+        "//bazel:noarg_jpa",
+    ],
+    tags = ["manual"],
+    deps = COMMON_DEPS,
+)
+
+# Clean generated shared.* Kotlin sources (consumed by //datagsm-shared).
+ksp_generated_srcjar(
+    name = "kmp_export_srcjar",
+    target = ":kmp_export_gen",
+    visibility = ["//visibility:public"],
+)
+
+# Generated index.d.ts (consumed by the TS npm package assembly).
+ksp_generated_classes(
+    name = "kmp_export_ts",
+    target = ":kmp_export_gen",
+    visibility = ["//visibility:public"],
 )

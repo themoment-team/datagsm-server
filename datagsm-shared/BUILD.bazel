@@ -1,0 +1,45 @@
+load("@rules_jvm_external//:defs.bzl", "artifact")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
+
+# datagsm-shared: the publishable JVM artifact. Has no hand-written sources — it compiles the
+# KSP-generated @Serializable export classes (from //datagsm-common:kmp_export_srcjar) with
+# the kotlinx.serialization plugin. Replaces the Gradle Kotlin Multiplatform module: the JS
+# target was already removed, leaving a JVM-only target that needs no KMP machinery here.
+kt_jvm_library(
+    name = "shared",
+    srcs = ["//datagsm-common:kmp_export_srcjar"],
+    plugins = ["//bazel:kotlinx_serialization"],
+    visibility = ["//visibility:public"],
+    deps = [
+        artifact("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm"),
+        artifact("org.jetbrains.kotlinx:kotlinx-datetime-jvm"),
+    ],
+)
+
+# Type-only npm package (@themoment-team/datagsm-shared) — replaces the Gradle
+# assembleTsPackage task: the generated index.d.ts + a generated package.json.
+genrule(
+    name = "ts_package",
+    srcs = ["//datagsm-common:kmp_export_ts"],
+    outs = [
+        "npm/index.d.ts",
+        "npm/package.json",
+    ],
+    cmd = """
+mkdir -p $(RULEDIR)/npm
+unzip -p $(location //datagsm-common:kmp_export_ts) index.d.ts > $(RULEDIR)/npm/index.d.ts
+cat > $(RULEDIR)/npm/package.json <<'JSON'
+{
+  "name": "@themoment-team/datagsm-shared",
+  "version": "0.0.0-bazel",
+  "description": "Type definitions for the datagsm-server API",
+  "types": "index.d.ts",
+  "files": [
+    "index.d.ts"
+  ],
+  "license": "MIT"
+}
+JSON
+""",
+    visibility = ["//visibility:public"],
+)

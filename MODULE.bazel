@@ -73,6 +73,10 @@ maven.install(
         "com.github.themoment-team:the-sdk:1.5",
         "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2",
         "org.jetbrains.kotlin:kotlin-reflect:2.3.10",
+        # --- datagsm-shared (KMP→JVM): generated @Serializable export classes ---
+        # KMP-published, so request the -jvm variants explicitly (see mockk note above).
+        "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.8.1",
+        "org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.6.2",
         # --- Service modules: shared starters ---
         "io.github.zaman0806:disender-spring-boot-4-starter:0.1.1",
         # --- Service modules: module-specific deps ---
