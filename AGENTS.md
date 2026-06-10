@@ -25,7 +25,7 @@ datagsm-server/
 └── datagsm-ksp-processor/     # KSP processor — generates KMP/TypeScript types from @KmpExport
 ```
 
-Each module follows: `controller/`, `service/`, `repository/`, `entity/`, `dto/`
+Each service module follows: `controller/`, `service/`, `repository/`, `entity/`, `dto/`
 
 **Note**: `/v1/health` endpoint is provided by `HealthController` in `datagsm-common/global/controller/` and is shared across all modules.
 
