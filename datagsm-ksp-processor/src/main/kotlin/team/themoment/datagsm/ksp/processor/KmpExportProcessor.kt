@@ -1,5 +1,7 @@
 package team.themoment.datagsm.ksp.processor
 
+import com.google.devtools.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
@@ -20,13 +22,17 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.STAR
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
-import java.io.File
 
 class KmpExportProcessor(
     private val logger: KSPLogger,
-    private val outputDir: File,
-    private val tsOutputDir: File?,
+    private val codeGenerator: CodeGenerator,
 ) : SymbolProcessor {
+    // Guards against a second KSP round: createNewFile schedules another round over the
+    // generated files, and re-running resolution there triggers the KSP 2.x Analysis API
+    // PSI invalidation (KaInvalidLifetimeOwnerAccessException). Returning early before any
+    // resolution makes the second round a no-op, so createNewFile is safe.
+    private var generated = false
+
     companion object {
         private val ARRAY_LIKE_COLLECTIONS =
             setOf(
@@ -81,17 +87,13 @@ class KmpExportProcessor(
         val typeParameters: List<String> = emptyList(),
     )
 
-    // Phase 1 (KSP resolution) and Phase 2 (file writing) are separated.
-    // Files are written directly to the filesystem (bypassing codeGenerator.createNewFile)
-    // to prevent the KSP 2.x bug: KaInvalidLifetimeOwnerAccessException caused by
-    // Analysis API PSI invalidation when createNewFile triggers a second round.
-    // This workaround also forces ksp.incremental=false in gradle.properties.
-    // TODO: not version-gated. As of KSP 2.3.8 there is no release note confirming this
-    //  is fixed, and reverting requires also moving datagsm-shared's srcDir back to the
-    //  KSP standard output path. Before reverting to codeGenerator.createNewFile(), prove
-    //  the multi-round PSI invalidation no longer reproduces (a single clean build passing
-    //  is not sufficient — it only triggers under specific multi-round conditions).
+    // Emits generated files through codeGenerator.createNewFile so the build tool (Gradle KSP
+    // or Bazel rules_kotlin) captures them as declared outputs. The `generated` guard skips
+    // the createNewFile-triggered second round before any resolution, avoiding the KSP 2.x
+    // Analysis API PSI invalidation that previously forced direct filesystem writes.
     override fun process(resolver: Resolver): List<KSAnnotated> {
+        if (generated) return emptyList()
+
         val symbols =
             resolver
                 .getSymbolsWithAnnotation("team.themoment.datagsm.ksp.annotation.KmpExport")
@@ -99,11 +101,12 @@ class KmpExportProcessor(
                 .toList()
 
         val classInfos = symbols.mapNotNull { collectClassInfo(it) }
+        if (classInfos.isEmpty()) return emptyList()
 
-        classInfos.forEach { writeFileDirect(it) }
+        classInfos.forEach { writeKotlinFile(it) }
+        writeTsDefinitions(classInfos)
 
-        tsOutputDir?.let { writeTsDefinitions(classInfos, it) }
-
+        generated = true
         return emptyList()
     }
 
@@ -162,14 +165,11 @@ class KmpExportProcessor(
         }
     }
 
-    // Writes directly to the filesystem to bypass codeGenerator.createNewFile().
-    // See the process() comment above for the rationale and revert conditions.
-    private fun writeFileDirect(classInfo: ClassInfo) {
+    private fun writeKotlinFile(classInfo: ClassInfo) {
         val fileSpec = if (classInfo.isEnum) buildEnumFileSpec(classInfo) else buildDataClassFileSpec(classInfo)
-        val pkgDir = classInfo.targetPackage.replace('.', File.separatorChar)
-        val outFile = outputDir.resolve("$pkgDir/${classInfo.className}.kt")
-        outFile.parentFile.mkdirs()
-        outFile.writeText(fileSpec.toString())
+        codeGenerator
+            .createNewFile(Dependencies(aggregating = true), classInfo.targetPackage, classInfo.className)
+            .use { it.write(fileSpec.toString().toByteArray()) }
     }
 
     private fun transformPackage(pkg: String): String = pkg.replace(".common.domain.", ".shared.domain.")
@@ -179,7 +179,6 @@ class KmpExportProcessor(
             TypeSpec
                 .enumBuilder(info.className)
                 .addAnnotation(serializableAnnotation())
-                .addAnnotation(jsExportAnnotation())
         info.enumEntries.forEach { enumBuilder.addEnumConstant(it) }
         return FileSpec
             .builder(info.targetPackage, info.className)
@@ -206,7 +205,6 @@ class KmpExportProcessor(
                 .classBuilder(info.className)
                 .addModifiers(KModifier.DATA)
                 .addAnnotation(serializableAnnotation())
-                .addAnnotation(jsExportAnnotation())
                 .primaryConstructor(constructorBuilder.build())
                 .addProperties(propSpecs)
                 .build()
@@ -344,10 +342,7 @@ class KmpExportProcessor(
     // Builds the KSP-free TsModel and delegates rendering/validation to TsDefinitionEmitter.
     // Validation errors are reported via logger.error, which fails the KSP round, instead of
     // emitting an index.d.ts with dangling type references that only tsc would later reject.
-    private fun writeTsDefinitions(
-        classInfos: List<ClassInfo>,
-        outDir: File,
-    ) {
+    private fun writeTsDefinitions(classInfos: List<ClassInfo>) {
         val model =
             TsModel(
                 enums =
@@ -375,13 +370,14 @@ class KmpExportProcessor(
             return
         }
 
-        outDir.mkdirs()
-        outDir.resolve("index.d.ts").writeText(TsDefinitionEmitter.render(model))
+        // Emitted as a KSP resource (index.d.ts) so the build tool captures it as a declared
+        // output; the assembleTsPackage step reads it from the KSP resource output dir.
+        codeGenerator
+            .createNewFileByPath(Dependencies(aggregating = true), "index", extensionName = "d.ts")
+            .use { it.write(TsDefinitionEmitter.render(model).toByteArray()) }
     }
 
     private fun serializableAnnotation() = AnnotationSpec.builder(ClassName("kotlinx.serialization", "Serializable")).build()
-
-    private fun jsExportAnnotation() = AnnotationSpec.builder(ClassName("kotlin.js", "JsExport")).build()
 
     private fun serialNameAnnotation(name: String) =
         AnnotationSpec
