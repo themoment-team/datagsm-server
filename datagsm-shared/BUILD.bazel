@@ -28,10 +28,12 @@ genrule(
     cmd = """
 mkdir -p $(RULEDIR)/npm
 unzip -p $(location //datagsm-common:kmp_export_ts) index.d.ts > $(RULEDIR)/npm/index.d.ts
+# version is a placeholder; the publish step stamps the real (normalized) release version
+# via `npm version` — mirrors the Gradle assembleTsPackage SHARED_VERSION normalization.
 cat > $(RULEDIR)/npm/package.json <<'JSON'
 {
   "name": "@themoment-team/datagsm-shared",
-  "version": "0.0.0-bazel",
+  "version": "0.0.0-local",
   "description": "Type definitions for the datagsm-server API",
   "types": "index.d.ts",
   "files": [

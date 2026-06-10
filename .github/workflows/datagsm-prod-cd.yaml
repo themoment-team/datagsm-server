@@ -77,6 +77,10 @@ jobs:
         run: |
           bazel build //datagsm-shared:ts_package
           mkdir -p npm-pkg && cp bazel-bin/datagsm-shared/npm/index.d.ts bazel-bin/datagsm-shared/npm/package.json npm-pkg/
+          # npm requires semver; CI passes "<yyyyMMdd>-<run>" → normalize to "<yyyyMMdd>.0.0-<run>".
+          RAW="${{ needs.generate-version.outputs.version }}"
+          NPM_VERSION=$(echo "$RAW" | sed -E 's/^([0-9]+)-([0-9]+)$/\1.0.0-\2/')
+          cd npm-pkg && npm version "$NPM_VERSION" --no-git-tag-version --allow-same-version
       - name: Publish to npmjs.com
         run: npm publish --access public
         working-directory: npm-pkg
