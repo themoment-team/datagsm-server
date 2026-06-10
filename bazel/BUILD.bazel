@@ -1,0 +1,32 @@
+load("@rules_kotlin//kotlin:core.bzl", "define_kt_toolchain", "kt_compiler_plugin")
+
+# Project-wide Kotlin toolchain. Mirrors buildSrc PluginVersions.KOTLIN_VERSION (2.3.10)
+# and datagsm-ksp-processor's JVM 21 target. jsr305=strict matches the service-module
+# freeCompilerArgs in the root build.gradle.kts.
+define_kt_toolchain(
+    name = "kotlin_toolchain",
+    api_version = "2.3",
+    jvm_target = "21",
+    language_version = "2.3",
+)
+
+# Shared Kotlin compiler plugins replicating the Gradle kotlin-spring / kotlin-jpa plugins.
+# Used by datagsm-common and every service module (root build's isServiceModule block).
+
+# kotlin-spring: all-open for @Component/@Transactional/@Async/@Cacheable/@Validated.
+kt_compiler_plugin(
+    name = "allopen_spring",
+    id = "org.jetbrains.kotlin.allopen",
+    options = {"preset": "spring"},
+    visibility = ["//visibility:public"],
+    deps = ["@rules_kotlin//kotlin/compiler:allopen-compiler-plugin"],
+)
+
+# kotlin-jpa: no-arg constructor for @Entity/@Embeddable/@MappedSuperclass.
+kt_compiler_plugin(
+    name = "noarg_jpa",
+    id = "org.jetbrains.kotlin.noarg",
+    options = {"preset": "jpa"},
+    visibility = ["//visibility:public"],
+    deps = ["@rules_kotlin//kotlin/compiler:noarg-compiler-plugin"],
+)

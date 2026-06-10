@@ -1,0 +1,17 @@
+load("//bazel:defs.bzl", "datagsm_service")
+
+# Module-specific deps from datagsm-oauth-authorization/build.gradle.kts:
+# mail, OAuth2 client, JJWT.
+datagsm_service(
+    name = "oauth-authorization",
+    main_class = "team.themoment.datagsm.oauth.authorization.DatagsmAuthorizationApplicationKt",
+    extra_artifacts = [
+        "org.springframework.boot:spring-boot-starter-mail",
+        "org.springframework.boot:spring-boot-starter-oauth2-client",
+        "io.jsonwebtoken:jjwt-api",
+    ],
+    extra_runtime_artifacts = [
+        "io.jsonwebtoken:jjwt-impl",
+        "io.jsonwebtoken:jjwt-jackson",
+    ],
+)

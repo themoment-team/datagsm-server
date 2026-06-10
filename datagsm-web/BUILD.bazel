@@ -1,0 +1,17 @@
+load("//bazel:defs.bzl", "datagsm_service")
+
+# Module-specific deps from datagsm-web/build.gradle.kts: mail, JJWT, Apache POI.
+datagsm_service(
+    name = "web",
+    main_class = "team.themoment.datagsm.web.DatagsmWebApplicationKt",
+    extra_artifacts = [
+        "org.springframework.boot:spring-boot-starter-mail",
+        "io.jsonwebtoken:jjwt-api",
+        "org.apache.poi:poi",
+        "org.apache.poi:poi-ooxml",
+    ],
+    extra_runtime_artifacts = [
+        "io.jsonwebtoken:jjwt-impl",
+        "io.jsonwebtoken:jjwt-jackson",
+    ],
+)

@@ -1,0 +1,73 @@
+load("@rules_jvm_external//:defs.bzl", "artifact")
+load("@rules_kotlin//kotlin:core.bzl", "kt_ksp_plugin")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
+load("//bazel:defs.bzl", "datagsm_kotest_test")
+
+# all-open (spring) / no-arg (jpa) compiler plugins are shared from //bazel.
+
+# Phase 2 (research): QueryDSL KSP code generation. Provider FQN extracted from the
+# querydsl-ksp-codegen jar's META-INF/services registration.
+#
+# NOTE: The custom KmpExportProcessor (//datagsm-ksp-processor) is intentionally NOT wired
+# here. datagsm-common does not consume its output — it only emits kmp-export/TS artifacts
+# for the (out-of-scope, KMP) datagsm-shared module. So the non-hermetic file-writing
+# concern is confined to the KMP path, not this core JVM build.
+kt_ksp_plugin(
+    name = "querydsl_ksp",
+    processor_class = "com.querydsl.ksp.codegen.QueryDslProcessorProvider",
+    deps = [
+        artifact("io.github.openfeign.querydsl:querydsl-ksp-codegen"),
+    ],
+)
+
+# Shared API surface (Gradle `api` deps) re-exported to downstream service modules.
+COMMON_DEPS = [
+    artifact("jakarta.persistence:jakarta.persistence-api"),
+    artifact("jakarta.transaction:jakarta.transaction-api"),
+    artifact("jakarta.validation:jakarta.validation-api"),
+    artifact("org.springframework.boot:spring-boot-starter-web"),
+    artifact("org.springframework.boot:spring-boot-starter-security"),
+    artifact("org.springframework.boot:spring-boot-starter-validation"),
+    artifact("org.springframework.boot:spring-boot-starter-aspectj"),
+    artifact("org.springframework.boot:spring-boot-starter-thymeleaf"),
+    artifact("org.springframework.boot:spring-boot-starter-data-jpa"),
+    artifact("org.springframework.boot:spring-boot-starter-data-redis"),
+    artifact("org.springframework.security:spring-security-core"),
+    artifact("org.springframework.retry:spring-retry"),
+    artifact("org.springframework.cloud:spring-cloud-starter-openfeign"),
+    artifact("com.bucket4j:bucket4j_jdk17-core"),
+    artifact("com.bucket4j:bucket4j_jdk17-lettuce"),
+    artifact("org.hibernate.orm:hibernate-core"),
+    artifact("io.github.openfeign.querydsl:querydsl-jpa"),
+    artifact("io.github.snowykte0426:querydsl-mysql-json-jpa"),
+    artifact("com.mysql:mysql-connector-j"),
+    artifact("com.github.themoment-team:the-sdk"),
+    artifact("software.amazon.awssdk:cloudwatchlogs"),
+    artifact("org.jetbrains.kotlin:kotlin-reflect"),
+    artifact("org.jetbrains.kotlinx:kotlinx-coroutines-core"),
+    artifact("tools.jackson.module:jackson-module-kotlin"),
+    artifact("tools.jackson.core:jackson-databind"),
+    artifact("org.apache.httpcomponents.client5:httpclient5"),
+]
+
+kt_jvm_library(
+    name = "common",
+    srcs = glob(["src/main/kotlin/**/*.kt"]),
+    resources = glob(["src/main/resources/**"]),
+    plugins = [
+        ":querydsl_ksp",
+        "//bazel:allopen_spring",
+        "//bazel:noarg_jpa",
+    ],
+    exports = COMMON_DEPS,
+    visibility = ["//visibility:public"],
+    deps = COMMON_DEPS,
+)
+
+datagsm_kotest_test(
+    name = "common_test",
+    associate = ":common",
+    test_classes = [
+        "team.themoment.datagsm.common.domain.webhook.validator.WebhookUrlValidatorTest",
+    ],
+)

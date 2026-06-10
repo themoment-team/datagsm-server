@@ -1,0 +1,44 @@
+load("@rules_jvm_external//:defs.bzl", "artifact")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library", "kt_jvm_test")
+
+# Phase 1 (research): pure-JVM leaf module. The KSP SymbolProcessor implementation is
+# itself a plain Kotlin library — building it does NOT run KSP, so this is the clean
+# proof that rules_kotlin + rules_jvm_external resolve the toolchain and Maven deps.
+kt_jvm_library(
+    name = "processor",
+    srcs = glob(["src/main/kotlin/**/*.kt"]),
+    resources = glob(["src/main/resources/**"]),
+    visibility = ["//visibility:public"],
+    deps = [
+        "@maven//:com_google_devtools_ksp_symbol_processing_api",
+        "@maven//:com_squareup_kotlinpoet",
+        "@maven//:com_squareup_kotlinpoet_ksp",
+    ],
+)
+
+# Test wiring proof (research): Kotest (BehaviorSpec) runs on the JUnit Platform via the
+# ConsoleLauncher as the test main, with kotest-runner-junit5 providing the TestEngine.
+# Pass/fail is surfaced through the launcher's exit code.
+kt_jvm_test(
+    name = "processor_test",
+    srcs = glob(["src/test/kotlin/**/*.kt"]),
+    args = [
+        "execute",
+        "--select-class=team.themoment.datagsm.ksp.processor.TsDefinitionEmitterTest",
+        "--details=tree",
+        "--fail-if-no-tests",
+    ],
+    main_class = "org.junit.platform.console.ConsoleLauncher",
+    resources = glob(["src/test/resources/**"]),
+    # `associates` (not `deps`) makes the test a friend module of :processor, so it can
+    # access `internal` declarations — Gradle gets this free since main+test share one
+    # Kotlin module; Bazel compiles them separately and needs this explicit link.
+    associates = [":processor"],
+    deps = [
+        artifact("io.kotest:kotest-runner-junit5-jvm"),
+        artifact("io.kotest:kotest-assertions-core-jvm"),
+        artifact("io.kotest:kotest-framework-engine-jvm"),
+        artifact("org.junit.platform:junit-platform-console"),
+    ],
+)
+

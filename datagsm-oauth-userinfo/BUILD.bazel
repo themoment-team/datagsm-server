@@ -1,0 +1,22 @@
+load("//bazel:defs.bzl", "datagsm_kotest_test", "datagsm_service")
+
+# Module-specific deps from datagsm-oauth-userinfo/build.gradle.kts: JJWT only.
+datagsm_service(
+    name = "oauth-userinfo",
+    main_class = "team.themoment.datagsm.oauth.userinfo.DatagsmUserInfoApplicationKt",
+    extra_artifacts = [
+        "io.jsonwebtoken:jjwt-api",
+    ],
+    extra_runtime_artifacts = [
+        "io.jsonwebtoken:jjwt-impl",
+        "io.jsonwebtoken:jjwt-jackson",
+    ],
+)
+
+datagsm_kotest_test(
+    name = "oauth-userinfo_test",
+    associate = ":oauth-userinfo_lib",
+    test_classes = [
+        "team.themoment.datagsm.oauth.userinfo.domain.userinfo.service.QueryUserInfoServiceTest",
+    ],
+)

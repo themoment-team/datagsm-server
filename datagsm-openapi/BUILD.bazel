@@ -1,0 +1,18 @@
+load("//bazel:defs.bzl", "datagsm_service")
+
+# Simplest service module — no module-specific deps (per its build.gradle.kts).
+# Proven in Phase 3 to compile and run as a real Spring Boot app from a flat classpath.
+#
+# Deployable artifact (research findings — both fat-jar paths fail):
+#   1. rules_spring 2.6.3 (purpose-built bootJar equivalent) is INCOMPATIBLE with Bazel 9
+#      — its springboot.bzl references the removed global `JavaInfo` symbol.
+#   2. A native java_binary `_deploy.jar` (flat über-jar) builds but FAILS at runtime with
+#      BeanDefinitionOverrideException: merging every class into one classpath root defeats
+#      Spring Data's JPA-vs-Redis multi-store repository disambiguation (the same repo gets
+#      registered for both stores). The layered classpath (kt_jvm_binary runfiles) avoids it.
+# Recommended path: containerize the kt_jvm_binary with rules_oci (preserves the working
+# layered classpath), rather than reproducing Gradle's fat bootJar.
+datagsm_service(
+    name = "openapi",
+    main_class = "team.themoment.datagsm.openapi.DatagsmResourceApplicationKt",
+)
