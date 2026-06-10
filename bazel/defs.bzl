@@ -8,6 +8,34 @@ here via extra_artifacts / extra_runtime_artifacts.
 
 load("@rules_jvm_external//:defs.bzl", "artifact")
 load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_binary", "kt_jvm_library", "kt_jvm_test")
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+load("//bazel:jars.bzl", "runtime_classpath")
+
+def datagsm_service_image(name, main_class):
+    """Containerizes a service's `<name>_lib`: base JRE + transitive runtime jars (arch-
+    independent) under /app/lib, run via `java -cp`. Defines `<name>_image` and a
+    `<name>_image_load` runnable that loads it into the local Docker daemon."""
+    runtime_classpath(
+        name = name + "_runtime_jars",
+        deps = [":" + name + "_lib"],
+    )
+    pkg_tar(
+        name = name + "_layer",
+        srcs = [":" + name + "_runtime_jars"],
+        package_dir = "/app/lib",
+    )
+    oci_image(
+        name = name + "_image",
+        base = "@temurin_jre",
+        entrypoint = ["java", "-cp", "/app/lib/*", main_class],
+        tars = [":" + name + "_layer"],
+    )
+    oci_load(
+        name = name + "_image_load",
+        image = ":" + name + "_image",
+        repo_tags = ["datagsm-" + name + ":bazel"],
+    )
 
 def datagsm_kotest_test(name, associate, test_classes, extra_artifacts = []):
     """Runs a module's Kotest (+MockK) suite on the JUnit Platform via ConsoleLauncher.
