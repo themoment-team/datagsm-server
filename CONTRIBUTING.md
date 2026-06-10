@@ -146,7 +146,7 @@ datagsm-server/
 
 ### 패키지 구조
 
-모든 모듈은 다음 패키지 구조를 따릅니다:
+모든 서비스 모듈은 다음 패키지 구조를 따릅니다:
 
 ```
 team.themoment.datagsm.{module}/
