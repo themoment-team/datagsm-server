@@ -21,6 +21,8 @@ bin/
 .idea/*
 !.idea/externalDependencies.xml
 !.idea/icon.svg
+!.idea/runConfigurations
+!.idea/runConfigurations/*
 *.iws
 *.iml
 *.ipr

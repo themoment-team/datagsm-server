@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="oauth-userinfo" type="BlazeCommandRunConfigurationType" factoryName="Bazel Command">
+    <blaze-settings handler-id="BlazeJavaRunConfigurationHandlerProvider">
+      <blaze-target>//datagsm-oauth-userinfo:oauth-userinfo</blaze-target>
+      <blaze-command>run</blaze-command>
+    </blaze-settings>
+    <method v="2" />
+  </configuration>
+</component>

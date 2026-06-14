@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="web" type="BlazeCommandRunConfigurationType" factoryName="Bazel Command">
+    <blaze-settings handler-id="BlazeJavaRunConfigurationHandlerProvider">
+      <blaze-target>//datagsm-web:web</blaze-target>
+      <blaze-command>run</blaze-command>
+    </blaze-settings>
+    <method v="2" />
+  </configuration>
+</component>
