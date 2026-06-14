@@ -27,6 +27,24 @@ class SendSignupEmailServiceImplTest :
                 emailSenderService,
             )
 
+        Given("gsm.hs.kr 도메인이 아닌 이메일로") {
+            val email = "outsider@gmail.com"
+            val reqDto = SendEmailReqDto(email = email)
+
+            When("회원가입 이메일을 요청하면") {
+                Then("400 Bad Request 예외가 발생하고 이메일이 발송되지 않는다") {
+                    val exception =
+                        shouldThrow<ExpectedException> {
+                            service.execute(reqDto)
+                        }
+
+                    exception.message shouldBe "gsm.hs.kr 도메인 이메일만 가입할 수 있습니다."
+                    verify(exactly = 0) { emailSenderService.sendEmail(any(), any(), any()) }
+                    verify(exactly = 0) { emailCodeRedisRepository.save(any()) }
+                }
+            }
+        }
+
         Given("이미 존재하는 이메일로") {
             val email = "existing@gsm.hs.kr"
             val reqDto = SendEmailReqDto(email = email)

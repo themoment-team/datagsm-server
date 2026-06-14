@@ -22,6 +22,10 @@ class SendSignupEmailServiceImpl(
 ) : SendSignupEmailService {
     @PasswordResetRateLimited(type = PasswordResetRateLimitType.SIGNUP_SEND_EMAIL)
     override fun execute(reqDto: SendEmailReqDto) {
+        if (!reqDto.email.endsWith("@gsm.hs.kr")) {
+            throw ExpectedException("gsm.hs.kr 도메인 이메일만 가입할 수 있습니다.", HttpStatus.BAD_REQUEST)
+        }
+
         if (accountJpaRepository.findByEmail(reqDto.email).isPresent) {
             throw ExpectedException("이미 해당 이메일을 가진 계정이 존재합니다.", HttpStatus.CONFLICT)
         }
