@@ -22,7 +22,7 @@ class SendSignupEmailServiceImpl(
 ) : SendSignupEmailService {
     @PasswordResetRateLimited(type = PasswordResetRateLimitType.SIGNUP_SEND_EMAIL)
     override fun execute(reqDto: SendEmailReqDto) {
-        if (!reqDto.email.endsWith("@gsm.hs.kr")) {
+        if (!reqDto.email.endsWith("@gsm.hs.kr", ignoreCase = true)) {
             throw ExpectedException("gsm.hs.kr 도메인 이메일만 가입할 수 있습니다.", HttpStatus.BAD_REQUEST)
         }
 

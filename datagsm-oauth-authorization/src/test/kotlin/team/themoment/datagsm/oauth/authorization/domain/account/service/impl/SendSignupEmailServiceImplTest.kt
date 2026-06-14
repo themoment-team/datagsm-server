@@ -80,4 +80,20 @@ class SendSignupEmailServiceImplTest :
                 }
             }
         }
+
+        Given("대문자가 포함된 gsm.hs.kr 도메인 이메일로") {
+            val email = "NEW@GSM.HS.KR"
+            val reqDto = SendEmailReqDto(email = email)
+
+            every { accountJpaRepository.findByEmail(email) } returns Optional.empty()
+            every { emailCodeRedisRepository.save(any()) } answers { firstArg() }
+
+            When("회원가입 이메일을 요청하면") {
+                Then("대소문자 구분 없이 인증 코드가 생성되고 이메일이 발송된다") {
+                    service.execute(reqDto)
+
+                    verify(exactly = 1) { emailSenderService.sendEmail(email, any(), any()) }
+                }
+            }
+        }
     })
