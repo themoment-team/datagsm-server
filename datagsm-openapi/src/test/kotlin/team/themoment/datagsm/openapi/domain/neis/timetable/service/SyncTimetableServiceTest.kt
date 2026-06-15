@@ -1,9 +1,13 @@
 package team.themoment.datagsm.openapi.domain.neis.timetable.service
 
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.neis.dto.internal.HisTimetableWrapper
 import team.themoment.datagsm.common.domain.neis.dto.internal.NeisTimetableApiResponse
@@ -124,6 +128,93 @@ class SyncTimetableServiceTest :
 
                         verify(exactly = 1) { mockTimetableRepository.deleteAll() }
                         verify(exactly = 1) { mockTimetableRepository.saveAll(any<Iterable<TimetableRedisEntity>>()) }
+                    }
+                }
+
+                context("일부 교시가 공강이라 NEIS 응답에서 누락되었을 때") {
+                    val fromDate = LocalDate.of(2025, 3, 1)
+                    val toDate = LocalDate.of(2026, 2, 28)
+
+                    val timetableInfo1 =
+                        TimetableInfo(
+                            officeCode = "F10",
+                            officeName = "광주광역시교육청",
+                            schoolCode = "7380292",
+                            schoolName = "광주소프트웨어마이스터고등학교",
+                            academicYear = "2025",
+                            semester = "1",
+                            timetableDate = "20250401",
+                            grade = "1",
+                            classNum = "1",
+                            period = "1",
+                            subject = "국어",
+                            loadDateTime = null,
+                        )
+                    val timetableInfo5 =
+                        TimetableInfo(
+                            officeCode = "F10",
+                            officeName = "광주광역시교육청",
+                            schoolCode = "7380292",
+                            schoolName = "광주소프트웨어마이스터고등학교",
+                            academicYear = "2025",
+                            semester = "1",
+                            timetableDate = "20250401",
+                            grade = "1",
+                            classNum = "1",
+                            period = "5",
+                            subject = "영어",
+                            loadDateTime = null,
+                        )
+
+                    val apiResponse =
+                        NeisTimetableApiResponse(
+                            hisTimetable =
+                                listOf(
+                                    HisTimetableWrapper(
+                                        head = null,
+                                        row = listOf(timetableInfo1, timetableInfo5),
+                                    ),
+                                ),
+                        )
+
+                    val savedEntitiesSlot = slot<Iterable<TimetableRedisEntity>>()
+
+                    beforeEach {
+                        every { mockNeisEnvironment.key } returns "test-api-key"
+                        every { mockNeisEnvironment.officeCode } returns "F10"
+                        every { mockNeisEnvironment.schoolCode } returns "7380292"
+
+                        every {
+                            mockNeisApiClient.getHisTimetable(
+                                key = any(),
+                                pIndex = any(),
+                                pSize = any(),
+                                atptOfcdcScCode = any(),
+                                sdSchulCode = any(),
+                                tiFromYmd = any(),
+                                tiToYmd = any(),
+                            )
+                        } returns apiResponse
+
+                        every { mockTimetableRepository.saveAll(capture(savedEntitiesSlot)) } answers {
+                            @Suppress("UNCHECKED_CAST")
+                            (firstArg() as Iterable<TimetableRedisEntity>).toList()
+                        }
+                        every { mockTimetableRepository.deleteAll() } returns Unit
+                    }
+
+                    it("1~7교시 슬롯을 모두 채우고 공강 교시는 공강으로 저장해야 한다") {
+                        syncTimetableService.execute(fromDate, toDate)
+
+                        val savedEntities = savedEntitiesSlot.captured.toList()
+
+                        savedEntities shouldHaveSize 7
+                        savedEntities.map { it.period } shouldContainExactlyInAnyOrder (1..7).toList()
+                        savedEntities.first { it.period == 1 }.subject shouldBe "국어"
+                        savedEntities.first { it.period == 5 }.subject shouldBe "영어"
+                        savedEntities
+                            .filter { it.period in listOf(2, 3, 4, 6, 7) }
+                            .forEach { it.subject shouldBe "공강" }
                     }
                 }
 
