@@ -192,7 +192,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                                 completeOauthAuthorizeFlowService.execute(reqDto)
                             }
 
-                        exception.message shouldBe "존재하지 않는 이메일입니다."
+                        exception.message shouldBe "이메일 또는 비밀번호가 일치하지 않습니다."
                         exception.statusCode shouldBe HttpStatus.UNAUTHORIZED
 
                         verify(exactly = 0) { mockOauthCodeRedisRepository.save(any()) }
@@ -231,7 +231,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                                 completeOauthAuthorizeFlowService.execute(reqDto)
                             }
 
-                        exception.message shouldBe "비밀번호가 일치하지 않습니다."
+                        exception.message shouldBe "이메일 또는 비밀번호가 일치하지 않습니다."
                         exception.statusCode shouldBe HttpStatus.UNAUTHORIZED
 
                         verify(exactly = 0) { mockOauthCodeRedisRepository.save(any()) }
@@ -268,7 +268,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                                 completeOauthAuthorizeFlowService.execute(reqDto)
                             }
 
-                        exception.message shouldBe "존재하지 않는 이메일입니다."
+                        exception.message shouldBe "이메일 또는 비밀번호가 일치하지 않습니다."
                         exception.statusCode shouldBe HttpStatus.UNAUTHORIZED
 
                         verify(exactly = 0) { mockAccountJpaRepository.findByEmail(any()) }
