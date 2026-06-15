@@ -51,6 +51,10 @@ class CompleteOauthAuthorizeFlowServiceImpl(
             throw ExpectedException("요청 한도를 초과했습니다.", HttpStatus.TOO_MANY_REQUESTS)
         }
 
+        if (!reqDto.email.endsWith("@gsm.hs.kr", ignoreCase = true)) {
+            throw ExpectedException("존재하지 않는 이메일입니다.", HttpStatus.UNAUTHORIZED)
+        }
+
         val account =
             accountJpaRepository
                 .findByEmail(reqDto.email)

@@ -237,6 +237,44 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         verify(exactly = 0) { mockOauthCodeRedisRepository.save(any()) }
                     }
                 }
+
+                context("gsm.hs.kr 도메인이 아닌 이메일이 주어졌을 때") {
+                    val reqDto =
+                        OauthAuthorizeSubmitReqDto(
+                            email = "outsider@gmail.com",
+                            password = "password123!",
+                            token = testToken,
+                        )
+
+                    val mockStateEntity =
+                        OauthAuthorizeStateRedisEntity(
+                            token = testToken,
+                            clientId = testClientId,
+                            redirectUri = testRedirectUri,
+                            state = "random-state",
+                            codeChallenge = "challenge",
+                            codeChallengeMethod = "S256",
+                            scopes = setOf("self:read"),
+                            ttl = 600,
+                        )
+
+                    beforeEach {
+                        every { mockOauthAuthorizeStateRedisRepository.findById(testToken) } returns Optional.of(mockStateEntity)
+                    }
+
+                    it("계정 조회 없이 ExpectedException 예외가 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                completeOauthAuthorizeFlowService.execute(reqDto)
+                            }
+
+                        exception.message shouldBe "존재하지 않는 이메일입니다."
+                        exception.statusCode shouldBe HttpStatus.UNAUTHORIZED
+
+                        verify(exactly = 0) { mockAccountJpaRepository.findByEmail(any()) }
+                        verify(exactly = 0) { mockOauthCodeRedisRepository.save(any()) }
+                    }
+                }
             }
         }
     })
