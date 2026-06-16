@@ -14,12 +14,12 @@ import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.common.domain.webhook.service.WebhookPublisher
 import team.themoment.datagsm.web.domain.club.service.impl.CreateClubServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
@@ -29,15 +29,15 @@ class CreateClubServiceTest :
 
         lateinit var mockClubRepository: ClubJpaRepository
         lateinit var mockStudentRepository: StudentJpaRepository
-        lateinit var webhookPublisher: WebhookPublisher
+        lateinit var eventPublisher: EventPublisher
         lateinit var createClubService: CreateClubService
 
         beforeEach {
             mockClubRepository = mockk<ClubJpaRepository>()
             mockStudentRepository = mockk<StudentJpaRepository>()
-            webhookPublisher = mockk<WebhookPublisher>()
-            justRun { webhookPublisher.dispatch(any(), any()) }
-            createClubService = CreateClubServiceImpl(mockClubRepository, mockStudentRepository, webhookPublisher)
+            eventPublisher = mockk<EventPublisher>()
+            justRun { eventPublisher.dispatch(any(), any()) }
+            createClubService = CreateClubServiceImpl(mockClubRepository, mockStudentRepository, eventPublisher)
         }
 
         describe("CreateClubService 클래스의") {
