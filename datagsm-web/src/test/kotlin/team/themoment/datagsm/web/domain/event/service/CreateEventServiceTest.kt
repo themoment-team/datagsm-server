@@ -60,7 +60,7 @@ class CreateEventServiceTest :
                             shouldThrow<ExpectedException> {
                                 createEventService.execute(reqDto)
                             }
-                        ex.message shouldBe "Event은 최대 10개까지 등록할 수 있습니다."
+                        ex.message shouldBe "Event는 최대 10개까지 등록할 수 있습니다."
                     }
                 }
 

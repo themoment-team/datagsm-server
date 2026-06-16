@@ -23,7 +23,7 @@ class CreateEventServiceImpl(
         val account = currentUserProvider.getCurrentAccount()
 
         if (eventJpaRepository.countByAccount(account) >= MAX_EVENTS_PER_ACCOUNT) {
-            throw ExpectedException("Event은 최대 10개까지 등록할 수 있습니다.", HttpStatus.BAD_REQUEST)
+            throw ExpectedException("Event는 최대 10개까지 등록할 수 있습니다.", HttpStatus.BAD_REQUEST)
         }
 
         if (EventUrlValidator.isPrivateOrLocalUrl(reqDto.targetUrl)) {
@@ -52,11 +52,12 @@ class CreateEventServiceImpl(
 
     private fun generateSecret(): String {
         val bytes = ByteArray(32)
-        SecureRandom().nextBytes(bytes)
+        secureRandom.nextBytes(bytes)
         return bytes.joinToString("") { "%02x".format(it) }
     }
 
     companion object {
         private const val MAX_EVENTS_PER_ACCOUNT = 10
+        private val secureRandom = SecureRandom()
     }
 }
