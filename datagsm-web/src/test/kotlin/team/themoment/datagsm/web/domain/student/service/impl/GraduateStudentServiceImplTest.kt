@@ -8,6 +8,7 @@ import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
@@ -15,7 +16,6 @@ import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.common.domain.webhook.service.WebhookPublisher
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 
@@ -23,8 +23,8 @@ class GraduateStudentServiceImplTest :
     BehaviorSpec({
         val studentJpaRepository = mockk<StudentJpaRepository>()
         val clubJpaRepository = mockk<ClubJpaRepository>()
-        val webhookPublisher = mockk<WebhookPublisher>()
-        val graduateStudentService = GraduateStudentServiceImpl(studentJpaRepository, clubJpaRepository, webhookPublisher)
+        val eventPublisher = mockk<EventPublisher>()
+        val graduateStudentService = GraduateStudentServiceImpl(studentJpaRepository, clubJpaRepository, eventPublisher)
 
         Given("3학년 학생이 존재하는 경우") {
             val studentId = 1L
@@ -42,7 +42,7 @@ class GraduateStudentServiceImplTest :
 
             every { studentJpaRepository.findById(studentId) } returns Optional.of(student)
             every { clubJpaRepository.findAllByLeader(student) } returns emptyList()
-            justRun { webhookPublisher.dispatch(any(), any()) }
+            justRun { eventPublisher.dispatch(any(), any()) }
 
             When("해당 학생을 졸업 처리하면") {
                 graduateStudentService.execute(studentId)

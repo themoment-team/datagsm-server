@@ -8,12 +8,12 @@ import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.common.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.dto.payload.ClubUpdatedData
+import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.common.domain.webhook.dto.payload.ClubUpdatedData
-import team.themoment.datagsm.common.domain.webhook.entity.constant.WebhookEvent
-import team.themoment.datagsm.common.domain.webhook.service.WebhookPublisher
 import team.themoment.datagsm.web.domain.club.service.ModifyClubService
 import team.themoment.sdk.exception.ExpectedException
 
@@ -21,7 +21,7 @@ import team.themoment.sdk.exception.ExpectedException
 class ModifyClubServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
-    private val webhookPublisher: WebhookPublisher,
+    private val eventPublisher: EventPublisher,
 ) : ModifyClubService {
     @Transactional
     override fun execute(
@@ -88,8 +88,8 @@ class ModifyClubServiceImpl(
             studentJpaRepository.bulkAssignClub(participantIdsForBulkAssign, club, reqDto.type)
         }
 
-        webhookPublisher.dispatch(
-            WebhookEvent.CLUB_UPDATED,
+        eventPublisher.dispatch(
+            EventType.CLUB_UPDATED,
             ClubUpdatedData(clubId = club.id!!, name = club.name, type = club.type.name),
         )
 

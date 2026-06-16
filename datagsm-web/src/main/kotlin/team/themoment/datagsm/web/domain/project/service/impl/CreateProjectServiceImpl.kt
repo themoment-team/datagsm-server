@@ -5,6 +5,9 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.dto.payload.ProjectCreatedData
+import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
@@ -12,9 +15,6 @@ import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatu
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.common.domain.webhook.dto.payload.ProjectCreatedData
-import team.themoment.datagsm.common.domain.webhook.entity.constant.WebhookEvent
-import team.themoment.datagsm.common.domain.webhook.service.WebhookPublisher
 import team.themoment.datagsm.web.domain.project.service.CreateProjectService
 import team.themoment.sdk.exception.ExpectedException
 
@@ -23,7 +23,7 @@ class CreateProjectServiceImpl(
     private val projectJpaRepository: ProjectJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
-    private val webhookPublisher: WebhookPublisher,
+    private val eventPublisher: EventPublisher,
 ) : CreateProjectService {
     @Transactional
     override fun execute(projectReqDto: ProjectReqDto): ProjectResDto {
@@ -80,8 +80,8 @@ class CreateProjectServiceImpl(
             }
         val savedProjectEntity = projectJpaRepository.save(projectEntity)
 
-        webhookPublisher.dispatch(
-            WebhookEvent.PROJECT_CREATED,
+        eventPublisher.dispatch(
+            EventType.PROJECT_CREATED,
             ProjectCreatedData(projectId = savedProjectEntity.id!!, name = savedProjectEntity.name),
         )
 

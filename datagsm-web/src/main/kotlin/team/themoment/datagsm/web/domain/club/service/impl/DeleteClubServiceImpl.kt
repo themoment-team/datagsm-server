@@ -4,10 +4,10 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.dto.payload.ClubDeletedData
+import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.common.domain.webhook.dto.payload.ClubDeletedData
-import team.themoment.datagsm.common.domain.webhook.entity.constant.WebhookEvent
-import team.themoment.datagsm.common.domain.webhook.service.WebhookPublisher
 import team.themoment.datagsm.web.domain.club.service.DeleteClubService
 import team.themoment.sdk.exception.ExpectedException
 
@@ -15,7 +15,7 @@ import team.themoment.sdk.exception.ExpectedException
 class DeleteClubServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
-    private val webhookPublisher: WebhookPublisher,
+    private val eventPublisher: EventPublisher,
 ) : DeleteClubService {
     @Transactional
     override fun execute(clubId: Long) {
@@ -26,8 +26,8 @@ class DeleteClubServiceImpl(
         studentJpaRepository.bulkClearClubReferences(listOf(club))
         clubJpaRepository.deleteAllByIdInBatch(listOf(clubId))
 
-        webhookPublisher.dispatch(
-            WebhookEvent.CLUB_DELETED,
+        eventPublisher.dispatch(
+            EventType.CLUB_DELETED,
             ClubDeletedData(clubId = club.id!!, name = club.name),
         )
     }
