@@ -134,10 +134,10 @@ Limit to the **5 most impactful issues per file**. Do not nitpick stylistic pref
 ```
 ## Prompt-Polisher Summary
 
-| File                                | Issues Found | Areas Affected           |
-|-------------------------------------|--------------|--------------------------|
-| .claude/agents/kotlin-test-fixer.md | 2            | Grammar, Trigger Phrases |
-| CLAUDE.md                           | 0            | —                        |
+| File                         | Issues Found | Areas Affected           |
+|------------------------------|--------------|--------------------------|
+| .claude/agents/test-fixer.md | 2            | Grammar, Trigger Phrases |
+| CLAUDE.md                    | 0            | —                        |
 ```
 
 ## Constraints
