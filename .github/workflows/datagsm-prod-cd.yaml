@@ -51,7 +51,7 @@ jobs:
             echo "shared_changed=true" >> $GITHUB_OUTPUT
             exit 0
           fi
-          CHANGED=$(git diff --name-only HEAD^ HEAD)
+          CHANGED=$(git diff --name-only HEAD^1 HEAD)
           if echo "$CHANGED" | grep -qE '^(datagsm-common/src/main/kotlin/(.*/)?(dto|constant)/|datagsm-ksp-processor/|datagsm-shared/)'; then
             echo "shared_changed=true" >> $GITHUB_OUTPUT
           else
