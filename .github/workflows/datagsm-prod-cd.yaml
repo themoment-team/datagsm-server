@@ -7,13 +7,6 @@ on:
       - completed
     branches:
       - 'master'
-  push:
-    branches: [master]
-    paths:
-      - 'datagsm-common/src/main/kotlin/**/dto/**'
-      - 'datagsm-common/src/main/kotlin/**/constant/**'
-      - 'datagsm-ksp-processor/**'
-      - 'datagsm-shared/**'
   workflow_dispatch:
     inputs:
       branch:
@@ -21,6 +14,15 @@ on:
         required: false
         default: 'master'
         type: string
+      target:
+        description: 'Deployment target'
+        required: false
+        default: 'deploy-server'
+        type: choice
+        options:
+          - deploy-server
+          - deploy-shared
+          - both
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -28,24 +30,53 @@ concurrency:
 
 jobs:
   generate-version:
-    if: github.event_name == 'push'
+    if: |
+      (github.event_name == 'workflow_dispatch' && (inputs.target == 'deploy-shared' || inputs.target == 'both')) ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.value }}
+      shared_changed: ${{ steps.changes.outputs.shared_changed }}
     steps:
-      - id: version
+      - name: Checkout Code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.branch || github.event.workflow_run.head_sha || 'master' }}
+          fetch-depth: 0
+
+      - name: Detect Shared Changes
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "shared_changed=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          CHANGED=$(git diff --name-only HEAD^1 HEAD)
+          if echo "$CHANGED" | grep -qE '^(datagsm-common/src/main/kotlin/(.*/)?(dto|constant)/|datagsm-ksp-processor/|datagsm-shared/)'; then
+            echo "shared_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "shared_changed=false" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      - name: Generate Version
+        id: version
         run: |
           DATE=$(date +'%Y%m%d')
           echo "value=${DATE}-${{ github.run_number }}" >> $GITHUB_OUTPUT
 
   publish-jvm:
     needs: generate-version
+    if: needs.generate-version.outputs.shared_changed == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout Code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.branch || github.event.workflow_run.head_sha || 'master' }}
       - name: Setup Bazel
         uses: bazel-contrib/setup-bazel@0.19.0
         with:
@@ -67,16 +98,21 @@ jobs:
 
   publish-js:
     needs: generate-version
+    if: needs.generate-version.outputs.shared_changed == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout Code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.branch || github.event.workflow_run.head_sha || 'master' }}
       - name: Setup Bazel
         uses: bazel-contrib/setup-bazel@0.19.0
         with:
           bazelisk-cache: true
           disk-cache: true
           repository-cache: true
-      - uses: actions/setup-node@v5
+      - name: Setup Node
+        uses: actions/setup-node@v5
         with:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
@@ -94,15 +130,17 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  CD:
+  deploy:
     runs-on: ubuntu-latest
     environment: prod
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push') }}
+    if: |
+      (github.event_name == 'workflow_dispatch' && (inputs.target == 'deploy-server' || inputs.target == 'both')) ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.branch || github.event.workflow_run.head_branch || 'master' }}
+          ref: ${{ inputs.branch || github.event.workflow_run.head_sha || 'master' }}
 
       - name: Setup Bazel
         uses: bazel-contrib/setup-bazel@0.19.0
@@ -174,21 +212,21 @@ jobs:
       - name: Code Deploy
         run: aws deploy create-deployment --application-name datagsm-prod-server-codedeploy --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name datagsm-prod-server --s3-location bucket=${{ secrets.AWS_S3_BUCKET_NAME }},bundleType=zip,key=prod/$GITHUB_SHA.zip
 
-      - name: CD Success Notification
+      - name: Deploy Success Notification
         uses: sarisia/actions-status-discord@v1
         if: success()
         with:
           webhook: ${{ secrets.DISCORD_INFORMATION_ALERT_CHANNEL_WEBHOOK }}
           color: 0x4CAF50
 
-      - name: CD Failure Notification
+      - name: Deploy Failure Notification
         uses: sarisia/actions-status-discord@v1
         if: failure()
         with:
           webhook: ${{ secrets.DISCORD_INFORMATION_ALERT_CHANNEL_WEBHOOK }}
           color: 0xFF4C4C
 
-      - name: CD Cancelled Notification
+      - name: Deploy Cancelled Notification
         uses: sarisia/actions-status-discord@v1
         if: cancelled()
         with:

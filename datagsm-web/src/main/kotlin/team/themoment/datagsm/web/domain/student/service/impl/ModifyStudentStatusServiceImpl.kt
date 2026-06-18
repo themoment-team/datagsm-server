@@ -5,12 +5,12 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentStatusChangedData
+import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentStatusReqDto
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.common.domain.webhook.dto.payload.StudentStatusChangedData
-import team.themoment.datagsm.common.domain.webhook.entity.constant.WebhookEvent
-import team.themoment.datagsm.common.domain.webhook.service.WebhookPublisher
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentStatusService
 import team.themoment.sdk.exception.ExpectedException
 
@@ -18,7 +18,7 @@ import team.themoment.sdk.exception.ExpectedException
 class ModifyStudentStatusServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
-    private val webhookPublisher: WebhookPublisher,
+    private val eventPublisher: EventPublisher,
 ) : ModifyStudentStatusService {
     @Transactional
     override fun execute(
@@ -44,8 +44,8 @@ class ModifyStudentStatusServiceImpl(
             }
         }
 
-        webhookPublisher.dispatch(
-            WebhookEvent.STUDENT_STATUS_CHANGED,
+        eventPublisher.dispatch(
+            EventType.STUDENT_STATUS_CHANGED,
             StudentStatusChangedData(
                 studentId = student.id!!,
                 name = student.name,

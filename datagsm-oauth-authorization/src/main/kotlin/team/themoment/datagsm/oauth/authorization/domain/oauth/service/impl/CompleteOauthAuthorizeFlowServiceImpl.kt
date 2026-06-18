@@ -51,13 +51,17 @@ class CompleteOauthAuthorizeFlowServiceImpl(
             throw ExpectedException("요청 한도를 초과했습니다.", HttpStatus.TOO_MANY_REQUESTS)
         }
 
+        if (!reqDto.email.endsWith("@gsm.hs.kr", ignoreCase = true)) {
+            throw ExpectedException("이메일 또는 비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED)
+        }
+
         val account =
             accountJpaRepository
                 .findByEmail(reqDto.email)
-                .orElseThrow { ExpectedException("존재하지 않는 이메일입니다.", HttpStatus.UNAUTHORIZED) }
+                .orElseThrow { ExpectedException("이메일 또는 비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED) }
 
         if (!passwordEncoder.matches(reqDto.password, account.password)) {
-            throw ExpectedException("비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED)
+            throw ExpectedException("이메일 또는 비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED)
         }
 
         val code = generateAuthorizationCode()
