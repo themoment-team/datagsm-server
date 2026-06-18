@@ -1,17 +1,18 @@
 #!/bin/bash
 
-echo "> DataGSM Multi-Module Deployment Start" >> /home/ec2-user/deploy.log
+exec >> /home/ec2-user/deploy.log 2>&1
 
-cd /home/ec2-user/builds/
+echo "> DataGSM Multi-Module Deployment Start"
 
-echo "> Stopping and removing existing containers..." >> /home/ec2-user/deploy.log
-docker compose -f compose.prod.yaml down >> /home/ec2-user/deploy.log 2>&1
+cd /home/ec2-user/builds/ || exit 1
+
+echo "> Stopping and removing existing containers..."
+docker compose -f compose.prod.yaml down
 
 echo "> Cleaning up unused Docker resources..."
 docker system prune -a --volumes -f
 
-echo "> Building and starting containers..." >> /home/ec2-user/deploy.log
-docker compose -f compose.prod.yaml up -d --build >> /home/ec2-user/deploy.log 2>&1
+echo "> Building and starting containers..."
+docker compose -f compose.prod.yaml up -d --build
 
-
-echo "> Deployment completed successfully" >> /home/ec2-user/deploy.log
+echo "> Deployment completed successfully"
