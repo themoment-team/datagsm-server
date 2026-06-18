@@ -20,10 +20,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  CD:
+  deploy:
     runs-on: ubuntu-latest
     environment: stage
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push') }}
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
@@ -105,21 +107,21 @@ jobs:
       - name: Code Deploy
         run: aws deploy create-deployment --application-name datagsm-stage-server-codedeploy --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name datagsm-stage-server --s3-location bucket=${{ secrets.AWS_S3_BUCKET_NAME }},bundleType=zip,key=stage/$GITHUB_SHA.zip
 
-      - name: CD Success Notification
+      - name: Deploy Success Notification
         uses: sarisia/actions-status-discord@v1
         if: success()
         with:
           webhook: ${{ secrets.DISCORD_INFORMATION_ALERT_CHANNEL_WEBHOOK }}
           color: 0x4CAF50
 
-      - name: CD Failure Notification
+      - name: Deploy Failure Notification
         uses: sarisia/actions-status-discord@v1
         if: failure()
         with:
           webhook: ${{ secrets.DISCORD_INFORMATION_ALERT_CHANNEL_WEBHOOK }}
           color: 0xFF4C4C
 
-      - name: CD Cancelled Notification
+      - name: Deploy Cancelled Notification
         uses: sarisia/actions-status-discord@v1
         if: cancelled()
         with:
