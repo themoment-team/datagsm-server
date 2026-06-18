@@ -7,13 +7,6 @@ on:
       - completed
     branches:
       - 'master'
-  push:
-    branches: [master]
-    paths:
-      - 'datagsm-common/src/main/kotlin/**/dto/**'
-      - 'datagsm-common/src/main/kotlin/**/constant/**'
-      - 'datagsm-ksp-processor/**'
-      - 'datagsm-shared/**'
   workflow_dispatch:
     inputs:
       branch:
@@ -38,19 +31,43 @@ concurrency:
 jobs:
   generate-version:
     if: |
-      github.event_name == 'push' ||
-      (github.event_name == 'workflow_dispatch' && (inputs.target == 'deploy-shared' || inputs.target == 'both'))
+      (github.event_name == 'workflow_dispatch' && (inputs.target == 'deploy-shared' || inputs.target == 'both')) ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.value }}
+      shared_changed: ${{ steps.changes.outputs.shared_changed }}
     steps:
-      - id: version
+      - name: Checkout Code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.branch || github.event.workflow_run.head_sha || 'master' }}
+          fetch-depth: 0
+
+      - name: Detect Shared Changes
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "shared_changed=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          CHANGED=$(git diff --name-only HEAD^ HEAD)
+          if echo "$CHANGED" | grep -qE '^(datagsm-common/src/main/kotlin/(.*/)?(dto|constant)/|datagsm-ksp-processor/|datagsm-shared/)'; then
+            echo "shared_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "shared_changed=false" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      - name: Generate Version
+        id: version
         run: |
           DATE=$(date +'%Y%m%d')
           echo "value=${DATE}-${{ github.run_number }}" >> $GITHUB_OUTPUT
 
   publish-jvm:
     needs: generate-version
+    if: needs.generate-version.outputs.shared_changed == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -58,6 +75,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.branch || github.event.workflow_run.head_sha || 'master' }}
       - name: Setup JDK 25
         uses: actions/setup-java@v5
         with:
@@ -79,10 +98,13 @@ jobs:
 
   publish-js:
     needs: generate-version
+    if: needs.generate-version.outputs.shared_changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.branch || github.event.workflow_run.head_sha || 'master' }}
       - name: Setup JDK 25
         uses: actions/setup-java@v5
         with:
@@ -118,7 +140,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.branch || github.event.workflow_run.head_branch || 'master' }}
+          ref: ${{ inputs.branch || github.event.workflow_run.head_sha || 'master' }}
 
       - name: Setup JDK 25
         uses: actions/setup-java@v5
