@@ -58,9 +58,34 @@ class SyncTimetableServiceImpl(
         } while (timetables.size == pageSize)
 
         if (allTimetableEntities.isNotEmpty()) {
+            val filledTimetableEntities = fillEmptyPeriods(allTimetableEntities)
             timetableRedisRepository.deleteAll()
-            timetableRedisRepository.saveAll(allTimetableEntities)
+            timetableRedisRepository.saveAll(filledTimetableEntities)
         }
+    }
+
+    private fun fillEmptyPeriods(timetables: List<TimetableRedisEntity>): List<TimetableRedisEntity> =
+        timetables
+            .groupBy { Triple(it.date, it.grade, it.classNum) }
+            .flatMap { (_, groupedTimetables) ->
+                val existingPeriods = groupedTimetables.associateBy { it.period }
+                (FIRST_PERIOD..LAST_PERIOD).map { period ->
+                    existingPeriods[period] ?: createEmptyPeriod(groupedTimetables.first(), period)
+                }
+            }
+
+    private fun createEmptyPeriod(
+        reference: TimetableRedisEntity,
+        period: Int,
+    ): TimetableRedisEntity {
+        val timetableId =
+            "${reference.schoolCode}_${reference.date.format(DATE_FORMATTER)}_${reference.grade}_${reference.classNum}_$period"
+
+        return reference.copy(
+            id = timetableId,
+            period = period,
+            subject = EMPTY_PERIOD_SUBJECT,
+        )
     }
 
     private fun convertToEntity(dto: TimetableInfo): TimetableRedisEntity {
@@ -88,5 +113,8 @@ class SyncTimetableServiceImpl(
 
     companion object {
         private val DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd")
+        private const val FIRST_PERIOD = 1
+        private const val LAST_PERIOD = 7
+        private const val EMPTY_PERIOD_SUBJECT = "공강"
     }
 }

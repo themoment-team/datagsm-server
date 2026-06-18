@@ -20,10 +20,12 @@ datagsm-server/
 ├── datagsm-oauth-authorization/ # OAuth2 authentication, account lifecycle (signup, password reset)
 ├── datagsm-oauth-userinfo/    # OAuth2 UserInfo endpoint (external clients)
 ├── datagsm-openapi/           # Public read-only API (students, clubs, NEIS)
-└── datagsm-web/               # Web service API (user features, admin features, Excel)
+├── datagsm-web/               # Web service API (user features, admin features, Excel)
+├── datagsm-shared/            # Kotlin Multiplatform module — published type definitions (Maven + npm)
+└── datagsm-ksp-processor/     # KSP processor — generates KMP/TypeScript types from @KmpExport
 ```
 
-Each module follows: `controller/`, `service/`, `repository/`, `entity/`, `dto/`
+Each service module follows: `controller/`, `service/`, `repository/`, `entity/`, `dto/`
 
 **Note**: `/v1/health` endpoint is provided by `HealthController` in `datagsm-common/global/controller/` and is shared across all modules.
 

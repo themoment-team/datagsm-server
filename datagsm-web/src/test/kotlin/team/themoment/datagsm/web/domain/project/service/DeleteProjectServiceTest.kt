@@ -10,9 +10,9 @@ import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
+import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
-import team.themoment.datagsm.common.domain.webhook.service.WebhookPublisher
 import team.themoment.datagsm.web.domain.project.service.impl.DeleteProjectServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
@@ -21,12 +21,12 @@ class DeleteProjectServiceTest :
     DescribeSpec({
 
         val mockProjectRepository = mockk<ProjectJpaRepository>()
-        val webhookPublisher = mockk<WebhookPublisher>()
+        val eventPublisher = mockk<EventPublisher>()
 
-        val deleteProjectService = DeleteProjectServiceImpl(mockProjectRepository, webhookPublisher)
+        val deleteProjectService = DeleteProjectServiceImpl(mockProjectRepository, eventPublisher)
 
         beforeEach {
-            justRun { webhookPublisher.dispatch(any(), any()) }
+            justRun { eventPublisher.dispatch(any(), any()) }
         }
 
         afterEach {

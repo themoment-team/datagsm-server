@@ -11,13 +11,13 @@ import io.mockk.verify
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
-import team.themoment.datagsm.common.domain.webhook.service.WebhookPublisher
 import team.themoment.datagsm.web.domain.project.service.impl.CreateProjectServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
@@ -28,13 +28,13 @@ class CreateProjectServiceTest :
         val mockProjectRepository = mockk<ProjectJpaRepository>()
         val mockClubRepository = mockk<ClubJpaRepository>()
         val mockStudentRepository = mockk<team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository>()
-        val webhookPublisher = mockk<WebhookPublisher>()
+        val eventPublisher = mockk<EventPublisher>()
 
         val createProjectService =
-            CreateProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository, webhookPublisher)
+            CreateProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository, eventPublisher)
 
         beforeEach {
-            justRun { webhookPublisher.dispatch(any(), any()) }
+            justRun { eventPublisher.dispatch(any(), any()) }
         }
 
         afterEach {

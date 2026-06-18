@@ -13,6 +13,8 @@ DataGSM은 광주소프트웨어마이스터고등학교의 학생, 동아리, �
 | **datagsm-oauth-userinfo**      | OAuth2 UserInfo API                    | 8083 |
 | **datagsm-openapi**             | 리소스 API (학생, 동아리, NEIS 등)              | 8082 |
 | **datagsm-web**                 | DataGSM 웹 서비스 API                      | 8080 |
+| **datagsm-shared**              | KMP 공유 모듈 (외부 배포용 타입 정의)               | -    |
+| **datagsm-ksp-processor**       | KSP 프로세서 (KMP·TypeScript 타입 자동 생성)     | -    |
 
 ## 문서
 

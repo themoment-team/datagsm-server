@@ -125,24 +125,28 @@ datagsm-server/
 ├── datagsm-oauth-userinfo/     # OAuth2 UserInfo 서버 (포트: 8083)
 │   └── domain/
 │       └── userinfo/           # UserInfo API
-└── datagsm-web/                # 관리자 웹 API (포트: 8080)
-    └── domain/
-        └── excel/              # Excel 처리
+├── datagsm-web/                # 관리자 웹 API (포트: 8080)
+│   └── domain/
+│       └── excel/              # Excel 처리
+├── datagsm-shared/             # KMP 공유 모듈 (외부 배포용 타입 정의, Maven·npm)
+└── datagsm-ksp-processor/      # KSP 프로세서 (@KmpExport → KMP·TypeScript 타입 생성)
 ```
 
 ### 모듈별 역할
 
-| 모듈                              | 역할                                               | 의존성            |
-|---------------------------------|--------------------------------------------------|----------------|
-| **datagsm-common**              | 공통 Entity, DTO, Repository, 예외 처리, Health API 제공 | -              |
-| **datagsm-oauth-authorization** | DataGSM OAuth 제공                                 | datagsm-common |
-| **datagsm-oauth-userinfo**      | DataGSM OAuth UserInfo 제공                        | datagsm-common |
-| **datagsm-openapi**             | DataGSM OpenAPI 제공                               | datagsm-common |
-| **datagsm-web**                 | DataGSM Web 서비스 전용 API 제공                        | datagsm-common |
+| 모듈                              | 역할                                               | 의존성                      |
+|---------------------------------|--------------------------------------------------|--------------------------|
+| **datagsm-common**              | 공통 Entity, DTO, Repository, 예외 처리, Health API 제공 | -                        |
+| **datagsm-oauth-authorization** | DataGSM OAuth 제공                                 | datagsm-common           |
+| **datagsm-oauth-userinfo**      | DataGSM OAuth UserInfo 제공                        | datagsm-common           |
+| **datagsm-openapi**             | DataGSM OpenAPI 제공                               | datagsm-common           |
+| **datagsm-web**                 | DataGSM Web 서비스 전용 API 제공                        | datagsm-common           |
+| **datagsm-shared**              | KMP 공유 모듈, 외부 배포용 타입 정의 (Maven·npm)              | datagsm-common (KSP 생성물) |
+| **datagsm-ksp-processor**       | `@KmpExport` 클래스 → KMP·TypeScript 타입 생성 KSP 프로세서 | -                        |
 
 ### 패키지 구조
 
-모든 모듈은 다음 패키지 구조를 따릅니다:
+모든 서비스 모듈은 다음 패키지 구조를 따릅니다:
 
 ```
 team.themoment.datagsm.{module}/

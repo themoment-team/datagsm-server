@@ -10,13 +10,13 @@ import io.mockk.verify
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
-import team.themoment.datagsm.common.domain.webhook.service.WebhookPublisher
 import team.themoment.datagsm.web.domain.project.service.impl.ModifyProjectServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
@@ -27,17 +27,17 @@ class ModifyProjectServiceTest :
         lateinit var mockProjectRepository: ProjectJpaRepository
         lateinit var mockClubRepository: ClubJpaRepository
         lateinit var mockStudentRepository: team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-        lateinit var webhookPublisher: WebhookPublisher
+        lateinit var eventPublisher: EventPublisher
         lateinit var modifyProjectService: ModifyProjectService
 
         beforeEach {
             mockProjectRepository = mockk<ProjectJpaRepository>()
             mockClubRepository = mockk<ClubJpaRepository>()
             mockStudentRepository = mockk<team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository>()
-            webhookPublisher = mockk<WebhookPublisher>()
-            justRun { webhookPublisher.dispatch(any(), any()) }
+            eventPublisher = mockk<EventPublisher>()
+            justRun { eventPublisher.dispatch(any(), any()) }
             modifyProjectService =
-                ModifyProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository, webhookPublisher)
+                ModifyProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository, eventPublisher)
         }
 
         describe("ModifyProjectService 클래스의") {
