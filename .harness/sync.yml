@@ -15,14 +15,14 @@ overrides:
   claude/hooks/logging: true
   claude/hooks/command-guard: true
   claude/hooks/ktlint: true
-  claude/hooks/kotest: true
+  claude/hooks/gradle-test: true
   claude/hooks/secret-guard: true
   codex/hooks/dispatcher: true
   codex/hooks-json: true
   codex/hooks/logging: true
   codex/hooks/command-guard: true
   codex/hooks/ktlint: true
-  codex/hooks/kotest: true
+  codex/hooks/gradle-test: true
   codex/hooks/secret-guard: true
 
 branch_prefix: update/
