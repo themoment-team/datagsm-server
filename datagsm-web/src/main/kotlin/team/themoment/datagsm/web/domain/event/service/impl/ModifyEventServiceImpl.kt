@@ -5,15 +5,15 @@ import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.event.dto.request.ModifyEventReqDto
 import team.themoment.datagsm.common.domain.event.dto.response.EventResDto
 import team.themoment.datagsm.common.domain.event.validator.EventUrlValidator
-import team.themoment.datagsm.web.domain.event.persister.EventPersister
 import team.themoment.datagsm.web.domain.event.service.ModifyEventService
+import team.themoment.datagsm.web.domain.event.service.PersistEventService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
 class ModifyEventServiceImpl(
     private val currentUserProvider: CurrentUserProvider,
-    private val eventPersister: EventPersister,
+    private val persistEventService: PersistEventService,
 ) : ModifyEventService {
     override fun execute(
         eventId: Long,
@@ -27,6 +27,6 @@ class ModifyEventServiceImpl(
             }
         }
 
-        return eventPersister.persistModify(account, eventId, reqDto)
+        return persistEventService.persistModify(account, eventId, reqDto)
     }
 }

@@ -1,4 +1,4 @@
-package team.themoment.datagsm.web.domain.event.persister
+package team.themoment.datagsm.web.domain.event.service
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
@@ -13,14 +13,15 @@ import team.themoment.datagsm.common.domain.event.dto.request.ModifyEventReqDto
 import team.themoment.datagsm.common.domain.event.entity.EventJpaEntity
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.repository.EventJpaRepository
+import team.themoment.datagsm.web.domain.event.service.impl.PersistEventServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.time.LocalDateTime
 
-class EventPersisterTest :
+class PersistEventServiceTest :
     DescribeSpec({
 
         lateinit var eventJpaRepository: EventJpaRepository
-        lateinit var eventPersister: EventPersister
+        lateinit var persistEventService: PersistEventService
         lateinit var account: AccountJpaEntity
 
         fun existingEvent() =
@@ -35,10 +36,10 @@ class EventPersisterTest :
         beforeEach {
             eventJpaRepository = mockk()
             account = mockk()
-            eventPersister = EventPersister(eventJpaRepository)
+            persistEventService = PersistEventServiceImpl(eventJpaRepository)
         }
 
-        describe("EventPersister 클래스의") {
+        describe("PersistEventService 클래스의") {
             describe("persistCreate 메서드는") {
                 val secret = "a".repeat(64)
                 val reqDto =
@@ -47,10 +48,26 @@ class EventPersisterTest :
                         events = setOf(EventType.STUDENT_GRADUATED),
                     )
 
+                context("트랜잭션 진입 시점에 최대 개수(10개)에 도달했을 때") {
+                    beforeEach {
+                        every { eventJpaRepository.countByAccount(account) } returns 10L
+                    }
+
+                    it("ExpectedException이 발생하고 저장하지 않아야 한다") {
+                        val ex =
+                            shouldThrow<ExpectedException> {
+                                persistEventService.persistCreate(account, reqDto, secret)
+                            }
+                        ex.message shouldBe "Event는 최대 10개까지 등록할 수 있습니다."
+                        verify(exactly = 0) { eventJpaRepository.save(any()) }
+                    }
+                }
+
                 context("유효한 요청으로 Event를 저장할 때") {
                     val savedSlot = slot<EventJpaEntity>()
 
                     beforeEach {
+                        every { eventJpaRepository.countByAccount(account) } returns 0L
                         every { eventJpaRepository.save(capture(savedSlot)) } answers {
                             savedSlot.captured.apply {
                                 id = 1L
@@ -60,7 +77,7 @@ class EventPersisterTest :
                     }
 
                     it("Event를 저장하고 secret을 포함한 응답을 반환해야 한다") {
-                        val result = eventPersister.persistCreate(account, reqDto, secret)
+                        val result = persistEventService.persistCreate(account, reqDto, secret)
 
                         result.id shouldBe 1L
                         result.targetUrl shouldBe reqDto.targetUrl
@@ -82,7 +99,7 @@ class EventPersisterTest :
                     it("ExpectedException이 발생해야 한다") {
                         val ex =
                             shouldThrow<ExpectedException> {
-                                eventPersister.persistModify(account, 1L, reqDto)
+                                persistEventService.persistModify(account, 1L, reqDto)
                             }
                         ex.message shouldBe "Event를 찾을 수 없습니다."
                     }
@@ -96,7 +113,7 @@ class EventPersisterTest :
                     }
 
                     it("targetUrl이 변경되고 events는 유지되어야 한다") {
-                        val result = eventPersister.persistModify(account, 1L, reqDto)
+                        val result = persistEventService.persistModify(account, 1L, reqDto)
 
                         result.targetUrl shouldBe "https://new.example.com"
                         result.events shouldBe setOf(EventType.CLUB_CREATED)
@@ -112,7 +129,7 @@ class EventPersisterTest :
                     }
 
                     it("events가 교체되고 targetUrl은 유지되어야 한다") {
-                        val result = eventPersister.persistModify(account, 1L, reqDto)
+                        val result = persistEventService.persistModify(account, 1L, reqDto)
 
                         result.targetUrl shouldBe "https://old.example.com/event"
                         result.events shouldBe setOf(EventType.PROJECT_CREATED)

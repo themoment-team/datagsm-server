@@ -6,8 +6,8 @@ import team.themoment.datagsm.common.domain.event.dto.request.CreateEventReqDto
 import team.themoment.datagsm.common.domain.event.dto.response.CreateEventResDto
 import team.themoment.datagsm.common.domain.event.repository.EventJpaRepository
 import team.themoment.datagsm.common.domain.event.validator.EventUrlValidator
-import team.themoment.datagsm.web.domain.event.persister.EventPersister
 import team.themoment.datagsm.web.domain.event.service.CreateEventService
+import team.themoment.datagsm.web.domain.event.service.PersistEventService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 import java.security.SecureRandom
@@ -16,7 +16,7 @@ import java.security.SecureRandom
 class CreateEventServiceImpl(
     private val eventJpaRepository: EventJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
-    private val eventPersister: EventPersister,
+    private val persistEventService: PersistEventService,
 ) : CreateEventService {
     override fun execute(reqDto: CreateEventReqDto): CreateEventResDto {
         val account = currentUserProvider.getCurrentAccount()
@@ -30,7 +30,7 @@ class CreateEventServiceImpl(
         }
 
         val secret = generateSecret()
-        return eventPersister.persistCreate(account, reqDto, secret)
+        return persistEventService.persistCreate(account, reqDto, secret)
     }
 
     private fun generateSecret(): String {

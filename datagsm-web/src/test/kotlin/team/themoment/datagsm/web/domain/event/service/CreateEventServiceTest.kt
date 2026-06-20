@@ -14,7 +14,7 @@ import team.themoment.datagsm.common.domain.event.dto.response.CreateEventResDto
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.repository.EventJpaRepository
 import team.themoment.datagsm.common.domain.event.validator.EventUrlValidator
-import team.themoment.datagsm.web.domain.event.persister.EventPersister
+import team.themoment.datagsm.web.domain.event.service.PersistEventService
 import team.themoment.datagsm.web.domain.event.service.impl.CreateEventServiceImpl
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
@@ -25,17 +25,17 @@ class CreateEventServiceTest :
 
         lateinit var eventJpaRepository: EventJpaRepository
         lateinit var currentUserProvider: CurrentUserProvider
-        lateinit var eventPersister: EventPersister
+        lateinit var persistEventService: PersistEventService
         lateinit var createEventService: CreateEventService
         lateinit var account: AccountJpaEntity
 
         beforeEach {
             eventJpaRepository = mockk()
             currentUserProvider = mockk()
-            eventPersister = mockk()
+            persistEventService = mockk()
             account = mockk()
             every { currentUserProvider.getCurrentAccount() } returns account
-            createEventService = CreateEventServiceImpl(eventJpaRepository, currentUserProvider, eventPersister)
+            createEventService = CreateEventServiceImpl(eventJpaRepository, currentUserProvider, persistEventService)
             mockkObject(EventUrlValidator)
             every { EventUrlValidator.isPrivateOrLocalUrl(any()) } returns false
         }
@@ -63,7 +63,7 @@ class CreateEventServiceTest :
                                 createEventService.execute(reqDto)
                             }
                         ex.message shouldBe "Event는 최대 10개까지 등록할 수 있습니다."
-                        verify(exactly = 0) { eventPersister.persistCreate(any(), any(), any()) }
+                        verify(exactly = 0) { persistEventService.persistCreate(any(), any(), any()) }
                     }
                 }
 
@@ -79,7 +79,7 @@ class CreateEventServiceTest :
                                 createEventService.execute(reqDto)
                             }
                         ex.message shouldBe "내부 네트워크 URL은 Event 수신 URL로 등록할 수 없습니다."
-                        verify(exactly = 0) { eventPersister.persistCreate(any(), any(), any()) }
+                        verify(exactly = 0) { persistEventService.persistCreate(any(), any(), any()) }
                     }
                 }
 
@@ -96,14 +96,14 @@ class CreateEventServiceTest :
 
                     beforeEach {
                         every { eventJpaRepository.countByAccount(account) } returns 0L
-                        every { eventPersister.persistCreate(account, reqDto, any()) } returns resDto
+                        every { persistEventService.persistCreate(account, reqDto, any()) } returns resDto
                     }
 
                     it("검증 후 persist 결과를 반환해야 한다") {
                         val result = createEventService.execute(reqDto)
 
                         result shouldBe resDto
-                        verify(exactly = 1) { eventPersister.persistCreate(account, reqDto, any()) }
+                        verify(exactly = 1) { persistEventService.persistCreate(account, reqDto, any()) }
                     }
                 }
             }

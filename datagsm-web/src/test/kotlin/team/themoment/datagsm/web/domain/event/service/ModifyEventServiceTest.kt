@@ -13,7 +13,7 @@ import team.themoment.datagsm.common.domain.event.dto.request.ModifyEventReqDto
 import team.themoment.datagsm.common.domain.event.dto.response.EventResDto
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.validator.EventUrlValidator
-import team.themoment.datagsm.web.domain.event.persister.EventPersister
+import team.themoment.datagsm.web.domain.event.service.PersistEventService
 import team.themoment.datagsm.web.domain.event.service.impl.ModifyEventServiceImpl
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
@@ -23,16 +23,16 @@ class ModifyEventServiceTest :
     DescribeSpec({
 
         lateinit var currentUserProvider: CurrentUserProvider
-        lateinit var eventPersister: EventPersister
+        lateinit var persistEventService: PersistEventService
         lateinit var modifyEventService: ModifyEventService
         lateinit var account: AccountJpaEntity
 
         beforeEach {
             currentUserProvider = mockk()
-            eventPersister = mockk()
+            persistEventService = mockk()
             account = mockk()
             every { currentUserProvider.getCurrentAccount() } returns account
-            modifyEventService = ModifyEventServiceImpl(currentUserProvider, eventPersister)
+            modifyEventService = ModifyEventServiceImpl(currentUserProvider, persistEventService)
             mockkObject(EventUrlValidator)
             every { EventUrlValidator.isPrivateOrLocalUrl(any()) } returns false
         }
@@ -56,7 +56,7 @@ class ModifyEventServiceTest :
                                 modifyEventService.execute(1L, reqDto)
                             }
                         ex.message shouldBe "내부 네트워크 URL은 Event 수신 URL로 등록할 수 없습니다."
-                        verify(exactly = 0) { eventPersister.persistModify(any(), any(), any()) }
+                        verify(exactly = 0) { persistEventService.persistModify(any(), any(), any()) }
                     }
                 }
 
@@ -72,14 +72,14 @@ class ModifyEventServiceTest :
                         )
 
                     beforeEach {
-                        every { eventPersister.persistModify(account, 1L, reqDto) } returns resDto
+                        every { persistEventService.persistModify(account, 1L, reqDto) } returns resDto
                     }
 
                     it("URL 검증 후 persist 결과를 반환해야 한다") {
                         val result = modifyEventService.execute(1L, reqDto)
 
                         result shouldBe resDto
-                        verify(exactly = 1) { eventPersister.persistModify(account, 1L, reqDto) }
+                        verify(exactly = 1) { persistEventService.persistModify(account, 1L, reqDto) }
                     }
                 }
 
@@ -96,7 +96,7 @@ class ModifyEventServiceTest :
                         )
 
                     beforeEach {
-                        every { eventPersister.persistModify(account, 1L, reqDto) } returns resDto
+                        every { persistEventService.persistModify(account, 1L, reqDto) } returns resDto
                     }
 
                     it("URL 검증 없이 persist 결과를 반환해야 한다") {
@@ -104,7 +104,7 @@ class ModifyEventServiceTest :
 
                         result shouldBe resDto
                         verify(exactly = 0) { EventUrlValidator.isPrivateOrLocalUrl(any()) }
-                        verify(exactly = 1) { eventPersister.persistModify(account, 1L, reqDto) }
+                        verify(exactly = 1) { persistEventService.persistModify(account, 1L, reqDto) }
                     }
                 }
             }
