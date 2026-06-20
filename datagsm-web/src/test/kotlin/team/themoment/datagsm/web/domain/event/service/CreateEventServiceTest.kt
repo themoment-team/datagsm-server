@@ -6,15 +6,15 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
-import io.mockk.slot
 import io.mockk.unmockkObject
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.event.dto.request.CreateEventReqDto
-import team.themoment.datagsm.common.domain.event.entity.EventJpaEntity
+import team.themoment.datagsm.common.domain.event.dto.response.CreateEventResDto
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.repository.EventJpaRepository
 import team.themoment.datagsm.common.domain.event.validator.EventUrlValidator
+import team.themoment.datagsm.web.domain.event.persister.EventPersister
 import team.themoment.datagsm.web.domain.event.service.impl.CreateEventServiceImpl
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
@@ -25,15 +25,17 @@ class CreateEventServiceTest :
 
         lateinit var eventJpaRepository: EventJpaRepository
         lateinit var currentUserProvider: CurrentUserProvider
+        lateinit var eventPersister: EventPersister
         lateinit var createEventService: CreateEventService
         lateinit var account: AccountJpaEntity
 
         beforeEach {
             eventJpaRepository = mockk()
             currentUserProvider = mockk()
+            eventPersister = mockk()
             account = mockk()
             every { currentUserProvider.getCurrentAccount() } returns account
-            createEventService = CreateEventServiceImpl(eventJpaRepository, currentUserProvider)
+            createEventService = CreateEventServiceImpl(eventJpaRepository, currentUserProvider, eventPersister)
             mockkObject(EventUrlValidator)
             every { EventUrlValidator.isPrivateOrLocalUrl(any()) } returns false
         }
@@ -55,12 +57,13 @@ class CreateEventServiceTest :
                         every { eventJpaRepository.countByAccount(account) } returns 10L
                     }
 
-                    it("ExpectedException이 발생해야 한다") {
+                    it("ExpectedException이 발생하고 persist를 호출하지 않아야 한다") {
                         val ex =
                             shouldThrow<ExpectedException> {
                                 createEventService.execute(reqDto)
                             }
                         ex.message shouldBe "Event는 최대 10개까지 등록할 수 있습니다."
+                        verify(exactly = 0) { eventPersister.persistCreate(any(), any(), any()) }
                     }
                 }
 
@@ -70,36 +73,37 @@ class CreateEventServiceTest :
                         every { EventUrlValidator.isPrivateOrLocalUrl(any()) } returns true
                     }
 
-                    it("ExpectedException이 발생해야 한다") {
+                    it("ExpectedException이 발생하고 persist를 호출하지 않아야 한다") {
                         val ex =
                             shouldThrow<ExpectedException> {
                                 createEventService.execute(reqDto)
                             }
                         ex.message shouldBe "내부 네트워크 URL은 Event 수신 URL로 등록할 수 없습니다."
+                        verify(exactly = 0) { eventPersister.persistCreate(any(), any(), any()) }
                     }
                 }
 
                 context("유효한 요청으로 Event를 등록할 때") {
-                    val savedSlot = slot<EventJpaEntity>()
+                    val resDto =
+                        CreateEventResDto(
+                            id = 1L,
+                            targetUrl = reqDto.targetUrl,
+                            events = reqDto.events,
+                            isActive = true,
+                            createdAt = LocalDateTime.now(),
+                            secret = "a".repeat(64),
+                        )
 
                     beforeEach {
                         every { eventJpaRepository.countByAccount(account) } returns 0L
-                        every { eventJpaRepository.save(capture(savedSlot)) } answers {
-                            savedSlot.captured.apply {
-                                id = 1L
-                                createdAt = LocalDateTime.now()
-                            }
-                        }
+                        every { eventPersister.persistCreate(account, reqDto, any()) } returns resDto
                     }
 
-                    it("Event를 저장하고 secret을 포함한 응답을 반환해야 한다") {
+                    it("검증 후 persist 결과를 반환해야 한다") {
                         val result = createEventService.execute(reqDto)
 
-                        result.id shouldBe 1L
-                        result.targetUrl shouldBe reqDto.targetUrl
-                        result.events shouldBe reqDto.events
-                        result.secret.length shouldBe 64
-                        verify(exactly = 1) { eventJpaRepository.save(any()) }
+                        result shouldBe resDto
+                        verify(exactly = 1) { eventPersister.persistCreate(account, reqDto, any()) }
                     }
                 }
             }

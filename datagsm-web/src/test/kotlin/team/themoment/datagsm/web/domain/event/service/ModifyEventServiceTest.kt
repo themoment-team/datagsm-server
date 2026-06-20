@@ -7,12 +7,13 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
+import io.mockk.verify
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.event.dto.request.ModifyEventReqDto
-import team.themoment.datagsm.common.domain.event.entity.EventJpaEntity
+import team.themoment.datagsm.common.domain.event.dto.response.EventResDto
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
-import team.themoment.datagsm.common.domain.event.repository.EventJpaRepository
 import team.themoment.datagsm.common.domain.event.validator.EventUrlValidator
+import team.themoment.datagsm.web.domain.event.persister.EventPersister
 import team.themoment.datagsm.web.domain.event.service.impl.ModifyEventServiceImpl
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
@@ -21,26 +22,17 @@ import java.time.LocalDateTime
 class ModifyEventServiceTest :
     DescribeSpec({
 
-        lateinit var eventJpaRepository: EventJpaRepository
         lateinit var currentUserProvider: CurrentUserProvider
+        lateinit var eventPersister: EventPersister
         lateinit var modifyEventService: ModifyEventService
         lateinit var account: AccountJpaEntity
 
-        fun existingEvent() =
-            EventJpaEntity().apply {
-                id = 1L
-                targetUrl = "https://old.example.com/event"
-                events = mutableSetOf(EventType.CLUB_CREATED)
-                this.account = account
-                createdAt = LocalDateTime.now()
-            }
-
         beforeEach {
-            eventJpaRepository = mockk()
             currentUserProvider = mockk()
+            eventPersister = mockk()
             account = mockk()
             every { currentUserProvider.getCurrentAccount() } returns account
-            modifyEventService = ModifyEventServiceImpl(eventJpaRepository, currentUserProvider)
+            modifyEventService = ModifyEventServiceImpl(currentUserProvider, eventPersister)
             mockkObject(EventUrlValidator)
             every { EventUrlValidator.isPrivateOrLocalUrl(any()) } returns false
         }
@@ -51,67 +43,68 @@ class ModifyEventServiceTest :
 
         describe("ModifyEventService 클래스의") {
             describe("execute 메서드는") {
-                context("Event가 존재하지 않을 때") {
-                    val reqDto = ModifyEventReqDto(targetUrl = "https://new.example.com", events = null)
-
-                    beforeEach {
-                        every { eventJpaRepository.findByIdAndAccount(1L, account) } returns null
-                    }
-
-                    it("ExpectedException이 발생해야 한다") {
-                        val ex =
-                            shouldThrow<ExpectedException> {
-                                modifyEventService.execute(1L, reqDto)
-                            }
-                        ex.message shouldBe "Event를 찾을 수 없습니다."
-                    }
-                }
-
                 context("내부 네트워크 URL로 수정하려 할 때") {
                     val reqDto = ModifyEventReqDto(targetUrl = "http://localhost", events = null)
 
                     beforeEach {
-                        every { eventJpaRepository.findByIdAndAccount(1L, account) } returns existingEvent()
                         every { EventUrlValidator.isPrivateOrLocalUrl(any()) } returns true
                     }
 
-                    it("ExpectedException이 발생해야 한다") {
+                    it("ExpectedException이 발생하고 persist를 호출하지 않아야 한다") {
                         val ex =
                             shouldThrow<ExpectedException> {
                                 modifyEventService.execute(1L, reqDto)
                             }
                         ex.message shouldBe "내부 네트워크 URL은 Event 수신 URL로 등록할 수 없습니다."
+                        verify(exactly = 0) { eventPersister.persistModify(any(), any(), any()) }
                     }
                 }
 
-                context("targetUrl만 수정할 때") {
+                context("유효한 요청으로 Event를 수정할 때") {
                     val reqDto = ModifyEventReqDto(targetUrl = "https://new.example.com", events = null)
+                    val resDto =
+                        EventResDto(
+                            id = 1L,
+                            targetUrl = "https://new.example.com",
+                            events = setOf(EventType.CLUB_CREATED),
+                            isActive = true,
+                            createdAt = LocalDateTime.now(),
+                        )
 
                     beforeEach {
-                        every { eventJpaRepository.findByIdAndAccount(1L, account) } returns existingEvent()
+                        every { eventPersister.persistModify(account, 1L, reqDto) } returns resDto
                     }
 
-                    it("targetUrl이 변경되고 events는 유지되어야 한다") {
+                    it("URL 검증 후 persist 결과를 반환해야 한다") {
                         val result = modifyEventService.execute(1L, reqDto)
 
-                        result.targetUrl shouldBe "https://new.example.com"
-                        result.events shouldBe setOf(EventType.CLUB_CREATED)
+                        result shouldBe resDto
+                        verify(exactly = 1) { eventPersister.persistModify(account, 1L, reqDto) }
                     }
                 }
 
-                context("events만 수정할 때") {
+                context("targetUrl 없이 events만 수정할 때") {
                     val reqDto =
                         ModifyEventReqDto(targetUrl = null, events = setOf(EventType.PROJECT_CREATED))
+                    val resDto =
+                        EventResDto(
+                            id = 1L,
+                            targetUrl = "https://old.example.com/event",
+                            events = setOf(EventType.PROJECT_CREATED),
+                            isActive = true,
+                            createdAt = LocalDateTime.now(),
+                        )
 
                     beforeEach {
-                        every { eventJpaRepository.findByIdAndAccount(1L, account) } returns existingEvent()
+                        every { eventPersister.persistModify(account, 1L, reqDto) } returns resDto
                     }
 
-                    it("events가 교체되고 targetUrl은 유지되어야 한다") {
+                    it("URL 검증 없이 persist 결과를 반환해야 한다") {
                         val result = modifyEventService.execute(1L, reqDto)
 
-                        result.targetUrl shouldBe "https://old.example.com/event"
-                        result.events shouldBe setOf(EventType.PROJECT_CREATED)
+                        result shouldBe resDto
+                        verify(exactly = 0) { EventUrlValidator.isPrivateOrLocalUrl(any()) }
+                        verify(exactly = 1) { eventPersister.persistModify(account, 1L, reqDto) }
                     }
                 }
             }
