@@ -2,6 +2,10 @@ package team.themoment.datagsm.web.domain.student.service.impl
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventSnapshot
+import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.internal.BatchOperationType
 import team.themoment.datagsm.common.domain.student.dto.request.BatchOperationReqDto
 import team.themoment.datagsm.common.domain.student.dto.response.GraduateStudentResDto
@@ -12,6 +16,7 @@ import team.themoment.datagsm.web.domain.student.service.BatchOperationService
 @Service
 class BatchOperationServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
+    private val eventPublisher: EventPublisher,
 ) : BatchOperationService {
     @Transactional
     override fun execute(reqDto: BatchOperationReqDto): GraduateStudentResDto =
@@ -22,6 +27,8 @@ class BatchOperationServiceImpl(
     private fun graduateStudents(grade: Int): GraduateStudentResDto {
         val students = studentJpaRepository.findStudentsByGrade(grade)
 
+        val olds = students.mapIndexed { index, student -> StudentEventSnapshot.from(index, student) }
+
         students.forEach { student ->
             student.role = StudentRole.GRADUATE
             student.major = null
@@ -29,6 +36,14 @@ class BatchOperationServiceImpl(
             student.dormitoryRoomNumber = null
             student.majorClub = null
             student.autonomousClub = null
+        }
+
+        val news = students.mapIndexed { index, student -> StudentEventSnapshot.from(index, student) }
+        if (olds.isNotEmpty()) {
+            eventPublisher.dispatch(
+                EventType.STUDENT_CHANGED,
+                StudentChangedData(old = olds, new = news),
+            )
         }
 
         return GraduateStudentResDto(graduatedCount = students.size)

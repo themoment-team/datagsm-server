@@ -5,7 +5,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.event.dto.payload.StudentStatusChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventSnapshot
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentStatusReqDto
@@ -29,6 +30,8 @@ class ModifyStudentStatusServiceImpl(
             studentJpaRepository.findByIdOrNull(studentId)
                 ?: throw ExpectedException("학생을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
 
+        val old = StudentEventSnapshot.from(0, student)
+
         when (reqDto.status) {
             StudentRole.GRADUATE, StudentRole.WITHDRAWN -> {
                 clubJpaRepository.findAllByLeader(student).forEach { it.leader = null }
@@ -44,14 +47,10 @@ class ModifyStudentStatusServiceImpl(
             }
         }
 
+        val new = StudentEventSnapshot.from(0, student)
         eventPublisher.dispatch(
-            EventType.STUDENT_STATUS_CHANGED,
-            StudentStatusChangedData(
-                studentId = student.id!!,
-                name = student.name,
-                email = student.email,
-                status = reqDto.status.name,
-            ),
+            EventType.STUDENT_CHANGED,
+            StudentChangedData(old = listOf(old), new = listOf(new)),
         )
     }
 }

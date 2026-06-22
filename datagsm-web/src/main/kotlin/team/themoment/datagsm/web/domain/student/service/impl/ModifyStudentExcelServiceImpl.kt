@@ -10,6 +10,10 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventSnapshot
+import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelColumnDto
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelRowDto
 import team.themoment.datagsm.common.domain.student.dto.internal.StudentBulkUpdateDto
@@ -25,6 +29,7 @@ import team.themoment.sdk.response.CommonApiResponse
 class ModifyStudentExcelServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
+    private val eventPublisher: EventPublisher,
 ) : ModifyStudentExcelService {
     private val dataFormatter = DataFormatter()
 
@@ -143,6 +148,12 @@ class ModifyStudentExcelServiceImpl(
                 }
             }
 
+        val studentsById = existingStudents.values.associateBy { it.id!! }
+        val olds =
+            bulkUpdates.mapIndexed { index, update ->
+                StudentEventSnapshot.from(index, studentsById.getValue(update.id))
+            }
+
         studentJpaRepository.bulkUpdateStudentFields(bulkUpdates)
 
         val emailUpdates =
@@ -153,6 +164,27 @@ class ModifyStudentExcelServiceImpl(
                     }
                 }.toMap()
         studentJpaRepository.bulkUpdateEmails(emailUpdates)
+
+        val news =
+            bulkUpdates.mapIndexed { index, update ->
+                olds[index].copy(
+                    name = update.name,
+                    email = emailUpdates.getValue(update.id),
+                    sex = update.sex.name,
+                    major = update.major?.name,
+                    role = update.role.name,
+                    dormitoryFloor = update.dormitoryRoomNumber?.div(100),
+                    dormitoryRoom = update.dormitoryRoomNumber,
+                    majorClubName = update.majorClub?.name,
+                    autonomousClubName = update.autonomousClub?.name,
+                )
+            }
+        if (olds.isNotEmpty()) {
+            eventPublisher.dispatch(
+                EventType.STUDENT_CHANGED,
+                StudentChangedData(old = olds, new = news),
+            )
+        }
 
         return CommonApiResponse.success("엑셀 업로드 성공")
     }

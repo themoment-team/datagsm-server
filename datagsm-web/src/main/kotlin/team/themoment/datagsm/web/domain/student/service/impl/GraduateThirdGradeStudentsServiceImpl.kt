@@ -2,7 +2,8 @@ package team.themoment.datagsm.web.domain.student.service.impl
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.common.domain.event.dto.payload.StudentGraduatedData
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventSnapshot
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.response.GraduateStudentResDto
@@ -19,6 +20,8 @@ class GraduateThirdGradeStudentsServiceImpl(
     override fun execute(): GraduateStudentResDto {
         val thirdGradeStudents = studentJpaRepository.findStudentsByGrade(3)
 
+        val olds = thirdGradeStudents.mapIndexed { index, student -> StudentEventSnapshot.from(index, student) }
+
         thirdGradeStudents.forEach { student ->
             student.role = StudentRole.GRADUATE
             student.major = null
@@ -29,10 +32,11 @@ class GraduateThirdGradeStudentsServiceImpl(
             student.autonomousClub = null
         }
 
-        thirdGradeStudents.forEach { student ->
+        val news = thirdGradeStudents.mapIndexed { index, student -> StudentEventSnapshot.from(index, student) }
+        if (olds.isNotEmpty()) {
             eventPublisher.dispatch(
-                EventType.STUDENT_GRADUATED,
-                StudentGraduatedData(studentId = student.id!!, name = student.name, email = student.email),
+                EventType.STUDENT_CHANGED,
+                StudentChangedData(old = olds, new = news),
             )
         }
 
