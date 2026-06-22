@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.event.dto.payload.StudentChangedData
-import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventSnapshot
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelColumnDto
@@ -21,6 +20,7 @@ import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
+import team.themoment.datagsm.web.domain.student.mapper.StudentEventSnapshotMapper
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentExcelService
 import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.response.CommonApiResponse
@@ -30,6 +30,7 @@ class ModifyStudentExcelServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
     private val eventPublisher: EventPublisher,
+    private val snapshotMapper: StudentEventSnapshotMapper,
 ) : ModifyStudentExcelService {
     private val dataFormatter = DataFormatter()
 
@@ -151,7 +152,7 @@ class ModifyStudentExcelServiceImpl(
         val studentsById = existingStudents.values.associateBy { it.id!! }
         val olds =
             bulkUpdates.mapIndexed { index, update ->
-                StudentEventSnapshot.from(index, studentsById.getValue(update.id))
+                snapshotMapper.toSnapshot(index, studentsById.getValue(update.id))
             }
 
         studentJpaRepository.bulkUpdateStudentFields(bulkUpdates)

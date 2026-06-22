@@ -26,6 +26,7 @@ import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
+import team.themoment.datagsm.web.domain.student.mapper.StudentEventSnapshotMapper
 import team.themoment.datagsm.web.domain.student.service.impl.ModifyStudentExcelServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.io.ByteArrayOutputStream
@@ -54,7 +55,12 @@ class ModifyStudentExcelServiceTest :
             mockEventPublisher = mockk<EventPublisher>()
             justRun { mockEventPublisher.dispatch(any(), any()) }
             modifyStudentExcelService =
-                ModifyStudentExcelServiceImpl(mockStudentRepository, mockClubRepository, mockEventPublisher)
+                ModifyStudentExcelServiceImpl(
+                    mockStudentRepository,
+                    mockClubRepository,
+                    mockEventPublisher,
+                    StudentEventSnapshotMapper(),
+                )
         }
 
         fun createValidExcelFile(): ByteArray {

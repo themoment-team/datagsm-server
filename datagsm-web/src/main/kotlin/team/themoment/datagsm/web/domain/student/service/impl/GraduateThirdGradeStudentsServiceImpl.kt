@@ -3,24 +3,25 @@ package team.themoment.datagsm.web.domain.student.service.impl
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.event.dto.payload.StudentChangedData
-import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventSnapshot
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.response.GraduateStudentResDto
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
+import team.themoment.datagsm.web.domain.student.mapper.StudentEventSnapshotMapper
 import team.themoment.datagsm.web.domain.student.service.GraduateThirdGradeStudentsService
 
 @Service
 class GraduateThirdGradeStudentsServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val eventPublisher: EventPublisher,
+    private val snapshotMapper: StudentEventSnapshotMapper,
 ) : GraduateThirdGradeStudentsService {
     @Transactional
     override fun execute(): GraduateStudentResDto {
         val thirdGradeStudents = studentJpaRepository.findStudentsByGrade(3)
 
-        val olds = thirdGradeStudents.mapIndexed { index, student -> StudentEventSnapshot.from(index, student) }
+        val olds = snapshotMapper.toSnapshots(thirdGradeStudents)
 
         thirdGradeStudents.forEach { student ->
             student.role = StudentRole.GRADUATE
@@ -32,7 +33,7 @@ class GraduateThirdGradeStudentsServiceImpl(
             student.autonomousClub = null
         }
 
-        val news = thirdGradeStudents.mapIndexed { index, student -> StudentEventSnapshot.from(index, student) }
+        val news = snapshotMapper.toSnapshots(thirdGradeStudents)
         if (olds.isNotEmpty()) {
             eventPublisher.dispatch(
                 EventType.STUDENT_CHANGED,

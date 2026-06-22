@@ -6,12 +6,12 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.event.dto.payload.StudentChangedData
-import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventSnapshot
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentStatusReqDto
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
+import team.themoment.datagsm.web.domain.student.mapper.StudentEventSnapshotMapper
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentStatusService
 import team.themoment.sdk.exception.ExpectedException
 
@@ -20,6 +20,7 @@ class ModifyStudentStatusServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
     private val eventPublisher: EventPublisher,
+    private val snapshotMapper: StudentEventSnapshotMapper,
 ) : ModifyStudentStatusService {
     @Transactional
     override fun execute(
@@ -30,7 +31,7 @@ class ModifyStudentStatusServiceImpl(
             studentJpaRepository.findByIdOrNull(studentId)
                 ?: throw ExpectedException("학생을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
 
-        val old = StudentEventSnapshot.from(0, student)
+        val old = snapshotMapper.toSnapshot(0, student)
 
         when (reqDto.status) {
             StudentRole.GRADUATE, StudentRole.WITHDRAWN -> {
@@ -47,7 +48,7 @@ class ModifyStudentStatusServiceImpl(
             }
         }
 
-        val new = StudentEventSnapshot.from(0, student)
+        val new = snapshotMapper.toSnapshot(0, student)
         eventPublisher.dispatch(
             EventType.STUDENT_CHANGED,
             StudentChangedData(old = listOf(old), new = listOf(new)),
