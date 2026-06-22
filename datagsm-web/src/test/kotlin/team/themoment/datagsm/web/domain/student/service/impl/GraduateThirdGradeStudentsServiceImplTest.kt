@@ -5,7 +5,10 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentChangedData
+import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
@@ -60,8 +63,9 @@ class GraduateThirdGradeStudentsServiceImplTest :
 
             val thirdGradeStudents = listOf(student1, student2, student3)
 
+            val dataSlot = slot<StudentChangedData>()
             every { studentJpaRepository.findStudentsByGrade(3) } returns thirdGradeStudents
-            justRun { eventPublisher.dispatch(any(), any()) }
+            justRun { eventPublisher.dispatch(EventType.STUDENT_CHANGED, capture(dataSlot)) }
 
             When("모든 3학년 학생을 졸업 처리하면") {
                 val result = graduateThirdGradeStudentsService.execute()
@@ -81,6 +85,17 @@ class GraduateThirdGradeStudentsServiceImplTest :
 
                 Then("Repository의 findStudentsByGrade가 호출된다") {
                     verify(exactly = 1) { studentJpaRepository.findStudentsByGrade(3) }
+                }
+
+                Then("STUDENT_CHANGED 이벤트가 1회 발행되며 old/new가 index로 매핑된다") {
+                    verify(exactly = 1) { eventPublisher.dispatch(EventType.STUDENT_CHANGED, any()) }
+                    val data = dataSlot.captured
+                    data.old.size shouldBe 3
+                    data.new.size shouldBe 3
+                    data.old.map { it.index } shouldBe listOf(0, 1, 2)
+                    data.new.map { it.index } shouldBe listOf(0, 1, 2)
+                    data.old[0].role shouldBe StudentRole.GENERAL_STUDENT.name
+                    data.new[0].role shouldBe StudentRole.GRADUATE.name
                 }
             }
         }

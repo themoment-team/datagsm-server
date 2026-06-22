@@ -12,6 +12,7 @@ import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentStatusReqDto
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.sdk.exception.ExpectedException
@@ -48,6 +49,7 @@ class ModifyStudentStatusServiceImplTest :
                     id = studentId
                     name = "홍길동"
                     email = "hong@gsm.hs.kr"
+                    sex = Sex.MAN
                     role = StudentRole.GENERAL_STUDENT
                 }
             val reqDto = UpdateStudentStatusReqDto(status = StudentRole.GRADUATE)
@@ -77,6 +79,7 @@ class ModifyStudentStatusServiceImplTest :
                     id = studentId
                     name = "김철수"
                     email = "kim@gsm.hs.kr"
+                    sex = Sex.MAN
                     role = StudentRole.GENERAL_STUDENT
                 }
             val reqDto = UpdateStudentStatusReqDto(status = StudentRole.WITHDRAWN)
@@ -104,6 +107,7 @@ class ModifyStudentStatusServiceImplTest :
                     id = studentId
                     name = "이영희"
                     email = "lee@gsm.hs.kr"
+                    sex = Sex.WOMAN
                     role = StudentRole.WITHDRAWN
                 }
             val reqDto = UpdateStudentStatusReqDto(status = StudentRole.GENERAL_STUDENT)
@@ -127,6 +131,7 @@ class ModifyStudentStatusServiceImplTest :
                     id = studentId
                     name = "박민수"
                     email = "park@gsm.hs.kr"
+                    sex = Sex.MAN
                     role = StudentRole.GRADUATE
                 }
             val reqDto = UpdateStudentStatusReqDto(status = StudentRole.STUDENT_COUNCIL)
@@ -150,6 +155,7 @@ class ModifyStudentStatusServiceImplTest :
                     id = studentId
                     name = "최지수"
                     email = "choi@gsm.hs.kr"
+                    sex = Sex.WOMAN
                     role = StudentRole.WITHDRAWN
                 }
             val reqDto = UpdateStudentStatusReqDto(status = StudentRole.DORMITORY_MANAGER)

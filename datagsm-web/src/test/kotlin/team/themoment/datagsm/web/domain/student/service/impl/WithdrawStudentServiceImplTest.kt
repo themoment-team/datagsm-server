@@ -44,6 +44,7 @@ class WithdrawStudentServiceImplTest :
                     autonomousClub = mockClub
                 }
 
+            every { mockClub.name } returns "동아리"
             every { studentJpaRepository.findById(studentId) } returns Optional.of(student)
             every { clubJpaRepository.findAllByLeader(student) } returns emptyList()
             justRun { eventPublisher.dispatch(any(), any()) }
