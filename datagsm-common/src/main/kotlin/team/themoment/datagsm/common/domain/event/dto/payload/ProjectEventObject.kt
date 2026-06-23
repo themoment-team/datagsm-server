@@ -2,6 +2,7 @@ package team.themoment.datagsm.common.domain.event.dto.payload
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
+// webhook 전송용 payload: project.changed 의 object 에 담기는 프로젝트 전체 정보
 data class ProjectEventObject(
     @field:JsonProperty("project_id")
     val projectId: Long,
