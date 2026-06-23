@@ -17,6 +17,7 @@ import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelColumnDto
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelRowDto
 import team.themoment.datagsm.common.domain.student.dto.internal.StudentBulkUpdateDto
+import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
@@ -151,7 +152,7 @@ class ModifyStudentExcelServiceImpl(
         val studentsById = existingStudents.values.associateBy { it.id!! }
         val olds =
             bulkUpdates.mapIndexed { index, update ->
-                StudentEventSnapshot.from(index, studentsById.getValue(update.id))
+                generateStudentEventSnapshot(index, studentsById.getValue(update.id))
             }
 
         studentJpaRepository.bulkUpdateStudentFields(bulkUpdates)
@@ -302,4 +303,27 @@ class ModifyStudentExcelServiceImpl(
         if (studentNumber / 100 % 10 !in 1..4) throw ExpectedException("반은 1~4반이여야 합니다.", HttpStatus.BAD_REQUEST)
         return studentNumber
     }
+
+    private fun generateStudentEventSnapshot(
+        index: Int,
+        student: StudentJpaEntity,
+    ): StudentEventSnapshot =
+        StudentEventSnapshot(
+            index = index,
+            name = student.name,
+            email = student.email,
+            sex = student.sex.name,
+            grade = student.studentNumber?.studentGrade,
+            classNum = student.studentNumber?.studentClass,
+            number = student.studentNumber?.studentNumber,
+            studentNumber = student.studentNumber?.fullStudentNumber,
+            major = student.major?.name,
+            specialty = student.specialty,
+            role = student.role.name,
+            dormitoryFloor = student.dormitoryRoomNumber?.dormitoryRoomFloor,
+            dormitoryRoom = student.dormitoryRoomNumber?.dormitoryRoomNumber,
+            majorClubName = student.majorClub?.name,
+            autonomousClubName = student.autonomousClub?.name,
+            githubId = student.githubId,
+        )
 }

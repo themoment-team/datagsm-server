@@ -1,7 +1,6 @@
 package team.themoment.datagsm.common.domain.event.dto.payload
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 
 data class StudentEventSnapshot(
     @field:JsonProperty("index")
@@ -36,29 +35,4 @@ data class StudentEventSnapshot(
     val autonomousClubName: String?,
     @field:JsonProperty("github_id")
     val githubId: String?,
-) {
-    companion object {
-        fun from(
-            index: Int,
-            student: StudentJpaEntity,
-        ): StudentEventSnapshot =
-            StudentEventSnapshot(
-                index = index,
-                name = student.name,
-                email = student.email,
-                sex = student.sex.name,
-                grade = student.studentNumber?.studentGrade,
-                classNum = student.studentNumber?.studentClass,
-                number = student.studentNumber?.studentNumber,
-                studentNumber = student.studentNumber?.fullStudentNumber,
-                major = student.major?.name,
-                specialty = student.specialty,
-                role = student.role.name,
-                dormitoryFloor = student.dormitoryRoomNumber?.dormitoryRoomFloor,
-                dormitoryRoom = student.dormitoryRoomNumber?.dormitoryRoomNumber,
-                majorClubName = student.majorClub?.name,
-                autonomousClubName = student.autonomousClub?.name,
-                githubId = student.githubId,
-            )
-    }
-}
+)
