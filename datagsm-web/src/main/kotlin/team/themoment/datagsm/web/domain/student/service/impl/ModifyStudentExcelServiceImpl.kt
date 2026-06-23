@@ -18,6 +18,7 @@ import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelColumnDto
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelRowDto
 import team.themoment.datagsm.common.domain.student.dto.internal.StudentBulkUpdateDto
+import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -175,7 +176,7 @@ class ModifyStudentExcelServiceImpl(
                     sex = update.sex.name,
                     major = update.major?.name,
                     role = update.role.name,
-                    dormitoryFloor = update.dormitoryRoomNumber?.div(100),
+                    dormitoryFloor = update.dormitoryRoomNumber?.let { DormitoryRoomNumber(it).dormitoryRoomFloor },
                     dormitoryRoom = update.dormitoryRoomNumber,
                     majorClubName = update.majorClub?.name,
                     autonomousClubName = update.autonomousClub?.name,
