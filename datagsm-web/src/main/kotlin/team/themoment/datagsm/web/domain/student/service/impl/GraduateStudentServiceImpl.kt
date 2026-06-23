@@ -6,11 +6,11 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.event.dto.payload.StudentChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventSnapshot
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.web.domain.student.mapper.StudentEventSnapshotMapper
 import team.themoment.datagsm.web.domain.student.service.GraduateStudentService
 import team.themoment.sdk.exception.ExpectedException
 
@@ -19,7 +19,6 @@ class GraduateStudentServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
     private val eventPublisher: EventPublisher,
-    private val snapshotMapper: StudentEventSnapshotMapper,
 ) : GraduateStudentService {
     @Transactional
     override fun execute(studentId: Long) {
@@ -29,7 +28,7 @@ class GraduateStudentServiceImpl(
 
         clubJpaRepository.findAllByLeader(student).forEach { it.leader = null }
 
-        val old = snapshotMapper.toSnapshot(0, student)
+        val old = StudentEventSnapshot.from(0, student)
 
         student.role = StudentRole.GRADUATE
         student.major = null
@@ -39,7 +38,7 @@ class GraduateStudentServiceImpl(
         student.majorClub = null
         student.autonomousClub = null
 
-        val new = snapshotMapper.toSnapshot(0, student)
+        val new = StudentEventSnapshot.from(0, student)
         eventPublisher.dispatch(
             EventType.STUDENT_CHANGED,
             StudentChangedData(old = listOf(old), new = listOf(new)),

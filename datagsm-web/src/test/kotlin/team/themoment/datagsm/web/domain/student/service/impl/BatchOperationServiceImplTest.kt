@@ -15,14 +15,12 @@ import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.web.domain.student.mapper.StudentEventSnapshotMapper
 
 class BatchOperationServiceImplTest :
     BehaviorSpec({
         val studentJpaRepository = mockk<StudentJpaRepository>()
         val eventPublisher = mockk<EventPublisher>()
-        val snapshotMapper = StudentEventSnapshotMapper()
-        val service = BatchOperationServiceImpl(studentJpaRepository, eventPublisher, snapshotMapper)
+        val service = BatchOperationServiceImpl(studentJpaRepository, eventPublisher)
 
         Given("3학년 학생들이 10명 있을 때") {
             val thirdGradeStudents =

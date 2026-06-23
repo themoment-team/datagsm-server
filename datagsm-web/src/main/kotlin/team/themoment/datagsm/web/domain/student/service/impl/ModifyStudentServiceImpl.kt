@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.event.dto.payload.StudentChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventSnapshot
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentReqDto
@@ -15,7 +16,6 @@ import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.web.domain.student.mapper.StudentEventSnapshotMapper
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentService
 import team.themoment.sdk.exception.ExpectedException
 
@@ -24,7 +24,6 @@ class ModifyStudentServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
     private val eventPublisher: EventPublisher,
-    private val snapshotMapper: StudentEventSnapshotMapper,
 ) : ModifyStudentService {
     @Transactional
     override fun execute(
@@ -62,7 +61,7 @@ class ModifyStudentServiceImpl(
                 HttpStatus.BAD_REQUEST,
             )
         }
-        val old = snapshotMapper.toSnapshot(0, student)
+        val old = StudentEventSnapshot.from(0, student)
         student.name = reqDto.name
         student.sex = reqDto.sex
         student.email = reqDto.email
@@ -87,7 +86,7 @@ class ModifyStudentServiceImpl(
             reqDto.autonomousClubId?.let { clubId ->
                 clubs[clubId] ?: throw ExpectedException("자율 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
             }
-        val new = snapshotMapper.toSnapshot(0, student)
+        val new = StudentEventSnapshot.from(0, student)
         eventPublisher.dispatch(
             EventType.STUDENT_CHANGED,
             StudentChangedData(old = listOf(old), new = listOf(new)),

@@ -19,7 +19,6 @@ import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.web.domain.student.mapper.StudentEventSnapshotMapper
 import team.themoment.datagsm.web.domain.student.service.impl.ModifyStudentServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
@@ -37,13 +36,7 @@ class ModifyStudentServiceTest :
             mockClubRepository = mockk<ClubJpaRepository>()
             mockEventPublisher = mockk<EventPublisher>()
             justRun { mockEventPublisher.dispatch(any(), any()) }
-            modifyStudentService =
-                ModifyStudentServiceImpl(
-                    mockStudentRepository,
-                    mockClubRepository,
-                    mockEventPublisher,
-                    StudentEventSnapshotMapper(),
-                )
+            modifyStudentService = ModifyStudentServiceImpl(mockStudentRepository, mockClubRepository, mockEventPublisher)
         }
 
         describe("ModifyStudentService 클래스의") {

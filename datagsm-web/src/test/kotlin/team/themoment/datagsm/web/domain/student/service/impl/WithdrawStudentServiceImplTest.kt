@@ -17,7 +17,6 @@ import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.web.domain.student.mapper.StudentEventSnapshotMapper
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 
@@ -26,9 +25,7 @@ class WithdrawStudentServiceImplTest :
         val studentJpaRepository = mockk<StudentJpaRepository>()
         val clubJpaRepository = mockk<ClubJpaRepository>()
         val eventPublisher = mockk<EventPublisher>()
-        val snapshotMapper = StudentEventSnapshotMapper()
-        val withdrawStudentService =
-            WithdrawStudentServiceImpl(studentJpaRepository, clubJpaRepository, eventPublisher, snapshotMapper)
+        val withdrawStudentService = WithdrawStudentServiceImpl(studentJpaRepository, clubJpaRepository, eventPublisher)
 
         Given("일반 학생이 존재하는 경우") {
             val studentId = 1L

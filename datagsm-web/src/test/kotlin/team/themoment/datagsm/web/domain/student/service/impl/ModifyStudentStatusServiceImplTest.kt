@@ -15,7 +15,6 @@ import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-import team.themoment.datagsm.web.domain.student.mapper.StudentEventSnapshotMapper
 import team.themoment.sdk.exception.ExpectedException
 
 class ModifyStudentStatusServiceImplTest :
@@ -23,9 +22,7 @@ class ModifyStudentStatusServiceImplTest :
         val studentJpaRepository = mockk<StudentJpaRepository>()
         val clubJpaRepository = mockk<ClubJpaRepository>()
         val eventPublisher = mockk<EventPublisher>()
-        val snapshotMapper = StudentEventSnapshotMapper()
-        val service =
-            ModifyStudentStatusServiceImpl(studentJpaRepository, clubJpaRepository, eventPublisher, snapshotMapper)
+        val service = ModifyStudentStatusServiceImpl(studentJpaRepository, clubJpaRepository, eventPublisher)
 
         Given("존재하지 않는 학생 ID로") {
             val studentId = 999L
