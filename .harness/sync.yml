@@ -7,9 +7,11 @@ overrides:
   claude/skills/git-commit: false
   claude/skills/write-pr: false
   claude/skills/test: false
+  claude/skills/java-spring-arch: false
   codex/skills/git-commit: false
   codex/skills/write-pr: false
   codex/skills/test: false
+  codex/skills/java-spring-arch: false
   claude/hooks/dispatcher: true
   claude/settings: true
   claude/hooks/logging: true
