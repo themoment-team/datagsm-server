@@ -7,7 +7,8 @@ import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import team.themoment.datagsm.common.domain.event.dto.payload.StudentChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
@@ -63,7 +64,7 @@ class GraduateThirdGradeStudentsServiceImplTest :
 
             val thirdGradeStudents = listOf(student1, student2, student3)
 
-            val dataSlot = slot<StudentChangedData>()
+            val dataSlot = slot<EventChangedData>()
             every { studentJpaRepository.findStudentsByGrade(3) } returns thirdGradeStudents
             justRun { eventPublisher.dispatch(EventType.STUDENT_CHANGED, capture(dataSlot)) }
 
@@ -94,8 +95,8 @@ class GraduateThirdGradeStudentsServiceImplTest :
                     data.new.size shouldBe 3
                     data.old.map { it.index } shouldBe listOf(0, 1, 2)
                     data.new.map { it.index } shouldBe listOf(0, 1, 2)
-                    data.old[0].role shouldBe StudentRole.GENERAL_STUDENT.name
-                    data.new[0].role shouldBe StudentRole.GRADUATE.name
+                    (data.old[0].obj as StudentEventObject).role shouldBe StudentRole.GENERAL_STUDENT.name
+                    (data.new[0].obj as StudentEventObject).role shouldBe StudentRole.GRADUATE.name
                 }
             }
         }

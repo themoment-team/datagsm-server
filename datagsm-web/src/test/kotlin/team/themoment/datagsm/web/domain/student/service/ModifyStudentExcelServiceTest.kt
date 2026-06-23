@@ -16,7 +16,8 @@ import org.springframework.mock.web.MockMultipartFile
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.event.dto.payload.StudentChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.internal.StudentBulkUpdateDto
@@ -150,7 +151,7 @@ class ModifyStudentExcelServiceTest :
                     }
 
                     it("학생 정보를 수정하고 성공 메시지를 반환해야 한다") {
-                        val dataSlot = slot<StudentChangedData>()
+                        val dataSlot = slot<EventChangedData>()
                         justRun { mockEventPublisher.dispatch(EventType.STUDENT_CHANGED, capture(dataSlot)) }
 
                         val result = modifyStudentExcelService.execute(file)
@@ -174,7 +175,7 @@ class ModifyStudentExcelServiceTest :
                     }
 
                     it("STUDENT_CHANGED 이벤트의 old는 수정 전, new는 수정 후 값을 담는다") {
-                        val dataSlot = slot<StudentChangedData>()
+                        val dataSlot = slot<EventChangedData>()
                         justRun { mockEventPublisher.dispatch(EventType.STUDENT_CHANGED, capture(dataSlot)) }
 
                         modifyStudentExcelService.execute(file)
@@ -184,10 +185,11 @@ class ModifyStudentExcelServiceTest :
                         data.old.size shouldBe 1
                         data.new.size shouldBe 1
 
-                        val old = data.old[0]
-                        val new = data.new[0]
-                        old.index shouldBe 0
-                        new.index shouldBe 0
+                        data.old[0].index shouldBe 0
+                        data.new[0].index shouldBe 0
+
+                        val old = data.old[0].obj as StudentEventObject
+                        val new = data.new[0].obj as StudentEventObject
 
                         // 수정 전 값
                         old.name shouldBe "기존이름"
