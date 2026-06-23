@@ -2,8 +2,9 @@ package team.themoment.datagsm.web.domain.student.service.impl
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.common.domain.event.dto.payload.StudentChangedData
-import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventSnapshot
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.response.GraduateStudentResDto
@@ -21,7 +22,10 @@ class GraduateThirdGradeStudentsServiceImpl(
     override fun execute(): GraduateStudentResDto {
         val thirdGradeStudents = studentJpaRepository.findStudentsByGrade(3)
 
-        val olds = thirdGradeStudents.mapIndexed { index, student -> generateStudentEventSnapshot(index, student) }
+        val olds =
+            thirdGradeStudents.mapIndexed { index, student ->
+                EventChangeItem(index, generateStudentEventObject(student))
+            }
 
         thirdGradeStudents.forEach { student ->
             student.role = StudentRole.GRADUATE
@@ -33,23 +37,23 @@ class GraduateThirdGradeStudentsServiceImpl(
             student.autonomousClub = null
         }
 
-        val news = thirdGradeStudents.mapIndexed { index, student -> generateStudentEventSnapshot(index, student) }
+        val news =
+            thirdGradeStudents.mapIndexed { index, student ->
+                EventChangeItem(index, generateStudentEventObject(student))
+            }
         if (olds.isNotEmpty()) {
             eventPublisher.dispatch(
                 EventType.STUDENT_CHANGED,
-                StudentChangedData(old = olds, new = news),
+                EventChangedData(old = olds, new = news),
             )
         }
 
         return GraduateStudentResDto(graduatedCount = thirdGradeStudents.size)
     }
 
-    private fun generateStudentEventSnapshot(
-        index: Int,
-        student: StudentJpaEntity,
-    ): StudentEventSnapshot =
-        StudentEventSnapshot(
-            index = index,
+    private fun generateStudentEventObject(student: StudentJpaEntity): StudentEventObject =
+        StudentEventObject(
+            studentId = student.id!!,
             name = student.name,
             email = student.email,
             sex = student.sex.name,

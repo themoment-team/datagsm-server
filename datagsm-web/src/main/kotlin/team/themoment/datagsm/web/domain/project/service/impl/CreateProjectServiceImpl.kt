@@ -5,7 +5,12 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.event.dto.payload.ProjectCreatedData
+import team.themoment.datagsm.common.domain.event.dto.payload.EmptyEventObject
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.EventClubRef
+import team.themoment.datagsm.common.domain.event.dto.payload.EventStudentRef
+import team.themoment.datagsm.common.domain.event.dto.payload.ProjectEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
@@ -80,9 +85,13 @@ class CreateProjectServiceImpl(
             }
         val savedProjectEntity = projectJpaRepository.save(projectEntity)
 
+        val newObj = generateProjectEventObject(savedProjectEntity)
         eventPublisher.dispatch(
-            EventType.PROJECT_CREATED,
-            ProjectCreatedData(projectId = savedProjectEntity.id!!, name = savedProjectEntity.name),
+            EventType.PROJECT_CHANGED,
+            EventChangedData(
+                old = listOf(EventChangeItem(0, EmptyEventObject())),
+                new = listOf(EventChangeItem(0, newObj)),
+            ),
         )
 
         return ProjectResDto(
@@ -106,4 +115,17 @@ class CreateProjectServiceImpl(
                 },
         )
     }
+
+    private fun generateProjectEventObject(project: ProjectJpaEntity): ProjectEventObject =
+        ProjectEventObject(
+            projectId = project.id!!,
+            name = project.name,
+            description = project.description,
+            startYear = project.startYear,
+            endYear = project.endYear,
+            status = project.status.name,
+            club = project.club?.let { EventClubRef(it.id!!, it.name) },
+            participants =
+                project.participants.map { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },
+        )
 }

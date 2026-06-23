@@ -5,8 +5,9 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.event.dto.payload.StudentChangedData
-import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventSnapshot
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentStatusReqDto
@@ -31,7 +32,7 @@ class ModifyStudentStatusServiceImpl(
             studentJpaRepository.findByIdOrNull(studentId)
                 ?: throw ExpectedException("학생을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
 
-        val old = generateStudentEventSnapshot(0, student)
+        val old = generateStudentEventObject(student)
 
         when (reqDto.status) {
             StudentRole.GRADUATE, StudentRole.WITHDRAWN -> {
@@ -48,19 +49,19 @@ class ModifyStudentStatusServiceImpl(
             }
         }
 
-        val new = generateStudentEventSnapshot(0, student)
+        val new = generateStudentEventObject(student)
         eventPublisher.dispatch(
             EventType.STUDENT_CHANGED,
-            StudentChangedData(old = listOf(old), new = listOf(new)),
+            EventChangedData(
+                old = listOf(EventChangeItem(0, old)),
+                new = listOf(EventChangeItem(0, new)),
+            ),
         )
     }
 
-    private fun generateStudentEventSnapshot(
-        index: Int,
-        student: StudentJpaEntity,
-    ): StudentEventSnapshot =
-        StudentEventSnapshot(
-            index = index,
+    private fun generateStudentEventObject(student: StudentJpaEntity): StudentEventObject =
+        StudentEventObject(
+            studentId = student.id!!,
             name = student.name,
             email = student.email,
             sex = student.sex.name,

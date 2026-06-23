@@ -10,8 +10,9 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.event.dto.payload.StudentChangedData
-import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventSnapshot
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelColumnDto
@@ -150,9 +151,9 @@ class ModifyStudentExcelServiceImpl(
             }
 
         val studentsById = existingStudents.values.associateBy { it.id!! }
-        val olds =
-            bulkUpdates.mapIndexed { index, update ->
-                generateStudentEventSnapshot(index, studentsById.getValue(update.id))
+        val oldObjects =
+            bulkUpdates.map { update ->
+                generateStudentEventObject(studentsById.getValue(update.id))
             }
 
         studentJpaRepository.bulkUpdateStudentFields(bulkUpdates)
@@ -166,9 +167,9 @@ class ModifyStudentExcelServiceImpl(
                 }.toMap()
         studentJpaRepository.bulkUpdateEmails(emailUpdates)
 
-        val news =
+        val newObjects =
             bulkUpdates.mapIndexed { index, update ->
-                olds[index].copy(
+                oldObjects[index].copy(
                     name = update.name,
                     email = emailUpdates.getValue(update.id),
                     sex = update.sex.name,
@@ -180,10 +181,14 @@ class ModifyStudentExcelServiceImpl(
                     autonomousClubName = update.autonomousClub?.name,
                 )
             }
-        if (olds.isNotEmpty()) {
+
+        val changed = oldObjects.indices.filter { oldObjects[it] != newObjects[it] }
+        if (changed.isNotEmpty()) {
+            val olds = changed.mapIndexed { index, i -> EventChangeItem(index, oldObjects[i]) }
+            val news = changed.mapIndexed { index, i -> EventChangeItem(index, newObjects[i]) }
             eventPublisher.dispatch(
                 EventType.STUDENT_CHANGED,
-                StudentChangedData(old = olds, new = news),
+                EventChangedData(old = olds, new = news),
             )
         }
 
@@ -304,12 +309,9 @@ class ModifyStudentExcelServiceImpl(
         return studentNumber
     }
 
-    private fun generateStudentEventSnapshot(
-        index: Int,
-        student: StudentJpaEntity,
-    ): StudentEventSnapshot =
-        StudentEventSnapshot(
-            index = index,
+    private fun generateStudentEventObject(student: StudentJpaEntity): StudentEventObject =
+        StudentEventObject(
+            studentId = student.id!!,
             name = student.name,
             email = student.email,
             sex = student.sex.name,
