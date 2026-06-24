@@ -10,9 +10,16 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventObject
+import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelColumnDto
 import team.themoment.datagsm.common.domain.student.dto.internal.ExcelRowDto
 import team.themoment.datagsm.common.domain.student.dto.internal.StudentBulkUpdateDto
+import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
+import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
@@ -25,6 +32,7 @@ import team.themoment.sdk.response.CommonApiResponse
 class ModifyStudentExcelServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
+    private val eventPublisher: EventPublisher,
 ) : ModifyStudentExcelService {
     private val dataFormatter = DataFormatter()
 
@@ -143,6 +151,12 @@ class ModifyStudentExcelServiceImpl(
                 }
             }
 
+        val studentsById = existingStudents.values.associateBy { it.id!! }
+        val oldObjects =
+            bulkUpdates.map { update ->
+                generateStudentEventObject(studentsById.getValue(update.id))
+            }
+
         studentJpaRepository.bulkUpdateStudentFields(bulkUpdates)
 
         val emailUpdates =
@@ -153,6 +167,31 @@ class ModifyStudentExcelServiceImpl(
                     }
                 }.toMap()
         studentJpaRepository.bulkUpdateEmails(emailUpdates)
+
+        val newObjects =
+            bulkUpdates.mapIndexed { index, update ->
+                oldObjects[index].copy(
+                    name = update.name,
+                    email = emailUpdates.getValue(update.id),
+                    sex = update.sex.name,
+                    major = update.major?.name,
+                    role = update.role.name,
+                    dormitoryFloor = update.dormitoryRoomNumber?.let { DormitoryRoomNumber(it).dormitoryRoomFloor },
+                    dormitoryRoom = update.dormitoryRoomNumber,
+                    majorClubName = update.majorClub?.name,
+                    autonomousClubName = update.autonomousClub?.name,
+                )
+            }
+
+        val changed = oldObjects.indices.filter { oldObjects[it] != newObjects[it] }
+        if (changed.isNotEmpty()) {
+            val olds = changed.mapIndexed { index, i -> EventChangeItem(index, oldObjects[i]) }
+            val news = changed.mapIndexed { index, i -> EventChangeItem(index, newObjects[i]) }
+            eventPublisher.dispatch(
+                EventType.STUDENT_CHANGED,
+                EventChangedData(old = olds, new = news),
+            )
+        }
 
         return CommonApiResponse.success("엑셀 업로드 성공")
     }
@@ -270,4 +309,24 @@ class ModifyStudentExcelServiceImpl(
         if (studentNumber / 100 % 10 !in 1..4) throw ExpectedException("반은 1~4반이여야 합니다.", HttpStatus.BAD_REQUEST)
         return studentNumber
     }
+
+    private fun generateStudentEventObject(student: StudentJpaEntity): StudentEventObject =
+        StudentEventObject(
+            studentId = student.id!!,
+            name = student.name,
+            email = student.email,
+            sex = student.sex.name,
+            grade = student.studentNumber?.studentGrade,
+            classNum = student.studentNumber?.studentClass,
+            number = student.studentNumber?.studentNumber,
+            studentNumber = student.studentNumber?.fullStudentNumber,
+            major = student.major?.name,
+            specialty = student.specialty,
+            role = student.role.name,
+            dormitoryFloor = student.dormitoryRoomNumber?.dormitoryRoomFloor,
+            dormitoryRoom = student.dormitoryRoomNumber?.dormitoryRoomNumber,
+            majorClubName = student.majorClub?.name,
+            autonomousClubName = student.autonomousClub?.name,
+            githubId = student.githubId,
+        )
 }

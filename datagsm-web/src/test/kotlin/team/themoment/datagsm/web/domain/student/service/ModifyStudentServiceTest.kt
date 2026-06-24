@@ -4,11 +4,13 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
@@ -26,12 +28,15 @@ class ModifyStudentServiceTest :
 
         lateinit var mockStudentRepository: StudentJpaRepository
         lateinit var mockClubRepository: ClubJpaRepository
+        lateinit var mockEventPublisher: EventPublisher
         lateinit var modifyStudentService: ModifyStudentService
 
         beforeEach {
             mockStudentRepository = mockk<StudentJpaRepository>()
             mockClubRepository = mockk<ClubJpaRepository>()
-            modifyStudentService = ModifyStudentServiceImpl(mockStudentRepository, mockClubRepository)
+            mockEventPublisher = mockk<EventPublisher>()
+            justRun { mockEventPublisher.dispatch(any(), any()) }
+            modifyStudentService = ModifyStudentServiceImpl(mockStudentRepository, mockClubRepository, mockEventPublisher)
         }
 
         describe("ModifyStudentService 클래스의") {

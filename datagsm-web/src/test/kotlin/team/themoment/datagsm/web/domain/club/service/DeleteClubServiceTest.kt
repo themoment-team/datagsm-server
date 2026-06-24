@@ -10,6 +10,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
@@ -47,8 +48,11 @@ class DeleteClubServiceTest :
                                 this.id = clubId
                                 name = "삭제대상"
                                 type = ClubType.MAJOR_CLUB
+                                foundedYear = 2022
+                                status = ClubStatus.ACTIVE
                             }
                         every { mockClubRepository.findById(clubId) } returns Optional.of(existing)
+                        every { mockStudentRepository.findByMajorClub(existing) } returns emptyList()
                         every { mockStudentRepository.bulkClearClubReferences(listOf(existing)) } just runs
                         every { mockClubRepository.deleteAllByIdInBatch(listOf(clubId)) } just runs
                     }

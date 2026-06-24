@@ -30,7 +30,7 @@ class ModifyEventServiceTest :
             EventJpaEntity().apply {
                 id = 1L
                 targetUrl = "https://old.example.com/event"
-                events = mutableSetOf(EventType.CLUB_CREATED)
+                events = mutableSetOf(EventType.CLUB_CHANGED)
                 this.account = account
                 createdAt = LocalDateTime.now()
             }
@@ -95,13 +95,13 @@ class ModifyEventServiceTest :
                         val result = modifyEventService.execute(1L, reqDto)
 
                         result.targetUrl shouldBe "https://new.example.com"
-                        result.events shouldBe setOf(EventType.CLUB_CREATED)
+                        result.events shouldBe setOf(EventType.CLUB_CHANGED)
                     }
                 }
 
                 context("events만 수정할 때") {
                     val reqDto =
-                        ModifyEventReqDto(targetUrl = null, events = setOf(EventType.PROJECT_CREATED))
+                        ModifyEventReqDto(targetUrl = null, events = setOf(EventType.PROJECT_CHANGED))
 
                     beforeEach {
                         every { eventJpaRepository.findByIdAndAccount(1L, account) } returns existingEvent()
@@ -111,7 +111,7 @@ class ModifyEventServiceTest :
                         val result = modifyEventService.execute(1L, reqDto)
 
                         result.targetUrl shouldBe "https://old.example.com/event"
-                        result.events shouldBe setOf(EventType.PROJECT_CREATED)
+                        result.events shouldBe setOf(EventType.PROJECT_CHANGED)
                     }
                 }
             }
