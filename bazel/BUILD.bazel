@@ -1,0 +1,104 @@
+load("@bazel_skylib//rules:common_settings.bzl", "string_flag")
+load("@rules_kotlin//kotlin:core.bzl", "define_kt_toolchain", "kt_compiler_plugin")
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
+
+# Kotlin bytecode target selector. Default 25 (production server); datagsm-shared's publish
+# builds with --//bazel:kt_jvm_target=17 so the SDK stays consumable on JDK 17+.
+string_flag(
+    name = "kt_jvm_target",
+    build_setting_default = "25",
+    values = [
+        "17",
+        "25",
+    ],
+)
+
+config_setting(
+    name = "kt_jvm_target_17",
+    flag_values = {":kt_jvm_target": "17"},
+)
+
+config_setting(
+    name = "kt_jvm_target_25",
+    flag_values = {":kt_jvm_target": "25"},
+)
+
+# Project-wide Kotlin toolchain (Kotlin 2.3.10). JVM 25 matches the production server;
+# selected when //bazel:kt_jvm_target is 25 (the default).
+define_kt_toolchain(
+    name = "kotlin_toolchain",
+    api_version = "2.3",
+    jvm_target = "25",
+    language_version = "2.3",
+    target_settings = [":kt_jvm_target_25"],
+)
+
+# JVM 17 variant — selected only when //bazel:kt_jvm_target is 17 (datagsm-shared publish),
+# keeping the published SDK consumable on JDK 17+.
+define_kt_toolchain(
+    name = "kotlin_toolchain_jvm17",
+    api_version = "2.3",
+    jvm_target = "17",
+    language_version = "2.3",
+    target_settings = [":kt_jvm_target_17"],
+)
+
+# Shared Kotlin compiler plugins replicating the Gradle kotlin-spring / kotlin-jpa plugins.
+# Used by datagsm-common and every service module (root build's isServiceModule block).
+
+# kotlin-spring: all-open for @Component/@Transactional/@Async/@Cacheable/@Validated.
+kt_compiler_plugin(
+    name = "allopen_spring",
+    id = "org.jetbrains.kotlin.allopen",
+    options = {"preset": "spring"},
+    visibility = ["//visibility:public"],
+    deps = ["@rules_kotlin//kotlin/compiler:allopen-compiler-plugin"],
+)
+
+# kotlin-jpa: no-arg constructor for @Entity/@Embeddable/@MappedSuperclass.
+kt_compiler_plugin(
+    name = "noarg_jpa",
+    id = "org.jetbrains.kotlin.noarg",
+    options = {"preset": "jpa"},
+    visibility = ["//visibility:public"],
+    deps = ["@rules_kotlin//kotlin/compiler:noarg-compiler-plugin"],
+)
+
+# kotlinx.serialization: generates serializers for @Serializable classes (datagsm-shared).
+kt_compiler_plugin(
+    name = "kotlinx_serialization",
+    compile_phase = True,
+    id = "org.jetbrains.kotlinx.serialization",
+    stubs_phase = True,
+    visibility = ["//visibility:public"],
+    deps = ["@rules_kotlin//kotlin/compiler:kotlinx-serialization-compiler-plugin"],
+)
+
+# Target platform for the container image (Docker Desktop on Apple Silicon runs linux/arm64
+# natively). Building the image under --platforms=//bazel:linux_arm64 makes the java_binary
+# bundle a LINUX remotejdk instead of the host's macOS JDK.
+platform(
+    name = "linux_arm64",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:arm64",
+    ],
+)
+
+# --- ktlint (replaces the Gradle ktlint plugin) ---
+# Runs the official self-contained ktlint-cli `-all` jar directly (see ktlint.sh).
+sh_binary(
+    name = "ktlint",
+    srcs = ["ktlint.sh"],
+    data = ["@maven//:com_pinterest_ktlint_ktlint_cli_all"],
+    visibility = ["//visibility:public"],
+)
+
+# linux/amd64 — used to verify the OCI base resolves on amd64 CI runners.
+platform(
+    name = "linux_amd64",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+)

@@ -1,0 +1,28 @@
+load("//bazel:defs.bzl", "datagsm_kotest_test", "datagsm_service", "datagsm_service_image")
+
+# Module-specific deps from datagsm-web/build.gradle.kts: mail, JJWT, Apache POI.
+datagsm_service(
+    name = "web",
+    main_class = "team.themoment.datagsm.web.DatagsmWebApplicationKt",
+    extra_artifacts = [
+        "org.springframework.boot:spring-boot-starter-mail",
+        "io.jsonwebtoken:jjwt-api",
+        "org.apache.poi:poi",
+        "org.apache.poi:poi-ooxml",
+    ],
+    extra_runtime_artifacts = [
+        "io.jsonwebtoken:jjwt-impl",
+        "io.jsonwebtoken:jjwt-jackson",
+    ],
+)
+
+datagsm_service_image(
+    name = "web",
+    main_class = "team.themoment.datagsm.web.DatagsmWebApplicationKt",
+)
+
+datagsm_kotest_test(
+    name = "web_test",
+    associate = ":web_lib",
+    spring_test = True,
+)

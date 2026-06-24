@@ -27,10 +27,12 @@ DataGSM is a Spring Boot REST API service providing school information (students
 
 ## Commands
 
-- Build: `./gradlew build`
-- Test: `./gradlew test`
-- Format: `./gradlew ktlintFormat`
-- Run: `./gradlew :datagsm-{module}:bootRun`
+Build system is **Bazel** (bazelisk).
+
+- Build: `bazel build //...`
+- Test: `bazel test //...`
+- Format: `bazel run //bazel:ktlint -- -F` (check: `bazel run //bazel:ktlint`)
+- Run: `bazel run //datagsm-{module}:{name}`
 
 ## Coding Conventions
 

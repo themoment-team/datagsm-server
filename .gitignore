@@ -21,6 +21,8 @@ bin/
 .idea/*
 !.idea/externalDependencies.xml
 !.idea/icon.svg
+!.idea/runConfigurations
+!.idea/runConfigurations/*
 *.iws
 *.iml
 *.ipr
@@ -51,3 +53,8 @@ out/
 PR_BODY.md
 .pr-tmp/
 /.claude/command.log
+
+### Bazel ###
+# Convenience symlinks into the build cache (bazel-bin, bazel-out, bazel-testlogs,
+# bazel-<workspace>). MODULE.bazel.lock IS committed for reproducible resolution.
+/bazel-*

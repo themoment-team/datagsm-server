@@ -1,0 +1,30 @@
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+load("//bazel:defs.bzl", "datagsm_kotest_test", "datagsm_service", "datagsm_service_image")
+
+# Simplest service module — no module-specific deps (per its build.gradle.kts).
+# Proven to compile and run as a real Spring Boot app from a flat classpath.
+#
+# Deployable artifact (research findings — both fat-jar paths failed):
+#   1. rules_spring 2.6.3 (purpose-built bootJar equivalent) is INCOMPATIBLE with Bazel 9
+#      — its springboot.bzl references the removed global `JavaInfo` symbol.
+#   2. A native java_binary `_deploy.jar` (flat über-jar) builds but FAILS at runtime with
+#      BeanDefinitionOverrideException: merging every class into one classpath root defeats
+#      Spring Data's JPA-vs-Redis multi-store repository disambiguation.
+# Adopted path: datagsm_service_image containerizes the layered classpath (verified to boot
+# correctly in Docker), rather than reproducing Gradle's fat bootJar.
+datagsm_service(
+    name = "openapi",
+    main_class = "team.themoment.datagsm.openapi.DatagsmResourceApplicationKt",
+)
+
+datagsm_service_image(
+    name = "openapi",
+    main_class = "team.themoment.datagsm.openapi.DatagsmResourceApplicationKt",
+)
+
+datagsm_kotest_test(
+    name = "openapi_test",
+    associate = ":openapi_lib",
+    spring_test = True,
+)

@@ -16,10 +16,17 @@ School information API server for Gwangju Software Meister High School (students
 
 ## Commands
 
-- Build: `./gradlew build`
-- Test: `./gradlew test`
-- Format: `./gradlew ktlintFormat`
-- Run: `./gradlew :<module>:bootRun` (modules: `datagsm-oauth-authorization`, `datagsm-openapi`, `datagsm-oauth-userinfo`, `datagsm-web`)
+Primary build is **Bazel** (bazelisk). Modules: `datagsm-oauth-authorization`, `datagsm-openapi`, `datagsm-oauth-userinfo`, `datagsm-web`.
+
+- Build: `bazel build //...`
+- Test: `bazel test //...`
+- Run a service: `bazel run //<module>:<name>` (e.g. `bazel run //datagsm-openapi:openapi`)
+- Container image: `bazel run //<module>:<name>_image_load` then `docker run datagsm-<name>:bazel`
+- TS npm package: `bazel build //datagsm-shared:ts_package`
+- Lint (ktlint): `bazel run //bazel:ktlint` (check), `bazel run //bazel:ktlint -- -F` (format)
+- Publish datagsm-shared: `bazel run //datagsm-shared:publish --//bazel:kt_jvm_target=17 -- <version>` (SDK targets JVM 17; services default to JVM 25)
+
+The build is fully Bazel; Gradle has been removed.
 
 ## Tech Stack
 

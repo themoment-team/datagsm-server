@@ -1,0 +1,15 @@
+# Bazel migration research config (research/bazel-migration branch).
+# Additive only — does not affect the Gradle build.
+
+common --enable_bzlmod
+
+# Runtime + bytecode target JDK 25 to match the production server (eclipse-temurin:25).
+# Bazel ships hermetic remote JDKs, so the host JDK is irrelevant. The KSP worker / build
+# tools also run on JDK 25, so datagsm-ksp-processor can target 25 bytecode safely.
+build --java_language_version=25
+build --java_runtime_version=remotejdk_25
+build --tool_java_language_version=25
+build --tool_java_runtime_version=remotejdk_25
+
+# Quieter, reproducible-ish local builds during research.
+test --test_output=errors

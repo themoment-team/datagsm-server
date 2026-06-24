@@ -1,0 +1,14 @@
+directories:
+  bazel
+  datagsm-common
+  datagsm-ksp-processor
+  datagsm-oauth-authorization
+  datagsm-oauth-userinfo
+  datagsm-openapi
+  datagsm-shared
+  datagsm-web
+
+derive_targets_from_directories: true
+
+targets:
+  //...

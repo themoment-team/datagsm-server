@@ -91,23 +91,21 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v6
 
-      - name: Setup JDK 25
-        uses: actions/setup-java@v5
+      - name: Setup Bazel
+        uses: bazel-contrib/setup-bazel@0.19.0
         with:
-          java-version: '25'
-          distribution: 'temurin'
+          bazelisk-cache: true
+          disk-cache: true
+          repository-cache: true
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
-        with:
-          cache-read-only: false
-          cache-cleanup: always
+      - name: Build and Test with Bazel
+        run: bazel test //...
 
-      - name: Test with Gradle
-        run: ./gradlew build --parallel --build-cache
+      - name: Lint with ktlint
+        run: bazel run //bazel:ktlint
 
       - name: Assemble type-only npm package
-        run: ./gradlew :datagsm-shared:assembleTsPackage --build-cache
+        run: bazel build //datagsm-shared:ts_package
 
       - name: Setup Node
         uses: actions/setup-node@v5
@@ -115,7 +113,7 @@ jobs:
           node-version: '24'
 
       - name: Type-check generated index.d.ts
-        run: npx -y -p typescript@5 tsc --strict --noEmit datagsm-shared/build/npm-ts/index.d.ts
+        run: npx -y -p typescript@5 tsc --strict --noEmit bazel-bin/datagsm-shared/npm/index.d.ts
 
   notify:
     runs-on: ubuntu-latest

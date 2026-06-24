@@ -1,0 +1,145 @@
+# Bazel module definition for the datagsm-server Bazel migration research.
+# Mirrors versions pinned in buildSrc/ (Plugins.kt / Dependencies.kt) where possible.
+module(
+    name = "datagsm_server",
+    version = "v20260609.0",
+)
+
+bazel_dep(name = "rules_java", version = "9.3.0")
+bazel_dep(name = "rules_jvm_external", version = "7.0")
+
+# Container packaging — the recommended deploy path: containerize the kt_jvm_binary
+# (layered classpath) instead of a flat fat-jar that breaks Spring Data multi-store.
+bazel_dep(name = "rules_oci", version = "2.3.0")
+bazel_dep(name = "rules_pkg", version = "1.2.0")
+bazel_dep(name = "rules_shell", version = "0.6.1")
+bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "bazel_skylib", version = "1.8.2")
+
+# rules_kotlin 2.3.10 bundles the Kotlin 2.3.10 compiler — exactly matching
+# buildSrc PluginVersions.KOTLIN_VERSION. This alignment is the key reason the
+# migration is viable on this otherwise bleeding-edge toolchain.
+bazel_dep(name = "rules_kotlin", version = "2.3.10")
+
+# NOTE: rules_spring 2.6.3 (Spring Boot bootJar equivalent) was evaluated and is
+# INCOMPATIBLE with Bazel 9 — its springboot.bzl references the removed global `JavaInfo`
+# symbol (`name 'JavaInfo' is not defined`). Left unused; deployable-jar strategy is under
+# research (native _deploy.jar caveats, or a custom rules_pkg BOOT-INF assembler).
+
+# Custom Kotlin toolchains: default JVM 25 (prod server); JVM 17 selected by the
+# //bazel:kt_jvm_target flag for datagsm-shared's published SDK (consumer floor 17).
+register_toolchains(
+    "//bazel:kotlin_toolchain",
+    "//bazel:kotlin_toolchain_jvm17",
+)
+
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+
+# BOMs mirror the imports in buildSrc Dependencies.kt + root build.gradle.kts
+# (Spring Boot / Spring Cloud / AWS SDK). BOM-managed artifacts below omit versions.
+maven.install(
+    boms = [
+        "org.springframework.boot:spring-boot-dependencies:4.0.3",
+        "org.springframework.cloud:spring-cloud-dependencies:2025.1.1",
+        "software.amazon.awssdk:bom:2.42.15",
+    ],
+    artifacts = [
+        # --- KSP processor module (datagsm-ksp-processor) ---
+        "com.google.devtools.ksp:symbol-processing-api:2.3.8",
+        "com.squareup:kotlinpoet:2.3.0",
+        "com.squareup:kotlinpoet-ksp:2.3.0",
+        # --- datagsm-common: Jakarta EE (BOM-managed) ---
+        "jakarta.persistence:jakarta.persistence-api",
+        "jakarta.transaction:jakarta.transaction-api",
+        "jakarta.validation:jakarta.validation-api",
+        # --- datagsm-common: Spring (BOM-managed) ---
+        "org.springframework.boot:spring-boot-starter-web",
+        "org.springframework.boot:spring-boot-starter-security",
+        "org.springframework.boot:spring-boot-starter-validation",
+        "org.springframework.boot:spring-boot-starter-aspectj",
+        "org.springframework.boot:spring-boot-starter-thymeleaf",
+        "org.springframework.boot:spring-boot-starter-data-jpa",
+        "org.springframework.boot:spring-boot-starter-data-redis",
+        "org.springframework.security:spring-security-core",
+        "org.springframework.retry:spring-retry",
+        "org.springframework.cloud:spring-cloud-starter-openfeign",
+        # --- datagsm-common: persistence / JSON / HTTP (BOM-managed) ---
+        "org.hibernate.orm:hibernate-core",
+        "com.mysql:mysql-connector-j",
+        "tools.jackson.module:jackson-module-kotlin",
+        "tools.jackson.core:jackson-databind",
+        "org.apache.httpcomponents.client5:httpclient5",
+        "software.amazon.awssdk:cloudwatchlogs",
+        # --- datagsm-common: explicit versions (not BOM-managed) ---
+        "io.github.openfeign.querydsl:querydsl-jpa:7.1",
+        "io.github.openfeign.querydsl:querydsl-ksp-codegen:7.1",
+        "io.github.snowykte0426:querydsl-mysql-json-jpa:0.2.4",
+        "com.bucket4j:bucket4j_jdk17-core:8.17.0",
+        "com.bucket4j:bucket4j_jdk17-lettuce:8.17.0",
+        "com.github.themoment-team:the-sdk:1.5",
+        "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2",
+        "org.jetbrains.kotlin:kotlin-reflect:2.3.10",
+        # --- datagsm-shared (KMP→JVM): generated @Serializable export classes ---
+        # KMP-published, so request the -jvm variants explicitly (see mockk note above).
+        "org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.8.1",
+        "org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.6.2",
+        # --- Service modules: shared starters ---
+        "io.github.zaman0806:disender-spring-boot-4-starter:0.1.1",
+        # --- Service modules: module-specific deps ---
+        "org.springframework.boot:spring-boot-starter-mail",
+        "org.springframework.boot:spring-boot-starter-oauth2-client",
+        "io.jsonwebtoken:jjwt-api:0.13.0",
+        "io.jsonwebtoken:jjwt-impl:0.13.0",
+        "io.jsonwebtoken:jjwt-jackson:0.13.0",
+        "org.apache.poi:poi:5.5.1",
+        "org.apache.poi:poi-ooxml:5.5.1",
+        # --- Test stack (Kotest + MockK) ---
+        "io.kotest:kotest-assertions-core-jvm:6.1.4",
+        "io.kotest:kotest-runner-junit5-jvm:6.1.4",
+        "io.kotest:kotest-framework-engine-jvm:6.1.4",
+        # mockk is KMP-published: the bare `io.mockk:mockk` is an empty metadata aggregator.
+        # Bazel/coursier can't do Gradle variant selection, so request the -jvm artifact
+        # explicitly (same root cause as the datagsm-shared KMP blocker).
+        "io.mockk:mockk-jvm:1.14.9",
+        "org.junit.platform:junit-platform-launcher:1.11.4",
+        "org.junit.platform:junit-platform-console:1.11.4",
+        # Service-module tests use Spring test utilities (MockMvc, MockMultipartFile, etc.).
+        "org.springframework.boot:spring-boot-starter-test",
+        "org.springframework.security:spring-security-test",
+        # ktlint CLI (replaces the Gradle ktlint plugin) — the self-contained `-all` fat jar
+        # is run directly with `java -jar` (it carries its own version manifest).
+        "com.pinterest.ktlint:ktlint-cli:jar:all:1.6.0",
+    ],
+    # Root build.gradle.kts: configurations.all { exclude(group = "org.bouncycastle") }
+    excluded_artifacts = [
+        "org.bouncycastle:bcprov-jdk18on",
+        "org.bouncycastle:bcpkix-jdk18on",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://jitpack.io",
+    ],
+    fail_if_repin_required = False,
+)
+use_repo(maven, "maven")
+
+# Base image for the service container — JRE 25 matching the production server
+# (prod.dockerfile uses eclipse-temurin:25-jre). Pinned by digest (not the floating tag) for
+# reproducible, cacheable builds. Both platforms: linux/amd64 for the CI runners, linux/arm64
+# for production (AWS Graviton / t4g) and Apple-Silicon dev.
+oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
+oci.pull(
+    name = "temurin_jre",
+    digest = "sha256:5cf92df78f6dba978777d5cffa3c856e583f86814fde82a6c3534ccdfd794f2f",
+    image = "docker.io/library/eclipse-temurin",
+    platforms = [
+        "linux/amd64",
+        "linux/arm64/v8",
+    ],
+)
+use_repo(
+    oci,
+    "temurin_jre",
+    "temurin_jre_linux_amd64",
+    "temurin_jre_linux_arm64_v8",
+)
