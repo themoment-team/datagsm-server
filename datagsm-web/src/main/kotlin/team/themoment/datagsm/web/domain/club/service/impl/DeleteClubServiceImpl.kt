@@ -43,7 +43,7 @@ class DeleteClubServiceImpl(
         clubJpaRepository.deleteAllByIdInBatch(listOf(clubId))
 
         eventPublisher.dispatch(
-            EventType.CLUB_CHANGED,
+            EventType.CLUB_UPDATED,
             EventChangedData(
                 old = listOf(EventChangeItem(0, oldObj)),
                 new = listOf(EventChangeItem(0, EmptyEventObject())),

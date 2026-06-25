@@ -54,8 +54,8 @@ class BatchOperationServiceImplTest :
                     }
                 }
 
-                Then("STUDENT_CHANGED 이벤트가 1회 발행된다") {
-                    verify(exactly = 1) { eventPublisher.dispatch(EventType.STUDENT_CHANGED, any()) }
+                Then("STUDENT_UPDATED 이벤트가 1회 발행된다") {
+                    verify(exactly = 1) { eventPublisher.dispatch(EventType.STUDENT_UPDATED, any()) }
                 }
             }
         }

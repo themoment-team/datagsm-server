@@ -79,7 +79,7 @@ class ModifyProjectServiceImpl(
 
         val newObj = generateProjectEventObject(project)
         eventPublisher.dispatch(
-            EventType.PROJECT_CHANGED,
+            EventType.PROJECT_UPDATED,
             EventChangedData(
                 old = listOf(EventChangeItem(0, oldObj)),
                 new = listOf(EventChangeItem(0, newObj)),

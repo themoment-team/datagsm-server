@@ -49,7 +49,7 @@ class BatchOperationServiceImpl(
             }
         if (olds.isNotEmpty()) {
             eventPublisher.dispatch(
-                EventType.STUDENT_CHANGED,
+                EventType.STUDENT_UPDATED,
                 EventChangedData(old = olds, new = news),
             )
         }

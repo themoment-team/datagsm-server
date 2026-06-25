@@ -87,7 +87,7 @@ class CreateProjectServiceImpl(
 
         val newObj = generateProjectEventObject(savedProjectEntity)
         eventPublisher.dispatch(
-            EventType.PROJECT_CHANGED,
+            EventType.PROJECT_UPDATED,
             EventChangedData(
                 old = listOf(EventChangeItem(0, EmptyEventObject())),
                 new = listOf(EventChangeItem(0, newObj)),

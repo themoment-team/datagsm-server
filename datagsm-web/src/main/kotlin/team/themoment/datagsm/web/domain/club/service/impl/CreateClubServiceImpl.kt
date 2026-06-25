@@ -91,7 +91,7 @@ class CreateClubServiceImpl(
 
         val newObj = generateClubEventObject(savedClub, leader, participants)
         eventPublisher.dispatch(
-            EventType.CLUB_CHANGED,
+            EventType.CLUB_UPDATED,
             EventChangedData(
                 old = listOf(EventChangeItem(0, EmptyEventObject())),
                 new = listOf(EventChangeItem(0, newObj)),
