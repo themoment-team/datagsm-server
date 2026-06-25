@@ -103,7 +103,7 @@ class ModifyClubServiceImpl(
 
         val newObj = generateClubEventObject(club, newLeader, participants)
         eventPublisher.dispatch(
-            EventType.CLUB_CHANGED,
+            EventType.CLUB_UPDATED,
             EventChangedData(
                 old = listOf(EventChangeItem(0, oldObj)),
                 new = listOf(EventChangeItem(0, newObj)),

@@ -32,7 +32,7 @@ class DeleteProjectServiceImpl(
         projectJpaRepository.delete(project)
 
         eventPublisher.dispatch(
-            EventType.PROJECT_CHANGED,
+            EventType.PROJECT_UPDATED,
             EventChangedData(
                 old = listOf(EventChangeItem(0, oldObj)),
                 new = listOf(EventChangeItem(0, EmptyEventObject())),

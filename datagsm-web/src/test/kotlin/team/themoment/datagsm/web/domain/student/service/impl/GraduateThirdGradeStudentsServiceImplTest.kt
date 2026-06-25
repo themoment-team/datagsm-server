@@ -66,7 +66,7 @@ class GraduateThirdGradeStudentsServiceImplTest :
 
             val dataSlot = slot<EventChangedData>()
             every { studentJpaRepository.findStudentsByGrade(3) } returns thirdGradeStudents
-            justRun { eventPublisher.dispatch(EventType.STUDENT_CHANGED, capture(dataSlot)) }
+            justRun { eventPublisher.dispatch(EventType.STUDENT_UPDATED, capture(dataSlot)) }
 
             When("모든 3학년 학생을 졸업 처리하면") {
                 val result = graduateThirdGradeStudentsService.execute()
@@ -88,8 +88,8 @@ class GraduateThirdGradeStudentsServiceImplTest :
                     verify(exactly = 1) { studentJpaRepository.findStudentsByGrade(3) }
                 }
 
-                Then("STUDENT_CHANGED 이벤트가 1회 발행되며 old/new가 index로 매핑된다") {
-                    verify(exactly = 1) { eventPublisher.dispatch(EventType.STUDENT_CHANGED, any()) }
+                Then("STUDENT_UPDATED 이벤트가 1회 발행되며 old/new가 index로 매핑된다") {
+                    verify(exactly = 1) { eventPublisher.dispatch(EventType.STUDENT_UPDATED, any()) }
                     val data = dataSlot.captured
                     data.old.size shouldBe 3
                     data.new.size shouldBe 3

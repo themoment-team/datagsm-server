@@ -152,7 +152,7 @@ class ModifyStudentExcelServiceTest :
 
                     it("학생 정보를 수정하고 성공 메시지를 반환해야 한다") {
                         val dataSlot = slot<EventChangedData>()
-                        justRun { mockEventPublisher.dispatch(EventType.STUDENT_CHANGED, capture(dataSlot)) }
+                        justRun { mockEventPublisher.dispatch(EventType.STUDENT_UPDATED, capture(dataSlot)) }
 
                         val result = modifyStudentExcelService.execute(file)
 
@@ -174,13 +174,13 @@ class ModifyStudentExcelServiceTest :
                         verify { mockStudentRepository.bulkUpdateEmails(match { it[1L] == "hong@gsm.hs.kr" }) }
                     }
 
-                    it("STUDENT_CHANGED 이벤트의 old는 수정 전, new는 수정 후 값을 담는다") {
+                    it("STUDENT_UPDATED 이벤트의 old는 수정 전, new는 수정 후 값을 담는다") {
                         val dataSlot = slot<EventChangedData>()
-                        justRun { mockEventPublisher.dispatch(EventType.STUDENT_CHANGED, capture(dataSlot)) }
+                        justRun { mockEventPublisher.dispatch(EventType.STUDENT_UPDATED, capture(dataSlot)) }
 
                         modifyStudentExcelService.execute(file)
 
-                        verify(exactly = 1) { mockEventPublisher.dispatch(EventType.STUDENT_CHANGED, any()) }
+                        verify(exactly = 1) { mockEventPublisher.dispatch(EventType.STUDENT_UPDATED, any()) }
                         val data = dataSlot.captured
                         data.old.size shouldBe 1
                         data.new.size shouldBe 1

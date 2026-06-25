@@ -42,7 +42,7 @@ class GraduateStudentServiceImpl(
 
         val new = generateStudentEventObject(student)
         eventPublisher.dispatch(
-            EventType.STUDENT_CHANGED,
+            EventType.STUDENT_UPDATED,
             EventChangedData(
                 old = listOf(EventChangeItem(0, old)),
                 new = listOf(EventChangeItem(0, new)),

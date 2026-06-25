@@ -188,7 +188,7 @@ class ModifyStudentExcelServiceImpl(
             val olds = changed.mapIndexed { index, i -> EventChangeItem(index, oldObjects[i]) }
             val news = changed.mapIndexed { index, i -> EventChangeItem(index, newObjects[i]) }
             eventPublisher.dispatch(
-                EventType.STUDENT_CHANGED,
+                EventType.STUDENT_UPDATED,
                 EventChangedData(old = olds, new = news),
             )
         }

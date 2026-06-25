@@ -47,7 +47,7 @@ class CreateEventServiceTest :
                 val reqDto =
                     CreateEventReqDto(
                         targetUrl = "https://example.com/event",
-                        events = setOf(EventType.STUDENT_CHANGED),
+                        events = setOf(EventType.STUDENT_UPDATED),
                     )
 
                 context("등록된 Event가 최대 개수(10개)에 도달했을 때") {
