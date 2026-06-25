@@ -22,7 +22,7 @@ import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import java.io.File
 
-class KmpExportProcessor(
+class SdkExportProcessor(
     private val logger: KSPLogger,
     private val outputDir: File,
     private val tsOutputDir: File?,
@@ -94,7 +94,7 @@ class KmpExportProcessor(
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val symbols =
             resolver
-                .getSymbolsWithAnnotation("team.themoment.datagsm.ksp.annotation.KmpExport")
+                .getSymbolsWithAnnotation("team.themoment.datagsm.ksp.annotation.SdkExport")
                 .filterIsInstance<KSClassDeclaration>()
                 .toList()
 
@@ -179,7 +179,6 @@ class KmpExportProcessor(
             TypeSpec
                 .enumBuilder(info.className)
                 .addAnnotation(serializableAnnotation())
-                .addAnnotation(jsExportAnnotation())
         info.enumEntries.forEach { enumBuilder.addEnumConstant(it) }
         return FileSpec
             .builder(info.targetPackage, info.className)
@@ -206,7 +205,6 @@ class KmpExportProcessor(
                 .classBuilder(info.className)
                 .addModifiers(KModifier.DATA)
                 .addAnnotation(serializableAnnotation())
-                .addAnnotation(jsExportAnnotation())
                 .primaryConstructor(constructorBuilder.build())
                 .addProperties(propSpecs)
                 .build()
@@ -229,7 +227,7 @@ class KmpExportProcessor(
                 ?.find { it.name?.asString() == "value" || it.name == null }
                 ?.value as? String
         if (value == null) {
-            logger.warn("@KmpExport $ownerClassName.$propName has no @field:JsonProperty — using property name '$propName' as SerialName")
+            logger.warn("@SdkExport $ownerClassName.$propName has no @field:JsonProperty — using property name '$propName' as SerialName")
         }
         return value ?: propName
     }
@@ -245,8 +243,8 @@ class KmpExportProcessor(
                     Variance.STAR, null -> STAR
                     else -> elementArg.type?.resolve()?.let { mapType(it) } ?: STAR
                 }
-            val arrayType = ClassName("kotlin", "Array").parameterizedBy(elementType)
-            return if (type.isMarkedNullable) arrayType.copy(nullable = true) else arrayType
+            val listType = ClassName("kotlin.collections", "List").parameterizedBy(elementType)
+            return if (type.isMarkedNullable) listType.copy(nullable = true) else listType
         }
 
         val baseClassName =
@@ -285,7 +283,7 @@ class KmpExportProcessor(
         }
 
     // Maps a Kotlin type to a plain TypeScript type string (matching the raw JSON shape).
-    // Nested @KmpExport DTOs and enums are flattened to their simple name (no namespace).
+    // Nested @SdkExport DTOs and enums are flattened to their simple name (no namespace).
     // Every flattened (non-builtin) name is collected into `refs` so the emitter can verify
     // it is actually exported, instead of silently emitting a dangling type reference.
     private fun mapTsType(
@@ -380,8 +378,6 @@ class KmpExportProcessor(
     }
 
     private fun serializableAnnotation() = AnnotationSpec.builder(ClassName("kotlinx.serialization", "Serializable")).build()
-
-    private fun jsExportAnnotation() = AnnotationSpec.builder(ClassName("kotlin.js", "JsExport")).build()
 
     private fun serialNameAnnotation(name: String) =
         AnnotationSpec

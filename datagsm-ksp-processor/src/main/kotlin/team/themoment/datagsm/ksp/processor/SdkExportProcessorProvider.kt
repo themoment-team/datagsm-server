@@ -5,12 +5,12 @@ import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import java.io.File
 
-class KmpExportProcessorProvider : SymbolProcessorProvider {
+class SdkExportProcessorProvider : SymbolProcessorProvider {
     override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
         val outputDir =
-            environment.options["kmpOutputDir"]
-                ?: error("KmpExport: kmpOutputDir option is required")
+            environment.options["sdkOutputDir"]
+                ?: error("SdkExport: sdkOutputDir option is required")
         val tsOutputDir = environment.options["tsOutputDir"]?.let { File(it) }
-        return KmpExportProcessor(environment.logger, File(outputDir), tsOutputDir)
+        return SdkExportProcessor(environment.logger, File(outputDir), tsOutputDir)
     }
 }

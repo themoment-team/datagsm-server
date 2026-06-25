@@ -1,10 +1,10 @@
 package team.themoment.datagsm.common.domain.neis.dto.schedule.response
 
 import io.swagger.v3.oas.annotations.media.Schema
-import team.themoment.datagsm.ksp.annotation.KmpExport
+import team.themoment.datagsm.ksp.annotation.SdkExport
 import java.time.LocalDate
 
-@KmpExport
+@SdkExport
 @Schema(description = "학사일정 단건 정보")
 data class ScheduleInfoResDto(
     @field:Schema(description = "학사일정 ID", example = "7430310_20251215")

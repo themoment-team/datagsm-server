@@ -98,7 +98,7 @@ class TsDefinitionEmitterTest :
 
                 Then("dangling 참조를 조용히 내보내지 않고 오류로 보고한다") {
                     errors shouldContainExactlyInAnyOrder
-                        listOf("Type 'TeacherDto' referenced by ClubResDto.owner is not exported (missing @KmpExport?)")
+                        listOf("Type 'TeacherDto' referenced by ClubResDto.owner is not exported (missing @SdkExport?)")
                 }
             }
         }
