@@ -18,6 +18,14 @@ kotlin {
     }
 }
 
+// Toolchain compiles under JDK 25, but Kotlin targets JVM 17 bytecode (compilerOptions above).
+// compileJava defaults to the toolchain version (25), so the Java target must be pinned to 17
+// to match — otherwise Gradle fails with "Inconsistent JVM Target Compatibility".
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
 sourceSets {
     main {
         kotlin.srcDir(
