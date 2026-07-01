@@ -6,9 +6,14 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.common.domain.club.dto.response.ClubResDto
+import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.event.dto.payload.ClubUpdatedData
+import team.themoment.datagsm.common.domain.event.dto.payload.ClubEventObject
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.EventStudentRef
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
@@ -47,6 +52,14 @@ class ModifyClubServiceImpl(
         }
 
         val oldType = club.type
+
+        val oldMembers =
+            if (oldType == ClubType.MAJOR_CLUB) {
+                studentJpaRepository.findByMajorClub(club)
+            } else {
+                studentJpaRepository.findByAutonomousClub(club)
+            }
+        val oldObj = generateClubEventObject(club, club.leader, oldMembers.filter { it.id != club.leader?.id })
 
         club.name = reqDto.name
         club.type = reqDto.type
@@ -88,9 +101,13 @@ class ModifyClubServiceImpl(
             studentJpaRepository.bulkAssignClub(participantIdsForBulkAssign, club, reqDto.type)
         }
 
+        val newObj = generateClubEventObject(club, newLeader, participants)
         eventPublisher.dispatch(
             EventType.CLUB_UPDATED,
-            ClubUpdatedData(clubId = club.id!!, name = club.name, type = club.type.name),
+            EventChangedData(
+                old = listOf(EventChangeItem(0, oldObj)),
+                new = listOf(EventChangeItem(0, newObj)),
+            ),
         )
 
         return ClubResDto(
@@ -113,5 +130,21 @@ class ModifyClubServiceImpl(
             studentNumber = this.studentNumber?.fullStudentNumber,
             major = this.major,
             sex = this.sex,
+        )
+
+    private fun generateClubEventObject(
+        club: ClubJpaEntity,
+        leader: StudentJpaEntity?,
+        participants: List<StudentJpaEntity>,
+    ): ClubEventObject =
+        ClubEventObject(
+            clubId = club.id!!,
+            name = club.name,
+            type = club.type.name,
+            foundedYear = club.foundedYear,
+            status = club.status.name,
+            abolishedYear = club.abolishedYear,
+            leader = leader?.let { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },
+            participants = participants.map { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },
         )
 }

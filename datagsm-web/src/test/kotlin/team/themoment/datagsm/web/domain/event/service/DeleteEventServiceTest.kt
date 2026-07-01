@@ -53,7 +53,7 @@ class DeleteEventServiceTest :
                         EventJpaEntity().apply {
                             id = 1L
                             targetUrl = "https://example.com/event"
-                            events = mutableSetOf(EventType.CLUB_DELETED)
+                            events = mutableSetOf(EventType.CLUB_UPDATED)
                             createdAt = LocalDateTime.now()
                         }
 

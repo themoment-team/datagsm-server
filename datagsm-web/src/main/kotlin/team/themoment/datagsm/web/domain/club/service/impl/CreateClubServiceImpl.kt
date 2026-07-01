@@ -9,7 +9,11 @@ import team.themoment.datagsm.common.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.event.dto.payload.ClubCreatedData
+import team.themoment.datagsm.common.domain.event.dto.payload.ClubEventObject
+import team.themoment.datagsm.common.domain.event.dto.payload.EmptyEventObject
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.EventStudentRef
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
@@ -85,9 +89,13 @@ class CreateClubServiceImpl(
 
         studentJpaRepository.bulkAssignClub(participantIdsForBulkAssign, savedClub, clubReqDto.type)
 
+        val newObj = generateClubEventObject(savedClub, leader, participants)
         eventPublisher.dispatch(
-            EventType.CLUB_CREATED,
-            ClubCreatedData(clubId = savedClub.id!!, name = savedClub.name, type = savedClub.type.name),
+            EventType.CLUB_UPDATED,
+            EventChangedData(
+                old = listOf(EventChangeItem(0, EmptyEventObject())),
+                new = listOf(EventChangeItem(0, newObj)),
+            ),
         )
 
         return ClubResDto(
@@ -110,5 +118,21 @@ class CreateClubServiceImpl(
             studentNumber = this.studentNumber?.fullStudentNumber,
             major = this.major,
             sex = this.sex,
+        )
+
+    private fun generateClubEventObject(
+        club: ClubJpaEntity,
+        leader: StudentJpaEntity?,
+        participants: List<StudentJpaEntity>,
+    ): ClubEventObject =
+        ClubEventObject(
+            clubId = club.id!!,
+            name = club.name,
+            type = club.type.name,
+            foundedYear = club.foundedYear,
+            status = club.status.name,
+            abolishedYear = club.abolishedYear,
+            leader = leader?.let { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },
+            participants = participants.map { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },
         )
 }

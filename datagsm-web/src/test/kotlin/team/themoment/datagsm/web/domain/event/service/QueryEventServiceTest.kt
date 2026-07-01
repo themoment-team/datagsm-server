@@ -36,7 +36,7 @@ class QueryEventServiceTest :
                             EventJpaEntity().apply {
                                 id = 1L
                                 targetUrl = "https://example.com/event"
-                                events = mutableSetOf(EventType.CLUB_CREATED)
+                                events = mutableSetOf(EventType.CLUB_UPDATED)
                                 this.account = account
                                 createdAt = LocalDateTime.now()
                             }
@@ -49,7 +49,7 @@ class QueryEventServiceTest :
                         result.events.size shouldBe 1
                         result.events[0].id shouldBe 1L
                         result.events[0].targetUrl shouldBe "https://example.com/event"
-                        result.events[0].events shouldBe setOf(EventType.CLUB_CREATED)
+                        result.events[0].events shouldBe setOf(EventType.CLUB_UPDATED)
                     }
                 }
 

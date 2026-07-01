@@ -12,6 +12,7 @@ import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.web.domain.project.service.impl.DeleteProjectServiceImpl
 import team.themoment.sdk.exception.ExpectedException
@@ -51,6 +52,8 @@ class DeleteProjectServiceTest :
                             this.id = projectId
                             name = "DataGSM 프로젝트"
                             description = "학교 데이터를 제공하는 API 서비스"
+                            startYear = 2022
+                            status = ProjectStatus.ACTIVE
                             this.club = ownerClub
                         }
 
@@ -102,6 +105,8 @@ class DeleteProjectServiceTest :
                             this.id = projectId
                             name = "자율동아리 프로젝트"
                             description = "자율 프로젝트"
+                            startYear = 2022
+                            status = ProjectStatus.ACTIVE
                             club = autonomousClub
                         }
 

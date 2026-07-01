@@ -65,6 +65,8 @@ class ModifyClubServiceTest :
                             foundedYear = 2022
                             status = ClubStatus.ACTIVE
                         }
+                    every { mockStudentRepository.findByMajorClub(existing) } returns emptyList()
+                    every { mockStudentRepository.findByAutonomousClub(existing) } returns emptyList()
                 }
 
                 context("이름을 다른 값으로 변경할 때") {

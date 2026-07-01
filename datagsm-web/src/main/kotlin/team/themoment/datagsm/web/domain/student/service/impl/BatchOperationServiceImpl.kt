@@ -2,9 +2,15 @@ package team.themoment.datagsm.web.domain.student.service.impl
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventObject
+import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.internal.BatchOperationType
 import team.themoment.datagsm.common.domain.student.dto.request.BatchOperationReqDto
 import team.themoment.datagsm.common.domain.student.dto.response.GraduateStudentResDto
+import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.student.service.BatchOperationService
@@ -12,6 +18,7 @@ import team.themoment.datagsm.web.domain.student.service.BatchOperationService
 @Service
 class BatchOperationServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
+    private val eventPublisher: EventPublisher,
 ) : BatchOperationService {
     @Transactional
     override fun execute(reqDto: BatchOperationReqDto): GraduateStudentResDto =
@@ -22,6 +29,11 @@ class BatchOperationServiceImpl(
     private fun graduateStudents(grade: Int): GraduateStudentResDto {
         val students = studentJpaRepository.findStudentsByGrade(grade)
 
+        val olds =
+            students.mapIndexed { index, student ->
+                EventChangeItem(index, generateStudentEventObject(student))
+            }
+
         students.forEach { student ->
             student.role = StudentRole.GRADUATE
             student.major = null
@@ -31,6 +43,37 @@ class BatchOperationServiceImpl(
             student.autonomousClub = null
         }
 
+        val news =
+            students.mapIndexed { index, student ->
+                EventChangeItem(index, generateStudentEventObject(student))
+            }
+        if (olds.isNotEmpty()) {
+            eventPublisher.dispatch(
+                EventType.STUDENT_UPDATED,
+                EventChangedData(old = olds, new = news),
+            )
+        }
+
         return GraduateStudentResDto(graduatedCount = students.size)
     }
+
+    private fun generateStudentEventObject(student: StudentJpaEntity): StudentEventObject =
+        StudentEventObject(
+            studentId = student.id!!,
+            name = student.name,
+            email = student.email,
+            sex = student.sex.name,
+            grade = student.studentNumber?.studentGrade,
+            classNum = student.studentNumber?.studentClass,
+            number = student.studentNumber?.studentNumber,
+            studentNumber = student.studentNumber?.fullStudentNumber,
+            major = student.major?.name,
+            specialty = student.specialty,
+            role = student.role.name,
+            dormitoryFloor = student.dormitoryRoomNumber?.dormitoryRoomFloor,
+            dormitoryRoom = student.dormitoryRoomNumber?.dormitoryRoomNumber,
+            majorClubName = student.majorClub?.name,
+            autonomousClubName = student.autonomousClub?.name,
+            githubId = student.githubId,
+        )
 }

@@ -6,7 +6,9 @@ import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
+import io.mockk.justRun
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.springframework.http.HttpStatus
@@ -14,6 +16,10 @@ import org.springframework.mock.web.MockMultipartFile
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventObject
+import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.internal.StudentBulkUpdateDto
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
@@ -40,12 +46,16 @@ class ModifyStudentExcelServiceTest :
 
         lateinit var mockStudentRepository: StudentJpaRepository
         lateinit var mockClubRepository: ClubJpaRepository
+        lateinit var mockEventPublisher: EventPublisher
         lateinit var modifyStudentExcelService: ModifyStudentExcelService
 
         beforeEach {
             mockStudentRepository = mockk<StudentJpaRepository>()
             mockClubRepository = mockk<ClubJpaRepository>()
-            modifyStudentExcelService = ModifyStudentExcelServiceImpl(mockStudentRepository, mockClubRepository)
+            mockEventPublisher = mockk<EventPublisher>()
+            justRun { mockEventPublisher.dispatch(any(), any()) }
+            modifyStudentExcelService =
+                ModifyStudentExcelServiceImpl(mockStudentRepository, mockClubRepository, mockEventPublisher)
         }
 
         fun createValidExcelFile(): ByteArray {
@@ -141,6 +151,9 @@ class ModifyStudentExcelServiceTest :
                     }
 
                     it("학생 정보를 수정하고 성공 메시지를 반환해야 한다") {
+                        val dataSlot = slot<EventChangedData>()
+                        justRun { mockEventPublisher.dispatch(EventType.STUDENT_UPDATED, capture(dataSlot)) }
+
                         val result = modifyStudentExcelService.execute(file)
 
                         result.message shouldBe "엑셀 업로드 성공"
@@ -159,6 +172,42 @@ class ModifyStudentExcelServiceTest :
                             )
                         }
                         verify { mockStudentRepository.bulkUpdateEmails(match { it[1L] == "hong@gsm.hs.kr" }) }
+                    }
+
+                    it("STUDENT_UPDATED 이벤트의 old는 수정 전, new는 수정 후 값을 담는다") {
+                        val dataSlot = slot<EventChangedData>()
+                        justRun { mockEventPublisher.dispatch(EventType.STUDENT_UPDATED, capture(dataSlot)) }
+
+                        modifyStudentExcelService.execute(file)
+
+                        verify(exactly = 1) { mockEventPublisher.dispatch(EventType.STUDENT_UPDATED, any()) }
+                        val data = dataSlot.captured
+                        data.old.size shouldBe 1
+                        data.new.size shouldBe 1
+
+                        data.old[0].index shouldBe 0
+                        data.new[0].index shouldBe 0
+
+                        val old = data.old[0].obj as StudentEventObject
+                        val new = data.new[0].obj as StudentEventObject
+
+                        // 수정 전 값
+                        old.name shouldBe "기존이름"
+                        old.email shouldBe "old@gsm.hs.kr"
+                        old.major shouldBe Major.AI.name
+                        old.sex shouldBe Sex.WOMAN.name
+
+                        // 엑셀로 덮어쓴 값
+                        new.name shouldBe "홍길동"
+                        new.email shouldBe "hong@gsm.hs.kr"
+                        new.major shouldBe Major.SW_DEVELOPMENT.name
+                        new.sex shouldBe Sex.MAN.name
+                        new.dormitoryRoom shouldBe 301
+                        new.majorClubName shouldBe "SW개발동아리"
+                        new.autonomousClubName shouldBe "창체동아리B"
+
+                        // 엑셀이 수정하지 않는 학번은 보존된다
+                        new.studentNumber shouldBe old.studentNumber
                     }
                 }
 
