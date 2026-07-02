@@ -83,11 +83,12 @@ tasks.register("assembleTsPackage") {
         dir.mkdirs()
         tsFile.copyTo(dir.resolve("index.d.ts"), overwrite = true)
 
-        // npm requires semver; CI passes "<yyyyMMdd>-<run>" → normalize to "<yyyyMMdd>.0.0-<run>".
+        // npm requires semver; CI passes "<yyyyMMdd>-<run>" → normalize to "<yyyyMMdd>.0.<run>".
+        // Kept as a release version (no prerelease suffix) so `npm publish` doesn't require --tag.
         val npmVersion =
             Regex("""^(\d+)-(\d+)$""")
                 .find(packageVersion)
-                ?.let { "${it.groupValues[1]}.0.0-${it.groupValues[2]}" }
+                ?.let { "${it.groupValues[1]}.0.${it.groupValues[2]}" }
                 ?: packageVersion
 
         dir.resolve("package.json").writeText(
