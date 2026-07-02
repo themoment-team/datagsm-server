@@ -1,9 +1,9 @@
 package team.themoment.datagsm.common.domain.student.dto.response
 
 import io.swagger.v3.oas.annotations.media.Schema
-import team.themoment.datagsm.ksp.annotation.KmpExport
+import team.themoment.datagsm.ksp.annotation.SdkExport
 
-@KmpExport
+@SdkExport
 data class StudentListResDto(
     @field:Schema(description = "전체 페이지 수", example = "1")
     val totalPages: Int,

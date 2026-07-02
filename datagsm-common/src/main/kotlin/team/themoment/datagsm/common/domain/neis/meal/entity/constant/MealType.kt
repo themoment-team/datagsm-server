@@ -1,8 +1,8 @@
 package team.themoment.datagsm.common.domain.neis.meal.entity.constant
 
-import team.themoment.datagsm.ksp.annotation.KmpExport
+import team.themoment.datagsm.ksp.annotation.SdkExport
 
-@KmpExport
+@SdkExport
 enum class MealType {
     BREAKFAST,
     LUNCH,

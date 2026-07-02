@@ -1,10 +1,5 @@
-// NOTE: This Kotlin Multiplatform module is the source of the configuration cache
-// WARNINGs reported during the build — the KMP plugin serializes org.gradle.api.Project,
-// which the configuration cache does not support. This is a KMP plugin limitation, not
-// our code. It is why gradle.properties keeps configuration-cache.problems=warn instead
-// of fail. JVM service modules are unaffected and cache fully.
 plugins {
-    kotlin("multiplatform")
+    kotlin("jvm")
     kotlin("plugin.serialization")
     `maven-publish`
 }
@@ -15,43 +10,38 @@ version = (findProperty("SHARED_VERSION") as? String)
     ?: "local"
 
 kotlin {
-    compilerOptions {
-        freeCompilerArgs.add("-opt-in=kotlin.js.ExperimentalJsExport")
-    }
-
-    // Compile with the project-wide JDK 25 toolchain, but emit JVM 17 bytecode. This is the
-    // only externally published artifact, so a JVM 17 target keeps it consumable by any
-    // JDK 17+ client while the build itself stays aligned with the service modules.
     jvmToolchain {
         languageVersion = JavaLanguageVersion.of(25)
     }
-
-    jvm {
-        compilations.all {
-            compileTaskProvider.configure {
-                compilerOptions {
-                    jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-                }
-            }
-        }
-    }
-
-    sourceSets {
-        commonMain {
-            kotlin.srcDir(
-                project(":datagsm-common")
-                    .layout.buildDirectory
-                    .dir("generated/kmp-export/main/kotlin"),
-            )
-            dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
-            }
-        }
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 }
 
-tasks.named("compileKotlinJvm") {
+// Toolchain compiles under JDK 25, but Kotlin targets JVM 17 bytecode (compilerOptions above).
+// compileJava defaults to the toolchain version (25), so the Java target must be pinned to 17
+// to match — otherwise Gradle fails with "Inconsistent JVM Target Compatibility".
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+sourceSets {
+    main {
+        kotlin.srcDir(
+            project(":datagsm-common")
+                .layout.buildDirectory
+                .dir("generated/sdk-export/main/kotlin"),
+        )
+    }
+}
+
+dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
+}
+
+tasks.named("compileKotlin") {
     dependsOn(":datagsm-common:kspKotlin")
 }
 
@@ -68,7 +58,7 @@ tasks.register("assembleTsPackage") {
     val generatedTs =
         project(":datagsm-common")
             .layout.buildDirectory
-            .file("generated/kmp-export/main/ts/index.d.ts")
+            .file("generated/sdk-export/main/ts/index.d.ts")
     val outputDir = tsPackageDir
     val packageVersion = project.version.toString()
 

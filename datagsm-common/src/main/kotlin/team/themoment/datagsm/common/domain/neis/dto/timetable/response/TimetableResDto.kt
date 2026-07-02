@@ -1,9 +1,9 @@
 package team.themoment.datagsm.common.domain.neis.dto.timetable.response
 
 import io.swagger.v3.oas.annotations.media.Schema
-import team.themoment.datagsm.ksp.annotation.KmpExport
+import team.themoment.datagsm.ksp.annotation.SdkExport
 
-@KmpExport
+@SdkExport
 @Schema(description = "시간표 정보 응답")
 data class TimetableResDto(
     @field:Schema(description = "시간표 목록")
