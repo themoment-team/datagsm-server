@@ -87,7 +87,7 @@ tasks.register("assembleTsPackage") {
         // Kept as a release version (no prerelease suffix) so `npm publish` doesn't require --tag.
         val npmVersion =
             Regex("""^(\d+)-(\d+)$""")
-                .find(packageVersion)
+                .matchEntire(packageVersion)
                 ?.let { "${it.groupValues[1]}.0.${it.groupValues[2]}" }
                 ?: packageVersion
 
