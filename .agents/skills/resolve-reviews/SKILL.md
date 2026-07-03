@@ -8,7 +8,7 @@ allowed-tools: Bash(bash *get-pr-data.sh:*), Bash(gh api:*), Bash(gh pr view:*),
 ## Step 1 — Collect PR Data
 
 ```bash
-bash scripts/get-pr-data.sh
+bash .agents/skills/resolve-reviews/scripts/get-pr-data.sh
 ```
 
 Output files:
@@ -105,7 +105,7 @@ gh api "repos/<owner>/<repo>/pulls/<pr_number>/comments/<comment_id>/replies" \
   -f body="<reply_body>"
 ```
 
-For reply body templates, read `references/reply-formats.md`.
+For reply body templates, read `.agents/skills/resolve-reviews/references/reply-formats.md`.
 
 ## Step 7 — Cleanup
 

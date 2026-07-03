@@ -1,12 +1,15 @@
 model = "gpt-5.5"
 model_reasoning_effort = "high"
 web_search = "live"
-
-[approval]
-policy = "on-request"
-
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+project_doc_max_bytes = 32768
+[sandbox_workspace_write]
+network_access = true
 [shell]
 login_shell_allowed = true
-
 [features]
 hooks = true
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp"]

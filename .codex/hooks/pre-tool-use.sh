@@ -2,6 +2,7 @@
 INPUT=$(cat)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MODULES_DIR="$SCRIPT_DIR/modules"
+[[ -d "$MODULES_DIR" ]] || MODULES_DIR="${SCRIPT_DIR%/*}/modules"
 
 [[ -d "$MODULES_DIR" ]] || exit 0
 
