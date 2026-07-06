@@ -5,16 +5,14 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
 import io.mockk.slot
-import io.mockk.unmockkObject
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.event.dto.request.CreateEventReqDto
 import team.themoment.datagsm.common.domain.event.entity.EventJpaEntity
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.event.entity.constant.EventVerificationStatus
 import team.themoment.datagsm.common.domain.event.repository.EventJpaRepository
-import team.themoment.datagsm.common.domain.event.validator.EventUrlValidator
 import team.themoment.datagsm.web.domain.event.service.impl.CreateEventServiceImpl
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
@@ -25,21 +23,18 @@ class CreateEventServiceTest :
 
         lateinit var eventJpaRepository: EventJpaRepository
         lateinit var currentUserProvider: CurrentUserProvider
+        lateinit var eventVerificationService: EventVerificationService
         lateinit var createEventService: CreateEventService
         lateinit var account: AccountJpaEntity
 
         beforeEach {
             eventJpaRepository = mockk()
             currentUserProvider = mockk()
+            eventVerificationService = mockk(relaxed = true)
             account = mockk()
             every { currentUserProvider.getCurrentAccount() } returns account
-            createEventService = CreateEventServiceImpl(eventJpaRepository, currentUserProvider)
-            mockkObject(EventUrlValidator)
-            every { EventUrlValidator.isPrivateOrLocalUrl(any()) } returns false
-        }
-
-        afterEach {
-            unmockkObject(EventUrlValidator)
+            createEventService =
+                CreateEventServiceImpl(eventJpaRepository, currentUserProvider, eventVerificationService)
         }
 
         describe("CreateEventService 클래스의") {
@@ -55,27 +50,13 @@ class CreateEventServiceTest :
                         every { eventJpaRepository.countByAccount(account) } returns 10L
                     }
 
-                    it("ExpectedException이 발생해야 한다") {
+                    it("ExpectedException이 발생하고 검증을 트리거하지 않아야 한다") {
                         val ex =
                             shouldThrow<ExpectedException> {
                                 createEventService.execute(reqDto)
                             }
                         ex.message shouldBe "Event는 최대 10개까지 등록할 수 있습니다."
-                    }
-                }
-
-                context("내부 네트워크 URL을 등록하려 할 때") {
-                    beforeEach {
-                        every { eventJpaRepository.countByAccount(account) } returns 0L
-                        every { EventUrlValidator.isPrivateOrLocalUrl(any()) } returns true
-                    }
-
-                    it("ExpectedException이 발생해야 한다") {
-                        val ex =
-                            shouldThrow<ExpectedException> {
-                                createEventService.execute(reqDto)
-                            }
-                        ex.message shouldBe "내부 네트워크 URL은 Event 수신 URL로 등록할 수 없습니다."
+                        verify(exactly = 0) { eventVerificationService.verifyAsync(any()) }
                     }
                 }
 
@@ -92,14 +73,21 @@ class CreateEventServiceTest :
                         }
                     }
 
-                    it("Event를 저장하고 secret을 포함한 응답을 반환해야 한다") {
+                    it("Event를 PENDING 상태로 저장하고 secret을 포함한 응답을 반환해야 한다") {
                         val result = createEventService.execute(reqDto)
 
                         result.id shouldBe 1L
                         result.targetUrl shouldBe reqDto.targetUrl
                         result.events shouldBe reqDto.events
+                        result.verificationStatus shouldBe EventVerificationStatus.PENDING
                         result.secret.length shouldBe 64
                         verify(exactly = 1) { eventJpaRepository.save(any()) }
+                    }
+
+                    it("저장 후 비동기 URL 검증을 트리거해야 한다") {
+                        createEventService.execute(reqDto)
+
+                        verify(exactly = 1) { eventVerificationService.verifyAsync(1L) }
                     }
                 }
             }
