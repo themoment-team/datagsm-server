@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.event.entity.EventJpaEntity
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.event.entity.constant.EventVerificationStatus
 
 @Repository
 interface EventJpaRepository : JpaRepository<EventJpaEntity, Long> {
@@ -17,5 +18,8 @@ interface EventJpaRepository : JpaRepository<EventJpaEntity, Long> {
 
     fun countByAccount(account: AccountJpaEntity): Long
 
-    fun findAllByEventsContainsAndIsActiveTrue(event: EventType): List<EventJpaEntity>
+    fun findAllByEventsContainsAndIsActiveTrueAndVerificationStatus(
+        event: EventType,
+        verificationStatus: EventVerificationStatus,
+    ): List<EventJpaEntity>
 }

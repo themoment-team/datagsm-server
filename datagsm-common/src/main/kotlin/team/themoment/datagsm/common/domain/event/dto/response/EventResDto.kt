@@ -3,6 +3,7 @@ package team.themoment.datagsm.common.domain.event.dto.response
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.event.entity.constant.EventVerificationStatus
 import java.time.LocalDateTime
 
 data class EventResDto(
@@ -21,4 +22,7 @@ data class EventResDto(
     @field:Schema(description = "생성 일시")
     @field:JsonProperty("created_at")
     val createdAt: LocalDateTime,
+    @field:Schema(description = "URL 검증 상태")
+    @field:JsonProperty("verification_status")
+    val verificationStatus: EventVerificationStatus,
 )
