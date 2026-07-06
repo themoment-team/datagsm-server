@@ -22,28 +22,28 @@ class ModifyEventServiceTest :
 
         lateinit var eventJpaRepository: EventJpaRepository
         lateinit var currentUserProvider: CurrentUserProvider
-        lateinit var eventVerificationService: EventVerificationService
+        lateinit var verifyEventService: VerifyEventService
         lateinit var modifyEventService: ModifyEventService
         lateinit var account: AccountJpaEntity
 
-        fun existingEvent() =
+        fun existingEvent(status: EventVerificationStatus = EventVerificationStatus.VERIFIED) =
             EventJpaEntity().apply {
                 id = 1L
                 targetUrl = "https://old.example.com/event"
                 events = mutableSetOf(EventType.CLUB_UPDATED)
                 this.account = account
-                verificationStatus = EventVerificationStatus.VERIFIED
+                verificationStatus = status
                 createdAt = LocalDateTime.now()
             }
 
         beforeEach {
             eventJpaRepository = mockk()
             currentUserProvider = mockk()
-            eventVerificationService = mockk(relaxed = true)
+            verifyEventService = mockk(relaxed = true)
             account = mockk()
             every { currentUserProvider.getCurrentAccount() } returns account
             modifyEventService =
-                ModifyEventServiceImpl(eventJpaRepository, currentUserProvider, eventVerificationService)
+                ModifyEventServiceImpl(eventJpaRepository, currentUserProvider, verifyEventService)
         }
 
         describe("ModifyEventService 클래스의") {
@@ -61,7 +61,7 @@ class ModifyEventServiceTest :
                                 modifyEventService.execute(1L, reqDto)
                             }
                         ex.message shouldBe "Event를 찾을 수 없습니다."
-                        verify(exactly = 0) { eventVerificationService.verifyAsync(any()) }
+                        verify(exactly = 0) { verifyEventService.verifyAsync(any()) }
                     }
                 }
 
@@ -83,7 +83,7 @@ class ModifyEventServiceTest :
                     it("비동기 URL 검증을 트리거해야 한다") {
                         modifyEventService.execute(1L, reqDto)
 
-                        verify(exactly = 1) { eventVerificationService.verifyAsync(1L) }
+                        verify(exactly = 1) { verifyEventService.verifyAsync(1L) }
                     }
                 }
 
@@ -99,7 +99,24 @@ class ModifyEventServiceTest :
                         val result = modifyEventService.execute(1L, reqDto)
 
                         result.verificationStatus shouldBe EventVerificationStatus.VERIFIED
-                        verify(exactly = 0) { eventVerificationService.verifyAsync(any()) }
+                        verify(exactly = 0) { verifyEventService.verifyAsync(any()) }
+                    }
+                }
+
+                context("검증에 실패한 Event를 동일한 targetUrl로 재시도할 때") {
+                    val reqDto =
+                        ModifyEventReqDto(targetUrl = "https://old.example.com/event", events = null)
+
+                    beforeEach {
+                        every { eventJpaRepository.findByIdAndAccount(1L, account) } returns
+                            existingEvent(EventVerificationStatus.FAILED)
+                    }
+
+                    it("상태를 PENDING으로 초기화하고 검증을 다시 트리거해야 한다") {
+                        val result = modifyEventService.execute(1L, reqDto)
+
+                        result.verificationStatus shouldBe EventVerificationStatus.PENDING
+                        verify(exactly = 1) { verifyEventService.verifyAsync(1L) }
                     }
                 }
 
@@ -116,7 +133,7 @@ class ModifyEventServiceTest :
 
                         result.targetUrl shouldBe "https://old.example.com/event"
                         result.events shouldBe setOf(EventType.PROJECT_UPDATED)
-                        verify(exactly = 0) { eventVerificationService.verifyAsync(any()) }
+                        verify(exactly = 0) { verifyEventService.verifyAsync(any()) }
                     }
                 }
             }

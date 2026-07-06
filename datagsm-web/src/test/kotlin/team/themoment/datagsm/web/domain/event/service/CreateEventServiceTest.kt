@@ -23,18 +23,18 @@ class CreateEventServiceTest :
 
         lateinit var eventJpaRepository: EventJpaRepository
         lateinit var currentUserProvider: CurrentUserProvider
-        lateinit var eventVerificationService: EventVerificationService
+        lateinit var verifyEventService: VerifyEventService
         lateinit var createEventService: CreateEventService
         lateinit var account: AccountJpaEntity
 
         beforeEach {
             eventJpaRepository = mockk()
             currentUserProvider = mockk()
-            eventVerificationService = mockk(relaxed = true)
+            verifyEventService = mockk(relaxed = true)
             account = mockk()
             every { currentUserProvider.getCurrentAccount() } returns account
             createEventService =
-                CreateEventServiceImpl(eventJpaRepository, currentUserProvider, eventVerificationService)
+                CreateEventServiceImpl(eventJpaRepository, currentUserProvider, verifyEventService)
         }
 
         describe("CreateEventService 클래스의") {
@@ -56,7 +56,7 @@ class CreateEventServiceTest :
                                 createEventService.execute(reqDto)
                             }
                         ex.message shouldBe "Event는 최대 10개까지 등록할 수 있습니다."
-                        verify(exactly = 0) { eventVerificationService.verifyAsync(any()) }
+                        verify(exactly = 0) { verifyEventService.verifyAsync(any()) }
                     }
                 }
 
@@ -87,7 +87,7 @@ class CreateEventServiceTest :
                     it("저장 후 비동기 URL 검증을 트리거해야 한다") {
                         createEventService.execute(reqDto)
 
-                        verify(exactly = 1) { eventVerificationService.verifyAsync(1L) }
+                        verify(exactly = 1) { verifyEventService.verifyAsync(1L) }
                     }
                 }
             }

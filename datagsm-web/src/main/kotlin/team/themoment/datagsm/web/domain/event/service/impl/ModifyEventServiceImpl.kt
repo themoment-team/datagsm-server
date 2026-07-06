@@ -9,8 +9,8 @@ import team.themoment.datagsm.common.domain.event.dto.request.ModifyEventReqDto
 import team.themoment.datagsm.common.domain.event.dto.response.EventResDto
 import team.themoment.datagsm.common.domain.event.entity.constant.EventVerificationStatus
 import team.themoment.datagsm.common.domain.event.repository.EventJpaRepository
-import team.themoment.datagsm.web.domain.event.service.EventVerificationService
 import team.themoment.datagsm.web.domain.event.service.ModifyEventService
+import team.themoment.datagsm.web.domain.event.service.VerifyEventService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 
@@ -18,7 +18,7 @@ import team.themoment.sdk.exception.ExpectedException
 class ModifyEventServiceImpl(
     private val eventJpaRepository: EventJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
-    private val eventVerificationService: EventVerificationService,
+    private val verifyEventService: VerifyEventService,
 ) : ModifyEventService {
     @Transactional
     override fun execute(
@@ -30,12 +30,12 @@ class ModifyEventServiceImpl(
             eventJpaRepository.findByIdAndAccount(eventId, account)
                 ?: throw ExpectedException("Event를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
 
-        var targetUrlChanged = false
+        var revalidationNeeded = false
         reqDto.targetUrl?.let {
-            if (it != event.targetUrl) {
+            if (it != event.targetUrl || event.verificationStatus == EventVerificationStatus.FAILED) {
                 event.targetUrl = it
                 event.verificationStatus = EventVerificationStatus.PENDING
-                targetUrlChanged = true
+                revalidationNeeded = true
             }
         }
         reqDto.events?.let {
@@ -43,7 +43,7 @@ class ModifyEventServiceImpl(
             event.events.addAll(it)
         }
 
-        if (targetUrlChanged) {
+        if (revalidationNeeded) {
             triggerVerificationAfterCommit(event.id!!)
         }
 
@@ -59,13 +59,13 @@ class ModifyEventServiceImpl(
 
     private fun triggerVerificationAfterCommit(eventId: Long) {
         if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-            eventVerificationService.verifyAsync(eventId)
+            verifyEventService.verifyAsync(eventId)
             return
         }
         TransactionSynchronizationManager.registerSynchronization(
             object : TransactionSynchronization {
                 override fun afterCommit() {
-                    eventVerificationService.verifyAsync(eventId)
+                    verifyEventService.verifyAsync(eventId)
                 }
             },
         )

@@ -10,7 +10,7 @@ import team.themoment.datagsm.common.domain.event.dto.response.CreateEventResDto
 import team.themoment.datagsm.common.domain.event.entity.EventJpaEntity
 import team.themoment.datagsm.common.domain.event.repository.EventJpaRepository
 import team.themoment.datagsm.web.domain.event.service.CreateEventService
-import team.themoment.datagsm.web.domain.event.service.EventVerificationService
+import team.themoment.datagsm.web.domain.event.service.VerifyEventService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 import java.security.SecureRandom
@@ -19,7 +19,7 @@ import java.security.SecureRandom
 class CreateEventServiceImpl(
     private val eventJpaRepository: EventJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
-    private val eventVerificationService: EventVerificationService,
+    private val verifyEventService: VerifyEventService,
 ) : CreateEventService {
     @Transactional
     override fun execute(reqDto: CreateEventReqDto): CreateEventResDto {
@@ -54,13 +54,13 @@ class CreateEventServiceImpl(
 
     private fun triggerVerificationAfterCommit(eventId: Long) {
         if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-            eventVerificationService.verifyAsync(eventId)
+            verifyEventService.verifyAsync(eventId)
             return
         }
         TransactionSynchronizationManager.registerSynchronization(
             object : TransactionSynchronization {
                 override fun afterCommit() {
-                    eventVerificationService.verifyAsync(eventId)
+                    verifyEventService.verifyAsync(eventId)
                 }
             },
         )
