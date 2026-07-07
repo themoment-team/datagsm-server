@@ -27,7 +27,7 @@ object EventUrlValidator {
             true
         }
 
-    // null = 차단 (타임아웃 또는 예상치 못한 오류), emptyArray = 존재하지 않는 도메인 (허용)
+    // null = 차단 (타임아웃 또는 예상치 못한 오류)
     private fun resolveWithTimeout(host: String): Array<InetAddress>? =
         try {
             CompletableFuture
@@ -39,7 +39,8 @@ object EventUrlValidator {
         } catch (e: Exception) {
             val cause = e.cause
             if (cause is UnknownHostException) {
-                emptyArray()
+                logger().warn("Blocked event url due to unknown host {}", host)
+                null
             } else {
                 logger().warn("Blocked event url due to DNS resolution failure for host {} error {}", host, e.message)
                 null
