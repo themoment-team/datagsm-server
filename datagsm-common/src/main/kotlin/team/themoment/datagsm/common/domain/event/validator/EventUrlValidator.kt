@@ -21,7 +21,7 @@ object EventUrlValidator {
         try {
             val host = URI(url).host ?: return true
             val addresses = resolveWithTimeout(host) ?: return true
-            addresses.isEmpty() || addresses.any { isPrivateAddress(it) }
+            addresses.any { isPrivateAddress(it) }
         } catch (e: Exception) {
             logger().warn("Blocked event url due to unexpected parse error {}", e.message)
             true
