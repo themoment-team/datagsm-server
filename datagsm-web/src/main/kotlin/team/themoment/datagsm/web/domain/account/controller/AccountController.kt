@@ -1,6 +1,7 @@
 package team.themoment.datagsm.web.domain.account.controller
 
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -61,12 +62,11 @@ class AccountController(
         @Valid @RequestBody reqDto: DeleteMyAccountReqDto,
     ) = deleteMyAccountService.execute(reqDto)
 
-    @Operation(summary = "계정 목록 조회", description = "어드민이 계정 목록을 필터·페이징 조건으로 조회합니다. 각 계정에 연결된 학생 정보가 포함됩니다.")
+    @Operation(summary = "계정 목록 조회", description = "필터 조건에 맞는 계정 목록을 조회합니다. 각 계정에 연결된 학생 정보가 포함됩니다.")
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "계정 목록 조회 성공"),
-            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
-            ApiResponse(responseCode = "403", description = "권한 없음", content = [Content()]),
+            ApiResponse(responseCode = "200", description = "조회 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
         ],
     )
     @GetMapping
@@ -74,32 +74,30 @@ class AccountController(
         @Valid @ModelAttribute queryReq: QueryAccountReqDto,
     ): AccountListResDto = queryAccountService.execute(queryReq)
 
-    @Operation(summary = "계정 단건 조회", description = "어드민이 특정 계정을 조회합니다. 연결된 학생 정보가 포함됩니다.")
+    @Operation(summary = "계정 단건 조회", description = "특정 계정의 정보를 조회합니다. 연결된 학생 정보가 포함됩니다.")
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "계정 조회 성공"),
-            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
-            ApiResponse(responseCode = "403", description = "권한 없음", content = [Content()]),
+            ApiResponse(responseCode = "200", description = "조회 성공"),
             ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
         ],
     )
     @GetMapping("/{accountId}")
     fun getAccount(
-        @PathVariable accountId: Long,
+        @Parameter(description = "계정 ID") @PathVariable accountId: Long,
     ): AccountResDto = queryAccountDetailService.execute(accountId)
 
-    @Operation(summary = "계정 권한 변경", description = "어드민이 특정 계정의 역할을 변경합니다. 본인 및 최고 관리자 계정은 변경할 수 없습니다.")
+    @Operation(summary = "계정 권한 변경", description = "특정 계정의 역할을 변경합니다. 본인 및 최고 관리자 계정은 변경할 수 없습니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "권한 변경 성공"),
-            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
+            ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
             ApiResponse(responseCode = "403", description = "본인 또는 최고 관리자 계정 변경 불가", content = [Content()]),
             ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
         ],
     )
     @PatchMapping("/{accountId}/role")
     fun modifyAccountRole(
-        @PathVariable accountId: Long,
-        @Valid @RequestBody reqDto: ModifyAccountRoleReqDto,
+        @Parameter(description = "계정 ID") @PathVariable accountId: Long,
+        @RequestBody @Valid reqDto: ModifyAccountRoleReqDto,
     ) = modifyAccountRoleService.execute(accountId, reqDto)
 }
