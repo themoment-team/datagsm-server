@@ -50,6 +50,14 @@ class SecurityConfig(
                     .permitAll()
                     .requestMatchers(HttpMethod.PATCH, "/v1/students/me/specialty", "/v1/students/me/github-id")
                     .authenticated()
+                    .requestMatchers(HttpMethod.GET, "/v1/accounts/my")
+                    .authenticated()
+                    .requestMatchers(HttpMethod.DELETE, "/v1/accounts/my")
+                    .authenticated()
+                    .requestMatchers(HttpMethod.GET, "/v1/accounts", "/v1/accounts/{accountId}")
+                    .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
+                    .requestMatchers(HttpMethod.PATCH, "/v1/accounts/{accountId}/role")
+                    .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
                     .requestMatchers(
                         "/v1/students/**",
                         "/v1/projects/**",
