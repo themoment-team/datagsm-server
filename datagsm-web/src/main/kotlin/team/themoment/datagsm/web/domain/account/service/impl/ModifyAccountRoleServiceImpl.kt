@@ -34,6 +34,10 @@ class ModifyAccountRoleServiceImpl(
             throw ExpectedException("최고 관리자 계정의 권한은 변경할 수 없습니다.", HttpStatus.FORBIDDEN)
         }
 
+        if (reqDto.role == AccountRole.ROOT) {
+            throw ExpectedException("최고 관리자 권한은 부여할 수 없습니다.", HttpStatus.FORBIDDEN)
+        }
+
         account.role = reqDto.role
     }
 }

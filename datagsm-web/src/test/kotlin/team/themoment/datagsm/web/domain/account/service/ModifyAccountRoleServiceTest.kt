@@ -92,6 +92,25 @@ class ModifyAccountRoleServiceTest :
                     }
                 }
 
+                context("대상 계정에 ROOT 권한을 부여하려 할 때") {
+                    val target = account(2L, AccountRole.USER)
+                    val admin = account(1L, AccountRole.ADMIN)
+
+                    beforeEach {
+                        every { mockAccountRepository.findById(2L) } returns Optional.of(target)
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns admin
+                    }
+
+                    it("FORBIDDEN ExpectedException이 발생해야 한다") {
+                        val ex =
+                            shouldThrow<ExpectedException> {
+                                modifyAccountRoleService.execute(2L, ModifyAccountRoleReqDto(AccountRole.ROOT))
+                            }
+                        ex.message shouldBe "최고 관리자 권한은 부여할 수 없습니다."
+                        ex.statusCode shouldBe HttpStatus.FORBIDDEN
+                    }
+                }
+
                 context("대상 계정이 ROOT일 때") {
                     val target = account(2L, AccountRole.ROOT)
                     val admin = account(1L, AccountRole.ADMIN)
