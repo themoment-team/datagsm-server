@@ -10,7 +10,7 @@ import team.themoment.datagsm.web.domain.account.service.ModifyAccountRoleServic
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 
-@Service
+@Service("accountModifyAccountRoleService")
 class ModifyAccountRoleServiceImpl(
     private val accountJpaRepository: AccountJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
