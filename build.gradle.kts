@@ -67,7 +67,7 @@ subprojects {
 
         dependencies {
             "implementation"(project(":datagsm-common"))
-            "implementation"(dependency.Dependencies.DISENDER_SPRING_BOOT_STARTER)
+            "implementation"(dependency.Dependencies.DICOSHOT_SPRING_BOOT_STARTER)
 
             "developmentOnly"(dependency.Dependencies.SPRING_BOOT_DEVTOOLS)
             "developmentOnly"(dependency.Dependencies.SPRING_DOCKER_SUPPORT)
