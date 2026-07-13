@@ -107,23 +107,32 @@ jobs:
       - name: Code Deploy
         run: aws deploy create-deployment --application-name datagsm-stage-server-codedeploy --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name datagsm-stage-server --s3-location bucket=${{ secrets.AWS_S3_BUCKET_NAME }},bundleType=zip,key=stage/$GITHUB_SHA.zip
 
-      - name: Deploy Success Notification
-        uses: sarisia/actions-status-discord@v1
-        if: success()
-        with:
-          webhook: ${{ secrets.DISCORD_INFORMATION_ALERT_CHANNEL_WEBHOOK }}
-          color: 0x4CAF50
+  notify:
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    if: always() && needs.deploy.result != 'skipped'
 
-      - name: Deploy Failure Notification
-        uses: sarisia/actions-status-discord@v1
-        if: failure()
-        with:
-          webhook: ${{ secrets.DISCORD_INFORMATION_ALERT_CHANNEL_WEBHOOK }}
-          color: 0xFF4C4C
+    steps:
+      - name: Determine Status
+        id: status
+        run: |
+          if [[ "${{ needs.deploy.result }}" == "failure" ]]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "color=0xFF4C4C" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.deploy.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "color=0x4CAF50" >> $GITHUB_OUTPUT
+          else
+            echo "status=cancelled" >> $GITHUB_OUTPUT
+            echo "color=0xFFA500" >> $GITHUB_OUTPUT
+          fi
 
-      - name: Deploy Cancelled Notification
+      - name: Send Discord Notification
         uses: sarisia/actions-status-discord@v1
-        if: cancelled()
         with:
           webhook: ${{ secrets.DISCORD_INFORMATION_ALERT_CHANNEL_WEBHOOK }}
-          color: 0xFFA500
+          status: ${{ steps.status.outputs.status }}
+          color: ${{ steps.status.outputs.color }}
+          title: "DataGSM Stage CD"
+          description: |
+            **Deploy:** ${{ needs.deploy.result }}
