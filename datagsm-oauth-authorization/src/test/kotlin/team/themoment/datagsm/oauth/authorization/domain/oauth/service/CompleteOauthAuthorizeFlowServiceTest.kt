@@ -14,6 +14,7 @@ import io.mockk.verify
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountStatus
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeSubmitReqDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthAuthorizeStateRedisEntity
@@ -272,6 +273,53 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         exception.statusCode shouldBe HttpStatus.UNAUTHORIZED
 
                         verify(exactly = 0) { mockAccountJpaRepository.findByEmail(any()) }
+                        verify(exactly = 0) { mockOauthCodeRedisRepository.save(any()) }
+                    }
+                }
+
+                context("승인 대기 중인(PENDING) 계정으로 로그인할 때") {
+                    val reqDto =
+                        OauthAuthorizeSubmitReqDto(
+                            email = testEmail,
+                            password = "password123!",
+                            token = testToken,
+                        )
+
+                    val pendingAccount =
+                        AccountJpaEntity().apply {
+                            id = 2L
+                            email = testEmail
+                            password = "hashedPassword"
+                            status = AccountStatus.PENDING
+                        }
+
+                    val mockStateEntity =
+                        OauthAuthorizeStateRedisEntity(
+                            token = testToken,
+                            clientId = testClientId,
+                            redirectUri = testRedirectUri,
+                            state = "random-state",
+                            codeChallenge = "challenge",
+                            codeChallengeMethod = "S256",
+                            scopes = setOf("self:read"),
+                            ttl = 600,
+                        )
+
+                    beforeEach {
+                        every { mockOauthAuthorizeStateRedisRepository.findById(testToken) } returns Optional.of(mockStateEntity)
+                        every { mockAccountJpaRepository.findByEmail(testEmail) } returns Optional.of(pendingAccount)
+                        every { mockPasswordEncoder.matches("password123!", pendingAccount.password) } returns true
+                    }
+
+                    it("FORBIDDEN ExpectedException 예외가 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                completeOauthAuthorizeFlowService.execute(reqDto)
+                            }
+
+                        exception.message shouldBe "아직 승인되지 않은 계정입니다."
+                        exception.statusCode shouldBe HttpStatus.FORBIDDEN
+
                         verify(exactly = 0) { mockOauthCodeRedisRepository.save(any()) }
                     }
                 }
