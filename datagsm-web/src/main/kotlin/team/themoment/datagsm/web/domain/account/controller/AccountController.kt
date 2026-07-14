@@ -21,6 +21,7 @@ import team.themoment.datagsm.common.domain.account.dto.request.QueryAccountReqD
 import team.themoment.datagsm.common.domain.account.dto.response.AccountInfoResDto
 import team.themoment.datagsm.common.domain.account.dto.response.AccountListResDto
 import team.themoment.datagsm.common.domain.account.dto.response.AccountResDto
+import team.themoment.datagsm.web.domain.account.service.ApproveTeacherAccountService
 import team.themoment.datagsm.web.domain.account.service.DeleteMyAccountService
 import team.themoment.datagsm.web.domain.account.service.ModifyAccountRoleService
 import team.themoment.datagsm.web.domain.account.service.QueryAccountDetailService
@@ -36,6 +37,7 @@ class AccountController(
     private val queryAccountService: QueryAccountService,
     private val queryAccountDetailService: QueryAccountDetailService,
     private val modifyAccountRoleService: ModifyAccountRoleService,
+    private val approveTeacherAccountService: ApproveTeacherAccountService,
 ) {
     @Operation(summary = "내 정보 조회", description = "현재 로그인한 사용자의 계정 및 학생 정보를 조회합니다.")
     @ApiResponses(
@@ -100,4 +102,18 @@ class AccountController(
         @Parameter(description = "계정 ID") @PathVariable accountId: Long,
         @RequestBody @Valid reqDto: ModifyAccountRoleReqDto,
     ) = modifyAccountRoleService.execute(accountId, reqDto)
+
+    @Operation(summary = "선생님 계정 승인", description = "승인 대기 중인 선생님 계정을 활성화합니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "승인 성공"),
+            ApiResponse(responseCode = "400", description = "선생님 계정이 아님", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "409", description = "이미 승인된 계정", content = [Content()]),
+        ],
+    )
+    @PatchMapping("/{accountId}/approval")
+    fun approveTeacherAccount(
+        @Parameter(description = "계정 ID") @PathVariable accountId: Long,
+    ) = approveTeacherAccountService.execute(accountId)
 }

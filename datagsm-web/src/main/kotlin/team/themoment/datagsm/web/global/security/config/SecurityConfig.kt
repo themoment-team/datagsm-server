@@ -58,6 +58,8 @@ class SecurityConfig(
                     .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
                     .requestMatchers(HttpMethod.PATCH, "/v1/accounts/{accountId}/role")
                     .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
+                    .requestMatchers(HttpMethod.PATCH, "/v1/accounts/{accountId}/approval")
+                    .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
                     .requestMatchers(
                         "/v1/students/**",
                         "/v1/projects/**",

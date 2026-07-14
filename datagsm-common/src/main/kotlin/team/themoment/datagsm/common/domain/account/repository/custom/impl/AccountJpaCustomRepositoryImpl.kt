@@ -8,8 +8,10 @@ import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.QAccountJpaEntity.Companion.accountJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountSortBy
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountStatus
 import team.themoment.datagsm.common.domain.account.repository.custom.AccountJpaCustomRepository
 import team.themoment.datagsm.common.global.constant.SortDirection
 
@@ -20,7 +22,8 @@ class AccountJpaCustomRepositoryImpl(
     override fun searchAccountsWithPaging(
         email: String?,
         role: AccountRole?,
-        isStudent: Boolean?,
+        objectType: AccountObjectType?,
+        status: AccountStatus?,
         pageable: Pageable,
         sortBy: AccountSortBy?,
         sortDirection: SortDirection,
@@ -34,9 +37,8 @@ class AccountJpaCustomRepositoryImpl(
                 .where(
                     email?.let { accountJpaEntity.email.contains(it) },
                     role?.let { accountJpaEntity.role.eq(it) },
-                    isStudent?.let {
-                        if (it) accountJpaEntity.student.isNotNull else accountJpaEntity.student.isNull
-                    },
+                    objectType?.let { accountJpaEntity.objectType.eq(it) },
+                    status?.let { accountJpaEntity.status.eq(it) },
                 ).apply {
                     orderSpecifier?.let { orderBy(*it) }
                 }.offset(pageable.offset)
@@ -49,12 +51,6 @@ class AccountJpaCustomRepositoryImpl(
             } else {
                 jpaQueryFactory
                     .selectFrom(accountJpaEntity)
-                    .leftJoin(accountJpaEntity.student)
-                    .fetchJoin()
-                    .leftJoin(accountJpaEntity.student.majorClub)
-                    .fetchJoin()
-                    .leftJoin(accountJpaEntity.student.autonomousClub)
-                    .fetchJoin()
                     .where(accountJpaEntity.id.`in`(accountIds))
                     .apply { orderSpecifier?.let { orderBy(*it) } }
                     .fetch()
@@ -67,9 +63,8 @@ class AccountJpaCustomRepositoryImpl(
                 .where(
                     email?.let { accountJpaEntity.email.contains(it) },
                     role?.let { accountJpaEntity.role.eq(it) },
-                    isStudent?.let {
-                        if (it) accountJpaEntity.student.isNotNull else accountJpaEntity.student.isNull
-                    },
+                    objectType?.let { accountJpaEntity.objectType.eq(it) },
+                    status?.let { accountJpaEntity.status.eq(it) },
                 )
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }

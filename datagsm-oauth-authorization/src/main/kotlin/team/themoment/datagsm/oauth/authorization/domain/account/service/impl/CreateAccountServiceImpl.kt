@@ -6,10 +6,14 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.account.dto.request.CreateAccountReqDto
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountStatus
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.account.repository.EmailCodeRedisRepository
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
+import team.themoment.datagsm.common.domain.teacher.entity.TeacherJpaEntity
+import team.themoment.datagsm.common.domain.teacher.repository.TeacherJpaRepository
 import team.themoment.datagsm.oauth.authorization.domain.account.service.CreateAccountService
 import team.themoment.datagsm.oauth.authorization.global.util.EmailCodeValidator
 import team.themoment.sdk.exception.ExpectedException
@@ -18,6 +22,7 @@ import team.themoment.sdk.exception.ExpectedException
 class CreateAccountServiceImpl(
     private val accountJpaRepository: AccountJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
+    private val teacherJpaRepository: TeacherJpaRepository,
     private val emailCodeRedisRepository: EmailCodeRedisRepository,
     private val passwordEncoder: PasswordEncoder,
 ) : CreateAccountService {
@@ -28,12 +33,31 @@ class CreateAccountServiceImpl(
         }
 
         consumeEmailCode(reqDto.email, reqDto.code)
+
         val newAccount =
             AccountJpaEntity.create(reqDto.email).apply {
                 password = passwordEncoder.encode(reqDto.password).toString()
-                student = studentJpaRepository.findByEmail(reqDto.email).orElse(null)
                 role = AccountRole.USER
             }
+
+        when (reqDto.objectType) {
+            AccountObjectType.STUDENT -> {
+                val student = studentJpaRepository.findByEmail(reqDto.email).orElse(null)
+                newAccount.objectId = student?.id
+                newAccount.objectType = AccountObjectType.STUDENT
+                newAccount.status = AccountStatus.ACTIVE
+            }
+            AccountObjectType.TEACHER -> {
+                val name =
+                    reqDto.name?.takeIf { it.isNotBlank() }
+                        ?: throw ExpectedException("선생님 가입 시 이름은 필수입니다.", HttpStatus.BAD_REQUEST)
+                val teacher = teacherJpaRepository.save(TeacherJpaEntity.create(name, reqDto.email))
+                newAccount.objectId = teacher.id
+                newAccount.objectType = AccountObjectType.TEACHER
+                newAccount.status = AccountStatus.PENDING
+            }
+        }
+
         return accountJpaRepository.save(newAccount)
     }
 

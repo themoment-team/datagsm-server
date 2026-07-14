@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
 
 data class CreateAccountReqDto(
     @field:NotBlank(message = "이메일은 필수입니다.")
@@ -18,4 +19,9 @@ data class CreateAccountReqDto(
     @field:NotBlank(message = "인증 코드는 필수입니다.")
     @param:Schema(description = "이메일 인증 코드", example = "12345678")
     val code: String,
+    @param:Schema(description = "가입 대상 종류 (STUDENT, TEACHER)", example = "STUDENT", defaultValue = "STUDENT")
+    val objectType: AccountObjectType = AccountObjectType.STUDENT,
+    @field:Size(max = 10)
+    @param:Schema(description = "이름 (선생님 가입 시 필수)", example = "김선생", maxLength = 10)
+    val name: String? = null,
 )
