@@ -23,7 +23,7 @@ class TeacherJpaEntity {
     @field:Column(name = "name", nullable = false, length = 10)
     lateinit var name: String
 
-    @field:Column(name = "email", nullable = false, unique = true, length = 25)
+    @field:Column(name = "email", nullable = false, unique = true, length = 100)
     lateinit var email: String
 
     @field:Column(name = "department", nullable = false)
