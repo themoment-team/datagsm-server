@@ -51,7 +51,13 @@ class CreateAccountServiceImpl(
                 val name =
                     reqDto.name?.takeIf { it.isNotBlank() }
                         ?: throw ExpectedException("선생님 가입 시 이름은 필수입니다.", HttpStatus.BAD_REQUEST)
-                val teacher = teacherJpaRepository.save(TeacherJpaEntity.create(name, reqDto.email))
+                val department =
+                    reqDto.department
+                        ?: throw ExpectedException("선생님 가입 시 소속 부서는 필수입니다.", HttpStatus.BAD_REQUEST)
+                val teacher =
+                    teacherJpaRepository.save(
+                        TeacherJpaEntity.create(name, reqDto.email, department, reqDto.description),
+                    )
                 newAccount.objectId = teacher.id
                 newAccount.objectType = AccountObjectType.TEACHER
                 newAccount.status = AccountStatus.PENDING

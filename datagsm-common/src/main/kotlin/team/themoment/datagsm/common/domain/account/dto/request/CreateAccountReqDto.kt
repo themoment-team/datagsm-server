@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
+import team.themoment.datagsm.common.domain.teacher.entity.constant.TeacherDepartment
 
 data class CreateAccountReqDto(
     @field:NotBlank(message = "이메일은 필수입니다.")
@@ -24,4 +25,9 @@ data class CreateAccountReqDto(
     @field:Size(max = 10)
     @param:Schema(description = "이름 (선생님 가입 시 필수)", example = "김선생", maxLength = 10)
     val name: String? = null,
+    @param:Schema(description = "소속 부서 (선생님 가입 시 필수)", example = "GRADE")
+    val department: TeacherDepartment? = null,
+    @field:Size(max = 100)
+    @param:Schema(description = "선생님 설명 (선생님 가입 시 선택)", example = "3학년 1반 담임선생님", maxLength = 100)
+    val description: String? = null,
 )
