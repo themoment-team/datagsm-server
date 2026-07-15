@@ -21,6 +21,7 @@ import team.themoment.datagsm.common.domain.account.repository.EmailCodeRedisRep
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.common.domain.teacher.entity.TeacherJpaEntity
+import team.themoment.datagsm.common.domain.teacher.entity.constant.TeacherDepartment
 import team.themoment.datagsm.common.domain.teacher.repository.TeacherJpaRepository
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
@@ -137,9 +138,14 @@ class CreateAccountServiceImplTest :
                     code = code,
                     objectType = AccountObjectType.TEACHER,
                     name = "김선생",
+                    department = TeacherDepartment.GRADE,
+                    description = "3학년 1반 담임선생님",
                 )
             val emailCodeEntity = EmailCodeRedisEntity(email = email, code = code, ttl = 300)
-            val savedTeacher = TeacherJpaEntity.create("김선생", email).apply { id = 7L }
+            val savedTeacher =
+                TeacherJpaEntity
+                    .create("김선생", email, TeacherDepartment.GRADE, "3학년 1반 담임선생님")
+                    .apply { id = 7L }
             val accountSlot = slot<AccountJpaEntity>()
             val savedAccount = mockk<AccountJpaEntity>()
 
@@ -187,6 +193,35 @@ class CreateAccountServiceImplTest :
                         }
 
                     exception.message shouldBe "선생님 가입 시 이름은 필수입니다."
+                }
+            }
+        }
+
+        Given("선생님 가입에서 소속 부서가 없을 때") {
+            val email = "nodept@gsm.hs.kr"
+            val code = "12345678"
+            val reqDto =
+                CreateAccountReqDto(
+                    email = email,
+                    password = "password123",
+                    code = code,
+                    objectType = AccountObjectType.TEACHER,
+                    name = "김선생",
+                    department = null,
+                )
+            val emailCodeEntity = EmailCodeRedisEntity(email = email, code = code, ttl = 300)
+
+            every { accountJpaRepository.findByEmail(email) } returns Optional.empty()
+            every { emailCodeRedisRepository.findByIdOrNull(email) } returns emailCodeEntity
+
+            When("계정 생성을 요청하면") {
+                Then("400 Bad Request 예외가 발생한다") {
+                    val exception =
+                        shouldThrow<ExpectedException> {
+                            service.execute(reqDto)
+                        }
+
+                    exception.message shouldBe "선생님 가입 시 소속 부서는 필수입니다."
                 }
             }
         }

@@ -13,6 +13,7 @@ import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.resolver.AccountObjectResolver
 import team.themoment.datagsm.common.domain.teacher.dto.response.TeacherResDto
 import team.themoment.datagsm.common.domain.teacher.entity.TeacherJpaEntity
+import team.themoment.datagsm.common.domain.teacher.entity.constant.TeacherDepartment
 import team.themoment.datagsm.oauth.userinfo.domain.userinfo.service.impl.QueryUserInfoServiceImpl
 import team.themoment.datagsm.oauth.userinfo.global.security.provider.CurrentUserProvider
 
@@ -61,7 +62,10 @@ class QueryUserInfoServiceTest :
                 }
 
                 context("선생님 계정으로 요청할 때") {
-                    val teacher = TeacherJpaEntity.create("김선생", "teacher@gsm.hs.kr").apply { id = 50L }
+                    val teacher =
+                        TeacherJpaEntity
+                            .create("김선생", "teacher@gsm.hs.kr", TeacherDepartment.GRADE, "3학년 1반 담임선생님")
+                            .apply { id = 50L }
                     val mockAccount =
                         AccountJpaEntity().apply {
                             id = 5L

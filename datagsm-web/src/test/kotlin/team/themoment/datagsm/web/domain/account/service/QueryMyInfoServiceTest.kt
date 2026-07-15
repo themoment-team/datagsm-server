@@ -18,6 +18,7 @@ import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.teacher.dto.response.TeacherResDto
 import team.themoment.datagsm.common.domain.teacher.entity.TeacherJpaEntity
+import team.themoment.datagsm.common.domain.teacher.entity.constant.TeacherDepartment
 import team.themoment.datagsm.web.domain.account.service.impl.QueryMyInfoServiceImpl
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 
@@ -125,7 +126,10 @@ class QueryMyInfoServiceTest :
                     lateinit var teacher: TeacherJpaEntity
 
                     beforeEach {
-                        teacher = TeacherJpaEntity.create("김선생", "teacher@gsm.hs.kr").apply { id = 50L }
+                        teacher =
+                            TeacherJpaEntity
+                                .create("김선생", "teacher@gsm.hs.kr", TeacherDepartment.GRADE, "3학년 1반 담임선생님")
+                                .apply { id = 50L }
                         account =
                             AccountJpaEntity().apply {
                                 id = 5L

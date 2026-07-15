@@ -22,6 +22,7 @@ import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.teacher.dto.response.TeacherResDto
 import team.themoment.datagsm.common.domain.teacher.entity.TeacherJpaEntity
+import team.themoment.datagsm.common.domain.teacher.entity.constant.TeacherDepartment
 import team.themoment.datagsm.web.domain.account.service.impl.QueryAccountServiceImpl
 
 class QueryAccountServiceTest :
@@ -57,7 +58,10 @@ class QueryAccountServiceTest :
                 objectType = AccountObjectType.STUDENT
             }
 
-        val linkedTeacher = TeacherJpaEntity.create("김선생", "teacher@gsm.hs.kr").apply { id = 20L }
+        val linkedTeacher =
+            TeacherJpaEntity
+                .create("김선생", "teacher@gsm.hs.kr", TeacherDepartment.GRADE, "3학년 1반 담임선생님")
+                .apply { id = 20L }
 
         val teacherAccount =
             AccountJpaEntity().apply {
