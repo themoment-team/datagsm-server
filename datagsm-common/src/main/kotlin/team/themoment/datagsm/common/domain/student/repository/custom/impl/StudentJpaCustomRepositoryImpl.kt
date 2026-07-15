@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.account.entity.QAccountJpaEntity.Companion.accountJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.student.dto.internal.StudentBulkUpdateDto
@@ -257,6 +258,18 @@ class StudentJpaCustomRepositoryImpl(
                 studentJpaEntity.studentNumber.studentNumber.asc(),
             ).fetch()
 
+    override fun findAllByIdInWithClubs(ids: List<Long>): List<StudentJpaEntity> {
+        if (ids.isEmpty()) return emptyList()
+        return jpaQueryFactory
+            .selectFrom(studentJpaEntity)
+            .leftJoin(studentJpaEntity.majorClub)
+            .fetchJoin()
+            .leftJoin(studentJpaEntity.autonomousClub)
+            .fetchJoin()
+            .where(studentJpaEntity.id.`in`(ids))
+            .fetch()
+    }
+
     override fun findAllGraduates(): List<StudentJpaEntity> =
         jpaQueryFactory
             .selectFrom(studentJpaEntity)
@@ -308,8 +321,11 @@ class StudentJpaCustomRepositoryImpl(
                 .select(studentJpaEntity.id)
                 .from(studentJpaEntity)
                 .innerJoin(accountJpaEntity)
-                .on(accountJpaEntity.student.id.eq(studentJpaEntity.id))
-                .where(
+                .on(
+                    accountJpaEntity.objectType
+                        .eq(AccountObjectType.STUDENT)
+                        .and(accountJpaEntity.objectId.eq(studentJpaEntity.id)),
+                ).where(
                     id?.let { studentJpaEntity.id.eq(it) },
                     name?.let { studentJpaEntity.name.contains(it) },
                     email?.let { studentJpaEntity.email.contains(it) },
@@ -352,8 +368,11 @@ class StudentJpaCustomRepositoryImpl(
                 .select(studentJpaEntity.count())
                 .from(studentJpaEntity)
                 .innerJoin(accountJpaEntity)
-                .on(accountJpaEntity.student.id.eq(studentJpaEntity.id))
-                .where(
+                .on(
+                    accountJpaEntity.objectType
+                        .eq(AccountObjectType.STUDENT)
+                        .and(accountJpaEntity.objectId.eq(studentJpaEntity.id)),
+                ).where(
                     id?.let { studentJpaEntity.id.eq(it) },
                     name?.let { studentJpaEntity.name.contains(it) },
                     email?.let { studentJpaEntity.email.contains(it) },
@@ -378,16 +397,22 @@ class StudentJpaCustomRepositoryImpl(
         jpaQueryFactory
             .selectFrom(studentJpaEntity)
             .innerJoin(accountJpaEntity)
-            .on(accountJpaEntity.student.id.eq(studentJpaEntity.id))
-            .where(studentJpaEntity.majorClub.eq(club))
+            .on(
+                accountJpaEntity.objectType
+                    .eq(AccountObjectType.STUDENT)
+                    .and(accountJpaEntity.objectId.eq(studentJpaEntity.id)),
+            ).where(studentJpaEntity.majorClub.eq(club))
             .fetch()
 
     override fun findRegisteredStudentsByAutonomousClub(club: ClubJpaEntity): List<StudentJpaEntity> =
         jpaQueryFactory
             .selectFrom(studentJpaEntity)
             .innerJoin(accountJpaEntity)
-            .on(accountJpaEntity.student.id.eq(studentJpaEntity.id))
-            .where(studentJpaEntity.autonomousClub.eq(club))
+            .on(
+                accountJpaEntity.objectType
+                    .eq(AccountObjectType.STUDENT)
+                    .and(accountJpaEntity.objectId.eq(studentJpaEntity.id)),
+            ).where(studentJpaEntity.autonomousClub.eq(club))
             .fetch()
 
     override fun bulkUpdateEmails(emailUpdates: Map<Long, String>) {

@@ -58,6 +58,8 @@ interface StudentJpaCustomRepository {
 
     fun findAllStudentsWithClubs(): List<StudentJpaEntity>
 
+    fun findAllByIdInWithClubs(ids: List<Long>): List<StudentJpaEntity>
+
     fun findAllGraduates(): List<StudentJpaEntity>
 
     fun findAllStudents(): List<StudentJpaEntity>

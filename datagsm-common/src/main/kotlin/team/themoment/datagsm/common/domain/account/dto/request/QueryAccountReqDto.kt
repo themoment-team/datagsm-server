@@ -3,8 +3,10 @@ package team.themoment.datagsm.common.domain.account.dto.request
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountSortBy
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountStatus
 import team.themoment.datagsm.common.global.constant.SortDirection
 
 data class QueryAccountReqDto(
@@ -12,8 +14,10 @@ data class QueryAccountReqDto(
     val email: String? = null,
     @param:Schema(description = "계정 역할 (ROOT, ADMIN, USER)")
     val role: AccountRole? = null,
-    @param:Schema(description = "학생 연결 여부 (true: 연결 계정만, false: 미연결 계정만)")
-    val isStudent: Boolean? = null,
+    @param:Schema(description = "연결 대상 종류 (STUDENT, TEACHER)")
+    val objectType: AccountObjectType? = null,
+    @param:Schema(description = "계정 상태 (PENDING, ACTIVE)")
+    val status: AccountStatus? = null,
     @field:Min(0)
     @param:Schema(description = "페이지 번호", defaultValue = "0", minimum = "0")
     val page: Int = 0,

@@ -8,20 +8,19 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Index
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.DynamicUpdate
 import org.hibernate.annotations.UpdateTimestamp
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountStatus
 import java.time.LocalDateTime
 
 @Table(
     name = "tb_account",
     indexes = [
-        Index(name = "idx_account_student_id", columnList = "student_id"),
+        Index(name = "idx_account_object", columnList = "object_id, object_type"),
     ],
 )
 @Entity
@@ -42,9 +41,16 @@ class AccountJpaEntity {
     @Enumerated(EnumType.STRING)
     var role: AccountRole = AccountRole.USER
 
-    @OneToOne
-    @JoinColumn(name = "student_id", nullable = true, referencedColumnName = "id")
-    var student: StudentJpaEntity? = null
+    @Column(name = "object_id", nullable = true)
+    var objectId: Long? = null
+
+    @Column(name = "object_type", nullable = true)
+    @Enumerated(EnumType.STRING)
+    var objectType: AccountObjectType? = null
+
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    var status: AccountStatus = AccountStatus.ACTIVE
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
