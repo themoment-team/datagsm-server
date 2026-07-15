@@ -54,6 +54,9 @@ class CreateAccountServiceImpl(
                 val department =
                     reqDto.department
                         ?: throw ExpectedException("선생님 가입 시 소속 부서는 필수입니다.", HttpStatus.BAD_REQUEST)
+                if (teacherJpaRepository.findByEmail(reqDto.email).isPresent) {
+                    throw ExpectedException("이미 해당 이메일을 가진 선생님이 존재합니다.", HttpStatus.CONFLICT)
+                }
                 val teacher =
                     teacherJpaRepository.save(
                         TeacherJpaEntity.create(name, reqDto.email, department, reqDto.description),

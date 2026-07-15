@@ -151,6 +151,7 @@ class CreateAccountServiceImplTest :
 
             every { accountJpaRepository.findByEmail(email) } returns Optional.empty()
             every { emailCodeRedisRepository.findByIdOrNull(email) } returns emailCodeEntity
+            every { teacherJpaRepository.findByEmail(email) } returns Optional.empty()
             every { teacherJpaRepository.save(any()) } returns savedTeacher
             every { passwordEncoder.encode(password) } returns encodedPassword
             every { accountJpaRepository.save(capture(accountSlot)) } returns savedAccount
@@ -222,6 +223,37 @@ class CreateAccountServiceImplTest :
                         }
 
                     exception.message shouldBe "선생님 가입 시 소속 부서는 필수입니다."
+                }
+            }
+        }
+
+        Given("선생님 가입에서 이미 존재하는 선생님 이메일일 때") {
+            val email = "dupteacher@gsm.hs.kr"
+            val code = "12345678"
+            val reqDto =
+                CreateAccountReqDto(
+                    email = email,
+                    password = "password123",
+                    code = code,
+                    objectType = AccountObjectType.TEACHER,
+                    name = "김선생",
+                    department = TeacherDepartment.GRADE,
+                )
+            val emailCodeEntity = EmailCodeRedisEntity(email = email, code = code, ttl = 300)
+            val existingTeacher = TeacherJpaEntity.create("이선생", email, TeacherDepartment.GRADE, null)
+
+            every { accountJpaRepository.findByEmail(email) } returns Optional.empty()
+            every { emailCodeRedisRepository.findByIdOrNull(email) } returns emailCodeEntity
+            every { teacherJpaRepository.findByEmail(email) } returns Optional.of(existingTeacher)
+
+            When("계정 생성을 요청하면") {
+                Then("409 Conflict 예외가 발생한다") {
+                    val exception =
+                        shouldThrow<ExpectedException> {
+                            service.execute(reqDto)
+                        }
+
+                    exception.message shouldBe "이미 해당 이메일을 가진 선생님이 존재합니다."
                 }
             }
         }
