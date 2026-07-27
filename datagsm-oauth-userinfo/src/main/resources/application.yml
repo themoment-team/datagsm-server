@@ -62,6 +62,7 @@ sdk:
     not-wrapping-urls:
       - "/v3/api-docs/**"
       - "/swagger-ui/**"
+      # OIDC UserInfo 표준 준수: 외부 클라이언트가 기대하는 raw 클레임 JSON을 반환하기 위해 CommonApiResponse 래핑 제외
       - "/userinfo"
   swagger:
     enabled: true
