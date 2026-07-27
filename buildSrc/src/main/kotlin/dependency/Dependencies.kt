@@ -2,7 +2,7 @@ package dependency
 
 import dependency.DependencyVersions.AWS_SDK_VERSION
 import dependency.DependencyVersions.BUCKET4J_VERSION
-import dependency.DependencyVersions.DISENDER_VERSION
+import dependency.DependencyVersions.DICOSHOT_VERSION
 import dependency.DependencyVersions.JJWT_VERSION
 import dependency.DependencyVersions.KOTEST_VERSION
 import dependency.DependencyVersions.KOTLIN_COROUTINES_VERSION
@@ -69,8 +69,8 @@ object Dependencies {
     // Custom Libraries
     const val THE_MOMENT_THE_SDK = "com.github.themoment-team:the-sdk:${THE_MOMENT_THE_SDK_VERSION}"
 
-    // Disender (Discord webhook notifier)
-    const val DISENDER_SPRING_BOOT_STARTER = "io.github.zaman0806:disender-spring-boot-4-starter:${DISENDER_VERSION}"
+    // Dicoshot (Discord webhook notifier)
+    const val DICOSHOT_SPRING_BOOT_STARTER = "io.github.dicoshot:dicoshot-spring-boot-starter:${DICOSHOT_VERSION}"
 
     // Kotlin
     const val KOTLIN_REFLECT = "org.jetbrains.kotlin:kotlin-reflect"

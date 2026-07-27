@@ -26,6 +26,7 @@ class QueryEventServiceImpl(
                         events = event.events,
                         isActive = event.isActive,
                         createdAt = event.createdAt!!,
+                        verificationStatus = event.verificationStatus,
                     )
                 }
         return EventListResDto(events = events)

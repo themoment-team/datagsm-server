@@ -3,9 +3,9 @@ package team.themoment.datagsm.common.domain.student.dto.internal
 import io.swagger.v3.oas.annotations.media.Schema
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
-import team.themoment.datagsm.ksp.annotation.KmpExport
+import team.themoment.datagsm.ksp.annotation.SdkExport
 
-@KmpExport
+@SdkExport
 data class ParticipantInfoDto(
     @field:Schema(description = "학생 ID", example = "1")
     val id: Long,

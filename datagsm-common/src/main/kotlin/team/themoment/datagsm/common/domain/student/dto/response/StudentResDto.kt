@@ -2,12 +2,13 @@ package team.themoment.datagsm.common.domain.student.dto.response
 
 import io.swagger.v3.oas.annotations.media.Schema
 import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
+import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
-import team.themoment.datagsm.ksp.annotation.KmpExport
+import team.themoment.datagsm.ksp.annotation.SdkExport
 
-@KmpExport
+@SdkExport
 data class StudentResDto(
     @field:Schema(description = "학생 ID", example = "1")
     val id: Long,
@@ -43,4 +44,30 @@ data class StudentResDto(
     val githubId: String?,
     @field:Schema(description = "GitHub 프로필 URL", example = "https://github.com/torvalds")
     val githubUrl: String?,
-)
+) {
+    companion object {
+        fun from(student: StudentJpaEntity): StudentResDto =
+            StudentResDto(
+                id = student.id!!,
+                name = student.name,
+                sex = student.sex,
+                email = student.email,
+                grade = student.studentNumber?.studentGrade,
+                classNum = student.studentNumber?.studentClass,
+                number = student.studentNumber?.studentNumber,
+                studentNumber = student.studentNumber?.fullStudentNumber,
+                major = student.major,
+                specialty = student.specialty,
+                role = student.role,
+                dormitoryFloor = student.dormitoryRoomNumber?.dormitoryRoomFloor,
+                dormitoryRoom = student.dormitoryRoomNumber?.dormitoryRoomNumber,
+                majorClub = student.majorClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
+                autonomousClub =
+                    student.autonomousClub?.let {
+                        ClubSummaryDto(id = it.id!!, name = it.name, type = it.type)
+                    },
+                githubId = student.githubId,
+                githubUrl = student.githubId?.let { "https://github.com/$it" },
+            )
+    }
+}

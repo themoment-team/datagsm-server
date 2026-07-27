@@ -6,7 +6,6 @@ object Plugins {
     const val KOTLIN_JVM = "org.jetbrains.kotlin.jvm"
     const val KOTLIN_SPRING = "org.jetbrains.kotlin.plugin.spring"
     const val KOTLIN_JPA = "org.jetbrains.kotlin.plugin.jpa"
-    const val KOTLIN_MULTIPLATFORM = "org.jetbrains.kotlin.multiplatform"
     const val KOTLIN_SERIALIZATION = "org.jetbrains.kotlin.plugin.serialization"
     const val KSP = "com.google.devtools.ksp"
     const val KTLINT = "org.jlleitschuh.gradle.ktlint"

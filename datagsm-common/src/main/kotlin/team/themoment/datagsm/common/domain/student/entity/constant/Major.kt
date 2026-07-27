@@ -1,8 +1,8 @@
 package team.themoment.datagsm.common.domain.student.entity.constant
 
-import team.themoment.datagsm.ksp.annotation.KmpExport
+import team.themoment.datagsm.ksp.annotation.SdkExport
 
-@KmpExport
+@SdkExport
 enum class Major(
     val value: String,
 ) {

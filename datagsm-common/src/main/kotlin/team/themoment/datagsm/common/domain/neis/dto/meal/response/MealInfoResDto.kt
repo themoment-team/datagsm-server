@@ -2,10 +2,10 @@ package team.themoment.datagsm.common.domain.neis.dto.meal.response
 
 import io.swagger.v3.oas.annotations.media.Schema
 import team.themoment.datagsm.common.domain.neis.meal.entity.constant.MealType
-import team.themoment.datagsm.ksp.annotation.KmpExport
+import team.themoment.datagsm.ksp.annotation.SdkExport
 import java.time.LocalDate
 
-@KmpExport
+@SdkExport
 @Schema(description = "급식 단건 정보")
 data class MealInfoResDto(
     @field:Schema(description = "급식 ID", example = "7430310_20251215_2")

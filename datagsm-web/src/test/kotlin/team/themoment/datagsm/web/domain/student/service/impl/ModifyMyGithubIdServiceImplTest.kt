@@ -5,7 +5,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
+import org.springframework.http.HttpStatus
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.web.domain.student.dto.request.UpdateMyGithubIdReqDto
@@ -25,16 +25,9 @@ class ModifyMyGithubIdServiceImplTest :
                     email = "hong@gsm.hs.kr"
                     sex = Sex.MAN
                 }
-            val account =
-                AccountJpaEntity().apply {
-                    id = 10L
-                    email = "hong@gsm.hs.kr"
-                    password = "password"
-                    this.student = student
-                }
             val reqDto = UpdateMyGithubIdReqDto(githubId = "torvalds")
 
-            every { currentUserProvider.getCurrentAccount() } returns account
+            every { currentUserProvider.getCurrentStudent() } returns student
 
             When("서비스를 실행하면") {
                 service.execute(reqDto)
@@ -54,16 +47,9 @@ class ModifyMyGithubIdServiceImplTest :
                     sex = Sex.WOMAN
                     githubId = "existing-user"
                 }
-            val account =
-                AccountJpaEntity().apply {
-                    id = 20L
-                    email = "kim@gsm.hs.kr"
-                    password = "password"
-                    this.student = student
-                }
             val reqDto = UpdateMyGithubIdReqDto(githubId = null)
 
-            every { currentUserProvider.getCurrentAccount() } returns account
+            every { currentUserProvider.getCurrentStudent() } returns student
 
             When("서비스를 실행하면") {
                 service.execute(reqDto)
@@ -75,16 +61,10 @@ class ModifyMyGithubIdServiceImplTest :
         }
 
         Given("학생 정보가 연결되지 않은 계정으로 GitHub ID 수정을 시도할 때") {
-            val account =
-                AccountJpaEntity().apply {
-                    id = 30L
-                    email = "nonstudent@gsm.hs.kr"
-                    password = "password"
-                    student = null
-                }
             val reqDto = UpdateMyGithubIdReqDto(githubId = "torvalds")
 
-            every { currentUserProvider.getCurrentAccount() } returns account
+            every { currentUserProvider.getCurrentStudent() } throws
+                ExpectedException("학생 정보가 연결되지 않은 계정입니다.", HttpStatus.FORBIDDEN)
 
             When("서비스를 실행하면") {
                 Then("ExpectedException이 발생한다") {

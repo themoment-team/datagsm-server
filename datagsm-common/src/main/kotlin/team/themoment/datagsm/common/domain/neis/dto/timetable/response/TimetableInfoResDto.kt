@@ -1,10 +1,10 @@
 package team.themoment.datagsm.common.domain.neis.dto.timetable.response
 
 import io.swagger.v3.oas.annotations.media.Schema
-import team.themoment.datagsm.ksp.annotation.KmpExport
+import team.themoment.datagsm.ksp.annotation.SdkExport
 import java.time.LocalDate
 
-@KmpExport
+@SdkExport
 @Schema(description = "시간표 단건 정보")
 data class TimetableInfoResDto(
     @field:Schema(description = "시간표 ID", example = "7380292_20250303_1_1_1")

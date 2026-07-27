@@ -51,3 +51,4 @@ out/
 PR_BODY.md
 .pr-tmp/
 /.claude/command.log
+/.codex/command.log

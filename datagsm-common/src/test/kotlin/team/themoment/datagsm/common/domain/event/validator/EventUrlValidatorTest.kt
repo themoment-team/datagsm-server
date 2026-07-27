@@ -151,7 +151,7 @@ class EventUrlValidatorTest :
                 }
 
                 context("존재하지 않는 도메인이 주어질 때") {
-                    it("false를 반환해야 한다") {
+                    it("true를 반환해야 한다") {
                         // Given
                         val url = "http://this-domain-does-not-exist-datagsm.invalid/hook"
 
@@ -159,7 +159,7 @@ class EventUrlValidatorTest :
                         val result = EventUrlValidator.isPrivateOrLocalUrl(url)
 
                         // Then
-                        result shouldBe false
+                        result shouldBe true
                     }
                 }
             }

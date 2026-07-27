@@ -19,6 +19,7 @@ import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.event.entity.constant.EventVerificationStatus
 import java.time.LocalDateTime
 
 @Table(name = "tb_event")
@@ -52,6 +53,10 @@ class EventJpaEntity {
 
     @Column(name = "is_active", nullable = false)
     var isActive: Boolean = true
+
+    @Column(name = "verification_status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    var verificationStatus: EventVerificationStatus = EventVerificationStatus.PENDING
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

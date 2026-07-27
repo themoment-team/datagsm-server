@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.event.dto.payload.EventPayload
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.event.entity.constant.EventVerificationStatus
 import team.themoment.datagsm.common.domain.event.repository.EventJpaRepository
 import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.event.service.EventSender
@@ -27,7 +28,11 @@ class EventPublisherImpl(
         data: Any,
     ) {
         runCatching {
-            val targets = eventJpaRepository.findAllByEventsContainsAndIsActiveTrue(event)
+            val targets =
+                eventJpaRepository.findAllByEventsContainsAndIsActiveTrueAndVerificationStatus(
+                    event,
+                    EventVerificationStatus.VERIFIED,
+                )
             if (targets.isEmpty()) return
 
             val payload =
