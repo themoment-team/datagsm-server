@@ -20,6 +20,8 @@ data class AccountResDto(
     val status: AccountStatus,
     @field:Schema(description = "연결 대상 종류 (STUDENT, TEACHER)", example = "STUDENT")
     val objectType: AccountObjectType?,
+    @field:Schema(description = "학생 계정 여부 (하위 호환용, objectType == STUDENT)", example = "true")
+    val isStudent: Boolean,
     @field:Schema(description = "연결된 학생 정보 (학생 계정인 경우에만 포함)")
     val student: StudentResDto?,
     @field:Schema(description = "연결된 선생님 정보 (선생님 계정인 경우에만 포함)")
@@ -41,6 +43,7 @@ data class AccountResDto(
                 role = account.role,
                 status = account.status,
                 objectType = account.objectType,
+                isStudent = account.objectType == AccountObjectType.STUDENT,
                 student = student,
                 teacher = teacher,
                 createdAt = account.createdAt,
