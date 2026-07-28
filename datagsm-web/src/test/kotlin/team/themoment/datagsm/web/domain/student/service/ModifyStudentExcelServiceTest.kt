@@ -11,15 +11,16 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.mock.web.MockMultipartFile
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
 import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
-import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.internal.StudentBulkUpdateDto
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
@@ -46,16 +47,16 @@ class ModifyStudentExcelServiceTest :
 
         lateinit var mockStudentRepository: StudentJpaRepository
         lateinit var mockClubRepository: ClubJpaRepository
-        lateinit var mockEventPublisher: EventPublisher
+        lateinit var mockApplicationEventPublisher: ApplicationEventPublisher
         lateinit var modifyStudentExcelService: ModifyStudentExcelService
 
         beforeEach {
             mockStudentRepository = mockk<StudentJpaRepository>()
             mockClubRepository = mockk<ClubJpaRepository>()
-            mockEventPublisher = mockk<EventPublisher>()
-            justRun { mockEventPublisher.dispatch(any(), any()) }
+            mockApplicationEventPublisher = mockk<ApplicationEventPublisher>()
+            justRun { mockApplicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
             modifyStudentExcelService =
-                ModifyStudentExcelServiceImpl(mockStudentRepository, mockClubRepository, mockEventPublisher)
+                ModifyStudentExcelServiceImpl(mockStudentRepository, mockClubRepository, mockApplicationEventPublisher)
         }
 
         fun createValidExcelFile(): ByteArray {
@@ -151,8 +152,10 @@ class ModifyStudentExcelServiceTest :
                     }
 
                     it("학생 정보를 수정하고 성공 메시지를 반환해야 한다") {
-                        val dataSlot = slot<EventChangedData>()
-                        justRun { mockEventPublisher.dispatch(EventType.STUDENT_UPDATED, capture(dataSlot)) }
+                        val eventSlot = slot<EventDispatchRequested>()
+                        justRun {
+                            mockApplicationEventPublisher.publishEvent(capture(eventSlot))
+                        }
 
                         val result = modifyStudentExcelService.execute(file)
 
@@ -175,13 +178,24 @@ class ModifyStudentExcelServiceTest :
                     }
 
                     it("STUDENT_UPDATED 이벤트의 old는 수정 전, new는 수정 후 값을 담는다") {
-                        val dataSlot = slot<EventChangedData>()
-                        justRun { mockEventPublisher.dispatch(EventType.STUDENT_UPDATED, capture(dataSlot)) }
+                        val eventSlot = slot<EventDispatchRequested>()
+                        justRun {
+                            mockApplicationEventPublisher.publishEvent(capture(eventSlot))
+                        }
 
                         modifyStudentExcelService.execute(file)
 
-                        verify(exactly = 1) { mockEventPublisher.dispatch(EventType.STUDENT_UPDATED, any()) }
-                        val data = dataSlot.captured
+                        verify(
+                            exactly = 1,
+                        ) {
+                            mockApplicationEventPublisher.publishEvent(
+                                match<EventDispatchRequested> {
+                                    it.eventType ==
+                                        EventType.STUDENT_UPDATED
+                                },
+                            )
+                        }
+                        val data = eventSlot.captured.data as EventChangedData
                         data.old.size shouldBe 1
                         data.new.size shouldBe 1
 

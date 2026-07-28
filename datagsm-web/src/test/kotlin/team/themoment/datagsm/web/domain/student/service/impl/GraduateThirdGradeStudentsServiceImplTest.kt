@@ -7,10 +7,11 @@ import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import org.springframework.context.ApplicationEventPublisher
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
 import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
-import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
@@ -22,8 +23,8 @@ import team.themoment.datagsm.common.domain.student.repository.StudentJpaReposit
 class GraduateThirdGradeStudentsServiceImplTest :
     BehaviorSpec({
         val studentJpaRepository = mockk<StudentJpaRepository>()
-        val eventPublisher = mockk<EventPublisher>()
-        val graduateThirdGradeStudentsService = GraduateThirdGradeStudentsServiceImpl(studentJpaRepository, eventPublisher)
+        val applicationEventPublisher = mockk<ApplicationEventPublisher>()
+        val graduateThirdGradeStudentsService = GraduateThirdGradeStudentsServiceImpl(studentJpaRepository, applicationEventPublisher)
 
         Given("3학년 학생들이 존재하는 경우") {
             val student1 =
@@ -64,9 +65,9 @@ class GraduateThirdGradeStudentsServiceImplTest :
 
             val thirdGradeStudents = listOf(student1, student2, student3)
 
-            val dataSlot = slot<EventChangedData>()
+            val eventSlot = slot<EventDispatchRequested>()
             every { studentJpaRepository.findStudentsByGrade(3) } returns thirdGradeStudents
-            justRun { eventPublisher.dispatch(EventType.STUDENT_UPDATED, capture(dataSlot)) }
+            justRun { applicationEventPublisher.publishEvent(capture(eventSlot)) }
 
             When("모든 3학년 학생을 졸업 처리하면") {
                 val result = graduateThirdGradeStudentsService.execute()
@@ -89,8 +90,15 @@ class GraduateThirdGradeStudentsServiceImplTest :
                 }
 
                 Then("STUDENT_UPDATED 이벤트가 1회 발행되며 old/new가 index로 매핑된다") {
-                    verify(exactly = 1) { eventPublisher.dispatch(EventType.STUDENT_UPDATED, any()) }
-                    val data = dataSlot.captured
+                    verify(exactly = 1) {
+                        applicationEventPublisher.publishEvent(
+                            match<EventDispatchRequested> {
+                                it.eventType ==
+                                    EventType.STUDENT_UPDATED
+                            },
+                        )
+                    }
+                    val data = eventSlot.captured.data as EventChangedData
                     data.old.size shouldBe 3
                     data.new.size shouldBe 3
                     data.old.map { it.index } shouldBe listOf(0, 1, 2)

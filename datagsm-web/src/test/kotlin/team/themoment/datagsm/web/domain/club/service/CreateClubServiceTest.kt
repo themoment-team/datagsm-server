@@ -9,12 +9,13 @@ import io.mockk.just
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
+import org.springframework.context.ApplicationEventPublisher
 import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.event.service.EventPublisher
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
@@ -29,15 +30,15 @@ class CreateClubServiceTest :
 
         lateinit var mockClubRepository: ClubJpaRepository
         lateinit var mockStudentRepository: StudentJpaRepository
-        lateinit var eventPublisher: EventPublisher
+        lateinit var applicationEventPublisher: ApplicationEventPublisher
         lateinit var createClubService: CreateClubService
 
         beforeEach {
             mockClubRepository = mockk<ClubJpaRepository>()
             mockStudentRepository = mockk<StudentJpaRepository>()
-            eventPublisher = mockk<EventPublisher>()
-            justRun { eventPublisher.dispatch(any(), any()) }
-            createClubService = CreateClubServiceImpl(mockClubRepository, mockStudentRepository, eventPublisher)
+            applicationEventPublisher = mockk<ApplicationEventPublisher>()
+            justRun { applicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
+            createClubService = CreateClubServiceImpl(mockClubRepository, mockStudentRepository, applicationEventPublisher)
         }
 
         describe("CreateClubService 클래스의") {

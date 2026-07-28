@@ -7,9 +7,10 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
+import org.springframework.context.ApplicationEventPublisher
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.event.service.EventPublisher
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
@@ -24,8 +25,8 @@ class WithdrawStudentServiceImplTest :
     BehaviorSpec({
         val studentJpaRepository = mockk<StudentJpaRepository>()
         val clubJpaRepository = mockk<ClubJpaRepository>()
-        val eventPublisher = mockk<EventPublisher>()
-        val withdrawStudentService = WithdrawStudentServiceImpl(studentJpaRepository, clubJpaRepository, eventPublisher)
+        val applicationEventPublisher = mockk<ApplicationEventPublisher>()
+        val withdrawStudentService = WithdrawStudentServiceImpl(studentJpaRepository, clubJpaRepository, applicationEventPublisher)
 
         Given("일반 학생이 존재하는 경우") {
             val studentId = 1L
@@ -47,7 +48,7 @@ class WithdrawStudentServiceImplTest :
             every { mockClub.name } returns "동아리"
             every { studentJpaRepository.findById(studentId) } returns Optional.of(student)
             every { clubJpaRepository.findAllByLeader(student) } returns emptyList()
-            justRun { eventPublisher.dispatch(any(), any()) }
+            justRun { applicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
 
             When("해당 학생을 자퇴 처리하면") {
                 withdrawStudentService.execute(studentId)
