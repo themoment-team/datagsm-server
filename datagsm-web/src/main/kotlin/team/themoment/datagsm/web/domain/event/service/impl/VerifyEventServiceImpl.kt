@@ -1,5 +1,6 @@
 package team.themoment.datagsm.web.domain.event.service.impl
 
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -16,23 +17,18 @@ class VerifyEventServiceImpl(
     @Async
     @Transactional
     override fun verifyAsync(eventId: Long) {
-        runCatching {
-            val event =
-                eventJpaRepository.findById(eventId).orElse(null)
-                    ?: run {
-                        logger().warn("Skipped event verification for missing eventId {}", eventId)
-                        return
-                    }
-
-            event.verificationStatus =
-                if (EventUrlValidator.isPrivateOrLocalUrl(event.targetUrl)) {
-                    logger().warn("Failed to verify event url for eventId {}", eventId)
-                    EventVerificationStatus.FAILED
-                } else {
-                    EventVerificationStatus.VERIFIED
-                }
-        }.onFailure { e ->
-            logger().error("Failed to execute async event verification for eventId {}", eventId, e)
+        val event = eventJpaRepository.findByIdOrNull(eventId)
+        if (event == null) {
+            logger().warn("Skipped event verification for missing eventId {}", eventId)
+            return
         }
+
+        event.verificationStatus =
+            if (EventUrlValidator.isPrivateOrLocalUrl(event.targetUrl)) {
+                logger().warn("Failed to verify event url for eventId {}", eventId)
+                EventVerificationStatus.FAILED
+            } else {
+                EventVerificationStatus.VERIFIED
+            }
     }
 }

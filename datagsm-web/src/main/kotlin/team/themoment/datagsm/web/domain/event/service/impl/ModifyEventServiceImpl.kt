@@ -1,16 +1,15 @@
 package team.themoment.datagsm.web.domain.event.service.impl
 
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.transaction.support.TransactionSynchronization
-import org.springframework.transaction.support.TransactionSynchronizationManager
 import team.themoment.datagsm.common.domain.event.dto.request.ModifyEventReqDto
 import team.themoment.datagsm.common.domain.event.dto.response.EventResDto
 import team.themoment.datagsm.common.domain.event.entity.constant.EventVerificationStatus
 import team.themoment.datagsm.common.domain.event.repository.EventJpaRepository
+import team.themoment.datagsm.web.domain.event.dto.internal.EventVerificationRequested
 import team.themoment.datagsm.web.domain.event.service.ModifyEventService
-import team.themoment.datagsm.web.domain.event.service.VerifyEventService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 
@@ -18,7 +17,7 @@ import team.themoment.sdk.exception.ExpectedException
 class ModifyEventServiceImpl(
     private val eventJpaRepository: EventJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
-    private val verifyEventService: VerifyEventService,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) : ModifyEventService {
     @Transactional
     override fun execute(
@@ -44,7 +43,7 @@ class ModifyEventServiceImpl(
         }
 
         if (revalidationNeeded) {
-            triggerVerificationAfterCommit(event.id!!)
+            applicationEventPublisher.publishEvent(EventVerificationRequested(event.id!!))
         }
 
         return EventResDto(
@@ -54,20 +53,6 @@ class ModifyEventServiceImpl(
             isActive = event.isActive,
             createdAt = event.createdAt!!,
             verificationStatus = event.verificationStatus,
-        )
-    }
-
-    private fun triggerVerificationAfterCommit(eventId: Long) {
-        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-            verifyEventService.verifyAsync(eventId)
-            return
-        }
-        TransactionSynchronizationManager.registerSynchronization(
-            object : TransactionSynchronization {
-                override fun afterCommit() {
-                    verifyEventService.verifyAsync(eventId)
-                }
-            },
         )
     }
 }

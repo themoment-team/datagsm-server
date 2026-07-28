@@ -1,16 +1,15 @@
 package team.themoment.datagsm.web.domain.event.service.impl
 
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.transaction.support.TransactionSynchronization
-import org.springframework.transaction.support.TransactionSynchronizationManager
 import team.themoment.datagsm.common.domain.event.dto.request.CreateEventReqDto
 import team.themoment.datagsm.common.domain.event.dto.response.CreateEventResDto
 import team.themoment.datagsm.common.domain.event.entity.EventJpaEntity
 import team.themoment.datagsm.common.domain.event.repository.EventJpaRepository
+import team.themoment.datagsm.web.domain.event.dto.internal.EventVerificationRequested
 import team.themoment.datagsm.web.domain.event.service.CreateEventService
-import team.themoment.datagsm.web.domain.event.service.VerifyEventService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
 import java.security.SecureRandom
@@ -19,7 +18,7 @@ import java.security.SecureRandom
 class CreateEventServiceImpl(
     private val eventJpaRepository: EventJpaRepository,
     private val currentUserProvider: CurrentUserProvider,
-    private val verifyEventService: VerifyEventService,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) : CreateEventService {
     @Transactional
     override fun execute(reqDto: CreateEventReqDto): CreateEventResDto {
@@ -39,7 +38,7 @@ class CreateEventServiceImpl(
             }
         val saved = eventJpaRepository.save(event)
 
-        triggerVerificationAfterCommit(saved.id!!)
+        applicationEventPublisher.publishEvent(EventVerificationRequested(saved.id!!))
 
         return CreateEventResDto(
             id = saved.id!!,
@@ -52,20 +51,7 @@ class CreateEventServiceImpl(
         )
     }
 
-    private fun triggerVerificationAfterCommit(eventId: Long) {
-        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-            verifyEventService.verifyAsync(eventId)
-            return
-        }
-        TransactionSynchronizationManager.registerSynchronization(
-            object : TransactionSynchronization {
-                override fun afterCommit() {
-                    verifyEventService.verifyAsync(eventId)
-                }
-            },
-        )
-    }
-
+    // todo: Is there no way to improve this crazy, somewhat messy, slow-looking code? If there isn’t any, then just leave it as it is and feel disappointed...
     private fun generateSecret(): String {
         val bytes = ByteArray(32)
         secureRandom.nextBytes(bytes)
