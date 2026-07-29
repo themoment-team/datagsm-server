@@ -21,7 +21,8 @@ class EventPublisherImpl(
 ) : EventPublisher {
     private val objectMapper = JsonMapper.builder().build()
 
-    // 재시도를 포함한 전송 구간이 길어 트랜잭션을 열어두지 않는다. 대상 조회는 리포지토리 자체 트랜잭션으로 처리된다.
+    // 재시도를 포함한 전송 구간 내내 커넥션을 점유하지 않도록 @Transactional을 두지 않는다.
+    // 대상 조회는 리포지토리 자체 트랜잭션으로 처리된다.
     @Async
     override fun dispatch(
         event: EventType,
