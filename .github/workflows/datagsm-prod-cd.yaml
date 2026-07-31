@@ -90,7 +90,7 @@ jobs:
       - name: Publish JVM artifact to GitHub Packages
         run: >
           ./gradlew :datagsm-common:kspKotlin
-          :datagsm-shared:publishJvmPublicationToGitHubPackagesRepository
+          :datagsm-shared:publishMavenPublicationToGitHubPackagesRepository
           -PSHARED_VERSION=${{ needs.generate-version.outputs.version }}
         env:
           GITHUB_ACTOR: ${{ github.actor }}

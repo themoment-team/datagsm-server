@@ -24,6 +24,7 @@ kotlin {
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+    withSourcesJar()
 }
 
 sourceSets {
@@ -98,7 +99,14 @@ tasks.register("assembleTsPackage") {
     }
 }
 
+// The KMP plugin used to register the `jvm` publication implicitly; after the KMP layer was
+// removed the `kotlin("jvm")` plugin registers none, so it must be declared explicitly.
 publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+        }
+    }
     repositories {
         maven {
             name = "GitHubPackages"
