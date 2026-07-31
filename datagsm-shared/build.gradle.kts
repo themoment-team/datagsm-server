@@ -46,6 +46,12 @@ tasks.named("compileKotlin") {
     dependsOn(":datagsm-common:kspKotlin")
 }
 
+// The only source root is KSP-generated, so sourcesJar silently produces an empty archive
+// unless the generator has already run. Gradle infers no dependency from srcDir alone.
+tasks.named("sourcesJar") {
+    dependsOn(":datagsm-common:kspKotlin")
+}
+
 // Assembles a runtime-free, type-only npm package from the KSP-generated index.d.ts.
 // Replaces the former Kotlin/JS IR output (see plan-04): no kotlinx-serialization /
 // kotlinx-datetime / @js-joda runtime dependency, plain TypeScript types only.
