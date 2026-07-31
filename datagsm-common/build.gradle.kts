@@ -91,3 +91,13 @@ ksp {
     arg("sdkOutputDir", "${layout.buildDirectory.get().asFile}/generated/sdk-export/main/kotlin")
     arg("tsOutputDir", "${layout.buildDirectory.get().asFile}/generated/sdk-export/main/ts")
 }
+
+// sdkOutputDir/tsOutputDir are plain processor arguments, so Gradle does not know the
+// generated directory is a task output: it stays UP-TO-DATE when the directory is missing,
+// and a build cache hit restores only the declared outputs. Both cases let datagsm-shared
+// compile with zero sources and publish an empty artifact without failing. Declaring the
+// directory as an output makes staleness and cache restoration correct.
+// `tasks.named` is not usable here — KSP registers kspKotlin after this block is evaluated.
+tasks.matching { it.name == "kspKotlin" }.configureEach {
+    outputs.dir(layout.buildDirectory.dir("generated/sdk-export"))
+}
