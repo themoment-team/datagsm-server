@@ -7,7 +7,7 @@ School information API server for Gwangju Software Meister High School (students
 - datagsm-common: Shared Entity/DTO/Repository, Health API
 - datagsm-oauth-authorization: OAuth2 authentication, account lifecycle (signup, password reset)
 - datagsm-oauth-userinfo: OAuth2 UserInfo endpoint (external clients)
-- datagsm-openapi: Public read-only API (students, clubs, NEIS integration)
+- datagsm-openapi: Public API — read and write (students, clubs, projects, NEIS integration)
 - datagsm-web: Web service API (user features, admin features, Excel processing)
 - datagsm-shared: Kotlin Multiplatform module — externally published type definitions (Maven + npm)
 - datagsm-ksp-processor: KSP processor — generates KMP/TypeScript types from `@KmpExport` (consumed by datagsm-common)
@@ -31,6 +31,7 @@ Kotlin, Spring Boot 4.0, Spring Data JPA, QueryDSL, Redis, MySQL
 - Use constructor injection
 - Test: Kotest + MockK (Given-When-Then)
 - Do NOT add excessive comments - only add comments where logic is not self-evident
+- Write services in `student`/`club`/`project` domains must publish `EventDispatchRequested` — see `.claude/rules/domain-event.md`
 
 Detailed rules are split into `.claude/rules/`:
 - `dto-annotations.md` — `@field:` vs `@param:` rules for Jackson and Swagger
@@ -38,6 +39,7 @@ Detailed rules are split into `.claude/rules/`:
 - `exception.md` — `ExpectedException` usage and message format
 - `kotlin-style.md` — `val/var`, constructor injection, null safety
 - `api-conventions.md` — `@RequestParam` vs `@ModelAttribute`, DTO naming, `@Transactional` placement
+- `domain-event.md` — `EventDispatchRequested` publishing rule, allowlist, `EventDispatchConventionTest`
 
 ## Context Compaction Rules
 

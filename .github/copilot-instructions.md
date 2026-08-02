@@ -19,7 +19,7 @@ DataGSM is a Spring Boot REST API service providing school information (students
 - `datagsm-common/`: Shared library (Entity, DTO, Repository, Config, Health API)
 - `datagsm-oauth-authorization/`: OAuth2 authentication, account lifecycle (signup, password reset)
 - `datagsm-oauth-userinfo/`: OAuth2 UserInfo endpoint (external clients)
-- `datagsm-openapi/`: Public read-only API (students, clubs, NEIS)
+- `datagsm-openapi/`: Public API — read and write (students, clubs, projects, NEIS)
 - `datagsm-web/`: Web service API (user features, admin features, Excel)
 - `datagsm-shared/`: Kotlin Multiplatform module — published type definitions (Maven + npm)
 - `datagsm-ksp-processor/`: KSP processor — generates KMP/TypeScript types from `@KmpExport`
@@ -83,6 +83,14 @@ fun updateStudent(@PathVariable id: Long, @Valid @RequestBody reqDto: UpdateStud
     updateStudentService.execute(id, reqDto)
 ```
 
+### Domain Events
+
+- A service in the `student`/`club`/`project` domains with a non-readOnly `@Transactional` method must publish `EventDispatchRequested` via `ApplicationEventPublisher` — this holds in every module, not just `datagsm-web`
+- Never call `EventPublisher.dispatch` from a service — `EventDispatchListener` in `datagsm-common` consumes the event after commit and dispatches it
+- Snapshot the `old` payload **before** the mutation runs, especially for deletes and bulk JPQL
+- `EventDispatchConventionTest` in `datagsm-common` scans every module and fails on a missing publish
+- Intentional exemptions go in the module's own `event-dispatch-allowlist.txt` as `<ClassName> # <사유>`; an entry without a reason, or one that no longer applies, also fails
+
 ## Key Practices
 
 - Security: No hardcoded secrets, use SLF4J Logger (with Logback, not println()), validate JWT/API keys properly
@@ -97,6 +105,10 @@ fun updateStudent(@PathVariable id: Long, @Valid @RequestBody reqDto: UpdateStud
 ### DTO Annotations
 - WRONG: `@param:JsonProperty` → CORRECT: `@field:JsonProperty`
 - WRONG: Response DTO with `@param:Schema` → CORRECT: `@field:Schema`
+
+### Domain Events
+- WRONG: write service in `student`/`club`/`project` with no event publish → CORRECT: publish `EventDispatchRequested`, or register it in `event-dispatch-allowlist.txt` with a reason
+- WRONG: `eventPublisher.dispatch(...)` inside a service → CORRECT: `applicationEventPublisher.publishEvent(EventDispatchRequested(...))`
 
 ### Commit Scope
 - WRONG: `fix(web):` (module name) → CORRECT: `fix(auth):` (domain name)
