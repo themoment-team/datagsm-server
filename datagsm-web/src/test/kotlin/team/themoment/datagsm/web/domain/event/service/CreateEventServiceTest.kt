@@ -7,12 +7,14 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import org.springframework.context.ApplicationEventPublisher
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.event.dto.request.CreateEventReqDto
 import team.themoment.datagsm.common.domain.event.entity.EventJpaEntity
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.event.entity.constant.EventVerificationStatus
 import team.themoment.datagsm.common.domain.event.repository.EventJpaRepository
+import team.themoment.datagsm.web.domain.event.dto.internal.EventVerificationRequested
 import team.themoment.datagsm.web.domain.event.service.impl.CreateEventServiceImpl
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.sdk.exception.ExpectedException
@@ -23,18 +25,18 @@ class CreateEventServiceTest :
 
         lateinit var eventJpaRepository: EventJpaRepository
         lateinit var currentUserProvider: CurrentUserProvider
-        lateinit var verifyEventService: VerifyEventService
+        lateinit var applicationEventPublisher: ApplicationEventPublisher
         lateinit var createEventService: CreateEventService
         lateinit var account: AccountJpaEntity
 
         beforeEach {
             eventJpaRepository = mockk()
             currentUserProvider = mockk()
-            verifyEventService = mockk(relaxed = true)
+            applicationEventPublisher = mockk(relaxed = true)
             account = mockk()
             every { currentUserProvider.getCurrentAccount() } returns account
             createEventService =
-                CreateEventServiceImpl(eventJpaRepository, currentUserProvider, verifyEventService)
+                CreateEventServiceImpl(eventJpaRepository, currentUserProvider, applicationEventPublisher)
         }
 
         describe("CreateEventService 클래스의") {
@@ -56,7 +58,7 @@ class CreateEventServiceTest :
                                 createEventService.execute(reqDto)
                             }
                         ex.message shouldBe "Event는 최대 10개까지 등록할 수 있습니다."
-                        verify(exactly = 0) { verifyEventService.verifyAsync(any()) }
+                        verify(exactly = 0) { applicationEventPublisher.publishEvent(any<EventVerificationRequested>()) }
                     }
                 }
 
@@ -87,7 +89,7 @@ class CreateEventServiceTest :
                     it("저장 후 비동기 URL 검증을 트리거해야 한다") {
                         createEventService.execute(reqDto)
 
-                        verify(exactly = 1) { verifyEventService.verifyAsync(1L) }
+                        verify(exactly = 1) { applicationEventPublisher.publishEvent(EventVerificationRequested(1L)) }
                     }
                 }
             }

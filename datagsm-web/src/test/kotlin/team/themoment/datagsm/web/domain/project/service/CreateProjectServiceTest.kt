@@ -8,10 +8,11 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
+import org.springframework.context.ApplicationEventPublisher
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.event.service.EventPublisher
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
@@ -28,13 +29,13 @@ class CreateProjectServiceTest :
         val mockProjectRepository = mockk<ProjectJpaRepository>()
         val mockClubRepository = mockk<ClubJpaRepository>()
         val mockStudentRepository = mockk<team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository>()
-        val eventPublisher = mockk<EventPublisher>()
+        val applicationEventPublisher = mockk<ApplicationEventPublisher>()
 
         val createProjectService =
-            CreateProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository, eventPublisher)
+            CreateProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository, applicationEventPublisher)
 
         beforeEach {
-            justRun { eventPublisher.dispatch(any(), any()) }
+            justRun { applicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
         }
 
         afterEach {

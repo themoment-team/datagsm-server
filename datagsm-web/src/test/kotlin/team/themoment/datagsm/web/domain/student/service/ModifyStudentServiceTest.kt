@@ -7,10 +7,11 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
+import org.springframework.context.ApplicationEventPublisher
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.event.service.EventPublisher
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
@@ -28,15 +29,15 @@ class ModifyStudentServiceTest :
 
         lateinit var mockStudentRepository: StudentJpaRepository
         lateinit var mockClubRepository: ClubJpaRepository
-        lateinit var mockEventPublisher: EventPublisher
+        lateinit var mockApplicationEventPublisher: ApplicationEventPublisher
         lateinit var modifyStudentService: ModifyStudentService
 
         beforeEach {
             mockStudentRepository = mockk<StudentJpaRepository>()
             mockClubRepository = mockk<ClubJpaRepository>()
-            mockEventPublisher = mockk<EventPublisher>()
-            justRun { mockEventPublisher.dispatch(any(), any()) }
-            modifyStudentService = ModifyStudentServiceImpl(mockStudentRepository, mockClubRepository, mockEventPublisher)
+            mockApplicationEventPublisher = mockk<ApplicationEventPublisher>()
+            justRun { mockApplicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
+            modifyStudentService = ModifyStudentServiceImpl(mockStudentRepository, mockClubRepository, mockApplicationEventPublisher)
         }
 
         describe("ModifyStudentService 클래스의") {

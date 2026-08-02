@@ -7,10 +7,11 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
+import org.springframework.context.ApplicationEventPublisher
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.event.service.EventPublisher
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
@@ -27,17 +28,17 @@ class ModifyProjectServiceTest :
         lateinit var mockProjectRepository: ProjectJpaRepository
         lateinit var mockClubRepository: ClubJpaRepository
         lateinit var mockStudentRepository: team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
-        lateinit var eventPublisher: EventPublisher
+        lateinit var applicationEventPublisher: ApplicationEventPublisher
         lateinit var modifyProjectService: ModifyProjectService
 
         beforeEach {
             mockProjectRepository = mockk<ProjectJpaRepository>()
             mockClubRepository = mockk<ClubJpaRepository>()
             mockStudentRepository = mockk<team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository>()
-            eventPublisher = mockk<EventPublisher>()
-            justRun { eventPublisher.dispatch(any(), any()) }
+            applicationEventPublisher = mockk<ApplicationEventPublisher>()
+            justRun { applicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
             modifyProjectService =
-                ModifyProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository, eventPublisher)
+                ModifyProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository, applicationEventPublisher)
         }
 
         describe("ModifyProjectService 클래스의") {

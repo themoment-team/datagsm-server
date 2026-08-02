@@ -1,17 +1,18 @@
 package team.themoment.datagsm.web.domain.project.service.impl
 
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
 import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
 import team.themoment.datagsm.common.domain.event.dto.payload.EventClubRef
 import team.themoment.datagsm.common.domain.event.dto.payload.EventStudentRef
 import team.themoment.datagsm.common.domain.event.dto.payload.ProjectEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
-import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
@@ -26,7 +27,7 @@ class ModifyProjectServiceImpl(
     private val projectJpaRepository: ProjectJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
-    private val eventPublisher: EventPublisher,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) : ModifyProjectService {
     @Transactional
     override fun execute(
@@ -78,11 +79,13 @@ class ModifyProjectServiceImpl(
         project.participants = newParticipants
 
         val newObj = generateProjectEventObject(project)
-        eventPublisher.dispatch(
-            EventType.PROJECT_UPDATED,
-            EventChangedData(
-                old = listOf(EventChangeItem(0, oldObj)),
-                new = listOf(EventChangeItem(0, newObj)),
+        applicationEventPublisher.publishEvent(
+            EventDispatchRequested(
+                EventType.PROJECT_UPDATED,
+                EventChangedData(
+                    old = listOf(EventChangeItem(0, oldObj)),
+                    new = listOf(EventChangeItem(0, newObj)),
+                ),
             ),
         )
 

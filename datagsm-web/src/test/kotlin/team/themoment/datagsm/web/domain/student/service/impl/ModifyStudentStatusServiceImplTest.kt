@@ -7,9 +7,10 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.event.service.EventPublisher
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentStatusReqDto
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -21,8 +22,8 @@ class ModifyStudentStatusServiceImplTest :
     BehaviorSpec({
         val studentJpaRepository = mockk<StudentJpaRepository>()
         val clubJpaRepository = mockk<ClubJpaRepository>()
-        val eventPublisher = mockk<EventPublisher>()
-        val service = ModifyStudentStatusServiceImpl(studentJpaRepository, clubJpaRepository, eventPublisher)
+        val applicationEventPublisher = mockk<ApplicationEventPublisher>()
+        val service = ModifyStudentStatusServiceImpl(studentJpaRepository, clubJpaRepository, applicationEventPublisher)
 
         Given("존재하지 않는 학생 ID로") {
             val studentId = 999L
@@ -56,7 +57,7 @@ class ModifyStudentStatusServiceImplTest :
 
             every { studentJpaRepository.findByIdOrNull(studentId) } returns student
             every { clubJpaRepository.findAllByLeader(student) } returns emptyList()
-            justRun { eventPublisher.dispatch(any(), any()) }
+            justRun { applicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
 
             When("상태 변경을 요청하면") {
                 service.execute(studentId, reqDto)
@@ -86,7 +87,7 @@ class ModifyStudentStatusServiceImplTest :
 
             every { studentJpaRepository.findByIdOrNull(studentId) } returns student
             every { clubJpaRepository.findAllByLeader(student) } returns emptyList()
-            justRun { eventPublisher.dispatch(any(), any()) }
+            justRun { applicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
 
             When("상태 변경을 요청하면") {
                 service.execute(studentId, reqDto)
@@ -113,7 +114,7 @@ class ModifyStudentStatusServiceImplTest :
             val reqDto = UpdateStudentStatusReqDto(status = StudentRole.GENERAL_STUDENT)
 
             every { studentJpaRepository.findByIdOrNull(studentId) } returns student
-            justRun { eventPublisher.dispatch(any(), any()) }
+            justRun { applicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
 
             When("상태 변경을 요청하면") {
                 service.execute(studentId, reqDto)
@@ -137,7 +138,7 @@ class ModifyStudentStatusServiceImplTest :
             val reqDto = UpdateStudentStatusReqDto(status = StudentRole.STUDENT_COUNCIL)
 
             every { studentJpaRepository.findByIdOrNull(studentId) } returns student
-            justRun { eventPublisher.dispatch(any(), any()) }
+            justRun { applicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
 
             When("상태 변경을 요청하면") {
                 service.execute(studentId, reqDto)
@@ -161,7 +162,7 @@ class ModifyStudentStatusServiceImplTest :
             val reqDto = UpdateStudentStatusReqDto(status = StudentRole.DORMITORY_MANAGER)
 
             every { studentJpaRepository.findByIdOrNull(studentId) } returns student
-            justRun { eventPublisher.dispatch(any(), any()) }
+            justRun { applicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
 
             When("상태 변경을 요청하면") {
                 service.execute(studentId, reqDto)
