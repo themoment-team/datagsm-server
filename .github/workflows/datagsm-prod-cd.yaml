@@ -39,7 +39,7 @@ jobs:
       shared_changed: ${{ steps.changes.outputs.shared_changed }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.branch || github.event.workflow_run.head_sha || 'master' }}
           fetch-depth: 0
@@ -74,7 +74,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.branch || github.event.workflow_run.head_sha || 'master' }}
       - name: Setup JDK 25
@@ -83,7 +83,7 @@ jobs:
           java-version: '25'
           distribution: 'temurin'
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
         with:
           cache-read-only: false
           cache-cleanup: always
@@ -102,7 +102,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.branch || github.event.workflow_run.head_sha || 'master' }}
       - name: Setup JDK 25
@@ -111,12 +111,12 @@ jobs:
           java-version: '25'
           distribution: 'temurin'
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
         with:
           cache-read-only: false
           cache-cleanup: always
       - name: Setup Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
@@ -138,7 +138,7 @@ jobs:
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.branch || github.event.workflow_run.head_sha || 'master' }}
 
@@ -149,7 +149,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
         with:
           cache-read-only: false
           cache-cleanup: always
@@ -217,23 +217,41 @@ jobs:
       - name: Code Deploy
         run: aws deploy create-deployment --application-name datagsm-prod-server-codedeploy --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name datagsm-prod-server --s3-location bucket=${{ secrets.AWS_S3_BUCKET_NAME }},bundleType=zip,key=prod/$GITHUB_SHA.zip
 
-      - name: Deploy Success Notification
-        uses: sarisia/actions-status-discord@v1
-        if: success()
-        with:
-          webhook: ${{ secrets.DISCORD_INFORMATION_ALERT_CHANNEL_WEBHOOK }}
-          color: 0x4CAF50
+  notify:
+    runs-on: ubuntu-latest
+    needs: [generate-version, publish-jvm, publish-js, deploy]
+    if: |
+      always() &&
+      (needs.generate-version.result != 'skipped' || needs.deploy.result != 'skipped')
 
-      - name: Deploy Failure Notification
-        uses: sarisia/actions-status-discord@v1
-        if: failure()
-        with:
-          webhook: ${{ secrets.DISCORD_INFORMATION_ALERT_CHANNEL_WEBHOOK }}
-          color: 0xFF4C4C
+    steps:
+      - name: Determine Status
+        id: status
+        run: |
+          if [[ "${{ needs.generate-version.result }}" == "failure" ]] || \
+             [[ "${{ needs.publish-jvm.result }}" == "failure" ]] || \
+             [[ "${{ needs.publish-js.result }}" == "failure" ]] || \
+             [[ "${{ needs.deploy.result }}" == "failure" ]]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "color=0xFF4C4C" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.deploy.result }}" == "success" ]] || \
+               [[ "${{ needs.publish-jvm.result }}" == "success" && "${{ needs.publish-js.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "color=0x4CAF50" >> $GITHUB_OUTPUT
+          else
+            echo "status=cancelled" >> $GITHUB_OUTPUT
+            echo "color=0xFFA500" >> $GITHUB_OUTPUT
+          fi
 
-      - name: Deploy Cancelled Notification
+      - name: Send Discord Notification
         uses: sarisia/actions-status-discord@v1
-        if: cancelled()
         with:
           webhook: ${{ secrets.DISCORD_INFORMATION_ALERT_CHANNEL_WEBHOOK }}
-          color: 0xFFA500
+          status: ${{ steps.status.outputs.status }}
+          color: ${{ steps.status.outputs.color }}
+          title: "DataGSM Prod CD"
+          description: |
+            **Generate Version:** ${{ needs.generate-version.result }}
+            **Publish JVM:** ${{ needs.publish-jvm.result }}
+            **Publish JS:** ${{ needs.publish-js.result }}
+            **Deploy:** ${{ needs.deploy.result }}
