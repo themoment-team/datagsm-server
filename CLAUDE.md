@@ -31,7 +31,7 @@ Kotlin, Spring Boot 4.0, Spring Data JPA, QueryDSL, Redis, MySQL
 - Use constructor injection
 - Test: Kotest + MockK (Given-When-Then)
 - Do NOT add excessive comments - only add comments where logic is not self-evident
-- Write services in `student`/`club`/`project` domains must publish `EventDispatchRequested` — see `.claude/rules/domain-event.md`
+- Write services in `student`/`club`/`project` domains must publish `EventDispatchRequested` (enforced by `EventDispatchConventionTest`)
 
 Detailed rules are split into `.claude/rules/`:
 - `dto-annotations.md` — `@field:` vs `@param:` rules for Jackson and Swagger
@@ -39,7 +39,6 @@ Detailed rules are split into `.claude/rules/`:
 - `exception.md` — `ExpectedException` usage and message format
 - `kotlin-style.md` — `val/var`, constructor injection, null safety
 - `api-conventions.md` — `@RequestParam` vs `@ModelAttribute`, DTO naming, `@Transactional` placement
-- `domain-event.md` — `EventDispatchRequested` publishing rule, allowlist, `EventDispatchConventionTest`
 
 ## Context Compaction Rules
 

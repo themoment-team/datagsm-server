@@ -44,6 +44,7 @@ Each service module follows: `controller/`, `service/`, `repository/`, `entity/`
 - Always use constructor injection — never `@Autowired` field injection.
 - Use Kotlin null-safety features (`?.`, `?:`) instead of `!!`.
 - Do NOT add excessive comments — only where logic is not self-evident.
+- Write services in `student`/`club`/`project` domains must publish `EventDispatchRequested` (enforced by `EventDispatchConventionTest`)
 
 ### DTO Annotations
 
@@ -59,14 +60,6 @@ Each service module follows: `controller/`, `service/`, `repository/`, `entity/`
 - `@Transactional` must be at **method level only** — never class level
 - Read operations: `@Transactional(readOnly = true)` / Write operations: `@Transactional`
 - Use `CommonApiResponse` wrapper for all API responses
-
-### Domain Events
-
-- A service in the `student`/`club`/`project` domains with a non-readOnly `@Transactional` method must publish `EventDispatchRequested` via `ApplicationEventPublisher` — this holds in every module, not just `datagsm-web`
-- Never call `EventPublisher.dispatch` from a service — `EventDispatchListener` in `datagsm-common` consumes the event after commit and dispatches it
-- Snapshot the `old` payload **before** the mutation runs, especially for deletes and bulk JPQL
-- `EventDispatchConventionTest` in `datagsm-common` scans every module and fails on a missing publish
-- Intentional exemptions go in that test's `ALLOWLIST` constant, keyed by module name then class name, with a mandatory reason; a blank reason does not exempt, and an entry that no longer applies also fails
 
 ### Logging
 

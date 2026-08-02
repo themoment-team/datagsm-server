@@ -41,6 +41,7 @@ DataGSM is a Spring Boot REST API service providing school information (students
 - Always use constructor injection for dependencies
 - Separate Entity and DTO clearly
 - Do NOT add excessive comments - only where logic is not self-evident
+- Write services in `student`/`club`/`project` domains must publish `EventDispatchRequested` (enforced by `EventDispatchConventionTest`)
 
 ### DTO Annotations
 
@@ -83,14 +84,6 @@ fun updateStudent(@PathVariable id: Long, @Valid @RequestBody reqDto: UpdateStud
     updateStudentService.execute(id, reqDto)
 ```
 
-### Domain Events
-
-- A service in the `student`/`club`/`project` domains with a non-readOnly `@Transactional` method must publish `EventDispatchRequested` via `ApplicationEventPublisher` — this holds in every module, not just `datagsm-web`
-- Never call `EventPublisher.dispatch` from a service — `EventDispatchListener` in `datagsm-common` consumes the event after commit and dispatches it
-- Snapshot the `old` payload **before** the mutation runs, especially for deletes and bulk JPQL
-- `EventDispatchConventionTest` in `datagsm-common` scans every module and fails on a missing publish
-- Intentional exemptions go in that test's `ALLOWLIST` constant, keyed by module name then class name, with a mandatory reason; a blank reason does not exempt, and an entry that no longer applies also fails
-
 ## Key Practices
 
 - Security: No hardcoded secrets, use SLF4J Logger (with Logback, not println()), validate JWT/API keys properly
@@ -105,10 +98,6 @@ fun updateStudent(@PathVariable id: Long, @Valid @RequestBody reqDto: UpdateStud
 ### DTO Annotations
 - WRONG: `@param:JsonProperty` → CORRECT: `@field:JsonProperty`
 - WRONG: Response DTO with `@param:Schema` → CORRECT: `@field:Schema`
-
-### Domain Events
-- WRONG: write service in `student`/`club`/`project` with no event publish → CORRECT: publish `EventDispatchRequested`, or register it in the `ALLOWLIST` of `EventDispatchConventionTest` with a reason
-- WRONG: `eventPublisher.dispatch(...)` inside a service → CORRECT: `applicationEventPublisher.publishEvent(EventDispatchRequested(...))`
 
 ### Commit Scope
 - WRONG: `fix(web):` (module name) → CORRECT: `fix(auth):` (domain name)
