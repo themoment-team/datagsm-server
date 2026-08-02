@@ -89,7 +89,7 @@ fun updateStudent(@PathVariable id: Long, @Valid @RequestBody reqDto: UpdateStud
 - Never call `EventPublisher.dispatch` from a service — `EventDispatchListener` in `datagsm-common` consumes the event after commit and dispatches it
 - Snapshot the `old` payload **before** the mutation runs, especially for deletes and bulk JPQL
 - `EventDispatchConventionTest` in `datagsm-common` scans every module and fails on a missing publish
-- Intentional exemptions go in the module's own `event-dispatch-allowlist.txt` as `<ClassName> # <사유>`; an entry without a reason, or one that no longer applies, also fails
+- Intentional exemptions go in that test's `ALLOWLIST` constant, keyed by module name then class name, with a mandatory reason; a blank reason does not exempt, and an entry that no longer applies also fails
 
 ## Key Practices
 
@@ -107,7 +107,7 @@ fun updateStudent(@PathVariable id: Long, @Valid @RequestBody reqDto: UpdateStud
 - WRONG: Response DTO with `@param:Schema` → CORRECT: `@field:Schema`
 
 ### Domain Events
-- WRONG: write service in `student`/`club`/`project` with no event publish → CORRECT: publish `EventDispatchRequested`, or register it in `event-dispatch-allowlist.txt` with a reason
+- WRONG: write service in `student`/`club`/`project` with no event publish → CORRECT: publish `EventDispatchRequested`, or register it in the `ALLOWLIST` of `EventDispatchConventionTest` with a reason
 - WRONG: `eventPublisher.dispatch(...)` inside a service → CORRECT: `applicationEventPublisher.publishEvent(EventDispatchRequested(...))`
 
 ### Commit Scope

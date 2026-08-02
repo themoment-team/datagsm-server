@@ -52,14 +52,20 @@ write-transactional service never references `EventDispatchRequested`.
 
 ## Allowlist
 
-A service that intentionally skips publishing is registered in its own module's
-`event-dispatch-allowlist.txt` as `<ClassName> # <사유>`.
+A service that intentionally skips publishing is registered in the `ALLOWLIST` constant of
+`EventDispatchConventionTest`, keyed by module name and then class name.
 
-```
-# datagsm-web/event-dispatch-allowlist.txt
-SomeServiceImpl # 상위 서비스에서 일괄 발행하므로 중복 발행 방지
+```kotlin
+private val ALLOWLIST: Map<String, Map<String, String>> =
+    mapOf(
+        "datagsm-web" to
+            mapOf("SomeServiceImpl" to "상위 서비스에서 일괄 발행하므로 중복 발행 방지"),
+    )
 ```
 
-- An entry without a reason fails the test — a forgotten publish must stay distinguishable from a
-  deliberate one
-- An entry that no longer applies (the class publishes now, or was removed) also fails the test
+- The reason is mandatory — a blank reason does not exempt, so a forgotten publish stays
+  distinguishable from a deliberate one
+- An entry that no longer applies also fails the test: the class publishes now, was removed, or the
+  module name is a typo
+- Keying by module matters — `EndProjectServiceImpl` exists in both `datagsm-web` and
+  `datagsm-openapi`
