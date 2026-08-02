@@ -6,36 +6,6 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import java.io.File
 
-private const val EVENT_MARKER = "EventDispatchRequested"
-private const val SETTINGS_FILE = "settings.gradle.kts"
-private const val SOURCE_ROOT = "src/main/kotlin"
-private val EVENT_DOMAINS = listOf("student", "club", "project")
-private val TRANSACTIONAL_REGEX = Regex("""@Transactional[ \t]*(?:\(([^)]*)\))?""")
-private val READ_ONLY_TRUE_REGEX = Regex("""readOnly\s*=\s*true""")
-private val WRITE_SERVICE_PATH_REGEX =
-    Regex("""/domain/(${EVENT_DOMAINS.joinToString("|")})/service/impl/[^/]+ServiceImpl\.kt$""")
-
-/**
- * 이벤트를 의도적으로 발행하지 않는 쓰기 서비스를 모듈명 → (클래스명 → 사유)로 등록한다.
- * 사유가 비어 있으면 면제되지 않으며, 더 이상 필요 없어진 항목은 테스트가 거부한다.
- */
-private val ALLOWLIST: Map<String, Map<String, String>> =
-    mapOf(
-        // "datagsm-web" to
-        //     mapOf("SomeServiceImpl" to "상위 서비스에서 일괄 발행하므로 중복 발행 방지"),
-    )
-
-private data class WriteService(
-    val className: String,
-    val path: String,
-    val dispatches: Boolean,
-)
-
-private data class ModuleScan(
-    val name: String,
-    val writeServices: List<WriteService>,
-)
-
 /**
  * student/club/project 도메인의 쓰기 서비스가 이벤트 발행을 누락한 채 머지되는 것을 막는다.
  * 소스를 직접 스캔하므로 단위 테스트와 달리 특정 클래스의 동작이 아니라 저장소 구조를 검증한다.
@@ -72,8 +42,7 @@ class EventDispatchConventionTest :
                         buildString {
                             appendLine("이벤트 발행이 누락되었습니다.")
                             missing.forEach { appendLine("  $it") }
-                            append("발행을 추가하거나 ${EventDispatchConventionTest::class.simpleName}의 ")
-                            append("ALLOWLIST에 사유와 함께 등록하세요.")
+                            append("발행을 추가하거나 ALLOWLIST에 사유와 함께 등록하세요.")
                         }
                     }) { missing.shouldBeEmpty() }
                 }
@@ -105,46 +74,79 @@ class EventDispatchConventionTest :
                 }
             }
         }
-    })
+    }) {
+    private data class WriteService(
+        val className: String,
+        val path: String,
+        val dispatches: Boolean,
+    )
 
-private fun allowedClassNames(moduleName: String): Set<String> =
-    ALLOWLIST[moduleName]
-        .orEmpty()
-        .filterValues { it.isNotBlank() }
-        .keys
+    private data class ModuleScan(
+        val name: String,
+        val writeServices: List<WriteService>,
+    )
 
-private fun findRepositoryRoot(): File =
-    generateSequence(File("").absoluteFile) { it.parentFile }
-        .firstOrNull { File(it, SETTINGS_FILE).isFile }
-        ?: error("$SETTINGS_FILE 을 찾을 수 없습니다. 저장소 안에서 테스트를 실행해야 합니다.")
+    private companion object {
+        const val EVENT_MARKER = "EventDispatchRequested"
+        const val SETTINGS_FILE = "settings.gradle.kts"
+        const val SOURCE_ROOT = "src/main/kotlin"
 
-private fun scanModules(repositoryRoot: File): List<ModuleScan> =
-    repositoryRoot
-        .listFiles { file -> file.isDirectory && File(file, SOURCE_ROOT).isDirectory }
-        .orEmpty()
-        .sortedBy { it.name }
-        .map { ModuleScan(it.name, scanWriteServices(it)) }
-        .filter { it.writeServices.isNotEmpty() }
+        val EVENT_DOMAINS = listOf("student", "club", "project")
+        val TRANSACTIONAL_REGEX = Regex("""@Transactional[ \t]*(?:\(([^)]*)\))?""")
+        val READ_ONLY_TRUE_REGEX = Regex("""readOnly\s*=\s*true""")
+        val WRITE_SERVICE_PATH_REGEX =
+            Regex("""/domain/(${EVENT_DOMAINS.joinToString("|")})/service/impl/[^/]+ServiceImpl\.kt$""")
 
-private fun scanWriteServices(moduleDirectory: File): List<WriteService> =
-    File(moduleDirectory, SOURCE_ROOT)
-        .walkTopDown()
-        .filter { it.isFile && WRITE_SERVICE_PATH_REGEX.containsMatchIn(it.invariantSeparatorsPath) }
-        .sortedBy { it.invariantSeparatorsPath }
-        .mapNotNull { file ->
-            val source = file.readText()
-            if (!hasWriteTransaction(source)) {
-                null
-            } else {
-                WriteService(
-                    className = file.nameWithoutExtension,
-                    path = file.relativeTo(moduleDirectory).invariantSeparatorsPath,
-                    dispatches = source.contains(EVENT_MARKER),
-                )
+        /**
+         * 이벤트를 의도적으로 발행하지 않는 쓰기 서비스를 모듈명 → (클래스명 → 사유)로 등록한다.
+         * 사유가 비어 있으면 면제되지 않으며, 더 이상 필요 없어진 항목은 테스트가 거부한다.
+         */
+        val ALLOWLIST: Map<String, Map<String, String>> =
+            mapOf(
+                // "datagsm-web" to
+                //     mapOf("SomeServiceImpl" to "상위 서비스에서 일괄 발행하므로 중복 발행 방지"),
+            )
+
+        fun allowedClassNames(moduleName: String): Set<String> =
+            ALLOWLIST[moduleName]
+                .orEmpty()
+                .filterValues { it.isNotBlank() }
+                .keys
+
+        fun findRepositoryRoot(): File =
+            generateSequence(File("").absoluteFile) { it.parentFile }
+                .firstOrNull { File(it, SETTINGS_FILE).isFile }
+                ?: error("$SETTINGS_FILE 을 찾을 수 없습니다. 저장소 안에서 테스트를 실행해야 합니다.")
+
+        fun scanModules(repositoryRoot: File): List<ModuleScan> =
+            repositoryRoot
+                .listFiles { file -> file.isDirectory && File(file, SOURCE_ROOT).isDirectory }
+                .orEmpty()
+                .sortedBy { it.name }
+                .map { ModuleScan(it.name, scanWriteServices(it)) }
+                .filter { it.writeServices.isNotEmpty() }
+
+        fun scanWriteServices(moduleDirectory: File): List<WriteService> =
+            File(moduleDirectory, SOURCE_ROOT)
+                .walkTopDown()
+                .filter { it.isFile && WRITE_SERVICE_PATH_REGEX.containsMatchIn(it.invariantSeparatorsPath) }
+                .sortedBy { it.invariantSeparatorsPath }
+                .mapNotNull { file ->
+                    val source = file.readText()
+                    if (!hasWriteTransaction(source)) {
+                        null
+                    } else {
+                        WriteService(
+                            className = file.nameWithoutExtension,
+                            path = file.relativeTo(moduleDirectory).invariantSeparatorsPath,
+                            dispatches = source.contains(EVENT_MARKER),
+                        )
+                    }
+                }.toList()
+
+        fun hasWriteTransaction(source: String): Boolean =
+            TRANSACTIONAL_REGEX.findAll(source).any { match ->
+                !READ_ONLY_TRUE_REGEX.containsMatchIn(match.groupValues[1])
             }
-        }.toList()
-
-private fun hasWriteTransaction(source: String): Boolean =
-    TRANSACTIONAL_REGEX.findAll(source).any { match ->
-        !READ_ONLY_TRUE_REGEX.containsMatchIn(match.groupValues[1])
     }
+}
