@@ -10,10 +10,8 @@ import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequ
 import team.themoment.datagsm.common.domain.event.dto.payload.EmptyEventObject
 import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
 import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
-import team.themoment.datagsm.common.domain.event.dto.payload.EventClubRef
-import team.themoment.datagsm.common.domain.event.dto.payload.EventStudentRef
-import team.themoment.datagsm.common.domain.event.dto.payload.ProjectEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.event.mapper.EventObjectMapper
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
@@ -86,7 +84,7 @@ class CreateProjectServiceImpl(
             }
         val savedProjectEntity = projectJpaRepository.save(projectEntity)
 
-        val newObj = generateProjectEventObject(savedProjectEntity)
+        val newObj = EventObjectMapper.from(savedProjectEntity)
         applicationEventPublisher.publishEvent(
             EventDispatchRequested(
                 EventType.PROJECT_UPDATED,
@@ -118,17 +116,4 @@ class CreateProjectServiceImpl(
                 },
         )
     }
-
-    private fun generateProjectEventObject(project: ProjectJpaEntity): ProjectEventObject =
-        ProjectEventObject(
-            projectId = project.id!!,
-            name = project.name,
-            description = project.description,
-            startYear = project.startYear,
-            endYear = project.endYear,
-            status = project.status.name,
-            club = project.club?.let { EventClubRef(it.id!!, it.name) },
-            participants =
-                project.participants.map { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },
-        )
 }

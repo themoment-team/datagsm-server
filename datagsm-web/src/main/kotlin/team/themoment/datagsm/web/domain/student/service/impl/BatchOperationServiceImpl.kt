@@ -6,12 +6,11 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
 import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
-import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.event.mapper.EventObjectMapper
 import team.themoment.datagsm.common.domain.student.dto.internal.BatchOperationType
 import team.themoment.datagsm.common.domain.student.dto.request.BatchOperationReqDto
 import team.themoment.datagsm.common.domain.student.dto.response.GraduateStudentResDto
-import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.student.service.BatchOperationService
@@ -32,7 +31,7 @@ class BatchOperationServiceImpl(
 
         val olds =
             students.mapIndexed { index, student ->
-                EventChangeItem(index, generateStudentEventObject(student))
+                EventChangeItem(index, EventObjectMapper.from(student))
             }
 
         students.forEach { student ->
@@ -46,7 +45,7 @@ class BatchOperationServiceImpl(
 
         val news =
             students.mapIndexed { index, student ->
-                EventChangeItem(index, generateStudentEventObject(student))
+                EventChangeItem(index, EventObjectMapper.from(student))
             }
         if (olds.isNotEmpty()) {
             applicationEventPublisher.publishEvent(
@@ -59,24 +58,4 @@ class BatchOperationServiceImpl(
 
         return GraduateStudentResDto(graduatedCount = students.size)
     }
-
-    private fun generateStudentEventObject(student: StudentJpaEntity): StudentEventObject =
-        StudentEventObject(
-            studentId = student.id!!,
-            name = student.name,
-            email = student.email,
-            sex = student.sex.name,
-            grade = student.studentNumber?.studentGrade,
-            classNum = student.studentNumber?.studentClass,
-            number = student.studentNumber?.studentNumber,
-            studentNumber = student.studentNumber?.fullStudentNumber,
-            major = student.major?.name,
-            specialty = student.specialty,
-            role = student.role.name,
-            dormitoryFloor = student.dormitoryRoomNumber?.dormitoryRoomFloor,
-            dormitoryRoom = student.dormitoryRoomNumber?.dormitoryRoomNumber,
-            majorClubName = student.majorClub?.name,
-            autonomousClubName = student.autonomousClub?.name,
-            githubId = student.githubId,
-        )
 }
