@@ -1,5 +1,6 @@
 package team.themoment.datagsm.openapi.domain.club.service.impl
 
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -9,6 +10,12 @@ import team.themoment.datagsm.common.domain.club.dto.response.ClubResDto
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
+import team.themoment.datagsm.common.domain.event.dto.payload.EmptyEventObject
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.event.mapper.EventObjectMapper
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
@@ -19,6 +26,7 @@ import team.themoment.sdk.exception.ExpectedException
 class CreateClubServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) : CreateClubService {
     @Transactional
     override fun execute(clubReqDto: ClubReqDto): ClubResDto {
@@ -80,6 +88,17 @@ class CreateClubServiceImpl(
         }
 
         studentJpaRepository.bulkAssignClub(participantIdsForBulkAssign, savedClub, clubReqDto.type)
+
+        val newObj = EventObjectMapper.from(savedClub, leader, participants)
+        applicationEventPublisher.publishEvent(
+            EventDispatchRequested(
+                EventType.CLUB_UPDATED,
+                EventChangedData(
+                    old = listOf(EventChangeItem(0, EmptyEventObject())),
+                    new = listOf(EventChangeItem(0, newObj)),
+                ),
+            ),
+        )
 
         return ClubResDto(
             id = savedClub.id!!,

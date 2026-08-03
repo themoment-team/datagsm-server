@@ -1,11 +1,18 @@
 package team.themoment.datagsm.openapi.domain.project.service.impl
 
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
+import team.themoment.datagsm.common.domain.event.dto.payload.EmptyEventObject
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.event.mapper.EventObjectMapper
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
@@ -21,6 +28,7 @@ class CreateProjectServiceImpl(
     private val projectJpaRepository: ProjectJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) : CreateProjectService {
     @Transactional
     override fun execute(projectReqDto: ProjectReqDto): ProjectResDto {
@@ -73,6 +81,17 @@ class CreateProjectServiceImpl(
                 this.participants = participants
             }
         val savedProjectEntity = projectJpaRepository.save(projectEntity)
+
+        val newObj = EventObjectMapper.from(savedProjectEntity)
+        applicationEventPublisher.publishEvent(
+            EventDispatchRequested(
+                EventType.PROJECT_UPDATED,
+                EventChangedData(
+                    old = listOf(EventChangeItem(0, EmptyEventObject())),
+                    new = listOf(EventChangeItem(0, newObj)),
+                ),
+            ),
+        )
 
         return ProjectResDto(
             id = savedProjectEntity.id!!,
