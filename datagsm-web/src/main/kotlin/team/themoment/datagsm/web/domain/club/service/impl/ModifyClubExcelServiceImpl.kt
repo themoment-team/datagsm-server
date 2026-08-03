@@ -2,6 +2,7 @@ package team.themoment.datagsm.web.domain.club.service.impl
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -11,6 +12,13 @@ import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
+import team.themoment.datagsm.common.domain.event.dto.payload.ClubEventObject
+import team.themoment.datagsm.common.domain.event.dto.payload.EmptyEventObject
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.event.mapper.EventObjectMapper
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.club.service.ModifyClubExcelService
@@ -21,6 +29,7 @@ import team.themoment.sdk.response.CommonApiResponse
 class ModifyClubExcelServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) : ModifyClubExcelService {
     companion object {
         private const val CLUB_NAME_COL_IDX = 0
@@ -61,6 +70,8 @@ class ModifyClubExcelServiceImpl(
                 .findAllByNameIn(clubInfos.map { it.clubName })
                 .associateBy { it.name }
 
+        val oldObjectByName = snapshotClubs(existingClubs.values.toList()).associateBy { it.name }
+
         val clubsToSave =
             clubInfos.map { dto ->
                 (existingClubs[dto.clubName] ?: ClubJpaEntity()).also { club ->
@@ -85,16 +96,72 @@ class ModifyClubExcelServiceImpl(
             studentJpaRepository.bulkClearClubReferences(abolishedExisting)
         }
 
-        clubJpaRepository.saveAll(clubsToSave)
+        val savedClubs = clubJpaRepository.saveAll(clubsToSave)
 
         val excelClubNames = clubInfos.map { it.clubName }
         val orphanClubs = clubJpaRepository.findByNameNotIn(excelClubNames)
+        val deletedObjects = snapshotClubs(orphanClubs)
         if (orphanClubs.isNotEmpty()) {
             studentJpaRepository.bulkClearClubReferences(orphanClubs)
             clubJpaRepository.deleteAllInBatch(orphanClubs)
         }
 
+        publishClubChanges(snapshotClubs(savedClubs), oldObjectByName, deletedObjects)
+
         return CommonApiResponse.success("엑셀 업로드 성공")
+    }
+
+    /**
+     * 동아리 소속 학생을 한 번에 조회해 스냅샷을 만든다. 동아리별 조회 시 N+1 이 발생한다.
+     */
+    private fun snapshotClubs(clubs: List<ClubJpaEntity>): List<ClubEventObject> {
+        if (clubs.isEmpty()) return emptyList()
+
+        val membersByClubId =
+            (
+                studentJpaRepository.findByMajorClubIn(clubs).mapNotNull { student ->
+                    student.majorClub?.id?.let { it to student }
+                } +
+                    studentJpaRepository.findByAutonomousClubIn(clubs).mapNotNull { student ->
+                        student.autonomousClub?.id?.let { it to student }
+                    }
+            ).groupBy({ it.first }, { it.second })
+
+        return clubs.map { club ->
+            val members = membersByClubId[club.id].orEmpty()
+            EventObjectMapper.from(club, club.leader, members.filter { it.id != club.leader?.id })
+        }
+    }
+
+    /**
+     * 신규·수정·삭제를 하나의 CLUB_UPDATED 이벤트로 발행한다. index 는 방출 리스트 내 위치이다.
+     */
+    private fun publishClubChanges(
+        newObjects: List<ClubEventObject>,
+        oldObjectByName: Map<String, ClubEventObject>,
+        deletedObjects: List<ClubEventObject>,
+    ) {
+        val changes =
+            newObjects.mapNotNull { newObj ->
+                val oldObj = oldObjectByName[newObj.name]
+                when (oldObj) {
+                    null -> EmptyEventObject() to newObj
+                    newObj -> null
+                    else -> oldObj to newObj
+                }
+            } + deletedObjects.map { it to EmptyEventObject() }
+
+        if (changes.isEmpty()) return
+
+        applicationEventPublisher.publishEvent(
+            EventDispatchRequested(
+                EventType.CLUB_UPDATED,
+                EventChangedData(
+                    old = changes.mapIndexed { index, (oldObj, _) -> EventChangeItem(index, oldObj) },
+                    new = changes.mapIndexed { index, (_, newObj) -> EventChangeItem(index, newObj) },
+                ),
+            ),
+        )
     }
 
     private fun parseAndFindLeader(leaderInfo: String): StudentJpaEntity {
