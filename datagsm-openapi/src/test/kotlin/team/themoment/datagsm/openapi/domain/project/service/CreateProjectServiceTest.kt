@@ -3,13 +3,23 @@ package team.themoment.datagsm.openapi.domain.project.service
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.clearAllMocks
+import io.mockk.clearMocks
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
+import org.springframework.context.ApplicationEventPublisher
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
+import team.themoment.datagsm.common.domain.event.dto.payload.EmptyEventObject
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.ProjectEventObject
+import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
@@ -26,8 +36,16 @@ class CreateProjectServiceTest :
         val mockProjectRepository = mockk<ProjectJpaRepository>()
         val mockClubRepository = mockk<ClubJpaRepository>()
         val mockStudentRepository = mockk<team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository>()
+        val applicationEventPublisher = mockk<ApplicationEventPublisher>()
+        val eventSlot = slot<EventDispatchRequested>()
 
-        val createProjectService = CreateProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository)
+        val createProjectService =
+            CreateProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository, applicationEventPublisher)
+
+        beforeEach {
+            clearMocks(applicationEventPublisher)
+            justRun { applicationEventPublisher.publishEvent(capture(eventSlot)) }
+        }
 
         afterEach {
             clearAllMocks()
@@ -86,6 +104,17 @@ class CreateProjectServiceTest :
                         verify(exactly = 1) { mockProjectRepository.existsByName(createRequest.name) }
                         verify(exactly = 1) { mockClubRepository.findById(createRequest.clubId!!) }
                         verify(exactly = 1) { mockProjectRepository.save(any()) }
+
+                        verify(exactly = 1) {
+                            applicationEventPublisher.publishEvent(
+                                match<EventDispatchRequested> { it.eventType == EventType.PROJECT_UPDATED },
+                            )
+                        }
+                        val data = eventSlot.captured.data as EventChangedData
+                        data.old.size shouldBe 1
+                        data.new.size shouldBe 1
+                        data.old[0].obj.shouldBeInstanceOf<EmptyEventObject>()
+                        data.new[0].obj.shouldBeInstanceOf<ProjectEventObject>()
                     }
                 }
 
