@@ -17,8 +17,8 @@ import team.themoment.datagsm.common.domain.event.dto.payload.ClubEventObject
 import team.themoment.datagsm.common.domain.event.dto.payload.EmptyEventObject
 import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
 import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.EventStudentRef
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
-import team.themoment.datagsm.common.domain.event.mapper.EventObjectMapper
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.club.service.ModifyClubExcelService
@@ -129,9 +129,25 @@ class ModifyClubExcelServiceImpl(
 
         return clubs.map { club ->
             val members = membersByClubId[club.id].orEmpty()
-            EventObjectMapper.from(club, club.leader, members.filter { it.id != club.leader?.id })
+            generateClubEventObject(club, club.leader, members.filter { it.id != club.leader?.id })
         }
     }
+
+    private fun generateClubEventObject(
+        club: ClubJpaEntity,
+        leader: StudentJpaEntity?,
+        participants: List<StudentJpaEntity>,
+    ): ClubEventObject =
+        ClubEventObject(
+            clubId = club.id!!,
+            name = club.name,
+            type = club.type.name,
+            foundedYear = club.foundedYear,
+            status = club.status.name,
+            abolishedYear = club.abolishedYear,
+            leader = leader?.let { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },
+            participants = participants.map { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },
+        )
 
     /**
      * 신규·수정·삭제를 하나의 CLUB_UPDATED 이벤트로 발행한다. index 는 방출 리스트 내 위치이다.

@@ -10,10 +10,13 @@ import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
 import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.EventClubRef
+import team.themoment.datagsm.common.domain.event.dto.payload.EventStudentRef
+import team.themoment.datagsm.common.domain.event.dto.payload.ProjectEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
-import team.themoment.datagsm.common.domain.event.mapper.EventObjectMapper
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
+import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
@@ -65,7 +68,7 @@ class ModifyProjectServiceImpl(
                 mutableSetOf()
             }
 
-        val oldObj = EventObjectMapper.from(project)
+        val oldObj = generateProjectEventObject(project)
 
         project.name = reqDto.name
         project.description = reqDto.description
@@ -73,7 +76,7 @@ class ModifyProjectServiceImpl(
         project.club = ownerClub
         project.participants = newParticipants
 
-        val newObj = EventObjectMapper.from(project)
+        val newObj = generateProjectEventObject(project)
         applicationEventPublisher.publishEvent(
             EventDispatchRequested(
                 EventType.PROJECT_UPDATED,
@@ -105,4 +108,17 @@ class ModifyProjectServiceImpl(
                 },
         )
     }
+
+    private fun generateProjectEventObject(project: ProjectJpaEntity): ProjectEventObject =
+        ProjectEventObject(
+            projectId = project.id!!,
+            name = project.name,
+            description = project.description,
+            startYear = project.startYear,
+            endYear = project.endYear,
+            status = project.status.name,
+            club = project.club?.let { EventClubRef(it.id!!, it.name) },
+            participants =
+                project.participants.map { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },
+        )
 }

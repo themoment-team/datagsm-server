@@ -8,8 +8,11 @@ import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
 import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.EventClubRef
+import team.themoment.datagsm.common.domain.event.dto.payload.EventStudentRef
+import team.themoment.datagsm.common.domain.event.dto.payload.ProjectEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
-import team.themoment.datagsm.common.domain.event.mapper.EventObjectMapper
+import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.openapi.domain.project.service.ReactivateProjectService
@@ -26,12 +29,12 @@ class ReactivateProjectServiceImpl(
             projectJpaRepository.findByIdOrNull(projectId)
                 ?: throw ExpectedException("프로젝트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
 
-        val oldObj = EventObjectMapper.from(project)
+        val oldObj = generateProjectEventObject(project)
 
         project.status = ProjectStatus.ACTIVE
         project.endYear = null
 
-        val newObj = EventObjectMapper.from(project)
+        val newObj = generateProjectEventObject(project)
         applicationEventPublisher.publishEvent(
             EventDispatchRequested(
                 EventType.PROJECT_UPDATED,
@@ -42,4 +45,17 @@ class ReactivateProjectServiceImpl(
             ),
         )
     }
+
+    private fun generateProjectEventObject(project: ProjectJpaEntity): ProjectEventObject =
+        ProjectEventObject(
+            projectId = project.id!!,
+            name = project.name,
+            description = project.description,
+            startYear = project.startYear,
+            endYear = project.endYear,
+            status = project.status.name,
+            club = project.club?.let { EventClubRef(it.id!!, it.name) },
+            participants =
+                project.participants.map { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },
+        )
 }

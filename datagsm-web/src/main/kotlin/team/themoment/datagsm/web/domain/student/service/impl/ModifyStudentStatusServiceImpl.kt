@@ -9,9 +9,10 @@ import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
 import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
-import team.themoment.datagsm.common.domain.event.mapper.EventObjectMapper
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentStatusReqDto
+import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentRole
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentStatusService
@@ -32,7 +33,7 @@ class ModifyStudentStatusServiceImpl(
             studentJpaRepository.findByIdOrNull(studentId)
                 ?: throw ExpectedException("학생을 찾을 수 없습니다.", HttpStatus.NOT_FOUND)
 
-        val old = EventObjectMapper.from(student)
+        val old = generateStudentEventObject(student)
 
         when (reqDto.status) {
             StudentRole.GRADUATE, StudentRole.WITHDRAWN -> {
@@ -49,7 +50,7 @@ class ModifyStudentStatusServiceImpl(
             }
         }
 
-        val new = EventObjectMapper.from(student)
+        val new = generateStudentEventObject(student)
         applicationEventPublisher.publishEvent(
             EventDispatchRequested(
                 EventType.STUDENT_UPDATED,
@@ -60,4 +61,24 @@ class ModifyStudentStatusServiceImpl(
             ),
         )
     }
+
+    private fun generateStudentEventObject(student: StudentJpaEntity): StudentEventObject =
+        StudentEventObject(
+            studentId = student.id!!,
+            name = student.name,
+            email = student.email,
+            sex = student.sex.name,
+            grade = student.studentNumber?.studentGrade,
+            classNum = student.studentNumber?.studentClass,
+            number = student.studentNumber?.studentNumber,
+            studentNumber = student.studentNumber?.fullStudentNumber,
+            major = student.major?.name,
+            specialty = student.specialty,
+            role = student.role.name,
+            dormitoryFloor = student.dormitoryRoomNumber?.dormitoryRoomFloor,
+            dormitoryRoom = student.dormitoryRoomNumber?.dormitoryRoomNumber,
+            majorClubName = student.majorClub?.name,
+            autonomousClubName = student.autonomousClub?.name,
+            githubId = student.githubId,
+        )
 }
