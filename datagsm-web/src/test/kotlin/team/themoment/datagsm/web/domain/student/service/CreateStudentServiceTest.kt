@@ -3,13 +3,23 @@ package team.themoment.datagsm.web.domain.student.service
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.clearAllMocks
+import io.mockk.clearMocks
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
+import org.springframework.context.ApplicationEventPublisher
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
+import team.themoment.datagsm.common.domain.event.dto.payload.EmptyEventObject
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventObject
+import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.student.dto.request.CreateStudentReqDto
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
@@ -26,8 +36,15 @@ class CreateStudentServiceTest :
 
         val mockStudentRepository = mockk<StudentJpaRepository>()
         val mockClubRepository = mockk<ClubJpaRepository>()
+        val applicationEventPublisher = mockk<ApplicationEventPublisher>()
+        val eventSlot = slot<EventDispatchRequested>()
 
-        val createStudentService = CreateStudentServiceImpl(mockStudentRepository, mockClubRepository)
+        val createStudentService = CreateStudentServiceImpl(mockStudentRepository, mockClubRepository, applicationEventPublisher)
+
+        beforeEach {
+            clearMocks(applicationEventPublisher)
+            justRun { applicationEventPublisher.publishEvent(capture(eventSlot)) }
+        }
 
         afterEach {
             clearAllMocks()
@@ -98,6 +115,17 @@ class CreateStudentServiceTest :
                             )
                         }
                         verify(exactly = 1) { mockStudentRepository.save(any()) }
+
+                        verify(exactly = 1) {
+                            applicationEventPublisher.publishEvent(
+                                match<EventDispatchRequested> { it.eventType == EventType.STUDENT_UPDATED },
+                            )
+                        }
+                        val data = eventSlot.captured.data as EventChangedData
+                        data.old.size shouldBe 1
+                        data.new.size shouldBe 1
+                        data.old[0].obj.shouldBeInstanceOf<EmptyEventObject>()
+                        data.new[0].obj.shouldBeInstanceOf<StudentEventObject>()
                     }
                 }
 
