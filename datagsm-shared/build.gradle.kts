@@ -24,6 +24,7 @@ kotlin {
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+    withSourcesJar()
 }
 
 sourceSets {
@@ -42,6 +43,12 @@ dependencies {
 }
 
 tasks.named("compileKotlin") {
+    dependsOn(":datagsm-common:kspKotlin")
+}
+
+// The only source root is KSP-generated, so sourcesJar silently produces an empty archive
+// unless the generator has already run. Gradle infers no dependency from srcDir alone.
+tasks.named("sourcesJar") {
     dependsOn(":datagsm-common:kspKotlin")
 }
 
@@ -98,7 +105,14 @@ tasks.register("assembleTsPackage") {
     }
 }
 
+// The KMP plugin used to register the `jvm` publication implicitly; after the KMP layer was
+// removed the `kotlin("jvm")` plugin registers none, so it must be declared explicitly.
 publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+        }
+    }
     repositories {
         maven {
             name = "GitHubPackages"
