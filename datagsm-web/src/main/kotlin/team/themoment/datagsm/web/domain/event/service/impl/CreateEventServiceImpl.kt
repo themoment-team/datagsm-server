@@ -51,7 +51,6 @@ class CreateEventServiceImpl(
         )
     }
 
-    // todo: Is there no way to improve this crazy, somewhat messy, slow-looking code? If there isn’t any, then just leave it as it is and feel disappointed...
     private fun generateSecret(): String {
         val bytes = ByteArray(32)
         secureRandom.nextBytes(bytes)
