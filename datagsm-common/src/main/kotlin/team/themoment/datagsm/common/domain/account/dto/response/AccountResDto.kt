@@ -20,6 +20,9 @@ data class AccountResDto(
     val status: AccountStatus,
     @field:Schema(description = "연결 대상 종류 (STUDENT, TEACHER)", example = "STUDENT")
     val objectType: AccountObjectType?,
+    @Deprecated("objectType == STUDENT 으로 대체 예정, 하위 호환을 위해 임시 유지", ReplaceWith("objectType == AccountObjectType.STUDENT"))
+    @field:Schema(description = "학생 계정 여부 (Deprecated, objectType == STUDENT 으로 대체 예정)", example = "true", deprecated = true)
+    val isStudent: Boolean,
     @field:Schema(description = "연결된 학생 정보 (학생 계정인 경우에만 포함)")
     val student: StudentResDto?,
     @field:Schema(description = "연결된 선생님 정보 (선생님 계정인 경우에만 포함)")
@@ -41,6 +44,7 @@ data class AccountResDto(
                 role = account.role,
                 status = account.status,
                 objectType = account.objectType,
+                isStudent = account.objectType == AccountObjectType.STUDENT,
                 student = student,
                 teacher = teacher,
                 createdAt = account.createdAt,

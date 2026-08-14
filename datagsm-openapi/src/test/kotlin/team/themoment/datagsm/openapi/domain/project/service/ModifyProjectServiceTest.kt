@@ -3,12 +3,20 @@ package team.themoment.datagsm.openapi.domain.project.service
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.clearMocks
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
+import org.springframework.context.ApplicationEventPublisher
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.ProjectEventObject
+import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
@@ -27,12 +35,17 @@ class ModifyProjectServiceTest :
         lateinit var modifyProjectService: ModifyProjectService
 
         lateinit var mockStudentRepository: team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
+        val applicationEventPublisher = mockk<ApplicationEventPublisher>()
+        val eventSlot = slot<EventDispatchRequested>()
 
         beforeEach {
             mockProjectRepository = mockk<ProjectJpaRepository>()
             mockClubRepository = mockk<ClubJpaRepository>()
             mockStudentRepository = mockk<team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository>()
-            modifyProjectService = ModifyProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository)
+            modifyProjectService =
+                ModifyProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository, applicationEventPublisher)
+            clearMocks(applicationEventPublisher)
+            justRun { applicationEventPublisher.publishEvent(capture(eventSlot)) }
         }
 
         describe("ModifyProjectService 클래스의") {
@@ -99,6 +112,16 @@ class ModifyProjectServiceTest :
                             )
                         }
                         verify(exactly = 1) { mockClubRepository.findById(1L) }
+
+                        verify(exactly = 1) {
+                            applicationEventPublisher.publishEvent(
+                                match<EventDispatchRequested> { it.eventType == EventType.PROJECT_UPDATED },
+                            )
+                        }
+                        val data = eventSlot.captured.data as EventChangedData
+                        data.old.size shouldBe 1
+                        data.new.size shouldBe 1
+                        (data.new[0].obj as ProjectEventObject).name shouldBe "수정된프로젝트"
                     }
                 }
 

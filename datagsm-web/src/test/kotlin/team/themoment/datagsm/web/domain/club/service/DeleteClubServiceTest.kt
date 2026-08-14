@@ -9,11 +9,12 @@ import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
+import org.springframework.context.ApplicationEventPublisher
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
-import team.themoment.datagsm.common.domain.event.service.EventPublisher
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.club.service.impl.DeleteClubServiceImpl
 import team.themoment.sdk.exception.ExpectedException
@@ -24,15 +25,15 @@ class DeleteClubServiceTest :
 
         lateinit var mockClubRepository: ClubJpaRepository
         lateinit var mockStudentRepository: StudentJpaRepository
-        lateinit var eventPublisher: EventPublisher
+        lateinit var applicationEventPublisher: ApplicationEventPublisher
         lateinit var deleteClubService: DeleteClubService
 
         beforeEach {
             mockClubRepository = mockk<ClubJpaRepository>()
             mockStudentRepository = mockk<StudentJpaRepository>()
-            eventPublisher = mockk<EventPublisher>()
-            justRun { eventPublisher.dispatch(any(), any()) }
-            deleteClubService = DeleteClubServiceImpl(mockClubRepository, mockStudentRepository, eventPublisher)
+            applicationEventPublisher = mockk<ApplicationEventPublisher>()
+            justRun { applicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
+            deleteClubService = DeleteClubServiceImpl(mockClubRepository, mockStudentRepository, applicationEventPublisher)
         }
 
         describe("DeleteClubService 클래스의") {

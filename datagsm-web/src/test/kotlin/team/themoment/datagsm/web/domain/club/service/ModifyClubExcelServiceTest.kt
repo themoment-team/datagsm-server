@@ -4,19 +4,27 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
+import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.mock.web.MockMultipartFile
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
+import team.themoment.datagsm.common.domain.event.dto.payload.ClubEventObject
+import team.themoment.datagsm.common.domain.event.dto.payload.EmptyEventObject
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
@@ -39,11 +47,17 @@ class ModifyClubExcelServiceTest :
         lateinit var mockClubRepository: ClubJpaRepository
         lateinit var mockStudentRepository: StudentJpaRepository
         lateinit var modifyClubExcelService: ModifyClubExcelService
+        lateinit var applicationEventPublisher: ApplicationEventPublisher
+        val eventSlot = slot<EventDispatchRequested>()
 
         beforeEach {
             mockClubRepository = mockk<ClubJpaRepository>()
             mockStudentRepository = mockk<StudentJpaRepository>()
-            modifyClubExcelService = ModifyClubExcelServiceImpl(mockClubRepository, mockStudentRepository)
+            applicationEventPublisher = mockk<ApplicationEventPublisher>()
+            modifyClubExcelService = ModifyClubExcelServiceImpl(mockClubRepository, mockStudentRepository, applicationEventPublisher)
+            justRun { applicationEventPublisher.publishEvent(capture(eventSlot)) }
+            every { mockStudentRepository.findByMajorClubIn(any()) } returns emptyList()
+            every { mockStudentRepository.findByAutonomousClubIn(any()) } returns emptyList()
         }
 
         fun createValidExcelFile(includeAbolished: Boolean = false): ByteArray =
@@ -782,6 +796,82 @@ class ModifyClubExcelServiceTest :
                                 },
                             )
                         }
+                    }
+                }
+
+                context("신규 동아리와 삭제 대상 동아리가 함께 있을 때") {
+                    val excelBytes = createValidExcelFile()
+                    val file =
+                        MockMultipartFile(
+                            "file",
+                            "clubs.xlsx",
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            excelBytes,
+                        )
+
+                    val leader =
+                        StudentJpaEntity().apply {
+                            id = 10L
+                            name = "김철수"
+                            studentNumber = StudentNumber(2, 4, 4)
+                            email = "kim@gsm.hs.kr"
+                            major = Major.SW_DEVELOPMENT
+                            sex = Sex.MAN
+                        }
+                    val savedClub =
+                        ClubJpaEntity().apply {
+                            id = 1L
+                            name = "SW개발동아리"
+                            type = ClubType.MAJOR_CLUB
+                            foundedYear = 2022
+                            status = ClubStatus.ACTIVE
+                        }
+                    val orphanClub =
+                        ClubJpaEntity().apply {
+                            id = 999L
+                            name = "사라진동아리"
+                            type = ClubType.AUTONOMOUS_CLUB
+                            foundedYear = 2020
+                            status = ClubStatus.ACTIVE
+                        }
+
+                    beforeEach {
+                        every { mockClubRepository.findAllByNameIn(any()) } returns emptyList()
+                        every {
+                            mockStudentRepository
+                                .findByStudentNumberStudentGradeAndStudentNumberStudentClassAndStudentNumberStudentNumberAndName(
+                                    2,
+                                    4,
+                                    4,
+                                    "김철수",
+                                )
+                        } returns leader
+                        every { mockClubRepository.saveAll(any<List<ClubJpaEntity>>()) } returns listOf(savedClub)
+                        every { mockClubRepository.findByNameNotIn(any()) } returns listOf(orphanClub)
+                        justRun { mockStudentRepository.bulkClearClubReferences(any()) }
+                        justRun { mockClubRepository.deleteAllInBatch(any<Iterable<ClubJpaEntity>>()) }
+                    }
+
+                    it("신규 생성과 삭제가 하나의 CLUB_UPDATED 이벤트로 발행되어야 한다") {
+                        modifyClubExcelService.execute(file)
+
+                        verify(exactly = 1) {
+                            applicationEventPublisher.publishEvent(
+                                match<EventDispatchRequested> { it.eventType == EventType.CLUB_UPDATED },
+                            )
+                        }
+
+                        val data = eventSlot.captured.data as EventChangedData
+                        data.old.size shouldBe 2
+                        data.new.size shouldBe 2
+                        data.old.map { it.index } shouldBe listOf(0, 1)
+                        data.new.map { it.index } shouldBe listOf(0, 1)
+
+                        data.old[0].obj.shouldBeInstanceOf<EmptyEventObject>()
+                        (data.new[0].obj as ClubEventObject).name shouldBe "SW개발동아리"
+
+                        (data.old[1].obj as ClubEventObject).name shouldBe "사라진동아리"
+                        data.new[1].obj.shouldBeInstanceOf<EmptyEventObject>()
                     }
                 }
             }

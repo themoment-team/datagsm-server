@@ -8,9 +8,10 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
+import org.springframework.context.ApplicationEventPublisher
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
-import team.themoment.datagsm.common.domain.event.service.EventPublisher
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
@@ -22,12 +23,12 @@ class DeleteProjectServiceTest :
     DescribeSpec({
 
         val mockProjectRepository = mockk<ProjectJpaRepository>()
-        val eventPublisher = mockk<EventPublisher>()
+        val applicationEventPublisher = mockk<ApplicationEventPublisher>()
 
-        val deleteProjectService = DeleteProjectServiceImpl(mockProjectRepository, eventPublisher)
+        val deleteProjectService = DeleteProjectServiceImpl(mockProjectRepository, applicationEventPublisher)
 
         beforeEach {
-            justRun { eventPublisher.dispatch(any(), any()) }
+            justRun { applicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
         }
 
         afterEach {

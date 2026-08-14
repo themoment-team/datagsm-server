@@ -19,7 +19,7 @@ DataGSM is a Spring Boot REST API service providing school information (students
 - `datagsm-common/`: Shared library (Entity, DTO, Repository, Config, Health API)
 - `datagsm-oauth-authorization/`: OAuth2 authentication, account lifecycle (signup, password reset)
 - `datagsm-oauth-userinfo/`: OAuth2 UserInfo endpoint (external clients)
-- `datagsm-openapi/`: Public read-only API (students, clubs, NEIS)
+- `datagsm-openapi/`: Public API — read and write (students, clubs, projects, NEIS)
 - `datagsm-web/`: Web service API (user features, admin features, Excel)
 - `datagsm-shared/`: Kotlin Multiplatform module — published type definitions (Maven + npm)
 - `datagsm-ksp-processor/`: KSP processor — generates KMP/TypeScript types from `@KmpExport`
@@ -41,6 +41,7 @@ DataGSM is a Spring Boot REST API service providing school information (students
 - Always use constructor injection for dependencies
 - Separate Entity and DTO clearly
 - Do NOT add excessive comments - only where logic is not self-evident
+- Write services in `student`/`club`/`project` domains must publish `EventDispatchRequested` (enforced by `EventDispatchConventionTest`)
 
 ### DTO Annotations
 

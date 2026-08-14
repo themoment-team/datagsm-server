@@ -3,16 +3,26 @@ package team.themoment.datagsm.openapi.domain.club.service
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.Runs
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.just
+import io.mockk.justRun
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
+import org.springframework.context.ApplicationEventPublisher
 import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
+import team.themoment.datagsm.common.domain.event.dto.payload.ClubEventObject
+import team.themoment.datagsm.common.domain.event.dto.payload.EmptyEventObject
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
@@ -27,11 +37,15 @@ class CreateClubServiceTest :
         lateinit var mockClubRepository: ClubJpaRepository
         lateinit var mockStudentRepository: StudentJpaRepository
         lateinit var createClubService: CreateClubService
+        val applicationEventPublisher = mockk<ApplicationEventPublisher>()
+        val eventSlot = slot<EventDispatchRequested>()
 
         beforeEach {
             mockClubRepository = mockk<ClubJpaRepository>()
             mockStudentRepository = mockk<StudentJpaRepository>()
-            createClubService = CreateClubServiceImpl(mockClubRepository, mockStudentRepository)
+            createClubService = CreateClubServiceImpl(mockClubRepository, mockStudentRepository, applicationEventPublisher)
+            clearMocks(applicationEventPublisher)
+            justRun { applicationEventPublisher.publishEvent(capture(eventSlot)) }
         }
 
         describe("CreateClubService 클래스의") {
@@ -130,6 +144,17 @@ class CreateClubServiceTest :
                         verify(exactly = 1) { mockClubRepository.save(any()) }
                         verify(exactly = 1) { mockStudentRepository.findAllById(listOf(200L, 300L)) }
                         verify(exactly = 1) { mockStudentRepository.bulkAssignClub(any(), any(), any()) }
+
+                        verify(exactly = 1) {
+                            applicationEventPublisher.publishEvent(
+                                match<EventDispatchRequested> { it.eventType == EventType.CLUB_UPDATED },
+                            )
+                        }
+                        val data = eventSlot.captured.data as EventChangedData
+                        data.old.size shouldBe 1
+                        data.new.size shouldBe 1
+                        data.old[0].obj.shouldBeInstanceOf<EmptyEventObject>()
+                        data.new[0].obj.shouldBeInstanceOf<ClubEventObject>()
                     }
                 }
 

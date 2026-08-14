@@ -6,8 +6,9 @@ import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.verify
+import org.springframework.context.ApplicationEventPublisher
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
-import team.themoment.datagsm.common.domain.event.service.EventPublisher
 import team.themoment.datagsm.common.domain.student.dto.internal.BatchOperationFilter
 import team.themoment.datagsm.common.domain.student.dto.internal.BatchOperationType
 import team.themoment.datagsm.common.domain.student.dto.request.BatchOperationReqDto
@@ -19,8 +20,8 @@ import team.themoment.datagsm.common.domain.student.repository.StudentJpaReposit
 class BatchOperationServiceImplTest :
     BehaviorSpec({
         val studentJpaRepository = mockk<StudentJpaRepository>()
-        val eventPublisher = mockk<EventPublisher>()
-        val service = BatchOperationServiceImpl(studentJpaRepository, eventPublisher)
+        val applicationEventPublisher = mockk<ApplicationEventPublisher>()
+        val service = BatchOperationServiceImpl(studentJpaRepository, applicationEventPublisher)
 
         Given("3학년 학생들이 10명 있을 때") {
             val thirdGradeStudents =
@@ -35,7 +36,7 @@ class BatchOperationServiceImplTest :
                 }
 
             every { studentJpaRepository.findStudentsByGrade(3) } returns thirdGradeStudents
-            justRun { eventPublisher.dispatch(any(), any()) }
+            justRun { applicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
 
             When("3학년 일괄 졸업을 요청하면") {
                 val reqDto =
@@ -55,7 +56,14 @@ class BatchOperationServiceImplTest :
                 }
 
                 Then("STUDENT_UPDATED 이벤트가 1회 발행된다") {
-                    verify(exactly = 1) { eventPublisher.dispatch(EventType.STUDENT_UPDATED, any()) }
+                    verify(exactly = 1) {
+                        applicationEventPublisher.publishEvent(
+                            match<EventDispatchRequested> {
+                                it.eventType ==
+                                    EventType.STUDENT_UPDATED
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -91,7 +99,7 @@ class BatchOperationServiceImplTest :
                 }
 
             every { studentJpaRepository.findStudentsByGrade(3) } returns defaultThirdGradeStudents
-            justRun { eventPublisher.dispatch(any(), any()) }
+            justRun { applicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
 
             When("일괄 졸업을 요청하면") {
                 val reqDto =

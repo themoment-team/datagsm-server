@@ -1,13 +1,22 @@
 package team.themoment.datagsm.openapi.domain.club.service.impl
 
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.club.dto.request.ClubReqDto
 import team.themoment.datagsm.common.domain.club.dto.response.ClubResDto
+import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
+import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
+import team.themoment.datagsm.common.domain.event.dto.payload.ClubEventObject
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
+import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
+import team.themoment.datagsm.common.domain.event.dto.payload.EventStudentRef
+import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
@@ -18,6 +27,7 @@ import team.themoment.sdk.exception.ExpectedException
 class ModifyClubServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) : ModifyClubService {
     @Transactional
     override fun execute(
@@ -43,6 +53,14 @@ class ModifyClubServiceImpl(
         }
 
         val oldType = club.type
+
+        val oldMembers =
+            if (oldType == ClubType.MAJOR_CLUB) {
+                studentJpaRepository.findByMajorClub(club)
+            } else {
+                studentJpaRepository.findByAutonomousClub(club)
+            }
+        val oldObj = generateClubEventObject(club, club.leader, oldMembers.filter { it.id != club.leader?.id })
 
         club.name = reqDto.name
         club.type = reqDto.type
@@ -84,6 +102,17 @@ class ModifyClubServiceImpl(
             studentJpaRepository.bulkAssignClub(participantIdsForBulkAssign, club, reqDto.type)
         }
 
+        val newObj = generateClubEventObject(club, newLeader, participants)
+        applicationEventPublisher.publishEvent(
+            EventDispatchRequested(
+                EventType.CLUB_UPDATED,
+                EventChangedData(
+                    old = listOf(EventChangeItem(0, oldObj)),
+                    new = listOf(EventChangeItem(0, newObj)),
+                ),
+            ),
+        )
+
         return ClubResDto(
             id = club.id!!,
             name = club.name,
@@ -104,5 +133,21 @@ class ModifyClubServiceImpl(
             studentNumber = this.studentNumber?.fullStudentNumber,
             major = this.major,
             sex = this.sex,
+        )
+
+    private fun generateClubEventObject(
+        club: ClubJpaEntity,
+        leader: StudentJpaEntity?,
+        participants: List<StudentJpaEntity>,
+    ): ClubEventObject =
+        ClubEventObject(
+            clubId = club.id!!,
+            name = club.name,
+            type = club.type.name,
+            foundedYear = club.foundedYear,
+            status = club.status.name,
+            abolishedYear = club.abolishedYear,
+            leader = leader?.let { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },
+            participants = participants.map { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },
         )
 }
