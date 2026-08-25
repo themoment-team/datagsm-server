@@ -30,6 +30,17 @@ class CreateClubExcelServiceImpl(
         private const val ABOLISHED_YEAR_COL_IDX = 5
 
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+
+        // 문자 단위 폭 * 256. autoSizeColumn(AWT 폰트 렌더링 기반 실측)의 CPU 비용을 피하기 위한 고정값.
+        private val COLUMN_WIDTHS =
+            mapOf(
+                CLUB_NAME_COL_IDX to 20 * 256,
+                CLUB_TYPE_COL_IDX to 14 * 256,
+                LEADER_COL_IDX to 16 * 256,
+                FOUNDED_YEAR_COL_IDX to 12 * 256,
+                STATUS_COL_IDX to 12 * 256,
+                ABOLISHED_YEAR_COL_IDX to 12 * 256,
+            )
     }
 
     @Transactional(readOnly = true)
@@ -62,9 +73,7 @@ class CreateClubExcelServiceImpl(
                 }
             }
 
-            for (i in 0..ABOLISHED_YEAR_COL_IDX) {
-                sheet.autoSizeColumn(i)
-            }
+            COLUMN_WIDTHS.forEach { (colIdx, width) -> sheet.setColumnWidth(colIdx, width) }
 
             val byteArrayFile =
                 ByteArrayOutputStream().use { outputStream ->
