@@ -32,10 +32,11 @@ class CreateClubExcelServiceImpl(
         private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
 
         // 문자 단위 폭 * 256. autoSizeColumn(AWT 폰트 렌더링 기반 실측)의 CPU 비용을 피하기 위한 고정값.
+        // 한글은 기본 폰트 기준 반각 문자 대비 약 2배 폭을 차지하므로 한글 컬럼은 여유 있게 설정한다.
         private val COLUMN_WIDTHS =
             mapOf(
-                CLUB_NAME_COL_IDX to 20 * 256,
-                CLUB_TYPE_COL_IDX to 14 * 256,
+                CLUB_NAME_COL_IDX to 40 * 256, // name 컬럼 최대 50자(DB length) 중 한글 20자 기준
+                CLUB_TYPE_COL_IDX to 18 * 256, // AUTONOMOUS_CLUB(15자) 수용
                 LEADER_COL_IDX to 16 * 256,
                 FOUNDED_YEAR_COL_IDX to 12 * 256,
                 STATUS_COL_IDX to 12 * 256,
