@@ -10,7 +10,7 @@ echo "> Stopping and removing existing containers..."
 docker compose -f compose.stage.yaml down
 
 echo "> Cleaning up unused Docker resources..."
-docker system prune -a --volumes -f
+docker system prune -a -f
 
 echo "> Building and starting containers..."
 docker compose -f compose.stage.yaml up -d --build
