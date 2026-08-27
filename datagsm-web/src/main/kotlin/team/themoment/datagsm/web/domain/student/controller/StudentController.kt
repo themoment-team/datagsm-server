@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile
 import team.themoment.datagsm.common.domain.student.dto.request.BatchOperationReqDto
 import team.themoment.datagsm.common.domain.student.dto.request.CreateStudentReqDto
 import team.themoment.datagsm.common.domain.student.dto.request.QueryStudentReqDto
+import team.themoment.datagsm.common.domain.student.dto.request.RequestStudentDataEditReqDto
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentStatusReqDto
 import team.themoment.datagsm.common.domain.student.dto.response.GraduateStudentResDto
@@ -40,6 +41,7 @@ import team.themoment.datagsm.web.domain.student.service.ModifyStudentExcelServi
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentService
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentStatusService
 import team.themoment.datagsm.web.domain.student.service.QueryStudentService
+import team.themoment.datagsm.web.domain.student.service.RequestStudentDataEditService
 import team.themoment.datagsm.web.domain.student.service.WithdrawStudentService
 
 @Tag(name = "Student", description = "학생 관련 API")
@@ -58,6 +60,7 @@ class StudentController(
     private val batchOperationService: BatchOperationService,
     private val modifyMySpecialtyService: ModifyMySpecialtyService,
     private val modifyMyGithubIdService: ModifyMyGithubIdService,
+    private val requestStudentDataEditService: RequestStudentDataEditService,
 ) {
     @Operation(summary = "학생 정보 조회", description = "필터 조건에 맞는 학생 정보를 조회합니다.")
     @ApiResponses(
@@ -213,5 +216,20 @@ class StudentController(
         @RequestBody @Valid reqDto: UpdateMyGithubIdReqDto,
     ) {
         modifyMyGithubIdService.execute(reqDto)
+    }
+
+    @Operation(summary = "학생 정보 수정 요청 등록", description = "선택한 학생들에게 지정한 필드에 대한 정보 수정 요청을 등록합니다. 요청된 필드는 즉시 초기화됩니다.")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "요청 등록 성공"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "존재하지 않는 학생이 포함됨", content = [Content()]),
+        ],
+    )
+    @PostMapping("/data-edit-requests")
+    fun requestStudentDataEdit(
+        @RequestBody @Valid reqDto: RequestStudentDataEditReqDto,
+    ) {
+        requestStudentDataEditService.execute(reqDto)
     }
 }
