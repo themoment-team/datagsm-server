@@ -46,6 +46,12 @@ tasks.named("compileKotlin") {
     dependsOn(":datagsm-common:kspKotlin")
 }
 
+// The main source set includes the KSP-generated srcDir above, so ktlint reads
+// :datagsm-common:kspKotlin's output without Gradle inferring that dependency.
+tasks.named("runKtlintCheckOverMainSourceSet") {
+    dependsOn(":datagsm-common:kspKotlin")
+}
+
 // The only source root is KSP-generated, so sourcesJar silently produces an empty archive
 // unless the generator has already run. Gradle infers no dependency from srcDir alone.
 tasks.named("sourcesJar") {
