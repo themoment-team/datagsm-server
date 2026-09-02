@@ -20,10 +20,13 @@ import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeSubm
 import team.themoment.datagsm.common.domain.oauth.dto.response.JwkSetResDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.Oauth2TokenResDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.OauthSessionResDto
+import team.themoment.datagsm.common.domain.student.dto.request.QueryStudentDataEditRequestReqDto
+import team.themoment.datagsm.common.domain.student.dto.response.StudentDataEditRequestResDto
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthAuthorizeFlowService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.Oauth2TokenService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryJwkSetService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryOauthSessionService
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryStudentDataEditRequestService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.StartOauthAuthorizeFlowService
 
 @Tag(name = "OAuth", description = "OAuth 인증 관련 API")
@@ -35,6 +38,7 @@ class OauthController(
     val completeOauthAuthorizeFlowService: CompleteOauthAuthorizeFlowService,
     val queryOauthSessionService: QueryOauthSessionService,
     val queryJwkSetService: QueryJwkSetService,
+    val queryStudentDataEditRequestService: QueryStudentDataEditRequestService,
 ) {
     @GetMapping("/authorize")
     @Operation(
@@ -62,11 +66,29 @@ class OauthController(
             ApiResponse(responseCode = "302", description = "외부 서비스로 리다이렉트"),
             ApiResponse(responseCode = "400", description = "세션 만료 또는 잘못된 요청", content = [Content()]),
             ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
+            ApiResponse(responseCode = "422", description = "정보 수정 요청이 해소되지 않아 로그인할 수 없음", content = [Content()]),
         ],
     )
     fun authorizePost(
         @Valid @RequestBody reqDto: OauthAuthorizeSubmitReqDto,
     ): ResponseEntity<Void> = completeOauthAuthorizeFlowService.execute(reqDto)
+
+    @PostMapping("/authorize/data-edit-requirements")
+    @Operation(
+        summary = "정보 수정 필요 항목 조회",
+        description = "로그인이 정보 수정 요청으로 차단된 경우, 자격증명을 재검증한 뒤 입력받아야 할 필드 목록을 조회합니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "조회 성공"),
+            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "학생 정보가 연결되지 않은 계정", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "진행 중인 수정 요청이 없음", content = [Content()]),
+        ],
+    )
+    fun queryStudentDataEditRequirements(
+        @Valid @RequestBody reqDto: QueryStudentDataEditRequestReqDto,
+    ): StudentDataEditRequestResDto = queryStudentDataEditRequestService.execute(reqDto)
 
     @GetMapping("/sessions/{token}")
     @Operation(

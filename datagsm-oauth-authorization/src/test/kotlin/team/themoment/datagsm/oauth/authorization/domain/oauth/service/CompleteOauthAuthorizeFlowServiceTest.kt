@@ -11,17 +11,25 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountStatus
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
+import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeSubmitReqDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthAuthorizeStateRedisEntity
 import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
+import team.themoment.datagsm.common.domain.student.entity.StudentDataEditRequestJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.constant.Sex
+import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRequestJpaRepository
+import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.common.global.dto.internal.RateLimitConsumeResult
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl.CompleteOauthAuthorizeFlowServiceImpl
@@ -33,20 +41,28 @@ class CompleteOauthAuthorizeFlowServiceTest :
     DescribeSpec({
 
         val mockAccountJpaRepository = mockk<AccountJpaRepository>()
+        val mockStudentJpaRepository = mockk<StudentJpaRepository>()
+        val mockClubJpaRepository = mockk<ClubJpaRepository>()
+        val mockStudentDataEditRequestJpaRepository = mockk<StudentDataEditRequestJpaRepository>(relaxed = true)
         val mockOauthCodeRedisRepository = mockk<OauthCodeRedisRepository>(relaxed = true)
         val mockOauthAuthorizeStateRedisRepository = mockk<OauthAuthorizeStateRedisRepository>(relaxed = true)
         val mockPasswordEncoder = mockk<PasswordEncoder>()
         val mockOauthEnvironment = mockk<OauthEnvironment>()
         val mockOauthClientRateLimitService = mockk<OAuthClientRateLimitService>()
+        val mockApplicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
 
         val completeOauthAuthorizeFlowService =
             CompleteOauthAuthorizeFlowServiceImpl(
                 mockAccountJpaRepository,
+                mockStudentJpaRepository,
+                mockClubJpaRepository,
+                mockStudentDataEditRequestJpaRepository,
                 mockOauthCodeRedisRepository,
                 mockOauthAuthorizeStateRedisRepository,
                 mockPasswordEncoder,
                 mockOauthEnvironment,
                 mockOauthClientRateLimitService,
+                mockApplicationEventPublisher,
             )
 
         afterEach {
@@ -321,6 +337,129 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         exception.statusCode shouldBe HttpStatus.FORBIDDEN
 
                         verify(exactly = 0) { mockOauthCodeRedisRepository.save(any()) }
+                    }
+                }
+
+                context("미해소 정보 수정 요청이 있고 수정 필드 없이 로그인할 때") {
+                    val reqDto =
+                        OauthAuthorizeSubmitReqDto(
+                            email = testEmail,
+                            password = "password123!",
+                            token = testToken,
+                        )
+
+                    val studentAccount =
+                        AccountJpaEntity().apply {
+                            id = 3L
+                            email = testEmail
+                            password = "hashedPassword"
+                            objectId = 10L
+                            objectType = AccountObjectType.STUDENT
+                        }
+
+                    val editRequest =
+                        StudentDataEditRequestJpaEntity().apply {
+                            studentId = 10L
+                            requestStudentNumber = true
+                        }
+
+                    val mockStateEntity =
+                        OauthAuthorizeStateRedisEntity(
+                            token = testToken,
+                            clientId = testClientId,
+                            redirectUri = testRedirectUri,
+                            state = "random-state",
+                            codeChallenge = "challenge",
+                            codeChallengeMethod = "S256",
+                            scopes = setOf("self:read"),
+                            ttl = 600,
+                        )
+
+                    beforeEach {
+                        every { mockOauthAuthorizeStateRedisRepository.findById(testToken) } returns Optional.of(mockStateEntity)
+                        every { mockAccountJpaRepository.findByEmail(testEmail) } returns Optional.of(studentAccount)
+                        every { mockPasswordEncoder.matches("password123!", studentAccount.password) } returns true
+                        every { mockStudentDataEditRequestJpaRepository.findByStudentId(10L) } returns Optional.of(editRequest)
+                    }
+
+                    it("UNPROCESSABLE_ENTITY ExpectedException 예외가 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                completeOauthAuthorizeFlowService.execute(reqDto)
+                            }
+
+                        exception.message shouldBe "정보 수정이 필요합니다. 정보를 수정한 후 다시 로그인해주세요."
+                        exception.statusCode shouldBe HttpStatus.UNPROCESSABLE_ENTITY
+
+                        verify(exactly = 0) { mockOauthCodeRedisRepository.save(any()) }
+                    }
+                }
+
+                context("미해소 정보 수정 요청이 있고 요청된 필드를 채워 로그인할 때") {
+                    val reqDto =
+                        OauthAuthorizeSubmitReqDto(
+                            email = testEmail,
+                            password = "password123!",
+                            token = testToken,
+                            studentGrade = 2,
+                            studentClass = 1,
+                            studentNumber = 5,
+                        )
+
+                    val studentAccount =
+                        AccountJpaEntity().apply {
+                            id = 3L
+                            email = testEmail
+                            password = "hashedPassword"
+                            objectId = 10L
+                            objectType = AccountObjectType.STUDENT
+                        }
+
+                    val editRequest =
+                        StudentDataEditRequestJpaEntity().apply {
+                            studentId = 10L
+                            requestStudentNumber = true
+                        }
+
+                    val mockStudent =
+                        StudentJpaEntity().apply {
+                            id = 10L
+                            name = "홍길동"
+                            email = testEmail
+                            sex = Sex.MAN
+                        }
+
+                    val mockStateEntity =
+                        OauthAuthorizeStateRedisEntity(
+                            token = testToken,
+                            clientId = testClientId,
+                            redirectUri = testRedirectUri,
+                            state = "random-state",
+                            codeChallenge = "challenge",
+                            codeChallengeMethod = "S256",
+                            scopes = setOf("self:read"),
+                            ttl = 600,
+                        )
+
+                    beforeEach {
+                        every { mockOauthAuthorizeStateRedisRepository.findById(testToken) } returns Optional.of(mockStateEntity)
+                        every { mockAccountJpaRepository.findByEmail(testEmail) } returns Optional.of(studentAccount)
+                        every { mockPasswordEncoder.matches("password123!", studentAccount.password) } returns true
+                        every { mockStudentDataEditRequestJpaRepository.findByStudentId(10L) } returns Optional.of(editRequest)
+                        every { mockStudentJpaRepository.findById(10L) } returns Optional.of(mockStudent)
+                        every { mockStudentJpaRepository.existsByStudentNumberAndNotId(2, 1, 5, 10L) } returns false
+                        every { mockOauthCodeRedisRepository.save(any()) } answers { firstArg() }
+                    }
+
+                    it("정보가 수정되고 302 리다이렉트 ResponseEntity가 반환되어야 한다") {
+                        val response = completeOauthAuthorizeFlowService.execute(reqDto)
+
+                        response.statusCode shouldBe HttpStatus.FOUND
+                        mockStudent.studentNumber?.studentGrade shouldBe 2
+                        mockStudent.studentNumber?.studentClass shouldBe 1
+                        mockStudent.studentNumber?.studentNumber shouldBe 5
+
+                        verify(exactly = 1) { mockStudentDataEditRequestJpaRepository.delete(editRequest) }
                     }
                 }
             }
