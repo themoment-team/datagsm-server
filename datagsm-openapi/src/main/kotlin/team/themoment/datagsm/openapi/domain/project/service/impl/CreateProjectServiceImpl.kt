@@ -81,6 +81,8 @@ class CreateProjectServiceImpl(
                 endYear = projectReqDto.endYear
                 this.club = ownerClub
                 this.participants = participants
+                this.repositories = projectReqDto.repositories.toMutableSet()
+                this.techStacks = projectReqDto.techStacks.toMutableSet()
             }
         val savedProjectEntity = projectJpaRepository.save(projectEntity)
 
@@ -114,6 +116,8 @@ class CreateProjectServiceImpl(
                         sex = student.sex,
                     )
                 },
+            repositories = savedProjectEntity.repositories.toList(),
+            techStacks = savedProjectEntity.techStacks.toList(),
         )
     }
 
@@ -128,5 +132,7 @@ class CreateProjectServiceImpl(
             club = project.club?.let { EventClubRef(it.id!!, it.name) },
             participants =
                 project.participants.map { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },
+            repositories = project.repositories.toList(),
+            techStacks = project.techStacks.toList(),
         )
 }

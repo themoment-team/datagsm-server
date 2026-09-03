@@ -24,4 +24,8 @@ data class ProjectResDto(
     val club: ClubSummaryDto?,
     @field:Schema(description = "프로젝트 참가자 목록")
     val participants: List<ParticipantInfoDto>,
+    @field:Schema(description = "프로젝트 리포지토리 URL 목록")
+    val repositories: List<String>,
+    @field:Schema(description = "프로젝트 기술 스택 목록")
+    val techStacks: List<String>,
 )

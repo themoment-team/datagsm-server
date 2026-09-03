@@ -2,6 +2,7 @@ package team.themoment.datagsm.web.domain.project.service
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -91,9 +92,49 @@ class CreateProjectServiceTest :
                         result.club?.name shouldBe "SW개발동아리"
                         result.club?.type shouldBe ClubType.MAJOR_CLUB
                         result.participants shouldBe emptyList()
+                        result.repositories shouldBe emptyList()
+                        result.techStacks shouldBe emptyList()
 
                         verify(exactly = 1) { mockProjectRepository.existsByName(createRequest.name) }
                         verify(exactly = 1) { mockClubRepository.findById(createRequest.clubId!!) }
+                        verify(exactly = 1) { mockProjectRepository.save(any()) }
+                    }
+                }
+
+                context("리포지토리와 기술 스택 정보를 포함하여 생성 요청할 때") {
+                    val createRequest =
+                        ProjectReqDto(
+                            name = "기술스택 프로젝트",
+                            description = "리포지토리와 기술 스택이 있는 프로젝트입니다",
+                            startYear = 2024,
+                            clubId = null,
+                            participantIds = emptyList(),
+                            repositories = listOf("https://github.com/team/repo"),
+                            techStacks = listOf("Kotlin", "Spring Boot"),
+                        )
+
+                    val savedProject =
+                        ProjectJpaEntity().apply {
+                            id = 4L
+                            name = createRequest.name
+                            description = createRequest.description
+                            startYear = createRequest.startYear
+                            status = ProjectStatus.ACTIVE
+                            repositories = createRequest.repositories.toMutableSet()
+                            techStacks = createRequest.techStacks.toMutableSet()
+                        }
+
+                    beforeEach {
+                        every { mockProjectRepository.existsByName(createRequest.name) } returns false
+                        every { mockProjectRepository.save(any()) } returns savedProject
+                    }
+
+                    it("리포지토리와 기술 스택이 포함된 프로젝트가 생성되어야 한다") {
+                        val result = createProjectService.execute(createRequest)
+
+                        result.repositories shouldContainExactlyInAnyOrder listOf("https://github.com/team/repo")
+                        result.techStacks shouldContainExactlyInAnyOrder listOf("Kotlin", "Spring Boot")
+
                         verify(exactly = 1) { mockProjectRepository.save(any()) }
                     }
                 }

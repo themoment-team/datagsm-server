@@ -1,9 +1,12 @@
 package team.themoment.datagsm.common.domain.project.entity
 
+import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
+import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -53,4 +56,14 @@ class ProjectJpaEntity {
         inverseJoinColumns = [JoinColumn(name = "student_id")],
     )
     var participants: MutableSet<StudentJpaEntity> = mutableSetOf()
+
+    @field:ElementCollection(fetch = FetchType.LAZY)
+    @field:CollectionTable(name = "tb_project_repository", joinColumns = [JoinColumn(name = "project_id")])
+    @field:Column(name = "repository_url", nullable = false, length = 300)
+    var repositories: MutableSet<String> = mutableSetOf()
+
+    @field:ElementCollection(fetch = FetchType.LAZY)
+    @field:CollectionTable(name = "tb_project_tech_stack", joinColumns = [JoinColumn(name = "project_id")])
+    @field:Column(name = "tech_stack_name", nullable = false, length = 50)
+    var techStacks: MutableSet<String> = mutableSetOf()
 }
