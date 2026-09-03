@@ -27,6 +27,8 @@ class QueryMyInfoServiceImpl(
             isStudent = account.objectType == AccountObjectType.STUDENT,
             student = resolved.student,
             teacher = resolved.teacher,
+            clubs = resolved.clubs,
+            projects = resolved.projects,
         )
     }
 }

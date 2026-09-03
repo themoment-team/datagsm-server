@@ -10,6 +10,10 @@ import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.resolver.AccountObjectResolver
+import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
+import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
+import team.themoment.datagsm.common.domain.project.dto.internal.ProjectSummaryDto
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
@@ -93,10 +97,15 @@ class QueryMyInfoServiceTest :
                             }
                         every { mockCurrentUserProvider.getCurrentAccount() } returns account
                         every { mockAccountObjectResolver.resolve(account) } returns
-                            ResolvedAccountObject(StudentResDto.from(student), null)
+                            ResolvedAccountObject(
+                                StudentResDto.from(student),
+                                null,
+                                listOf(ClubSummaryDto(id = 100L, name = "SW개발동아리", type = ClubType.MAJOR_CLUB)),
+                                listOf(ProjectSummaryDto(id = 200L, name = "DataGSM", status = ProjectStatus.ACTIVE, club = null)),
+                            )
                     }
 
-                    it("학생 정보를 포함하여 계정 정보를 반환해야 한다") {
+                    it("학생 정보와 동아리·프로젝트 정보를 포함하여 계정 정보를 반환해야 한다") {
                         val result = queryMyInfoService.execute()
 
                         result.id shouldBe 2L
@@ -116,6 +125,11 @@ class QueryMyInfoServiceTest :
                         studentDto.major shouldBe Major.SW_DEVELOPMENT
                         studentDto.dormitoryFloor shouldBe 2
                         studentDto.dormitoryRoom shouldBe 201
+
+                        result.clubs.size shouldBe 1
+                        result.clubs.first().name shouldBe "SW개발동아리"
+                        result.projects.size shouldBe 1
+                        result.projects.first().name shouldBe "DataGSM"
 
                         verify(exactly = 1) { mockCurrentUserProvider.getCurrentAccount() }
                     }
