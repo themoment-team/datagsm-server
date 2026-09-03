@@ -12,6 +12,7 @@ import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.StartOauthAuthorizeFlowService
+import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
 import java.util.UUID
 
 @Service
@@ -19,6 +20,7 @@ class StartOauthAuthorizeFlowServiceImpl(
     private val clientJpaRepository: ClientJpaRepository,
     private val oauthEnvironment: OauthEnvironment,
     private val oauthAuthorizeStateRedisRepository: OauthAuthorizeStateRedisRepository,
+    private val jwtEnvironment: OauthJwtProvisionEnvironment,
 ) : StartOauthAuthorizeFlowService {
     override fun execute(reqDto: OauthAuthorizeReqDto): ResponseEntity<Void> {
         val clientId = reqDto.client_id ?: throw OAuthException.InvalidRequest("client_id는 필수입니다.")
@@ -87,11 +89,22 @@ class StartOauthAuthorizeFlowServiceImpl(
         requestedScopes: Set<String>?,
         clientScopes: Set<String>,
     ): Set<String> {
-        if (requestedScopes == null) return clientScopes
+        if (requestedScopes == null) return defaultScopes(clientScopes)
         val invalid = requestedScopes - clientScopes
         if (invalid.isNotEmpty()) {
             throw OAuthException.InvalidScope("클라이언트에 허용되지 않은 권한 범위가 포함되어 있습니다.")
         }
         return requestedScopes
+    }
+
+    // scope 파라미터 미입력 시 client의 전체 허용 scope가 아닌 기본 UserInfo scope만 요청된 것으로 처리한다.
+    // account_read/student_read를 아직 부여받지 못한 레거시 client는 deprecated self_read로 대체한다.
+    private fun defaultScopes(clientScopes: Set<String>): Set<String> {
+        val applicationId = jwtEnvironment.datagsmApplicationId
+        val defaults = setOf("$applicationId:account_read", "$applicationId:student_read").intersect(clientScopes)
+        if (defaults.isNotEmpty()) return defaults
+
+        val legacySelfRead = "$applicationId:self_read"
+        return if (legacySelfRead in clientScopes) setOf(legacySelfRead) else emptySet()
     }
 }
