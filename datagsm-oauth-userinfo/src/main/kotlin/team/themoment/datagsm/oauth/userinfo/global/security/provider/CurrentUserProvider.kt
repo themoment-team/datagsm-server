@@ -36,4 +36,10 @@ class CurrentUserProvider(
             .findByEmail(email)
             .orElseThrow { ExpectedException("계정을 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
     }
+
+    fun getGrantedScopeNames(): Set<String> =
+        getAuthentication()
+            .authorities
+            .mapNotNull { it.authority?.substringAfter(':') }
+            .toSet()
 }
