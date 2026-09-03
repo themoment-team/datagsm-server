@@ -24,7 +24,11 @@ class AccountObjectResolver(
     private val teacherJpaRepository: TeacherJpaRepository,
     private val projectJpaRepository: ProjectJpaRepository,
 ) {
-    fun resolve(account: AccountJpaEntity): ResolvedAccountObject {
+    fun resolve(
+        account: AccountJpaEntity,
+        includeClubs: Boolean = true,
+        includeProjects: Boolean = true,
+    ): ResolvedAccountObject {
         val objectId = account.objectId ?: return ResolvedAccountObject(null, null)
         return when (account.objectType) {
             AccountObjectType.STUDENT -> {
@@ -32,8 +36,8 @@ class AccountObjectResolver(
                 ResolvedAccountObject(
                     student = student?.let { StudentResDto.from(it) },
                     teacher = null,
-                    clubs = student?.let { resolveClubs(it) } ?: emptyList(),
-                    projects = student?.let { resolveProjects(it) } ?: emptyList(),
+                    clubs = if (includeClubs) student?.let { resolveClubs(it) } ?: emptyList() else emptyList(),
+                    projects = if (includeProjects) student?.let { resolveProjects(it) } ?: emptyList() else emptyList(),
                 )
             }
             AccountObjectType.TEACHER ->

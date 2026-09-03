@@ -74,7 +74,7 @@ class QueryUserInfoServiceTest :
 
                     beforeEach {
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
-                        every { mockAccountObjectResolver.resolve(mockAccount) } returns
+                        every { mockAccountObjectResolver.resolve(mockAccount, includeClubs = false, includeProjects = false) } returns
                             ResolvedAccountObject(null, null)
                         every { mockCurrentUserProvider.getGrantedScopeNames() } returns setOf("account_read")
                     }
@@ -112,7 +112,7 @@ class QueryUserInfoServiceTest :
 
                     beforeEach {
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
-                        every { mockAccountObjectResolver.resolve(mockAccount) } returns
+                        every { mockAccountObjectResolver.resolve(mockAccount, includeClubs = false, includeProjects = false) } returns
                             ResolvedAccountObject(null, TeacherResDto.from(teacher))
                         every { mockCurrentUserProvider.getGrantedScopeNames() } returns setOf("account_read", "student_read")
                     }
@@ -139,8 +139,8 @@ class QueryUserInfoServiceTest :
 
                     beforeEach {
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
-                        every { mockAccountObjectResolver.resolve(mockAccount) } returns
-                            ResolvedAccountObject(studentDto, null, listOf(clubSummary), listOf(projectSummary))
+                        every { mockAccountObjectResolver.resolve(mockAccount, includeClubs = false, includeProjects = false) } returns
+                            ResolvedAccountObject(studentDto, null)
                         every { mockCurrentUserProvider.getGrantedScopeNames() } returns setOf("account_read")
                     }
 
@@ -167,8 +167,8 @@ class QueryUserInfoServiceTest :
 
                     beforeEach {
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
-                        every { mockAccountObjectResolver.resolve(mockAccount) } returns
-                            ResolvedAccountObject(studentDto, null, listOf(clubSummary), listOf(projectSummary))
+                        every { mockAccountObjectResolver.resolve(mockAccount, includeClubs = false, includeProjects = false) } returns
+                            ResolvedAccountObject(studentDto, null)
                         every { mockCurrentUserProvider.getGrantedScopeNames() } returns setOf("account_read", "student_read")
                     }
 
@@ -194,8 +194,8 @@ class QueryUserInfoServiceTest :
 
                     beforeEach {
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
-                        every { mockAccountObjectResolver.resolve(mockAccount) } returns
-                            ResolvedAccountObject(studentDto, null, listOf(clubSummary), listOf(projectSummary))
+                        every { mockAccountObjectResolver.resolve(mockAccount, includeClubs = true, includeProjects = false) } returns
+                            ResolvedAccountObject(studentDto, null, listOf(clubSummary))
                         every { mockCurrentUserProvider.getGrantedScopeNames() } returns setOf("account_read", "student_read", "club_read")
                     }
 
@@ -220,7 +220,7 @@ class QueryUserInfoServiceTest :
 
                     beforeEach {
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
-                        every { mockAccountObjectResolver.resolve(mockAccount) } returns
+                        every { mockAccountObjectResolver.resolve(mockAccount, includeClubs = true, includeProjects = true) } returns
                             ResolvedAccountObject(studentDto, null, listOf(clubSummary), listOf(projectSummary))
                         every { mockCurrentUserProvider.getGrantedScopeNames() } returns
                             setOf("account_read", "student_read", "club_read", "project_read")
@@ -247,8 +247,8 @@ class QueryUserInfoServiceTest :
 
                     beforeEach {
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
-                        every { mockAccountObjectResolver.resolve(mockAccount) } returns
-                            ResolvedAccountObject(studentDto, null, listOf(clubSummary), listOf(projectSummary))
+                        every { mockAccountObjectResolver.resolve(mockAccount, includeClubs = false, includeProjects = false) } returns
+                            ResolvedAccountObject(studentDto, null)
                         every { mockCurrentUserProvider.getGrantedScopeNames() } returns setOf("self_read")
                     }
 
