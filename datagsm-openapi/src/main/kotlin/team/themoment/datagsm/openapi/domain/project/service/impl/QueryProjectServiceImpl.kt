@@ -52,6 +52,8 @@ class QueryProjectServiceImpl(
                                     sex = student.sex,
                                 )
                             },
+                        repositories = project.repositories.toList(),
+                        techStacks = project.techStacks.toList(),
                     )
                 },
         )

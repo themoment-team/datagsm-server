@@ -57,5 +57,7 @@ class ReactivateProjectServiceImpl(
             club = project.club?.let { EventClubRef(it.id!!, it.name) },
             participants =
                 project.participants.map { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },
+            repositories = project.repositories.toList(),
+            techStacks = project.techStacks.toList(),
         )
 }
