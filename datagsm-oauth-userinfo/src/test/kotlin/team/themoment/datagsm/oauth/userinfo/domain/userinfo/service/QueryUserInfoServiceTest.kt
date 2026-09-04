@@ -181,6 +181,34 @@ class QueryUserInfoServiceTest :
                     }
                 }
 
+                context("학생 계정이 club_read 없이 student_read만 가지고 있고 student에 동아리 정보가 있을 때") {
+                    val mockAccount =
+                        AccountJpaEntity().apply {
+                            id = 2L
+                            email = "student@gsm.hs.kr"
+                            password = "encodedPassword"
+                            role = AccountRole.USER
+                            objectId = 10L
+                            objectType = AccountObjectType.STUDENT
+                        }
+                    val studentWithClub = studentDto.copy(majorClub = clubSummary, autonomousClub = clubSummary)
+
+                    beforeEach {
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
+                        every { mockAccountObjectResolver.resolve(mockAccount, includeClubs = false, includeProjects = false) } returns
+                            ResolvedAccountObject(studentWithClub, null)
+                        every { mockCurrentUserProvider.getGrantedScopeNames() } returns setOf("account_read", "student_read")
+                    }
+
+                    it("club_read가 없으므로 student 안의 majorClub/autonomousClub도 가려져야 한다") {
+                        val result = queryUserInfoService.execute()
+
+                        result.student?.majorClub shouldBe null
+                        result.student?.autonomousClub shouldBe null
+                        result.clubs.shouldBeEmpty()
+                    }
+                }
+
                 context("학생 계정이 club_read 스코프까지 가지고 있을 때") {
                     val mockAccount =
                         AccountJpaEntity().apply {
