@@ -19,6 +19,7 @@ import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl.StartOauthAuthorizeFlowServiceImpl
+import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
 import java.util.Optional
 
 class StartOauthAuthorizeFlowServiceTest :
@@ -31,16 +32,25 @@ class StartOauthAuthorizeFlowServiceTest :
                 every { frontendUrl } returns "http://localhost:3000"
                 every { authorizeStateExpirationMs } returns 600000L
             }
+        val mockJwtEnvironment =
+            mockk<OauthJwtProvisionEnvironment> {
+                every { datagsmApplicationId } returns "datagsm"
+            }
 
         val startOauthAuthorizeFlowService =
             StartOauthAuthorizeFlowServiceImpl(
                 mockClientJpaRepository,
                 mockOauthEnvironment,
                 mockOauthAuthorizeStateRedisRepository,
+                mockJwtEnvironment,
             )
 
         afterEach {
             clearAllMocks()
+        }
+
+        beforeEach {
+            every { mockJwtEnvironment.datagsmApplicationId } returns "datagsm"
         }
 
         describe("StartOauthAuthorizeFlowService 클래스의") {
@@ -54,7 +64,7 @@ class StartOauthAuthorizeFlowServiceTest :
                         id = testClientId
                         secret = "encodedSecret"
                         redirectUrls = setOf(testRedirectUri)
-                        scopes.add("self:read")
+                        scopes.addAll(setOf("datagsm:account_read", "datagsm:student_read"))
                         clientName = "Test Client"
                         serviceName = "Test Service"
                     }
@@ -94,7 +104,7 @@ class StartOauthAuthorizeFlowServiceTest :
                         savedEntitySlot.captured.codeChallenge shouldBe "challenge"
                         savedEntitySlot.captured.codeChallengeMethod shouldBe "S256"
                         savedEntitySlot.captured.ttl shouldBe 600
-                        savedEntitySlot.captured.scopes shouldBe setOf("self:read")
+                        savedEntitySlot.captured.scopes shouldBe setOf("datagsm:account_read", "datagsm:student_read")
                     }
                 }
 
@@ -108,7 +118,7 @@ class StartOauthAuthorizeFlowServiceTest :
                         every { mockOauthAuthorizeStateRedisRepository.save(capture(savedEntitySlot)) } answers { firstArg() }
                     }
 
-                    it("client의 전체 scope가 state entity에 저장되어야 한다") {
+                    it("client 전체 scope가 아닌 기본 scope(account_read, student_read)만 state entity에 저장되어야 한다") {
                         val reqDto =
                             OauthAuthorizeReqDto(
                                 client_id = testClientId,
@@ -117,7 +127,70 @@ class StartOauthAuthorizeFlowServiceTest :
                             )
                         startOauthAuthorizeFlowService.execute(reqDto)
 
-                        savedEntitySlot.captured.scopes shouldBe setOf("self:read")
+                        savedEntitySlot.captured.scopes shouldBe setOf("datagsm:account_read", "datagsm:student_read")
+                    }
+                }
+
+                context("scope 파라미터가 null이고 client가 deprecated self_read만 가지고 있을 때") {
+                    val legacyClient =
+                        ClientJpaEntity().apply {
+                            id = testClientId
+                            secret = "encodedSecret"
+                            redirectUrls = setOf(testRedirectUri)
+                            scopes.add("datagsm:self_read")
+                            clientName = "Legacy Client"
+                            serviceName = "Legacy Service"
+                        }
+                    val savedEntitySlot = slot<OauthAuthorizeStateRedisEntity>()
+
+                    beforeEach {
+                        every { mockOauthEnvironment.frontendUrl } returns "http://localhost:3000"
+                        every { mockOauthEnvironment.authorizeStateExpirationMs } returns 600000L
+                        every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(legacyClient)
+                        every { mockOauthAuthorizeStateRedisRepository.save(capture(savedEntitySlot)) } answers { firstArg() }
+                    }
+
+                    it("하위 호환을 위해 self_read가 기본 scope로 저장되어야 한다") {
+                        val reqDto =
+                            OauthAuthorizeReqDto(
+                                client_id = testClientId,
+                                redirect_uri = testRedirectUri,
+                                response_type = "code",
+                            )
+                        startOauthAuthorizeFlowService.execute(reqDto)
+
+                        savedEntitySlot.captured.scopes shouldBe setOf("datagsm:self_read")
+                    }
+                }
+
+                context("scope 파라미터가 null이고 client가 기본 scope를 하나도 가지고 있지 않을 때") {
+                    val noDefaultScopeClient =
+                        ClientJpaEntity().apply {
+                            id = testClientId
+                            secret = "encodedSecret"
+                            redirectUrls = setOf(testRedirectUri)
+                            scopes.add("datagsm:club_read")
+                            clientName = "No Default Scope Client"
+                            serviceName = "No Default Scope Service"
+                        }
+
+                    beforeEach {
+                        every { mockOauthEnvironment.frontendUrl } returns "http://localhost:3000"
+                        every { mockOauthEnvironment.authorizeStateExpirationMs } returns 600000L
+                        every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(noDefaultScopeClient)
+                    }
+
+                    it("OAuthException.InvalidScope가 발생해야 한다") {
+                        val reqDto =
+                            OauthAuthorizeReqDto(
+                                client_id = testClientId,
+                                redirect_uri = testRedirectUri,
+                                response_type = "code",
+                            )
+
+                        shouldThrow<OAuthException.InvalidScope> {
+                            startOauthAuthorizeFlowService.execute(reqDto)
+                        }
                     }
                 }
 
@@ -137,11 +210,11 @@ class StartOauthAuthorizeFlowServiceTest :
                                 client_id = testClientId,
                                 redirect_uri = testRedirectUri,
                                 response_type = "code",
-                                scope = "self:read",
+                                scope = "datagsm:account_read",
                             )
                         startOauthAuthorizeFlowService.execute(reqDto)
 
-                        savedEntitySlot.captured.scopes shouldBe setOf("self:read")
+                        savedEntitySlot.captured.scopes shouldBe setOf("datagsm:account_read")
                     }
                 }
 
@@ -151,7 +224,9 @@ class StartOauthAuthorizeFlowServiceTest :
                             id = testClientId
                             secret = "encodedSecret"
                             redirectUrls = setOf(testRedirectUri)
-                            scopes.addAll(setOf("self:read", "profile:read"))
+                            scopes.addAll(
+                                setOf("datagsm:account_read", "datagsm:student_read", "datagsm:club_read", "datagsm:project_read"),
+                            )
                             clientName = "Test Client"
                             serviceName = "Test Service"
                         }
@@ -170,11 +245,11 @@ class StartOauthAuthorizeFlowServiceTest :
                                 client_id = testClientId,
                                 redirect_uri = testRedirectUri,
                                 response_type = "code",
-                                scope = "self:read profile:read",
+                                scope = "datagsm:account_read datagsm:club_read",
                             )
                         startOauthAuthorizeFlowService.execute(reqDto)
 
-                        savedEntitySlot.captured.scopes shouldBe setOf("self:read", "profile:read")
+                        savedEntitySlot.captured.scopes shouldBe setOf("datagsm:account_read", "datagsm:club_read")
                     }
                 }
 

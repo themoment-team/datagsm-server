@@ -28,8 +28,10 @@ data class OauthAuthorizeReqDto(
     )
     val code_challenge_method: String? = null,
     @param:Schema(
-        description = "요청할 OAuth Scope 목록 (공백 구분, 미입력 시 client의 전체 허용 scope 사용)",
-        example = "self:read profile:read",
+        description =
+            "요청할 OAuth Scope 목록 (공백 구분, appId:scopeName 형식). 미입력 시 기본 scope(appId:account_read appId:student_read)만 부여됩니다. " +
+                "student_read/club_read/project_read는 명시적으로 요청해야 합니다. self_read는 하위 호환을 위한 deprecated scope입니다.",
+        example = "appId:account_read appId:student_read appId:club_read appId:project_read",
         requiredMode = Schema.RequiredMode.NOT_REQUIRED,
     )
     val scope: String? = null,
