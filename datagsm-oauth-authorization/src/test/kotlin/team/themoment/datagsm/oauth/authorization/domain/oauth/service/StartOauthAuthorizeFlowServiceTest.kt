@@ -163,6 +163,37 @@ class StartOauthAuthorizeFlowServiceTest :
                     }
                 }
 
+                context("scope 파라미터가 null이고 client가 기본 scope를 하나도 가지고 있지 않을 때") {
+                    val noDefaultScopeClient =
+                        ClientJpaEntity().apply {
+                            id = testClientId
+                            secret = "encodedSecret"
+                            redirectUrls = setOf(testRedirectUri)
+                            scopes.add("datagsm:club_read")
+                            clientName = "No Default Scope Client"
+                            serviceName = "No Default Scope Service"
+                        }
+
+                    beforeEach {
+                        every { mockOauthEnvironment.frontendUrl } returns "http://localhost:3000"
+                        every { mockOauthEnvironment.authorizeStateExpirationMs } returns 600000L
+                        every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(noDefaultScopeClient)
+                    }
+
+                    it("OAuthException.InvalidScope가 발생해야 한다") {
+                        val reqDto =
+                            OauthAuthorizeReqDto(
+                                client_id = testClientId,
+                                redirect_uri = testRedirectUri,
+                                response_type = "code",
+                            )
+
+                        shouldThrow<OAuthException.InvalidScope> {
+                            startOauthAuthorizeFlowService.execute(reqDto)
+                        }
+                    }
+                }
+
                 context("허용된 scope를 요청할 때") {
                     val savedEntitySlot = slot<OauthAuthorizeStateRedisEntity>()
 

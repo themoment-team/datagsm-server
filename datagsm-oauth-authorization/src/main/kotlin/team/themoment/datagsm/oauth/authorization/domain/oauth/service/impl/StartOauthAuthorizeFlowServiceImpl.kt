@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.util.UriComponentsBuilder
+import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeReqDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthAuthorizeStateRedisEntity
@@ -99,12 +100,17 @@ class StartOauthAuthorizeFlowServiceImpl(
 
     // scope 파라미터 미입력 시 client의 전체 허용 scope가 아닌 기본 UserInfo scope만 요청된 것으로 처리한다.
     // account_read/student_read를 아직 부여받지 못한 레거시 client는 deprecated self_read로 대체한다.
+    // 둘 다 없는 client는 스코프 없는 토큰이 조용히 발급되는 것을 막기 위해 InvalidScope로 실패시킨다.
     private fun defaultScopes(clientScopes: Set<String>): Set<String> {
         val applicationId = jwtEnvironment.datagsmApplicationId
-        val defaults = setOf("$applicationId:account_read", "$applicationId:student_read").intersect(clientScopes)
+        val defaults =
+            setOf("$applicationId:${OAuthScope.ACCOUNT_READ}", "$applicationId:${OAuthScope.STUDENT_READ}")
+                .intersect(clientScopes)
         if (defaults.isNotEmpty()) return defaults
 
-        val legacySelfRead = "$applicationId:self_read"
-        return if (legacySelfRead in clientScopes) setOf(legacySelfRead) else emptySet()
+        val legacySelfRead = "$applicationId:${OAuthScope.SELF_READ}"
+        if (legacySelfRead in clientScopes) return setOf(legacySelfRead)
+
+        throw OAuthException.InvalidScope("클라이언트에 기본으로 부여할 수 있는 권한 범위가 없습니다.")
     }
 }
