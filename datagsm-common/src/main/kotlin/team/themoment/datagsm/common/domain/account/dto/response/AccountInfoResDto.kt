@@ -23,12 +23,12 @@ data class AccountInfoResDto(
     @Deprecated("objectType == STUDENT 으로 대체 예정, 하위 호환을 위해 임시 유지", ReplaceWith("objectType == AccountObjectType.STUDENT"))
     @field:Schema(description = "학생 계정 여부 (Deprecated, objectType == STUDENT 으로 대체 예정)", example = "true", deprecated = true)
     val isStudent: Boolean,
-    @field:Schema(description = "학생 정보 (student_read 스코프 보유 시에만 포함, OAuth UserInfo 기준)")
+    @field:Schema(description = "학생 정보 (학생인 경우에만 포함)")
     val student: StudentResDto?,
-    @field:Schema(description = "선생님 정보 (student_read 스코프 보유 시에만 포함, OAuth UserInfo 기준)")
+    @field:Schema(description = "선생님 정보 (선생님인 경우에만 포함)")
     val teacher: TeacherResDto?,
-    @field:Schema(description = "소속 동아리 목록 (club_read 스코프 보유 시에만 포함, OAuth UserInfo 기준)")
+    @field:Schema(description = "소속 동아리 목록")
     val clubs: List<ClubSummaryDto> = emptyList(),
-    @field:Schema(description = "참여 프로젝트 목록 (project_read 스코프 보유 시에만 포함, OAuth UserInfo 기준)")
+    @field:Schema(description = "참여 프로젝트 목록")
     val projects: List<ProjectSummaryDto> = emptyList(),
 )
