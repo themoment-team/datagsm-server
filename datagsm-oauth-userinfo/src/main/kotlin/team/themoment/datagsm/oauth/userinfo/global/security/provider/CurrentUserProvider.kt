@@ -6,12 +6,14 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
+import team.themoment.datagsm.oauth.userinfo.global.data.OauthJwtVerificationEnvironment
 import team.themoment.datagsm.oauth.userinfo.global.security.authentication.OauthAuthenticationToken
 import team.themoment.sdk.exception.ExpectedException
 
 @Component
 class CurrentUserProvider(
     private val accountJpaRepository: AccountJpaRepository,
+    private val oauthJwtVerificationEnvironment: OauthJwtVerificationEnvironment,
 ) {
     fun getAuthentication(): OauthAuthenticationToken {
         val authentication: Authentication? =
@@ -37,9 +39,13 @@ class CurrentUserProvider(
             .orElseThrow { ExpectedException("계정을 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
     }
 
-    fun getGrantedScopeNames(): Set<String> =
-        getAuthentication()
+    fun getGrantedScopeNames(): Set<String> {
+        val datagsmPrefix = "SCOPE_${oauthJwtVerificationEnvironment.datagsmApplicationId}:"
+        return getAuthentication()
             .authorities
-            .mapNotNull { it.authority?.substringAfter(':') }
+            .mapNotNull { it.authority }
+            .filter { it.startsWith(datagsmPrefix) }
+            .map { it.removePrefix(datagsmPrefix) }
             .toSet()
+    }
 }
