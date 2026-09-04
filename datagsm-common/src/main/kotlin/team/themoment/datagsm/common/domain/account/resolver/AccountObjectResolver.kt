@@ -5,7 +5,6 @@ import team.themoment.datagsm.common.domain.account.dto.internal.ResolvedAccount
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
 import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
-import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.project.dto.internal.ProjectSummaryDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
@@ -26,8 +25,8 @@ class AccountObjectResolver(
 ) {
     fun resolve(
         account: AccountJpaEntity,
-        includeClubs: Boolean = true,
-        includeProjects: Boolean = true,
+        includeClubs: Boolean = false,
+        includeProjects: Boolean = false,
     ): ResolvedAccountObject {
         val objectId = account.objectId ?: return ResolvedAccountObject(null, null)
         return when (account.objectType) {
@@ -50,14 +49,13 @@ class AccountObjectResolver(
     }
 
     private fun resolveClubs(student: StudentJpaEntity): List<ClubSummaryDto> =
-        listOfNotNull(student.majorClub, student.autonomousClub).map { it.toSummaryDto() }
+        listOfNotNull(student.majorClub, student.autonomousClub).map { ClubSummaryDto.from(it) }
 
     private fun resolveProjects(student: StudentJpaEntity): List<ProjectSummaryDto> =
         projectJpaRepository.findAllByParticipantId(student.id!!).map { it.toSummaryDto() }
 
-    private fun ClubJpaEntity.toSummaryDto() = ClubSummaryDto(id = id!!, name = name, type = type)
-
-    private fun ProjectJpaEntity.toSummaryDto() = ProjectSummaryDto(id = id!!, name = name, status = status, club = club?.toSummaryDto())
+    private fun ProjectJpaEntity.toSummaryDto() =
+        ProjectSummaryDto(id = id!!, name = name, status = status, club = club?.let { ClubSummaryDto.from(it) })
 
     fun resolveAll(accounts: List<AccountJpaEntity>): Map<Long, ResolvedAccountObject> {
         val studentIds =

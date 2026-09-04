@@ -105,7 +105,6 @@ class ProjectJpaCustomRepositoryImpl(
             .join(projectJpaEntity.participants, studentJpaEntity)
             .where(studentJpaEntity.id.eq(studentId))
             .fetch()
-            .distinct()
 
     private fun createOrderSpecifier(
         sortBy: ProjectSortBy?,

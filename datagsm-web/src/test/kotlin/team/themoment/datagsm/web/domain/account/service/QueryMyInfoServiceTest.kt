@@ -54,7 +54,8 @@ class QueryMyInfoServiceTest :
                                 role = AccountRole.ADMIN
                             }
                         every { mockCurrentUserProvider.getCurrentAccount() } returns account
-                        every { mockAccountObjectResolver.resolve(account) } returns ResolvedAccountObject(null, null)
+                        every { mockAccountObjectResolver.resolve(account, includeClubs = true, includeProjects = true) } returns
+                            ResolvedAccountObject(null, null)
                     }
 
                     it("연결 대상 정보 없이 계정 정보를 반환해야 한다") {
@@ -96,7 +97,7 @@ class QueryMyInfoServiceTest :
                                 objectType = AccountObjectType.STUDENT
                             }
                         every { mockCurrentUserProvider.getCurrentAccount() } returns account
-                        every { mockAccountObjectResolver.resolve(account) } returns
+                        every { mockAccountObjectResolver.resolve(account, includeClubs = true, includeProjects = true) } returns
                             ResolvedAccountObject(
                                 StudentResDto.from(student),
                                 null,
@@ -154,7 +155,7 @@ class QueryMyInfoServiceTest :
                                 objectType = AccountObjectType.TEACHER
                             }
                         every { mockCurrentUserProvider.getCurrentAccount() } returns account
-                        every { mockAccountObjectResolver.resolve(account) } returns
+                        every { mockAccountObjectResolver.resolve(account, includeClubs = true, includeProjects = true) } returns
                             ResolvedAccountObject(null, TeacherResDto.from(teacher))
                     }
 
