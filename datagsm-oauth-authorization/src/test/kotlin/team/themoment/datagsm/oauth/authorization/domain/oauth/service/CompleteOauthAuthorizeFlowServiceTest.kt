@@ -20,11 +20,15 @@ import team.themoment.datagsm.common.domain.account.entity.constant.AccountStatu
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeSubmitReqDto
+import team.themoment.datagsm.common.domain.oauth.entity.IdpSessionHandoffRedisEntity
+import team.themoment.datagsm.common.domain.oauth.entity.IdpSessionRedisEntity
 import team.themoment.datagsm.common.domain.oauth.entity.OauthAuthorizeStateRedisEntity
-import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
+import team.themoment.datagsm.common.domain.oauth.entity.OauthConsentJpaEntity
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
+import team.themoment.datagsm.common.domain.oauth.repository.IdpSessionHandoffRedisRepository
+import team.themoment.datagsm.common.domain.oauth.repository.IdpSessionRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
-import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
+import team.themoment.datagsm.common.domain.oauth.repository.OauthConsentJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentDataEditRequestJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
@@ -32,6 +36,7 @@ import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRe
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.common.global.dto.internal.RateLimitConsumeResult
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueAuthorizationCodeService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl.CompleteOauthAuthorizeFlowServiceImpl
 import team.themoment.datagsm.oauth.authorization.global.security.service.OAuthClientRateLimitService
 import team.themoment.sdk.exception.ExpectedException
@@ -44,8 +49,11 @@ class CompleteOauthAuthorizeFlowServiceTest :
         val mockStudentJpaRepository = mockk<StudentJpaRepository>()
         val mockClubJpaRepository = mockk<ClubJpaRepository>()
         val mockStudentDataEditRequestJpaRepository = mockk<StudentDataEditRequestJpaRepository>(relaxed = true)
-        val mockOauthCodeRedisRepository = mockk<OauthCodeRedisRepository>(relaxed = true)
         val mockOauthAuthorizeStateRedisRepository = mockk<OauthAuthorizeStateRedisRepository>(relaxed = true)
+        val mockIdpSessionRedisRepository = mockk<IdpSessionRedisRepository>(relaxed = true)
+        val mockIdpSessionHandoffRedisRepository = mockk<IdpSessionHandoffRedisRepository>(relaxed = true)
+        val mockOauthConsentJpaRepository = mockk<OauthConsentJpaRepository>(relaxed = true)
+        val mockIssueAuthorizationCodeService = mockk<IssueAuthorizationCodeService>()
         val mockPasswordEncoder = mockk<PasswordEncoder>()
         val mockOauthEnvironment = mockk<OauthEnvironment>()
         val mockOauthClientRateLimitService = mockk<OAuthClientRateLimitService>()
@@ -57,8 +65,11 @@ class CompleteOauthAuthorizeFlowServiceTest :
                 mockStudentJpaRepository,
                 mockClubJpaRepository,
                 mockStudentDataEditRequestJpaRepository,
-                mockOauthCodeRedisRepository,
                 mockOauthAuthorizeStateRedisRepository,
+                mockIdpSessionRedisRepository,
+                mockIdpSessionHandoffRedisRepository,
+                mockOauthConsentJpaRepository,
+                mockIssueAuthorizationCodeService,
                 mockPasswordEncoder,
                 mockOauthEnvironment,
                 mockOauthClientRateLimitService,
@@ -76,7 +87,10 @@ class CompleteOauthAuthorizeFlowServiceTest :
                 val testToken = "test-token-123"
                 val testClientId = "client-123"
                 val testRedirectUri = "https://example.com/callback"
+                val testIssuerUrl = "https://oauth.example.com"
                 val codeExpirationSeconds = 300L
+                val idpSessionExpirationSeconds = 28800L
+                val idpSessionHandoffExpirationSeconds = 60L
 
                 val mockAccount =
                     AccountJpaEntity().apply {
@@ -87,6 +101,9 @@ class CompleteOauthAuthorizeFlowServiceTest :
 
                 beforeEach {
                     every { mockOauthEnvironment.codeExpirationSeconds } returns codeExpirationSeconds
+                    every { mockOauthEnvironment.issuerUrl } returns testIssuerUrl
+                    every { mockOauthEnvironment.idpSessionExpirationSeconds } returns idpSessionExpirationSeconds
+                    every { mockOauthEnvironment.idpSessionHandoffExpirationSeconds } returns idpSessionHandoffExpirationSeconds
                     every { mockOauthClientRateLimitService.tryConsumeAndReturnRemaining(any()) } returns
                         RateLimitConsumeResult(consumed = true, remainingTokens = 299, secondsToWaitForRefill = 0)
                 }
@@ -111,39 +128,69 @@ class CompleteOauthAuthorizeFlowServiceTest :
                             ttl = 600,
                         )
 
-                    val savedEntitySlot = slot<OauthCodeRedisEntity>()
+                    val issuedRedirectUrl = "$testRedirectUri?code=test-code&state=random-state"
+                    val sessionSlot = slot<IdpSessionRedisEntity>()
+                    val handoffSlot = slot<IdpSessionHandoffRedisEntity>()
 
                     beforeEach {
                         every { mockOauthAuthorizeStateRedisRepository.findById(testToken) } returns Optional.of(mockStateEntity)
                         every { mockAccountJpaRepository.findByEmail(testEmail) } returns Optional.of(mockAccount)
                         every { mockPasswordEncoder.matches("password123!", mockAccount.password) } returns true
-                        every { mockOauthCodeRedisRepository.save(capture(savedEntitySlot)) } answers { firstArg() }
+                        every {
+                            mockIssueAuthorizationCodeService.execute(any(), any(), any(), any(), any(), any(), any())
+                        } returns issuedRedirectUrl
+                        every { mockIdpSessionRedisRepository.save(capture(sessionSlot)) } answers { firstArg() }
+                        every { mockIdpSessionHandoffRedisRepository.save(capture(handoffSlot)) } answers { firstArg() }
+                        every { mockOauthConsentJpaRepository.findByAccountIdAndClientId(any(), any()) } returns Optional.empty()
+                        every { mockOauthConsentJpaRepository.save(any<OauthConsentJpaEntity>()) } answers { firstArg() }
                     }
 
-                    it("302 리다이렉트 ResponseEntity가 반환되어야 한다") {
+                    it("세션 핸드오프 URL로 302 리다이렉트되어야 한다") {
                         val response = completeOauthAuthorizeFlowService.execute(reqDto)
 
                         response.statusCode shouldBe HttpStatus.FOUND
                         response.headers.location shouldNotBe null
 
                         val redirectUrl = response.headers.location?.toString() ?: ""
-                        redirectUrl shouldStartWith testRedirectUri
-                        redirectUrl shouldContain "code="
-                        redirectUrl shouldContain "state=random-state"
+                        redirectUrl shouldStartWith "$testIssuerUrl/v1/oauth/authorize/session"
+                        redirectUrl shouldContain "ticket="
                     }
 
-                    it("Redis에 Authorization Code가 저장되어야 한다") {
+                    it("Authorization Code 발급이 위임되어야 한다") {
                         completeOauthAuthorizeFlowService.execute(reqDto)
 
-                        verify(exactly = 1) { mockOauthCodeRedisRepository.save(any()) }
+                        verify(exactly = 1) {
+                            mockIssueAuthorizationCodeService.execute(
+                                testEmail,
+                                testClientId,
+                                testRedirectUri,
+                                "random-state",
+                                "challenge",
+                                "S256",
+                                setOf("self:read"),
+                            )
+                        }
+                    }
 
-                        savedEntitySlot.captured.email shouldBe testEmail
-                        savedEntitySlot.captured.clientId shouldBe testClientId
-                        savedEntitySlot.captured.redirectUri shouldBe testRedirectUri
-                        savedEntitySlot.captured.codeChallenge shouldBe "challenge"
-                        savedEntitySlot.captured.codeChallengeMethod shouldBe "S256"
-                        savedEntitySlot.captured.scopes shouldBe setOf("self:read")
-                        savedEntitySlot.captured.ttl shouldBe codeExpirationSeconds
+                    it("IdP 세션이 생성되고 핸드오프 티켓에 연결되어야 한다") {
+                        completeOauthAuthorizeFlowService.execute(reqDto)
+
+                        sessionSlot.captured.email shouldBe testEmail
+                        sessionSlot.captured.ttl shouldBe idpSessionExpirationSeconds
+
+                        handoffSlot.captured.sessionId shouldBe sessionSlot.captured.sessionId
+                        handoffSlot.captured.redirectUrl shouldBe issuedRedirectUrl
+                        handoffSlot.captured.ttl shouldBe idpSessionHandoffExpirationSeconds
+                    }
+
+                    it("요청한 scope가 동의 기록으로 저장되어야 한다") {
+                        val consentSlot = slot<OauthConsentJpaEntity>()
+                        every { mockOauthConsentJpaRepository.save(capture(consentSlot)) } answers { firstArg() }
+
+                        completeOauthAuthorizeFlowService.execute(reqDto)
+
+                        consentSlot.captured.clientId shouldBe testClientId
+                        consentSlot.captured.grantedScopes shouldBe mutableSetOf("self:read")
                     }
 
                     it("Redis에서 인증 상태가 삭제되어야 한다") {
@@ -174,7 +221,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         exception.errorDescription shouldBe "인증 토큰이 유효하지 않거나 만료되었습니다. 다시 시도해주세요."
 
                         verify(exactly = 0) { mockAccountJpaRepository.findByEmail(any()) }
-                        verify(exactly = 0) { mockOauthCodeRedisRepository.save(any()) }
+                        verify(exactly = 0) { mockIssueAuthorizationCodeService.execute(any(), any(), any(), any(), any(), any(), any()) }
                     }
                 }
 
@@ -212,7 +259,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         exception.message shouldBe "이메일 또는 비밀번호가 일치하지 않습니다."
                         exception.statusCode shouldBe HttpStatus.UNAUTHORIZED
 
-                        verify(exactly = 0) { mockOauthCodeRedisRepository.save(any()) }
+                        verify(exactly = 0) { mockIssueAuthorizationCodeService.execute(any(), any(), any(), any(), any(), any(), any()) }
                     }
                 }
 
@@ -251,7 +298,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         exception.message shouldBe "이메일 또는 비밀번호가 일치하지 않습니다."
                         exception.statusCode shouldBe HttpStatus.UNAUTHORIZED
 
-                        verify(exactly = 0) { mockOauthCodeRedisRepository.save(any()) }
+                        verify(exactly = 0) { mockIssueAuthorizationCodeService.execute(any(), any(), any(), any(), any(), any(), any()) }
                     }
                 }
 
@@ -289,7 +336,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         exception.statusCode shouldBe HttpStatus.UNAUTHORIZED
 
                         verify(exactly = 0) { mockAccountJpaRepository.findByEmail(any()) }
-                        verify(exactly = 0) { mockOauthCodeRedisRepository.save(any()) }
+                        verify(exactly = 0) { mockIssueAuthorizationCodeService.execute(any(), any(), any(), any(), any(), any(), any()) }
                     }
                 }
 
@@ -336,7 +383,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         exception.message shouldBe "아직 승인되지 않은 계정입니다."
                         exception.statusCode shouldBe HttpStatus.FORBIDDEN
 
-                        verify(exactly = 0) { mockOauthCodeRedisRepository.save(any()) }
+                        verify(exactly = 0) { mockIssueAuthorizationCodeService.execute(any(), any(), any(), any(), any(), any(), any()) }
                     }
                 }
 
@@ -391,7 +438,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         exception.message shouldBe "정보 수정이 필요합니다. 정보를 수정한 후 다시 로그인해주세요."
                         exception.statusCode shouldBe HttpStatus.UNPROCESSABLE_ENTITY
 
-                        verify(exactly = 0) { mockOauthCodeRedisRepository.save(any()) }
+                        verify(exactly = 0) { mockIssueAuthorizationCodeService.execute(any(), any(), any(), any(), any(), any(), any()) }
                     }
                 }
 
@@ -448,7 +495,15 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         every { mockStudentDataEditRequestJpaRepository.findByStudentId(10L) } returns Optional.of(editRequest)
                         every { mockStudentJpaRepository.findById(10L) } returns Optional.of(mockStudent)
                         every { mockStudentJpaRepository.existsByStudentNumberAndNotId(2, 1, 5, 10L) } returns false
-                        every { mockOauthCodeRedisRepository.save(any()) } answers { firstArg() }
+                        every {
+                            mockIssueAuthorizationCodeService.execute(any(), any(), any(), any(), any(), any(), any())
+                        } returns "$testRedirectUri?code=test-code&state=random-state"
+                        every { mockOauthConsentJpaRepository.findByAccountIdAndClientId(any(), any()) } returns Optional.empty()
+                        every { mockOauthConsentJpaRepository.save(any<OauthConsentJpaEntity>()) } answers { firstArg() }
+                        every { mockIdpSessionRedisRepository.save(any<IdpSessionRedisEntity>()) } answers { firstArg() }
+                        every {
+                            mockIdpSessionHandoffRedisRepository.save(any<IdpSessionHandoffRedisEntity>())
+                        } answers { firstArg() }
                     }
 
                     it("정보가 수정되고 302 리다이렉트 ResponseEntity가 반환되어야 한다") {

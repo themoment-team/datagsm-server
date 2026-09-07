@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.util.UriComponentsBuilder
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountStatus
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
@@ -16,10 +17,14 @@ import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
 import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeSubmitReqDto
-import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
+import team.themoment.datagsm.common.domain.oauth.entity.IdpSessionHandoffRedisEntity
+import team.themoment.datagsm.common.domain.oauth.entity.IdpSessionRedisEntity
+import team.themoment.datagsm.common.domain.oauth.entity.OauthConsentJpaEntity
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
+import team.themoment.datagsm.common.domain.oauth.repository.IdpSessionHandoffRedisRepository
+import team.themoment.datagsm.common.domain.oauth.repository.IdpSessionRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
-import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
+import team.themoment.datagsm.common.domain.oauth.repository.OauthConsentJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.StudentDataEditRequestJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
@@ -28,11 +33,13 @@ import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRe
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthAuthorizeFlowService
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueAuthorizationCodeService
 import team.themoment.datagsm.oauth.authorization.global.security.service.OAuthClientRateLimitService
 import team.themoment.sdk.exception.ExpectedException
 import java.net.URI
 import java.security.SecureRandom
 import java.util.Base64
+import java.util.UUID
 
 @Service
 class CompleteOauthAuthorizeFlowServiceImpl(
@@ -40,8 +47,11 @@ class CompleteOauthAuthorizeFlowServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
     private val studentDataEditRequestJpaRepository: StudentDataEditRequestJpaRepository,
-    private val oauthCodeRedisRepository: OauthCodeRedisRepository,
     private val oauthAuthorizeStateRedisRepository: OauthAuthorizeStateRedisRepository,
+    private val idpSessionRedisRepository: IdpSessionRedisRepository,
+    private val idpSessionHandoffRedisRepository: IdpSessionHandoffRedisRepository,
+    private val oauthConsentJpaRepository: OauthConsentJpaRepository,
+    private val issueAuthorizationCodeService: IssueAuthorizationCodeService,
     private val passwordEncoder: PasswordEncoder,
     private val oauthEnvironment: OauthEnvironment,
     private val oauthClientRateLimitService: OAuthClientRateLimitService,
@@ -93,29 +103,73 @@ class CompleteOauthAuthorizeFlowServiceImpl(
             resolveStudentDataEditRequestIfNeeded(account.objectId!!, reqDto)
         }
 
-        val code = generateAuthorizationCode()
-
-        val oauthCodeEntity =
-            OauthCodeRedisEntity(
+        val redirectUrl =
+            issueAuthorizationCodeService.execute(
                 email = account.email,
                 clientId = clientId,
                 redirectUri = redirectUri,
+                state = state,
                 codeChallenge = codeChallenge,
                 codeChallengeMethod = codeChallengeMethod,
                 scopes = scopes,
-                code = code,
-                ttl = oauthEnvironment.codeExpirationSeconds,
             )
-        oauthCodeRedisRepository.save(oauthCodeEntity)
 
         oauthAuthorizeStateRedisRepository.deleteById(reqDto.token)
 
-        val redirectUrl = buildRedirectUrl(redirectUri, code, state)
+        account.id?.let { recordConsent(it, clientId, scopes) }
+
+        val handoffUrl = createSessionHandoff(account.email, redirectUrl)
 
         return ResponseEntity
             .status(HttpStatus.FOUND)
-            .location(URI.create(redirectUrl))
+            .location(URI.create(handoffUrl))
             .build()
+    }
+
+    // BFF가 서버-투-서버로 호출하므로 이 응답에는 브라우저 쿠키를 심을 수 없다.
+    // 세션을 만들어두고, 브라우저가 최상위 이동으로 경유할 일회용 티켓 URL을 돌려준다.
+    private fun createSessionHandoff(
+        email: String,
+        redirectUrl: String,
+    ): String {
+        val sessionId = UUID.randomUUID().toString()
+        idpSessionRedisRepository.save(
+            IdpSessionRedisEntity(
+                sessionId = sessionId,
+                email = email,
+                ttl = oauthEnvironment.idpSessionExpirationSeconds,
+            ),
+        )
+
+        val ticket = generateOpaqueToken()
+        idpSessionHandoffRedisRepository.save(
+            IdpSessionHandoffRedisEntity(
+                ticket = ticket,
+                sessionId = sessionId,
+                redirectUrl = redirectUrl,
+                ttl = oauthEnvironment.idpSessionHandoffExpirationSeconds,
+            ),
+        )
+
+        return UriComponentsBuilder
+            .fromUriString(oauthEnvironment.issuerUrl)
+            .path("/v1/oauth/authorize/session")
+            .queryParam("ticket", ticket)
+            .build()
+            .toUriString()
+    }
+
+    private fun recordConsent(
+        accountId: Long,
+        clientId: String,
+        scopes: Set<String>,
+    ) {
+        val consent =
+            oauthConsentJpaRepository
+                .findByAccountIdAndClientId(accountId, clientId)
+                .orElseGet { OauthConsentJpaEntity.create(accountId, clientId, emptySet()) }
+        consent.grantedScopes.addAll(scopes)
+        oauthConsentJpaRepository.save(consent)
     }
 
     private fun resolveStudentDataEditRequestIfNeeded(
@@ -227,21 +281,9 @@ class CompleteOauthAuthorizeFlowServiceImpl(
             githubId = student.githubId,
         )
 
-    private fun generateAuthorizationCode(): String =
+    private fun generateOpaqueToken(): String =
         Base64
             .getUrlEncoder()
             .withoutPadding()
             .encodeToString(ByteArray(22).also { secureRandom.nextBytes(it) })
-
-    private fun buildRedirectUrl(
-        redirectUri: String,
-        code: String,
-        state: String?,
-    ): String =
-        buildString {
-            append(redirectUri)
-            append(if (redirectUri.contains('?')) '&' else '?')
-            append("code=").append(code)
-            state?.let { append("&state=").append(it) }
-        }
 }
