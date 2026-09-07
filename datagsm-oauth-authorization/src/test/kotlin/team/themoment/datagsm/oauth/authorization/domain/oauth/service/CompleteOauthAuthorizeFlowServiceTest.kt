@@ -40,6 +40,7 @@ import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueAuth
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl.CompleteOauthAuthorizeFlowServiceImpl
 import team.themoment.datagsm.oauth.authorization.global.security.service.OAuthClientRateLimitService
 import team.themoment.sdk.exception.ExpectedException
+import java.security.MessageDigest
 import java.util.Optional
 
 class CompleteOauthAuthorizeFlowServiceTest :
@@ -154,6 +155,31 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         val redirectUrl = response.headers.location?.toString() ?: ""
                         redirectUrl shouldStartWith "$testIssuerUrl/v1/oauth/authorize/session"
                         redirectUrl shouldContain "ticket="
+                        redirectUrl shouldContain "verifier="
+                    }
+
+                    it("verifier는 평문이 아닌 해시로만 저장되어야 한다") {
+                        val response = completeOauthAuthorizeFlowService.execute(reqDto)
+
+                        val redirectUrl = response.headers.location?.toString() ?: ""
+                        val verifier =
+                            redirectUrl
+                                .substringAfter("verifier=")
+                                .substringBefore("&")
+
+                        verifier.isNotBlank() shouldBe true
+                        handoffSlot.captured.verifierHash shouldNotBe verifier
+                        handoffSlot.captured.verifierHash shouldBe sha256Hex(verifier)
+                    }
+
+                    it("티켓과 verifier는 서로 다른 값이어야 한다") {
+                        val response = completeOauthAuthorizeFlowService.execute(reqDto)
+
+                        val redirectUrl = response.headers.location?.toString() ?: ""
+                        val ticket = redirectUrl.substringAfter("ticket=").substringBefore("&")
+                        val verifier = redirectUrl.substringAfter("verifier=").substringBefore("&")
+
+                        ticket shouldNotBe verifier
                     }
 
                     it("Authorization Code 발급이 위임되어야 한다") {
@@ -180,6 +206,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
 
                         handoffSlot.captured.sessionId shouldBe sessionSlot.captured.sessionId
                         handoffSlot.captured.redirectUrl shouldBe issuedRedirectUrl
+                        handoffSlot.captured.clientId shouldBe testClientId
                         handoffSlot.captured.ttl shouldBe idpSessionHandoffExpirationSeconds
                     }
 
@@ -520,3 +547,9 @@ class CompleteOauthAuthorizeFlowServiceTest :
             }
         }
     })
+
+private fun sha256Hex(value: String): String =
+    MessageDigest
+        .getInstance("SHA-256")
+        .digest(value.toByteArray(Charsets.UTF_8))
+        .joinToString("") { "%02x".format(it) }

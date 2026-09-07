@@ -74,7 +74,8 @@ class OauthController(
     )
     fun completeIdpSessionHandoff(
         @RequestParam ticket: String,
-    ): ResponseEntity<Void> = completeIdpSessionHandoffService.execute(ticket)
+        @RequestParam verifier: String,
+    ): ResponseEntity<Void> = completeIdpSessionHandoffService.execute(ticket, verifier)
 
     @PostMapping("/authorize")
     @Operation(

@@ -37,6 +37,7 @@ import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueAuth
 import team.themoment.datagsm.oauth.authorization.global.security.service.OAuthClientRateLimitService
 import team.themoment.sdk.exception.ExpectedException
 import java.net.URI
+import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Base64
 import java.util.UUID
@@ -118,7 +119,7 @@ class CompleteOauthAuthorizeFlowServiceImpl(
 
         account.id?.let { recordConsent(it, clientId, scopes) }
 
-        val handoffUrl = createSessionHandoff(account.email, redirectUrl)
+        val handoffUrl = createSessionHandoff(account.email, clientId, redirectUrl)
 
         return ResponseEntity
             .status(HttpStatus.FOUND)
@@ -128,8 +129,10 @@ class CompleteOauthAuthorizeFlowServiceImpl(
 
     // BFF가 서버-투-서버로 호출하므로 이 응답에는 브라우저 쿠키를 심을 수 없다.
     // 세션을 만들어두고, 브라우저가 최상위 이동으로 경유할 일회용 티켓 URL을 돌려준다.
+    // ticket은 로그·Referer에 남을 수 있으므로 verifier를 함께 발급하고 해시만 저장한다.
     private fun createSessionHandoff(
         email: String,
+        clientId: String,
         redirectUrl: String,
     ): String {
         val sessionId = UUID.randomUUID().toString()
@@ -142,10 +145,13 @@ class CompleteOauthAuthorizeFlowServiceImpl(
         )
 
         val ticket = generateOpaqueToken()
+        val verifier = generateOpaqueToken()
         idpSessionHandoffRedisRepository.save(
             IdpSessionHandoffRedisEntity(
                 ticket = ticket,
+                verifierHash = sha256Hex(verifier),
                 sessionId = sessionId,
+                clientId = clientId,
                 redirectUrl = redirectUrl,
                 ttl = oauthEnvironment.idpSessionHandoffExpirationSeconds,
             ),
@@ -155,9 +161,16 @@ class CompleteOauthAuthorizeFlowServiceImpl(
             .fromUriString(oauthEnvironment.issuerUrl)
             .path("/v1/oauth/authorize/session")
             .queryParam("ticket", ticket)
+            .queryParam("verifier", verifier)
             .build()
             .toUriString()
     }
+
+    private fun sha256Hex(value: String): String =
+        MessageDigest
+            .getInstance("SHA-256")
+            .digest(value.toByteArray(Charsets.UTF_8))
+            .joinToString("") { "%02x".format(it) }
 
     private fun recordConsent(
         accountId: Long,
