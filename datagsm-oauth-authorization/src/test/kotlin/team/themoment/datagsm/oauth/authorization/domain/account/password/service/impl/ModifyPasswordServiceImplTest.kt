@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.common.domain.account.dto.request.ChangePasswordReqDto
@@ -12,7 +13,9 @@ import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.PasswordResetCodeRedisEntity
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.account.repository.PasswordResetCodeRedisRepository
+import team.themoment.datagsm.common.domain.oauth.entity.IdpSessionRedisEntity
 import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisEntity
+import team.themoment.datagsm.common.domain.oauth.repository.IdpSessionRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
 import team.themoment.datagsm.oauth.authorization.domain.account.service.impl.ModifyPasswordServiceImpl
 import team.themoment.sdk.exception.ExpectedException
@@ -24,6 +27,7 @@ class ModifyPasswordServiceImplTest :
         val accountJpaRepository = mockk<AccountJpaRepository>()
         val passwordEncoder = mockk<PasswordEncoder>()
         val oauthRefreshTokenRedisRepository = mockk<OauthRefreshTokenRedisRepository>(relaxed = true)
+        val idpSessionRedisRepository = mockk<IdpSessionRedisRepository>(relaxed = true)
 
         val service =
             ModifyPasswordServiceImpl(
@@ -31,6 +35,7 @@ class ModifyPasswordServiceImplTest :
                 accountJpaRepository,
                 passwordEncoder,
                 oauthRefreshTokenRedisRepository,
+                idpSessionRedisRepository,
             )
 
         Given("verified가 false일 때") {
@@ -193,6 +198,12 @@ class ModifyPasswordServiceImplTest :
             every { accountJpaRepository.save(any()) } returns account
             every { oauthRefreshTokenRedisRepository.findAllByEmail(email) } returns listOf(token1, token2)
             every { oauthRefreshTokenRedisRepository.deleteAll(any<Iterable<OauthRefreshTokenRedisEntity>>()) } returns Unit
+            every { idpSessionRedisRepository.findAllByEmail(email) } returns
+                listOf(
+                    IdpSessionRedisEntity("session-1", email, 28800),
+                    IdpSessionRedisEntity("session-2", email, 28800),
+                )
+            every { idpSessionRedisRepository.deleteAll(any<Iterable<IdpSessionRedisEntity>>()) } returns Unit
 
             When("새 비밀번호로 변경하면") {
                 service.execute(reqDto)
@@ -204,6 +215,12 @@ class ModifyPasswordServiceImplTest :
                     verify(exactly = 1) { oauthRefreshTokenRedisRepository.deleteAll(any<Iterable<OauthRefreshTokenRedisEntity>>()) }
                     verify(exactly = 1) { passwordEncoder.encode(newPassword) }
                     verify(exactly = 1) { passwordEncoder.matches(newPassword, "hashedOldPassword") }
+                }
+
+                Then("탈취된 쿠키로 인가가 이어지지 않도록 IdP 세션이 전부 삭제된다") {
+                    val deletedSlot = slot<Iterable<IdpSessionRedisEntity>>()
+                    verify(exactly = 1) { idpSessionRedisRepository.deleteAll(capture(deletedSlot)) }
+                    deletedSlot.captured.map { it.sessionId } shouldBe listOf("session-1", "session-2")
                 }
             }
         }
