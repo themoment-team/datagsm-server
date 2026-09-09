@@ -1,19 +1,30 @@
 package team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl
 
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.util.UriComponentsBuilder
+import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountStatus
+import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeReqDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthAuthorizeStateRedisEntity
 import team.themoment.datagsm.common.domain.oauth.entity.constant.PkceChallengeMethod
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
+import team.themoment.datagsm.common.domain.oauth.repository.IdpSessionRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
+import team.themoment.datagsm.common.domain.oauth.repository.OauthConsentJpaRepository
+import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRequestJpaRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueAuthorizationCodeService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.StartOauthAuthorizeFlowService
 import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
+import java.net.URI
 import java.util.UUID
 
 @Service
@@ -22,8 +33,17 @@ class StartOauthAuthorizeFlowServiceImpl(
     private val oauthEnvironment: OauthEnvironment,
     private val oauthAuthorizeStateRedisRepository: OauthAuthorizeStateRedisRepository,
     private val jwtEnvironment: OauthJwtProvisionEnvironment,
+    private val idpSessionRedisRepository: IdpSessionRedisRepository,
+    private val accountJpaRepository: AccountJpaRepository,
+    private val studentDataEditRequestJpaRepository: StudentDataEditRequestJpaRepository,
+    private val oauthConsentJpaRepository: OauthConsentJpaRepository,
+    private val issueAuthorizationCodeService: IssueAuthorizationCodeService,
 ) : StartOauthAuthorizeFlowService {
-    override fun execute(reqDto: OauthAuthorizeReqDto): ResponseEntity<Void> {
+    @Transactional(readOnly = true)
+    override fun execute(
+        reqDto: OauthAuthorizeReqDto,
+        sessionId: String?,
+    ): ResponseEntity<Void> {
         val clientId = reqDto.client_id ?: throw OAuthException.InvalidRequest("client_id는 필수입니다.")
         val redirectUri = reqDto.redirect_uri ?: throw OAuthException.InvalidRequest("redirect_uri는 필수입니다.")
         val responseType = reqDto.response_type
@@ -56,6 +76,24 @@ class StartOauthAuthorizeFlowServiceImpl(
                 ?.toSet()
         val resolvedScopes = resolveScopes(requestedScopes, client.scopes)
 
+        val ssoAccount = resolveSsoAccount(sessionId, clientId, resolvedScopes)
+        if (ssoAccount != null) {
+            val redirectUrl =
+                issueAuthorizationCodeService.execute(
+                    email = ssoAccount.email,
+                    clientId = clientId,
+                    redirectUri = redirectUri,
+                    state = state,
+                    codeChallenge = codeChallenge,
+                    codeChallengeMethod = codeChallengeMethod,
+                    scopes = resolvedScopes,
+                )
+            return ResponseEntity
+                .status(HttpStatus.FOUND)
+                .location(URI.create(redirectUrl))
+                .build()
+        }
+
         val token = UUID.randomUUID().toString()
 
         val stateEntity =
@@ -84,6 +122,37 @@ class StartOauthAuthorizeFlowServiceImpl(
             .status(HttpStatus.FOUND)
             .location(location)
             .build()
+    }
+
+    // SSO 세션으로 로그인을 생략할 수 있는지 판단한다.
+    // 어느 조건이든 충족하지 못하면 null을 반환해 기존 로그인 플로우로 폴백시킨다.
+    private fun resolveSsoAccount(
+        sessionId: String?,
+        clientId: String,
+        resolvedScopes: Set<String>,
+    ): AccountJpaEntity? {
+        if (sessionId.isNullOrBlank()) return null
+
+        val session = idpSessionRedisRepository.findByIdOrNull(sessionId) ?: return null
+        val account = accountJpaRepository.findByEmail(session.email).orElse(null) ?: return null
+        val accountId = account.id ?: return null
+
+        if (account.status != AccountStatus.ACTIVE) return null
+
+        val studentId = account.objectId
+        if (account.objectType == AccountObjectType.STUDENT && studentId != null) {
+            val hasPendingEditRequest = studentDataEditRequestJpaRepository.findByStudentId(studentId).isPresent
+            if (hasPendingEditRequest) return null
+        }
+
+        val consent =
+            oauthConsentJpaRepository
+                .findByAccountIdAndClientId(accountId, clientId)
+                .orElse(null) ?: return null
+
+        if (!consent.grantedScopes.containsAll(resolvedScopes)) return null
+
+        return account
     }
 
     private fun resolveScopes(

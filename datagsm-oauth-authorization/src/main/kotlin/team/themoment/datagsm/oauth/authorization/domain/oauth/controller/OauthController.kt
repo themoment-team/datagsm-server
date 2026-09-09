@@ -7,12 +7,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.oauth.dto.request.Oauth2TokenReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeReqDto
@@ -22,6 +25,7 @@ import team.themoment.datagsm.common.domain.oauth.dto.response.Oauth2TokenResDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.OauthSessionResDto
 import team.themoment.datagsm.common.domain.student.dto.request.QueryStudentDataEditRequestReqDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentDataEditRequestResDto
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteIdpSessionHandoffService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthAuthorizeFlowService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.Oauth2TokenService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryJwkSetService
@@ -36,6 +40,7 @@ class OauthController(
     val oauth2TokenService: Oauth2TokenService,
     val startOauthAuthorizeFlowService: StartOauthAuthorizeFlowService,
     val completeOauthAuthorizeFlowService: CompleteOauthAuthorizeFlowService,
+    val completeIdpSessionHandoffService: CompleteIdpSessionHandoffService,
     val queryOauthSessionService: QueryOauthSessionService,
     val queryJwkSetService: QueryJwkSetService,
     val queryStudentDataEditRequestService: QueryStudentDataEditRequestService,
@@ -54,7 +59,26 @@ class OauthController(
     )
     fun authorizeGet(
         @Valid @ModelAttribute queryReq: OauthAuthorizeReqDto,
-    ): ResponseEntity<Void> = startOauthAuthorizeFlowService.execute(queryReq)
+        @CookieValue(name = "\${spring.security.oauth.idp-session-cookie-name}", required = false) sessionId: String?,
+    ): ResponseEntity<Void> = startOauthAuthorizeFlowService.execute(queryReq, sessionId)
+
+    @GetMapping("/authorize/session")
+    @Operation(
+        summary = "IdP 세션 확립",
+        description = "로그인 직후 발급된 일회용 티켓으로 SSO 세션 쿠키를 설정하고 클라이언트로 리다이렉트합니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "302", description = "세션 쿠키 설정 후 외부 서비스로 리다이렉트"),
+            ApiResponse(responseCode = "400", description = "유효하지 않거나 만료된 티켓", content = [Content()]),
+        ],
+    )
+    fun completeIdpSessionHandoff(
+        @RequestParam ticket: String,
+        @RequestParam(required = false) verifier: String?,
+        @RequestHeader(name = "Sec-Fetch-Site", required = false) secFetchSite: String?,
+        @RequestHeader(name = "Sec-Fetch-Mode", required = false) secFetchMode: String?,
+    ): ResponseEntity<Void> = completeIdpSessionHandoffService.execute(ticket, verifier, secFetchSite, secFetchMode)
 
     @PostMapping("/authorize")
     @Operation(
