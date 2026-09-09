@@ -115,6 +115,7 @@ class CompleteOauthAuthorizeFlowServiceImpl(
                 codeChallenge = codeChallenge,
                 codeChallengeMethod = codeChallengeMethod,
                 scopes = scopes,
+                nonce = stateEntity.nonce,
             )
 
         oauthAuthorizeStateRedisRepository.deleteById(reqDto.token)

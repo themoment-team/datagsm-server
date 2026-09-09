@@ -62,6 +62,7 @@ class CompleteOauthConsentServiceImpl(
                 codeChallenge = stateEntity.codeChallenge,
                 codeChallengeMethod = stateEntity.codeChallengeMethod,
                 scopes = stateEntity.scopes,
+                nonce = stateEntity.nonce,
             )
 
         oauthAuthorizeStateRedisRepository.deleteById(reqDto.token)

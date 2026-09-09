@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
@@ -284,6 +285,97 @@ class Oauth2TokenServiceImplTest :
                             }
                         exception.error shouldBe "invalid_grant"
                         exception.errorDescription shouldBe "PKCE 검증에 실패했습니다."
+                    }
+                }
+
+                context("openid scope로 토큰을 요청할 때") {
+                    val openidReqDto =
+                        Oauth2TokenReqDto(
+                            grantType = "authorization_code",
+                            code = "openid-code",
+                            clientId = "test-client",
+                            clientSecret = "test-secret",
+                            redirectUri = "https://example.com/callback",
+                        )
+
+                    val openidCode =
+                        OauthCodeRedisEntity(
+                            email = "test@gsm.hs.kr",
+                            clientId = "test-client",
+                            redirectUri = "https://example.com/callback",
+                            codeChallenge = null,
+                            codeChallengeMethod = null,
+                            scopes = setOf("openid", "self:read"),
+                            nonce = "n-0S6_WzA2Mj",
+                            code = "openid-code",
+                            ttl = 300,
+                        )
+
+                    val openidClient =
+                        ClientJpaEntity().apply {
+                            id = "test-client"
+                            secret = "hashed-secret"
+                            redirectUrls = setOf("https://example.com/callback")
+                            scopes.add("self:read")
+                        }
+
+                    val openidAccount =
+                        AccountJpaEntity().apply {
+                            id = 42L
+                            email = "test@gsm.hs.kr"
+                            role = AccountRole.USER
+                        }
+
+                    beforeEach {
+                        every { mockOauthCodeRedisRepository.findById("openid-code") } returns Optional.of(openidCode)
+                        every { mockClientJpaRepository.findById("test-client") } returns Optional.of(openidClient)
+                        every { mockPasswordEncoder.matches("test-secret", "hashed-secret") } returns true
+                        every { mockAccountJpaRepository.findByEmail("test@gsm.hs.kr") } returns Optional.of(openidAccount)
+                        every { mockJwtProvider.generateOauthAccessToken(any(), any(), any(), any()) } returns "access-token"
+                        every { mockJwtProvider.generateOauthRefreshToken(any(), any()) } returns "refresh-token"
+                        every { mockJwtProvider.generateIdToken(any(), any(), any(), any()) } returns "id-token"
+                        every { mockJwtEnvironment.accessTokenExpiration } returns 3600000L
+                        every { mockJwtEnvironment.refreshTokenExpiration } returns 2592000000L
+                        every { mockOauthRefreshTokenRedisRepository.deleteByEmailAndClientId(any(), any()) } returns Unit
+                        every { mockOauthRefreshTokenRedisRepository.save(any()) } answers { firstArg() }
+                        every { mockOauthCodeRedisRepository.delete(any()) } returns Unit
+                        every { mockOAuthScopeJpaRepository.findAllByApplicationIdIn(setOf("self")) } returns listOf(mockScopeEntity)
+                    }
+
+                    it("id_token이 함께 발급된다") {
+                        val result = service.execute(openidReqDto)
+
+                        result.idToken shouldBe "id-token"
+                    }
+
+                    // sub는 email이 아닌 account.id여야 한다. email은 변경될 수 있어
+                    // 바뀌는 순간 SP가 같은 사람을 다른 사용자로 인식한다.
+                    it("sub에 account.id가, nonce에 요청값이 전달되어야 한다") {
+                        val accountIdSlot = slot<Long>()
+                        val nonceSlot = slot<String>()
+                        every {
+                            mockJwtProvider.generateIdToken(capture(accountIdSlot), any(), any(), capture(nonceSlot))
+                        } returns "id-token"
+
+                        service.execute(openidReqDto)
+
+                        accountIdSlot.captured shouldBe 42L
+                        nonceSlot.captured shouldBe "n-0S6_WzA2Mj"
+                    }
+
+                    // openid는 tb_oauth_scope에 없는 프로토콜 지시자다.
+                    // DB 조회 대상에 섞이면 "권한 데이터가 잘못되었습니다" 500이 난다.
+                    it("openid를 권한 scope로 조회하지 않아야 한다") {
+                        val result = service.execute(openidReqDto)
+
+                        result.accessToken shouldBe "access-token"
+                        verify(exactly = 0) { mockOAuthScopeJpaRepository.findAllByApplicationIdIn(setOf("openid")) }
+                    }
+
+                    it("응답 scope에 openid가 그대로 포함되어야 한다") {
+                        val result = service.execute(openidReqDto)
+
+                        result.scope.split(" ").contains("openid") shouldBe true
                     }
                 }
 

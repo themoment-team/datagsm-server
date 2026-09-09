@@ -58,6 +58,7 @@ spring:
       frontend-url: ${OAUTH_FRONTEND_URL:http://localhost:3000}
       authorize-state-expiration-ms: ${OAUTH_AUTHORIZE_STATE_EXPIRATION_MS:600000}
       issuer-url: ${OAUTH_ISSUER_URL:http://localhost:8081}
+      userinfo-url: ${OAUTH_USERINFO_URL:http://localhost:8082/userinfo}
       idp-session-expiration-seconds: ${OAUTH_IDP_SESSION_EXPIRATION_SECONDS:28800}
       idp-session-handoff-expiration-seconds: ${OAUTH_IDP_SESSION_HANDOFF_EXPIRATION_SECONDS:60}
       idp-session-cookie-name: ${OAUTH_IDP_SESSION_COOKIE_NAME:datagsm_idp_session}
@@ -119,6 +120,7 @@ sdk:
       - "/v1/oauth/authorize/consent"
       - "/v1/oauth/token"
       - "/v1/oauth/jwks"
+      - "/.well-known/openid-configuration"
   swagger:
     enabled: true
     title: "DataGSM Authorization Server API"
