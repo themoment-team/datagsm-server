@@ -63,6 +63,7 @@ spring:
       idp-session-cookie-name: ${OAUTH_IDP_SESSION_COOKIE_NAME:datagsm_idp_session}
       idp-session-cookie-domain: ${OAUTH_IDP_SESSION_COOKIE_DOMAIN:}
       idp-session-cookie-secure: ${OAUTH_IDP_SESSION_COOKIE_SECURE:true}
+      idp-session-handoff-require-fetch-metadata: ${OAUTH_IDP_SESSION_HANDOFF_REQUIRE_FETCH_METADATA:false}
     oauth-client:
       rate-limit:
         enabled: true

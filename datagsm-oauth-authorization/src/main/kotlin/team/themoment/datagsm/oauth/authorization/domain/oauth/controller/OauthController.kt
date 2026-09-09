@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -75,7 +76,9 @@ class OauthController(
     fun completeIdpSessionHandoff(
         @RequestParam ticket: String,
         @RequestParam verifier: String,
-    ): ResponseEntity<Void> = completeIdpSessionHandoffService.execute(ticket, verifier)
+        @RequestHeader(name = "Sec-Fetch-Site", required = false) secFetchSite: String?,
+        @RequestHeader(name = "Sec-Fetch-Mode", required = false) secFetchMode: String?,
+    ): ResponseEntity<Void> = completeIdpSessionHandoffService.execute(ticket, verifier, secFetchSite, secFetchMode)
 
     @PostMapping("/authorize")
     @Operation(

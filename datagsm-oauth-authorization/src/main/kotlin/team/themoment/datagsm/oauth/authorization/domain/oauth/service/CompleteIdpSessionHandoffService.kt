@@ -6,5 +6,7 @@ interface CompleteIdpSessionHandoffService {
     fun execute(
         ticket: String,
         verifier: String,
+        secFetchSite: String?,
+        secFetchMode: String?,
     ): ResponseEntity<Void>
 }

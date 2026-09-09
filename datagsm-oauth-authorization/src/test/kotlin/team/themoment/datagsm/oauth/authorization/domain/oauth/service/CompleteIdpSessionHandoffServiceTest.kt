@@ -71,6 +71,7 @@ class CompleteIdpSessionHandoffServiceTest :
                     every { mockOauthEnvironment.idpSessionExpirationSeconds } returns sessionTtl
                     every { mockOauthEnvironment.idpSessionCookieSecure } returns true
                     every { mockOauthEnvironment.idpSessionCookieDomain } returns ".datagsm.kr"
+                    every { mockOauthEnvironment.idpSessionHandoffRequireFetchMetadata } returns false
                     every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(testClient)
                 }
 
@@ -80,7 +81,7 @@ class CompleteIdpSessionHandoffServiceTest :
                     }
 
                     it("세션 쿠키를 설정하고 원래 목적지로 302 리다이렉트되어야 한다") {
-                        val response = completeIdpSessionHandoffService.execute(testTicket, testVerifier)
+                        val response = completeIdpSessionHandoffService.execute(testTicket, testVerifier, "same-site", "navigate")
 
                         response.statusCode shouldBe HttpStatus.FOUND
                         response.headers.location?.toString() shouldBe testRedirectUrl
@@ -95,7 +96,7 @@ class CompleteIdpSessionHandoffServiceTest :
                     }
 
                     it("티켓은 일회용이므로 사용 즉시 삭제되어야 한다") {
-                        completeIdpSessionHandoffService.execute(testTicket, testVerifier)
+                        completeIdpSessionHandoffService.execute(testTicket, testVerifier, "same-site", "navigate")
 
                         verify(exactly = 1) { mockIdpSessionHandoffRedisRepository.deleteById(testTicket) }
                     }
@@ -109,18 +110,71 @@ class CompleteIdpSessionHandoffServiceTest :
                     it("세션을 발급하지 않고 InvalidRequest 예외가 발생해야 한다") {
                         val exception =
                             shouldThrow<OAuthException.InvalidRequest> {
-                                completeIdpSessionHandoffService.execute(testTicket, "wrong-verifier")
+                                completeIdpSessionHandoffService.execute(testTicket, "wrong-verifier", "same-site", "navigate")
                             }
 
                         exception.error shouldBe "invalid_request"
                     }
 
-                    it("무차별 대입을 막기 위해 티켓이 폐기되어야 한다") {
+                    it("티켓을 삭제하지 않아 정상 사용자의 로그인이 무효화되지 않아야 한다") {
                         shouldThrow<OAuthException.InvalidRequest> {
-                            completeIdpSessionHandoffService.execute(testTicket, "wrong-verifier")
+                            completeIdpSessionHandoffService.execute(testTicket, "wrong-verifier", "same-site", "navigate")
                         }
 
-                        verify(exactly = 1) { mockIdpSessionHandoffRedisRepository.deleteById(testTicket) }
+                        // ticket만 아는 공격자가 요청 한 번으로 피해자 로그인을 깨뜨리는 것을 막는다.
+                        verify(exactly = 0) { mockIdpSessionHandoffRedisRepository.deleteById(any()) }
+                    }
+                }
+
+                context("최상위 내비게이션이 아닌 요청일 때") {
+                    beforeEach {
+                        every { mockIdpSessionHandoffRedisRepository.findById(testTicket) } returns Optional.of(handoff)
+                    }
+
+                    it("cross-site 요청은 거부되어야 한다") {
+                        shouldThrow<OAuthException.InvalidRequest> {
+                            completeIdpSessionHandoffService.execute(testTicket, testVerifier, "cross-site", "navigate")
+                        }
+
+                        verify(exactly = 0) { mockIdpSessionHandoffRedisRepository.deleteById(any()) }
+                    }
+
+                    it("navigate가 아닌 mode는 거부되어야 한다") {
+                        shouldThrow<OAuthException.InvalidRequest> {
+                            completeIdpSessionHandoffService.execute(testTicket, testVerifier, "same-site", "no-cors")
+                        }
+                    }
+
+                    it("URL을 나중에 입수해 이미지로 불러오는 시도는 거부되어야 한다") {
+                        shouldThrow<OAuthException.InvalidRequest> {
+                            completeIdpSessionHandoffService.execute(testTicket, testVerifier, "cross-site", "no-cors")
+                        }
+                    }
+
+                    it("주소창 직접 입력(none)은 정상 흐름이므로 허용되어야 한다") {
+                        val response = completeIdpSessionHandoffService.execute(testTicket, testVerifier, "none", "navigate")
+
+                        response.statusCode shouldBe HttpStatus.FOUND
+                    }
+                }
+
+                context("Sec-Fetch 헤더를 보내지 않는 브라우저일 때") {
+                    beforeEach {
+                        every { mockIdpSessionHandoffRedisRepository.findById(testTicket) } returns Optional.of(handoff)
+                    }
+
+                    it("기본 설정에서는 정상 로그인을 막지 않아야 한다") {
+                        val response = completeIdpSessionHandoffService.execute(testTicket, testVerifier, null, null)
+
+                        response.statusCode shouldBe HttpStatus.FOUND
+                    }
+
+                    it("엄격 모드에서는 거부되어야 한다") {
+                        every { mockOauthEnvironment.idpSessionHandoffRequireFetchMetadata } returns true
+
+                        shouldThrow<OAuthException.InvalidRequest> {
+                            completeIdpSessionHandoffService.execute(testTicket, testVerifier, null, null)
+                        }
                     }
                 }
 
@@ -138,7 +192,7 @@ class CompleteIdpSessionHandoffServiceTest :
 
                     it("오픈 리다이렉트를 막기 위해 예외가 발생해야 한다") {
                         shouldThrow<OAuthException.InvalidRequest> {
-                            completeIdpSessionHandoffService.execute(testTicket, testVerifier)
+                            completeIdpSessionHandoffService.execute(testTicket, testVerifier, "same-site", "navigate")
                         }
                     }
                 }
@@ -169,7 +223,7 @@ class CompleteIdpSessionHandoffServiceTest :
 
                     it("접두사 일치만으로는 통과시키지 않아야 한다") {
                         shouldThrow<OAuthException.InvalidRequest> {
-                            completeIdpSessionHandoffService.execute(testTicket, testVerifier)
+                            completeIdpSessionHandoffService.execute(testTicket, testVerifier, "same-site", "navigate")
                         }
                     }
                 }
@@ -181,7 +235,7 @@ class CompleteIdpSessionHandoffServiceTest :
                     }
 
                     it("Domain 속성 없이 호스트 전용 쿠키가 설정되어야 한다") {
-                        val response = completeIdpSessionHandoffService.execute(testTicket, testVerifier)
+                        val response = completeIdpSessionHandoffService.execute(testTicket, testVerifier, "same-site", "navigate")
 
                         val setCookie = response.headers.getFirst(HttpHeaders.SET_COOKIE) ?: ""
                         setCookie shouldContain "$cookieName=$testSessionId"
@@ -197,7 +251,7 @@ class CompleteIdpSessionHandoffServiceTest :
                     it("InvalidRequest 예외가 발생하고 티켓이 삭제되지 않아야 한다") {
                         val exception =
                             shouldThrow<OAuthException.InvalidRequest> {
-                                completeIdpSessionHandoffService.execute("expired-ticket", testVerifier)
+                                completeIdpSessionHandoffService.execute("expired-ticket", testVerifier, "same-site", "navigate")
                             }
 
                         exception.error shouldBe "invalid_request"
