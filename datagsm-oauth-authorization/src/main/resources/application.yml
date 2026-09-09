@@ -116,6 +116,7 @@ sdk:
       - "/swagger-ui/**"
       - "/actuator/**"
       - "/v1/oauth/authorize"
+      - "/v1/oauth/authorize/consent"
       - "/v1/oauth/token"
       - "/v1/oauth/jwks"
   swagger:
