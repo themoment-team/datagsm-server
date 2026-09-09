@@ -28,6 +28,9 @@ class CompleteIdpSessionHandoffServiceImpl(
         private const val SEC_FETCH_MODE_NAVIGATE = "navigate"
         private val ALLOWED_SEC_FETCH_SITES = setOf("same-origin", "same-site", "none")
         private const val INVALID_TICKET_MESSAGE = "인증 티켓이 유효하지 않거나 만료되었습니다. 다시 시도해주세요."
+
+        // User-Agent는 클라이언트가 임의로 채우는 값이라 길이를 제한한다.
+        private const val MAX_USER_AGENT_LENGTH = 255
     }
 
     @Transactional(readOnly = true)
@@ -36,6 +39,7 @@ class CompleteIdpSessionHandoffServiceImpl(
         verifier: String?,
         secFetchSite: String?,
         secFetchMode: String?,
+        userAgent: String?,
     ): ResponseEntity<Void> {
         verifyTopLevelNavigation(secFetchSite, secFetchMode)
 
@@ -59,6 +63,8 @@ class CompleteIdpSessionHandoffServiceImpl(
 
         idpSessionHandoffRedisRepository.deleteById(ticket)
 
+        recordUserAgent(handoff.sessionId, userAgent)
+
         return ResponseEntity
             .status(HttpStatus.FOUND)
             .header(
@@ -66,6 +72,19 @@ class CompleteIdpSessionHandoffServiceImpl(
                 IdpSessionCookieFactory.issued(oauthEnvironment, handoff.sessionId).toString(),
             ).location(URI.create(handoff.redirectUrl))
             .build()
+    }
+
+    // 세션을 만든 POST는 BFF의 서버-투-서버 호출이라 User-Agent가 BFF의 것이다.
+    // 이 GET은 브라우저가 직접 보내므로, 사용자가 기기를 구분할 수 있는 값은 여기서만 얻을 수 있다.
+    // 세션이 이미 만료됐다면 되살리지 않고 넘어간다.
+    private fun recordUserAgent(
+        sessionId: String,
+        userAgent: String?,
+    ) {
+        if (userAgent.isNullOrBlank()) return
+
+        val session = idpSessionRedisRepository.findByIdOrNull(sessionId) ?: return
+        idpSessionRedisRepository.save(session.copy(userAgent = userAgent.take(MAX_USER_AGENT_LENGTH)))
     }
 
     // 핸드오프 URL은 로그·Referer·브라우저 히스토리에 남기 때문에, 나중에 그 URL을 입수한

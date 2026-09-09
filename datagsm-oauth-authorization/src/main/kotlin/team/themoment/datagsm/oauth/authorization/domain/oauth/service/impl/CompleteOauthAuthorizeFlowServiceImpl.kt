@@ -144,6 +144,9 @@ class CompleteOauthAuthorizeFlowServiceImpl(
             IdpSessionRedisEntity(
                 sessionId = sessionId,
                 email = email,
+                // userAgent는 여기서 채우지 않는다. 이 요청은 BFF의 서버-투-서버 호출이라
+                // User-Agent가 BFF의 것이다. 브라우저가 직접 오는 핸드오프 시점에 기록한다.
+                createdAt = System.currentTimeMillis(),
                 ttl = oauthEnvironment.idpSessionExpirationSeconds,
             ),
         )
