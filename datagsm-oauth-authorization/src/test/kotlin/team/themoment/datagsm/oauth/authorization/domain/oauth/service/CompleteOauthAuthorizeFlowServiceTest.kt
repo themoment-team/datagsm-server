@@ -12,6 +12,7 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
@@ -143,7 +144,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         every { mockIdpSessionRedisRepository.save(capture(sessionSlot)) } answers { firstArg() }
                         every { mockIdpSessionHandoffRedisRepository.save(capture(handoffSlot)) } answers { firstArg() }
                         every { mockOauthConsentJpaRepository.findByAccountIdAndClientId(any(), any()) } returns Optional.empty()
-                        every { mockOauthConsentJpaRepository.save(any<OauthConsentJpaEntity>()) } answers { firstArg() }
+                        every { mockOauthConsentJpaRepository.saveAndFlush(any<OauthConsentJpaEntity>()) } answers { firstArg() }
                     }
 
                     it("세션 핸드오프 URL로 302 리다이렉트되어야 한다") {
@@ -210,9 +211,23 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         handoffSlot.captured.ttl shouldBe idpSessionHandoffExpirationSeconds
                     }
 
+                    it("동의 기록이 유니크 제약에 걸려도 재조회로 복구되어야 한다") {
+                        val existing = OauthConsentJpaEntity.create(1L, testClientId, setOf("other:scope"))
+                        every { mockOauthConsentJpaRepository.findByAccountIdAndClientId(any(), any()) } returnsMany
+                            listOf(Optional.empty(), Optional.of(existing))
+                        every { mockOauthConsentJpaRepository.saveAndFlush(any<OauthConsentJpaEntity>()) } throws
+                            DataIntegrityViolationException("duplicate") andThen existing
+
+                        val response = completeOauthAuthorizeFlowService.execute(reqDto)
+
+                        // 동시 로그인으로 제약 위반이 나도 사용자에게 500이 나가지 않아야 한다.
+                        response.statusCode shouldBe HttpStatus.FOUND
+                        existing.grantedScopes shouldBe mutableSetOf("other:scope", "self:read")
+                    }
+
                     it("요청한 scope가 동의 기록으로 저장되어야 한다") {
                         val consentSlot = slot<OauthConsentJpaEntity>()
-                        every { mockOauthConsentJpaRepository.save(capture(consentSlot)) } answers { firstArg() }
+                        every { mockOauthConsentJpaRepository.saveAndFlush(capture(consentSlot)) } answers { firstArg() }
 
                         completeOauthAuthorizeFlowService.execute(reqDto)
 
@@ -526,7 +541,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                             mockIssueAuthorizationCodeService.execute(any(), any(), any(), any(), any(), any(), any())
                         } returns "$testRedirectUri?code=test-code&state=random-state"
                         every { mockOauthConsentJpaRepository.findByAccountIdAndClientId(any(), any()) } returns Optional.empty()
-                        every { mockOauthConsentJpaRepository.save(any<OauthConsentJpaEntity>()) } answers { firstArg() }
+                        every { mockOauthConsentJpaRepository.saveAndFlush(any<OauthConsentJpaEntity>()) } answers { firstArg() }
                         every { mockIdpSessionRedisRepository.save(any<IdpSessionRedisEntity>()) } answers { firstArg() }
                         every {
                             mockIdpSessionHandoffRedisRepository.save(any<IdpSessionHandoffRedisEntity>())

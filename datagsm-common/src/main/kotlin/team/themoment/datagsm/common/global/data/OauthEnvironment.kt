@@ -11,7 +11,6 @@ data class OauthEnvironment(
     val idpSessionExpirationSeconds: Long,
     val idpSessionHandoffExpirationSeconds: Long,
     val idpSessionCookieName: String,
-    val idpSessionCookieDomain: String?,
     val idpSessionCookieSecure: Boolean,
     val idpSessionHandoffRequireFetchMetadata: Boolean,
 )

@@ -1,5 +1,6 @@
 package team.themoment.datagsm.oauth.authorization.domain.oauth.service
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -8,21 +9,28 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import io.mockk.verify
+import org.springframework.http.HttpStatus
 import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
+import team.themoment.datagsm.common.global.dto.internal.RateLimitConsumeResult
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl.IssueAuthorizationCodeServiceImpl
+import team.themoment.datagsm.oauth.authorization.global.security.service.OAuthClientRateLimitService
+import team.themoment.sdk.exception.ExpectedException
 import java.net.URI
 
 class IssueAuthorizationCodeServiceTest :
     DescribeSpec({
 
         val mockOauthCodeRedisRepository = mockk<OauthCodeRedisRepository>(relaxed = true)
+        val mockOauthClientRateLimitService = mockk<OAuthClientRateLimitService>()
         val mockOauthEnvironment = mockk<OauthEnvironment>()
 
         val issueAuthorizationCodeService =
             IssueAuthorizationCodeServiceImpl(
                 mockOauthCodeRedisRepository,
+                mockOauthClientRateLimitService,
                 mockOauthEnvironment,
             )
 
@@ -39,6 +47,8 @@ class IssueAuthorizationCodeServiceTest :
                 val testScopes = setOf("datagsm:account_read")
 
                 beforeEach {
+                    every { mockOauthClientRateLimitService.tryConsumeAndReturnRemaining(any()) } returns
+                        RateLimitConsumeResult(consumed = true, remainingTokens = 299, secondsToWaitForRefill = 0)
                     every { mockOauthEnvironment.codeExpirationSeconds } returns 300L
                     every { mockOauthCodeRedisRepository.save(any<OauthCodeRedisEntity>()) } answers { firstArg() }
                 }
@@ -111,6 +121,23 @@ class IssueAuthorizationCodeServiceTest :
                             )
 
                         redirectUrl shouldStartWith "https://example.com/callback?tenant=gsm&code="
+                    }
+                }
+
+                context("클라이언트가 요청 한도를 초과했을 때") {
+                    beforeEach {
+                        every { mockOauthClientRateLimitService.tryConsumeAndReturnRemaining(any()) } returns
+                            RateLimitConsumeResult(consumed = false, remainingTokens = 0, secondsToWaitForRefill = 30)
+                    }
+
+                    it("코드를 발급하지 않고 429가 반환되어야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                issue("random-state")
+                            }
+
+                        exception.statusCode shouldBe HttpStatus.TOO_MANY_REQUESTS
+                        verify(exactly = 0) { mockOauthCodeRedisRepository.save(any<OauthCodeRedisEntity>()) }
                     }
                 }
 

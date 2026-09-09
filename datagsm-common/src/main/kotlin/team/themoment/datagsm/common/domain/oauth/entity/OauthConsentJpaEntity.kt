@@ -8,7 +8,6 @@ import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.Index
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
@@ -25,9 +24,6 @@ import java.time.LocalDateTime
     name = "tb_oauth_consent",
     uniqueConstraints = [
         UniqueConstraint(name = "uk_oauth_consent_account_client", columnNames = ["account_id", "client_id"]),
-    ],
-    indexes = [
-        Index(name = "idx_oauth_consent_account_id", columnList = "account_id"),
     ],
 )
 @Entity

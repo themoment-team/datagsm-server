@@ -1,6 +1,7 @@
 package team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl
 
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -32,12 +33,13 @@ import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRequestJpaRepository
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
+import team.themoment.datagsm.common.global.security.util.OpaqueTokenHashUtil
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthAuthorizeFlowService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueAuthorizationCodeService
 import team.themoment.datagsm.oauth.authorization.global.security.service.OAuthClientRateLimitService
 import team.themoment.sdk.exception.ExpectedException
+import team.themoment.sdk.logging.logger.logger
 import java.net.URI
-import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Base64
 import java.util.UUID
@@ -117,7 +119,8 @@ class CompleteOauthAuthorizeFlowServiceImpl(
 
         oauthAuthorizeStateRedisRepository.deleteById(reqDto.token)
 
-        account.id?.let { recordConsent(it, clientId, scopes) }
+        val accountId = requireNotNull(account.id) { "Persisted account must have an id" }
+        recordConsent(accountId, clientId, scopes)
 
         val handoffUrl = createSessionHandoff(account.email, clientId, redirectUrl)
 
@@ -149,7 +152,7 @@ class CompleteOauthAuthorizeFlowServiceImpl(
         idpSessionHandoffRedisRepository.save(
             IdpSessionHandoffRedisEntity(
                 ticket = ticket,
-                verifierHash = sha256Hex(verifier),
+                verifierHash = OpaqueTokenHashUtil.hash(verifier),
                 sessionId = sessionId,
                 clientId = clientId,
                 redirectUrl = redirectUrl,
@@ -166,13 +169,23 @@ class CompleteOauthAuthorizeFlowServiceImpl(
             .toUriString()
     }
 
-    private fun sha256Hex(value: String): String =
-        MessageDigest
-            .getInstance("SHA-256")
-            .digest(value.toByteArray(Charsets.UTF_8))
-            .joinToString("") { "%02x".format(it) }
-
+    // 같은 (account, client)로 첫 로그인이 동시에 들어오면 양쪽 다 insert를 시도해
+    // uk_oauth_consent_account_client 위반이 난다. 이 시점에는 code와 세션이 이미
+    // Redis에 저장돼 롤백되지 않으므로, 제약 위반은 재조회 후 병합으로 흡수한다.
     private fun recordConsent(
+        accountId: Long,
+        clientId: String,
+        scopes: Set<String>,
+    ) {
+        try {
+            saveConsent(accountId, clientId, scopes)
+        } catch (e: DataIntegrityViolationException) {
+            logger().warn("Retrying consent record after unique constraint violation for clientId {}", clientId, e)
+            saveConsent(accountId, clientId, scopes)
+        }
+    }
+
+    private fun saveConsent(
         accountId: Long,
         clientId: String,
         scopes: Set<String>,
@@ -182,7 +195,7 @@ class CompleteOauthAuthorizeFlowServiceImpl(
                 .findByAccountIdAndClientId(accountId, clientId)
                 .orElseGet { OauthConsentJpaEntity.create(accountId, clientId, emptySet()) }
         consent.grantedScopes.addAll(scopes)
-        oauthConsentJpaRepository.save(consent)
+        oauthConsentJpaRepository.saveAndFlush(consent)
     }
 
     private fun resolveStudentDataEditRequestIfNeeded(

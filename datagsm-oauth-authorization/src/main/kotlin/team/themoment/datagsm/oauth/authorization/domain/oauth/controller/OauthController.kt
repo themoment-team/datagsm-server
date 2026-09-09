@@ -75,7 +75,7 @@ class OauthController(
     )
     fun completeIdpSessionHandoff(
         @RequestParam ticket: String,
-        @RequestParam verifier: String,
+        @RequestParam(required = false) verifier: String?,
         @RequestHeader(name = "Sec-Fetch-Site", required = false) secFetchSite: String?,
         @RequestHeader(name = "Sec-Fetch-Mode", required = false) secFetchMode: String?,
     ): ResponseEntity<Void> = completeIdpSessionHandoffService.execute(ticket, verifier, secFetchSite, secFetchMode)

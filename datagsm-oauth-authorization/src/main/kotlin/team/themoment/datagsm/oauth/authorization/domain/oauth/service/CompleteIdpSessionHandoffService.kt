@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity
 interface CompleteIdpSessionHandoffService {
     fun execute(
         ticket: String,
-        verifier: String,
+        verifier: String?,
         secFetchSite: String?,
         secFetchMode: String?,
     ): ResponseEntity<Void>

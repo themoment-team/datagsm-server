@@ -15,6 +15,7 @@ import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepositor
 import team.themoment.datagsm.common.domain.oauth.entity.IdpSessionHandoffRedisEntity
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.IdpSessionHandoffRedisRepository
+import team.themoment.datagsm.common.domain.oauth.repository.IdpSessionRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl.CompleteIdpSessionHandoffServiceImpl
 import java.security.MessageDigest
@@ -24,12 +25,14 @@ class CompleteIdpSessionHandoffServiceTest :
     DescribeSpec({
 
         val mockIdpSessionHandoffRedisRepository = mockk<IdpSessionHandoffRedisRepository>(relaxed = true)
+        val mockIdpSessionRedisRepository = mockk<IdpSessionRedisRepository>(relaxed = true)
         val mockClientJpaRepository = mockk<ClientJpaRepository>()
         val mockOauthEnvironment = mockk<OauthEnvironment>()
 
         val completeIdpSessionHandoffService =
             CompleteIdpSessionHandoffServiceImpl(
                 mockIdpSessionHandoffRedisRepository,
+                mockIdpSessionRedisRepository,
                 mockClientJpaRepository,
                 mockOauthEnvironment,
             )
@@ -70,7 +73,6 @@ class CompleteIdpSessionHandoffServiceTest :
                     every { mockOauthEnvironment.idpSessionCookieName } returns cookieName
                     every { mockOauthEnvironment.idpSessionExpirationSeconds } returns sessionTtl
                     every { mockOauthEnvironment.idpSessionCookieSecure } returns true
-                    every { mockOauthEnvironment.idpSessionCookieDomain } returns ".datagsm.kr"
                     every { mockOauthEnvironment.idpSessionHandoffRequireFetchMetadata } returns false
                     every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(testClient)
                 }
@@ -91,7 +93,7 @@ class CompleteIdpSessionHandoffServiceTest :
                         setCookie shouldContain "HttpOnly"
                         setCookie shouldContain "Secure"
                         setCookie shouldContain "SameSite=Lax"
-                        setCookie shouldContain "Domain=.datagsm.kr"
+                        setCookie.contains("Domain=") shouldBe false
                         setCookie shouldContain "Max-Age=$sessionTtl"
                     }
 
@@ -195,6 +197,16 @@ class CompleteIdpSessionHandoffServiceTest :
                             completeIdpSessionHandoffService.execute(testTicket, testVerifier, "same-site", "navigate")
                         }
                     }
+
+                    it("쓰이지 못할 티켓과 세션이 함께 정리되어야 한다") {
+                        shouldThrow<OAuthException.InvalidRequest> {
+                            completeIdpSessionHandoffService.execute(testTicket, testVerifier, "same-site", "navigate")
+                        }
+
+                        // 검증 실패 시 세션이 남으면 8시간 동안 쓰이지 못한 채 Redis를 차지한다.
+                        verify(exactly = 1) { mockIdpSessionHandoffRedisRepository.deleteById(testTicket) }
+                        verify(exactly = 1) { mockIdpSessionRedisRepository.deleteById(testSessionId) }
+                    }
                 }
 
                 context("등록된 URI의 접두사만 일치하는 위조 도메인일 때") {
@@ -228,18 +240,18 @@ class CompleteIdpSessionHandoffServiceTest :
                     }
                 }
 
-                context("쿠키 도메인이 설정되지 않았을 때") {
+                context("verifier 파라미터가 아예 빠졌을 때") {
                     beforeEach {
-                        every { mockOauthEnvironment.idpSessionCookieDomain } returns null
                         every { mockIdpSessionHandoffRedisRepository.findById(testTicket) } returns Optional.of(handoff)
                     }
 
-                    it("Domain 속성 없이 호스트 전용 쿠키가 설정되어야 한다") {
-                        val response = completeIdpSessionHandoffService.execute(testTicket, testVerifier, "same-site", "navigate")
+                    it("스프링 기본 400이 아닌 InvalidRequest로 처리되어야 한다") {
+                        val exception =
+                            shouldThrow<OAuthException.InvalidRequest> {
+                                completeIdpSessionHandoffService.execute(testTicket, null, "same-site", "navigate")
+                            }
 
-                        val setCookie = response.headers.getFirst(HttpHeaders.SET_COOKIE) ?: ""
-                        setCookie shouldContain "$cookieName=$testSessionId"
-                        setCookie.contains("Domain=") shouldBe false
+                        exception.error shouldBe "invalid_request"
                     }
                 }
 
