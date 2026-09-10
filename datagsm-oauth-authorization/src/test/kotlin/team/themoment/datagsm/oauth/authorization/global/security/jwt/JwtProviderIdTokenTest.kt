@@ -57,7 +57,7 @@ class JwtProviderIdTokenTest :
 
                 context("nonce가 주어졌을 때") {
                     it("replay 방지를 위해 nonce 클레임을 포함해야 한다") {
-                        val token = jwtProvider.generateIdToken(42L, "user@gsm.hs.kr", "client-1", "n-0S6_WzA2Mj")
+                        val token = jwtProvider.generateIdToken("user@gsm.hs.kr", "client-1", "n-0S6_WzA2Mj")
 
                         parse(token)["nonce"] shouldBe "n-0S6_WzA2Mj"
                     }
@@ -65,23 +65,23 @@ class JwtProviderIdTokenTest :
 
                 context("nonce가 없을 때") {
                     it("nonce 클레임을 넣지 않아야 한다") {
-                        val token = jwtProvider.generateIdToken(42L, "user@gsm.hs.kr", "client-1", null)
+                        val token = jwtProvider.generateIdToken("user@gsm.hs.kr", "client-1", null)
 
                         parse(token).containsKey("nonce") shouldBe false
                     }
                 }
 
                 context("표준 클레임을 확인할 때") {
-                    // sub는 email이 아닌 account.id다. email은 변경될 수 있어
-                    // 바뀌는 순간 SP가 같은 사람을 다른 사용자로 인식한다.
-                    it("sub는 account.id여야 한다") {
-                        val token = jwtProvider.generateIdToken(42L, "user@gsm.hs.kr", "client-1", null)
+                    // 이 시스템의 계정 email은 학교 계정에 묶여 변경되지 않으므로
+                    // OIDC가 sub에 요구하는 영구 식별자 조건을 만족한다.
+                    it("sub는 email이어야 한다") {
+                        val token = jwtProvider.generateIdToken("user@gsm.hs.kr", "client-1", null)
 
-                        parse(token).subject shouldBe "42"
+                        parse(token).subject shouldBe "user@gsm.hs.kr"
                     }
 
                     it("iss와 aud가 규격대로 채워져야 한다") {
-                        val token = jwtProvider.generateIdToken(42L, "user@gsm.hs.kr", "client-1", null)
+                        val token = jwtProvider.generateIdToken("user@gsm.hs.kr", "client-1", null)
 
                         val claims = parse(token)
                         claims.issuer shouldBe "https://oauth.authorization.datagsm.kr"
@@ -89,13 +89,13 @@ class JwtProviderIdTokenTest :
                     }
 
                     it("email 클레임이 포함되어야 한다") {
-                        val token = jwtProvider.generateIdToken(42L, "user@gsm.hs.kr", "client-1", null)
+                        val token = jwtProvider.generateIdToken("user@gsm.hs.kr", "client-1", null)
 
                         parse(token)["email"] shouldBe "user@gsm.hs.kr"
                     }
 
                     it("exp와 iat가 설정되어야 한다") {
-                        val token = jwtProvider.generateIdToken(42L, "user@gsm.hs.kr", "client-1", null)
+                        val token = jwtProvider.generateIdToken("user@gsm.hs.kr", "client-1", null)
 
                         val claims = parse(token)
                         (claims.expiration != null) shouldBe true
@@ -104,8 +104,9 @@ class JwtProviderIdTokenTest :
                 }
 
                 context("access token과 비교할 때") {
-                    // access token의 sub는 기존 /userinfo 소비자와의 호환을 위해 email을 유지한다.
-                    it("access token의 sub는 email로 남아 있어야 한다") {
+                    // id_token, access token, /userinfo가 모두 email을 식별자로 쓴다.
+                    // 셋 중 하나만 달라지면 SP가 같은 사용자를 다르게 인식한다.
+                    it("access token의 sub와 같은 값이어야 한다") {
                         val accessToken =
                             jwtProvider.generateOauthAccessToken(
                                 "user@gsm.hs.kr",
@@ -114,7 +115,10 @@ class JwtProviderIdTokenTest :
                                 emptySet(),
                             )
 
+                        val idToken = jwtProvider.generateIdToken("user@gsm.hs.kr", "client-1", null)
+
                         parse(accessToken).subject shouldBe "user@gsm.hs.kr"
+                        parse(idToken).subject shouldBe parse(accessToken).subject
                     }
                 }
             }

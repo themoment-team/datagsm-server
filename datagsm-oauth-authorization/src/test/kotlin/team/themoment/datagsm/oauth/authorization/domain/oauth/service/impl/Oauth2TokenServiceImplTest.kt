@@ -333,7 +333,7 @@ class Oauth2TokenServiceImplTest :
                         every { mockAccountJpaRepository.findByEmail("test@gsm.hs.kr") } returns Optional.of(openidAccount)
                         every { mockJwtProvider.generateOauthAccessToken(any(), any(), any(), any()) } returns "access-token"
                         every { mockJwtProvider.generateOauthRefreshToken(any(), any()) } returns "refresh-token"
-                        every { mockJwtProvider.generateIdToken(any(), any(), any(), any()) } returns "id-token"
+                        every { mockJwtProvider.generateIdToken(any(), any(), any()) } returns "id-token"
                         every { mockJwtEnvironment.accessTokenExpiration } returns 3600000L
                         every { mockJwtEnvironment.refreshTokenExpiration } returns 2592000000L
                         every { mockOauthRefreshTokenRedisRepository.deleteByEmailAndClientId(any(), any()) } returns Unit
@@ -348,18 +348,17 @@ class Oauth2TokenServiceImplTest :
                         result.idToken shouldBe "id-token"
                     }
 
-                    // sub는 email이 아닌 account.id여야 한다. email은 변경될 수 있어
-                    // 바뀌는 순간 SP가 같은 사람을 다른 사용자로 인식한다.
-                    it("sub에 account.id가, nonce에 요청값이 전달되어야 한다") {
-                        val accountIdSlot = slot<Long>()
+                    // sub는 access token, /userinfo와 같은 email을 쓴다.
+                    it("sub에 email이, nonce에 요청값이 전달되어야 한다") {
+                        val emailSlot = slot<String>()
                         val nonceSlot = slot<String>()
                         every {
-                            mockJwtProvider.generateIdToken(capture(accountIdSlot), any(), any(), capture(nonceSlot))
+                            mockJwtProvider.generateIdToken(capture(emailSlot), any(), capture(nonceSlot))
                         } returns "id-token"
 
                         service.execute(openidReqDto)
 
-                        accountIdSlot.captured shouldBe 42L
+                        emailSlot.captured shouldBe "test@gsm.hs.kr"
                         nonceSlot.captured shouldBe "n-0S6_WzA2Mj"
                     }
 
