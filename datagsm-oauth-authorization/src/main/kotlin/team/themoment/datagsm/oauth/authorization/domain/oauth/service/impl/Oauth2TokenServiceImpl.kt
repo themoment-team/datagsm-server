@@ -128,8 +128,7 @@ class Oauth2TokenServiceImpl(
 
         val idToken =
             if (OAuthScope.OPENID in scopesToGrant) {
-                val accountId = requireNotNull(account.id) { "Persisted account must have an id" }
-                jwtProvider.generateIdToken(accountId, account.email, client.id, oauthCode.nonce)
+                jwtProvider.generateIdToken(account.email, client.id, oauthCode.nonce)
             } else {
                 null
             }

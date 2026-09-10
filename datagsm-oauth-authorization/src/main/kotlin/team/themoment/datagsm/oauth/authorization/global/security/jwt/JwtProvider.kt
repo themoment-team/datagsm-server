@@ -57,13 +57,13 @@ class JwtProvider(
     /**
      * OIDC ID Token을 발급한다.
      *
-     * sub에는 email이 아닌 account.id를 넣는다. OIDC는 sub가 발급자 내에서
-     * 영구적이고 재사용되지 않는 값일 것을 요구하는데, email은 변경될 수 있어
-     * 바뀌는 순간 SP가 같은 사람을 다른 사용자로 인식하기 때문이다.
-     * access token의 sub는 기존 소비자와의 호환을 위해 email을 유지한다.
+     * sub에는 email을 넣는다. OIDC는 sub가 발급자 내에서 영구적이고 재사용되지
+     * 않는 값일 것을 요구하는데, 이 시스템의 계정 email은 학교 계정에 묶여
+     * 변경되지 않으므로 그 조건을 만족한다.
+     * access token과 /userinfo도 같은 값을 sub로 쓰고 있어, 세 곳의 식별자가
+     * 어긋나지 않는 편이 SP 연동에서도 혼란이 없다.
      */
     fun generateIdToken(
-        accountId: Long,
         email: String,
         clientId: String,
         nonce: String?,
@@ -77,7 +77,7 @@ class JwtProvider(
             .keyId(keyId)
             .and()
             .issuer(oauthEnvironment.issuerUrl)
-            .subject(accountId.toString())
+            .subject(email)
             .audience()
             .add(clientId)
             .and()
