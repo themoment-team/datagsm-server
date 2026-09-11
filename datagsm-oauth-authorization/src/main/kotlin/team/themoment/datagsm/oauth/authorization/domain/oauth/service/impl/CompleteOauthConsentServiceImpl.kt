@@ -1,6 +1,5 @@
 package team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl
 
-import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -8,7 +7,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthConsentReqDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthAuthorizeStateRedisEntity
-import team.themoment.datagsm.common.domain.oauth.entity.OauthConsentJpaEntity
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthConsentJpaRepository
@@ -16,7 +14,6 @@ import team.themoment.datagsm.oauth.authorization.domain.oauth.component.IdpSess
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthConsentService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueAuthorizationCodeService
 import team.themoment.sdk.exception.ExpectedException
-import team.themoment.sdk.logging.logger.logger
 import java.net.URI
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -95,32 +92,30 @@ class CompleteOauthConsentServiceImpl(
             .build()
     }
 
-    // 동시 요청으로 같은 (account, client) 행을 함께 insert하면 제약 위반이 난다.
-    // 이 시점에는 code가 이미 Redis에 저장돼 롤백되지 않으므로 재조회 후 병합으로 흡수한다.
+    // 동의 기록은 DB의 원자적 upsert에 맡긴다.
+    //
+    // 조회 후 없으면 insert하는 방식은 같은 (account, client)로 첫 로그인이 동시에
+    // 들어올 때 둘 다 "없음"을 보고 insert해 uk_oauth_consent_account_client 위반이 난다.
+    // 제약 위반을 잡아 같은 트랜잭션에서 재시도하는 것도 답이 아니다. flush 중 제약 위반이
+    // 나면 영속성 컨텍스트를 더 이상 신뢰할 수 없고, REPEATABLE READ에서는 재조회가 다른
+    // 트랜잭션이 방금 커밋한 행을 보지 못해 같은 예외를 다시 던질 수 있다.
+    //
+    // 이 자리에서 실패하면 특히 곤란하다. 인가 코드는 이미 Redis에 저장돼 롤백되지 않으므로,
+    // 사용자는 500을 받는데 코드만 남는 상태가 된다.
     private fun recordConsent(
         accountId: Long,
         clientId: String,
         scopes: Set<String>,
     ) {
-        try {
-            saveConsent(accountId, clientId, scopes)
-        } catch (e: DataIntegrityViolationException) {
-            logger().warn("Retrying consent record after unique constraint violation for clientId {}", clientId, e)
-            saveConsent(accountId, clientId, scopes)
-        }
-    }
+        oauthConsentJpaRepository.upsertConsent(accountId, clientId)
 
-    private fun saveConsent(
-        accountId: Long,
-        clientId: String,
-        scopes: Set<String>,
-    ) {
-        val consent =
-            oauthConsentJpaRepository
-                .findByAccountIdAndClientId(accountId, clientId)
-                .orElseGet { OauthConsentJpaEntity.create(accountId, clientId, emptySet()) }
-        consent.grantedScopes.addAll(scopes)
-        oauthConsentJpaRepository.saveAndFlush(consent)
+        val consentId =
+            oauthConsentJpaRepository.findIdByAccountIdAndClientId(accountId, clientId)
+                ?: throw ExpectedException("동의 정보를 저장하지 못했습니다.", HttpStatus.INTERNAL_SERVER_ERROR)
+
+        scopes.forEach { scope ->
+            oauthConsentJpaRepository.addScopeIfAbsent(consentId, scope)
+        }
     }
 
     private fun encodeQueryValue(value: String): String = URLEncoder.encode(value, StandardCharsets.UTF_8)
