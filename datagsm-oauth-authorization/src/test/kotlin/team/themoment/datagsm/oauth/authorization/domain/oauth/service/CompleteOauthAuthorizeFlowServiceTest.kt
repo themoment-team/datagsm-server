@@ -12,7 +12,6 @@ import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
 import org.springframework.context.ApplicationEventPublisher
-import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
@@ -143,8 +142,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         } returns issuedRedirectUrl
                         every { mockIdpSessionRedisRepository.save(capture(sessionSlot)) } answers { firstArg() }
                         every { mockIdpSessionHandoffRedisRepository.save(capture(handoffSlot)) } answers { firstArg() }
-                        every { mockOauthConsentJpaRepository.findByAccountIdAndClientId(any(), any()) } returns Optional.empty()
-                        every { mockOauthConsentJpaRepository.saveAndFlush(any<OauthConsentJpaEntity>()) } answers { firstArg() }
+                        every { mockOauthConsentJpaRepository.findIdByAccountIdAndClientId(any(), any()) } returns 7L
                     }
 
                     it("세션 핸드오프 URL로 302 리다이렉트되어야 한다") {
@@ -211,28 +209,29 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         handoffSlot.captured.ttl shouldBe idpSessionHandoffExpirationSeconds
                     }
 
-                    it("동의 기록이 유니크 제약에 걸려도 재조회로 복구되어야 한다") {
-                        val existing = OauthConsentJpaEntity.create(1L, testClientId, setOf("other:scope"))
-                        every { mockOauthConsentJpaRepository.findByAccountIdAndClientId(any(), any()) } returnsMany
-                            listOf(Optional.empty(), Optional.of(existing))
-                        every { mockOauthConsentJpaRepository.saveAndFlush(any<OauthConsentJpaEntity>()) } throws
-                            DataIntegrityViolationException("duplicate") andThen existing
-
+                    // 조회 후 insert는 동시 로그인 시 둘 다 "없음"을 보고 insert해 제약 위반이 난다.
+                    // 이 시점엔 code와 세션이 이미 Redis에 있어 롤백되지 않으므로,
+                    // 애플리케이션 재시도가 아니라 원자적 upsert로 처리한다.
+                    it("동의 기록은 조회 후 분기가 아닌 원자적 upsert로 저장되어야 한다") {
                         val response = completeOauthAuthorizeFlowService.execute(reqDto)
 
-                        // 동시 로그인으로 제약 위반이 나도 사용자에게 500이 나가지 않아야 한다.
                         response.statusCode shouldBe HttpStatus.FOUND
-                        existing.grantedScopes shouldBe mutableSetOf("other:scope", "self:read")
+                        verify(exactly = 1) { mockOauthConsentJpaRepository.upsertConsent(1L, testClientId) }
+                        verify(exactly = 0) {
+                            mockOauthConsentJpaRepository.saveAndFlush(any<OauthConsentJpaEntity>())
+                        }
                     }
 
                     it("요청한 scope가 동의 기록으로 저장되어야 한다") {
-                        val consentSlot = slot<OauthConsentJpaEntity>()
-                        every { mockOauthConsentJpaRepository.saveAndFlush(capture(consentSlot)) } answers { firstArg() }
+                        val scopeSlot = mutableListOf<String>()
+                        every {
+                            mockOauthConsentJpaRepository.addScopeIfAbsent(7L, capture(scopeSlot))
+                        } returns Unit
 
                         completeOauthAuthorizeFlowService.execute(reqDto)
 
-                        consentSlot.captured.clientId shouldBe testClientId
-                        consentSlot.captured.grantedScopes shouldBe mutableSetOf("self:read")
+                        verify(exactly = 1) { mockOauthConsentJpaRepository.upsertConsent(1L, testClientId) }
+                        scopeSlot.toSet() shouldBe setOf("self:read")
                     }
 
                     it("Redis에서 인증 상태가 삭제되어야 한다") {
@@ -540,8 +539,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         every {
                             mockIssueAuthorizationCodeService.execute(any(), any(), any(), any(), any(), any(), any())
                         } returns "$testRedirectUri?code=test-code&state=random-state"
-                        every { mockOauthConsentJpaRepository.findByAccountIdAndClientId(any(), any()) } returns Optional.empty()
-                        every { mockOauthConsentJpaRepository.saveAndFlush(any<OauthConsentJpaEntity>()) } answers { firstArg() }
+                        every { mockOauthConsentJpaRepository.findIdByAccountIdAndClientId(any(), any()) } returns 7L
                         every { mockIdpSessionRedisRepository.save(any<IdpSessionRedisEntity>()) } answers { firstArg() }
                         every {
                             mockIdpSessionHandoffRedisRepository.save(any<IdpSessionHandoffRedisEntity>())

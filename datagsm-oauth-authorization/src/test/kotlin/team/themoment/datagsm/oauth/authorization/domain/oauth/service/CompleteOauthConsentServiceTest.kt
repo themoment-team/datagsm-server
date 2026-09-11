@@ -8,9 +8,7 @@ import io.kotest.matchers.string.shouldStartWith
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.slot
 import io.mockk.verify
-import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
@@ -104,9 +102,7 @@ class CompleteOauthConsentServiceTest :
                     every { mockIdpSessionRedisRepository.findById(testSessionId) } returns
                         Optional.of(IdpSessionRedisEntity(testSessionId, testEmail, 28800))
                     every { mockAccountJpaRepository.findByEmail(testEmail) } returns Optional.of(activeAccount())
-                    every { mockOauthConsentJpaRepository.findByAccountIdAndClientId(1L, testClientId) } returns
-                        Optional.empty()
-                    every { mockOauthConsentJpaRepository.saveAndFlush(any<OauthConsentJpaEntity>()) } answers { firstArg() }
+                    every { mockOauthConsentJpaRepository.findIdByAccountIdAndClientId(1L, testClientId) } returns 7L
                     every {
                         mockIssueAuthorizationCodeService.execute(any(), any(), any(), any(), any(), any(), any())
                     } returns issuedRedirectUrl
@@ -125,17 +121,18 @@ class CompleteOauthConsentServiceTest :
                     }
 
                     it("승인한 scope가 동의 기록으로 저장되어야 한다") {
-                        val consentSlot = slot<OauthConsentJpaEntity>()
-                        every { mockOauthConsentJpaRepository.saveAndFlush(capture(consentSlot)) } answers { firstArg() }
+                        val scopeSlot = mutableListOf<String>()
+                        every {
+                            mockOauthConsentJpaRepository.addScopeIfAbsent(7L, capture(scopeSlot))
+                        } returns Unit
 
                         completeOauthConsentService.execute(
                             OauthConsentReqDto(testToken, approved = true),
                             testSessionId,
                         )
 
-                        consentSlot.captured.accountId shouldBe 1L
-                        consentSlot.captured.clientId shouldBe testClientId
-                        consentSlot.captured.grantedScopes shouldBe testScopes
+                        verify(exactly = 1) { mockOauthConsentJpaRepository.upsertConsent(1L, testClientId) }
+                        scopeSlot.toSet() shouldBe testScopes
                     }
 
                     it("재사용되지 않도록 state 토큰을 소비해야 한다") {
@@ -290,22 +287,44 @@ class CompleteOauthConsentServiceTest :
                     }
                 }
 
-                context("동의 기록 저장이 유니크 제약에 걸렸을 때") {
-                    it("재조회 후 병합해 코드 발급이 실패하지 않아야 한다") {
-                        val existing = OauthConsentJpaEntity.create(1L, testClientId, setOf("datagsm:account_read"))
-                        every { mockOauthConsentJpaRepository.findByAccountIdAndClientId(1L, testClientId) } returnsMany
-                            listOf(Optional.empty(), Optional.of(existing))
-                        every { mockOauthConsentJpaRepository.saveAndFlush(any<OauthConsentJpaEntity>()) } throws
-                            DataIntegrityViolationException("duplicate") andThen existing
+                // 조회 후 insert 방식은 동시 요청 시 둘 다 "없음"을 보고 insert해 제약 위반이 난다.
+                // 원자적 upsert에 맡겨, 애플리케이션에서 제약 위반을 잡아 재시도하지 않는다.
+                context("동의 기록을 저장할 때") {
+                    it("조회 후 분기하지 않고 원자적 upsert를 써야 한다") {
+                        completeOauthConsentService.execute(
+                            OauthConsentReqDto(testToken, approved = true),
+                            testSessionId,
+                        )
 
-                        val response =
+                        verify(exactly = 1) { mockOauthConsentJpaRepository.upsertConsent(1L, testClientId) }
+                        verify(exactly = 0) {
+                            mockOauthConsentJpaRepository.saveAndFlush(any<OauthConsentJpaEntity>())
+                        }
+                    }
+
+                    it("이미 동의한 scope를 다시 넣어도 중복이 쌓이지 않아야 한다") {
+                        completeOauthConsentService.execute(
+                            OauthConsentReqDto(testToken, approved = true),
+                            testSessionId,
+                        )
+
+                        // addScopeIfAbsent가 NOT EXISTS로 거르므로 scope당 한 번만 호출된다.
+                        testScopes.forEach { scope ->
+                            verify(exactly = 1) { mockOauthConsentJpaRepository.addScopeIfAbsent(7L, scope) }
+                        }
+                    }
+
+                    it("행 id를 읽지 못하면 scope를 매달지 않고 실패해야 한다") {
+                        every { mockOauthConsentJpaRepository.findIdByAccountIdAndClientId(1L, testClientId) } returns null
+
+                        shouldThrow<ExpectedException> {
                             completeOauthConsentService.execute(
                                 OauthConsentReqDto(testToken, approved = true),
                                 testSessionId,
                             )
+                        }
 
-                        response.statusCode shouldBe HttpStatus.FOUND
-                        existing.grantedScopes shouldBe testScopes
+                        verify(exactly = 0) { mockOauthConsentJpaRepository.addScopeIfAbsent(any(), any()) }
                     }
                 }
             }
