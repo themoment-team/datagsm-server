@@ -100,7 +100,7 @@ class CompleteOauthConsentServiceTest :
                     every { mockOauthAuthorizeStateRedisRepository.findById(testToken) } returns
                         Optional.of(stateEntity())
                     every { mockIdpSessionRedisRepository.findById(testSessionId) } returns
-                        Optional.of(IdpSessionRedisEntity(testSessionId, testEmail, 28800))
+                        Optional.of(IdpSessionRedisEntity(sessionId = testSessionId, email = testEmail, ttl = 28800))
                     every { mockAccountJpaRepository.findByEmail(testEmail) } returns Optional.of(activeAccount())
                     every { mockOauthConsentJpaRepository.findIdByAccountIdAndClientId(1L, testClientId) } returns 7L
                     every {

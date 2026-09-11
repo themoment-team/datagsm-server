@@ -438,7 +438,7 @@ class StartOauthAuthorizeFlowServiceTest :
                         } answers { firstArg() }
                         every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(mockClient)
                         every { mockIdpSessionRedisRepository.findById(testSessionId) } returns
-                            Optional.of(IdpSessionRedisEntity(testSessionId, testEmail, 28800))
+                            Optional.of(IdpSessionRedisEntity(sessionId = testSessionId, email = testEmail, ttl = 28800))
                         every { mockAccountJpaRepository.findByEmail(testEmail) } returns Optional.of(activeAccount())
                         every { mockOauthConsentJpaRepository.findByAccountIdAndClientId(1L, testClientId) } returns
                             Optional.of(OauthConsentJpaEntity.create(1L, testClientId, setOf("datagsm:account_read")))

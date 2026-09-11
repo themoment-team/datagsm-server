@@ -8,5 +8,6 @@ interface CompleteIdpSessionHandoffService {
         verifier: String?,
         secFetchSite: String?,
         secFetchMode: String?,
+        userAgent: String? = null,
     ): ResponseEntity<Void>
 }
