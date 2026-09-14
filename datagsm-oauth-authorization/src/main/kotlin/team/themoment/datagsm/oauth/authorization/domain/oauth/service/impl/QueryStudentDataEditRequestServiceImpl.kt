@@ -15,6 +15,7 @@ import team.themoment.datagsm.common.domain.student.dto.response.DataEditFieldRe
 import team.themoment.datagsm.common.domain.student.dto.response.DataEditOptionResDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentDataEditRequestResDto
 import team.themoment.datagsm.common.domain.student.entity.StudentDataEditRequestJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.constant.NO_CLUB_ID
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentDataEditField
 import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRequestJpaRepository
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryStudentDataEditRequestService
@@ -77,11 +78,18 @@ class QueryStudentDataEditRequestServiceImpl(
         return fields
     }
 
-    private fun queryClubOptions(type: ClubType): List<DataEditOptionResDto> =
-        clubJpaRepository
-            .findByType(type)
-            .filter { it.status == ClubStatus.ACTIVE }
-            .map(::toOption)
+    private fun queryClubOptions(type: ClubType): List<DataEditOptionResDto> {
+        val clubOptions =
+            clubJpaRepository
+                .findByType(type)
+                .filter { it.status == ClubStatus.ACTIVE }
+                .map(::toOption)
+        return listOf(NONE_OPTION) + clubOptions
+    }
 
     private fun toOption(club: ClubJpaEntity): DataEditOptionResDto = DataEditOptionResDto(value = club.id!!, label = club.name)
+
+    companion object {
+        private val NONE_OPTION = DataEditOptionResDto(value = NO_CLUB_ID, label = "무소속")
+    }
 }

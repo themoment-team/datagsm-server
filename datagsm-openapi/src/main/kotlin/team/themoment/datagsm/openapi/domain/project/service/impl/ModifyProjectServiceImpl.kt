@@ -75,6 +75,8 @@ class ModifyProjectServiceImpl(
         project.startYear = reqDto.startYear
         project.club = ownerClub
         project.participants = newParticipants
+        project.repositories = reqDto.repositories.toMutableSet()
+        project.techStacks = reqDto.techStacks.toMutableSet()
 
         val newObj = generateProjectEventObject(project)
         applicationEventPublisher.publishEvent(
@@ -106,6 +108,8 @@ class ModifyProjectServiceImpl(
                         sex = student.sex,
                     )
                 },
+            repositories = project.repositories.toList(),
+            techStacks = project.techStacks.toList(),
         )
     }
 
@@ -120,5 +124,7 @@ class ModifyProjectServiceImpl(
             club = project.club?.let { EventClubRef(it.id!!, it.name) },
             participants =
                 project.participants.map { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },
+            repositories = project.repositories.toList(),
+            techStacks = project.techStacks.toList(),
         )
 }

@@ -35,8 +35,8 @@ data class OauthAuthorizeSubmitReqDto(
     @field:Max(value = 518)
     @param:Schema(description = "기숙사 호실 (201-518, 정보 수정 요청 해소용)", example = "301", minimum = "201", maximum = "518")
     val dormitoryRoomNumber: Int? = null,
-    @param:Schema(description = "전공 동아리 ID (정보 수정 요청 해소용)", example = "1")
+    @param:Schema(description = "전공 동아리 ID (정보 수정 요청 해소용, 무소속인 경우 0)", example = "1")
     val majorClubId: Long? = null,
-    @param:Schema(description = "자율 동아리 ID (정보 수정 요청 해소용)", example = "3")
+    @param:Schema(description = "자율 동아리 ID (정보 수정 요청 해소용, 무소속인 경우 0)", example = "3")
     val autonomousClubId: Long? = null,
 )

@@ -20,4 +20,8 @@ data class ProjectEventObject(
     val club: EventClubRef?,
     @field:JsonProperty("participants")
     val participants: List<EventStudentRef>,
+    @field:JsonProperty("repositories")
+    val repositories: List<String>,
+    @field:JsonProperty("tech_stacks")
+    val techStacks: List<String>,
 )

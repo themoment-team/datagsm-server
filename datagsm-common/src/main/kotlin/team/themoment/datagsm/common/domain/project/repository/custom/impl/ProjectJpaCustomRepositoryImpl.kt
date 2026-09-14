@@ -63,7 +63,7 @@ class ProjectJpaCustomRepositoryImpl(
                 .limit(pageable.pageSize.toLong())
                 .fetch()
 
-        // 2쿼리: ID IN절로 club + participants 한 번에 fetchJoin
+        // 2쿼리: ID IN절로 club + participants + repositories + techStacks 한 번에 fetchJoin
         val content =
             if (projectIds.isEmpty()) {
                 emptyList()
@@ -73,6 +73,10 @@ class ProjectJpaCustomRepositoryImpl(
                     .leftJoin(projectJpaEntity.club)
                     .fetchJoin()
                     .leftJoin(projectJpaEntity.participants)
+                    .fetchJoin()
+                    .leftJoin(projectJpaEntity.repositories)
+                    .fetchJoin()
+                    .leftJoin(projectJpaEntity.techStacks)
                     .fetchJoin()
                     .where(projectJpaEntity.id.`in`(projectIds))
                     .apply { orderSpecifier?.let { orderBy(it) } }

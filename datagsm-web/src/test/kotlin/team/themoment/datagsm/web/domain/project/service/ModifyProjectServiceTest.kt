@@ -2,6 +2,7 @@ package team.themoment.datagsm.web.domain.project.service
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.justRun
@@ -105,6 +106,40 @@ class ModifyProjectServiceTest :
                             )
                         }
                         verify(exactly = 1) { mockClubRepository.findById(1L) }
+                    }
+                }
+
+                context("리포지토리와 기술 스택을 전체 교체할 때") {
+                    val updateRequest =
+                        ProjectReqDto(
+                            name = "기존프로젝트",
+                            description = "기존 설명",
+                            startYear = 2023,
+                            clubId = 1L,
+                            participantIds = emptyList(),
+                            repositories = listOf("https://github.com/team/new-repo"),
+                            techStacks = listOf("Kotlin"),
+                        )
+
+                    beforeEach {
+                        existingProject.repositories = mutableSetOf("https://github.com/team/old-repo")
+                        existingProject.techStacks = mutableSetOf("Java", "Spring")
+
+                        every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
+                        every {
+                            mockProjectRepository.existsByNameAndIdNot(
+                                updateRequest.name,
+                                projectId,
+                            )
+                        } returns false
+                        every { mockClubRepository.findById(1L) } returns Optional.of(ownerClub)
+                    }
+
+                    it("리포지토리와 기술 스택이 새 값으로 완전히 교체되어야 한다") {
+                        val result = modifyProjectService.execute(projectId, updateRequest)
+
+                        result.repositories shouldContainExactlyInAnyOrder listOf("https://github.com/team/new-repo")
+                        result.techStacks shouldContainExactlyInAnyOrder listOf("Kotlin")
                     }
                 }
 

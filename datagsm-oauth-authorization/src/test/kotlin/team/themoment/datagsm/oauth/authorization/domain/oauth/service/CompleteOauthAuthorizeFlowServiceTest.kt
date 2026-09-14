@@ -18,6 +18,7 @@ import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountStatus
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
+import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeSubmitReqDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthAuthorizeStateRedisEntity
@@ -458,6 +459,147 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         mockStudent.studentNumber?.studentGrade shouldBe 2
                         mockStudent.studentNumber?.studentClass shouldBe 1
                         mockStudent.studentNumber?.studentNumber shouldBe 5
+
+                        verify(exactly = 1) { mockStudentDataEditRequestJpaRepository.delete(editRequest) }
+                    }
+                }
+
+                context("전공 동아리 수정 요청을 무소속(0)으로 해소하며 로그인할 때") {
+                    val reqDto =
+                        OauthAuthorizeSubmitReqDto(
+                            email = testEmail,
+                            password = "password123!",
+                            token = testToken,
+                            majorClubId = 0L,
+                        )
+
+                    val studentAccount =
+                        AccountJpaEntity().apply {
+                            id = 3L
+                            email = testEmail
+                            password = "hashedPassword"
+                            objectId = 10L
+                            objectType = AccountObjectType.STUDENT
+                        }
+
+                    val existingClub =
+                        ClubJpaEntity().apply {
+                            id = 1L
+                            name = "SW개발동아리"
+                        }
+
+                    val editRequest =
+                        StudentDataEditRequestJpaEntity().apply {
+                            studentId = 10L
+                            requestMajorClub = true
+                        }
+
+                    val mockStudent =
+                        StudentJpaEntity().apply {
+                            id = 10L
+                            name = "홍길동"
+                            email = testEmail
+                            sex = Sex.MAN
+                            majorClub = existingClub
+                        }
+
+                    val mockStateEntity =
+                        OauthAuthorizeStateRedisEntity(
+                            token = testToken,
+                            clientId = testClientId,
+                            redirectUri = testRedirectUri,
+                            state = "random-state",
+                            codeChallenge = "challenge",
+                            codeChallengeMethod = "S256",
+                            scopes = setOf("self:read"),
+                            ttl = 600,
+                        )
+
+                    beforeEach {
+                        every { mockOauthAuthorizeStateRedisRepository.findById(testToken) } returns Optional.of(mockStateEntity)
+                        every { mockAccountJpaRepository.findByEmail(testEmail) } returns Optional.of(studentAccount)
+                        every { mockPasswordEncoder.matches("password123!", studentAccount.password) } returns true
+                        every { mockStudentDataEditRequestJpaRepository.findByStudentId(10L) } returns Optional.of(editRequest)
+                        every { mockStudentJpaRepository.findById(10L) } returns Optional.of(mockStudent)
+                        every { mockOauthCodeRedisRepository.save(any()) } answers { firstArg() }
+                    }
+
+                    it("동아리 조회 없이 전공 동아리가 무소속(null)으로 반영되어야 한다") {
+                        val response = completeOauthAuthorizeFlowService.execute(reqDto)
+
+                        response.statusCode shouldBe HttpStatus.FOUND
+                        mockStudent.majorClub shouldBe null
+
+                        verify(exactly = 0) { mockClubJpaRepository.findById(any()) }
+                        verify(exactly = 1) { mockStudentDataEditRequestJpaRepository.delete(editRequest) }
+                    }
+                }
+
+                context("전공 동아리 수정 요청을 실제 동아리 ID로 해소하며 로그인할 때") {
+                    val reqDto =
+                        OauthAuthorizeSubmitReqDto(
+                            email = testEmail,
+                            password = "password123!",
+                            token = testToken,
+                            majorClubId = 1L,
+                        )
+
+                    val studentAccount =
+                        AccountJpaEntity().apply {
+                            id = 3L
+                            email = testEmail
+                            password = "hashedPassword"
+                            objectId = 10L
+                            objectType = AccountObjectType.STUDENT
+                        }
+
+                    val newClub =
+                        ClubJpaEntity().apply {
+                            id = 1L
+                            name = "SW개발동아리"
+                        }
+
+                    val editRequest =
+                        StudentDataEditRequestJpaEntity().apply {
+                            studentId = 10L
+                            requestMajorClub = true
+                        }
+
+                    val mockStudent =
+                        StudentJpaEntity().apply {
+                            id = 10L
+                            name = "홍길동"
+                            email = testEmail
+                            sex = Sex.MAN
+                        }
+
+                    val mockStateEntity =
+                        OauthAuthorizeStateRedisEntity(
+                            token = testToken,
+                            clientId = testClientId,
+                            redirectUri = testRedirectUri,
+                            state = "random-state",
+                            codeChallenge = "challenge",
+                            codeChallengeMethod = "S256",
+                            scopes = setOf("self:read"),
+                            ttl = 600,
+                        )
+
+                    beforeEach {
+                        every { mockOauthAuthorizeStateRedisRepository.findById(testToken) } returns Optional.of(mockStateEntity)
+                        every { mockAccountJpaRepository.findByEmail(testEmail) } returns Optional.of(studentAccount)
+                        every { mockPasswordEncoder.matches("password123!", studentAccount.password) } returns true
+                        every { mockStudentDataEditRequestJpaRepository.findByStudentId(10L) } returns Optional.of(editRequest)
+                        every { mockStudentJpaRepository.findById(10L) } returns Optional.of(mockStudent)
+                        every { mockClubJpaRepository.findById(1L) } returns Optional.of(newClub)
+                        every { mockOauthCodeRedisRepository.save(any()) } answers { firstArg() }
+                    }
+
+                    it("전공 동아리가 해당 동아리로 반영되어야 한다") {
+                        val response = completeOauthAuthorizeFlowService.execute(reqDto)
+
+                        response.statusCode shouldBe HttpStatus.FOUND
+                        mockStudent.majorClub shouldBe newClub
 
                         verify(exactly = 1) { mockStudentDataEditRequestJpaRepository.delete(editRequest) }
                     }

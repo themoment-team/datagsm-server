@@ -27,4 +27,16 @@ data class ProjectReqDto(
     @field:Positive
     @param:Schema(description = "프로젝트 종료 연도 (ENDED 시 설정)", example = "2025")
     val endYear: Int? = null,
+    @field:Size(max = 20)
+    @param:Schema(description = "프로젝트 리포지토리 URL 목록", example = "[\"https://github.com/team/repo\"]")
+    val repositories: List<
+        @Size(max = 300)
+        String,
+    > = emptyList(),
+    @field:Size(max = 20)
+    @param:Schema(description = "프로젝트 기술 스택 목록", example = "[\"Kotlin\", \"Spring Boot\"]")
+    val techStacks: List<
+        @Size(max = 50)
+        String,
+    > = emptyList(),
 )
