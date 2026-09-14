@@ -24,6 +24,7 @@ import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.StudentDataEditRequestJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
+import team.themoment.datagsm.common.domain.student.entity.constant.NO_CLUB_ID
 import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRequestJpaRepository
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
@@ -193,19 +194,21 @@ class CompleteOauthAuthorizeFlowServiceImpl(
         }
         val majorClubId = reqDto.majorClubId
         if (editRequest.requestMajorClub && majorClubId != null) {
-            student.majorClub =
-                clubJpaRepository
-                    .findById(majorClubId)
-                    .orElseThrow { ExpectedException("전공 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
+            student.majorClub = if (majorClubId == NO_CLUB_ID) null else findClubOrThrow(majorClubId, "전공 동아리를 찾을 수 없습니다.")
         }
         val autonomousClubId = reqDto.autonomousClubId
         if (editRequest.requestAutonomousClub && autonomousClubId != null) {
             student.autonomousClub =
-                clubJpaRepository
-                    .findById(autonomousClubId)
-                    .orElseThrow { ExpectedException("자율 동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
+                if (autonomousClubId == NO_CLUB_ID) null else findClubOrThrow(autonomousClubId, "자율 동아리를 찾을 수 없습니다.")
         }
     }
+
+    private fun findClubOrThrow(
+        clubId: Long,
+        notFoundMessage: String,
+    ) = clubJpaRepository
+        .findById(clubId)
+        .orElseThrow { ExpectedException(notFoundMessage, HttpStatus.NOT_FOUND) }
 
     private fun generateStudentEventObject(student: StudentJpaEntity): StudentEventObject =
         StudentEventObject(

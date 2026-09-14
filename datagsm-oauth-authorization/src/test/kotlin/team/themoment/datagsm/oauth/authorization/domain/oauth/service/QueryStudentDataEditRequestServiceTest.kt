@@ -145,13 +145,17 @@ class QueryStudentDataEditRequestServiceTest :
                         every { mockClubJpaRepository.findByType(ClubType.MAJOR_CLUB) } returns listOf(activeClub, abolishedClub)
                     }
 
-                    it("운영 중인 동아리만 옵션으로 반환되어야 한다") {
+                    it("무소속 옵션과 운영 중인 동아리만 옵션으로 반환되어야 한다") {
                         val result = service.execute(reqDto)
 
                         result.fields.size shouldBe 1
                         val majorClubField = result.fields.first()
                         majorClubField.name shouldBe StudentDataEditField.MAJOR_CLUB
-                        majorClubField.options shouldContainExactly listOf(DataEditOptionResDto(value = 1L, label = "SW개발동아리"))
+                        majorClubField.options shouldContainExactly
+                            listOf(
+                                DataEditOptionResDto(value = 0L, label = "무소속"),
+                                DataEditOptionResDto(value = 1L, label = "SW개발동아리"),
+                            )
                     }
                 }
 
