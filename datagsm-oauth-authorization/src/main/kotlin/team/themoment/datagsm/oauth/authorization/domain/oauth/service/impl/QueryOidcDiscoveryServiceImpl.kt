@@ -17,7 +17,7 @@ class QueryOidcDiscoveryServiceImpl(
     companion object {
         private const val SIGNING_ALGORITHM = "RS256"
 
-        // sub는 모든 클라이언트에 같은 account.id를 내려주므로 public이다.
+        // sub는 모든 클라이언트에 같은 email을 내려주므로 public이다.
         private const val SUBJECT_TYPE_PUBLIC = "public"
     }
 
