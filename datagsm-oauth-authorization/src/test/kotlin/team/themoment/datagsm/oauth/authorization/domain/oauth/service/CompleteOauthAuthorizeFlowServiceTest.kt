@@ -616,7 +616,11 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         every { mockPasswordEncoder.matches("password123!", studentAccount.password) } returns true
                         every { mockStudentDataEditRequestJpaRepository.findByStudentId(10L) } returns Optional.of(editRequest)
                         every { mockStudentJpaRepository.findById(10L) } returns Optional.of(mockStudent)
-                        every { mockOauthCodeRedisRepository.save(any()) } answers { firstArg() }
+                        every {
+                            mockIssueAuthorizationCodeService.execute(any(), any(), any(), any(), any(), any(), any())
+                        } returns "$testRedirectUri?code=test-code&state=random-state"
+                        every { mockIdpSessionRedisRepository.save(any()) } answers { firstArg() }
+                        every { mockIdpSessionHandoffRedisRepository.save(any()) } answers { firstArg() }
                     }
 
                     it("동아리 조회 없이 전공 동아리가 무소속(null)으로 반영되어야 한다") {
@@ -687,7 +691,11 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         every { mockStudentDataEditRequestJpaRepository.findByStudentId(10L) } returns Optional.of(editRequest)
                         every { mockStudentJpaRepository.findById(10L) } returns Optional.of(mockStudent)
                         every { mockClubJpaRepository.findById(1L) } returns Optional.of(newClub)
-                        every { mockOauthCodeRedisRepository.save(any()) } answers { firstArg() }
+                        every {
+                            mockIssueAuthorizationCodeService.execute(any(), any(), any(), any(), any(), any(), any())
+                        } returns "$testRedirectUri?code=test-code&state=random-state"
+                        every { mockIdpSessionRedisRepository.save(any()) } answers { firstArg() }
+                        every { mockIdpSessionHandoffRedisRepository.save(any()) } answers { firstArg() }
                     }
 
                     it("전공 동아리가 해당 동아리로 반영되어야 한다") {
