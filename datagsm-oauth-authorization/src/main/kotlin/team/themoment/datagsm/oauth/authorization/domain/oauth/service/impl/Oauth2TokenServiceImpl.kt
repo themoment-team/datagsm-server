@@ -126,6 +126,13 @@ class Oauth2TokenServiceImpl(
         val accessToken = jwtProvider.generateOauthAccessToken(account.email, account.role, client.id, grantedScopes)
         val refreshToken = jwtProvider.generateOauthRefreshToken(account.email, client.id)
 
+        val idToken =
+            if (OAuthScope.OPENID in scopesToGrant) {
+                jwtProvider.generateIdToken(account.email, client.id, oauthCode.nonce)
+            } else {
+                null
+            }
+
         saveRefreshToken(account.email, client.id, refreshToken, scopesToGrant)
         oauthCodeRedisRepository.delete(oauthCode)
 
@@ -134,7 +141,8 @@ class Oauth2TokenServiceImpl(
             tokenType = "Bearer",
             expiresIn = jwtEnvironment.accessTokenExpiration / 1000,
             refreshToken = refreshToken,
-            scope = grantedScopes.joinToString(" ") { it.scope },
+            scope = formatScopes(grantedScopes, scopesToGrant),
+            idToken = idToken,
         )
     }
 
@@ -202,7 +210,7 @@ class Oauth2TokenServiceImpl(
             tokenType = "Bearer",
             expiresIn = jwtEnvironment.accessTokenExpiration / 1000,
             refreshToken = newRefreshToken,
-            scope = grantedScopes.joinToString(" ") { it.scope },
+            scope = formatScopes(grantedScopes, scopesToGrant),
         )
     }
 
@@ -258,14 +266,29 @@ class Oauth2TokenServiceImpl(
         return stringsToScopes(scopesToGrant)
     }
 
+    // openid는 tb_oauth_scope에 없는 프로토콜 지시자라 DB 조회 대상에서 뺀다.
+    // 넣은 채로 조회하면 "권한 데이터가 잘못되었습니다" 500이 난다.
+    // 응답 scope에는 openid도 그대로 되돌려준다. SP가 요청한 scope가
+    // 부여됐는지 확인하는 근거이기 때문이다.
+    private fun formatScopes(
+        grantedScopes: Set<OAuthScope>,
+        requestedScopes: Set<String>,
+    ): String {
+        val scopeNames = grantedScopes.map { it.scope }
+        val withOpenid =
+            if (OAuthScope.OPENID in requestedScopes) listOf(OAuthScope.OPENID) + scopeNames else scopeNames
+        return withOpenid.joinToString(" ")
+    }
+
     private fun stringsToScopes(strings: Set<String>): Set<OAuthScope> {
-        val appIds = strings.map { it.substringBefore(':') }.toSet()
+        val permissionScopes = strings - OAuthScope.OPENID
+        val appIds = permissionScopes.map { it.substringBefore(':') }.toSet()
         val fetched =
             oauthScopeJpaRepository
                 .findAllByApplicationIdIn(appIds)
                 .associateBy { "${it.application.id}:${it.scopeName}" }
 
-        return strings
+        return permissionScopes
             .map { scopeStr ->
                 val entity = fetched[scopeStr]
                 if (entity == null) {

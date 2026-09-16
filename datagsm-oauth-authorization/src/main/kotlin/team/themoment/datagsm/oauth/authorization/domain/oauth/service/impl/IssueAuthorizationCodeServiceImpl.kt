@@ -31,6 +31,7 @@ class IssueAuthorizationCodeServiceImpl(
         codeChallenge: String?,
         codeChallengeMethod: String?,
         scopes: Set<String>,
+        nonce: String?,
     ): String {
         // 코드 발급은 SSO(GET)와 로그인(POST) 양쪽에서 일어난다.
         // 한도를 발급 지점에 두어야 두 경로가 같은 정책을 따른다.
@@ -49,6 +50,7 @@ class IssueAuthorizationCodeServiceImpl(
                 codeChallenge = codeChallenge,
                 codeChallengeMethod = codeChallengeMethod,
                 scopes = scopes,
+                nonce = nonce,
                 code = code,
                 ttl = oauthEnvironment.codeExpirationSeconds,
             ),

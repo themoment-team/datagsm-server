@@ -35,4 +35,10 @@ data class OauthAuthorizeReqDto(
         requiredMode = Schema.RequiredMode.NOT_REQUIRED,
     )
     val scope: String? = null,
+    @param:Schema(
+        description = "OIDC nonce (replay 방지). openid scope 요청 시 권장됩니다.",
+        example = "n-0S6_WzA2Mj",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+    )
+    val nonce: String? = null,
 )

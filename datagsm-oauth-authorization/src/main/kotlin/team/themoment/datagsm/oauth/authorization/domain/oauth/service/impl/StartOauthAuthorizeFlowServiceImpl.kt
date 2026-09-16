@@ -85,6 +85,7 @@ class StartOauthAuthorizeFlowServiceImpl(
                     codeChallenge = codeChallenge,
                     codeChallengeMethod = codeChallengeMethod,
                     scopes = resolvedScopes,
+                    nonce = reqDto.nonce,
                 )
             return ResponseEntity
                 .status(HttpStatus.FOUND)
@@ -103,6 +104,7 @@ class StartOauthAuthorizeFlowServiceImpl(
                 codeChallenge = codeChallenge,
                 codeChallengeMethod = codeChallengeMethod,
                 scopes = resolvedScopes,
+                nonce = reqDto.nonce,
                 ttl = oauthEnvironment.authorizeStateExpirationMs / 1000,
             )
 
@@ -142,16 +144,26 @@ class StartOauthAuthorizeFlowServiceImpl(
         return consent.grantedScopes.containsAll(resolvedScopes)
     }
 
+    // openid는 권한이 아니라 "id_token을 함께 달라"는 OIDC 프로토콜 지시자다.
+    // tb_oauth_scope에도 client 등록 scope에도 없으므로 허용 검사에서 제외하고,
+    // 요청에 있었다면 그대로 통과시킨다.
     private fun resolveScopes(
         requestedScopes: Set<String>?,
         clientScopes: Set<String>,
     ): Set<String> {
         if (requestedScopes == null) return defaultScopes(clientScopes)
-        val invalid = requestedScopes - clientScopes
+
+        val hasOpenid = OAuthScope.OPENID in requestedScopes
+        val permissionScopes = requestedScopes - OAuthScope.OPENID
+
+        val invalid = permissionScopes - clientScopes
         if (invalid.isNotEmpty()) {
             throw OAuthException.InvalidScope("클라이언트에 허용되지 않은 권한 범위가 포함되어 있습니다.")
         }
-        return requestedScopes
+
+        // openid만 요청한 경우에도 UserInfo 조회를 위한 기본 scope는 부여한다.
+        val resolved = permissionScopes.ifEmpty { defaultScopes(clientScopes) }
+        return if (hasOpenid) resolved + OAuthScope.OPENID else resolved
     }
 
     // scope 파라미터 미입력 시 client의 전체 허용 scope가 아닌 기본 UserInfo scope만 요청된 것으로 처리한다.

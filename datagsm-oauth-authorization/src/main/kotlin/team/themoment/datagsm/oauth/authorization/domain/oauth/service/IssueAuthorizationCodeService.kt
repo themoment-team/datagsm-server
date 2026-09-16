@@ -9,5 +9,6 @@ interface IssueAuthorizationCodeService {
         codeChallenge: String?,
         codeChallengeMethod: String?,
         scopes: Set<String>,
+        nonce: String? = null,
     ): String
 }
