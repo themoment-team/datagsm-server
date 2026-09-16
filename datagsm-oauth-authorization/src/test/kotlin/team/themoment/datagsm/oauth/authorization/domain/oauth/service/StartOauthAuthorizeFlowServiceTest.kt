@@ -28,6 +28,7 @@ import team.themoment.datagsm.common.domain.oauth.repository.OauthConsentJpaRepo
 import team.themoment.datagsm.common.domain.student.entity.StudentDataEditRequestJpaEntity
 import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRequestJpaRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
+import team.themoment.datagsm.oauth.authorization.domain.oauth.component.IdpSessionResolver
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueAuthorizationCodeService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl.StartOauthAuthorizeFlowServiceImpl
 import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
@@ -54,15 +55,22 @@ class StartOauthAuthorizeFlowServiceTest :
         val mockOauthConsentJpaRepository = mockk<OauthConsentJpaRepository>(relaxed = true)
         val mockIssueAuthorizationCodeService = mockk<IssueAuthorizationCodeService>(relaxed = true)
 
+        // 세션 자격 판정은 실제 IdpSessionResolver를 그대로 태워, 계정 상태/정보 수정 요청
+        // 게이트가 목으로 우회되지 않고 이 테스트에서 함께 검증되게 한다.
+        val idpSessionResolver =
+            IdpSessionResolver(
+                mockIdpSessionRedisRepository,
+                mockAccountJpaRepository,
+                mockStudentDataEditRequestJpaRepository,
+            )
+
         val startOauthAuthorizeFlowService =
             StartOauthAuthorizeFlowServiceImpl(
                 mockClientJpaRepository,
                 mockOauthEnvironment,
                 mockOauthAuthorizeStateRedisRepository,
                 mockJwtEnvironment,
-                mockIdpSessionRedisRepository,
-                mockAccountJpaRepository,
-                mockStudentDataEditRequestJpaRepository,
+                idpSessionResolver,
                 mockOauthConsentJpaRepository,
                 mockIssueAuthorizationCodeService,
             )
@@ -404,6 +412,7 @@ class StartOauthAuthorizeFlowServiceTest :
                     val testEmail = "user@gsm.hs.kr"
                     val issuedRedirectUrl = "$testRedirectUri?code=test-code"
                     val loginPageUrl = "http://localhost:3000/oauth/authorize"
+                    val consentPageUrl = "http://localhost:3000/oauth/consent"
 
                     val ssoReqDto =
                         OauthAuthorizeReqDto(
@@ -516,10 +525,11 @@ class StartOauthAuthorizeFlowServiceTest :
                                 Optional.empty()
                         }
 
-                        it("기존 로그인 플로우로 폴백되어야 한다") {
+                        it("비밀번호를 다시 받지 않고 동의 화면으로 보내야 한다") {
                             val response = startOauthAuthorizeFlowService.execute(ssoReqDto, testSessionId)
 
-                            (response.headers.location?.toString() ?: "") shouldContain loginPageUrl
+                            (response.headers.location?.toString() ?: "") shouldContain consentPageUrl
+                            verify(exactly = 1) { mockOauthAuthorizeStateRedisRepository.save(any()) }
                             verify(exactly = 0) {
                                 mockIssueAuthorizationCodeService.execute(any(), any(), any(), any(), any(), any(), any())
                             }
@@ -532,10 +542,10 @@ class StartOauthAuthorizeFlowServiceTest :
                                 Optional.of(OauthConsentJpaEntity.create(1L, testClientId, setOf("datagsm:student_read")))
                         }
 
-                        it("기존 로그인 플로우로 폴백되어야 한다") {
+                        it("추가 동의를 받도록 동의 화면으로 보내야 한다") {
                             val response = startOauthAuthorizeFlowService.execute(ssoReqDto, testSessionId)
 
-                            (response.headers.location?.toString() ?: "") shouldContain loginPageUrl
+                            (response.headers.location?.toString() ?: "") shouldContain consentPageUrl
                             verify(exactly = 0) {
                                 mockIssueAuthorizationCodeService.execute(any(), any(), any(), any(), any(), any(), any())
                             }
