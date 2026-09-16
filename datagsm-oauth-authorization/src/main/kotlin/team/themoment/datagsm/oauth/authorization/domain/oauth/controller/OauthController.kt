@@ -29,6 +29,7 @@ import team.themoment.datagsm.common.domain.student.dto.response.StudentDataEdit
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteIdpSessionHandoffService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthAuthorizeFlowService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthConsentService
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.LogoutIdpSessionService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.Oauth2TokenService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryJwkSetService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryOauthSessionService
@@ -44,6 +45,7 @@ class OauthController(
     val completeOauthAuthorizeFlowService: CompleteOauthAuthorizeFlowService,
     val completeOauthConsentService: CompleteOauthConsentService,
     val completeIdpSessionHandoffService: CompleteIdpSessionHandoffService,
+    val logoutIdpSessionService: LogoutIdpSessionService,
     val queryOauthSessionService: QueryOauthSessionService,
     val queryJwkSetService: QueryJwkSetService,
     val queryStudentDataEditRequestService: QueryStudentDataEditRequestService,
@@ -133,6 +135,20 @@ class OauthController(
     fun queryStudentDataEditRequirements(
         @Valid @RequestBody reqDto: QueryStudentDataEditRequestReqDto,
     ): StudentDataEditRequestResDto = queryStudentDataEditRequestService.execute(reqDto)
+
+    @PostMapping("/logout")
+    @Operation(
+        summary = "IdP 세션 로그아웃",
+        description = "SSO 세션을 삭제하고 세션 쿠키를 만료시킵니다. 이미 발급된 access token은 만료 전까지 유효합니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "204", description = "로그아웃 완료 (세션이 없던 경우에도 동일)"),
+        ],
+    )
+    fun logout(
+        @CookieValue(name = "\${spring.security.oauth.idp-session-cookie-name}", required = false) sessionId: String?,
+    ): ResponseEntity<Void> = logoutIdpSessionService.execute(sessionId)
 
     @GetMapping("/sessions/{token}")
     @Operation(

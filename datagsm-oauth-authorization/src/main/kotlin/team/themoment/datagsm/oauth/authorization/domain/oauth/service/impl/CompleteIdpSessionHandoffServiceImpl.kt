@@ -3,7 +3,6 @@ package team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -13,10 +12,10 @@ import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.IdpSessionHandoffRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.IdpSessionRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
+import team.themoment.datagsm.common.global.security.util.IdpSessionCookieFactory
 import team.themoment.datagsm.common.global.security.util.OpaqueTokenHashUtil
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteIdpSessionHandoffService
 import java.net.URI
-import java.time.Duration
 
 @Service
 class CompleteIdpSessionHandoffServiceImpl(
@@ -62,23 +61,12 @@ class CompleteIdpSessionHandoffServiceImpl(
 
         return ResponseEntity
             .status(HttpStatus.FOUND)
-            .header(HttpHeaders.SET_COOKIE, buildSessionCookie(handoff.sessionId).toString())
-            .location(URI.create(handoff.redirectUrl))
+            .header(
+                HttpHeaders.SET_COOKIE,
+                IdpSessionCookieFactory.issued(oauthEnvironment, handoff.sessionId).toString(),
+            ).location(URI.create(handoff.redirectUrl))
             .build()
     }
-
-    // 세션 쿠키를 읽는 곳은 같은 호스트의 GET /v1/oauth/authorize 하나뿐이라 host-only로 충분하다.
-    // Domain을 상위 도메인으로 넓히면 모든 서브도메인이 요청마다 세션 쿠키를 받게 되어,
-    // 서브도메인 하나가 침해되면 SSO 세션 전체가 넘어간다.
-    private fun buildSessionCookie(sessionId: String): ResponseCookie =
-        ResponseCookie
-            .from(oauthEnvironment.idpSessionCookieName, sessionId)
-            .httpOnly(true)
-            .secure(oauthEnvironment.idpSessionCookieSecure)
-            .sameSite("Lax")
-            .path("/")
-            .maxAge(Duration.ofSeconds(oauthEnvironment.idpSessionExpirationSeconds))
-            .build()
 
     // 핸드오프 URL은 로그·Referer·브라우저 히스토리에 남기 때문에, 나중에 그 URL을 입수한
     // 공격자가 다시 열어보는 것을 막아야 한다. 정상 흐름은 프론트에서 백엔드로 넘어오는
