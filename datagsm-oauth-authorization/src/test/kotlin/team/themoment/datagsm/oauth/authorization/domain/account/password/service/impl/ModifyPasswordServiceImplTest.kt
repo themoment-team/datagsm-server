@@ -200,8 +200,8 @@ class ModifyPasswordServiceImplTest :
             every { oauthRefreshTokenRedisRepository.deleteAll(any<Iterable<OauthRefreshTokenRedisEntity>>()) } returns Unit
             every { idpSessionRedisRepository.findAllByEmail(email) } returns
                 listOf(
-                    IdpSessionRedisEntity("session-1", email, 28800),
-                    IdpSessionRedisEntity("session-2", email, 28800),
+                    IdpSessionRedisEntity(sessionId = "session-1", email = email, ttl = 28800),
+                    IdpSessionRedisEntity(sessionId = "session-2", email = email, ttl = 28800),
                 )
             every { idpSessionRedisRepository.deleteAll(any<Iterable<IdpSessionRedisEntity>>()) } returns Unit
 
