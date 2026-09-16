@@ -36,7 +36,9 @@ class SecurityConfig(
 ) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-        val selfReadAuthority = OAuthScope.authorityOf(oauthJwtVerificationEnvironment.datagsmApplicationId, "self_read")
+        val accountReadAuthority =
+            OAuthScope.authorityOf(oauthJwtVerificationEnvironment.datagsmApplicationId, OAuthScope.ACCOUNT_READ)
+        val selfReadAuthority = OAuthScope.authorityOf(oauthJwtVerificationEnvironment.datagsmApplicationId, OAuthScope.SELF_READ)
 
         http
             .csrf(CsrfConfigurer<*>::disable)
@@ -55,7 +57,7 @@ class SecurityConfig(
             ).authorizeHttpRequests {
                 it
                     .requestMatchers("/userinfo")
-                    .hasAuthority(selfReadAuthority)
+                    .hasAnyAuthority(accountReadAuthority, selfReadAuthority)
                     .anyRequest()
                     .permitAll()
             }

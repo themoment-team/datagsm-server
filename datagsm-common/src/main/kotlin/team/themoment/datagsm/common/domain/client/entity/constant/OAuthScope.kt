@@ -20,6 +20,12 @@ class OAuthScope(
     override fun hashCode(): Int = scope.hashCode()
 
     companion object {
+        const val ACCOUNT_READ = "account_read"
+        const val STUDENT_READ = "student_read"
+        const val SELF_READ = "self_read"
+        const val CLUB_READ = "club_read"
+        const val PROJECT_READ = "project_read"
+
         fun authorityOf(
             applicationId: String,
             scopeName: String,
