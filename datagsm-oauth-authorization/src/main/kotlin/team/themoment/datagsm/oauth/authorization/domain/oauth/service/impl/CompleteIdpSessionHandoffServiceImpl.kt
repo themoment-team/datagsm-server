@@ -26,7 +26,7 @@ class CompleteIdpSessionHandoffServiceImpl(
 ) : CompleteIdpSessionHandoffService {
     companion object {
         private const val SEC_FETCH_MODE_NAVIGATE = "navigate"
-        private val ALLOWED_SEC_FETCH_SITES = setOf("same-origin", "same-site", "none")
+        private val ALLOWED_SEC_FETCH_SITES = setOf("same-origin", "same-site", "cross-site", "none")
         private const val INVALID_TICKET_MESSAGE = "인증 티켓이 유효하지 않거나 만료되었습니다. 다시 시도해주세요."
 
         // User-Agent는 클라이언트가 임의로 채우는 값이라 길이를 제한한다.
@@ -88,8 +88,10 @@ class CompleteIdpSessionHandoffServiceImpl(
     }
 
     // 핸드오프 URL은 로그·Referer·브라우저 히스토리에 남기 때문에, 나중에 그 URL을 입수한
-    // 공격자가 다시 열어보는 것을 막아야 한다. 정상 흐름은 프론트에서 백엔드로 넘어오는
-    // 최상위 내비게이션이므로, 브라우저가 붙여주는 Sec-Fetch 힌트로 그 형태만 통과시킨다.
+    // 공격자가 다시 열어보는 것을 막아야 한다. 실질적인 방어는 Sec-Fetch-Mode로, <img>·fetch·iframe
+    // 같은 재사용 시도는 navigate가 아니라 여기서 걸린다.
+    // 출처(Sec-Fetch-Site)는 제한하지 않는다. SP가 백엔드와 다른 도메인에 있으면 정상 로그인도
+    // cross-site로 오기 때문이다.
     // 헤더를 보내지 않는 구형 브라우저는 정상 로그인을 막지 않도록 설정으로 통과시킬 수 있다.
     private fun verifyTopLevelNavigation(
         secFetchSite: String?,

@@ -102,6 +102,14 @@ class CompleteIdpSessionHandoffServiceTest :
 
                         verify(exactly = 1) { mockIdpSessionHandoffRedisRepository.deleteById(testTicket) }
                     }
+
+                    // SP가 백엔드와 다른 도메인에 있으면 정상 로그인도 cross-site로 온다.
+                    it("cross-site 최상위 내비게이션도 통과해야 한다") {
+                        val response = completeIdpSessionHandoffService.execute(testTicket, testVerifier, "cross-site", "navigate")
+
+                        response.statusCode shouldBe HttpStatus.FOUND
+                        response.headers.location?.toString() shouldBe testRedirectUrl
+                    }
                 }
 
                 context("티켓은 맞지만 verifier가 틀렸을 때") {
@@ -131,14 +139,6 @@ class CompleteIdpSessionHandoffServiceTest :
                 context("최상위 내비게이션이 아닌 요청일 때") {
                     beforeEach {
                         every { mockIdpSessionHandoffRedisRepository.findById(testTicket) } returns Optional.of(handoff)
-                    }
-
-                    it("cross-site 요청은 거부되어야 한다") {
-                        shouldThrow<OAuthException.InvalidRequest> {
-                            completeIdpSessionHandoffService.execute(testTicket, testVerifier, "cross-site", "navigate")
-                        }
-
-                        verify(exactly = 0) { mockIdpSessionHandoffRedisRepository.deleteById(any()) }
                     }
 
                     it("navigate가 아닌 mode는 거부되어야 한다") {
