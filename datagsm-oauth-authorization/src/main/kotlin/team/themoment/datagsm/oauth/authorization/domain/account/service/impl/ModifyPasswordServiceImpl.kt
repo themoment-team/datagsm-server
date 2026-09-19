@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.account.dto.request.ChangePasswordReqDto
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.account.repository.PasswordResetCodeRedisRepository
+import team.themoment.datagsm.common.domain.oauth.repository.IdpSessionRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
 import team.themoment.datagsm.oauth.authorization.domain.account.service.ModifyPasswordService
 import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimitType
@@ -18,6 +19,7 @@ class ModifyPasswordServiceImpl(
     private val accountJpaRepository: AccountJpaRepository,
     private val passwordEncoder: PasswordEncoder,
     private val oauthRefreshTokenRedisRepository: OauthRefreshTokenRedisRepository,
+    private val idpSessionRedisRepository: IdpSessionRedisRepository,
 ) : ModifyPasswordService {
     @PasswordResetRateLimited(type = PasswordResetRateLimitType.MODIFY_PASSWORD)
     override fun execute(reqDto: ChangePasswordReqDto) {
@@ -50,5 +52,11 @@ class ModifyPasswordServiceImpl(
 
         val tokens = oauthRefreshTokenRedisRepository.findAllByEmail(reqDto.email)
         oauthRefreshTokenRedisRepository.deleteAll(tokens)
+
+        // 비밀번호를 바꾸는 이유는 계정 탈취 대응인 경우가 많다.
+        // IdP 세션이 살아 있으면 공격자가 기존 쿠키로 계속 새 인가를 받을 수 있으므로
+        // refresh token과 함께 세션도 전부 끊는다.
+        val sessions = idpSessionRedisRepository.findAllByEmail(reqDto.email)
+        idpSessionRedisRepository.deleteAll(sessions)
     }
 }
