@@ -109,15 +109,16 @@ class CompleteOauthConsentServiceTest :
                 }
 
                 context("사용자가 동의를 승인했을 때") {
-                    it("코드를 발급하고 클라이언트로 리다이렉트해야 한다") {
+                    // 302로 돌려주면 브라우저 fetch가 Location을 읽지 못해 이동이 끊긴다.
+                    // 이동할 주소는 반드시 본문으로 내려가야 한다.
+                    it("코드를 발급하고 이동할 주소를 본문으로 반환해야 한다") {
                         val response =
                             completeOauthConsentService.execute(
                                 OauthConsentReqDto(testToken, approved = true),
                                 testSessionId,
                             )
 
-                        response.statusCode shouldBe HttpStatus.FOUND
-                        response.headers.location?.toString() shouldBe issuedRedirectUrl
+                        response.redirectUrl shouldBe issuedRedirectUrl
                     }
 
                     it("승인한 scope가 동의 기록으로 저장되어야 한다") {
@@ -146,15 +147,14 @@ class CompleteOauthConsentServiceTest :
                 }
 
                 context("사용자가 동의를 거부했을 때") {
-                    it("access_denied로 클라이언트에 리다이렉트해야 한다") {
+                    it("access_denied가 실린 주소를 본문으로 반환해야 한다") {
                         val response =
                             completeOauthConsentService.execute(
                                 OauthConsentReqDto(testToken, approved = false),
                                 testSessionId,
                             )
 
-                        response.statusCode shouldBe HttpStatus.FOUND
-                        val location = response.headers.location?.toString() ?: ""
+                        val location = response.redirectUrl
                         location shouldStartWith "$testRedirectUri?error=access_denied"
                         location shouldContain "state=xyz"
                     }
@@ -190,7 +190,7 @@ class CompleteOauthConsentServiceTest :
                                 testSessionId,
                             )
 
-                        val location = response.headers.location?.toString() ?: ""
+                        val location = response.redirectUrl
                         val parsedKeys =
                             URI
                                 .create(location)

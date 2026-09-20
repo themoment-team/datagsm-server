@@ -25,6 +25,7 @@ import team.themoment.datagsm.common.domain.oauth.dto.request.OauthConsentReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.IdpSessionListResDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.JwkSetResDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.Oauth2TokenResDto
+import team.themoment.datagsm.common.domain.oauth.dto.response.OauthConsentResDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.OauthSessionResDto
 import team.themoment.datagsm.common.domain.student.dto.request.QueryStudentDataEditRequestReqDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentDataEditRequestResDto
@@ -112,11 +113,13 @@ class OauthController(
     @PostMapping("/authorize/consent")
     @Operation(
         summary = "OAuth 동의 처리",
-        description = "SSO 세션이 있는 사용자가 요청된 scope를 승인하거나 거부합니다. 거부 시 access_denied로 리다이렉트합니다.",
+        description =
+            "SSO 세션이 있는 사용자가 요청된 scope를 승인하거나 거부합니다. " +
+                "승인과 거부 모두 이동할 주소를 본문으로 반환하며, 거부 시 access_denied가 실려 있습니다.",
     )
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "302", description = "동의 승인 후 코드 발급, 또는 거부 시 access_denied 리다이렉트"),
+            ApiResponse(responseCode = "200", description = "동의 승인 후 코드 발급, 또는 거부 시 access_denied 주소 반환"),
             ApiResponse(responseCode = "400", description = "세션 만료 또는 잘못된 요청", content = [Content()]),
             ApiResponse(responseCode = "401", description = "IdP 세션이 없거나 유효하지 않음", content = [Content()]),
         ],
@@ -124,7 +127,7 @@ class OauthController(
     fun authorizeConsent(
         @Valid @RequestBody reqDto: OauthConsentReqDto,
         @CookieValue(name = "\${spring.security.oauth.idp-session-cookie-name}", required = false) sessionId: String?,
-    ): ResponseEntity<Void> = completeOauthConsentService.execute(reqDto, sessionId)
+    ): OauthConsentResDto = completeOauthConsentService.execute(reqDto, sessionId)
 
     @PostMapping("/authorize/data-edit-requirements")
     @Operation(
