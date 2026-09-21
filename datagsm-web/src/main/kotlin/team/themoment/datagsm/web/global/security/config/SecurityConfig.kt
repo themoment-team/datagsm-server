@@ -17,9 +17,12 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfigurationSource
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
+import team.themoment.datagsm.common.global.data.PublicApiRateLimitEnvironment
+import team.themoment.datagsm.web.global.security.filter.PublicApiRateLimitFilter
 import team.themoment.datagsm.web.global.security.handler.CustomAuthenticationEntryPoint
 import team.themoment.datagsm.web.global.security.jwt.JwtProvider
 import team.themoment.datagsm.web.global.security.jwt.filter.JwtAuthenticationFilter
+import team.themoment.datagsm.web.global.security.service.PublicApiRateLimitService
 import tools.jackson.databind.ObjectMapper
 
 @Configuration
@@ -29,6 +32,8 @@ class SecurityConfig(
     @param:Qualifier("configure") private val corsConfigurationSource: CorsConfigurationSource,
     private val jwtProvider: JwtProvider,
     private val customAuthenticationEntryPoint: CustomAuthenticationEntryPoint,
+    private val publicApiRateLimitService: PublicApiRateLimitService,
+    private val publicApiRateLimitEnvironment: PublicApiRateLimitEnvironment,
     private val objectMapper: ObjectMapper,
 ) {
     @Bean
@@ -42,6 +47,9 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .exceptionHandling { it.authenticationEntryPoint(customAuthenticationEntryPoint) }
             .addFilterBefore(
+                PublicApiRateLimitFilter(publicApiRateLimitService, publicApiRateLimitEnvironment, objectMapper),
+                UsernamePasswordAuthenticationFilter::class.java,
+            ).addFilterBefore(
                 JwtAuthenticationFilter(jwtProvider, objectMapper),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).authorizeHttpRequests {
@@ -49,6 +57,15 @@ class SecurityConfig(
                     .requestMatchers(*AuthenticationPathConfig.PUBLIC_PATHS.toTypedArray())
                     .permitAll()
                     .requestMatchers(HttpMethod.PATCH, "/v1/students/me/specialty", "/v1/students/me/github-id")
+                    .authenticated()
+                    .requestMatchers(HttpMethod.GET, "/v1/students/me/projects")
+                    .authenticated()
+                    .requestMatchers(
+                        HttpMethod.POST,
+                        "/v1/students/me/projects",
+                        "/v1/students/me/projects/icons/upload-url",
+                    ).authenticated()
+                    .requestMatchers(HttpMethod.PUT, "/v1/students/me/projects/{projectId}")
                     .authenticated()
                     .requestMatchers(HttpMethod.GET, "/v1/accounts/my")
                     .authenticated()
