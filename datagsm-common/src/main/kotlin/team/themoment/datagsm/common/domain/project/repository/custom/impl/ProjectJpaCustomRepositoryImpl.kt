@@ -11,12 +11,64 @@ import team.themoment.datagsm.common.domain.project.entity.QProjectJpaEntity.Com
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectSortBy
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.custom.ProjectJpaCustomRepository
+import team.themoment.datagsm.common.domain.student.entity.QStudentJpaEntity
 import team.themoment.datagsm.common.global.constant.SortDirection
 
 @Repository
 class ProjectJpaCustomRepositoryImpl(
     private val jpaQueryFactory: JPAQueryFactory,
 ) : ProjectJpaCustomRepository {
+    private val participant = QStudentJpaEntity("myProjectParticipant")
+
+    override fun findAllByParticipantOrApplicant(studentId: Long): List<ProjectJpaEntity> {
+        val projectIds =
+            jpaQueryFactory
+                .select(projectJpaEntity.id)
+                .from(projectJpaEntity)
+                .leftJoin(projectJpaEntity.participants, participant)
+                .where(
+                    projectJpaEntity.appliedBy.id
+                        .eq(studentId)
+                        .or(participant.id.eq(studentId)),
+                ).distinct()
+                .fetch()
+
+        if (projectIds.isEmpty()) return emptyList()
+
+        val content =
+            jpaQueryFactory
+                .selectFrom(projectJpaEntity)
+                .leftJoin(projectJpaEntity.club)
+                .fetchJoin()
+                .leftJoin(projectJpaEntity.appliedBy)
+                .fetchJoin()
+                .where(projectJpaEntity.id.`in`(projectIds))
+                .fetch()
+
+        jpaQueryFactory
+            .selectFrom(projectJpaEntity)
+            .leftJoin(projectJpaEntity.participants)
+            .fetchJoin()
+            .where(projectJpaEntity.id.`in`(projectIds))
+            .fetch()
+
+        jpaQueryFactory
+            .selectFrom(projectJpaEntity)
+            .leftJoin(projectJpaEntity.repositories)
+            .fetchJoin()
+            .where(projectJpaEntity.id.`in`(projectIds))
+            .fetch()
+
+        jpaQueryFactory
+            .selectFrom(projectJpaEntity)
+            .leftJoin(projectJpaEntity.techStacks)
+            .fetchJoin()
+            .where(projectJpaEntity.id.`in`(projectIds))
+            .fetch()
+
+        return content
+    }
+
     override fun searchProjectWithPaging(
         id: Long?,
         name: String?,

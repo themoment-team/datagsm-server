@@ -17,4 +17,6 @@ interface ProjectJpaCustomRepository {
         sortBy: ProjectSortBy?,
         sortDirection: SortDirection,
     ): Page<ProjectJpaEntity>
+
+    fun findAllByParticipantOrApplicant(studentId: Long): List<ProjectJpaEntity>
 }
