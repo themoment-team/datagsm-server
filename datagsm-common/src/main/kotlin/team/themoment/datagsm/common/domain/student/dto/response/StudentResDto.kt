@@ -61,11 +61,8 @@ data class StudentResDto(
                 role = student.role,
                 dormitoryFloor = student.dormitoryRoomNumber?.dormitoryRoomFloor,
                 dormitoryRoom = student.dormitoryRoomNumber?.dormitoryRoomNumber,
-                majorClub = student.majorClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
-                autonomousClub =
-                    student.autonomousClub?.let {
-                        ClubSummaryDto(id = it.id!!, name = it.name, type = it.type)
-                    },
+                majorClub = student.majorClub?.let { ClubSummaryDto.from(it) },
+                autonomousClub = student.autonomousClub?.let { ClubSummaryDto.from(it) },
                 githubId = student.githubId,
                 githubUrl = student.githubId?.let { "https://github.com/$it" },
             )

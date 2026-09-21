@@ -12,6 +12,7 @@ import team.themoment.datagsm.common.domain.project.entity.constant.ProjectSortB
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.custom.ProjectJpaCustomRepository
 import team.themoment.datagsm.common.domain.student.entity.QStudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.QStudentJpaEntity.Companion.studentJpaEntity
 import team.themoment.datagsm.common.global.constant.SortDirection
 
 @Repository
@@ -151,6 +152,15 @@ class ProjectJpaCustomRepositoryImpl(
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
     }
+
+    override fun findAllByParticipantId(studentId: Long): List<ProjectJpaEntity> =
+        jpaQueryFactory
+            .selectFrom(projectJpaEntity)
+            .leftJoin(projectJpaEntity.club)
+            .fetchJoin()
+            .join(projectJpaEntity.participants, studentJpaEntity)
+            .where(studentJpaEntity.id.eq(studentId))
+            .fetch()
 
     private fun createOrderSpecifier(
         sortBy: ProjectSortBy?,

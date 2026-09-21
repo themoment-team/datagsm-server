@@ -1,0 +1,151 @@
+package team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl
+
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
+import team.themoment.datagsm.common.domain.oauth.entity.IdpSessionHandoffRedisEntity
+import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
+import team.themoment.datagsm.common.domain.oauth.repository.IdpSessionHandoffRedisRepository
+import team.themoment.datagsm.common.domain.oauth.repository.IdpSessionRedisRepository
+import team.themoment.datagsm.common.global.data.OauthEnvironment
+import team.themoment.datagsm.common.global.security.util.IdpSessionCookieFactory
+import team.themoment.datagsm.common.global.security.util.OpaqueTokenHashUtil
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteIdpSessionHandoffService
+import java.net.URI
+
+@Service
+class CompleteIdpSessionHandoffServiceImpl(
+    private val idpSessionHandoffRedisRepository: IdpSessionHandoffRedisRepository,
+    private val idpSessionRedisRepository: IdpSessionRedisRepository,
+    private val clientJpaRepository: ClientJpaRepository,
+    private val oauthEnvironment: OauthEnvironment,
+) : CompleteIdpSessionHandoffService {
+    companion object {
+        private const val SEC_FETCH_MODE_NAVIGATE = "navigate"
+        private val ALLOWED_SEC_FETCH_SITES = setOf("same-origin", "same-site", "cross-site", "none")
+        private const val INVALID_TICKET_MESSAGE = "인증 티켓이 유효하지 않거나 만료되었습니다. 다시 시도해주세요."
+
+        // User-Agent는 클라이언트가 임의로 채우는 값이라 길이를 제한한다.
+        private const val MAX_USER_AGENT_LENGTH = 255
+    }
+
+    @Transactional(readOnly = true)
+    override fun execute(
+        ticket: String,
+        verifier: String?,
+        secFetchSite: String?,
+        secFetchMode: String?,
+        userAgent: String?,
+    ): ResponseEntity<Void> {
+        verifyTopLevelNavigation(secFetchSite, secFetchMode)
+
+        val handoff =
+            idpSessionHandoffRedisRepository.findByIdOrNull(ticket)
+                ?: throw OAuthException.InvalidRequest(INVALID_TICKET_MESSAGE)
+
+        // ticket과 verifier는 같은 URL로 전달되므로 verifier만으로 유출을 막지는 못한다.
+        // 로그 등에서 티켓 일부만 새어나간 경우를 위한 보조 방어이며,
+        // 실질적인 재사용 차단은 위의 Sec-Fetch 검사와 일회용 소비가 담당한다.
+        // 불일치해도 티켓을 삭제하지 않는다. 삭제하면 ticket만 아는 공격자가
+        // 요청 한 번으로 정상 사용자의 로그인을 무효화할 수 있다.
+        if (verifier == null || !OpaqueTokenHashUtil.matches(verifier, handoff.verifierHash)) {
+            throw OAuthException.InvalidRequest(INVALID_TICKET_MESSAGE)
+        }
+
+        // 티켓을 소비하기 전에 목적지를 먼저 검증한다.
+        // 순서가 반대면 클라이언트의 redirect_uri가 바뀐 순간 티켓만 날아가고,
+        // 이미 만들어둔 IdP 세션은 브라우저에 전달되지 못한 채 Redis에 남는다.
+        verifyRedirectUrlStillAllowed(handoff)
+
+        idpSessionHandoffRedisRepository.deleteById(ticket)
+
+        recordUserAgent(handoff.sessionId, userAgent)
+
+        return ResponseEntity
+            .status(HttpStatus.FOUND)
+            .header(
+                HttpHeaders.SET_COOKIE,
+                IdpSessionCookieFactory.issued(oauthEnvironment, handoff.sessionId).toString(),
+            ).location(URI.create(handoff.redirectUrl))
+            .build()
+    }
+
+    // 세션을 만든 POST는 BFF의 서버-투-서버 호출이라 User-Agent가 BFF의 것이다.
+    // 이 GET은 브라우저가 직접 보내므로, 사용자가 기기를 구분할 수 있는 값은 여기서만 얻을 수 있다.
+    // 세션이 이미 만료됐다면 되살리지 않고 넘어간다.
+    private fun recordUserAgent(
+        sessionId: String,
+        userAgent: String?,
+    ) {
+        if (userAgent.isNullOrBlank()) return
+
+        val session = idpSessionRedisRepository.findByIdOrNull(sessionId) ?: return
+        idpSessionRedisRepository.save(session.copy(userAgent = userAgent.take(MAX_USER_AGENT_LENGTH)))
+    }
+
+    // 핸드오프 URL은 로그·Referer·브라우저 히스토리에 남기 때문에, 나중에 그 URL을 입수한
+    // 공격자가 다시 열어보는 것을 막아야 한다. 실질적인 방어는 Sec-Fetch-Mode로, <img>·fetch·iframe
+    // 같은 재사용 시도는 navigate가 아니라 여기서 걸린다.
+    // 출처(Sec-Fetch-Site)는 제한하지 않는다. SP가 백엔드와 다른 도메인에 있으면 정상 로그인도
+    // cross-site로 오기 때문이다.
+    // 헤더를 보내지 않는 구형 브라우저는 정상 로그인을 막지 않도록 설정으로 통과시킬 수 있다.
+    private fun verifyTopLevelNavigation(
+        secFetchSite: String?,
+        secFetchMode: String?,
+    ) {
+        if (secFetchSite == null && secFetchMode == null) {
+            if (oauthEnvironment.idpSessionHandoffRequireFetchMetadata) {
+                throw OAuthException.InvalidRequest(INVALID_TICKET_MESSAGE)
+            }
+            return
+        }
+
+        if (secFetchMode != null && secFetchMode != SEC_FETCH_MODE_NAVIGATE) {
+            throw OAuthException.InvalidRequest(INVALID_TICKET_MESSAGE)
+        }
+
+        if (secFetchSite != null && secFetchSite !in ALLOWED_SEC_FETCH_SITES) {
+            throw OAuthException.InvalidRequest(INVALID_TICKET_MESSAGE)
+        }
+    }
+
+    // 저장 시점에 화이트리스트를 통과했더라도, Location으로 내보내기 직전에 다시 확인해
+    // 오픈 리다이렉트가 성립하지 않도록 한다.
+    // 검증에 실패하면 쓰이지 못할 세션이 남지 않도록 티켓과 세션을 함께 정리한다.
+    private fun verifyRedirectUrlStillAllowed(handoff: IdpSessionHandoffRedisEntity) {
+        val client =
+            clientJpaRepository
+                .findById(handoff.clientId)
+                .orElseGet { null }
+                ?: throw discardHandoff(handoff, INVALID_TICKET_MESSAGE)
+
+        if (client.redirectUrls.none { matchesRegisteredRedirectUri(handoff.redirectUrl, it) }) {
+            throw discardHandoff(handoff, "등록되지 않은 redirect_uri입니다.")
+        }
+    }
+
+    private fun discardHandoff(
+        handoff: IdpSessionHandoffRedisEntity,
+        message: String,
+    ): OAuthException.InvalidRequest {
+        idpSessionHandoffRedisRepository.deleteById(handoff.ticket)
+        idpSessionRedisRepository.deleteById(handoff.sessionId)
+        return OAuthException.InvalidRequest(message)
+    }
+
+    // 발급 시 buildRedirectUrl이 등록 URI 뒤에 '?' 또는 '&'로 code/state를 이어 붙인다.
+    // 등록 URI로 시작하고, 이어지는 문자가 그 구분자인 경우에만 일치로 본다.
+    // 접두사만 비교하면 https://example.com.attacker.io 같은 도메인 위조가 통과한다.
+    private fun matchesRegisteredRedirectUri(
+        redirectUrl: String,
+        candidate: String,
+    ): Boolean {
+        if (!redirectUrl.startsWith(candidate)) return false
+        val remainder = redirectUrl.substring(candidate.length)
+        return remainder.isEmpty() || remainder[0] == '?' || remainder[0] == '&'
+    }
+}
