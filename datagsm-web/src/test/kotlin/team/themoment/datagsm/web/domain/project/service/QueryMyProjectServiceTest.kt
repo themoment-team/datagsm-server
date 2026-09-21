@@ -212,7 +212,24 @@ class QueryMyProjectServiceTest :
 
                         result.totalElements shouldBe 1
                         result.projects[0].projectId shouldBe 40L
-                        result.projects[0].requestStatus shouldBe ProjectRequestStatus.ACCEPTED
+                    }
+
+                    it("원본 1건에 거절 사유가 실려 확인할 수 있어야 한다") {
+                        val result = queryMyProjectService.execute(QueryMyProjectReqDto())
+
+                        result.projects[0].requestStatus shouldBe ProjectRequestStatus.REJECTED
+                        result.projects[0].rejectReason shouldBe "사유"
+                        result.projects[0].requestId shouldBe 401L
+                        result.projects[0].name shouldBe "내 프로젝트"
+                    }
+
+                    it("REJECTED 필터로도 조회되어야 한다") {
+                        val result =
+                            queryMyProjectService.execute(
+                                QueryMyProjectReqDto(requestStatus = ProjectRequestStatus.REJECTED),
+                            )
+
+                        result.totalElements shouldBe 1
                     }
                 }
 

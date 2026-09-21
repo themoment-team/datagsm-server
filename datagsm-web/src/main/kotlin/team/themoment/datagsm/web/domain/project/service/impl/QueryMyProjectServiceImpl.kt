@@ -30,6 +30,8 @@ class QueryMyProjectServiceImpl(
         val studentId = student.id!!
 
         val approvedProjects = projectJpaRepository.findAllByParticipantOrApplicant(studentId)
+        val myRequests = projectEditRequestJpaRepository.findAllByParticipantOrRequester(studentId)
+
         val pendingByProjectId =
             projectEditRequestJpaRepository
                 .findAllByOriginalProjectIdInAndRequestStatus(
@@ -37,21 +39,26 @@ class QueryMyProjectServiceImpl(
                     ProjectRequestStatus.PENDING,
                 ).associateBy { it.originalProject!!.id }
 
+        // 대기 건이 없을 때만 참고할 최신 거절 이력. requestedAt 내림차순으로 조회되므로 첫 건이 가장 최근이다
+        val latestRejectedByProjectId =
+            myRequests
+                .filter { it.originalProject != null && it.requestStatus == ProjectRequestStatus.REJECTED }
+                .groupBy { it.originalProject!!.id }
+                .mapValues { (_, requests) -> requests.first() }
+
         // 승인된 프로젝트는 항상 원본 1건으로만 노출하되, 대기 중인 수정안이 있으면 그 내용을 함께 내려준다
         val approvedResults =
             approvedProjects.map { project ->
                 val pendingRequest = pendingByProjectId[project.id]
-                if (pendingRequest == null) {
-                    toResDto(project, studentId)
-                } else {
-                    toResDto(pendingRequest, studentId, project)
+                when {
+                    pendingRequest != null -> toResDto(pendingRequest, studentId, project)
+                    else -> toResDto(project, studentId, latestRejectedByProjectId[project.id])
                 }
             }
 
         // 아직 승인되지 않아 tb_project에 존재하지 않는 신규 생성 신청
         val standaloneResults =
-            projectEditRequestJpaRepository
-                .findAllByParticipantOrRequester(studentId)
+            myRequests
                 .filter { it.originalProject == null && it.requestStatus != ProjectRequestStatus.ACCEPTED }
                 .map { toResDto(it, studentId, null) }
 
@@ -62,15 +69,20 @@ class QueryMyProjectServiceImpl(
         return MyProjectListResDto(totalElements = results.size, projects = results)
     }
 
+    /**
+     * 승인된 프로젝트는 원본 내용을 그대로 노출한다.
+     * 직전 수정 신청이 거절된 상태라면 사유를 확인할 수 있도록 거절 정보를 함께 실어 보낸다.
+     */
     private fun toResDto(
         project: ProjectJpaEntity,
         studentId: Long,
+        rejectedRequest: ProjectEditRequestJpaEntity?,
     ): MyProjectResDto =
         MyProjectResDto(
             projectId = project.id,
-            requestId = null,
-            requestStatus = ProjectRequestStatus.ACCEPTED,
-            rejectReason = null,
+            requestId = rejectedRequest?.id,
+            requestStatus = rejectedRequest?.let { ProjectRequestStatus.REJECTED } ?: ProjectRequestStatus.ACCEPTED,
+            rejectReason = rejectedRequest?.rejectReason,
             role = resolveRole(project.appliedBy?.id, studentId),
             name = project.name,
             description = project.description,
