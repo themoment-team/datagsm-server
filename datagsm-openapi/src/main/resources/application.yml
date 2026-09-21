@@ -57,6 +57,9 @@ spring:
       include-binding-errors: always
       include-stacktrace: never
       include-exception: false
+storage:
+  project-icon:
+    cdn-base-url: ${PROJECT_ICON_CDN_BASE_URL:https://cdn.datagsm.kr}
 server:
   port: 8082
   shutdown: graceful

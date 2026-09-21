@@ -24,6 +24,8 @@ import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatu
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
+import team.themoment.datagsm.common.global.data.ProjectIconStorageEnvironment
+import team.themoment.datagsm.common.global.storage.ProjectIconUrlResolver
 import team.themoment.datagsm.openapi.domain.project.service.impl.ModifyProjectServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
@@ -44,7 +46,13 @@ class ModifyProjectServiceTest :
             mockClubRepository = mockk<ClubJpaRepository>()
             mockStudentRepository = mockk<team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository>()
             modifyProjectService =
-                ModifyProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository, applicationEventPublisher)
+                ModifyProjectServiceImpl(
+                    mockProjectRepository,
+                    mockClubRepository,
+                    mockStudentRepository,
+                    ProjectIconUrlResolver(ProjectIconStorageEnvironment(cdnBaseUrl = "https://cdn.datagsm.kr")),
+                    applicationEventPublisher,
+                )
             clearMocks(applicationEventPublisher)
             justRun { applicationEventPublisher.publishEvent(capture(eventSlot)) }
         }

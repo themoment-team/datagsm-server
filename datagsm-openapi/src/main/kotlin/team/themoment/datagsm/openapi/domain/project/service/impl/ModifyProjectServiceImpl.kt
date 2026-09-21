@@ -20,6 +20,7 @@ import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
+import team.themoment.datagsm.common.global.storage.ProjectIconUrlResolver
 import team.themoment.datagsm.openapi.domain.project.service.ModifyProjectService
 import team.themoment.sdk.exception.ExpectedException
 
@@ -28,6 +29,7 @@ class ModifyProjectServiceImpl(
     private val projectJpaRepository: ProjectJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
+    private val projectIconUrlResolver: ProjectIconUrlResolver,
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) : ModifyProjectService {
     @Transactional
@@ -77,6 +79,7 @@ class ModifyProjectServiceImpl(
         project.participants = newParticipants
         project.repositories = reqDto.repositories.toMutableSet()
         project.techStacks = reqDto.techStacks.toMutableSet()
+        project.iconKey = projectIconUrlResolver.validateIconKey(reqDto.iconKey)
 
         val newObj = generateProjectEventObject(project)
         applicationEventPublisher.publishEvent(
@@ -96,6 +99,7 @@ class ModifyProjectServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status,
+            iconUrl = projectIconUrlResolver.toIconUrl(project.iconKey),
             club = project.club?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             participants =
                 project.participants.map { student ->
