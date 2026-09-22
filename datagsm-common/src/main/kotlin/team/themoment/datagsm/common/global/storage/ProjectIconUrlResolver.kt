@@ -1,11 +1,15 @@
 package team.themoment.datagsm.common.global.storage
 
 import org.springframework.http.HttpStatus
-import org.springframework.stereotype.Component
 import team.themoment.datagsm.common.global.data.ProjectIconStorageEnvironment
 import team.themoment.sdk.exception.ExpectedException
 
-@Component
+/**
+ * 컴포넌트 스캔 대상에서 제외한다.
+ * 프로젝트 도메인을 다루지 않는 모듈(oauth)은 설정을 등록하지 않으므로,
+ * 스캔으로 빈이 만들어지면 의존성을 찾지 못해 컨텍스트 초기화가 실패한다.
+ * 설정을 등록하는 모듈이 ProjectIconStorageConfig로 직접 빈을 만든다.
+ */
 class ProjectIconUrlResolver(
     private val environment: ProjectIconStorageEnvironment,
 ) {
