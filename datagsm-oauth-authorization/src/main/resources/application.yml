@@ -117,6 +117,8 @@ sdk:
       - "/swagger-ui/**"
       - "/actuator/**"
       - "/v1/oauth/authorize"
+      # 302라서가 아니라 프론트가 redirectUrl을 최상위에서 읽기 때문에 제외한다.
+      # 감싸지면 {data:{redirectUrl}}이 되어 이동이 조용히 끊기고, 그 시점엔 인가 코드가 이미 소비된 뒤다.
       - "/v1/oauth/authorize/consent"
       - "/v1/oauth/token"
       - "/v1/oauth/jwks"

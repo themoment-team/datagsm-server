@@ -2,10 +2,10 @@ package team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl
 
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthConsentReqDto
+import team.themoment.datagsm.common.domain.oauth.dto.response.OauthConsentResDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthAuthorizeStateRedisEntity
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
@@ -14,7 +14,6 @@ import team.themoment.datagsm.oauth.authorization.domain.oauth.component.IdpSess
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthConsentService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueAuthorizationCodeService
 import team.themoment.sdk.exception.ExpectedException
-import java.net.URI
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -34,7 +33,7 @@ class CompleteOauthConsentServiceImpl(
     override fun execute(
         reqDto: OauthConsentReqDto,
         sessionId: String?,
-    ): ResponseEntity<Void> {
+    ): OauthConsentResDto {
         val stateEntity =
             oauthAuthorizeStateRedisRepository
                 .findByIdOrNull(reqDto.token)
@@ -67,15 +66,12 @@ class CompleteOauthConsentServiceImpl(
         val accountId = requireNotNull(account.id) { "Persisted account must have an id" }
         recordConsent(accountId, stateEntity.clientId, stateEntity.scopes)
 
-        return ResponseEntity
-            .status(HttpStatus.FOUND)
-            .location(URI.create(redirectUrl))
-            .build()
+        return OauthConsentResDto(redirectUrl = redirectUrl)
     }
 
     // 거부는 OAuth 2.0 표준(RFC 6749 4.1.2.1)대로 클라이언트에 error=access_denied로 돌려준다.
     // 토큰을 소비해 같은 화면을 다시 승인으로 뒤집지 못하게 한다.
-    private fun denyConsent(stateEntity: OauthAuthorizeStateRedisEntity): ResponseEntity<Void> {
+    private fun denyConsent(stateEntity: OauthAuthorizeStateRedisEntity): OauthConsentResDto {
         oauthAuthorizeStateRedisRepository.deleteById(stateEntity.token)
 
         val redirectUrl =
@@ -87,10 +83,7 @@ class CompleteOauthConsentServiceImpl(
                 stateEntity.state?.let { append("&state=").append(encodeQueryValue(it)) }
             }
 
-        return ResponseEntity
-            .status(HttpStatus.FOUND)
-            .location(URI.create(redirectUrl))
-            .build()
+        return OauthConsentResDto(redirectUrl = redirectUrl)
     }
 
     // 동의 기록은 DB의 원자적 upsert에 맡긴다.
