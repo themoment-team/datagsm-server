@@ -2,6 +2,7 @@ package team.themoment.datagsm.common.domain.project.dto.request
 
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.Size
 
@@ -39,4 +40,8 @@ data class ApplyProjectReqDto(
         example = "project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png",
     )
     val iconKey: String? = null,
+    @field:Size(max = 300)
+    @field:Pattern(regexp = "^https?://.*", message = "URL은 http:// 또는 https://로 시작해야 합니다.")
+    @param:Schema(description = "프로젝트 배포 URL", example = "https://datagsm.kr", maxLength = 300)
+    val deploymentUrl: String? = null,
 )

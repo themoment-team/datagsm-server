@@ -29,6 +29,7 @@ class ProjectApplicationAssembler(
         request.repositories = reqDto.repositories.toMutableSet()
         request.techStacks = reqDto.techStacks.toMutableSet()
         request.iconKey = projectIconStorage.validateIconKey(reqDto.iconKey)
+        request.deploymentUrl = reqDto.deploymentUrl
     }
 
     /** 클라이언트는 무소속을 0으로 보내므로 null과 동일하게 취급한다 */

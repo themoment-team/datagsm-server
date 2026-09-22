@@ -80,6 +80,7 @@ class ModifyProjectServiceImpl(
         project.repositories = reqDto.repositories.toMutableSet()
         project.techStacks = reqDto.techStacks.toMutableSet()
         project.iconKey = projectIconUrlResolver.validateIconKey(reqDto.iconKey)
+        project.deploymentUrl = reqDto.deploymentUrl
 
         val newObj = generateProjectEventObject(project)
         applicationEventPublisher.publishEvent(
@@ -100,6 +101,7 @@ class ModifyProjectServiceImpl(
             endYear = project.endYear,
             status = project.status,
             iconUrl = projectIconUrlResolver.toIconUrl(project.iconKey),
+            deploymentUrl = project.deploymentUrl,
             club = project.club?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             participants =
                 project.participants.map { student ->
@@ -125,6 +127,7 @@ class ModifyProjectServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status.name,
+            deploymentUrl = project.deploymentUrl,
             club = project.club?.let { EventClubRef(it.id!!, it.name) },
             participants =
                 project.participants.map { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },

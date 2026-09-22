@@ -85,6 +85,7 @@ class AcceptProjectRequestServiceTest :
                                 startYear = 2024
                                 repositories = mutableSetOf("https://github.com/team/repo")
                                 techStacks = mutableSetOf("Kotlin")
+                                deploymentUrl = "https://datagsm.kr"
                                 requestStatus = ProjectRequestStatus.PENDING
                             }
 
@@ -104,6 +105,16 @@ class AcceptProjectRequestServiceTest :
 
                         result.id shouldBe 500L
                         result.name shouldBe "DataGSM 프로젝트"
+                    }
+
+                    it("신청의 배포 URL이 프로젝트로 전파되어야 한다") {
+                        val captured = slot<ProjectJpaEntity>()
+
+                        val result = acceptProjectRequestService.execute(requestId)
+
+                        verify(exactly = 1) { mockProjectRepository.save(capture(captured)) }
+                        captured.captured.deploymentUrl shouldBe "https://datagsm.kr"
+                        result.deploymentUrl shouldBe "https://datagsm.kr"
                     }
 
                     it("신청 상태가 ACCEPTED로 변경되고 처리 일시가 기록되어야 한다") {

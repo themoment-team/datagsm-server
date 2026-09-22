@@ -88,6 +88,7 @@ class CreateProjectServiceImpl(
                 this.repositories = projectReqDto.repositories.toMutableSet()
                 this.techStacks = projectReqDto.techStacks.toMutableSet()
                 this.iconKey = projectIconStorage.validateIconKey(projectReqDto.iconKey)
+                this.deploymentUrl = projectReqDto.deploymentUrl
             }
         val savedProjectEntity = projectJpaRepository.save(projectEntity)
 
@@ -110,6 +111,7 @@ class CreateProjectServiceImpl(
             endYear = savedProjectEntity.endYear,
             status = savedProjectEntity.status,
             iconUrl = projectIconStorage.toIconUrl(savedProjectEntity.iconKey),
+            deploymentUrl = savedProjectEntity.deploymentUrl,
             club = ownerClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             participants =
                 savedProjectEntity.participants.map { student ->
@@ -135,6 +137,7 @@ class CreateProjectServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status.name,
+            deploymentUrl = project.deploymentUrl,
             club = project.club?.let { EventClubRef(it.id!!, it.name) },
             participants =
                 project.participants.map { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },

@@ -88,6 +88,7 @@ class AcceptProjectRequestServiceImpl(
         project.repositories = request.repositories.toMutableSet()
         project.techStacks = request.techStacks.toMutableSet()
         project.iconKey = request.iconKey
+        project.deploymentUrl = request.deploymentUrl
         if (project.appliedBy == null) {
             project.appliedBy = request.requestedBy
         }
@@ -102,6 +103,7 @@ class AcceptProjectRequestServiceImpl(
             endYear = project.endYear,
             status = project.status,
             iconUrl = projectIconStorage.toIconUrl(project.iconKey),
+            deploymentUrl = project.deploymentUrl,
             club = project.club?.let { projectEditRequestMapper.toClubSummary(it) },
             participants = project.participants.map { projectEditRequestMapper.toParticipantInfo(it) },
             repositories = project.repositories.toList(),

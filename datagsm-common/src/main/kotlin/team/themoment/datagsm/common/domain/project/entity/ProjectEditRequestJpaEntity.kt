@@ -59,6 +59,9 @@ class ProjectEditRequestJpaEntity {
     @field:Column(name = "icon_key", nullable = true, length = 300)
     var iconKey: String? = null
 
+    @field:Column(name = "deployment_url", nullable = true, length = 300)
+    var deploymentUrl: String? = null
+
     @field:ManyToOne(optional = true)
     @field:JoinColumn(name = "club_id", nullable = true, referencedColumnName = "id")
     var club: ClubJpaEntity? = null
