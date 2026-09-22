@@ -15,13 +15,19 @@ import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.web.domain.project.service.impl.QueryProjectServiceImpl
+import team.themoment.datagsm.web.global.storage.ProjectIconStorage
 
 class QueryProjectServiceTest :
     DescribeSpec({
 
         val mockProjectRepository = mockk<ProjectJpaRepository>()
+        val mockProjectIconStorage = mockk<ProjectIconStorage>()
 
-        val queryProjectService = QueryProjectServiceImpl(mockProjectRepository)
+        val queryProjectService = QueryProjectServiceImpl(mockProjectRepository, mockProjectIconStorage)
+
+        beforeEach {
+            every { mockProjectIconStorage.toIconUrl(any()) } returns null
+        }
 
         afterEach {
             clearAllMocks()

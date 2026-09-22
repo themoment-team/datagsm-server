@@ -4,10 +4,12 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration
 import team.themoment.datagsm.common.global.data.ApiKeyEnvironment
 import team.themoment.datagsm.common.global.data.NeisEnvironment
+import team.themoment.datagsm.common.global.data.ProjectIconStorageEnvironment
 
 @Configuration
 @EnableConfigurationProperties(
     ApiKeyEnvironment::class,
     NeisEnvironment::class,
+    ProjectIconStorageEnvironment::class,
 )
 class PropertiesScanConfig

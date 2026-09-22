@@ -21,6 +21,7 @@ import team.themoment.datagsm.common.domain.project.repository.ProjectJpaReposit
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.web.domain.project.service.impl.CreateProjectServiceImpl
+import team.themoment.datagsm.web.global.storage.ProjectIconStorage
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 
@@ -30,13 +31,22 @@ class CreateProjectServiceTest :
         val mockProjectRepository = mockk<ProjectJpaRepository>()
         val mockClubRepository = mockk<ClubJpaRepository>()
         val mockStudentRepository = mockk<team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository>()
+        val mockProjectIconStorage = mockk<ProjectIconStorage>()
         val applicationEventPublisher = mockk<ApplicationEventPublisher>()
 
         val createProjectService =
-            CreateProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository, applicationEventPublisher)
+            CreateProjectServiceImpl(
+                mockProjectRepository,
+                mockClubRepository,
+                mockStudentRepository,
+                mockProjectIconStorage,
+                applicationEventPublisher,
+            )
 
         beforeEach {
             justRun { applicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
+            every { mockProjectIconStorage.validateIconKey(any()) } returns null
+            every { mockProjectIconStorage.toIconUrl(any()) } returns null
         }
 
         afterEach {

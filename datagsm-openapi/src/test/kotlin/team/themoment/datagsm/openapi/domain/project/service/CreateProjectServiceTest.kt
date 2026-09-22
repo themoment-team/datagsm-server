@@ -27,6 +27,8 @@ import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatu
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
+import team.themoment.datagsm.common.global.data.ProjectIconStorageEnvironment
+import team.themoment.datagsm.common.global.storage.ProjectIconUrlResolver
 import team.themoment.datagsm.openapi.domain.project.service.impl.CreateProjectServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
@@ -40,8 +42,17 @@ class CreateProjectServiceTest :
         val applicationEventPublisher = mockk<ApplicationEventPublisher>()
         val eventSlot = slot<EventDispatchRequested>()
 
+        val projectIconUrlResolver =
+            ProjectIconUrlResolver(ProjectIconStorageEnvironment(cdnBaseUrl = "https://cdn.datagsm.kr"))
+
         val createProjectService =
-            CreateProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository, applicationEventPublisher)
+            CreateProjectServiceImpl(
+                mockProjectRepository,
+                mockClubRepository,
+                mockStudentRepository,
+                projectIconUrlResolver,
+                applicationEventPublisher,
+            )
 
         beforeEach {
             clearMocks(applicationEventPublisher)

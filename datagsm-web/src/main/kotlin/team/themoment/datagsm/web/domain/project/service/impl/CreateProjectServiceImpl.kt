@@ -22,6 +22,7 @@ import team.themoment.datagsm.common.domain.project.repository.ProjectJpaReposit
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.project.service.CreateProjectService
+import team.themoment.datagsm.web.global.storage.ProjectIconStorage
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
@@ -29,6 +30,7 @@ class CreateProjectServiceImpl(
     private val projectJpaRepository: ProjectJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
+    private val projectIconStorage: ProjectIconStorage,
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) : CreateProjectService {
     @Transactional
@@ -85,6 +87,7 @@ class CreateProjectServiceImpl(
                 this.participants = participants
                 this.repositories = projectReqDto.repositories.toMutableSet()
                 this.techStacks = projectReqDto.techStacks.toMutableSet()
+                this.iconKey = projectIconStorage.validateIconKey(projectReqDto.iconKey)
             }
         val savedProjectEntity = projectJpaRepository.save(projectEntity)
 
@@ -106,6 +109,7 @@ class CreateProjectServiceImpl(
             startYear = savedProjectEntity.startYear,
             endYear = savedProjectEntity.endYear,
             status = savedProjectEntity.status,
+            iconUrl = projectIconStorage.toIconUrl(savedProjectEntity.iconKey),
             club = ownerClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             participants =
                 savedProjectEntity.participants.map { student ->

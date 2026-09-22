@@ -10,5 +10,6 @@ object AuthenticationPathConfig {
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/v1/utility/**",
+            "/v1/public/**",
         )
 }

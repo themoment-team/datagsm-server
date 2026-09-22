@@ -45,9 +45,16 @@ class ProjectJpaEntity {
     @field:Enumerated(EnumType.STRING)
     lateinit var status: ProjectStatus
 
+    @field:Column(name = "icon_key", nullable = true, length = 300)
+    var iconKey: String? = null
+
     @field:ManyToOne(optional = true)
     @field:JoinColumn(name = "club_id", nullable = true, referencedColumnName = "id")
     var club: ClubJpaEntity? = null
+
+    @field:ManyToOne(optional = true)
+    @field:JoinColumn(name = "applied_by_id", nullable = true, referencedColumnName = "id")
+    var appliedBy: StudentJpaEntity? = null
 
     @field:ManyToMany
     @field:JoinTable(

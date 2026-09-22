@@ -20,6 +20,8 @@ data class ProjectResDto(
     val endYear: Int?,
     @field:Schema(description = "프로젝트 운영 상태")
     val status: ProjectStatus,
+    @field:Schema(description = "프로젝트 아이콘 URL", example = "https://cdn.datagsm.kr/project-icons/uuid.png")
+    val iconUrl: String? = null,
     @field:Schema(description = "프로젝트 소유 동아리 정보")
     val club: ClubSummaryDto?,
     @field:Schema(description = "프로젝트 참가자 목록")

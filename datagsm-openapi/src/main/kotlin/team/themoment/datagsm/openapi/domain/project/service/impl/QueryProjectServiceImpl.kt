@@ -9,11 +9,13 @@ import team.themoment.datagsm.common.domain.project.dto.response.ProjectListResD
 import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
+import team.themoment.datagsm.common.global.storage.ProjectIconUrlResolver
 import team.themoment.datagsm.openapi.domain.project.service.QueryProjectService
 
 @Service
 class QueryProjectServiceImpl(
     private val projectJpaRepository: ProjectJpaRepository,
+    private val projectIconUrlResolver: ProjectIconUrlResolver,
 ) : QueryProjectService {
     @Transactional(readOnly = true)
     override fun execute(queryReq: QueryProjectReqDto): ProjectListResDto {
@@ -40,6 +42,7 @@ class QueryProjectServiceImpl(
                         startYear = project.startYear,
                         endYear = project.endYear,
                         status = project.status,
+                        iconUrl = projectIconUrlResolver.toIconUrl(project.iconKey),
                         club = project.club?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
                         participants =
                             project.participants.map { student ->

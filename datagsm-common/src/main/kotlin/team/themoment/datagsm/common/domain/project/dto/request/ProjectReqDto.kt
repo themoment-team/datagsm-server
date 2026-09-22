@@ -39,4 +39,10 @@ data class ProjectReqDto(
         @Size(max = 50)
         String,
     > = emptyList(),
+    @field:Size(max = 300)
+    @param:Schema(
+        description = "아이콘 업로드 후 발급받은 S3 오브젝트 키",
+        example = "project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png",
+    )
+    val iconKey: String? = null,
 )
