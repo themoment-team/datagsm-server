@@ -25,6 +25,7 @@ import team.themoment.datagsm.web.domain.project.service.impl.ApplyProjectServic
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
 import team.themoment.datagsm.web.global.storage.ProjectIconStorage
 import team.themoment.sdk.exception.ExpectedException
+import java.time.LocalDateTime
 import java.util.Optional
 
 class ApplyProjectServiceTest :
@@ -61,8 +62,14 @@ class ApplyProjectServiceTest :
             every { mockCurrentUserProvider.getCurrentStudent() } returns applicant
             every { mockIconStorage.validateIconKey(any()) } answers { firstArg() }
             every { mockIconStorage.toIconUrl(any()) } returns null
+            every {
+                mockEditRequestRepository.findByOriginalProjectIsNullAndRequestedByIdAndRequestStatusNot(
+                    applicant.id!!,
+                    ProjectRequestStatus.ACCEPTED,
+                )
+            } returns Optional.empty()
             every { mockEditRequestRepository.save(any<ProjectEditRequestJpaEntity>()) } answers {
-                firstArg<ProjectEditRequestJpaEntity>().apply { id = 100L }
+                firstArg<ProjectEditRequestJpaEntity>().apply { if (id == null) id = 100L }
             }
         }
 
@@ -104,6 +111,53 @@ class ApplyProjectServiceTest :
                         result.id shouldBe 100L
                         result.originalProjectId shouldBe null
                         result.requestStatus shouldBe ProjectRequestStatus.PENDING
+                    }
+                }
+
+                context("거절된 신규 신청이 남아 있을 때") {
+                    val reqDto =
+                        ApplyProjectReqDto(
+                            name = "다시 신청한 프로젝트",
+                            description = "보완한 설명",
+                            startYear = 2024,
+                        )
+
+                    lateinit var rejectedRequest: ProjectEditRequestJpaEntity
+
+                    beforeEach {
+                        rejectedRequest =
+                            ProjectEditRequestJpaEntity().apply {
+                                id = 42L
+                                originalProject = null
+                                requestedBy = applicant
+                                name = "거절된 신청"
+                                description = "부족한 설명"
+                                startYear = 2023
+                                requestStatus = ProjectRequestStatus.REJECTED
+                                rejectReason = "설명이 부족합니다."
+                                processedAt = LocalDateTime.now().minusDays(1)
+                            }
+
+                        every {
+                            mockEditRequestRepository.findByOriginalProjectIsNullAndRequestedByIdAndRequestStatusNot(
+                                applicant.id!!,
+                                ProjectRequestStatus.ACCEPTED,
+                            )
+                        } returns Optional.of(rejectedRequest)
+                    }
+
+                    it("새 행을 만들지 않고 기존 거절 건을 재사용해야 한다") {
+                        val captured = slot<ProjectEditRequestJpaEntity>()
+
+                        val result = applyProjectService.execute(reqDto)
+
+                        verify(exactly = 1) { mockEditRequestRepository.save(capture(captured)) }
+                        captured.captured.id shouldBe 42L
+                        result.id shouldBe 42L
+                        rejectedRequest.requestStatus shouldBe ProjectRequestStatus.PENDING
+                        rejectedRequest.rejectReason shouldBe null
+                        rejectedRequest.processedAt shouldBe null
+                        rejectedRequest.name shouldBe "다시 신청한 프로젝트"
                     }
                 }
 

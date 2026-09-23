@@ -117,10 +117,7 @@ class ApplyProjectModificationServiceTest :
                     beforeEach {
                         every { mockCurrentUserProvider.getCurrentStudent() } returns owner
                         every {
-                            mockEditRequestRepository.findByOriginalProjectIdAndRequestStatus(
-                                projectId,
-                                ProjectRequestStatus.PENDING,
-                            )
+                            mockEditRequestRepository.findByOriginalProjectId(projectId)
                         } returns Optional.empty()
                     }
 
@@ -149,10 +146,7 @@ class ApplyProjectModificationServiceTest :
                     beforeEach {
                         every { mockCurrentUserProvider.getCurrentStudent() } returns participant
                         every {
-                            mockEditRequestRepository.findByOriginalProjectIdAndRequestStatus(
-                                projectId,
-                                ProjectRequestStatus.PENDING,
-                            )
+                            mockEditRequestRepository.findByOriginalProjectId(projectId)
                         } returns Optional.empty()
                     }
 
@@ -200,10 +194,7 @@ class ApplyProjectModificationServiceTest :
 
                         every { mockCurrentUserProvider.getCurrentStudent() } returns participant
                         every {
-                            mockEditRequestRepository.findByOriginalProjectIdAndRequestStatus(
-                                projectId,
-                                ProjectRequestStatus.PENDING,
-                            )
+                            mockEditRequestRepository.findByOriginalProjectId(projectId)
                         } returns Optional.of(pendingRequest)
                     }
 
@@ -215,6 +206,84 @@ class ApplyProjectModificationServiceTest :
                         pendingRequest.startYear shouldBe 2024
                         pendingRequest.requestedBy shouldBe participant
                         pendingRequest.requestedAt shouldNotBe previousRequestedAt
+                    }
+                }
+
+                context("직전 수정 신청이 거절된 상태일 때") {
+                    lateinit var rejectedRequest: ProjectEditRequestJpaEntity
+
+                    beforeEach {
+                        rejectedRequest =
+                            ProjectEditRequestJpaEntity().apply {
+                                id = 77L
+                                originalProject = existingProject
+                                requestedBy = owner
+                                name = "거절된 수정안"
+                                description = "거절된 설명"
+                                startYear = 2023
+                                requestStatus = ProjectRequestStatus.REJECTED
+                                rejectReason = "설명이 부족합니다."
+                                processedAt = LocalDateTime.now().minusDays(1)
+                            }
+
+                        every { mockCurrentUserProvider.getCurrentStudent() } returns owner
+                        every {
+                            mockEditRequestRepository.findByOriginalProjectId(projectId)
+                        } returns Optional.of(rejectedRequest)
+                    }
+
+                    it("거절 건을 재사용해 PENDING으로 되돌리고 거절 정보를 비워야 한다") {
+                        val result = applyProjectModificationService.execute(projectId, reqDto)
+
+                        result.id shouldBe 77L
+                        rejectedRequest.requestStatus shouldBe ProjectRequestStatus.PENDING
+                        rejectedRequest.rejectReason shouldBe null
+                        rejectedRequest.processedAt shouldBe null
+                        rejectedRequest.name shouldBe "수정된 프로젝트"
+                    }
+
+                    it("새 신청 행을 만들지 않아야 한다") {
+                        val captured = slot<ProjectEditRequestJpaEntity>()
+
+                        applyProjectModificationService.execute(projectId, reqDto)
+
+                        verify(exactly = 1) { mockEditRequestRepository.save(capture(captured)) }
+                        captured.captured.id shouldBe 77L
+                    }
+                }
+
+                context("직전 수정 신청이 승인된 상태일 때") {
+                    lateinit var acceptedRequest: ProjectEditRequestJpaEntity
+
+                    beforeEach {
+                        acceptedRequest =
+                            ProjectEditRequestJpaEntity().apply {
+                                id = 88L
+                                originalProject = existingProject
+                                requestedBy = owner
+                                name = "승인된 수정안"
+                                description = "승인된 설명"
+                                startYear = 2023
+                                requestStatus = ProjectRequestStatus.ACCEPTED
+                                processedAt = LocalDateTime.now().minusDays(1)
+                            }
+
+                        every { mockCurrentUserProvider.getCurrentStudent() } returns owner
+                        every {
+                            mockEditRequestRepository.findByOriginalProjectId(projectId)
+                        } returns Optional.of(acceptedRequest)
+                    }
+
+                    it("승인 건을 재사용해 프로젝트당 한 행만 유지해야 한다") {
+                        val captured = slot<ProjectEditRequestJpaEntity>()
+
+                        val result = applyProjectModificationService.execute(projectId, reqDto)
+
+                        verify(exactly = 1) { mockEditRequestRepository.save(capture(captured)) }
+                        captured.captured.id shouldBe 88L
+                        result.id shouldBe 88L
+                        acceptedRequest.requestStatus shouldBe ProjectRequestStatus.PENDING
+                        acceptedRequest.processedAt shouldBe null
                     }
                 }
 
