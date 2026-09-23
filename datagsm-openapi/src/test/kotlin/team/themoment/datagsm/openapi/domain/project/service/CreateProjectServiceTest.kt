@@ -170,6 +170,37 @@ class CreateProjectServiceTest :
                     }
                 }
 
+                context("배포 URL을 포함하여 생성 요청할 때") {
+                    val createRequest =
+                        ProjectReqDto(
+                            name = "배포된 프로젝트",
+                            description = "배포 URL이 있는 프로젝트입니다",
+                            startYear = 2024,
+                            clubId = null,
+                            participantIds = emptyList(),
+                            deploymentUrl = "https://datagsm.kr",
+                        )
+
+                    val projectSlot = slot<ProjectJpaEntity>()
+
+                    beforeEach {
+                        every { mockProjectRepository.existsByName(createRequest.name) } returns false
+                        every { mockProjectRepository.save(capture(projectSlot)) } answers
+                            {
+                                projectSlot.captured.apply { id = 5L }
+                            }
+                    }
+
+                    it("배포 URL이 저장되고 응답에 포함되어야 한다") {
+                        val result = createProjectService.execute(createRequest)
+
+                        projectSlot.captured.deploymentUrl shouldBe "https://datagsm.kr"
+                        result.deploymentUrl shouldBe "https://datagsm.kr"
+
+                        verify(exactly = 1) { mockProjectRepository.save(any()) }
+                    }
+                }
+
                 context("이미 존재하는 프로젝트 이름으로 생성 요청할 때") {
                     val createRequest =
                         ProjectReqDto(

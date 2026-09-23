@@ -23,6 +23,8 @@ data class ProjectEditRequestResDto(
     val startYear: Int,
     @field:Schema(description = "프로젝트 아이콘 URL", example = "https://cdn.datagsm.kr/project-icons/uuid.png")
     val iconUrl: String?,
+    @field:Schema(description = "프로젝트 배포 URL", example = "https://datagsm.kr")
+    val deploymentUrl: String?,
     @field:Schema(description = "프로젝트 소유 동아리 정보")
     val club: ClubSummaryDto?,
     @field:Schema(description = "프로젝트 참여자 목록")

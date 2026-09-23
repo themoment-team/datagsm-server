@@ -43,6 +43,7 @@ class QueryProjectServiceImpl(
                         endYear = project.endYear,
                         status = project.status,
                         iconUrl = projectIconUrlResolver.toIconUrl(project.iconKey),
+                        deploymentUrl = project.deploymentUrl,
                         club = project.club?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
                         participants =
                             project.participants.map { student ->
