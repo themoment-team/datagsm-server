@@ -26,6 +26,7 @@ class ProjectEditRequestMapper(
             description = request.description,
             startYear = request.startYear,
             iconUrl = projectIconStorage.toIconUrl(request.iconKey),
+            iconKey = request.iconKey,
             deploymentUrl = request.deploymentUrl,
             club = request.club?.let { toClubSummary(it) },
             participants = request.participants.map { toParticipantInfo(it) },

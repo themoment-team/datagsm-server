@@ -22,6 +22,11 @@ data class ProjectResDto(
     val status: ProjectStatus,
     @field:Schema(description = "프로젝트 아이콘 URL", example = "https://cdn.datagsm.kr/project-icons/uuid.png")
     val iconUrl: String? = null,
+    @field:Schema(
+        description = "프로젝트 아이콘 오브젝트 키. 수정 시 아이콘을 바꾸지 않으려면 이 값을 그대로 보내거나 생략한다",
+        example = "project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png",
+    )
+    val iconKey: String? = null,
     @field:Schema(description = "프로젝트 배포 URL", example = "https://datagsm.kr")
     val deploymentUrl: String? = null,
     @field:Schema(description = "프로젝트 소유 동아리 정보")

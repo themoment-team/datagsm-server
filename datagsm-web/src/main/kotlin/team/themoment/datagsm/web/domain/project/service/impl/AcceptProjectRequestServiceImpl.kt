@@ -103,6 +103,7 @@ class AcceptProjectRequestServiceImpl(
             endYear = project.endYear,
             status = project.status,
             iconUrl = projectIconStorage.toIconUrl(project.iconKey),
+            iconKey = project.iconKey,
             deploymentUrl = project.deploymentUrl,
             club = project.club?.let { projectEditRequestMapper.toClubSummary(it) },
             participants = project.participants.map { projectEditRequestMapper.toParticipantInfo(it) },

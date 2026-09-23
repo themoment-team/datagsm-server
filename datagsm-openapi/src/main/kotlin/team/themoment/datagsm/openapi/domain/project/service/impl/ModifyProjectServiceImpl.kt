@@ -79,8 +79,9 @@ class ModifyProjectServiceImpl(
         project.participants = newParticipants
         project.repositories = reqDto.repositories.toMutableSet()
         project.techStacks = reqDto.techStacks.toMutableSet()
-        project.iconKey = projectIconUrlResolver.validateIconKey(reqDto.iconKey)
-        project.deploymentUrl = reqDto.deploymentUrl
+        // 값이 없으면 기존 아이콘과 배포 URL을 유지한다. 매번 다시 올리지 않아도 되도록 하기 위함이다
+        reqDto.iconKey?.let { project.iconKey = projectIconUrlResolver.validateIconKey(it) }
+        reqDto.deploymentUrl?.let { project.deploymentUrl = it }
 
         val newObj = generateProjectEventObject(project)
         applicationEventPublisher.publishEvent(
@@ -101,6 +102,7 @@ class ModifyProjectServiceImpl(
             endYear = project.endYear,
             status = project.status,
             iconUrl = projectIconUrlResolver.toIconUrl(project.iconKey),
+            iconKey = project.iconKey,
             deploymentUrl = project.deploymentUrl,
             club = project.club?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             participants =

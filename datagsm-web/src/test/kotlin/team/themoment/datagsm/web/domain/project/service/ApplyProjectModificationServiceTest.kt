@@ -174,6 +174,50 @@ class ApplyProjectModificationServiceTest :
                     }
                 }
 
+                context("아이콘 없이 수정 신청할 때") {
+                    lateinit var previousRequest: ProjectEditRequestJpaEntity
+
+                    beforeEach {
+                        previousRequest =
+                            ProjectEditRequestJpaEntity().apply {
+                                id = 61L
+                                originalProject = existingProject
+                                requestedBy = owner
+                                name = "이전 수정안"
+                                description = "이전 설명"
+                                startYear = 2023
+                                iconKey = "project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png"
+                                deploymentUrl = "https://datagsm.kr"
+                                requestStatus = ProjectRequestStatus.PENDING
+                            }
+
+                        every { mockCurrentUserProvider.getCurrentStudent() } returns owner
+                        every {
+                            mockEditRequestRepository.findByOriginalProjectId(projectId)
+                        } returns Optional.of(previousRequest)
+                    }
+
+                    it("기존 아이콘과 배포 URL이 유지되어야 한다") {
+                        applyProjectModificationService.execute(projectId, reqDto)
+
+                        previousRequest.name shouldBe "수정된 프로젝트"
+                        previousRequest.iconKey shouldBe "project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png"
+                        previousRequest.deploymentUrl shouldBe "https://datagsm.kr"
+                    }
+
+                    it("새 아이콘을 보내면 교체되어야 한다") {
+                        val newIconKey = "project-icons/11111111-2222-3333-4444-555555555555.webp"
+
+                        applyProjectModificationService.execute(
+                            projectId,
+                            reqDto.copy(iconKey = newIconKey, deploymentUrl = "https://new.datagsm.kr"),
+                        )
+
+                        previousRequest.iconKey shouldBe newIconKey
+                        previousRequest.deploymentUrl shouldBe "https://new.datagsm.kr"
+                    }
+                }
+
                 context("이미 대기 중인 수정 신청이 있을 때") {
                     val previousRequestedAt = LocalDateTime.now().minusDays(1)
 

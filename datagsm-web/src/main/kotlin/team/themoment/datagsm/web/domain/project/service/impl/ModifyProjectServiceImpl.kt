@@ -103,6 +103,7 @@ class ModifyProjectServiceImpl(
             endYear = project.endYear,
             status = project.status,
             iconUrl = projectIconStorage.toIconUrl(project.iconKey),
+            iconKey = project.iconKey,
             deploymentUrl = project.deploymentUrl,
             club = project.club?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             participants =

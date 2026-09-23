@@ -28,8 +28,9 @@ class ProjectApplicationAssembler(
         request.participants = resolveParticipants(reqDto.participantIds)
         request.repositories = reqDto.repositories.toMutableSet()
         request.techStacks = reqDto.techStacks.toMutableSet()
-        request.iconKey = projectIconStorage.validateIconKey(reqDto.iconKey)
-        request.deploymentUrl = reqDto.deploymentUrl
+        // 값이 없으면 기존 아이콘과 배포 URL을 유지한다. 매번 다시 올리지 않아도 되도록 하기 위함이다
+        reqDto.iconKey?.let { request.iconKey = projectIconStorage.validateIconKey(it) }
+        reqDto.deploymentUrl?.let { request.deploymentUrl = it }
     }
 
     /** 클라이언트는 무소속을 0으로 보내므로 null과 동일하게 취급한다 */
