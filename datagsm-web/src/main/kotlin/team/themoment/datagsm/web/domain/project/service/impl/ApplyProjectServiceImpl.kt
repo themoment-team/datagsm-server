@@ -11,7 +11,6 @@ import team.themoment.datagsm.web.domain.project.mapper.ProjectApplicationAssemb
 import team.themoment.datagsm.web.domain.project.mapper.ProjectEditRequestMapper
 import team.themoment.datagsm.web.domain.project.service.ApplyProjectService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
-import java.time.LocalDateTime
 
 @Service
 class ApplyProjectServiceImpl(
@@ -24,19 +23,13 @@ class ApplyProjectServiceImpl(
     override fun execute(reqDto: ApplyProjectReqDto): ProjectEditRequestResDto {
         val applicant = currentUserProvider.getCurrentStudent()
 
-        // 승인 전 신규 신청은 신청자당 하나만 두고 재신청 시 기존 행을 덮어쓴다
+        // 서로 다른 프로젝트를 동시에 신청할 수 있어야 하므로 신규 신청은 매번 새 행으로 만든다
         val request =
-            projectEditRequestJpaRepository
-                .findByOriginalProjectIsNullAndRequestedByIdAndRequestStatusNot(
-                    applicant.id!!,
-                    ProjectRequestStatus.ACCEPTED,
-                ).orElseGet { ProjectEditRequestJpaEntity().apply { originalProject = null } }
-
-        request.requestedBy = applicant
-        request.requestedAt = LocalDateTime.now()
-        request.requestStatus = ProjectRequestStatus.PENDING
-        request.rejectReason = null
-        request.processedAt = null
+            ProjectEditRequestJpaEntity().apply {
+                originalProject = null
+                requestedBy = applicant
+                requestStatus = ProjectRequestStatus.PENDING
+            }
         projectApplicationAssembler.applyTo(request, reqDto)
 
         val savedRequest = projectEditRequestJpaRepository.save(request)

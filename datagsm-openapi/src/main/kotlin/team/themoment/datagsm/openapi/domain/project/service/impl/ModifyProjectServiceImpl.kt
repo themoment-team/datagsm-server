@@ -18,6 +18,7 @@ import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
+import team.themoment.datagsm.common.domain.project.resolveDeploymentUrlForUpdate
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.common.global.storage.ProjectIconUrlResolver
@@ -79,9 +80,9 @@ class ModifyProjectServiceImpl(
         project.participants = newParticipants
         project.repositories = reqDto.repositories.toMutableSet()
         project.techStacks = reqDto.techStacks.toMutableSet()
-        // 값이 없으면 기존 아이콘과 배포 URL을 유지한다. 매번 다시 올리지 않아도 되도록 하기 위함이다
-        reqDto.iconKey?.let { project.iconKey = projectIconUrlResolver.validateIconKey(it) }
-        reqDto.deploymentUrl?.let { project.deploymentUrl = it }
+        // 생략하면 현재 값을 유지하고 빈 문자열이면 삭제한다
+        project.iconKey = projectIconUrlResolver.resolveIconKeyForUpdate(reqDto.iconKey, project.iconKey)
+        project.deploymentUrl = resolveDeploymentUrlForUpdate(reqDto.deploymentUrl, project.deploymentUrl)
 
         val newObj = generateProjectEventObject(project)
         applicationEventPublisher.publishEvent(

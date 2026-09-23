@@ -100,6 +100,14 @@ class ApplyProjectModificationServiceTest :
 
             every { mockIconStorage.validateIconKey(any()) } answers { firstArg() }
             every { mockIconStorage.toIconUrl(any()) } returns null
+            every { mockIconStorage.resolveIconKeyForUpdate(any(), any()) } answers {
+                val requested = firstArg<String?>()
+                when {
+                    requested == null -> secondArg()
+                    requested.isBlank() -> null
+                    else -> requested
+                }
+            }
             every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
             every { mockEditRequestRepository.save(any<ProjectEditRequestJpaEntity>()) } answers {
                 firstArg<ProjectEditRequestJpaEntity>().apply { if (id == null) id = 100L }
@@ -174,10 +182,50 @@ class ApplyProjectModificationServiceTest :
                     }
                 }
 
-                context("아이콘 없이 수정 신청할 때") {
+                context("신청 행이 없는 프로젝트를 처음 수정할 때") {
+                    beforeEach {
+                        existingProject.iconKey = "project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png"
+                        existingProject.deploymentUrl = "https://datagsm.kr"
+
+                        every { mockCurrentUserProvider.getCurrentStudent() } returns owner
+                        every {
+                            mockEditRequestRepository.findByOriginalProjectId(projectId)
+                        } returns Optional.empty()
+                    }
+
+                    it("원본 프로젝트의 아이콘과 배포 URL이 승계되어야 한다") {
+                        val captured = slot<ProjectEditRequestJpaEntity>()
+
+                        applyProjectModificationService.execute(projectId, reqDto)
+
+                        verify(exactly = 1) { mockEditRequestRepository.save(capture(captured)) }
+                        captured.captured.iconKey shouldBe
+                            "project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png"
+                        captured.captured.deploymentUrl shouldBe "https://datagsm.kr"
+                    }
+
+                    it("빈 문자열을 보내면 삭제되어야 한다") {
+                        val captured = slot<ProjectEditRequestJpaEntity>()
+
+                        applyProjectModificationService.execute(
+                            projectId,
+                            reqDto.copy(iconKey = "", deploymentUrl = ""),
+                        )
+
+                        verify(exactly = 1) { mockEditRequestRepository.save(capture(captured)) }
+                        captured.captured.iconKey shouldBe null
+                        captured.captured.deploymentUrl shouldBe null
+                    }
+                }
+
+                context("신청 행이 이미 있는 상태에서 아이콘 없이 수정할 때") {
                     lateinit var previousRequest: ProjectEditRequestJpaEntity
 
                     beforeEach {
+                        // 어드민이 원본을 직접 바꾼 뒤라 신청 행에는 과거 값이 남아 있는 상황
+                        existingProject.iconKey = "project-icons/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.png"
+                        existingProject.deploymentUrl = "https://current.datagsm.kr"
+
                         previousRequest =
                             ProjectEditRequestJpaEntity().apply {
                                 id = 61L
@@ -186,8 +234,8 @@ class ApplyProjectModificationServiceTest :
                                 name = "이전 수정안"
                                 description = "이전 설명"
                                 startYear = 2023
-                                iconKey = "project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png"
-                                deploymentUrl = "https://datagsm.kr"
+                                iconKey = "project-icons/11111111-1111-1111-1111-111111111111.png"
+                                deploymentUrl = "https://stale.datagsm.kr"
                                 requestStatus = ProjectRequestStatus.PENDING
                             }
 
@@ -197,12 +245,12 @@ class ApplyProjectModificationServiceTest :
                         } returns Optional.of(previousRequest)
                     }
 
-                    it("기존 아이콘과 배포 URL이 유지되어야 한다") {
+                    it("신청 행의 과거 값이 아니라 원본 프로젝트의 현재 값을 따라야 한다") {
                         applyProjectModificationService.execute(projectId, reqDto)
 
                         previousRequest.name shouldBe "수정된 프로젝트"
-                        previousRequest.iconKey shouldBe "project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png"
-                        previousRequest.deploymentUrl shouldBe "https://datagsm.kr"
+                        previousRequest.iconKey shouldBe "project-icons/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.png"
+                        previousRequest.deploymentUrl shouldBe "https://current.datagsm.kr"
                     }
 
                     it("새 아이콘을 보내면 교체되어야 한다") {

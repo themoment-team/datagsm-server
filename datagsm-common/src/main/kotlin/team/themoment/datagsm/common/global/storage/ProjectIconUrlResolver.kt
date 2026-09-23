@@ -16,6 +16,19 @@ class ProjectIconUrlResolver(
     fun toIconUrl(iconKey: String?): String? = iconKey?.let { "${environment.cdnBaseUrl.trimEnd('/')}/$it" }
 
     /**
+     * 수정 요청에서 생략(null)하면 현재 값을 유지하고, 빈 문자열이면 삭제로 간주한다.
+     * 값을 매번 다시 올리지 않아도 되도록 하되 지우는 수단은 남겨 둔다.
+     */
+    fun resolveIconKeyForUpdate(
+        requestedIconKey: String?,
+        currentIconKey: String?,
+    ): String? =
+        when (requestedIconKey) {
+            null -> currentIconKey
+            else -> validateIconKey(requestedIconKey)
+        }
+
+    /**
      * 클라이언트가 보낸 key는 신뢰할 수 없으므로 서버가 발급한 형식인지 확인한다.
      * 경로 상위 이동이나 타 프리픽스 참조를 막는다.
      */

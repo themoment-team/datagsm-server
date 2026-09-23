@@ -6,6 +6,7 @@ import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.project.dto.request.ApplyProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectEditRequestJpaEntity
+import team.themoment.datagsm.common.domain.project.resolveDeploymentUrlForUpdate
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.global.storage.ProjectIconStorage
@@ -28,9 +29,11 @@ class ProjectApplicationAssembler(
         request.participants = resolveParticipants(reqDto.participantIds)
         request.repositories = reqDto.repositories.toMutableSet()
         request.techStacks = reqDto.techStacks.toMutableSet()
-        // 값이 없으면 기존 아이콘과 배포 URL을 유지한다. 매번 다시 올리지 않아도 되도록 하기 위함이다
-        reqDto.iconKey?.let { request.iconKey = projectIconStorage.validateIconKey(it) }
-        reqDto.deploymentUrl?.let { request.deploymentUrl = it }
+        // 생략하면 현재 값을 유지하고 빈 문자열이면 삭제한다.
+        // 신청 행이 아닌 원본 프로젝트를 기준으로 삼아야 어드민이 직접 바꾼 값을 되돌리지 않는다
+        val currentProject = request.originalProject
+        request.iconKey = projectIconStorage.resolveIconKeyForUpdate(reqDto.iconKey, currentProject?.iconKey)
+        request.deploymentUrl = resolveDeploymentUrlForUpdate(reqDto.deploymentUrl, currentProject?.deploymentUrl)
     }
 
     /** 클라이언트는 무소속을 0으로 보내므로 null과 동일하게 취급한다 */
