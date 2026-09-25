@@ -14,6 +14,7 @@ import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
+import team.themoment.datagsm.common.domain.project.repository.ProjectEditRequestJpaRepository
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.web.domain.project.service.impl.DeleteProjectServiceImpl
 import team.themoment.sdk.exception.ExpectedException
@@ -23,12 +24,15 @@ class DeleteProjectServiceTest :
     DescribeSpec({
 
         val mockProjectRepository = mockk<ProjectJpaRepository>()
+        val mockEditRequestRepository = mockk<ProjectEditRequestJpaRepository>()
         val applicationEventPublisher = mockk<ApplicationEventPublisher>()
 
-        val deleteProjectService = DeleteProjectServiceImpl(mockProjectRepository, applicationEventPublisher)
+        val deleteProjectService =
+            DeleteProjectServiceImpl(mockProjectRepository, mockEditRequestRepository, applicationEventPublisher)
 
         beforeEach {
             justRun { applicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
+            justRun { mockEditRequestRepository.deleteAllByOriginalProjectId(any()) }
         }
 
         afterEach {
@@ -68,6 +72,12 @@ class DeleteProjectServiceTest :
 
                         verify(exactly = 1) { mockProjectRepository.findById(projectId) }
                         verify(exactly = 1) { mockProjectRepository.delete(existingProject) }
+                    }
+
+                    it("프로젝트를 참조하는 신청 이력이 함께 정리되어야 한다") {
+                        deleteProjectService.execute(projectId)
+
+                        verify(exactly = 1) { mockEditRequestRepository.deleteAllByOriginalProjectId(projectId) }
                     }
                 }
 

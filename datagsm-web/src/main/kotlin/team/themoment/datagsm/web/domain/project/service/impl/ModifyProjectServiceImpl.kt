@@ -17,9 +17,11 @@ import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
+import team.themoment.datagsm.common.domain.project.resolveDeploymentUrlForUpdate
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.project.service.ModifyProjectService
+import team.themoment.datagsm.web.global.storage.ProjectIconStorage
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
@@ -27,6 +29,7 @@ class ModifyProjectServiceImpl(
     private val projectJpaRepository: ProjectJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
+    private val projectIconStorage: ProjectIconStorage,
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) : ModifyProjectService {
     @Transactional
@@ -79,6 +82,9 @@ class ModifyProjectServiceImpl(
         project.participants = newParticipants
         project.repositories = reqDto.repositories.toMutableSet()
         project.techStacks = reqDto.techStacks.toMutableSet()
+        // 생략하면 현재 값을 유지하고 빈 문자열이면 삭제한다
+        project.iconKey = projectIconStorage.resolveIconKeyForUpdate(reqDto.iconKey, project.iconKey)
+        project.deploymentUrl = resolveDeploymentUrlForUpdate(reqDto.deploymentUrl, project.deploymentUrl)
 
         val newObj = generateProjectEventObject(project)
         applicationEventPublisher.publishEvent(
@@ -98,6 +104,9 @@ class ModifyProjectServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status,
+            iconUrl = projectIconStorage.toIconUrl(project.iconKey),
+            iconKey = project.iconKey,
+            deploymentUrl = project.deploymentUrl,
             club = project.club?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             participants =
                 project.participants.map { student ->
@@ -123,6 +132,7 @@ class ModifyProjectServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status.name,
+            deploymentUrl = project.deploymentUrl,
             club = project.club?.let { EventClubRef(it.id!!, it.name) },
             participants =
                 project.participants.map { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },

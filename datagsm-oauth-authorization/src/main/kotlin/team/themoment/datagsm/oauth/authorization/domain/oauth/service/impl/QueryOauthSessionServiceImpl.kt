@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import team.themoment.datagsm.common.domain.application.repository.OAuthScopeJpaRepository
 import team.themoment.datagsm.common.domain.client.dto.response.OAuthScopeResDto
+import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.oauth.dto.response.OauthSessionResDto
 import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
@@ -38,14 +39,17 @@ class QueryOauthSessionServiceImpl(
         return OauthSessionResDto(serviceName = client.serviceName, expiresAt = expiresAt, requestedScopes = requestedScopes)
     }
 
+    // openid는 권한이 아니라 id_token 발급을 요청하는 OIDC 프로토콜 지시자라 tb_oauth_scope에 없다.
+    // 동의 화면에 보여줄 권한이 아니므로 조회 대상에서 제외한다.
     private fun resolveScopes(scopeStrings: Set<String>): List<OAuthScopeResDto> {
-        val appIds = scopeStrings.map { it.substringBefore(':') }.toSet()
+        val permissionScopes = scopeStrings - OAuthScope.OPENID
+        val appIds = permissionScopes.map { it.substringBefore(':') }.toSet()
         val fetched =
             oauthScopeJpaRepository
                 .findAllByApplicationIdIn(appIds)
                 .associateBy { "${it.application.id}:${it.scopeName}" }
 
-        return scopeStrings.map { scopeStr ->
+        return permissionScopes.map { scopeStr ->
             val entity =
                 fetched[scopeStr]
                     ?: throw ExpectedException("유효하지 않은 scope 정보입니다.", HttpStatus.INTERNAL_SERVER_ERROR)

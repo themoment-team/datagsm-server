@@ -22,6 +22,7 @@ import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatu
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
+import team.themoment.datagsm.common.global.storage.ProjectIconUrlResolver
 import team.themoment.datagsm.openapi.domain.project.service.CreateProjectService
 import team.themoment.sdk.exception.ExpectedException
 
@@ -30,6 +31,7 @@ class CreateProjectServiceImpl(
     private val projectJpaRepository: ProjectJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
+    private val projectIconUrlResolver: ProjectIconUrlResolver,
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) : CreateProjectService {
     @Transactional
@@ -83,6 +85,8 @@ class CreateProjectServiceImpl(
                 this.participants = participants
                 this.repositories = projectReqDto.repositories.toMutableSet()
                 this.techStacks = projectReqDto.techStacks.toMutableSet()
+                this.iconKey = projectIconUrlResolver.validateIconKey(projectReqDto.iconKey)
+                this.deploymentUrl = projectReqDto.deploymentUrl
             }
         val savedProjectEntity = projectJpaRepository.save(projectEntity)
 
@@ -104,6 +108,9 @@ class CreateProjectServiceImpl(
             startYear = savedProjectEntity.startYear,
             endYear = savedProjectEntity.endYear,
             status = savedProjectEntity.status,
+            iconUrl = projectIconUrlResolver.toIconUrl(savedProjectEntity.iconKey),
+            iconKey = savedProjectEntity.iconKey,
+            deploymentUrl = savedProjectEntity.deploymentUrl,
             club = ownerClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             participants =
                 savedProjectEntity.participants.map { student ->
@@ -129,6 +136,7 @@ class CreateProjectServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status.name,
+            deploymentUrl = project.deploymentUrl,
             club = project.club?.let { EventClubRef(it.id!!, it.name) },
             participants =
                 project.participants.map { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },

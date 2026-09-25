@@ -61,6 +61,7 @@ class EndProjectServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status.name,
+            deploymentUrl = project.deploymentUrl,
             club = project.club?.let { EventClubRef(it.id!!, it.name) },
             participants =
                 project.participants.map { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },
