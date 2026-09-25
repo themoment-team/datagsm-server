@@ -23,6 +23,7 @@ class ApplyProjectServiceImpl(
     override fun execute(reqDto: ApplyProjectReqDto): ProjectEditRequestResDto {
         val applicant = currentUserProvider.getCurrentStudent()
 
+        // 서로 다른 프로젝트를 동시에 신청할 수 있어야 하므로 신규 신청은 매번 새 행으로 만든다
         val request =
             ProjectEditRequestJpaEntity().apply {
                 originalProject = null

@@ -43,6 +43,14 @@ class ModifyProjectServiceTest :
             justRun { applicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
             every { mockProjectIconStorage.validateIconKey(any()) } returns null
             every { mockProjectIconStorage.toIconUrl(any()) } returns null
+            every { mockProjectIconStorage.resolveIconKeyForUpdate(any(), any()) } answers {
+                val requested = firstArg<String?>()
+                when {
+                    requested == null -> secondArg()
+                    requested.isBlank() -> null
+                    else -> requested
+                }
+            }
             modifyProjectService =
                 ModifyProjectServiceImpl(
                     mockProjectRepository,

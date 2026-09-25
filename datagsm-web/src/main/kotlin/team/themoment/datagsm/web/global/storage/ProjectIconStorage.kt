@@ -58,6 +58,11 @@ class ProjectIconStorage(
 
     fun validateIconKey(iconKey: String?): String? = projectIconUrlResolver.validateIconKey(iconKey)
 
+    fun resolveIconKeyForUpdate(
+        requestedIconKey: String?,
+        currentIconKey: String?,
+    ): String? = projectIconUrlResolver.resolveIconKeyForUpdate(requestedIconKey, currentIconKey)
+
     fun toIconUrl(iconKey: String?): String? = projectIconUrlResolver.toIconUrl(iconKey)
 
     private fun resolveExtension(contentType: String): String =

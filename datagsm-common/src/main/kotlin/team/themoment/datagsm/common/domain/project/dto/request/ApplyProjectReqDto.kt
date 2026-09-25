@@ -36,12 +36,16 @@ data class ApplyProjectReqDto(
     > = emptyList(),
     @field:Size(max = 300)
     @param:Schema(
-        description = "아이콘 업로드 후 발급받은 S3 오브젝트 키",
+        description = "아이콘 업로드 후 발급받은 S3 오브젝트 키. 생략하면 기존 값을 유지하고 빈 문자열이면 삭제한다",
         example = "project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png",
     )
     val iconKey: String? = null,
     @field:Size(max = 300)
-    @field:Pattern(regexp = "^https?://.*", message = "URL은 http:// 또는 https://로 시작해야 합니다.")
-    @param:Schema(description = "프로젝트 배포 URL", example = "https://datagsm.kr", maxLength = 300)
+    @field:Pattern(regexp = "^$|^https?://.*", message = "URL은 http:// 또는 https://로 시작해야 합니다.")
+    @param:Schema(
+        description = "프로젝트 배포 URL. 생략하면 기존 값을 유지하고 빈 문자열이면 삭제한다",
+        example = "https://datagsm.kr",
+        maxLength = 300,
+    )
     val deploymentUrl: String? = null,
 )

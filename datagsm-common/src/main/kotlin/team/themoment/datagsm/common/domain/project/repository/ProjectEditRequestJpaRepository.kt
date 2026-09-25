@@ -9,10 +9,8 @@ import java.util.Optional
 interface ProjectEditRequestJpaRepository :
     JpaRepository<ProjectEditRequestJpaEntity, Long>,
     ProjectEditRequestJpaCustomRepository {
-    fun findByOriginalProjectIdAndRequestStatus(
-        originalProjectId: Long,
-        requestStatus: ProjectRequestStatus,
-    ): Optional<ProjectEditRequestJpaEntity>
+    /** 프로젝트당 신청 행을 하나만 유지하므로 상태와 무관하게 단건으로 조회한다 */
+    fun findByOriginalProjectId(originalProjectId: Long): Optional<ProjectEditRequestJpaEntity>
 
     fun findAllByOriginalProjectIdInAndRequestStatus(
         originalProjectIds: Collection<Long>,

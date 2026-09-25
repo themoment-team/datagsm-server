@@ -111,6 +111,7 @@ class CreateProjectServiceImpl(
             endYear = savedProjectEntity.endYear,
             status = savedProjectEntity.status,
             iconUrl = projectIconStorage.toIconUrl(savedProjectEntity.iconKey),
+            iconKey = savedProjectEntity.iconKey,
             deploymentUrl = savedProjectEntity.deploymentUrl,
             club = ownerClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             participants =

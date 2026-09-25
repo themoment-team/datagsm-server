@@ -41,18 +41,15 @@ class ApplyProjectModificationServiceImpl(
             throw ExpectedException("해당 프로젝트를 수정할 권한이 없습니다.", HttpStatus.FORBIDDEN)
         }
 
+        // 프로젝트당 신청 행을 하나만 두기 위해 이전 상태와 무관하게 기존 행을 덮어쓴다
         val request =
             projectEditRequestJpaRepository
-                .findByOriginalProjectIdAndRequestStatus(projectId, ProjectRequestStatus.PENDING)
-                .orElseGet {
-                    ProjectEditRequestJpaEntity().apply {
-                        originalProject = project
-                        requestStatus = ProjectRequestStatus.PENDING
-                    }
-                }
+                .findByOriginalProjectId(projectId)
+                .orElseGet { ProjectEditRequestJpaEntity().apply { originalProject = project } }
 
         request.requestedBy = applicant
         request.requestedAt = LocalDateTime.now()
+        request.requestStatus = ProjectRequestStatus.PENDING
         request.rejectReason = null
         request.processedAt = null
         projectApplicationAssembler.applyTo(request, reqDto)

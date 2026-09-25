@@ -134,6 +134,37 @@ class ModifyProjectServiceTest :
                     }
                 }
 
+                context("아이콘과 배포 URL 없이 수정할 때") {
+                    val updateRequest =
+                        ProjectReqDto(
+                            name = "수정된프로젝트",
+                            description = "기존 설명",
+                            startYear = 2023,
+                            clubId = 1L,
+                            participantIds = emptyList(),
+                        )
+
+                    beforeEach {
+                        existingProject.iconKey = "project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png"
+                        existingProject.deploymentUrl = "https://datagsm.kr"
+
+                        every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
+                        every {
+                            mockProjectRepository.existsByNameAndIdNot(updateRequest.name, projectId)
+                        } returns false
+                        every { mockClubRepository.findById(1L) } returns Optional.of(ownerClub)
+                    }
+
+                    it("기존 아이콘과 배포 URL이 유지되어야 한다") {
+                        val result = modifyProjectService.execute(projectId, updateRequest)
+
+                        result.iconKey shouldBe "project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png"
+                        result.iconUrl shouldBe
+                            "https://cdn.datagsm.kr/project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png"
+                        result.deploymentUrl shouldBe "https://datagsm.kr"
+                    }
+                }
+
                 context("리포지토리와 기술 스택을 전체 교체할 때") {
                     val updateRequest =
                         ProjectReqDto(

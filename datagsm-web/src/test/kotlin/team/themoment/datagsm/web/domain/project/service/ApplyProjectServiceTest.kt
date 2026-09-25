@@ -61,8 +61,16 @@ class ApplyProjectServiceTest :
             every { mockCurrentUserProvider.getCurrentStudent() } returns applicant
             every { mockIconStorage.validateIconKey(any()) } answers { firstArg() }
             every { mockIconStorage.toIconUrl(any()) } returns null
+            every { mockIconStorage.resolveIconKeyForUpdate(any(), any()) } answers {
+                val requested = firstArg<String?>()
+                when {
+                    requested == null -> secondArg()
+                    requested.isBlank() -> null
+                    else -> requested
+                }
+            }
             every { mockEditRequestRepository.save(any<ProjectEditRequestJpaEntity>()) } answers {
-                firstArg<ProjectEditRequestJpaEntity>().apply { id = 100L }
+                firstArg<ProjectEditRequestJpaEntity>().apply { if (id == null) id = 100L }
             }
         }
 
@@ -104,6 +112,36 @@ class ApplyProjectServiceTest :
                         result.id shouldBe 100L
                         result.originalProjectId shouldBe null
                         result.requestStatus shouldBe ProjectRequestStatus.PENDING
+                    }
+                }
+
+                context("이미 다른 신규 신청이 있을 때") {
+                    val reqDto =
+                        ApplyProjectReqDto(
+                            name = "두 번째 프로젝트",
+                            description = "다른 프로젝트 설명",
+                            startYear = 2024,
+                        )
+
+                    it("기존 신청을 건드리지 않고 새 행을 만들어야 한다") {
+                        val captured = slot<ProjectEditRequestJpaEntity>()
+
+                        val result = applyProjectService.execute(reqDto)
+
+                        verify(exactly = 1) { mockEditRequestRepository.save(capture(captured)) }
+                        captured.captured.id shouldBe 100L
+                        captured.captured.name shouldBe "두 번째 프로젝트"
+                        result.requestStatus shouldBe ProjectRequestStatus.PENDING
+                    }
+
+                    it("아이콘을 생략해도 이전 신청의 값이 승계되지 않아야 한다") {
+                        val captured = slot<ProjectEditRequestJpaEntity>()
+
+                        applyProjectService.execute(reqDto)
+
+                        verify(exactly = 1) { mockEditRequestRepository.save(capture(captured)) }
+                        captured.captured.iconKey shouldBe null
+                        captured.captured.deploymentUrl shouldBe null
                     }
                 }
 
