@@ -27,6 +27,7 @@ import team.themoment.datagsm.web.domain.account.service.ModifyAccountRoleServic
 import team.themoment.datagsm.web.domain.account.service.QueryAccountDetailService
 import team.themoment.datagsm.web.domain.account.service.QueryAccountService
 import team.themoment.datagsm.web.domain.account.service.QueryMyInfoService
+import team.themoment.datagsm.web.domain.account.service.RejectTeacherAccountService
 
 @Tag(name = "Account", description = "계정 관련 API")
 @RestController
@@ -38,6 +39,7 @@ class AccountController(
     private val queryAccountDetailService: QueryAccountDetailService,
     private val modifyAccountRoleService: ModifyAccountRoleService,
     private val approveTeacherAccountService: ApproveTeacherAccountService,
+    private val rejectTeacherAccountService: RejectTeacherAccountService,
 ) {
     @Operation(summary = "내 정보 조회", description = "현재 로그인한 사용자의 계정 및 학생 정보를 조회합니다.")
     @ApiResponses(
@@ -116,4 +118,21 @@ class AccountController(
     fun approveTeacherAccount(
         @Parameter(description = "계정 ID") @PathVariable accountId: Long,
     ) = approveTeacherAccountService.execute(accountId)
+
+    @Operation(
+        summary = "선생님 계정 승인 거절",
+        description = "승인 대기 중인 선생님 계정을 거절합니다. 계정과 선생님 정보가 삭제되어 같은 이메일로 다시 가입할 수 있습니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "거절 성공"),
+            ApiResponse(responseCode = "400", description = "선생님 계정이 아님", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "409", description = "이미 승인된 계정", content = [Content()]),
+        ],
+    )
+    @DeleteMapping("/{accountId}/approval")
+    fun rejectTeacherAccount(
+        @Parameter(description = "계정 ID") @PathVariable accountId: Long,
+    ) = rejectTeacherAccountService.execute(accountId)
 }
