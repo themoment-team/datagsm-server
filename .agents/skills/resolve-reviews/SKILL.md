@@ -26,11 +26,21 @@ gh pr view --json number,baseRefName -q '{number: .number, base: .baseRefName}'
 
 ## Step 2 — Assess Each Comment
 
+Read `AGENTS.md` before assessing comments. Discover the shared convention files:
+
+```bash
+rg --files --hidden .claude/rules -g '*.md'
+```
+
+Read the rules whose `paths` match the reviewed files. Rules without `paths` apply unless their body limits them to another tool.
+
+**Rule priority**: `AGENTS.md` > applicable `.claude/rules/**` > `.gemini/styleguide.md` > `CONTRIBUTING.md`
+
 For each comment in `pr_comments.json`, apply the following **layered judgment criteria**:
 
 ### Judgment criteria (priority order)
 
-1. **Project conventions** (primary): cross-reference CLAUDE.md and CONTRIBUTING.md
+1. **Project conventions** (primary): apply `AGENTS.md` and the shared rules loaded above; consult `CONTRIBUTING.md` for supplementary guidance
    - DTO annotation rules, commit scope, logging style, exception message format, etc.
 2. **Language/framework best practices** (secondary): Kotlin official guide, Spring Boot recommendations
    - Apply only when no matching project rule exists
@@ -41,7 +51,7 @@ For each comment in `pr_comments.json`, apply the following **layered judgment c
 - **INVALID**: reviewer is wrong with a clear refutation → skip, post refutation reply
 - **PARTIAL**: intent is correct but application method or scope is ambiguous → confirm with AskUserQuestion
 
-Always cite a specific source in the rationale (e.g. `CLAUDE.md §Logging Style`, `Kotlin: prefer val over var`).
+Always cite a specific source in the rationale (e.g. `.claude/rules/logging.md §Style`, `Kotlin: prefer val over var`).
 
 ## Step 3 — Act on Each Verdict
 
@@ -83,8 +93,8 @@ Accept? (y / n / s = skip for now)
 
 | # | Reviewer | File | Verdict | Rationale | Action |
 |---|----------|------|---------|-----------|--------|
-| 1 | alice | Foo.kt:12 | ✅ VALID | CLAUDE.md §Logging Style | Auto-fixed (abc1234) |
-| 2 | bob | Bar.kt:34 | ❌ INVALID | CLAUDE.md §Exception Message | Skipped |
+| 1 | alice | Foo.kt:12 | ✅ VALID | .claude/rules/logging.md §Style | Auto-fixed (abc1234) |
+| 2 | bob | Bar.kt:34 | ❌ INVALID | .claude/rules/exception.md §Message Format | Skipped |
 | 3 | alice | Baz.kt:56 | ⚠️ PARTIAL | - | PENDING |
 ```
 

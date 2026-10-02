@@ -353,7 +353,7 @@ PR이 생성되면 다음이 자동으로 처리됩니다:
 
 ## 코딩 컨벤션
 
-프로젝트는 Kotlin 및 Spring Boot 모범 사례를 따릅니다. 자세한 내용은 [CLAUDE.md](./CLAUDE.md)를 참고하세요.
+프로젝트 공통 지침은 [AGENTS.md](./AGENTS.md)를 참고하세요. 파일 유형별 상세 규칙은 [.claude/rules](./.claude/rules/)에서 관리하며, 생성·수정·리뷰 전에 해당 규칙을 확인합니다. Claude Code는 AGENTS.md를 직접 읽을 수 있는 2.1.281 이상을 사용하고, 새 세션에서 공통 지침과 관련 규칙이 로딩되는지 확인합니다.
 
 ### Kotlin 규칙
 
