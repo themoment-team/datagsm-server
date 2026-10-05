@@ -60,6 +60,8 @@ class SecurityConfig(
                     .authenticated()
                     .requestMatchers(HttpMethod.GET, "/v1/students/me/projects")
                     .authenticated()
+                    .requestMatchers(HttpMethod.GET, "/v1/students/participant-candidates")
+                    .authenticated()
                     .requestMatchers(
                         HttpMethod.POST,
                         "/v1/students/me/projects",
