@@ -16,6 +16,8 @@ data class ProjectEventObject(
     val endYear: Int?,
     @field:JsonProperty("status")
     val status: String,
+    @field:JsonProperty("deployment_url")
+    val deploymentUrl: String?,
     @field:JsonProperty("club")
     val club: EventClubRef?,
     @field:JsonProperty("participants")

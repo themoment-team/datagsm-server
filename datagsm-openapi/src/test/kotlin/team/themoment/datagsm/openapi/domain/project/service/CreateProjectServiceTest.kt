@@ -27,6 +27,8 @@ import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatu
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
+import team.themoment.datagsm.common.global.data.ProjectIconStorageEnvironment
+import team.themoment.datagsm.common.global.storage.ProjectIconUrlResolver
 import team.themoment.datagsm.openapi.domain.project.service.impl.CreateProjectServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
@@ -40,8 +42,17 @@ class CreateProjectServiceTest :
         val applicationEventPublisher = mockk<ApplicationEventPublisher>()
         val eventSlot = slot<EventDispatchRequested>()
 
+        val projectIconUrlResolver =
+            ProjectIconUrlResolver(ProjectIconStorageEnvironment(cdnBaseUrl = "https://cdn.datagsm.kr"))
+
         val createProjectService =
-            CreateProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository, applicationEventPublisher)
+            CreateProjectServiceImpl(
+                mockProjectRepository,
+                mockClubRepository,
+                mockStudentRepository,
+                projectIconUrlResolver,
+                applicationEventPublisher,
+            )
 
         beforeEach {
             clearMocks(applicationEventPublisher)
@@ -154,6 +165,37 @@ class CreateProjectServiceTest :
 
                         result.repositories shouldContainExactlyInAnyOrder listOf("https://github.com/team/repo")
                         result.techStacks shouldContainExactlyInAnyOrder listOf("Kotlin", "Spring Boot")
+
+                        verify(exactly = 1) { mockProjectRepository.save(any()) }
+                    }
+                }
+
+                context("배포 URL을 포함하여 생성 요청할 때") {
+                    val createRequest =
+                        ProjectReqDto(
+                            name = "배포된 프로젝트",
+                            description = "배포 URL이 있는 프로젝트입니다",
+                            startYear = 2024,
+                            clubId = null,
+                            participantIds = emptyList(),
+                            deploymentUrl = "https://datagsm.kr",
+                        )
+
+                    val projectSlot = slot<ProjectJpaEntity>()
+
+                    beforeEach {
+                        every { mockProjectRepository.existsByName(createRequest.name) } returns false
+                        every { mockProjectRepository.save(capture(projectSlot)) } answers
+                            {
+                                projectSlot.captured.apply { id = 5L }
+                            }
+                    }
+
+                    it("배포 URL이 저장되고 응답에 포함되어야 한다") {
+                        val result = createProjectService.execute(createRequest)
+
+                        projectSlot.captured.deploymentUrl shouldBe "https://datagsm.kr"
+                        result.deploymentUrl shouldBe "https://datagsm.kr"
 
                         verify(exactly = 1) { mockProjectRepository.save(any()) }
                     }

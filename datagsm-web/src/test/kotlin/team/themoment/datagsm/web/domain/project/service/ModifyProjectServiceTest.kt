@@ -20,6 +20,7 @@ import team.themoment.datagsm.common.domain.project.repository.ProjectJpaReposit
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.web.domain.project.service.impl.ModifyProjectServiceImpl
+import team.themoment.datagsm.web.global.storage.ProjectIconStorage
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 
@@ -29,6 +30,7 @@ class ModifyProjectServiceTest :
         lateinit var mockProjectRepository: ProjectJpaRepository
         lateinit var mockClubRepository: ClubJpaRepository
         lateinit var mockStudentRepository: team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
+        lateinit var mockProjectIconStorage: ProjectIconStorage
         lateinit var applicationEventPublisher: ApplicationEventPublisher
         lateinit var modifyProjectService: ModifyProjectService
 
@@ -36,10 +38,27 @@ class ModifyProjectServiceTest :
             mockProjectRepository = mockk<ProjectJpaRepository>()
             mockClubRepository = mockk<ClubJpaRepository>()
             mockStudentRepository = mockk<team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository>()
+            mockProjectIconStorage = mockk<ProjectIconStorage>()
             applicationEventPublisher = mockk<ApplicationEventPublisher>()
             justRun { applicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
+            every { mockProjectIconStorage.validateIconKey(any()) } returns null
+            every { mockProjectIconStorage.toIconUrl(any()) } returns null
+            every { mockProjectIconStorage.resolveIconKeyForUpdate(any(), any()) } answers {
+                val requested = firstArg<String?>()
+                when {
+                    requested == null -> secondArg()
+                    requested.isBlank() -> null
+                    else -> requested
+                }
+            }
             modifyProjectService =
-                ModifyProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository, applicationEventPublisher)
+                ModifyProjectServiceImpl(
+                    mockProjectRepository,
+                    mockClubRepository,
+                    mockStudentRepository,
+                    mockProjectIconStorage,
+                    applicationEventPublisher,
+                )
         }
 
         describe("ModifyProjectService 클래스의") {

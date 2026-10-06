@@ -12,6 +12,8 @@ data class OauthCodeRedisEntity(
     val codeChallenge: String?,
     val codeChallengeMethod: String?,
     val scopes: Set<String>,
+    // OIDC replay 방지 값. authorize에서 받아 id_token 클레임으로 그대로 되돌려준다.
+    val nonce: String? = null,
     @Id
     val code: String,
     @TimeToLive

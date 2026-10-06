@@ -89,6 +89,7 @@ object Dependencies {
 
     // AWS SDK
     const val AWS_CLOUDWATCH_LOGS = "software.amazon.awssdk:cloudwatchlogs"
+    const val AWS_S3 = "software.amazon.awssdk:s3"
 
     // Development Tools
     const val SPRING_BOOT_DEVTOOLS = "org.springframework.boot:spring-boot-devtools"

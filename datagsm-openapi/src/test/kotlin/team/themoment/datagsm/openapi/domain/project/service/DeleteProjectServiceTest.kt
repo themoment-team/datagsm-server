@@ -21,6 +21,7 @@ import team.themoment.datagsm.common.domain.event.dto.payload.ProjectEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
+import team.themoment.datagsm.common.domain.project.repository.ProjectEditRequestJpaRepository
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.openapi.domain.project.service.impl.DeleteProjectServiceImpl
 import team.themoment.sdk.exception.ExpectedException
@@ -30,14 +31,17 @@ class DeleteProjectServiceTest :
     DescribeSpec({
 
         val mockProjectRepository = mockk<ProjectJpaRepository>()
+        val mockEditRequestRepository = mockk<ProjectEditRequestJpaRepository>()
         val applicationEventPublisher = mockk<ApplicationEventPublisher>()
         val eventSlot = slot<EventDispatchRequested>()
 
-        val deleteProjectService = DeleteProjectServiceImpl(mockProjectRepository, applicationEventPublisher)
+        val deleteProjectService =
+            DeleteProjectServiceImpl(mockProjectRepository, mockEditRequestRepository, applicationEventPublisher)
 
         beforeEach {
             clearMocks(applicationEventPublisher)
             justRun { applicationEventPublisher.publishEvent(capture(eventSlot)) }
+            justRun { mockEditRequestRepository.deleteAllByOriginalProjectId(any()) }
         }
 
         afterEach {

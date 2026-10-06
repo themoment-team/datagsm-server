@@ -189,6 +189,86 @@ class QueryOauthSessionServiceTest :
                     }
                 }
 
+                context("openid가 섞인 세션 토큰이 주어졌을 때") {
+                    val openidStateEntity =
+                        OauthAuthorizeStateRedisEntity(
+                            token = testToken,
+                            clientId = testClientId,
+                            redirectUri = "https://example.com/callback",
+                            state = null,
+                            codeChallenge = null,
+                            codeChallengeMethod = null,
+                            scopes = setOf("openid", "self:read"),
+                        )
+
+                    val selfApplication =
+                        ApplicationJpaEntity().apply {
+                            id = "self"
+                            name = "DataGSM"
+                        }
+
+                    val selfReadScope =
+                        OAuthScopeJpaEntity().apply {
+                            id = 1L
+                            scopeName = "read"
+                            description = "내 정보 조회"
+                            application = selfApplication
+                        }
+
+                    beforeEach {
+                        every { mockOauthAuthorizeStateRedisRepository.findById(testToken) } returns Optional.of(openidStateEntity)
+                        every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(mockClient)
+                        every { mockOauthEnvironment.authorizeStateExpirationMs } returns 600000L
+                        every { mockOauthScopeJpaRepository.findAllByApplicationIdIn(setOf("self")) } returns
+                            listOf(selfReadScope)
+                    }
+
+                    it("openid를 DB에서 조회하지 않아 예외 없이 처리되어야 한다") {
+                        val result = queryOauthSessionService.execute(testToken)
+
+                        result.serviceName shouldBe "Test Service"
+                    }
+
+                    it("동의 화면에 보여줄 권한 목록에서 openid가 제외되어야 한다") {
+                        val result = queryOauthSessionService.execute(testToken)
+
+                        result.requestedScopes shouldBe
+                            listOf(
+                                OAuthScopeResDto(
+                                    scope = "self:read",
+                                    description = "내 정보 조회",
+                                    applicationName = "DataGSM",
+                                ),
+                            )
+                    }
+                }
+
+                context("openid만 포함된 세션 토큰이 주어졌을 때") {
+                    val openidOnlyStateEntity =
+                        OauthAuthorizeStateRedisEntity(
+                            token = testToken,
+                            clientId = testClientId,
+                            redirectUri = "https://example.com/callback",
+                            state = null,
+                            codeChallenge = null,
+                            codeChallengeMethod = null,
+                            scopes = setOf("openid"),
+                        )
+
+                    beforeEach {
+                        every { mockOauthAuthorizeStateRedisRepository.findById(testToken) } returns Optional.of(openidOnlyStateEntity)
+                        every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(mockClient)
+                        every { mockOauthEnvironment.authorizeStateExpirationMs } returns 600000L
+                        every { mockOauthScopeJpaRepository.findAllByApplicationIdIn(emptySet()) } returns emptyList()
+                    }
+
+                    it("빈 권한 목록이 반환되어야 한다") {
+                        val result = queryOauthSessionService.execute(testToken)
+
+                        result.requestedScopes shouldBe emptyList()
+                    }
+                }
+
                 context("Redis에 존재하지 않는 토큰이 주어졌을 때") {
                     beforeEach {
                         every { mockOauthAuthorizeStateRedisRepository.findById("expired-token") } returns Optional.empty()

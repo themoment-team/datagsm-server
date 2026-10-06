@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountStatus
+import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
+import team.themoment.datagsm.common.domain.project.dto.internal.ProjectSummaryDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.common.domain.teacher.dto.response.TeacherResDto
 
@@ -25,4 +27,8 @@ data class AccountInfoResDto(
     val student: StudentResDto?,
     @field:Schema(description = "선생님 정보 (선생님인 경우에만 포함)")
     val teacher: TeacherResDto?,
+    @field:Schema(description = "소속 동아리 목록")
+    val clubs: List<ClubSummaryDto> = emptyList(),
+    @field:Schema(description = "참여 프로젝트 목록")
+    val projects: List<ProjectSummaryDto> = emptyList(),
 )

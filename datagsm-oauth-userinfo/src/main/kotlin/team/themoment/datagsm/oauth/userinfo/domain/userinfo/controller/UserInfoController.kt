@@ -17,7 +17,10 @@ class UserInfoController(
     @GetMapping("/userinfo")
     @Operation(
         summary = "사용자 정보 조회",
-        description = "OAuth2 Access Token을 사용하여 현재 사용자 정보를 조회합니다.",
+        description =
+            "OAuth2 Access Token을 사용하여 현재 사용자 정보를 조회합니다. " +
+                "student/teacher는 student_read(또는 하위 호환 self_read), clubs는 club_read, projects는 project_read " +
+                "스코프를 보유한 경우에만 값이 채워지며, 미보유 시 각각 null 또는 빈 목록으로 반환됩니다.",
     )
     fun getUserInfo(): AccountInfoResDto = queryUserInfoService.execute()
 }

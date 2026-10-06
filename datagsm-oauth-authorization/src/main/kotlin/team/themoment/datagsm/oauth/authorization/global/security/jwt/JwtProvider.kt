@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
+import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
 import team.themoment.datagsm.oauth.authorization.global.security.authentication.OauthAuthenticationToken
 import team.themoment.datagsm.oauth.authorization.global.security.authentication.principal.OauthUserPrincipal
@@ -23,6 +24,7 @@ import java.util.Date
 @Component
 class JwtProvider(
     private val jwtEnvironment: OauthJwtProvisionEnvironment,
+    private val oauthEnvironment: OauthEnvironment,
 ) {
     private val privateKey: PrivateKey = loadPrivateKey(jwtEnvironment.privateKey)
     private val publicKey: PublicKey = loadPublicKey(jwtEnvironment.publicKey)
@@ -46,6 +48,41 @@ class JwtProvider(
             .claim("role", role.name)
             .claim("clientId", clientId)
             .claim("scopes", scopes.map { it.scope })
+            .issuedAt(now)
+            .expiration(expiration)
+            .signWith(privateKey, Jwts.SIG.RS256)
+            .compact()
+    }
+
+    /**
+     * OIDC ID Token을 발급한다.
+     *
+     * sub에는 email을 넣는다. OIDC는 sub가 발급자 내에서 영구적이고 재사용되지
+     * 않는 값일 것을 요구하는데, 이 시스템의 계정 email은 학교 계정에 묶여
+     * 변경되지 않으므로 그 조건을 만족한다.
+     * access token과 /userinfo도 같은 값을 sub로 쓰고 있어, 세 곳의 식별자가
+     * 어긋나지 않는 편이 SP 연동에서도 혼란이 없다.
+     */
+    fun generateIdToken(
+        email: String,
+        clientId: String,
+        nonce: String?,
+    ): String {
+        val now = Date()
+        val expiration = Date(now.time + jwtEnvironment.accessTokenExpiration)
+
+        return Jwts
+            .builder()
+            .header()
+            .keyId(keyId)
+            .and()
+            .issuer(oauthEnvironment.issuerUrl)
+            .subject(email)
+            .audience()
+            .add(clientId)
+            .and()
+            .claim("email", email)
+            .apply { nonce?.let { claim("nonce", it) } }
             .issuedAt(now)
             .expiration(expiration)
             .signWith(privateKey, Jwts.SIG.RS256)

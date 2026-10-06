@@ -64,6 +64,8 @@ interface StudentJpaCustomRepository {
 
     fun findAllStudents(): List<StudentJpaEntity>
 
+    fun findAllEnrolledStudents(): List<StudentJpaEntity>
+
     fun bulkUpdateEmails(emailUpdates: Map<Long, String>)
 
     fun bulkUpdateStudentFields(updates: List<StudentBulkUpdateDto>)

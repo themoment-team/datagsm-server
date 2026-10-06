@@ -7,4 +7,6 @@ dependencies {
 
     "implementation"(dependency.Dependencies.POI)
     "implementation"(dependency.Dependencies.POI_OOXML)
+
+    "implementation"(dependency.Dependencies.AWS_S3)
 }

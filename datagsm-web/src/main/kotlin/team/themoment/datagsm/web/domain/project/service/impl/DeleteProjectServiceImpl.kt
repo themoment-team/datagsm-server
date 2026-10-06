@@ -13,6 +13,7 @@ import team.themoment.datagsm.common.domain.event.dto.payload.EventStudentRef
 import team.themoment.datagsm.common.domain.event.dto.payload.ProjectEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.repository.ProjectEditRequestJpaRepository
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.web.domain.project.service.DeleteProjectService
 import team.themoment.sdk.exception.ExpectedException
@@ -20,6 +21,7 @@ import team.themoment.sdk.exception.ExpectedException
 @Service
 class DeleteProjectServiceImpl(
     private val projectJpaRepository: ProjectJpaRepository,
+    private val projectEditRequestJpaRepository: ProjectEditRequestJpaRepository,
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) : DeleteProjectService {
     @Transactional
@@ -30,6 +32,8 @@ class DeleteProjectServiceImpl(
                 .orElseThrow { ExpectedException("프로젝트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
 
         val oldObj = generateProjectEventObject(project)
+        // 이 프로젝트를 참조하는 신청 이력을 먼저 지우지 않으면 외래 키 제약에 걸린다
+        projectEditRequestJpaRepository.deleteAllByOriginalProjectId(projectId)
         projectJpaRepository.delete(project)
 
         applicationEventPublisher.publishEvent(
@@ -51,6 +55,7 @@ class DeleteProjectServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status.name,
+            deploymentUrl = project.deploymentUrl,
             club = project.club?.let { EventClubRef(it.id!!, it.name) },
             participants =
                 project.participants.map { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },

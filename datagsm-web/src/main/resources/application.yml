@@ -40,6 +40,18 @@ spring:
         - ${CORS_ALLOWED_ORIGINS:*}
     oauth-jwt:
       public-key: ${JWT_PUBLIC_KEY}
+    public-api:
+      rate-limit:
+        enabled: true
+        capacity: 60
+        refill-tokens: 60
+        refill-duration-seconds: 60
+    icon-upload:
+      rate-limit:
+        enabled: true
+        capacity: 10
+        refill-tokens: 10
+        refill-duration-seconds: 60
     api-key:
       expiration-days: 30
       renewal-period-days: 15
@@ -57,6 +69,11 @@ spring:
       include-binding-errors: always
       include-stacktrace: never
       include-exception: false
+storage:
+  project-icon:
+    bucket: ${PROJECT_ICON_BUCKET:datagsm-assets}
+    region: ${AWS_REGION:ap-northeast-2}
+    cdn-base-url: ${PROJECT_ICON_CDN_BASE_URL:https://cdn.datagsm.kr}
 server:
   port: 8080
   shutdown: graceful

@@ -103,8 +103,12 @@ class EventDispatchConventionTest :
          */
         val ALLOWLIST: Map<String, Map<String, String>> =
             mapOf(
-                // "datagsm-web" to
-                //     mapOf("SomeServiceImpl" to "상위 서비스에서 일괄 발행하므로 중복 발행 방지"),
+                "datagsm-web" to
+                    mapOf(
+                        "ApplyProjectServiceImpl" to "승인 전 신청 스냅샷만 저장하므로 공식 프로젝트 데이터가 바뀌지 않음",
+                        "ApplyProjectModificationServiceImpl" to "승인 전 신청 스냅샷만 저장하므로 공식 프로젝트 데이터가 바뀌지 않음",
+                        "RejectProjectRequestServiceImpl" to "거절은 신청 상태만 바꾸고 공식 프로젝트 데이터를 건드리지 않음",
+                    ),
             )
 
         fun allowedClassNames(moduleName: String): Set<String> =

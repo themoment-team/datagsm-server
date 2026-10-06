@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.util.UriComponentsBuilder
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountStatus
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
@@ -16,10 +17,13 @@ import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
 import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeSubmitReqDto
-import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
+import team.themoment.datagsm.common.domain.oauth.entity.IdpSessionHandoffRedisEntity
+import team.themoment.datagsm.common.domain.oauth.entity.IdpSessionRedisEntity
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
+import team.themoment.datagsm.common.domain.oauth.repository.IdpSessionHandoffRedisRepository
+import team.themoment.datagsm.common.domain.oauth.repository.IdpSessionRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthAuthorizeStateRedisRepository
-import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
+import team.themoment.datagsm.common.domain.oauth.repository.OauthConsentJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.DormitoryRoomNumber
 import team.themoment.datagsm.common.domain.student.entity.StudentDataEditRequestJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
@@ -28,12 +32,15 @@ import team.themoment.datagsm.common.domain.student.entity.constant.NO_CLUB_ID
 import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRequestJpaRepository
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
+import team.themoment.datagsm.common.global.security.util.OpaqueTokenHashUtil
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthAuthorizeFlowService
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueAuthorizationCodeService
 import team.themoment.datagsm.oauth.authorization.global.security.service.OAuthClientRateLimitService
 import team.themoment.sdk.exception.ExpectedException
 import java.net.URI
 import java.security.SecureRandom
 import java.util.Base64
+import java.util.UUID
 
 @Service
 class CompleteOauthAuthorizeFlowServiceImpl(
@@ -41,8 +48,11 @@ class CompleteOauthAuthorizeFlowServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
     private val studentDataEditRequestJpaRepository: StudentDataEditRequestJpaRepository,
-    private val oauthCodeRedisRepository: OauthCodeRedisRepository,
     private val oauthAuthorizeStateRedisRepository: OauthAuthorizeStateRedisRepository,
+    private val idpSessionRedisRepository: IdpSessionRedisRepository,
+    private val idpSessionHandoffRedisRepository: IdpSessionHandoffRedisRepository,
+    private val oauthConsentJpaRepository: OauthConsentJpaRepository,
+    private val issueAuthorizationCodeService: IssueAuthorizationCodeService,
     private val passwordEncoder: PasswordEncoder,
     private val oauthEnvironment: OauthEnvironment,
     private val oauthClientRateLimitService: OAuthClientRateLimitService,
@@ -94,29 +104,97 @@ class CompleteOauthAuthorizeFlowServiceImpl(
             resolveStudentDataEditRequestIfNeeded(account.objectId!!, reqDto)
         }
 
-        val code = generateAuthorizationCode()
-
-        val oauthCodeEntity =
-            OauthCodeRedisEntity(
+        val redirectUrl =
+            issueAuthorizationCodeService.execute(
                 email = account.email,
                 clientId = clientId,
                 redirectUri = redirectUri,
+                state = state,
                 codeChallenge = codeChallenge,
                 codeChallengeMethod = codeChallengeMethod,
                 scopes = scopes,
-                code = code,
-                ttl = oauthEnvironment.codeExpirationSeconds,
+                nonce = stateEntity.nonce,
             )
-        oauthCodeRedisRepository.save(oauthCodeEntity)
 
         oauthAuthorizeStateRedisRepository.deleteById(reqDto.token)
 
-        val redirectUrl = buildRedirectUrl(redirectUri, code, state)
+        val accountId = requireNotNull(account.id) { "Persisted account must have an id" }
+        recordConsent(accountId, clientId, scopes)
+
+        val handoffUrl = createSessionHandoff(account.email, clientId, redirectUrl)
 
         return ResponseEntity
             .status(HttpStatus.FOUND)
-            .location(URI.create(redirectUrl))
+            .location(URI.create(handoffUrl))
             .build()
+    }
+
+    // BFF가 서버-투-서버로 호출하므로 이 응답에는 브라우저 쿠키를 심을 수 없다.
+    // 세션을 만들어두고, 브라우저가 최상위 이동으로 경유할 일회용 티켓 URL을 돌려준다.
+    // ticket은 로그·Referer에 남을 수 있으므로 verifier를 함께 발급하고 해시만 저장한다.
+    private fun createSessionHandoff(
+        email: String,
+        clientId: String,
+        redirectUrl: String,
+    ): String {
+        val sessionId = UUID.randomUUID().toString()
+        idpSessionRedisRepository.save(
+            IdpSessionRedisEntity(
+                sessionId = sessionId,
+                email = email,
+                // userAgent는 여기서 채우지 않는다. 이 요청은 BFF의 서버-투-서버 호출이라
+                // User-Agent가 BFF의 것이다. 브라우저가 직접 오는 핸드오프 시점에 기록한다.
+                createdAt = System.currentTimeMillis(),
+                ttl = oauthEnvironment.idpSessionExpirationSeconds,
+            ),
+        )
+
+        val ticket = generateOpaqueToken()
+        val verifier = generateOpaqueToken()
+        idpSessionHandoffRedisRepository.save(
+            IdpSessionHandoffRedisEntity(
+                ticket = ticket,
+                verifierHash = OpaqueTokenHashUtil.hash(verifier),
+                sessionId = sessionId,
+                clientId = clientId,
+                redirectUrl = redirectUrl,
+                ttl = oauthEnvironment.idpSessionHandoffExpirationSeconds,
+            ),
+        )
+
+        return UriComponentsBuilder
+            .fromUriString(oauthEnvironment.issuerUrl)
+            .path("/v1/oauth/authorize/session")
+            .queryParam("ticket", ticket)
+            .queryParam("verifier", verifier)
+            .build()
+            .toUriString()
+    }
+
+    // 동의 기록은 DB의 원자적 upsert에 맡긴다.
+    //
+    // 조회 후 없으면 insert하는 방식은 같은 (account, client)로 첫 로그인이 동시에
+    // 들어올 때 둘 다 "없음"을 보고 insert해 uk_oauth_consent_account_client 위반이 난다.
+    // 제약 위반을 잡아 같은 트랜잭션에서 재시도하는 것도 답이 아니다. flush 중 제약 위반이
+    // 나면 영속성 컨텍스트를 더 이상 신뢰할 수 없고, REPEATABLE READ에서는 재조회가 다른
+    // 트랜잭션이 방금 커밋한 행을 보지 못해 같은 예외를 다시 던질 수 있다.
+    //
+    // 이 자리에서 실패하면 특히 곤란하다. 인가 코드와 세션은 이미 Redis에 저장돼
+    // 롤백되지 않으므로, 사용자는 500을 받는데 코드만 남는 상태가 된다.
+    private fun recordConsent(
+        accountId: Long,
+        clientId: String,
+        scopes: Set<String>,
+    ) {
+        oauthConsentJpaRepository.upsertConsent(accountId, clientId)
+
+        val consentId =
+            oauthConsentJpaRepository.findIdByAccountIdAndClientId(accountId, clientId)
+                ?: throw ExpectedException("동의 정보를 저장하지 못했습니다.", HttpStatus.INTERNAL_SERVER_ERROR)
+
+        scopes.forEach { scope ->
+            oauthConsentJpaRepository.addScopeIfAbsent(consentId, scope)
+        }
     }
 
     private fun resolveStudentDataEditRequestIfNeeded(
@@ -230,21 +308,9 @@ class CompleteOauthAuthorizeFlowServiceImpl(
             githubId = student.githubId,
         )
 
-    private fun generateAuthorizationCode(): String =
+    private fun generateOpaqueToken(): String =
         Base64
             .getUrlEncoder()
             .withoutPadding()
             .encodeToString(ByteArray(22).also { secureRandom.nextBytes(it) })
-
-    private fun buildRedirectUrl(
-        redirectUri: String,
-        code: String,
-        state: String?,
-    ): String =
-        buildString {
-            append(redirectUri)
-            append(if (redirectUri.contains('?')) '&' else '?')
-            append("code=").append(code)
-            state?.let { append("&state=").append(it) }
-        }
 }

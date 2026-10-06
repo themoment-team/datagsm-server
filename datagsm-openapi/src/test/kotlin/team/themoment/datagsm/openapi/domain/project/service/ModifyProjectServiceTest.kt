@@ -24,6 +24,8 @@ import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatu
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
+import team.themoment.datagsm.common.global.data.ProjectIconStorageEnvironment
+import team.themoment.datagsm.common.global.storage.ProjectIconUrlResolver
 import team.themoment.datagsm.openapi.domain.project.service.impl.ModifyProjectServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
@@ -44,7 +46,13 @@ class ModifyProjectServiceTest :
             mockClubRepository = mockk<ClubJpaRepository>()
             mockStudentRepository = mockk<team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository>()
             modifyProjectService =
-                ModifyProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository, applicationEventPublisher)
+                ModifyProjectServiceImpl(
+                    mockProjectRepository,
+                    mockClubRepository,
+                    mockStudentRepository,
+                    ProjectIconUrlResolver(ProjectIconStorageEnvironment(cdnBaseUrl = "https://cdn.datagsm.kr")),
+                    applicationEventPublisher,
+                )
             clearMocks(applicationEventPublisher)
             justRun { applicationEventPublisher.publishEvent(capture(eventSlot)) }
         }
@@ -123,6 +131,37 @@ class ModifyProjectServiceTest :
                         data.old.size shouldBe 1
                         data.new.size shouldBe 1
                         (data.new[0].obj as ProjectEventObject).name shouldBe "수정된프로젝트"
+                    }
+                }
+
+                context("아이콘과 배포 URL 없이 수정할 때") {
+                    val updateRequest =
+                        ProjectReqDto(
+                            name = "수정된프로젝트",
+                            description = "기존 설명",
+                            startYear = 2023,
+                            clubId = 1L,
+                            participantIds = emptyList(),
+                        )
+
+                    beforeEach {
+                        existingProject.iconKey = "project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png"
+                        existingProject.deploymentUrl = "https://datagsm.kr"
+
+                        every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
+                        every {
+                            mockProjectRepository.existsByNameAndIdNot(updateRequest.name, projectId)
+                        } returns false
+                        every { mockClubRepository.findById(1L) } returns Optional.of(ownerClub)
+                    }
+
+                    it("기존 아이콘과 배포 URL이 유지되어야 한다") {
+                        val result = modifyProjectService.execute(projectId, updateRequest)
+
+                        result.iconKey shouldBe "project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png"
+                        result.iconUrl shouldBe
+                            "https://cdn.datagsm.kr/project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png"
+                        result.deploymentUrl shouldBe "https://datagsm.kr"
                     }
                 }
 
