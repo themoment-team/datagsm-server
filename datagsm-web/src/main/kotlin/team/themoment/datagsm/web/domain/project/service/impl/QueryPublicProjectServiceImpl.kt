@@ -59,6 +59,7 @@ class QueryPublicProjectServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status,
+            category = project.category,
             iconUrl = projectIconStorage.toIconUrl(project.iconKey),
             deploymentUrl = project.deploymentUrl,
             club = project.club?.let { projectEditRequestMapper.toClubSummary(it) },

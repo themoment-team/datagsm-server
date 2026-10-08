@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.Size
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectCategory
 
 data class ApplyProjectReqDto(
     @field:NotBlank
@@ -18,6 +19,11 @@ data class ApplyProjectReqDto(
     @field:Positive
     @param:Schema(description = "프로젝트 서비스 시작 연도", example = "2024")
     val startYear: Int,
+    @param:Schema(
+        description = "프로젝트 카테고리 (PERSONAL, TEAM, CLUB, IDEA_FESTIVAL). 수정 시 생략하면 기존 값을 유지한다",
+        example = "TEAM",
+    )
+    val category: ProjectCategory? = null,
     @param:Schema(description = "프로젝트 소유 동아리 ID (무소속인 경우 0 또는 미입력)", example = "1")
     val clubId: Long? = null,
     @param:Schema(description = "프로젝트 참여자 학생 ID 목록", example = "[1, 2, 3]")
