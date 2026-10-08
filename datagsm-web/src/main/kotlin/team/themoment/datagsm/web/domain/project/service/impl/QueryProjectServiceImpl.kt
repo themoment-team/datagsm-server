@@ -25,6 +25,7 @@ class QueryProjectServiceImpl(
                 name = queryReq.projectName,
                 clubId = queryReq.clubId,
                 status = queryReq.status,
+                category = queryReq.category,
                 pageable = PageRequest.of(queryReq.page, queryReq.size),
                 sortBy = queryReq.sortBy,
                 sortDirection = queryReq.sortDirection,
