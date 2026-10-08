@@ -20,6 +20,7 @@ import team.themoment.datagsm.common.domain.event.dto.payload.ProjectEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectCategory
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
@@ -162,6 +163,64 @@ class ModifyProjectServiceTest :
                         result.iconUrl shouldBe
                             "https://cdn.datagsm.kr/project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png"
                         result.deploymentUrl shouldBe "https://datagsm.kr"
+                    }
+                }
+
+                context("카테고리를 생략하고 수정할 때") {
+                    val updateRequest =
+                        ProjectReqDto(
+                            name = "기존프로젝트",
+                            description = "기존 설명",
+                            startYear = 2023,
+                            clubId = 1L,
+                            participantIds = emptyList(),
+                        )
+
+                    beforeEach {
+                        existingProject.category = ProjectCategory.TEAM
+
+                        every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
+                        every {
+                            mockProjectRepository.existsByNameAndIdNot(updateRequest.name, projectId)
+                        } returns false
+                        every { mockClubRepository.findById(1L) } returns Optional.of(ownerClub)
+                    }
+
+                    it("기존 카테고리가 유지되어야 한다") {
+                        val result = modifyProjectService.execute(projectId, updateRequest)
+
+                        result.category shouldBe ProjectCategory.TEAM
+                    }
+                }
+
+                context("카테고리를 지정하여 수정할 때") {
+                    val updateRequest =
+                        ProjectReqDto(
+                            name = "기존프로젝트",
+                            description = "기존 설명",
+                            startYear = 2023,
+                            clubId = 1L,
+                            participantIds = emptyList(),
+                            category = ProjectCategory.CLUB,
+                        )
+
+                    beforeEach {
+                        existingProject.category = ProjectCategory.TEAM
+
+                        every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
+                        every {
+                            mockProjectRepository.existsByNameAndIdNot(updateRequest.name, projectId)
+                        } returns false
+                        every { mockClubRepository.findById(1L) } returns Optional.of(ownerClub)
+                    }
+
+                    it("카테고리가 변경되고 웹훅 payload에 이전 값과 새 값이 담겨야 한다") {
+                        val result = modifyProjectService.execute(projectId, updateRequest)
+
+                        result.category shouldBe ProjectCategory.CLUB
+                        val data = eventSlot.captured.data as EventChangedData
+                        (data.old[0].obj as ProjectEventObject).category shouldBe "TEAM"
+                        (data.new[0].obj as ProjectEventObject).category shouldBe "CLUB"
                     }
                 }
 
