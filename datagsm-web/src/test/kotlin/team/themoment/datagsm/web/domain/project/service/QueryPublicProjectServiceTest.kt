@@ -13,6 +13,7 @@ import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.project.dto.request.QueryPublicProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectCategory
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
@@ -87,6 +88,7 @@ class QueryPublicProjectServiceTest :
                                 name = null,
                                 clubId = null,
                                 status = null,
+                                category = null,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = null,
                                 sortDirection = any(),
@@ -119,6 +121,57 @@ class QueryPublicProjectServiceTest :
                                 name = null,
                                 clubId = null,
                                 status = null,
+                                category = null,
+                                pageable = any(),
+                                sortBy = null,
+                                sortDirection = any(),
+                            )
+                        }
+                    }
+                }
+
+                context("category 필터가 주어질 때") {
+                    val ideaFestivalProject =
+                        ProjectJpaEntity().apply {
+                            id = 11L
+                            name = "아이디어페스티벌 프로젝트"
+                            description = "아이디어페스티벌 출품작"
+                            startYear = 2025
+                            status = ProjectStatus.ACTIVE
+                            category = ProjectCategory.IDEA_FESTIVAL
+                        }
+
+                    beforeEach {
+                        every {
+                            mockProjectRepository.searchProjectWithPaging(
+                                id = null,
+                                name = null,
+                                clubId = null,
+                                status = null,
+                                category = ProjectCategory.IDEA_FESTIVAL,
+                                pageable = PageRequest.of(0, 20),
+                                sortBy = null,
+                                sortDirection = any(),
+                            )
+                        } returns PageImpl(listOf(ideaFestivalProject), PageRequest.of(0, 20), 1)
+                    }
+
+                    it("category가 repository에 전달되고 응답에 포함되어야 한다") {
+                        val result =
+                            queryPublicProjectService.execute(
+                                QueryPublicProjectReqDto(category = ProjectCategory.IDEA_FESTIVAL),
+                            )
+
+                        result.totalElements shouldBe 1
+                        result.projects[0].category shouldBe ProjectCategory.IDEA_FESTIVAL
+
+                        verify(exactly = 1) {
+                            mockProjectRepository.searchProjectWithPaging(
+                                id = null,
+                                name = null,
+                                clubId = null,
+                                status = null,
+                                category = ProjectCategory.IDEA_FESTIVAL,
                                 pageable = any(),
                                 sortBy = null,
                                 sortDirection = any(),
