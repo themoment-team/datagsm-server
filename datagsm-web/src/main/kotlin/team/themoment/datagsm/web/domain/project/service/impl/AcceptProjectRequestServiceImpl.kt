@@ -83,6 +83,7 @@ class AcceptProjectRequestServiceImpl(
         project.name = request.name
         project.description = request.description
         project.startYear = request.startYear
+        project.category = request.category
         project.club = request.club
         project.participants = request.participants.toMutableSet()
         project.repositories = request.repositories.toMutableSet()
@@ -102,6 +103,7 @@ class AcceptProjectRequestServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status,
+            category = project.category,
             iconUrl = projectIconStorage.toIconUrl(project.iconKey),
             iconKey = project.iconKey,
             deploymentUrl = project.deploymentUrl,

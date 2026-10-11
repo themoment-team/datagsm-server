@@ -12,6 +12,7 @@ import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.project.dto.request.QueryProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectCategory
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.web.domain.project.service.impl.QueryProjectServiceImpl
@@ -61,6 +62,7 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = null,
                                 status = ProjectStatus.ACTIVE,
+                                category = null,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -99,6 +101,7 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = null,
                                 status = ProjectStatus.ACTIVE,
+                                category = null,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -115,6 +118,7 @@ class QueryProjectServiceTest :
                                 name = "DataGSM",
                                 clubId = null,
                                 status = ProjectStatus.ACTIVE,
+                                category = null,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -136,6 +140,60 @@ class QueryProjectServiceTest :
                     }
                 }
 
+                context("category 필터로 검색할 때") {
+                    val clubProject =
+                        ProjectJpaEntity().apply {
+                            id = 7L
+                            name = "동아리 프로젝트"
+                            description = "동아리에서 진행한 프로젝트"
+                            startYear = 2024
+                            status = ProjectStatus.ACTIVE
+                            category = ProjectCategory.CLUB
+                            club = testClub
+                        }
+
+                    beforeEach {
+                        every {
+                            mockProjectRepository.searchProjectWithPaging(
+                                id = null,
+                                name = null,
+                                clubId = null,
+                                status = ProjectStatus.ACTIVE,
+                                category = ProjectCategory.CLUB,
+                                pageable = PageRequest.of(0, 20),
+                                sortBy = any(),
+                                sortDirection = any(),
+                            )
+                        } returns PageImpl(listOf(clubProject), PageRequest.of(0, 20), 1L)
+                    }
+
+                    it("category가 repository에 전달되고 응답에 포함되어야 한다") {
+                        val queryReq =
+                            QueryProjectReqDto(
+                                category = ProjectCategory.CLUB,
+                                page = 0,
+                                size = 20,
+                            )
+                        val result = queryProjectService.execute(queryReq)
+
+                        result.totalElements shouldBe 1L
+                        result.projects[0].category shouldBe ProjectCategory.CLUB
+
+                        verify(exactly = 1) {
+                            mockProjectRepository.searchProjectWithPaging(
+                                id = null,
+                                name = null,
+                                clubId = null,
+                                status = ProjectStatus.ACTIVE,
+                                category = ProjectCategory.CLUB,
+                                pageable = PageRequest.of(0, 20),
+                                sortBy = any(),
+                                sortDirection = any(),
+                            )
+                        }
+                    }
+                }
+
                 context("동아리 ID로 검색할 때") {
                     beforeEach {
                         every {
@@ -144,6 +202,7 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = 1L,
                                 status = ProjectStatus.ACTIVE,
+                                category = null,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -184,6 +243,7 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = null,
                                 status = ProjectStatus.ENDED,
+                                category = null,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -214,6 +274,7 @@ class QueryProjectServiceTest :
                                 name = "DataGSM",
                                 clubId = 1L,
                                 status = ProjectStatus.ACTIVE,
+                                category = null,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -245,6 +306,7 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = null,
                                 status = ProjectStatus.ACTIVE,
+                                category = null,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -292,6 +354,7 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = null,
                                 status = ProjectStatus.ACTIVE,
+                                category = null,
                                 pageable = PageRequest.of(0, 10),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -319,6 +382,7 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = null,
                                 status = ProjectStatus.ACTIVE,
+                                category = null,
                                 pageable = PageRequest.of(0, 10),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -352,6 +416,7 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = 3L,
                                 status = ProjectStatus.ACTIVE,
+                                category = null,
                                 pageable = PageRequest.of(0, 20),
                                 sortBy = any(),
                                 sortDirection = any(),

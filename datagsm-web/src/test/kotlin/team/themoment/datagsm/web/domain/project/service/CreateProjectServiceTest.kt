@@ -17,6 +17,7 @@ import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectCategory
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
@@ -176,6 +177,37 @@ class CreateProjectServiceTest :
 
                         projectSlot.captured.deploymentUrl shouldBe "https://datagsm.kr"
                         result.deploymentUrl shouldBe "https://datagsm.kr"
+
+                        verify(exactly = 1) { mockProjectRepository.save(any()) }
+                    }
+                }
+
+                context("카테고리를 포함하여 생성 요청할 때") {
+                    val createRequest =
+                        ProjectReqDto(
+                            name = "개인 프로젝트",
+                            description = "혼자 진행한 프로젝트입니다",
+                            startYear = 2024,
+                            clubId = null,
+                            participantIds = emptyList(),
+                            category = ProjectCategory.PERSONAL,
+                        )
+
+                    val projectSlot = slot<ProjectJpaEntity>()
+
+                    beforeEach {
+                        every { mockProjectRepository.existsByName(createRequest.name) } returns false
+                        every { mockProjectRepository.save(capture(projectSlot)) } answers
+                            {
+                                projectSlot.captured.apply { id = 6L }
+                            }
+                    }
+
+                    it("카테고리가 저장되고 응답에 포함되어야 한다") {
+                        val result = createProjectService.execute(createRequest)
+
+                        projectSlot.captured.category shouldBe ProjectCategory.PERSONAL
+                        result.category shouldBe ProjectCategory.PERSONAL
 
                         verify(exactly = 1) { mockProjectRepository.save(any()) }
                     }

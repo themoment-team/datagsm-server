@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.Size
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectCategory
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 
 data class ProjectReqDto(
@@ -25,6 +26,11 @@ data class ProjectReqDto(
     val participantIds: List<Long>,
     @param:Schema(description = "프로젝트 운영 상태", example = "ACTIVE")
     val status: ProjectStatus = ProjectStatus.ACTIVE,
+    @param:Schema(
+        description = "프로젝트 카테고리 (PERSONAL, TEAM, CLUB, IDEA_FESTIVAL). 수정 시 생략하면 기존 값을 유지한다",
+        example = "TEAM",
+    )
+    val category: ProjectCategory? = null,
     @field:Positive
     @param:Schema(description = "프로젝트 종료 연도 (ENDED 시 설정)", example = "2025")
     val endYear: Int? = null,

@@ -18,6 +18,7 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.DynamicUpdate
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectCategory
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectRequestStatus
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import java.time.LocalDateTime
@@ -55,6 +56,10 @@ class ProjectEditRequestJpaEntity {
 
     @field:Column(name = "start_year", nullable = false)
     var startYear: Int = 0
+
+    @field:Column(name = "category", nullable = true)
+    @field:Enumerated(EnumType.STRING)
+    var category: ProjectCategory? = null
 
     @field:Column(name = "icon_key", nullable = true, length = 300)
     var iconKey: String? = null

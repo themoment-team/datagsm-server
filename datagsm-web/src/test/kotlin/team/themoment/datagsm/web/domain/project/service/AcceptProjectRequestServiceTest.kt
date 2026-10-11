@@ -14,6 +14,7 @@ import org.springframework.context.ApplicationEventPublisher
 import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.project.entity.ProjectEditRequestJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectCategory
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectRequestStatus
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectEditRequestJpaRepository
@@ -86,6 +87,7 @@ class AcceptProjectRequestServiceTest :
                                 repositories = mutableSetOf("https://github.com/team/repo")
                                 techStacks = mutableSetOf("Kotlin")
                                 deploymentUrl = "https://datagsm.kr"
+                                category = ProjectCategory.TEAM
                                 requestStatus = ProjectRequestStatus.PENDING
                             }
 
@@ -115,6 +117,16 @@ class AcceptProjectRequestServiceTest :
                         verify(exactly = 1) { mockProjectRepository.save(capture(captured)) }
                         captured.captured.deploymentUrl shouldBe "https://datagsm.kr"
                         result.deploymentUrl shouldBe "https://datagsm.kr"
+                    }
+
+                    it("신청의 카테고리가 프로젝트로 전파되어야 한다") {
+                        val captured = slot<ProjectJpaEntity>()
+
+                        val result = acceptProjectRequestService.execute(requestId)
+
+                        verify(exactly = 1) { mockProjectRepository.save(capture(captured)) }
+                        captured.captured.category shouldBe ProjectCategory.TEAM
+                        result.category shouldBe ProjectCategory.TEAM
                     }
 
                     it("신청 상태가 ACCEPTED로 변경되고 처리 일시가 기록되어야 한다") {

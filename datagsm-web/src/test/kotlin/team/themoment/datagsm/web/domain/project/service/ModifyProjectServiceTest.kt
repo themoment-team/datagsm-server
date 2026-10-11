@@ -15,6 +15,7 @@ import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectCategory
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
@@ -159,6 +160,59 @@ class ModifyProjectServiceTest :
 
                         result.repositories shouldContainExactlyInAnyOrder listOf("https://github.com/team/new-repo")
                         result.techStacks shouldContainExactlyInAnyOrder listOf("Kotlin")
+                    }
+                }
+
+                context("카테고리를 생략하고 수정할 때") {
+                    val updateRequest =
+                        ProjectReqDto(
+                            name = "기존프로젝트",
+                            description = "기존 설명",
+                            startYear = 2023,
+                            clubId = 1L,
+                            participantIds = emptyList(),
+                        )
+
+                    beforeEach {
+                        existingProject.category = ProjectCategory.CLUB
+
+                        every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
+                        every { mockProjectRepository.existsByNameAndIdNot(updateRequest.name, projectId) } returns false
+                        every { mockClubRepository.findById(1L) } returns Optional.of(ownerClub)
+                    }
+
+                    it("기존 카테고리가 유지되어야 한다") {
+                        val result = modifyProjectService.execute(projectId, updateRequest)
+
+                        existingProject.category shouldBe ProjectCategory.CLUB
+                        result.category shouldBe ProjectCategory.CLUB
+                    }
+                }
+
+                context("카테고리를 지정하여 수정할 때") {
+                    val updateRequest =
+                        ProjectReqDto(
+                            name = "기존프로젝트",
+                            description = "기존 설명",
+                            startYear = 2023,
+                            clubId = 1L,
+                            participantIds = emptyList(),
+                            category = ProjectCategory.IDEA_FESTIVAL,
+                        )
+
+                    beforeEach {
+                        existingProject.category = ProjectCategory.CLUB
+
+                        every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
+                        every { mockProjectRepository.existsByNameAndIdNot(updateRequest.name, projectId) } returns false
+                        every { mockClubRepository.findById(1L) } returns Optional.of(ownerClub)
+                    }
+
+                    it("카테고리가 새 값으로 변경되어야 한다") {
+                        val result = modifyProjectService.execute(projectId, updateRequest)
+
+                        existingProject.category shouldBe ProjectCategory.IDEA_FESTIVAL
+                        result.category shouldBe ProjectCategory.IDEA_FESTIVAL
                     }
                 }
 

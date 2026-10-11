@@ -8,6 +8,7 @@ import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.QProjectJpaEntity.Companion.projectJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectCategory
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectSortBy
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.custom.ProjectJpaCustomRepository
@@ -75,13 +76,16 @@ class ProjectJpaCustomRepositoryImpl(
         name: String?,
         clubId: Long?,
         status: ProjectStatus?,
+        category: ProjectCategory?,
         pageable: Pageable,
         sortBy: ProjectSortBy?,
         sortDirection: SortDirection,
     ): Page<ProjectJpaEntity> {
-        var searchResult = searchProjectWithCondition(id, name, clubId, status, pageable, sortBy, sortDirection, useStartsWith = true)
+        var searchResult =
+            searchProjectWithCondition(id, name, clubId, status, category, pageable, sortBy, sortDirection, useStartsWith = true)
         if (searchResult.content.isEmpty() && name != null) {
-            searchResult = searchProjectWithCondition(id, name, clubId, status, pageable, sortBy, sortDirection, useStartsWith = false)
+            searchResult =
+                searchProjectWithCondition(id, name, clubId, status, category, pageable, sortBy, sortDirection, useStartsWith = false)
         }
         return searchResult
     }
@@ -91,6 +95,7 @@ class ProjectJpaCustomRepositoryImpl(
         projectName: String?,
         clubId: Long?,
         status: ProjectStatus?,
+        category: ProjectCategory?,
         pageable: Pageable,
         sortBy: ProjectSortBy?,
         sortDirection: SortDirection,
@@ -110,6 +115,7 @@ class ProjectJpaCustomRepositoryImpl(
                     },
                     clubId?.let { projectJpaEntity.club.id.eq(it) },
                     status?.let { projectJpaEntity.status.eq(it) },
+                    category?.let { projectJpaEntity.category.eq(it) },
                 ).apply {
                     orderSpecifier?.let { orderBy(it) }
                 }.offset(pageable.offset)
@@ -148,6 +154,7 @@ class ProjectJpaCustomRepositoryImpl(
                     },
                     clubId?.let { projectJpaEntity.club.id.eq(it) },
                     status?.let { projectJpaEntity.status.eq(it) },
+                    category?.let { projectJpaEntity.category.eq(it) },
                 )
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }

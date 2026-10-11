@@ -18,6 +18,7 @@ import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
+import team.themoment.datagsm.common.domain.project.resolveCategoryForUpdate
 import team.themoment.datagsm.common.domain.project.resolveDeploymentUrlForUpdate
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
@@ -83,6 +84,7 @@ class ModifyProjectServiceImpl(
         // 생략하면 현재 값을 유지하고 빈 문자열이면 삭제한다
         project.iconKey = projectIconUrlResolver.resolveIconKeyForUpdate(reqDto.iconKey, project.iconKey)
         project.deploymentUrl = resolveDeploymentUrlForUpdate(reqDto.deploymentUrl, project.deploymentUrl)
+        project.category = resolveCategoryForUpdate(reqDto.category, project.category)
 
         val newObj = generateProjectEventObject(project)
         applicationEventPublisher.publishEvent(
@@ -102,6 +104,7 @@ class ModifyProjectServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status,
+            category = project.category,
             iconUrl = projectIconUrlResolver.toIconUrl(project.iconKey),
             iconKey = project.iconKey,
             deploymentUrl = project.deploymentUrl,
@@ -130,6 +133,7 @@ class ModifyProjectServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status.name,
+            category = project.category?.name,
             deploymentUrl = project.deploymentUrl,
             club = project.club?.let { EventClubRef(it.id!!, it.name) },
             participants =

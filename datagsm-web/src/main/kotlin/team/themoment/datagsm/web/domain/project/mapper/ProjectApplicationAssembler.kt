@@ -6,6 +6,7 @@ import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.project.dto.request.ApplyProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectEditRequestJpaEntity
+import team.themoment.datagsm.common.domain.project.resolveCategoryForUpdate
 import team.themoment.datagsm.common.domain.project.resolveDeploymentUrlForUpdate
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
@@ -34,6 +35,7 @@ class ProjectApplicationAssembler(
         val currentProject = request.originalProject
         request.iconKey = projectIconStorage.resolveIconKeyForUpdate(reqDto.iconKey, currentProject?.iconKey)
         request.deploymentUrl = resolveDeploymentUrlForUpdate(reqDto.deploymentUrl, currentProject?.deploymentUrl)
+        request.category = resolveCategoryForUpdate(reqDto.category, currentProject?.category)
     }
 
     /** 클라이언트는 무소속을 0으로 보내므로 null과 동일하게 취급한다 */

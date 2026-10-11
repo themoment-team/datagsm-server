@@ -13,6 +13,7 @@ import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.project.dto.request.ApplyProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectEditRequestJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectCategory
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectRequestStatus
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectEditRequestJpaRepository
@@ -215,6 +216,40 @@ class ApplyProjectModificationServiceTest :
                         verify(exactly = 1) { mockEditRequestRepository.save(capture(captured)) }
                         captured.captured.iconKey shouldBe null
                         captured.captured.deploymentUrl shouldBe null
+                    }
+                }
+
+                context("카테고리가 있는 프로젝트를 수정 신청할 때") {
+                    beforeEach {
+                        existingProject.category = ProjectCategory.CLUB
+
+                        every { mockCurrentUserProvider.getCurrentStudent() } returns owner
+                        every {
+                            mockEditRequestRepository.findByOriginalProjectId(projectId)
+                        } returns Optional.empty()
+                    }
+
+                    it("카테고리를 생략하면 원본 프로젝트의 카테고리가 승계되어야 한다") {
+                        val captured = slot<ProjectEditRequestJpaEntity>()
+
+                        val result = applyProjectModificationService.execute(projectId, reqDto)
+
+                        verify(exactly = 1) { mockEditRequestRepository.save(capture(captured)) }
+                        captured.captured.category shouldBe ProjectCategory.CLUB
+                        result.category shouldBe ProjectCategory.CLUB
+                    }
+
+                    it("카테고리를 보내면 교체되어야 한다") {
+                        val captured = slot<ProjectEditRequestJpaEntity>()
+
+                        applyProjectModificationService.execute(
+                            projectId,
+                            reqDto.copy(category = ProjectCategory.IDEA_FESTIVAL),
+                        )
+
+                        verify(exactly = 1) { mockEditRequestRepository.save(capture(captured)) }
+                        captured.captured.category shouldBe ProjectCategory.IDEA_FESTIVAL
+                        existingProject.category shouldBe ProjectCategory.CLUB
                     }
                 }
 

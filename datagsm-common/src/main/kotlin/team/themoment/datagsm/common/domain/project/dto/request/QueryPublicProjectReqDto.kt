@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.Size
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectCategory
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectSortBy
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.global.constant.SortDirection
@@ -18,6 +19,8 @@ data class QueryPublicProjectReqDto(
     val clubId: Long? = null,
     @param:Schema(description = "프로젝트 운영 상태 (미입력 시 전체 조회)")
     val status: ProjectStatus? = null,
+    @param:Schema(description = "프로젝트 카테고리 (PERSONAL, TEAM, CLUB, IDEA_FESTIVAL, 미입력 시 전체 조회)")
+    val category: ProjectCategory? = null,
     @field:Min(0)
     @param:Schema(description = "페이지 번호", defaultValue = "0", minimum = "0")
     val page: Int = 0,
