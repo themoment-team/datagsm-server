@@ -21,3 +21,6 @@ fun resolveCategoriesForUpdate(
     requestedCategories: Set<ProjectCategory>?,
     currentCategories: Set<ProjectCategory>,
 ): MutableSet<ProjectCategory> = (requestedCategories ?: currentCategories).toMutableSet()
+
+/** Hibernate 컬렉션의 순회 순서에 의존하지 않도록 enum 선언 순서로 고정한다. */
+fun Collection<ProjectCategory>.toOrderedSet(): Set<ProjectCategory> = sortedBy { it.ordinal }.toSet()

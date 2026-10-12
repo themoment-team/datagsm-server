@@ -130,6 +130,7 @@ class ProjectJpaCustomRepositoryImpl(
                 .fetch()
 
         // 2쿼리: ID IN절로 club + participants + repositories + techStacks 한 번에 fetchJoin
+        // categories는 카테시안 곱을 키우지 않도록 별도 쿼리로 영속성 컨텍스트에 채운다
         val content =
             if (projectIds.isEmpty()) {
                 emptyList()
@@ -144,12 +145,11 @@ class ProjectJpaCustomRepositoryImpl(
                     .fetchJoin()
                     .leftJoin(projectJpaEntity.techStacks)
                     .fetchJoin()
-                    .leftJoin(projectJpaEntity.categories)
-                    .fetchJoin()
                     .where(projectJpaEntity.id.`in`(projectIds))
                     .apply { orderSpecifier?.let { orderBy(it) } }
                     .fetch()
                     .distinct()
+                    .also { fetchCategories(projectIds) }
             }
 
         val countQuery =
@@ -167,6 +167,15 @@ class ProjectJpaCustomRepositoryImpl(
                 )
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
+    }
+
+    private fun fetchCategories(projectIds: List<Long>) {
+        jpaQueryFactory
+            .selectFrom(projectJpaEntity)
+            .leftJoin(projectJpaEntity.categories)
+            .fetchJoin()
+            .where(projectJpaEntity.id.`in`(projectIds))
+            .fetch()
     }
 
     override fun findAllByParticipantId(studentId: Long): List<ProjectJpaEntity> =

@@ -9,6 +9,7 @@ import team.themoment.datagsm.common.domain.event.dto.payload.ProjectEventObject
 import team.themoment.datagsm.common.domain.project.dto.response.ProjectEditRequestResDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectEditRequestJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.toOrderedSet
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.web.global.storage.ProjectIconStorage
@@ -25,7 +26,7 @@ class ProjectEditRequestMapper(
             name = request.name,
             description = request.description,
             startYear = request.startYear,
-            categories = request.categories.toSet(),
+            categories = request.categories.toOrderedSet(),
             iconUrl = projectIconStorage.toIconUrl(request.iconKey),
             iconKey = request.iconKey,
             deploymentUrl = request.deploymentUrl,
@@ -59,7 +60,7 @@ class ProjectEditRequestMapper(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status.name,
-            categories = project.categories.map { it.name },
+            categories = project.categories.toOrderedSet().map { it.name },
             deploymentUrl = project.deploymentUrl,
             club = project.club?.let { EventClubRef(it.id!!, it.name) },
             participants = project.participants.map { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },
