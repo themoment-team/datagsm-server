@@ -10,4 +10,5 @@ enum class ProjectCategory(
     TEAM("팀 프로젝트"),
     CLUB("동아리 프로젝트"),
     IDEA_FESTIVAL("아이디어페스티벌"),
+    NOT_DEPLOYED("미배포"),
 }
