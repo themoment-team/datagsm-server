@@ -68,6 +68,13 @@ class ProjectJpaCustomRepositoryImpl(
             .where(projectJpaEntity.id.`in`(projectIds))
             .fetch()
 
+        jpaQueryFactory
+            .selectFrom(projectJpaEntity)
+            .leftJoin(projectJpaEntity.categories)
+            .fetchJoin()
+            .where(projectJpaEntity.id.`in`(projectIds))
+            .fetch()
+
         return content
     }
 
@@ -115,7 +122,7 @@ class ProjectJpaCustomRepositoryImpl(
                     },
                     clubId?.let { projectJpaEntity.club.id.eq(it) },
                     status?.let { projectJpaEntity.status.eq(it) },
-                    category?.let { projectJpaEntity.category.eq(it) },
+                    category?.let { projectJpaEntity.categories.contains(it) },
                 ).apply {
                     orderSpecifier?.let { orderBy(it) }
                 }.offset(pageable.offset)
@@ -137,6 +144,8 @@ class ProjectJpaCustomRepositoryImpl(
                     .fetchJoin()
                     .leftJoin(projectJpaEntity.techStacks)
                     .fetchJoin()
+                    .leftJoin(projectJpaEntity.categories)
+                    .fetchJoin()
                     .where(projectJpaEntity.id.`in`(projectIds))
                     .apply { orderSpecifier?.let { orderBy(it) } }
                     .fetch()
@@ -154,7 +163,7 @@ class ProjectJpaCustomRepositoryImpl(
                     },
                     clubId?.let { projectJpaEntity.club.id.eq(it) },
                     status?.let { projectJpaEntity.status.eq(it) },
-                    category?.let { projectJpaEntity.category.eq(it) },
+                    category?.let { projectJpaEntity.categories.contains(it) },
                 )
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }

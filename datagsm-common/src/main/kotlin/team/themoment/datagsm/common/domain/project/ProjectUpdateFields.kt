@@ -16,8 +16,8 @@ fun resolveDeploymentUrlForUpdate(
         else -> requestedDeploymentUrl
     }
 
-/** 수정 요청에서 생략(null)하면 현재 카테고리를 유지한다. */
-fun resolveCategoryForUpdate(
-    requestedCategory: ProjectCategory?,
-    currentCategory: ProjectCategory?,
-): ProjectCategory? = requestedCategory ?: currentCategory
+/** 수정 요청에서 생략(null)하면 현재 카테고리를 유지하고, 빈 목록이면 모두 해제한다. */
+fun resolveCategoriesForUpdate(
+    requestedCategories: Set<ProjectCategory>?,
+    currentCategories: Set<ProjectCategory>,
+): MutableSet<ProjectCategory> = (requestedCategories ?: currentCategories).toMutableSet()

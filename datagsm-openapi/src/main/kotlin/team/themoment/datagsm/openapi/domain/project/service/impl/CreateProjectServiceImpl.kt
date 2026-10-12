@@ -80,7 +80,7 @@ class CreateProjectServiceImpl(
                 description = projectReqDto.description
                 startYear = projectReqDto.startYear
                 status = projectReqDto.status
-                category = projectReqDto.category
+                categories = projectReqDto.categories.orEmpty().toMutableSet()
                 endYear = projectReqDto.endYear
                 this.club = ownerClub
                 this.participants = participants
@@ -109,7 +109,7 @@ class CreateProjectServiceImpl(
             startYear = savedProjectEntity.startYear,
             endYear = savedProjectEntity.endYear,
             status = savedProjectEntity.status,
-            category = savedProjectEntity.category,
+            categories = savedProjectEntity.categories.toSet(),
             iconUrl = projectIconUrlResolver.toIconUrl(savedProjectEntity.iconKey),
             iconKey = savedProjectEntity.iconKey,
             deploymentUrl = savedProjectEntity.deploymentUrl,
@@ -138,7 +138,7 @@ class CreateProjectServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status.name,
-            category = project.category?.name,
+            categories = project.categories.map { it.name },
             deploymentUrl = project.deploymentUrl,
             club = project.club?.let { EventClubRef(it.id!!, it.name) },
             participants =

@@ -148,7 +148,7 @@ class QueryProjectServiceTest :
                             description = "동아리에서 진행한 프로젝트"
                             startYear = 2024
                             status = ProjectStatus.ACTIVE
-                            category = ProjectCategory.CLUB
+                            categories = mutableSetOf(ProjectCategory.CLUB)
                             club = testClub
                         }
 
@@ -177,7 +177,7 @@ class QueryProjectServiceTest :
                         val result = queryProjectService.execute(queryReq)
 
                         result.totalElements shouldBe 1L
-                        result.projects[0].category shouldBe ProjectCategory.CLUB
+                        result.projects[0].categories shouldBe setOf(ProjectCategory.CLUB)
 
                         verify(exactly = 1) {
                             mockProjectRepository.searchProjectWithPaging(

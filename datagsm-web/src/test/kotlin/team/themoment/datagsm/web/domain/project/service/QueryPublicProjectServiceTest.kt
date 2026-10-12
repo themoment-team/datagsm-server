@@ -138,7 +138,7 @@ class QueryPublicProjectServiceTest :
                             description = "아이디어페스티벌 출품작"
                             startYear = 2025
                             status = ProjectStatus.ACTIVE
-                            category = ProjectCategory.IDEA_FESTIVAL
+                            categories = mutableSetOf(ProjectCategory.IDEA_FESTIVAL)
                         }
 
                     beforeEach {
@@ -163,7 +163,7 @@ class QueryPublicProjectServiceTest :
                             )
 
                         result.totalElements shouldBe 1
-                        result.projects[0].category shouldBe ProjectCategory.IDEA_FESTIVAL
+                        result.projects[0].categories shouldBe setOf(ProjectCategory.IDEA_FESTIVAL)
 
                         verify(exactly = 1) {
                             mockProjectRepository.searchProjectWithPaging(

@@ -43,7 +43,7 @@ class QueryProjectServiceImpl(
                         startYear = project.startYear,
                         endYear = project.endYear,
                         status = project.status,
-                        category = project.category,
+                        categories = project.categories.toSet(),
                         iconUrl = projectIconStorage.toIconUrl(project.iconKey),
                         iconKey = project.iconKey,
                         deploymentUrl = project.deploymentUrl,

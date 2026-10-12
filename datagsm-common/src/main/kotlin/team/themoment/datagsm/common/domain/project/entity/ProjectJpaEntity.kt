@@ -46,10 +46,6 @@ class ProjectJpaEntity {
     @field:Enumerated(EnumType.STRING)
     lateinit var status: ProjectStatus
 
-    @field:Column(name = "category", nullable = true)
-    @field:Enumerated(EnumType.STRING)
-    var category: ProjectCategory? = null
-
     @field:Column(name = "icon_key", nullable = true, length = 300)
     var iconKey: String? = null
 
@@ -71,6 +67,12 @@ class ProjectJpaEntity {
         inverseJoinColumns = [JoinColumn(name = "student_id")],
     )
     var participants: MutableSet<StudentJpaEntity> = mutableSetOf()
+
+    @field:ElementCollection(fetch = FetchType.LAZY)
+    @field:CollectionTable(name = "tb_project_category", joinColumns = [JoinColumn(name = "project_id")])
+    @field:Column(name = "category", nullable = false)
+    @field:Enumerated(EnumType.STRING)
+    var categories: MutableSet<ProjectCategory> = mutableSetOf()
 
     @field:ElementCollection(fetch = FetchType.LAZY)
     @field:CollectionTable(name = "tb_project_repository", joinColumns = [JoinColumn(name = "project_id")])

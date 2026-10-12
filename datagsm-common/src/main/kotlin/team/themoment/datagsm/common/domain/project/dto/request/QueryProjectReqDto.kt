@@ -20,7 +20,7 @@ data class QueryProjectReqDto(
     val clubId: Long? = null,
     @param:Schema(description = "프로젝트 운영 상태 (ACTIVE, ENDED, 미입력 시 ACTIVE만 조회)", defaultValue = "ACTIVE")
     val status: ProjectStatus? = ProjectStatus.ACTIVE,
-    @param:Schema(description = "프로젝트 카테고리 (TOY_PROJECT, TEAM, CLUB, IDEA_FESTIVAL, NOT_DEPLOYED, 미입력 시 전체 조회)")
+    @param:Schema(description = "프로젝트 카테고리 (TOY_PROJECT, TEAM, CLUB, IDEA_FESTIVAL, NOT_DEPLOYED). 해당 카테고리를 포함하는 프로젝트만 조회하고 미입력 시 전체 조회")
     val category: ProjectCategory? = null,
     @field:Min(0)
     @param:Schema(description = "페이지 번호", defaultValue = "0", minimum = "0")

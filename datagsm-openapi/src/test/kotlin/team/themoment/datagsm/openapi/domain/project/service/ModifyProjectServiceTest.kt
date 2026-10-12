@@ -177,7 +177,7 @@ class ModifyProjectServiceTest :
                         )
 
                     beforeEach {
-                        existingProject.category = ProjectCategory.TEAM
+                        existingProject.categories = mutableSetOf(ProjectCategory.TEAM)
 
                         every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
                         every {
@@ -189,7 +189,7 @@ class ModifyProjectServiceTest :
                     it("기존 카테고리가 유지되어야 한다") {
                         val result = modifyProjectService.execute(projectId, updateRequest)
 
-                        result.category shouldBe ProjectCategory.TEAM
+                        result.categories shouldBe setOf(ProjectCategory.TEAM)
                     }
                 }
 
@@ -201,11 +201,11 @@ class ModifyProjectServiceTest :
                             startYear = 2023,
                             clubId = 1L,
                             participantIds = emptyList(),
-                            category = ProjectCategory.CLUB,
+                            categories = setOf(ProjectCategory.CLUB),
                         )
 
                     beforeEach {
-                        existingProject.category = ProjectCategory.TEAM
+                        existingProject.categories = mutableSetOf(ProjectCategory.TEAM)
 
                         every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
                         every {
@@ -217,10 +217,10 @@ class ModifyProjectServiceTest :
                     it("카테고리가 변경되고 웹훅 payload에 이전 값과 새 값이 담겨야 한다") {
                         val result = modifyProjectService.execute(projectId, updateRequest)
 
-                        result.category shouldBe ProjectCategory.CLUB
+                        result.categories shouldBe setOf(ProjectCategory.CLUB)
                         val data = eventSlot.captured.data as EventChangedData
-                        (data.old[0].obj as ProjectEventObject).category shouldBe "TEAM"
-                        (data.new[0].obj as ProjectEventObject).category shouldBe "CLUB"
+                        (data.old[0].obj as ProjectEventObject).categories shouldBe listOf("TEAM")
+                        (data.new[0].obj as ProjectEventObject).categories shouldBe listOf("CLUB")
                     }
                 }
 

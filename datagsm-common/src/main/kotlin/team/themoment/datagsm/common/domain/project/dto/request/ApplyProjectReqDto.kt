@@ -20,10 +20,10 @@ data class ApplyProjectReqDto(
     @param:Schema(description = "프로젝트 서비스 시작 연도", example = "2024")
     val startYear: Int,
     @param:Schema(
-        description = "프로젝트 카테고리 (TOY_PROJECT, TEAM, CLUB, IDEA_FESTIVAL, NOT_DEPLOYED). 수정 시 생략하면 기존 값을 유지한다",
-        example = "TEAM",
+        description = "프로젝트 카테고리 목록 (TOY_PROJECT, TEAM, CLUB, IDEA_FESTIVAL, NOT_DEPLOYED 중 복수 선택 가능). 수정 시 생략하면 기존 값을 유지하고 빈 목록이면 모두 해제한다",
+        example = "[\"TEAM\", \"CLUB\"]",
     )
-    val category: ProjectCategory? = null,
+    val categories: Set<ProjectCategory>? = null,
     @param:Schema(description = "프로젝트 소유 동아리 ID (무소속인 경우 0 또는 미입력)", example = "1")
     val clubId: Long? = null,
     @param:Schema(description = "프로젝트 참여자 학생 ID 목록", example = "[1, 2, 3]")

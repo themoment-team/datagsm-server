@@ -22,8 +22,8 @@ data class ProjectEditRequestResDto(
     val description: String,
     @field:Schema(description = "프로젝트 서비스 시작 연도", example = "2024")
     val startYear: Int,
-    @field:Schema(description = "프로젝트 카테고리 (미분류이면 null)")
-    val category: ProjectCategory?,
+    @field:Schema(description = "프로젝트 카테고리 목록 (미분류이면 빈 목록)")
+    val categories: Set<ProjectCategory>,
     @field:Schema(description = "프로젝트 아이콘 URL", example = "https://cdn.datagsm.kr/project-icons/uuid.png")
     val iconUrl: String?,
     @field:Schema(

@@ -55,7 +55,7 @@ class DeleteProjectServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status.name,
-            category = project.category?.name,
+            categories = project.categories.map { it.name },
             deploymentUrl = project.deploymentUrl,
             club = project.club?.let { EventClubRef(it.id!!, it.name) },
             participants =

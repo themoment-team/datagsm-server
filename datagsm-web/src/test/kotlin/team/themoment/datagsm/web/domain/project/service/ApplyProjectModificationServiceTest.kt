@@ -221,7 +221,7 @@ class ApplyProjectModificationServiceTest :
 
                 context("카테고리가 있는 프로젝트를 수정 신청할 때") {
                     beforeEach {
-                        existingProject.category = ProjectCategory.CLUB
+                        existingProject.categories = mutableSetOf(ProjectCategory.CLUB)
 
                         every { mockCurrentUserProvider.getCurrentStudent() } returns owner
                         every {
@@ -235,8 +235,8 @@ class ApplyProjectModificationServiceTest :
                         val result = applyProjectModificationService.execute(projectId, reqDto)
 
                         verify(exactly = 1) { mockEditRequestRepository.save(capture(captured)) }
-                        captured.captured.category shouldBe ProjectCategory.CLUB
-                        result.category shouldBe ProjectCategory.CLUB
+                        captured.captured.categories shouldBe setOf(ProjectCategory.CLUB)
+                        result.categories shouldBe setOf(ProjectCategory.CLUB)
                     }
 
                     it("카테고리를 보내면 교체되어야 한다") {
@@ -244,12 +244,12 @@ class ApplyProjectModificationServiceTest :
 
                         applyProjectModificationService.execute(
                             projectId,
-                            reqDto.copy(category = ProjectCategory.IDEA_FESTIVAL),
+                            reqDto.copy(categories = setOf(ProjectCategory.IDEA_FESTIVAL)),
                         )
 
                         verify(exactly = 1) { mockEditRequestRepository.save(capture(captured)) }
-                        captured.captured.category shouldBe ProjectCategory.IDEA_FESTIVAL
-                        existingProject.category shouldBe ProjectCategory.CLUB
+                        captured.captured.categories shouldBe setOf(ProjectCategory.IDEA_FESTIVAL)
+                        existingProject.categories shouldBe setOf(ProjectCategory.CLUB)
                     }
                 }
 

@@ -27,10 +27,10 @@ data class ProjectReqDto(
     @param:Schema(description = "프로젝트 운영 상태", example = "ACTIVE")
     val status: ProjectStatus = ProjectStatus.ACTIVE,
     @param:Schema(
-        description = "프로젝트 카테고리 (TOY_PROJECT, TEAM, CLUB, IDEA_FESTIVAL, NOT_DEPLOYED). 수정 시 생략하면 기존 값을 유지한다",
-        example = "TEAM",
+        description = "프로젝트 카테고리 목록 (TOY_PROJECT, TEAM, CLUB, IDEA_FESTIVAL, NOT_DEPLOYED 중 복수 선택 가능). 수정 시 생략하면 기존 값을 유지하고 빈 목록이면 모두 해제한다",
+        example = "[\"TEAM\", \"CLUB\"]",
     )
-    val category: ProjectCategory? = null,
+    val categories: Set<ProjectCategory>? = null,
     @field:Positive
     @param:Schema(description = "프로젝트 종료 연도 (ENDED 시 설정)", example = "2025")
     val endYear: Int? = null,

@@ -87,7 +87,7 @@ class AcceptProjectRequestServiceTest :
                                 repositories = mutableSetOf("https://github.com/team/repo")
                                 techStacks = mutableSetOf("Kotlin")
                                 deploymentUrl = "https://datagsm.kr"
-                                category = ProjectCategory.TEAM
+                                categories = mutableSetOf(ProjectCategory.TEAM)
                                 requestStatus = ProjectRequestStatus.PENDING
                             }
 
@@ -125,8 +125,8 @@ class AcceptProjectRequestServiceTest :
                         val result = acceptProjectRequestService.execute(requestId)
 
                         verify(exactly = 1) { mockProjectRepository.save(capture(captured)) }
-                        captured.captured.category shouldBe ProjectCategory.TEAM
-                        result.category shouldBe ProjectCategory.TEAM
+                        captured.captured.categories shouldBe setOf(ProjectCategory.TEAM)
+                        result.categories shouldBe setOf(ProjectCategory.TEAM)
                     }
 
                     it("신청 상태가 ACCEPTED로 변경되고 처리 일시가 기록되어야 한다") {

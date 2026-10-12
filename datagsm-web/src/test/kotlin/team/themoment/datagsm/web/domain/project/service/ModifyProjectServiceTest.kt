@@ -174,7 +174,7 @@ class ModifyProjectServiceTest :
                         )
 
                     beforeEach {
-                        existingProject.category = ProjectCategory.CLUB
+                        existingProject.categories = mutableSetOf(ProjectCategory.CLUB)
 
                         every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
                         every { mockProjectRepository.existsByNameAndIdNot(updateRequest.name, projectId) } returns false
@@ -184,8 +184,8 @@ class ModifyProjectServiceTest :
                     it("기존 카테고리가 유지되어야 한다") {
                         val result = modifyProjectService.execute(projectId, updateRequest)
 
-                        existingProject.category shouldBe ProjectCategory.CLUB
-                        result.category shouldBe ProjectCategory.CLUB
+                        existingProject.categories shouldBe setOf(ProjectCategory.CLUB)
+                        result.categories shouldBe setOf(ProjectCategory.CLUB)
                     }
                 }
 
@@ -197,11 +197,11 @@ class ModifyProjectServiceTest :
                             startYear = 2023,
                             clubId = 1L,
                             participantIds = emptyList(),
-                            category = ProjectCategory.IDEA_FESTIVAL,
+                            categories = setOf(ProjectCategory.IDEA_FESTIVAL),
                         )
 
                     beforeEach {
-                        existingProject.category = ProjectCategory.CLUB
+                        existingProject.categories = mutableSetOf(ProjectCategory.CLUB)
 
                         every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
                         every { mockProjectRepository.existsByNameAndIdNot(updateRequest.name, projectId) } returns false
@@ -211,8 +211,8 @@ class ModifyProjectServiceTest :
                     it("카테고리가 새 값으로 변경되어야 한다") {
                         val result = modifyProjectService.execute(projectId, updateRequest)
 
-                        existingProject.category shouldBe ProjectCategory.IDEA_FESTIVAL
-                        result.category shouldBe ProjectCategory.IDEA_FESTIVAL
+                        existingProject.categories shouldBe setOf(ProjectCategory.IDEA_FESTIVAL)
+                        result.categories shouldBe setOf(ProjectCategory.IDEA_FESTIVAL)
                     }
                 }
 
