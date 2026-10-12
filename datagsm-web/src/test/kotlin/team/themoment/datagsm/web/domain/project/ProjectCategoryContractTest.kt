@@ -49,14 +49,14 @@ class ProjectCategoryContractTest :
                         startYear = 2024,
                         endYear = null,
                         status = ProjectStatus.ACTIVE,
-                        category = ProjectCategory.PERSONAL,
+                        category = ProjectCategory.TOY_PROJECT,
                         club = null,
                         participants = emptyList(),
                         repositories = emptyList(),
                         techStacks = emptyList(),
                     )
 
-                objectMapper.writeValueAsString(resDto) shouldContain "\"category\":\"PERSONAL\""
+                objectMapper.writeValueAsString(resDto) shouldContain "\"category\":\"TOY_PROJECT\""
             }
 
             it("웹훅 payload에 category가 직렬화되어야 한다") {

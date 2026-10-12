@@ -190,7 +190,7 @@ class CreateProjectServiceTest :
                             startYear = 2024,
                             clubId = null,
                             participantIds = emptyList(),
-                            category = ProjectCategory.PERSONAL,
+                            category = ProjectCategory.TOY_PROJECT,
                         )
 
                     val projectSlot = slot<ProjectJpaEntity>()
@@ -206,8 +206,8 @@ class CreateProjectServiceTest :
                     it("카테고리가 저장되고 응답에 포함되어야 한다") {
                         val result = createProjectService.execute(createRequest)
 
-                        projectSlot.captured.category shouldBe ProjectCategory.PERSONAL
-                        result.category shouldBe ProjectCategory.PERSONAL
+                        projectSlot.captured.category shouldBe ProjectCategory.TOY_PROJECT
+                        result.category shouldBe ProjectCategory.TOY_PROJECT
 
                         verify(exactly = 1) { mockProjectRepository.save(any()) }
                     }
