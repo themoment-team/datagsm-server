@@ -20,7 +20,7 @@ data class ApplyProjectReqDto(
     @param:Schema(description = "프로젝트 서비스 시작 연도", example = "2024")
     val startYear: Int,
     @param:Schema(
-        description = "프로젝트 카테고리 (PERSONAL, TEAM, CLUB, IDEA_FESTIVAL). 수정 시 생략하면 기존 값을 유지한다",
+        description = "프로젝트 카테고리 (TOY_PROJECT, TEAM, CLUB, IDEA_FESTIVAL, NOT_DEPLOYED). 수정 시 생략하면 기존 값을 유지한다",
         example = "TEAM",
     )
     val category: ProjectCategory? = null,
