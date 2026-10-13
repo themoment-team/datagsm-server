@@ -8,6 +8,7 @@ import team.themoment.datagsm.common.domain.project.dto.request.QueryProjectReqD
 import team.themoment.datagsm.common.domain.project.dto.response.ProjectListResDto
 import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
+import team.themoment.datagsm.common.domain.project.toOrderedSet
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.global.storage.ProjectIconUrlResolver
 import team.themoment.datagsm.openapi.domain.project.service.QueryProjectService
@@ -43,7 +44,7 @@ class QueryProjectServiceImpl(
                         startYear = project.startYear,
                         endYear = project.endYear,
                         status = project.status,
-                        categories = project.categories.toSet(),
+                        categories = project.categories.toOrderedSet(),
                         iconUrl = projectIconUrlResolver.toIconUrl(project.iconKey),
                         iconKey = project.iconKey,
                         deploymentUrl = project.deploymentUrl,

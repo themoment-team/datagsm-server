@@ -19,6 +19,7 @@ import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
+import team.themoment.datagsm.common.domain.project.toOrderedSet
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.project.service.CreateProjectService
@@ -111,7 +112,7 @@ class CreateProjectServiceImpl(
             startYear = savedProjectEntity.startYear,
             endYear = savedProjectEntity.endYear,
             status = savedProjectEntity.status,
-            categories = savedProjectEntity.categories.toSet(),
+            categories = savedProjectEntity.categories.toOrderedSet(),
             iconUrl = projectIconStorage.toIconUrl(savedProjectEntity.iconKey),
             iconKey = savedProjectEntity.iconKey,
             deploymentUrl = savedProjectEntity.deploymentUrl,
@@ -140,7 +141,7 @@ class CreateProjectServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status.name,
-            categories = project.categories.map { it.name },
+            categories = project.categories.toOrderedSet().map { it.name },
             deploymentUrl = project.deploymentUrl,
             club = project.club?.let { EventClubRef(it.id!!, it.name) },
             participants =

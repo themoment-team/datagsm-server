@@ -12,6 +12,7 @@ import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectCategory
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.resolveCategoriesForUpdate
+import team.themoment.datagsm.common.domain.project.toOrderedSet
 
 class ProjectCategoryContractTest :
     DescribeSpec({
@@ -104,6 +105,14 @@ class ProjectCategoryContractTest :
 
                     result shouldBe emptySet()
                 }
+            }
+        }
+
+        describe("toOrderedSet 함수는") {
+            it("입력 순서와 무관하게 enum 선언 순서로 정렬해야 한다") {
+                val result = setOf(ProjectCategory.NOT_DEPLOYED, ProjectCategory.TEAM, ProjectCategory.TOY_PROJECT).toOrderedSet()
+
+                result.toList() shouldBe listOf(ProjectCategory.TOY_PROJECT, ProjectCategory.TEAM, ProjectCategory.NOT_DEPLOYED)
             }
         }
     })

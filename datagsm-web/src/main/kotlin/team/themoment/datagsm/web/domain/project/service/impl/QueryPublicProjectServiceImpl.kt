@@ -10,6 +10,7 @@ import team.themoment.datagsm.common.domain.project.dto.response.PublicProjectLi
 import team.themoment.datagsm.common.domain.project.dto.response.PublicProjectResDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
+import team.themoment.datagsm.common.domain.project.toOrderedSet
 import team.themoment.datagsm.web.domain.project.mapper.ProjectEditRequestMapper
 import team.themoment.datagsm.web.domain.project.service.QueryPublicProjectService
 import team.themoment.datagsm.web.global.storage.ProjectIconStorage
@@ -60,7 +61,7 @@ class QueryPublicProjectServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status,
-            categories = project.categories.toSet(),
+            categories = project.categories.toOrderedSet(),
             iconUrl = projectIconStorage.toIconUrl(project.iconKey),
             deploymentUrl = project.deploymentUrl,
             club = project.club?.let { projectEditRequestMapper.toClubSummary(it) },

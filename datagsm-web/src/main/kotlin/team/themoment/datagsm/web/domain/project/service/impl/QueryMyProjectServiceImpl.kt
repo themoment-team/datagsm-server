@@ -11,6 +11,7 @@ import team.themoment.datagsm.common.domain.project.entity.constant.ProjectMembe
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectRequestStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectEditRequestJpaRepository
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
+import team.themoment.datagsm.common.domain.project.toOrderedSet
 import team.themoment.datagsm.web.domain.project.mapper.ProjectEditRequestMapper
 import team.themoment.datagsm.web.domain.project.service.QueryMyProjectService
 import team.themoment.datagsm.web.global.security.provider.CurrentUserProvider
@@ -89,7 +90,7 @@ class QueryMyProjectServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status,
-            categories = project.categories.toSet(),
+            categories = project.categories.toOrderedSet(),
             iconUrl = projectIconStorage.toIconUrl(project.iconKey),
             iconKey = project.iconKey,
             deploymentUrl = project.deploymentUrl,
@@ -116,7 +117,7 @@ class QueryMyProjectServiceImpl(
             startYear = request.startYear,
             endYear = originalProject?.endYear,
             status = originalProject?.status,
-            categories = request.categories.toSet(),
+            categories = request.categories.toOrderedSet(),
             iconUrl = projectIconStorage.toIconUrl(request.iconKey),
             iconKey = request.iconKey,
             deploymentUrl = request.deploymentUrl,

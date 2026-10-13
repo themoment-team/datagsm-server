@@ -65,7 +65,7 @@ class ProjectEditRequestJpaCustomRepositoryImpl(
     }
 
     /**
-     * ElementCollection 두 개를 한 쿼리에서 fetchJoin하면 MultipleBagFetchException 또는 카테시안 폭증이 발생하므로
+     * ElementCollection 여러 개를 한 쿼리에서 fetchJoin하면 MultipleBagFetchException 또는 카테시안 폭증이 발생하므로
      * 컬렉션별로 쿼리를 나눠 영속성 컨텍스트에 채운다.
      */
     private fun fetchWithAssociations(requestIds: List<Long>): List<ProjectEditRequestJpaEntity> {
@@ -99,6 +99,13 @@ class ProjectEditRequestJpaCustomRepositoryImpl(
         jpaQueryFactory
             .selectFrom(projectEditRequestJpaEntity)
             .leftJoin(projectEditRequestJpaEntity.techStacks)
+            .fetchJoin()
+            .where(projectEditRequestJpaEntity.id.`in`(requestIds))
+            .fetch()
+
+        jpaQueryFactory
+            .selectFrom(projectEditRequestJpaEntity)
+            .leftJoin(projectEditRequestJpaEntity.categories)
             .fetchJoin()
             .where(projectEditRequestJpaEntity.id.`in`(requestIds))
             .fetch()

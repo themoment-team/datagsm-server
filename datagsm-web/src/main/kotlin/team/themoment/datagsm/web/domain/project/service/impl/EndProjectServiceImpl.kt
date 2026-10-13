@@ -16,6 +16,7 @@ import team.themoment.datagsm.common.domain.project.dto.request.EndProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
+import team.themoment.datagsm.common.domain.project.toOrderedSet
 import team.themoment.datagsm.web.domain.project.service.EndProjectService
 import team.themoment.sdk.exception.ExpectedException
 
@@ -61,7 +62,7 @@ class EndProjectServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status.name,
-            categories = project.categories.map { it.name },
+            categories = project.categories.toOrderedSet().map { it.name },
             deploymentUrl = project.deploymentUrl,
             club = project.club?.let { EventClubRef(it.id!!, it.name) },
             participants =

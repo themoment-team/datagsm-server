@@ -16,6 +16,7 @@ import team.themoment.datagsm.common.domain.event.entity.constant.EventType
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.repository.ProjectEditRequestJpaRepository
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
+import team.themoment.datagsm.common.domain.project.toOrderedSet
 import team.themoment.datagsm.openapi.domain.project.service.DeleteProjectService
 import team.themoment.sdk.exception.ExpectedException
 
@@ -57,7 +58,7 @@ class DeleteProjectServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status.name,
-            categories = project.categories.map { it.name },
+            categories = project.categories.toOrderedSet().map { it.name },
             deploymentUrl = project.deploymentUrl,
             club = project.club?.let { EventClubRef(it.id!!, it.name) },
             participants =
