@@ -20,6 +20,7 @@ import team.themoment.datagsm.common.domain.project.repository.ProjectJpaReposit
 import team.themoment.datagsm.common.domain.project.resolveDeploymentUrlForUpdate
 import team.themoment.datagsm.common.domain.project.toOrderedSet
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
+import team.themoment.datagsm.common.domain.student.entity.constant.NO_CLUB_ID
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.project.service.ModifyProjectService
 import team.themoment.datagsm.web.global.storage.ProjectIconStorage
@@ -46,7 +47,7 @@ class ModifyProjectServiceImpl(
             throw ExpectedException("이미 존재하는 프로젝트 이름입니다.", HttpStatus.CONFLICT)
         }
         val ownerClub =
-            reqDto.clubId?.let { clubId ->
+            reqDto.clubId?.takeIf { it != NO_CLUB_ID }?.let { clubId ->
                 clubJpaRepository
                     .findById(clubId)
                     .orElseThrow {

@@ -22,6 +22,7 @@ import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatu
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.project.toOrderedSet
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
+import team.themoment.datagsm.common.domain.student.entity.constant.NO_CLUB_ID
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.common.global.storage.ProjectIconUrlResolver
 import team.themoment.datagsm.openapi.domain.project.service.CreateProjectService
@@ -42,7 +43,7 @@ class CreateProjectServiceImpl(
         }
 
         val ownerClub =
-            projectReqDto.clubId?.let { clubId ->
+            projectReqDto.clubId?.takeIf { it != NO_CLUB_ID }?.let { clubId ->
                 clubJpaRepository.findByIdOrNull(clubId)
                     ?: throw ExpectedException(
                         "동아리를 찾을 수 없습니다.",
