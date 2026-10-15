@@ -21,6 +21,7 @@ import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatu
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.project.toOrderedSet
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
+import team.themoment.datagsm.common.domain.student.entity.constant.NO_CLUB_ID
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.domain.project.service.CreateProjectService
 import team.themoment.datagsm.web.global.storage.ProjectIconStorage
@@ -41,7 +42,7 @@ class CreateProjectServiceImpl(
         }
 
         val ownerClub =
-            projectReqDto.clubId?.let { clubId ->
+            projectReqDto.clubId?.takeIf { it != NO_CLUB_ID }?.let { clubId ->
                 clubJpaRepository
                     .findById(clubId)
                     .orElseThrow {

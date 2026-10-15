@@ -9,6 +9,7 @@ import team.themoment.datagsm.common.domain.project.entity.ProjectEditRequestJpa
 import team.themoment.datagsm.common.domain.project.resolveCategoriesForUpdate
 import team.themoment.datagsm.common.domain.project.resolveDeploymentUrlForUpdate
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.constant.NO_CLUB_ID
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.web.global.storage.ProjectIconStorage
 import team.themoment.sdk.exception.ExpectedException
@@ -40,7 +41,7 @@ class ProjectApplicationAssembler(
 
     /** 클라이언트는 무소속을 0으로 보내므로 null과 동일하게 취급한다 */
     private fun resolveClub(clubId: Long?): ClubJpaEntity? {
-        if (clubId == null || clubId == 0L) return null
+        if (clubId == null || clubId == NO_CLUB_ID) return null
         return clubJpaRepository
             .findById(clubId)
             .orElseThrow { ExpectedException("동아리를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }

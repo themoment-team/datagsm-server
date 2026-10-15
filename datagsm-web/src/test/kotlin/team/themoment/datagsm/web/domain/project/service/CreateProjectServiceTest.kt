@@ -405,6 +405,41 @@ class CreateProjectServiceTest :
                     }
                 }
 
+                context("무소속(clubId=0)으로 프로젝트를 생성할 때") {
+                    val createRequest =
+                        ProjectReqDto(
+                            name = "무소속프로젝트",
+                            description = "무소속 프로젝트입니다",
+                            startYear = 2024,
+                            clubId = 0L,
+                            participantIds = emptyList(),
+                        )
+
+                    val savedProject =
+                        ProjectJpaEntity().apply {
+                            id = 5L
+                            name = createRequest.name
+                            description = createRequest.description
+                            startYear = createRequest.startYear
+                            status = ProjectStatus.ACTIVE
+                            this.club = null
+                        }
+
+                    beforeEach {
+                        every { mockProjectRepository.existsByName(createRequest.name) } returns false
+                        every { mockProjectRepository.save(any()) } returns savedProject
+                    }
+
+                    it("동아리를 조회하지 않고 무소속으로 생성되어야 한다") {
+                        val result = createProjectService.execute(createRequest)
+
+                        result.club shouldBe null
+
+                        verify(exactly = 0) { mockClubRepository.findById(any()) }
+                        verify(exactly = 1) { mockProjectRepository.save(match { it.club == null }) }
+                    }
+                }
+
                 context("존재하지 않는 참여자 ID로 생성 요청할 때") {
                     val createRequest =
                         ProjectReqDto(

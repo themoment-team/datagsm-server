@@ -20,7 +20,7 @@ data class ProjectReqDto(
     @field:Positive
     @param:Schema(description = "프로젝트 시작 연도", example = "2024")
     val startYear: Int,
-    @param:Schema(description = "프로젝트 소유 동아리 ID", example = "1")
+    @param:Schema(description = "프로젝트 소유 동아리 ID (무소속인 경우 0 또는 null)", example = "1")
     val clubId: Long?,
     @param:Schema(description = "프로젝트 참가자 학생 ID 목록", example = "[1, 2, 3]")
     val participantIds: List<Long>,
