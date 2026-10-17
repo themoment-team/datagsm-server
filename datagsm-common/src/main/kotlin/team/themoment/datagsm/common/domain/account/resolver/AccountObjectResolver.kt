@@ -4,7 +4,12 @@ import org.springframework.stereotype.Component
 import team.themoment.datagsm.common.domain.account.dto.internal.ResolvedAccountObject
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
+import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
+import team.themoment.datagsm.common.domain.project.dto.internal.ProjectSummaryDto
+import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
+import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
 import team.themoment.datagsm.common.domain.teacher.dto.response.TeacherResDto
 import team.themoment.datagsm.common.domain.teacher.repository.TeacherJpaRepository
@@ -16,15 +21,24 @@ import team.themoment.datagsm.common.domain.teacher.repository.TeacherJpaReposit
 class AccountObjectResolver(
     private val studentJpaRepository: StudentJpaRepository,
     private val teacherJpaRepository: TeacherJpaRepository,
+    private val projectJpaRepository: ProjectJpaRepository,
 ) {
-    fun resolve(account: AccountJpaEntity): ResolvedAccountObject {
+    fun resolve(
+        account: AccountJpaEntity,
+        includeClubs: Boolean = false,
+        includeProjects: Boolean = false,
+    ): ResolvedAccountObject {
         val objectId = account.objectId ?: return ResolvedAccountObject(null, null)
         return when (account.objectType) {
-            AccountObjectType.STUDENT ->
+            AccountObjectType.STUDENT -> {
+                val student = studentJpaRepository.findById(objectId).orElse(null)
                 ResolvedAccountObject(
-                    student = studentJpaRepository.findById(objectId).map { StudentResDto.from(it) }.orElse(null),
+                    student = student?.let { StudentResDto.from(it) },
                     teacher = null,
+                    clubs = if (includeClubs) student?.let { resolveClubs(it) } ?: emptyList() else emptyList(),
+                    projects = if (includeProjects) student?.let { resolveProjects(it) } ?: emptyList() else emptyList(),
                 )
+            }
             AccountObjectType.TEACHER ->
                 ResolvedAccountObject(
                     student = null,
@@ -33,6 +47,15 @@ class AccountObjectResolver(
             null -> ResolvedAccountObject(null, null)
         }
     }
+
+    private fun resolveClubs(student: StudentJpaEntity): List<ClubSummaryDto> =
+        listOfNotNull(student.majorClub, student.autonomousClub).map { ClubSummaryDto.from(it) }
+
+    private fun resolveProjects(student: StudentJpaEntity): List<ProjectSummaryDto> =
+        projectJpaRepository.findAllByParticipantId(student.id!!).map { it.toSummaryDto() }
+
+    private fun ProjectJpaEntity.toSummaryDto() =
+        ProjectSummaryDto(id = id!!, name = name, status = status, club = club?.let { ClubSummaryDto.from(it) })
 
     fun resolveAll(accounts: List<AccountJpaEntity>): Map<Long, ResolvedAccountObject> {
         val studentIds =

@@ -7,23 +7,35 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.CookieValue
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.oauth.dto.request.Oauth2TokenReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeSubmitReqDto
+import team.themoment.datagsm.common.domain.oauth.dto.request.OauthConsentReqDto
+import team.themoment.datagsm.common.domain.oauth.dto.response.IdpSessionListResDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.JwkSetResDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.Oauth2TokenResDto
+import team.themoment.datagsm.common.domain.oauth.dto.response.OauthConsentResDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.OauthSessionResDto
 import team.themoment.datagsm.common.domain.student.dto.request.QueryStudentDataEditRequestReqDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentDataEditRequestResDto
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteIdpSessionHandoffService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthAuthorizeFlowService
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthConsentService
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.DeleteIdpSessionService
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.LogoutIdpSessionService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.Oauth2TokenService
+import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryIdpSessionService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryJwkSetService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryOauthSessionService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryStudentDataEditRequestService
@@ -36,6 +48,11 @@ class OauthController(
     val oauth2TokenService: Oauth2TokenService,
     val startOauthAuthorizeFlowService: StartOauthAuthorizeFlowService,
     val completeOauthAuthorizeFlowService: CompleteOauthAuthorizeFlowService,
+    val completeOauthConsentService: CompleteOauthConsentService,
+    val completeIdpSessionHandoffService: CompleteIdpSessionHandoffService,
+    val logoutIdpSessionService: LogoutIdpSessionService,
+    val queryIdpSessionService: QueryIdpSessionService,
+    val deleteIdpSessionService: DeleteIdpSessionService,
     val queryOauthSessionService: QueryOauthSessionService,
     val queryJwkSetService: QueryJwkSetService,
     val queryStudentDataEditRequestService: QueryStudentDataEditRequestService,
@@ -54,7 +71,27 @@ class OauthController(
     )
     fun authorizeGet(
         @Valid @ModelAttribute queryReq: OauthAuthorizeReqDto,
-    ): ResponseEntity<Void> = startOauthAuthorizeFlowService.execute(queryReq)
+        @CookieValue(name = "\${spring.security.oauth.idp-session-cookie-name}", required = false) sessionId: String?,
+    ): ResponseEntity<Void> = startOauthAuthorizeFlowService.execute(queryReq, sessionId)
+
+    @GetMapping("/authorize/session")
+    @Operation(
+        summary = "IdP 세션 확립",
+        description = "로그인 직후 발급된 일회용 티켓으로 SSO 세션 쿠키를 설정하고 클라이언트로 리다이렉트합니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "302", description = "세션 쿠키 설정 후 외부 서비스로 리다이렉트"),
+            ApiResponse(responseCode = "400", description = "유효하지 않거나 만료된 티켓", content = [Content()]),
+        ],
+    )
+    fun completeIdpSessionHandoff(
+        @RequestParam ticket: String,
+        @RequestParam(required = false) verifier: String?,
+        @RequestHeader(name = "Sec-Fetch-Site", required = false) secFetchSite: String?,
+        @RequestHeader(name = "Sec-Fetch-Mode", required = false) secFetchMode: String?,
+        @RequestHeader(name = "User-Agent", required = false) userAgent: String?,
+    ): ResponseEntity<Void> = completeIdpSessionHandoffService.execute(ticket, verifier, secFetchSite, secFetchMode, userAgent)
 
     @PostMapping("/authorize")
     @Operation(
@@ -73,6 +110,25 @@ class OauthController(
         @Valid @RequestBody reqDto: OauthAuthorizeSubmitReqDto,
     ): ResponseEntity<Void> = completeOauthAuthorizeFlowService.execute(reqDto)
 
+    @PostMapping("/authorize/consent")
+    @Operation(
+        summary = "OAuth 동의 처리",
+        description =
+            "SSO 세션이 있는 사용자가 요청된 scope를 승인하거나 거부합니다. " +
+                "승인과 거부 모두 이동할 주소를 본문으로 반환하며, 거부 시 access_denied가 실려 있습니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "동의 승인 후 코드 발급, 또는 거부 시 access_denied 주소 반환"),
+            ApiResponse(responseCode = "400", description = "세션 만료 또는 잘못된 요청", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "IdP 세션이 없거나 유효하지 않음", content = [Content()]),
+        ],
+    )
+    fun authorizeConsent(
+        @Valid @RequestBody reqDto: OauthConsentReqDto,
+        @CookieValue(name = "\${spring.security.oauth.idp-session-cookie-name}", required = false) sessionId: String?,
+    ): OauthConsentResDto = completeOauthConsentService.execute(reqDto, sessionId)
+
     @PostMapping("/authorize/data-edit-requirements")
     @Operation(
         summary = "정보 수정 필요 항목 조회",
@@ -89,6 +145,52 @@ class OauthController(
     fun queryStudentDataEditRequirements(
         @Valid @RequestBody reqDto: QueryStudentDataEditRequestReqDto,
     ): StudentDataEditRequestResDto = queryStudentDataEditRequestService.execute(reqDto)
+
+    @PostMapping("/logout")
+    @Operation(
+        summary = "IdP 세션 로그아웃",
+        description = "SSO 세션을 삭제하고 세션 쿠키를 만료시킵니다. 이미 발급된 access token은 만료 전까지 유효합니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "204", description = "로그아웃 완료 (세션이 없던 경우에도 동일)"),
+        ],
+    )
+    fun logout(
+        @CookieValue(name = "\${spring.security.oauth.idp-session-cookie-name}", required = false) sessionId: String?,
+    ): ResponseEntity<Void> = logoutIdpSessionService.execute(sessionId)
+
+    @GetMapping("/idp-sessions")
+    @Operation(
+        summary = "활성 IdP 세션 목록 조회",
+        description = "현재 세션 쿠키가 가리키는 계정의 활성 세션 목록을 반환합니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "조회 성공"),
+            ApiResponse(responseCode = "401", description = "IdP 세션이 없거나 유효하지 않음", content = [Content()]),
+        ],
+    )
+    fun queryIdpSessions(
+        @CookieValue(name = "\${spring.security.oauth.idp-session-cookie-name}", required = false) sessionId: String?,
+    ): IdpSessionListResDto = queryIdpSessionService.execute(sessionId)
+
+    @DeleteMapping("/idp-sessions/{targetSessionId}")
+    @Operation(
+        summary = "개별 IdP 세션 종료",
+        description = "지정한 세션을 종료합니다. 본인 계정의 세션만 종료할 수 있습니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "204", description = "종료 완료"),
+            ApiResponse(responseCode = "401", description = "IdP 세션이 없거나 유효하지 않음", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "세션을 찾을 수 없음", content = [Content()]),
+        ],
+    )
+    fun deleteIdpSession(
+        @PathVariable targetSessionId: String,
+        @CookieValue(name = "\${spring.security.oauth.idp-session-cookie-name}", required = false) sessionId: String?,
+    ): ResponseEntity<Void> = deleteIdpSessionService.execute(targetSessionId, sessionId)
 
     @GetMapping("/sessions/{token}")
     @Operation(

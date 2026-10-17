@@ -16,7 +16,7 @@ class QueryMyInfoServiceImpl(
     @Transactional(readOnly = true)
     override fun execute(): AccountInfoResDto {
         val account = currentUserProvider.getCurrentAccount()
-        val resolved = accountObjectResolver.resolve(account)
+        val resolved = accountObjectResolver.resolve(account, includeClubs = true, includeProjects = true)
 
         return AccountInfoResDto(
             id = account.id!!,
@@ -27,6 +27,8 @@ class QueryMyInfoServiceImpl(
             isStudent = account.objectType == AccountObjectType.STUDENT,
             student = resolved.student,
             teacher = resolved.teacher,
+            clubs = resolved.clubs,
+            projects = resolved.projects,
         )
     }
 }

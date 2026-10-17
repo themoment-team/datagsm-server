@@ -79,13 +79,13 @@ For **service fixes** (bug cases):
 - Add missing `throw ExpectedException(...)` where business rules require it
 - After fixing the service, **always update the corresponding test** to reflect the corrected behavior (assertions, mock stubs, expected exceptions)
 
-When writing any code, follow the project coding rules. Discover them dynamically:
+Before applying fixes, read `AGENTS.md` for core coding and testing rules. Discover the detailed rules dynamically:
 
 ```bash
 find .claude/rules -name "*.md" 2>/dev/null
 ```
 
-Read each returned file before applying fixes. Do not assume rules — derive them from these files.
+Read each applicable rule before applying fixes. Follow `AGENTS.md` > applicable `.claude/rules/**` > `.gemini/styleguide.md` > `CONTRIBUTING.md`. Do not assume rules — derive them from these files.
 
 ### 2e. Re-run Tests
 

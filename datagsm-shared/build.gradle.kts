@@ -101,6 +101,10 @@ tasks.register("assembleTsPackage") {
               "version": "$npmVersion",
               "description": "Type definitions for the datagsm-server API",
               "types": "index.d.ts",
+              "repository": {
+                "type": "git",
+                "url": "git+https://github.com/themoment-team/datagsm-server.git"
+              },
               "files": [
                 "index.d.ts"
               ],

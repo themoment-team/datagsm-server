@@ -8,27 +8,91 @@ import org.springframework.data.support.PageableExecutionUtils
 import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.QProjectJpaEntity.Companion.projectJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectCategory
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectSortBy
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.custom.ProjectJpaCustomRepository
+import team.themoment.datagsm.common.domain.student.entity.QStudentJpaEntity
+import team.themoment.datagsm.common.domain.student.entity.QStudentJpaEntity.Companion.studentJpaEntity
 import team.themoment.datagsm.common.global.constant.SortDirection
 
 @Repository
 class ProjectJpaCustomRepositoryImpl(
     private val jpaQueryFactory: JPAQueryFactory,
 ) : ProjectJpaCustomRepository {
+    private val participant = QStudentJpaEntity("myProjectParticipant")
+
+    override fun findAllByParticipantOrApplicant(studentId: Long): List<ProjectJpaEntity> {
+        val projectIds =
+            jpaQueryFactory
+                .select(projectJpaEntity.id)
+                .from(projectJpaEntity)
+                .leftJoin(projectJpaEntity.participants, participant)
+                .where(
+                    projectJpaEntity.appliedBy.id
+                        .eq(studentId)
+                        .or(participant.id.eq(studentId)),
+                ).distinct()
+                .fetch()
+
+        if (projectIds.isEmpty()) return emptyList()
+
+        val content =
+            jpaQueryFactory
+                .selectFrom(projectJpaEntity)
+                .leftJoin(projectJpaEntity.club)
+                .fetchJoin()
+                .leftJoin(projectJpaEntity.appliedBy)
+                .fetchJoin()
+                .where(projectJpaEntity.id.`in`(projectIds))
+                .fetch()
+
+        jpaQueryFactory
+            .selectFrom(projectJpaEntity)
+            .leftJoin(projectJpaEntity.participants)
+            .fetchJoin()
+            .where(projectJpaEntity.id.`in`(projectIds))
+            .fetch()
+
+        jpaQueryFactory
+            .selectFrom(projectJpaEntity)
+            .leftJoin(projectJpaEntity.repositories)
+            .fetchJoin()
+            .where(projectJpaEntity.id.`in`(projectIds))
+            .fetch()
+
+        jpaQueryFactory
+            .selectFrom(projectJpaEntity)
+            .leftJoin(projectJpaEntity.techStacks)
+            .fetchJoin()
+            .where(projectJpaEntity.id.`in`(projectIds))
+            .fetch()
+
+        jpaQueryFactory
+            .selectFrom(projectJpaEntity)
+            .leftJoin(projectJpaEntity.categories)
+            .fetchJoin()
+            .where(projectJpaEntity.id.`in`(projectIds))
+            .fetch()
+
+        return content
+    }
+
     override fun searchProjectWithPaging(
         id: Long?,
         name: String?,
         clubId: Long?,
         status: ProjectStatus?,
+        category: ProjectCategory?,
         pageable: Pageable,
         sortBy: ProjectSortBy?,
         sortDirection: SortDirection,
     ): Page<ProjectJpaEntity> {
-        var searchResult = searchProjectWithCondition(id, name, clubId, status, pageable, sortBy, sortDirection, useStartsWith = true)
+        var searchResult =
+            searchProjectWithCondition(id, name, clubId, status, category, pageable, sortBy, sortDirection, useStartsWith = true)
         if (searchResult.content.isEmpty() && name != null) {
-            searchResult = searchProjectWithCondition(id, name, clubId, status, pageable, sortBy, sortDirection, useStartsWith = false)
+            searchResult =
+                searchProjectWithCondition(id, name, clubId, status, category, pageable, sortBy, sortDirection, useStartsWith = false)
         }
         return searchResult
     }
@@ -38,6 +102,7 @@ class ProjectJpaCustomRepositoryImpl(
         projectName: String?,
         clubId: Long?,
         status: ProjectStatus?,
+        category: ProjectCategory?,
         pageable: Pageable,
         sortBy: ProjectSortBy?,
         sortDirection: SortDirection,
@@ -57,6 +122,7 @@ class ProjectJpaCustomRepositoryImpl(
                     },
                     clubId?.let { projectJpaEntity.club.id.eq(it) },
                     status?.let { projectJpaEntity.status.eq(it) },
+                    category?.let { projectJpaEntity.categories.contains(it) },
                 ).apply {
                     orderSpecifier?.let { orderBy(it) }
                 }.offset(pageable.offset)
@@ -64,6 +130,7 @@ class ProjectJpaCustomRepositoryImpl(
                 .fetch()
 
         // 2쿼리: ID IN절로 club + participants + repositories + techStacks 한 번에 fetchJoin
+        // categories는 카테시안 곱을 키우지 않도록 별도 쿼리로 영속성 컨텍스트에 채운다
         val content =
             if (projectIds.isEmpty()) {
                 emptyList()
@@ -82,6 +149,7 @@ class ProjectJpaCustomRepositoryImpl(
                     .apply { orderSpecifier?.let { orderBy(it) } }
                     .fetch()
                     .distinct()
+                    .also { fetchCategories(projectIds) }
             }
 
         val countQuery =
@@ -95,10 +163,29 @@ class ProjectJpaCustomRepositoryImpl(
                     },
                     clubId?.let { projectJpaEntity.club.id.eq(it) },
                     status?.let { projectJpaEntity.status.eq(it) },
+                    category?.let { projectJpaEntity.categories.contains(it) },
                 )
 
         return PageableExecutionUtils.getPage(content, pageable) { countQuery.fetchOne() ?: 0L }
     }
+
+    private fun fetchCategories(projectIds: List<Long>) {
+        jpaQueryFactory
+            .selectFrom(projectJpaEntity)
+            .leftJoin(projectJpaEntity.categories)
+            .fetchJoin()
+            .where(projectJpaEntity.id.`in`(projectIds))
+            .fetch()
+    }
+
+    override fun findAllByParticipantId(studentId: Long): List<ProjectJpaEntity> =
+        jpaQueryFactory
+            .selectFrom(projectJpaEntity)
+            .leftJoin(projectJpaEntity.club)
+            .fetchJoin()
+            .join(projectJpaEntity.participants, studentJpaEntity)
+            .where(studentJpaEntity.id.eq(studentId))
+            .fetch()
 
     private fun createOrderSpecifier(
         sortBy: ProjectSortBy?,

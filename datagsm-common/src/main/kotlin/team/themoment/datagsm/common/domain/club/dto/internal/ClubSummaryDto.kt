@@ -1,6 +1,7 @@
 package team.themoment.datagsm.common.domain.club.dto.internal
 
 import io.swagger.v3.oas.annotations.media.Schema
+import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.ksp.annotation.SdkExport
 
@@ -12,4 +13,8 @@ data class ClubSummaryDto(
     val name: String,
     @field:Schema(description = "동아리 종류", example = "MAJOR_CLUB")
     val type: ClubType,
-)
+) {
+    companion object {
+        fun from(club: ClubJpaEntity): ClubSummaryDto = ClubSummaryDto(id = club.id!!, name = club.name, type = club.type)
+    }
+}

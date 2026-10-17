@@ -15,11 +15,13 @@ import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectCategory
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.web.domain.project.service.impl.ModifyProjectServiceImpl
+import team.themoment.datagsm.web.global.storage.ProjectIconStorage
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 
@@ -29,6 +31,7 @@ class ModifyProjectServiceTest :
         lateinit var mockProjectRepository: ProjectJpaRepository
         lateinit var mockClubRepository: ClubJpaRepository
         lateinit var mockStudentRepository: team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
+        lateinit var mockProjectIconStorage: ProjectIconStorage
         lateinit var applicationEventPublisher: ApplicationEventPublisher
         lateinit var modifyProjectService: ModifyProjectService
 
@@ -36,10 +39,27 @@ class ModifyProjectServiceTest :
             mockProjectRepository = mockk<ProjectJpaRepository>()
             mockClubRepository = mockk<ClubJpaRepository>()
             mockStudentRepository = mockk<team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository>()
+            mockProjectIconStorage = mockk<ProjectIconStorage>()
             applicationEventPublisher = mockk<ApplicationEventPublisher>()
             justRun { applicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
+            every { mockProjectIconStorage.validateIconKey(any()) } returns null
+            every { mockProjectIconStorage.toIconUrl(any()) } returns null
+            every { mockProjectIconStorage.resolveIconKeyForUpdate(any(), any()) } answers {
+                val requested = firstArg<String?>()
+                when {
+                    requested == null -> secondArg()
+                    requested.isBlank() -> null
+                    else -> requested
+                }
+            }
             modifyProjectService =
-                ModifyProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository, applicationEventPublisher)
+                ModifyProjectServiceImpl(
+                    mockProjectRepository,
+                    mockClubRepository,
+                    mockStudentRepository,
+                    mockProjectIconStorage,
+                    applicationEventPublisher,
+                )
         }
 
         describe("ModifyProjectService 클래스의") {
@@ -140,6 +160,59 @@ class ModifyProjectServiceTest :
 
                         result.repositories shouldContainExactlyInAnyOrder listOf("https://github.com/team/new-repo")
                         result.techStacks shouldContainExactlyInAnyOrder listOf("Kotlin")
+                    }
+                }
+
+                context("카테고리를 생략하고 수정할 때") {
+                    val updateRequest =
+                        ProjectReqDto(
+                            name = "기존프로젝트",
+                            description = "기존 설명",
+                            startYear = 2023,
+                            clubId = 1L,
+                            participantIds = emptyList(),
+                        )
+
+                    beforeEach {
+                        existingProject.categories = mutableSetOf(ProjectCategory.CLUB)
+
+                        every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
+                        every { mockProjectRepository.existsByNameAndIdNot(updateRequest.name, projectId) } returns false
+                        every { mockClubRepository.findById(1L) } returns Optional.of(ownerClub)
+                    }
+
+                    it("기존 카테고리가 유지되어야 한다") {
+                        val result = modifyProjectService.execute(projectId, updateRequest)
+
+                        existingProject.categories shouldBe setOf(ProjectCategory.CLUB)
+                        result.categories shouldBe setOf(ProjectCategory.CLUB)
+                    }
+                }
+
+                context("카테고리를 지정하여 수정할 때") {
+                    val updateRequest =
+                        ProjectReqDto(
+                            name = "기존프로젝트",
+                            description = "기존 설명",
+                            startYear = 2023,
+                            clubId = 1L,
+                            participantIds = emptyList(),
+                            categories = setOf(ProjectCategory.IDEA_FESTIVAL),
+                        )
+
+                    beforeEach {
+                        existingProject.categories = mutableSetOf(ProjectCategory.CLUB)
+
+                        every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
+                        every { mockProjectRepository.existsByNameAndIdNot(updateRequest.name, projectId) } returns false
+                        every { mockClubRepository.findById(1L) } returns Optional.of(ownerClub)
+                    }
+
+                    it("카테고리가 새 값으로 변경되어야 한다") {
+                        val result = modifyProjectService.execute(projectId, updateRequest)
+
+                        existingProject.categories shouldBe setOf(ProjectCategory.IDEA_FESTIVAL)
+                        result.categories shouldBe setOf(ProjectCategory.IDEA_FESTIVAL)
                     }
                 }
 
@@ -469,6 +542,35 @@ class ModifyProjectServiceTest :
                     }
 
                     it("동아리 없이 프로젝트가 수정되어야 한다") {
+                        val result = modifyProjectService.execute(projectId, updateRequest)
+
+                        result.club shouldBe null
+
+                        verify(exactly = 0) { mockClubRepository.findById(any()) }
+                    }
+                }
+
+                context("무소속(clubId=0)으로 프로젝트를 수정할 때") {
+                    val updateRequest =
+                        ProjectReqDto(
+                            name = "기존프로젝트",
+                            description = "기존 설명",
+                            startYear = 2023,
+                            clubId = 0L,
+                            participantIds = emptyList(),
+                        )
+
+                    beforeEach {
+                        every { mockProjectRepository.findById(projectId) } returns Optional.of(existingProject)
+                        every {
+                            mockProjectRepository.existsByNameAndIdNot(
+                                updateRequest.name,
+                                projectId,
+                            )
+                        } returns false
+                    }
+
+                    it("동아리를 조회하지 않고 무소속으로 수정되어야 한다") {
                         val result = modifyProjectService.execute(projectId, updateRequest)
 
                         result.club shouldBe null

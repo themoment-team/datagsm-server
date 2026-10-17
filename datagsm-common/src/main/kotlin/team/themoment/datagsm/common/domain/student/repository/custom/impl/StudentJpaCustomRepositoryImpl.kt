@@ -293,6 +293,16 @@ class StudentJpaCustomRepositoryImpl(
                 studentJpaEntity.studentNumber.studentNumber.asc(),
             ).fetch()
 
+    override fun findAllEnrolledStudents(): List<StudentJpaEntity> =
+        jpaQueryFactory
+            .selectFrom(studentJpaEntity)
+            .where(studentJpaEntity.role.notIn(StudentRole.GRADUATE, StudentRole.WITHDRAWN))
+            .orderBy(
+                studentJpaEntity.studentNumber.studentGrade.asc(),
+                studentJpaEntity.studentNumber.studentClass.asc(),
+                studentJpaEntity.studentNumber.studentNumber.asc(),
+            ).fetch()
+
     override fun searchRegisteredStudentsWithPaging(
         id: Long?,
         name: String?,

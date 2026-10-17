@@ -26,6 +26,7 @@ import team.themoment.datagsm.common.domain.student.dto.request.RequestStudentDa
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentReqDto
 import team.themoment.datagsm.common.domain.student.dto.request.UpdateStudentStatusReqDto
 import team.themoment.datagsm.common.domain.student.dto.response.GraduateStudentResDto
+import team.themoment.datagsm.common.domain.student.dto.response.ParticipantCandidateListResDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentListResDto
 import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.web.domain.student.dto.request.UpdateMyGithubIdReqDto
@@ -40,6 +41,7 @@ import team.themoment.datagsm.web.domain.student.service.ModifyMySpecialtyServic
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentExcelService
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentService
 import team.themoment.datagsm.web.domain.student.service.ModifyStudentStatusService
+import team.themoment.datagsm.web.domain.student.service.QueryParticipantCandidateService
 import team.themoment.datagsm.web.domain.student.service.QueryStudentService
 import team.themoment.datagsm.web.domain.student.service.RequestStudentDataEditService
 import team.themoment.datagsm.web.domain.student.service.WithdrawStudentService
@@ -61,6 +63,7 @@ class StudentController(
     private val modifyMySpecialtyService: ModifyMySpecialtyService,
     private val modifyMyGithubIdService: ModifyMyGithubIdService,
     private val requestStudentDataEditService: RequestStudentDataEditService,
+    private val queryParticipantCandidateService: QueryParticipantCandidateService,
 ) {
     @Operation(summary = "학생 정보 조회", description = "필터 조건에 맞는 학생 정보를 조회합니다.")
     @ApiResponses(
@@ -73,6 +76,18 @@ class StudentController(
     fun getStudentInfo(
         @Valid @ModelAttribute queryReq: QueryStudentReqDto,
     ): StudentListResDto = queryStudentService.execute(queryReq)
+
+    @Operation(
+        summary = "프로젝트 참여자 후보 조회",
+        description = "프로젝트 신청 시 참여자로 선택할 수 있는 재학생 전체 목록을 조회합니다. 로그인한 사용자라면 누구나 호출할 수 있습니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "조회 성공"),
+        ],
+    )
+    @GetMapping("/participant-candidates")
+    fun getParticipantCandidates(): ParticipantCandidateListResDto = queryParticipantCandidateService.execute()
 
     @Operation(summary = "학생 생성", description = "새로운 학생 정보를 생성합니다.")
     @ApiResponses(

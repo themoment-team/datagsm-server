@@ -19,4 +19,7 @@ data class Oauth2TokenResDto(
     @field:JsonProperty("scope")
     @field:Schema(description = "Granted scopes (space-separated)", example = "self:read self:write")
     val scope: String,
+    @field:JsonProperty("id_token")
+    @field:Schema(description = "ID Token (openid scope 요청 시에만 발급)", example = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...")
+    val idToken: String? = null,
 )

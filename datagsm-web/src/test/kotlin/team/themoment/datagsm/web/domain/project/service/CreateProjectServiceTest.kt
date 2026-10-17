@@ -8,6 +8,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.justRun
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import org.springframework.context.ApplicationEventPublisher
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
@@ -16,11 +17,13 @@ import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.project.dto.request.ProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectCategory
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
 import team.themoment.datagsm.web.domain.project.service.impl.CreateProjectServiceImpl
+import team.themoment.datagsm.web.global.storage.ProjectIconStorage
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 
@@ -30,13 +33,22 @@ class CreateProjectServiceTest :
         val mockProjectRepository = mockk<ProjectJpaRepository>()
         val mockClubRepository = mockk<ClubJpaRepository>()
         val mockStudentRepository = mockk<team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository>()
+        val mockProjectIconStorage = mockk<ProjectIconStorage>()
         val applicationEventPublisher = mockk<ApplicationEventPublisher>()
 
         val createProjectService =
-            CreateProjectServiceImpl(mockProjectRepository, mockClubRepository, mockStudentRepository, applicationEventPublisher)
+            CreateProjectServiceImpl(
+                mockProjectRepository,
+                mockClubRepository,
+                mockStudentRepository,
+                mockProjectIconStorage,
+                applicationEventPublisher,
+            )
 
         beforeEach {
             justRun { applicationEventPublisher.publishEvent(any<EventDispatchRequested>()) }
+            every { mockProjectIconStorage.validateIconKey(any()) } returns null
+            every { mockProjectIconStorage.toIconUrl(any()) } returns null
         }
 
         afterEach {
@@ -134,6 +146,68 @@ class CreateProjectServiceTest :
 
                         result.repositories shouldContainExactlyInAnyOrder listOf("https://github.com/team/repo")
                         result.techStacks shouldContainExactlyInAnyOrder listOf("Kotlin", "Spring Boot")
+
+                        verify(exactly = 1) { mockProjectRepository.save(any()) }
+                    }
+                }
+
+                context("배포 URL을 포함하여 생성 요청할 때") {
+                    val createRequest =
+                        ProjectReqDto(
+                            name = "배포된 프로젝트",
+                            description = "배포 URL이 있는 프로젝트입니다",
+                            startYear = 2024,
+                            clubId = null,
+                            participantIds = emptyList(),
+                            deploymentUrl = "https://datagsm.kr",
+                        )
+
+                    val projectSlot = slot<ProjectJpaEntity>()
+
+                    beforeEach {
+                        every { mockProjectRepository.existsByName(createRequest.name) } returns false
+                        every { mockProjectRepository.save(capture(projectSlot)) } answers
+                            {
+                                projectSlot.captured.apply { id = 5L }
+                            }
+                    }
+
+                    it("배포 URL이 저장되고 응답에 포함되어야 한다") {
+                        val result = createProjectService.execute(createRequest)
+
+                        projectSlot.captured.deploymentUrl shouldBe "https://datagsm.kr"
+                        result.deploymentUrl shouldBe "https://datagsm.kr"
+
+                        verify(exactly = 1) { mockProjectRepository.save(any()) }
+                    }
+                }
+
+                context("카테고리를 포함하여 생성 요청할 때") {
+                    val createRequest =
+                        ProjectReqDto(
+                            name = "개인 프로젝트",
+                            description = "혼자 진행한 프로젝트입니다",
+                            startYear = 2024,
+                            clubId = null,
+                            participantIds = emptyList(),
+                            categories = setOf(ProjectCategory.TOY_PROJECT),
+                        )
+
+                    val projectSlot = slot<ProjectJpaEntity>()
+
+                    beforeEach {
+                        every { mockProjectRepository.existsByName(createRequest.name) } returns false
+                        every { mockProjectRepository.save(capture(projectSlot)) } answers
+                            {
+                                projectSlot.captured.apply { id = 6L }
+                            }
+                    }
+
+                    it("카테고리가 저장되고 응답에 포함되어야 한다") {
+                        val result = createProjectService.execute(createRequest)
+
+                        projectSlot.captured.categories shouldBe setOf(ProjectCategory.TOY_PROJECT)
+                        result.categories shouldBe setOf(ProjectCategory.TOY_PROJECT)
 
                         verify(exactly = 1) { mockProjectRepository.save(any()) }
                     }
@@ -328,6 +402,41 @@ class CreateProjectServiceTest :
                         verify(exactly = 1) { mockProjectRepository.existsByName(createRequest.name) }
                         verify(exactly = 0) { mockClubRepository.findById(any()) }
                         verify(exactly = 1) { mockProjectRepository.save(any()) }
+                    }
+                }
+
+                context("무소속(clubId=0)으로 프로젝트를 생성할 때") {
+                    val createRequest =
+                        ProjectReqDto(
+                            name = "무소속프로젝트",
+                            description = "무소속 프로젝트입니다",
+                            startYear = 2024,
+                            clubId = 0L,
+                            participantIds = emptyList(),
+                        )
+
+                    val savedProject =
+                        ProjectJpaEntity().apply {
+                            id = 5L
+                            name = createRequest.name
+                            description = createRequest.description
+                            startYear = createRequest.startYear
+                            status = ProjectStatus.ACTIVE
+                            this.club = null
+                        }
+
+                    beforeEach {
+                        every { mockProjectRepository.existsByName(createRequest.name) } returns false
+                        every { mockProjectRepository.save(any()) } returns savedProject
+                    }
+
+                    it("동아리를 조회하지 않고 무소속으로 생성되어야 한다") {
+                        val result = createProjectService.execute(createRequest)
+
+                        result.club shouldBe null
+
+                        verify(exactly = 0) { mockClubRepository.findById(any()) }
+                        verify(exactly = 1) { mockProjectRepository.save(match { it.club == null }) }
                     }
                 }
 

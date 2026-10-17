@@ -2,6 +2,7 @@ package team.themoment.datagsm.common.domain.project.dto.response
 
 import io.swagger.v3.oas.annotations.media.Schema
 import team.themoment.datagsm.common.domain.club.dto.internal.ClubSummaryDto
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectCategory
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
 import team.themoment.datagsm.ksp.annotation.SdkExport
@@ -20,6 +21,17 @@ data class ProjectResDto(
     val endYear: Int?,
     @field:Schema(description = "프로젝트 운영 상태")
     val status: ProjectStatus,
+    @field:Schema(description = "프로젝트 카테고리 목록 (미분류이면 빈 목록)")
+    val categories: Set<ProjectCategory>,
+    @field:Schema(description = "프로젝트 아이콘 URL", example = "https://cdn.datagsm.kr/project-icons/uuid.png")
+    val iconUrl: String? = null,
+    @field:Schema(
+        description = "프로젝트 아이콘 오브젝트 키. 수정 시 생략하면 이 값이 유지된다",
+        example = "project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png",
+    )
+    val iconKey: String? = null,
+    @field:Schema(description = "프로젝트 배포 URL", example = "https://datagsm.kr")
+    val deploymentUrl: String? = null,
     @field:Schema(description = "프로젝트 소유 동아리 정보")
     val club: ClubSummaryDto?,
     @field:Schema(description = "프로젝트 참가자 목록")

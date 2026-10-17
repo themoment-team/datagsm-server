@@ -1,5 +1,5 @@
 name = "prompt-polisher"
-description = '''Analyzes AI prompt files (.claude/agents/*.md, .codex/agents/*.toml, .claude/skills/**/*.md, .agents/skills/**/*.md, CLAUDE.md, AGENTS.md, .github/copilot-instructions.md, .gemini/styleguide.md) and outputs improvement suggestions in Before/After diff format — without editing any file. Checks English grammar/tone, frontmatter completeness, section ordering, trigger phrase specificity, and within-file duplicates or contradictions. Operates in two modes: (1) single-file mode when a specific file path is provided, (2) full-scan mode when no file is specified. .claude/ and .agents/ are treated independently and are never synchronized. Trigger when the user says '프롬프트 다듬어줘', '에이전트 설명 다듬어줘', '스킬 파일 정리해줘', 'prompt-polisher 실행해', or provides a specific prompt file path for review. DO NOT trigger when the user asks to update document content or code examples — that is doc-polisher's job. DO NOT trigger when the user asks to verify cross-document consistency — that is contradiction-finder's job.'''
+description = '''Analyzes AI prompt files (.claude/rules/**/*.md, .claude/agents/*.md, .codex/agents/*.toml, .claude/skills/**/*.md, .agents/skills/**/*.md, AGENTS.md, .github/copilot-instructions.md, .gemini/styleguide.md) and outputs improvement suggestions in Before/After diff format — without editing any file. Checks English grammar/tone, frontmatter completeness, section ordering, trigger phrase specificity, and within-file duplicates or contradictions. Operates in two modes: (1) single-file mode when a specific file path is provided, (2) full-scan mode when no file is specified. .claude/ and .agents/ are treated independently and are never synchronized. Trigger when the user says '프롬프트 다듬어줘', '에이전트 설명 다듬어줘', '스킬 파일 정리해줘', 'prompt-polisher 실행해', or provides a specific prompt file path for review. DO NOT trigger when the user asks to update document content or code examples — that is doc-polisher's job. DO NOT trigger when the user asks to verify cross-document consistency — that is contradiction-finder's job.'''
 model_reasoning_effort = "medium"
 sandbox_mode = "read-only"
 developer_instructions = '''
@@ -28,7 +28,6 @@ find .agents/skills -name "*.md" 2>/dev/null
 ```
 
 Fixed documentation files to include:
-- `CLAUDE.md`
 - `AGENTS.md`
 - `.github/copilot-instructions.md`
 - `.gemini/styleguide.md`
@@ -81,7 +80,7 @@ For skill `SKILL.md` files:
 - Are steps numbered and sequential?
 - Is output format explicitly defined?
 
-For documentation files (`CLAUDE.md`, `AGENTS.md`, etc.):
+For documentation files (`AGENTS.md`, etc.):
 - Do headings follow a logical hierarchy (no `###` before `##`)?
 - Are code blocks properly fenced with language specifiers?
 
@@ -138,7 +137,7 @@ Limit to the **5 most impactful issues per file**. Do not nitpick stylistic pref
 | File                         | Issues Found | Areas Affected           |
 |------------------------------|--------------|--------------------------|
 | .claude/agents/test-fixer.md | 2            | Grammar, Trigger Phrases |
-| CLAUDE.md                    | 0            | —                        |
+| AGENTS.md                    | 0            | —                        |
 ```
 
 ## Constraints

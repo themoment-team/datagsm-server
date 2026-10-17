@@ -20,8 +20,11 @@ import team.themoment.datagsm.common.domain.project.dto.response.ProjectResDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
+import team.themoment.datagsm.common.domain.project.toOrderedSet
 import team.themoment.datagsm.common.domain.student.dto.internal.ParticipantInfoDto
+import team.themoment.datagsm.common.domain.student.entity.constant.NO_CLUB_ID
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
+import team.themoment.datagsm.common.global.storage.ProjectIconUrlResolver
 import team.themoment.datagsm.openapi.domain.project.service.CreateProjectService
 import team.themoment.sdk.exception.ExpectedException
 
@@ -30,6 +33,7 @@ class CreateProjectServiceImpl(
     private val projectJpaRepository: ProjectJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
     private val studentJpaRepository: StudentJpaRepository,
+    private val projectIconUrlResolver: ProjectIconUrlResolver,
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) : CreateProjectService {
     @Transactional
@@ -39,7 +43,7 @@ class CreateProjectServiceImpl(
         }
 
         val ownerClub =
-            projectReqDto.clubId?.let { clubId ->
+            projectReqDto.clubId?.takeIf { it != NO_CLUB_ID }?.let { clubId ->
                 clubJpaRepository.findByIdOrNull(clubId)
                     ?: throw ExpectedException(
                         "동아리를 찾을 수 없습니다.",
@@ -78,11 +82,14 @@ class CreateProjectServiceImpl(
                 description = projectReqDto.description
                 startYear = projectReqDto.startYear
                 status = projectReqDto.status
+                categories = projectReqDto.categories.orEmpty().toMutableSet()
                 endYear = projectReqDto.endYear
                 this.club = ownerClub
                 this.participants = participants
                 this.repositories = projectReqDto.repositories.toMutableSet()
                 this.techStacks = projectReqDto.techStacks.toMutableSet()
+                this.iconKey = projectIconUrlResolver.validateIconKey(projectReqDto.iconKey)
+                this.deploymentUrl = projectReqDto.deploymentUrl
             }
         val savedProjectEntity = projectJpaRepository.save(projectEntity)
 
@@ -104,6 +111,10 @@ class CreateProjectServiceImpl(
             startYear = savedProjectEntity.startYear,
             endYear = savedProjectEntity.endYear,
             status = savedProjectEntity.status,
+            categories = savedProjectEntity.categories.toOrderedSet(),
+            iconUrl = projectIconUrlResolver.toIconUrl(savedProjectEntity.iconKey),
+            iconKey = savedProjectEntity.iconKey,
+            deploymentUrl = savedProjectEntity.deploymentUrl,
             club = ownerClub?.let { ClubSummaryDto(id = it.id!!, name = it.name, type = it.type) },
             participants =
                 savedProjectEntity.participants.map { student ->
@@ -129,6 +140,8 @@ class CreateProjectServiceImpl(
             startYear = project.startYear,
             endYear = project.endYear,
             status = project.status.name,
+            categories = project.categories.toOrderedSet().map { it.name },
+            deploymentUrl = project.deploymentUrl,
             club = project.club?.let { EventClubRef(it.id!!, it.name) },
             participants =
                 project.participants.map { EventStudentRef(it.studentNumber?.fullStudentNumber, it.name) },

@@ -17,6 +17,7 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.DynamicUpdate
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectCategory
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 
@@ -45,9 +46,19 @@ class ProjectJpaEntity {
     @field:Enumerated(EnumType.STRING)
     lateinit var status: ProjectStatus
 
+    @field:Column(name = "icon_key", nullable = true, length = 300)
+    var iconKey: String? = null
+
+    @field:Column(name = "deployment_url", nullable = true, length = 300)
+    var deploymentUrl: String? = null
+
     @field:ManyToOne(optional = true)
     @field:JoinColumn(name = "club_id", nullable = true, referencedColumnName = "id")
     var club: ClubJpaEntity? = null
+
+    @field:ManyToOne(optional = true)
+    @field:JoinColumn(name = "applied_by_id", nullable = true, referencedColumnName = "id")
+    var appliedBy: StudentJpaEntity? = null
 
     @field:ManyToMany
     @field:JoinTable(
@@ -56,6 +67,12 @@ class ProjectJpaEntity {
         inverseJoinColumns = [JoinColumn(name = "student_id")],
     )
     var participants: MutableSet<StudentJpaEntity> = mutableSetOf()
+
+    @field:ElementCollection(fetch = FetchType.LAZY)
+    @field:CollectionTable(name = "tb_project_category", joinColumns = [JoinColumn(name = "project_id")])
+    @field:Column(name = "category", nullable = false)
+    @field:Enumerated(EnumType.STRING)
+    var categories: MutableSet<ProjectCategory> = mutableSetOf()
 
     @field:ElementCollection(fetch = FetchType.LAZY)
     @field:CollectionTable(name = "tb_project_repository", joinColumns = [JoinColumn(name = "project_id")])

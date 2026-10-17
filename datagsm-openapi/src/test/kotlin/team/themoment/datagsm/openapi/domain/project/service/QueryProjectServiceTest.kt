@@ -12,19 +12,24 @@ import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 import team.themoment.datagsm.common.domain.project.dto.request.QueryProjectReqDto
 import team.themoment.datagsm.common.domain.project.entity.ProjectJpaEntity
+import team.themoment.datagsm.common.domain.project.entity.constant.ProjectCategory
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatus
 import team.themoment.datagsm.common.domain.project.repository.ProjectJpaRepository
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentNumber
 import team.themoment.datagsm.common.domain.student.entity.constant.Major
 import team.themoment.datagsm.common.domain.student.entity.constant.Sex
+import team.themoment.datagsm.common.global.data.ProjectIconStorageEnvironment
+import team.themoment.datagsm.common.global.storage.ProjectIconUrlResolver
 import team.themoment.datagsm.openapi.domain.project.service.impl.QueryProjectServiceImpl
 
 class QueryProjectServiceTest :
     DescribeSpec({
 
         val mockProjectRepository = mockk<ProjectJpaRepository>()
-        val queryProjectService = QueryProjectServiceImpl(mockProjectRepository)
+        val projectIconUrlResolver =
+            ProjectIconUrlResolver(ProjectIconStorageEnvironment(cdnBaseUrl = "https://cdn.datagsm.kr"))
+        val queryProjectService = QueryProjectServiceImpl(mockProjectRepository, projectIconUrlResolver)
 
         afterEach {
             clearAllMocks()
@@ -47,6 +52,7 @@ class QueryProjectServiceTest :
                         description = "학교 데이터를 제공하는 API 서비스"
                         startYear = 2024
                         status = ProjectStatus.ACTIVE
+                        iconKey = "project-icons/abc.png"
                         club = testClub
                     }
 
@@ -58,6 +64,7 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = null,
                                 status = ProjectStatus.ACTIVE,
+                                category = null,
                                 pageable = PageRequest.of(0, 100),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -80,6 +87,7 @@ class QueryProjectServiceTest :
                         project.startYear shouldBe 2024
                         project.endYear shouldBe null
                         project.status shouldBe ProjectStatus.ACTIVE
+                        project.iconUrl shouldBe "https://cdn.datagsm.kr/project-icons/abc.png"
                         project.club?.id shouldBe 1L
                         project.club?.name shouldBe "SW개발동아리"
                         project.club?.type shouldBe ClubType.MAJOR_CLUB
@@ -91,6 +99,7 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = null,
                                 status = ProjectStatus.ACTIVE,
+                                category = null,
                                 pageable = PageRequest.of(0, 100),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -107,6 +116,7 @@ class QueryProjectServiceTest :
                                 name = "DataGSM",
                                 clubId = null,
                                 status = ProjectStatus.ACTIVE,
+                                category = null,
                                 pageable = PageRequest.of(0, 100),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -131,6 +141,7 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = 1L,
                                 status = ProjectStatus.ACTIVE,
+                                category = null,
                                 pageable = PageRequest.of(0, 100),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -145,6 +156,54 @@ class QueryProjectServiceTest :
                         result.totalElements shouldBe 1L
                         result.projects[0].club?.id shouldBe 1L
                         result.projects[0].club?.name shouldBe "SW개발동아리"
+                    }
+                }
+
+                context("category 필터로 검색할 때") {
+                    val teamProject =
+                        ProjectJpaEntity().apply {
+                            id = 4L
+                            name = "팀 프로젝트"
+                            description = "팀으로 진행한 프로젝트"
+                            startYear = 2024
+                            status = ProjectStatus.ACTIVE
+                            categories = mutableSetOf(ProjectCategory.TEAM)
+                        }
+
+                    beforeEach {
+                        every {
+                            mockProjectRepository.searchProjectWithPaging(
+                                id = null,
+                                name = null,
+                                clubId = null,
+                                status = ProjectStatus.ACTIVE,
+                                category = ProjectCategory.TEAM,
+                                pageable = PageRequest.of(0, 100),
+                                sortBy = any(),
+                                sortDirection = any(),
+                            )
+                        } returns PageImpl(listOf(teamProject), PageRequest.of(0, 100), 1L)
+                    }
+
+                    it("category가 repository에 전달되고 응답에 포함되어야 한다") {
+                        val queryReq = QueryProjectReqDto(category = ProjectCategory.TEAM)
+                        val result = queryProjectService.execute(queryReq)
+
+                        result.totalElements shouldBe 1L
+                        result.projects[0].categories shouldBe setOf(ProjectCategory.TEAM)
+
+                        verify(exactly = 1) {
+                            mockProjectRepository.searchProjectWithPaging(
+                                id = null,
+                                name = null,
+                                clubId = null,
+                                status = ProjectStatus.ACTIVE,
+                                category = ProjectCategory.TEAM,
+                                pageable = PageRequest.of(0, 100),
+                                sortBy = any(),
+                                sortDirection = any(),
+                            )
+                        }
                     }
                 }
 
@@ -166,6 +225,7 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = null,
                                 status = ProjectStatus.ENDED,
+                                category = null,
                                 pageable = PageRequest.of(0, 100),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -211,6 +271,7 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = null,
                                 status = ProjectStatus.ACTIVE,
+                                category = null,
                                 pageable = PageRequest.of(0, 100),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -241,6 +302,7 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = null,
                                 status = ProjectStatus.ACTIVE,
+                                category = null,
                                 pageable = PageRequest.of(0, 100),
                                 sortBy = any(),
                                 sortDirection = any(),
@@ -276,6 +338,7 @@ class QueryProjectServiceTest :
                                 name = null,
                                 clubId = null,
                                 status = ProjectStatus.ACTIVE,
+                                category = null,
                                 pageable = PageRequest.of(0, 100),
                                 sortBy = any(),
                                 sortDirection = any(),

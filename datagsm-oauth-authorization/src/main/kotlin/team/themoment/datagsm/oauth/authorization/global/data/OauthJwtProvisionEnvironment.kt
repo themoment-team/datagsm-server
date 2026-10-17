@@ -9,4 +9,5 @@ data class OauthJwtProvisionEnvironment(
     val keyId: String,
     val accessTokenExpiration: Long,
     val refreshTokenExpiration: Long,
+    val datagsmApplicationId: String,
 )

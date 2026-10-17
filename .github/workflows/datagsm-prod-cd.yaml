@@ -100,6 +100,9 @@ jobs:
     needs: generate-version
     if: needs.generate-version.outputs.shared_changed == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v7
@@ -120,6 +123,8 @@ jobs:
         with:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@latest
       - name: Assemble type-only npm package
         run: >
           ./gradlew :datagsm-shared:assembleTsPackage
@@ -127,8 +132,6 @@ jobs:
       - name: Publish to npmjs.com
         run: npm publish --access public
         working-directory: datagsm-shared/build/npm-ts
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   deploy:
     runs-on: ubuntu-latest
