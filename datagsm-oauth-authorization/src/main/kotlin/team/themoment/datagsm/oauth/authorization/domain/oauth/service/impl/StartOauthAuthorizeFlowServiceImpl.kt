@@ -35,6 +35,7 @@ class StartOauthAuthorizeFlowServiceImpl(
     companion object {
         private const val LOGIN_PATH = "/oauth/authorize"
         private const val CONSENT_PATH = "/oauth/consent"
+        private val OPT_IN_SCOPE_NAMES = setOf(OAuthScope.CLUB_READ, OAuthScope.PROJECT_READ)
     }
 
     @Transactional(readOnly = true)
@@ -166,19 +167,16 @@ class StartOauthAuthorizeFlowServiceImpl(
         return if (hasOpenid) resolved + OAuthScope.OPENID else resolved
     }
 
-    // scope 파라미터 미입력 시 client의 전체 허용 scope가 아닌 기본 UserInfo scope만 요청된 것으로 처리한다.
-    // account_read/student_read를 아직 부여받지 못한 레거시 client는 deprecated self_read로 대체한다.
-    // 둘 다 없는 client는 스코프 없는 토큰이 조용히 발급되는 것을 막기 위해 InvalidScope로 실패시킨다.
+    // scope 파라미터 미입력 시 세분화 이전과 같이 client의 허용 scope를 모두 부여하되, opt-in scope만 제외한다.
+    // opt-in scope는 세분화 때 새로 생겨 기존 client가 가질 수 없었으므로, 기존 client는 이전과 동일한 scope를 받는다.
+    // opt-in scope만 가진 client는 스코프 없는 토큰이 조용히 발급되는 것을 막기 위해 InvalidScope로 실패시킨다.
     private fun defaultScopes(clientScopes: Set<String>): Set<String> {
         val applicationId = jwtEnvironment.datagsmApplicationId
-        val defaults =
-            setOf("$applicationId:${OAuthScope.ACCOUNT_READ}", "$applicationId:${OAuthScope.STUDENT_READ}")
-                .intersect(clientScopes)
-        if (defaults.isNotEmpty()) return defaults
-
-        val legacySelfRead = "$applicationId:${OAuthScope.SELF_READ}"
-        if (legacySelfRead in clientScopes) return setOf(legacySelfRead)
-
-        throw OAuthException.InvalidScope("클라이언트에 기본으로 부여할 수 있는 권한 범위가 없습니다.")
+        val optInScopes = OPT_IN_SCOPE_NAMES.map { "$applicationId:$it" }.toSet()
+        val defaults = clientScopes - optInScopes
+        if (defaults.isEmpty()) {
+            throw OAuthException.InvalidScope("클라이언트에 기본으로 부여할 수 있는 권한 범위가 없습니다.")
+        }
+        return defaults
     }
 }
