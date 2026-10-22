@@ -19,7 +19,7 @@ class QueryUserInfoServiceImpl(
         val account = currentUserProvider.getCurrentAccount()
         val scopeNames = currentUserProvider.getGrantedScopeNames()
 
-        // self_read(deprecated)는 account_read + student_read를 합친 기존 동작과 동일하게 취급한다.
+        // self_read(deprecated)는 세분화 이전 응답(계정 + student/teacher, student 내 동아리 포함)을 그대로 돌려준다.
         val hasSelfRead = OAuthScope.SELF_READ in scopeNames
         val hasStudentRead = OAuthScope.STUDENT_READ in scopeNames || hasSelfRead
         val hasClubRead = OAuthScope.CLUB_READ in scopeNames
