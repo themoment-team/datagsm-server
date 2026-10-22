@@ -272,20 +272,53 @@ class QueryUserInfoServiceTest :
                             objectId = 10L
                             objectType = AccountObjectType.STUDENT
                         }
+                    val studentWithClub = studentDto.copy(majorClub = clubSummary, autonomousClub = clubSummary)
 
                     beforeEach {
                         every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
                         every { mockAccountObjectResolver.resolve(mockAccount, includeClubs = false, includeProjects = false) } returns
-                            ResolvedAccountObject(studentDto, null)
+                            ResolvedAccountObject(studentWithClub, null)
                         every { mockCurrentUserProvider.getGrantedScopeNames() } returns setOf("self_read")
                     }
 
-                    it("student 정보는 채워지고 clubs/projects는 비어있어야 한다") {
+                    it("세분화 이전 응답처럼 student 안의 동아리 정보까지 그대로 채워지고 clubs/projects는 비어있어야 한다") {
                         val result = queryUserInfoService.execute()
 
-                        result.student shouldBe studentDto
+                        result.student shouldBe studentWithClub
                         result.clubs.shouldBeEmpty()
                         result.projects.shouldBeEmpty()
+                        verify(exactly = 1) {
+                            mockAccountObjectResolver.resolve(mockAccount, includeClubs = false, includeProjects = false)
+                        }
+                    }
+                }
+
+                context("학생 계정이 club_read 없이 self_read와 student_read를 함께 가지고 있을 때") {
+                    val mockAccount =
+                        AccountJpaEntity().apply {
+                            id = 2L
+                            email = "student@gsm.hs.kr"
+                            password = "encodedPassword"
+                            role = AccountRole.USER
+                            objectId = 10L
+                            objectType = AccountObjectType.STUDENT
+                        }
+                    val studentWithClub = studentDto.copy(majorClub = clubSummary, autonomousClub = clubSummary)
+
+                    beforeEach {
+                        every { mockCurrentUserProvider.getCurrentAccount() } returns mockAccount
+                        every { mockAccountObjectResolver.resolve(mockAccount, includeClubs = false, includeProjects = false) } returns
+                            ResolvedAccountObject(studentWithClub, null)
+                        every { mockCurrentUserProvider.getGrantedScopeNames() } returns
+                            setOf("self_read", "account_read", "student_read")
+                    }
+
+                    it("self_read가 있으므로 student 안의 동아리 정보가 가려지지 않아야 한다") {
+                        val result = queryUserInfoService.execute()
+
+                        result.student?.majorClub shouldBe clubSummary
+                        result.student?.autonomousClub shouldBe clubSummary
+                        result.clubs.shouldBeEmpty()
                     }
                 }
             }
