@@ -236,6 +236,137 @@ class StartOauthAuthorizeFlowServiceTest :
                     }
                 }
 
+                context("openid만 요청하고 client가 기본 scope 외에 다른 scope도 가지고 있을 때") {
+                    val wideScopeClient =
+                        ClientJpaEntity().apply {
+                            id = testClientId
+                            secret = "encodedSecret"
+                            redirectUrls = setOf(testRedirectUri)
+                            scopes.addAll(
+                                setOf("datagsm:account_read", "datagsm:student_read", "datagsm:club_read", "other-app:custom_read"),
+                            )
+                            clientName = "Wide Scope Client"
+                            serviceName = "Wide Scope Service"
+                        }
+                    val savedEntitySlot = slot<OauthAuthorizeStateRedisEntity>()
+
+                    beforeEach {
+                        every { mockOauthEnvironment.frontendUrl } returns "http://localhost:3000"
+                        every { mockOauthEnvironment.authorizeStateExpirationMs } returns 600000L
+                        every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(wideScopeClient)
+                        every { mockOauthAuthorizeStateRedisRepository.save(capture(savedEntitySlot)) } answers { firstArg() }
+                    }
+
+                    it("UserInfo 조회용 기본 scope(account_read, student_read)와 openid만 저장되어야 한다") {
+                        val reqDto =
+                            OauthAuthorizeReqDto(
+                                client_id = testClientId,
+                                redirect_uri = testRedirectUri,
+                                response_type = "code",
+                                scope = "openid",
+                            )
+                        startOauthAuthorizeFlowService.execute(reqDto, null)
+
+                        savedEntitySlot.captured.scopes shouldBe setOf("datagsm:account_read", "datagsm:student_read", "openid")
+                    }
+                }
+
+                context("openid만 요청하고 client가 deprecated self_read와 다른 애플리케이션의 scope를 가지고 있을 때") {
+                    val legacyClient =
+                        ClientJpaEntity().apply {
+                            id = testClientId
+                            secret = "encodedSecret"
+                            redirectUrls = setOf(testRedirectUri)
+                            scopes.addAll(setOf("datagsm:self_read", "other-app:custom_read"))
+                            clientName = "Legacy Client"
+                            serviceName = "Legacy Service"
+                        }
+                    val savedEntitySlot = slot<OauthAuthorizeStateRedisEntity>()
+
+                    beforeEach {
+                        every { mockOauthEnvironment.frontendUrl } returns "http://localhost:3000"
+                        every { mockOauthEnvironment.authorizeStateExpirationMs } returns 600000L
+                        every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(legacyClient)
+                        every { mockOauthAuthorizeStateRedisRepository.save(capture(savedEntitySlot)) } answers { firstArg() }
+                    }
+
+                    it("self_read와 openid만 저장되어야 한다") {
+                        val reqDto =
+                            OauthAuthorizeReqDto(
+                                client_id = testClientId,
+                                redirect_uri = testRedirectUri,
+                                response_type = "code",
+                                scope = "openid",
+                            )
+                        startOauthAuthorizeFlowService.execute(reqDto, null)
+
+                        savedEntitySlot.captured.scopes shouldBe setOf("datagsm:self_read", "openid")
+                    }
+                }
+
+                context("openid만 요청하고 client가 UserInfo 조회용 scope를 하나도 가지고 있지 않을 때") {
+                    val customOnlyClient =
+                        ClientJpaEntity().apply {
+                            id = testClientId
+                            secret = "encodedSecret"
+                            redirectUrls = setOf(testRedirectUri)
+                            scopes.add("other-app:custom_read")
+                            clientName = "Custom Only Client"
+                            serviceName = "Custom Only Service"
+                        }
+
+                    beforeEach {
+                        every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(customOnlyClient)
+                    }
+
+                    it("OAuthException.InvalidScope가 발생해야 한다") {
+                        val reqDto =
+                            OauthAuthorizeReqDto(
+                                client_id = testClientId,
+                                redirect_uri = testRedirectUri,
+                                response_type = "code",
+                                scope = "openid",
+                            )
+
+                        shouldThrow<OAuthException.InvalidScope> {
+                            startOauthAuthorizeFlowService.execute(reqDto, null)
+                        }
+                    }
+                }
+
+                context("scope 파라미터가 빈 문자열일 때") {
+                    val legacyClient =
+                        ClientJpaEntity().apply {
+                            id = testClientId
+                            secret = "encodedSecret"
+                            redirectUrls = setOf(testRedirectUri)
+                            scopes.addAll(setOf("datagsm:self_read", "other-app:custom_read"))
+                            clientName = "Legacy Client"
+                            serviceName = "Legacy Service"
+                        }
+                    val savedEntitySlot = slot<OauthAuthorizeStateRedisEntity>()
+
+                    beforeEach {
+                        every { mockOauthEnvironment.frontendUrl } returns "http://localhost:3000"
+                        every { mockOauthEnvironment.authorizeStateExpirationMs } returns 600000L
+                        every { mockClientJpaRepository.findById(testClientId) } returns Optional.of(legacyClient)
+                        every { mockOauthAuthorizeStateRedisRepository.save(capture(savedEntitySlot)) } answers { firstArg() }
+                    }
+
+                    it("scope 미입력과 동일하게 client의 scope가 모두 저장되어야 한다") {
+                        val reqDto =
+                            OauthAuthorizeReqDto(
+                                client_id = testClientId,
+                                redirect_uri = testRedirectUri,
+                                response_type = "code",
+                                scope = " ",
+                            )
+                        startOauthAuthorizeFlowService.execute(reqDto, null)
+
+                        savedEntitySlot.captured.scopes shouldBe setOf("datagsm:self_read", "other-app:custom_read")
+                    }
+                }
+
                 context("scope 파라미터가 null이고 client가 deprecated self_read만 가지고 있을 때") {
                     val legacyClient =
                         ClientJpaEntity().apply {

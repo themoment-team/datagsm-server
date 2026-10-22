@@ -30,8 +30,8 @@ data class OauthAuthorizeReqDto(
     @param:Schema(
         description =
             "요청할 OAuth Scope 목록 (공백 구분, appId:scopeName 형식). 미입력 시 클라이언트에 허용된 scope 중 " +
-                "club_read/project_read를 제외한 전체가 부여됩니다. club_read/project_read는 명시적으로 요청해야 합니다. " +
-                "self_read는 하위 호환을 위한 deprecated scope입니다.",
+                "club_read/project_read를 제외한 전체가 부여됩니다. openid만 요청하면 account_read/student_read만 부여됩니다. " +
+                "club_read/project_read는 명시적으로 요청해야 합니다. self_read는 하위 호환을 위한 deprecated scope입니다.",
         example = "appId:account_read appId:student_read appId:club_read appId:project_read",
         requiredMode = Schema.RequiredMode.NOT_REQUIRED,
     )

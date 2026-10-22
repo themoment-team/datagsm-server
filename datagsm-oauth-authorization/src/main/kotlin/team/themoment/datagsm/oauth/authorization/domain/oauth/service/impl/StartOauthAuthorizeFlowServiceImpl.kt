@@ -152,7 +152,7 @@ class StartOauthAuthorizeFlowServiceImpl(
         requestedScopes: Set<String>?,
         clientScopes: Set<String>,
     ): Set<String> {
-        if (requestedScopes == null) return defaultScopes(clientScopes)
+        if (requestedScopes == null) return defaultScopesForOmittedScope(clientScopes)
 
         val hasOpenid = OAuthScope.OPENID in requestedScopes
         val permissionScopes = requestedScopes - OAuthScope.OPENID
@@ -162,15 +162,19 @@ class StartOauthAuthorizeFlowServiceImpl(
             throw OAuthException.InvalidScope("클라이언트에 허용되지 않은 권한 범위가 포함되어 있습니다.")
         }
 
-        // openid만 요청한 경우에도 UserInfo 조회를 위한 기본 scope는 부여한다.
-        val resolved = permissionScopes.ifEmpty { defaultScopes(clientScopes) }
+        val resolved =
+            when {
+                permissionScopes.isNotEmpty() -> permissionScopes
+                hasOpenid -> defaultScopesForOpenidOnly(clientScopes)
+                else -> defaultScopesForOmittedScope(clientScopes)
+            }
         return if (hasOpenid) resolved + OAuthScope.OPENID else resolved
     }
 
     // scope 파라미터 미입력 시 세분화 이전과 같이 client의 허용 scope를 모두 부여하되, opt-in scope만 제외한다.
     // opt-in scope는 세분화 때 새로 생겨 기존 client가 가질 수 없었으므로, 기존 client는 이전과 동일한 scope를 받는다.
     // opt-in scope만 가진 client는 스코프 없는 토큰이 조용히 발급되는 것을 막기 위해 InvalidScope로 실패시킨다.
-    private fun defaultScopes(clientScopes: Set<String>): Set<String> {
+    private fun defaultScopesForOmittedScope(clientScopes: Set<String>): Set<String> {
         val applicationId = jwtEnvironment.datagsmApplicationId
         val optInScopes = OPT_IN_SCOPE_NAMES.map { "$applicationId:$it" }.toSet()
         val defaults = clientScopes - optInScopes
@@ -178,5 +182,21 @@ class StartOauthAuthorizeFlowServiceImpl(
             throw OAuthException.InvalidScope("클라이언트에 기본으로 부여할 수 있는 권한 범위가 없습니다.")
         }
         return defaults
+    }
+
+    // openid만 요청한 것은 로그인 확인 수준의 최소 정보만 원한다는 뜻이므로 UserInfo 조회용 scope만 부여한다.
+    // openid는 세분화 이후 도입되어 레거시 client가 없으므로, 생략 시처럼 client 전체 scope로 넓힐 이유가 없다.
+    // account_read/student_read가 없는 client는 deprecated self_read로 대체하고, 그것도 없으면 InvalidScope로 실패시킨다.
+    private fun defaultScopesForOpenidOnly(clientScopes: Set<String>): Set<String> {
+        val applicationId = jwtEnvironment.datagsmApplicationId
+        val defaults =
+            setOf("$applicationId:${OAuthScope.ACCOUNT_READ}", "$applicationId:${OAuthScope.STUDENT_READ}")
+                .intersect(clientScopes)
+        if (defaults.isNotEmpty()) return defaults
+
+        val legacySelfRead = "$applicationId:${OAuthScope.SELF_READ}"
+        if (legacySelfRead in clientScopes) return setOf(legacySelfRead)
+
+        throw OAuthException.InvalidScope("클라이언트에 기본으로 부여할 수 있는 권한 범위가 없습니다.")
     }
 }
