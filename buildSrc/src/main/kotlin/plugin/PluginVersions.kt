@@ -7,4 +7,5 @@ object PluginVersions {
     const val KSP_VERSION = "2.3.8"
     const val KTLINT_VERSION = "14.2.0"
     const val GIT_PROPERTIES_VERSION = "2.5.7"
+    const val MAVEN_PUBLISH_VERSION = "0.37.0"
 }

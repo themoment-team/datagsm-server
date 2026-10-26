@@ -14,6 +14,7 @@ plugins {
     id(plugin.Plugins.KSP) version plugin.PluginVersions.KSP_VERSION apply false
     id(plugin.Plugins.KTLINT) version plugin.PluginVersions.KTLINT_VERSION apply false
     id(plugin.Plugins.GIT_PROPERTIES) version plugin.PluginVersions.GIT_PROPERTIES_VERSION apply false
+    id(plugin.Plugins.MAVEN_PUBLISH) version plugin.PluginVersions.MAVEN_PUBLISH_VERSION apply false
 }
 
 group = "team.themoment"

@@ -19,8 +19,9 @@ class QueryUserInfoServiceImpl(
         val account = currentUserProvider.getCurrentAccount()
         val scopeNames = currentUserProvider.getGrantedScopeNames()
 
-        // self_read(deprecated)는 account_read + student_read를 합친 기존 동작과 동일하게 취급한다.
-        val hasStudentRead = OAuthScope.STUDENT_READ in scopeNames || OAuthScope.SELF_READ in scopeNames
+        // self_read(deprecated)는 세분화 이전 응답(계정 + student/teacher, student 내 동아리 포함)을 그대로 돌려준다.
+        val hasSelfRead = OAuthScope.SELF_READ in scopeNames
+        val hasStudentRead = OAuthScope.STUDENT_READ in scopeNames || hasSelfRead
         val hasClubRead = OAuthScope.CLUB_READ in scopeNames
         val hasProjectRead = OAuthScope.PROJECT_READ in scopeNames
 
@@ -29,9 +30,11 @@ class QueryUserInfoServiceImpl(
 
         // StudentResDto에는 majorClub/autonomousClub이 포함되어 있어, club_read가 없으면 clubs 필드뿐 아니라
         // student 안의 동아리 정보도 함께 가려야 club_read 스코프가 실제로 의미를 가진다.
+        // 단, self_read는 세분화 이전 응답 형태(student 내 동아리 포함)를 유지해야 하므로 가리지 않는다.
+        val canShowStudentClubs = hasClubRead || hasSelfRead
         val student =
             if (hasStudentRead) {
-                resolved.student?.let { if (hasClubRead) it else it.copy(majorClub = null, autonomousClub = null) }
+                resolved.student?.let { if (canShowStudentClubs) it else it.copy(majorClub = null, autonomousClub = null) }
             } else {
                 null
             }

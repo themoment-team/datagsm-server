@@ -1,10 +1,14 @@
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.KotlinJvm
+import com.vanniktech.maven.publish.SourcesJar
+
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
-    `maven-publish`
+    id(plugin.Plugins.MAVEN_PUBLISH)
 }
 
-group = "team.themoment"
+group = "io.github.themoment-team"
 version = (findProperty("SHARED_VERSION") as? String)
     ?: System.getenv("SHARED_VERSION")
     ?: "local"
@@ -24,7 +28,6 @@ kotlin {
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
-    withSourcesJar()
 }
 
 sourceSets {
@@ -39,7 +42,9 @@ sourceSets {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
+    // Response DTOs expose kotlinx.datetime.LocalDate in their public properties, so consumers
+    // need it on the compile classpath.
+    api("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
 }
 
 tasks.named("compileKotlin") {
@@ -54,7 +59,9 @@ tasks.named("runKtlintCheckOverMainSourceSet") {
 
 // The only source root is KSP-generated, so sourcesJar silently produces an empty archive
 // unless the generator has already run. Gradle infers no dependency from srcDir alone.
-tasks.named("sourcesJar") {
+// The task is registered by mavenPublishing.configure() below, so match it lazily
+// instead of using tasks.named, which would fail before it exists.
+tasks.matching { it.name == "sourcesJar" }.configureEach {
     dependsOn(":datagsm-common:kspKotlin")
 }
 
@@ -115,22 +122,44 @@ tasks.register("assembleTsPackage") {
     }
 }
 
-// The KMP plugin used to register the `jvm` publication implicitly; after the KMP layer was
-// removed the `kotlin("jvm")` plugin registers none, so it must be declared explicitly.
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            from(components["java"])
-        }
+// Published to Maven Central. Credentials and the signing key come from ORG_GRADLE_PROJECT_*
+// environment variables in CI.
+mavenPublishing {
+    // Central rejects deployments without a javadoc jar. The sources are generated DTOs with
+    // no KDoc, so an empty javadoc jar satisfies the requirement without adding Dokka.
+    configure(KotlinJvm(javadocJar = JavadocJar.Empty(), sourcesJar = SourcesJar.Sources()))
+    publishToMavenCentral()
+    // Sign only when a key is provided, so publishToMavenLocal works without one. An unsigned
+    // upload to Central fails Portal validation, so this cannot release unsigned artifacts.
+    if (providers.gradleProperty("signingInMemoryKey").isPresent) {
+        signAllPublications()
     }
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/themoment-team/datagsm-server")
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
+    coordinates(group.toString(), "datagsm-shared", version.toString())
+
+    pom {
+        name = "DataGSM Shared"
+        description = "Type definitions for the datagsm-server API"
+        url = "https://github.com/themoment-team/datagsm-server"
+
+        licenses {
+            license {
+                name = "MIT License"
+                url = "https://opensource.org/licenses/MIT"
             }
+        }
+
+        developers {
+            developer {
+                id = "themoment"
+                name = "themoment-team"
+                email = "datagsm.oauth@gmail.com"
+            }
+        }
+
+        scm {
+            connection = "scm:git:git://github.com/themoment-team/datagsm-server.git"
+            developerConnection = "scm:git:ssh://github.com:themoment-team/datagsm-server.git"
+            url = "https://github.com/themoment-team/datagsm-server"
         }
     }
 }
