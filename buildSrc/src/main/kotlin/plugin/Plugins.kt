@@ -10,4 +10,5 @@ object Plugins {
     const val KSP = "com.google.devtools.ksp"
     const val KTLINT = "org.jlleitschuh.gradle.ktlint"
     const val GIT_PROPERTIES = "com.gorylenko.gradle-git-properties"
+    const val MAVEN_PUBLISH = "com.vanniktech.maven.publish"
 }
