@@ -104,6 +104,7 @@ class OauthController(
             ApiResponse(responseCode = "400", description = "세션 만료 또는 잘못된 요청", content = [Content()]),
             ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
             ApiResponse(responseCode = "422", description = "정보 수정 요청이 해소되지 않아 로그인할 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "429", description = "로그인 시도 횟수 초과", content = [Content()]),
         ],
     )
     fun authorizePost(
@@ -140,6 +141,7 @@ class OauthController(
             ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
             ApiResponse(responseCode = "403", description = "학생 정보가 연결되지 않은 계정", content = [Content()]),
             ApiResponse(responseCode = "404", description = "진행 중인 수정 요청이 없음", content = [Content()]),
+            ApiResponse(responseCode = "429", description = "로그인 시도 횟수 초과", content = [Content()]),
         ],
     )
     fun queryStudentDataEditRequirements(
