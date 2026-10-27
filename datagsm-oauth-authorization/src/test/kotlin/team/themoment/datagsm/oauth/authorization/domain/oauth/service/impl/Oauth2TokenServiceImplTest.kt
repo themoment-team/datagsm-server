@@ -82,6 +82,7 @@ class Oauth2TokenServiceImplTest :
             every { mockOauthClientRateLimitService.tryConsumeAndReturnRemaining(any()) } returns
                 RateLimitConsumeResult(consumed = true, remainingTokens = 299, secondsToWaitForRefill = 0)
             every { mockOauthCodeRedisRepository.claimUsage(any(), any(), any()) } returns true
+            every { mockOauthCodeRedisRepository.releaseUsage(any()) } returns Unit
             every { mockOauthEnvironment.codeExpirationSeconds } returns 300L
         }
 
@@ -174,6 +175,32 @@ class Oauth2TokenServiceImplTest :
                             exception.errorDescription shouldBe "이미 사용된 인가 코드입니다."
                             verify(exactly = 0) { mockJwtProvider.generateOauthAccessToken(any(), any(), any(), any()) }
                             verify(exactly = 0) { mockOauthRefreshTokenRedisRepository.save(any()) }
+                        }
+
+                        // 사용 표시 키 하나에만 방어를 맡기지 않도록, 재사용이 감지되면 코드 자체도 지운다.
+                        it("재사용된 인가 코드를 삭제한다") {
+                            shouldThrow<OAuthException.InvalidGrant> {
+                                service.execute(reqDto)
+                            }
+
+                            verify(exactly = 1) { mockOauthCodeRedisRepository.delete(code) }
+                        }
+                    }
+
+                    context("사용권을 선점한 뒤 서버 오류로 토큰 발급에 실패했을 때") {
+                        beforeEach {
+                            every { mockJwtProvider.generateOauthAccessToken(any(), any(), any(), any()) } throws
+                                IllegalStateException("token generation failed")
+                        }
+
+                        // 토큰이 응답으로 나가지 않았으므로, 선점을 풀어 같은 코드로 다시 시도할 수 있게 한다.
+                        it("선점을 해제하고 예외를 그대로 전파한다") {
+                            shouldThrow<IllegalStateException> {
+                                service.execute(reqDto)
+                            }
+
+                            verify(exactly = 1) { mockOauthCodeRedisRepository.releaseUsage("test-code") }
+                            verify(exactly = 0) { mockOauthCodeRedisRepository.delete(any()) }
                         }
                     }
                 }

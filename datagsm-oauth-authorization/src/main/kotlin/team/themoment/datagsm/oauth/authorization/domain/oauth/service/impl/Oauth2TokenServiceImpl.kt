@@ -12,6 +12,7 @@ import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.oauth.dto.request.Oauth2TokenReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.Oauth2TokenResDto
+import team.themoment.datagsm.common.domain.oauth.entity.OauthCodeRedisEntity
 import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisEntity
 import team.themoment.datagsm.common.domain.oauth.entity.constant.GrantType
 import team.themoment.datagsm.common.domain.oauth.entity.constant.PkceChallengeMethod
@@ -126,42 +127,52 @@ class Oauth2TokenServiceImpl(
         }
         val grantedScopes = stringsToScopes(scopesToGrant)
 
-        claimAuthorizationCode(oauthCode.code, client.id)
+        claimAuthorizationCode(oauthCode)
 
-        val accessToken = jwtProvider.generateOauthAccessToken(account.email, account.role, client.id, grantedScopes)
-        val refreshToken = jwtProvider.generateOauthRefreshToken(account.email, client.id)
+        // 선점 이후의 실패는 서버 쪽 사정이고 토큰은 아직 응답으로 나가지 않았다.
+        // 선점을 풀어 두어야 클라이언트가 같은 코드로 다시 시도할 수 있다.
+        try {
+            val accessToken = jwtProvider.generateOauthAccessToken(account.email, account.role, client.id, grantedScopes)
+            val refreshToken = jwtProvider.generateOauthRefreshToken(account.email, client.id)
 
-        val idToken =
-            if (OAuthScope.OPENID in scopesToGrant) {
-                jwtProvider.generateIdToken(account.email, client.id, oauthCode.nonce)
-            } else {
-                null
-            }
+            val idToken =
+                if (OAuthScope.OPENID in scopesToGrant) {
+                    jwtProvider.generateIdToken(account.email, client.id, oauthCode.nonce)
+                } else {
+                    null
+                }
 
-        saveRefreshToken(account.email, client.id, refreshToken, scopesToGrant)
-        oauthCodeRedisRepository.delete(oauthCode)
+            saveRefreshToken(account.email, client.id, refreshToken, scopesToGrant)
+            oauthCodeRedisRepository.delete(oauthCode)
 
-        return Oauth2TokenResDto(
-            accessToken = accessToken,
-            tokenType = "Bearer",
-            expiresIn = jwtEnvironment.accessTokenExpiration / 1000,
-            refreshToken = refreshToken,
-            scope = formatScopes(grantedScopes, scopesToGrant),
-            idToken = idToken,
-        )
+            return Oauth2TokenResDto(
+                accessToken = accessToken,
+                tokenType = "Bearer",
+                expiresIn = jwtEnvironment.accessTokenExpiration / 1000,
+                refreshToken = refreshToken,
+                scope = formatScopes(grantedScopes, scopesToGrant),
+                idToken = idToken,
+            )
+        } catch (e: RuntimeException) {
+            oauthCodeRedisRepository.releaseUsage(oauthCode.code)
+            throw e
+        }
     }
 
     // 조회 후 마지막에 삭제하는 방식은 그 사이에 들어온 같은 코드의 요청도 통과시킨다.
     // 사용권을 원자적으로 하나만 선점하게 해서 코드 하나로 토큰이 두 번 발급되지 않게 한다.
     // 검증을 모두 통과한 뒤에 선점하므로, 파라미터 실수로 실패한 정상 클라이언트는 같은 코드로 다시 시도할 수 있다.
-    private fun claimAuthorizationCode(
-        code: String,
-        clientId: String,
-    ) {
+    // 재사용이 감지되면 코드 자체도 지워, 사용 표시 키 하나에만 방어를 맡기지 않는다.
+    private fun claimAuthorizationCode(oauthCode: OauthCodeRedisEntity) {
         val claimed =
-            oauthCodeRedisRepository.claimUsage(code, clientId, Duration.ofSeconds(oauthEnvironment.codeExpirationSeconds))
+            oauthCodeRedisRepository.claimUsage(
+                oauthCode.code,
+                oauthCode.clientId,
+                Duration.ofSeconds(oauthEnvironment.codeExpirationSeconds),
+            )
         if (!claimed) {
-            logger().warn("Rejected reused authorization code for clientId {}", clientId)
+            logger().warn("Rejected reused authorization code for clientId {}", oauthCode.clientId)
+            oauthCodeRedisRepository.delete(oauthCode)
             throw OAuthException.InvalidGrant("이미 사용된 인가 코드입니다.")
         }
     }
