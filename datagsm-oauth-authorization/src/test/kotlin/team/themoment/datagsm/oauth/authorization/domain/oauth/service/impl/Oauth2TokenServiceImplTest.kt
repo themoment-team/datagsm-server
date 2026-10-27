@@ -9,8 +9,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import org.springframework.data.redis.core.RedisTemplate
-import org.springframework.data.redis.core.ValueOperations
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
@@ -47,8 +45,6 @@ class Oauth2TokenServiceImplTest :
         val mockJwtEnvironment = mockk<OauthJwtProvisionEnvironment>()
         val mockOAuthScopeJpaRepository = mockk<OAuthScopeJpaRepository>()
         val mockOauthClientRateLimitService = mockk<OAuthClientRateLimitService>()
-        val mockRedisTemplate = mockk<RedisTemplate<String, String>>()
-        val mockValueOperations = mockk<ValueOperations<String, String>>()
         val mockOauthEnvironment = mockk<OauthEnvironment>()
 
         val service =
@@ -62,7 +58,6 @@ class Oauth2TokenServiceImplTest :
                 mockJwtEnvironment,
                 mockOAuthScopeJpaRepository,
                 mockOauthClientRateLimitService,
-                mockRedisTemplate,
                 mockOauthEnvironment,
             )
 
@@ -86,8 +81,7 @@ class Oauth2TokenServiceImplTest :
         beforeEach {
             every { mockOauthClientRateLimitService.tryConsumeAndReturnRemaining(any()) } returns
                 RateLimitConsumeResult(consumed = true, remainingTokens = 299, secondsToWaitForRefill = 0)
-            every { mockRedisTemplate.opsForValue() } returns mockValueOperations
-            every { mockValueOperations.setIfAbsent(any(), any(), any<Duration>()) } returns true
+            every { mockOauthCodeRedisRepository.claimUsage(any(), any(), any()) } returns true
             every { mockOauthEnvironment.codeExpirationSeconds } returns 300L
         }
 
@@ -162,13 +156,13 @@ class Oauth2TokenServiceImplTest :
                         service.execute(reqDto)
 
                         verify(exactly = 1) {
-                            mockValueOperations.setIfAbsent("oauth_code_used:test-code", "test-client", Duration.ofSeconds(300))
+                            mockOauthCodeRedisRepository.claimUsage("test-code", "test-client", Duration.ofSeconds(300))
                         }
                     }
 
                     context("같은 인가 코드의 사용권을 다른 요청이 이미 선점했을 때") {
                         beforeEach {
-                            every { mockValueOperations.setIfAbsent(any(), any(), any<Duration>()) } returns false
+                            every { mockOauthCodeRedisRepository.claimUsage(any(), any(), any()) } returns false
                         }
 
                         it("InvalidGrant 예외를 던지고 토큰을 발급하지 않는다") {
@@ -329,7 +323,7 @@ class Oauth2TokenServiceImplTest :
                             service.execute(reqDto)
                         }
 
-                        verify(exactly = 0) { mockValueOperations.setIfAbsent(any(), any(), any<Duration>()) }
+                        verify(exactly = 0) { mockOauthCodeRedisRepository.claimUsage(any(), any(), any()) }
                     }
                 }
 

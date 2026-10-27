@@ -1,6 +1,5 @@
 package team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl
 
-import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -41,13 +40,8 @@ class Oauth2TokenServiceImpl(
     private val jwtEnvironment: OauthJwtProvisionEnvironment,
     private val oauthScopeJpaRepository: OAuthScopeJpaRepository,
     private val oauthClientRateLimitService: OAuthClientRateLimitService,
-    private val redisTemplate: RedisTemplate<String, String>,
     private val oauthEnvironment: OauthEnvironment,
 ) : Oauth2TokenService {
-    companion object {
-        private const val AUTHORIZATION_CODE_USED_KEY_PREFIX = "oauth_code_used:"
-    }
-
     @Transactional
     override fun execute(reqDto: Oauth2TokenReqDto): Oauth2TokenResDto {
         val grantType = GrantType.from(reqDto.grantType)
@@ -165,14 +159,8 @@ class Oauth2TokenServiceImpl(
         clientId: String,
     ) {
         val claimed =
-            redisTemplate
-                .opsForValue()
-                .setIfAbsent(
-                    "$AUTHORIZATION_CODE_USED_KEY_PREFIX$code",
-                    clientId,
-                    Duration.ofSeconds(oauthEnvironment.codeExpirationSeconds),
-                )
-        if (claimed != true) {
+            oauthCodeRedisRepository.claimUsage(code, clientId, Duration.ofSeconds(oauthEnvironment.codeExpirationSeconds))
+        if (!claimed) {
             logger().warn("Rejected reused authorization code for clientId {}", clientId)
             throw OAuthException.InvalidGrant("이미 사용된 인가 코드입니다.")
         }
