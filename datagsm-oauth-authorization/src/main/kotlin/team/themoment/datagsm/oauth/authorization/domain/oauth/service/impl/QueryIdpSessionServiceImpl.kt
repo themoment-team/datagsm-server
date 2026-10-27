@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 import team.themoment.datagsm.common.domain.oauth.dto.response.IdpSessionListResDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.IdpSessionResDto
 import team.themoment.datagsm.common.domain.oauth.repository.IdpSessionRedisRepository
+import team.themoment.datagsm.common.global.security.util.OpaqueTokenHashUtil
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryIdpSessionService
 import team.themoment.sdk.exception.ExpectedException
 
@@ -28,7 +29,8 @@ class QueryIdpSessionServiceImpl(
                 .sortedByDescending { it.createdAt ?: 0L }
                 .map {
                     IdpSessionResDto(
-                        sessionId = it.sessionId,
+                        // 세션 ID는 곧 쿠키 값이라, 그대로 내려주면 스크립트가 HttpOnly 쿠키를 읽는 것과 같아진다.
+                        sessionId = OpaqueTokenHashUtil.hash(it.sessionId),
                         userAgent = it.userAgent,
                         createdAt = it.createdAt,
                         current = it.sessionId == currentSession.sessionId,
