@@ -178,7 +178,7 @@ class OauthController(
     @DeleteMapping("/idp-sessions/{targetSessionId}")
     @Operation(
         summary = "개별 IdP 세션 종료",
-        description = "지정한 세션을 종료합니다. 본인 계정의 세션만 종료할 수 있습니다.",
+        description = "세션 목록 조회가 반환한 sessionId로 해당 세션을 종료합니다. 본인 계정의 세션만 종료할 수 있습니다.",
     )
     @ApiResponses(
         value = [
