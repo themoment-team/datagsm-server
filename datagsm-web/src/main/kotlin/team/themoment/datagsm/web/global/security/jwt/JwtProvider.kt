@@ -17,6 +17,9 @@ class JwtProvider(
     oauthJwtEnvironment: OauthJwtVerificationEnvironment,
 ) {
     private val publicKey: PublicKey = loadPublicKey(oauthJwtEnvironment.publicKey)
+    private val allowedClientIds: Set<String> = oauthJwtEnvironment.allowedClientIds.map { it.trim() }.toSet()
+
+    fun isIssuedToAllowedClient(token: String): Boolean = parseClaims(token)["clientId"] in allowedClientIds
 
     fun getEmailFromToken(token: String): String = parseClaims(token).subject
 

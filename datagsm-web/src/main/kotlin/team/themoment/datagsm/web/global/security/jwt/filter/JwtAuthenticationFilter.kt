@@ -58,6 +58,12 @@ class JwtAuthenticationFilter(
         }
 
         try {
+            // 다른 서비스가 받은 토큰에도 사용자의 role이 들어 있어, 출처를 확인하지 않으면 관리자 API까지 열린다.
+            if (!jwtProvider.isIssuedToAllowedClient(token)) {
+                SecurityFilterResponseUtil.sendErrorResponse(response, objectMapper, "이 서비스에서 사용할 수 없는 토큰입니다.")
+                return
+            }
+
             val email = jwtProvider.getEmailFromToken(token)
             val role = jwtProvider.getRoleFromToken(token)
             val authorities = listOf(role)
