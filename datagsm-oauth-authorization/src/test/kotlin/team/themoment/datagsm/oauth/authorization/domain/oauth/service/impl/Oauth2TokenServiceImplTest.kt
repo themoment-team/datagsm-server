@@ -9,6 +9,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.core.ValueOperations
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
@@ -25,10 +27,12 @@ import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisE
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
+import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.common.global.dto.internal.RateLimitConsumeResult
 import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
 import team.themoment.datagsm.oauth.authorization.global.security.jwt.JwtProvider
 import team.themoment.datagsm.oauth.authorization.global.security.service.OAuthClientRateLimitService
+import java.time.Duration
 import java.util.Optional
 
 class Oauth2TokenServiceImplTest :
@@ -43,6 +47,9 @@ class Oauth2TokenServiceImplTest :
         val mockJwtEnvironment = mockk<OauthJwtProvisionEnvironment>()
         val mockOAuthScopeJpaRepository = mockk<OAuthScopeJpaRepository>()
         val mockOauthClientRateLimitService = mockk<OAuthClientRateLimitService>()
+        val mockRedisTemplate = mockk<RedisTemplate<String, String>>()
+        val mockValueOperations = mockk<ValueOperations<String, String>>()
+        val mockOauthEnvironment = mockk<OauthEnvironment>()
 
         val service =
             Oauth2TokenServiceImpl(
@@ -55,6 +62,8 @@ class Oauth2TokenServiceImplTest :
                 mockJwtEnvironment,
                 mockOAuthScopeJpaRepository,
                 mockOauthClientRateLimitService,
+                mockRedisTemplate,
+                mockOauthEnvironment,
             )
 
         val mockApplication =
@@ -77,6 +86,9 @@ class Oauth2TokenServiceImplTest :
         beforeEach {
             every { mockOauthClientRateLimitService.tryConsumeAndReturnRemaining(any()) } returns
                 RateLimitConsumeResult(consumed = true, remainingTokens = 299, secondsToWaitForRefill = 0)
+            every { mockRedisTemplate.opsForValue() } returns mockValueOperations
+            every { mockValueOperations.setIfAbsent(any(), any(), any<Duration>()) } returns true
+            every { mockOauthEnvironment.codeExpirationSeconds } returns 300L
         }
 
         describe("Oauth2TokenServiceImpl 클래스의") {
@@ -144,6 +156,31 @@ class Oauth2TokenServiceImplTest :
 
                         verify(exactly = 1) { mockOauthCodeRedisRepository.findById("test-code") }
                         verify(exactly = 1) { mockOauthCodeRedisRepository.delete(code) }
+                    }
+
+                    it("인가 코드 사용권을 코드 유효시간 동안 선점한다") {
+                        service.execute(reqDto)
+
+                        verify(exactly = 1) {
+                            mockValueOperations.setIfAbsent("oauth_code_used:test-code", "test-client", Duration.ofSeconds(300))
+                        }
+                    }
+
+                    context("같은 인가 코드의 사용권을 다른 요청이 이미 선점했을 때") {
+                        beforeEach {
+                            every { mockValueOperations.setIfAbsent(any(), any(), any<Duration>()) } returns false
+                        }
+
+                        it("InvalidGrant 예외를 던지고 토큰을 발급하지 않는다") {
+                            val exception =
+                                shouldThrow<OAuthException.InvalidGrant> {
+                                    service.execute(reqDto)
+                                }
+
+                            exception.errorDescription shouldBe "이미 사용된 인가 코드입니다."
+                            verify(exactly = 0) { mockJwtProvider.generateOauthAccessToken(any(), any(), any(), any()) }
+                            verify(exactly = 0) { mockOauthRefreshTokenRedisRepository.save(any()) }
+                        }
                     }
                 }
 
@@ -285,6 +322,14 @@ class Oauth2TokenServiceImplTest :
                             }
                         exception.error shouldBe "invalid_grant"
                         exception.errorDescription shouldBe "PKCE 검증에 실패했습니다."
+                    }
+
+                    it("검증에 실패하면 인가 코드 사용권을 선점하지 않아 다시 시도할 수 있다") {
+                        shouldThrow<OAuthException.InvalidGrant> {
+                            service.execute(reqDto)
+                        }
+
+                        verify(exactly = 0) { mockValueOperations.setIfAbsent(any(), any(), any<Duration>()) }
                     }
                 }
 

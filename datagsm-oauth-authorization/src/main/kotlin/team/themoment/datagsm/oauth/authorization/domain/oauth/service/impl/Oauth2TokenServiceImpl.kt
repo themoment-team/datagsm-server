@@ -1,5 +1,6 @@
 package team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl
 
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -18,6 +19,7 @@ import team.themoment.datagsm.common.domain.oauth.entity.constant.PkceChallengeM
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
+import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.Oauth2TokenService
 import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
 import team.themoment.datagsm.oauth.authorization.global.security.jwt.JwtProvider
@@ -26,6 +28,7 @@ import team.themoment.datagsm.oauth.authorization.global.util.PkceVerifier
 import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.logging.logger.logger
 import java.security.MessageDigest
+import java.time.Duration
 
 @Service
 class Oauth2TokenServiceImpl(
@@ -38,7 +41,13 @@ class Oauth2TokenServiceImpl(
     private val jwtEnvironment: OauthJwtProvisionEnvironment,
     private val oauthScopeJpaRepository: OAuthScopeJpaRepository,
     private val oauthClientRateLimitService: OAuthClientRateLimitService,
+    private val redisTemplate: RedisTemplate<String, String>,
+    private val oauthEnvironment: OauthEnvironment,
 ) : Oauth2TokenService {
+    companion object {
+        private const val AUTHORIZATION_CODE_USED_KEY_PREFIX = "oauth_code_used:"
+    }
+
     @Transactional
     override fun execute(reqDto: Oauth2TokenReqDto): Oauth2TokenResDto {
         val grantType = GrantType.from(reqDto.grantType)
@@ -123,6 +132,8 @@ class Oauth2TokenServiceImpl(
         }
         val grantedScopes = stringsToScopes(scopesToGrant)
 
+        claimAuthorizationCode(oauthCode.code, client.id)
+
         val accessToken = jwtProvider.generateOauthAccessToken(account.email, account.role, client.id, grantedScopes)
         val refreshToken = jwtProvider.generateOauthRefreshToken(account.email, client.id)
 
@@ -144,6 +155,27 @@ class Oauth2TokenServiceImpl(
             scope = formatScopes(grantedScopes, scopesToGrant),
             idToken = idToken,
         )
+    }
+
+    // 조회 후 마지막에 삭제하는 방식은 그 사이에 들어온 같은 코드의 요청도 통과시킨다.
+    // 사용권을 원자적으로 하나만 선점하게 해서 코드 하나로 토큰이 두 번 발급되지 않게 한다.
+    // 검증을 모두 통과한 뒤에 선점하므로, 파라미터 실수로 실패한 정상 클라이언트는 같은 코드로 다시 시도할 수 있다.
+    private fun claimAuthorizationCode(
+        code: String,
+        clientId: String,
+    ) {
+        val claimed =
+            redisTemplate
+                .opsForValue()
+                .setIfAbsent(
+                    "$AUTHORIZATION_CODE_USED_KEY_PREFIX$code",
+                    clientId,
+                    Duration.ofSeconds(oauthEnvironment.codeExpirationSeconds),
+                )
+        if (claimed != true) {
+            logger().warn("Rejected reused authorization code for clientId {}", clientId)
+            throw OAuthException.InvalidGrant("이미 사용된 인가 코드입니다.")
+        }
     }
 
     private fun handleRefreshToken(reqDto: Oauth2TokenReqDto): Oauth2TokenResDto {
