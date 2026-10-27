@@ -9,6 +9,7 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import team.themoment.datagsm.common.global.data.PasswordResetRateLimitEnvironment
 import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimitType
 import java.util.function.Supplier
@@ -42,7 +43,6 @@ class PasswordResetRateLimitServiceImplTest :
                             signupSend = defaultConfig,
                             signupCheck = defaultConfig,
                             login = defaultConfig,
-                            credentialCheck = defaultConfig,
                         )
 
                     PasswordResetRateLimitType.entries.forEach { type ->
@@ -67,7 +67,6 @@ class PasswordResetRateLimitServiceImplTest :
                             signupSend = defaultConfig,
                             signupCheck = defaultConfig,
                             login = defaultConfig,
-                            credentialCheck = defaultConfig,
                         )
 
                     lateinit var mockBucketBuilder: RemoteBucketBuilder<String>
@@ -141,12 +140,6 @@ class PasswordResetRateLimitServiceImplTest :
                             refillTokens = 6L,
                             refillDurationMinutes = 10L,
                         )
-                    val credentialCheckConfig =
-                        PasswordResetRateLimitEnvironment.RateLimitConfig(
-                            capacity = 7L,
-                            refillTokens = 7L,
-                            refillDurationMinutes = 10L,
-                        )
                     val environment =
                         PasswordResetRateLimitEnvironment(
                             enabled = false,
@@ -156,7 +149,6 @@ class PasswordResetRateLimitServiceImplTest :
                             signupSend = signupSendConfig,
                             signupCheck = signupCheckConfig,
                             login = loginConfig,
-                            credentialCheck = credentialCheckConfig,
                         )
                     val service = PasswordResetRateLimitServiceImpl(mockProxyManager, environment)
 
@@ -189,11 +181,6 @@ class PasswordResetRateLimitServiceImplTest :
                         val result = service.tryConsume("test@gsm.hs.kr", PasswordResetRateLimitType.LOGIN)
                         result.remainingTokens shouldBe loginConfig.capacity
                     }
-
-                    it("CREDENTIAL_CHECK 타입은 credentialCheck config의 capacity를 사용해야 한다") {
-                        val result = service.tryConsume("test@gsm.hs.kr", PasswordResetRateLimitType.CREDENTIAL_CHECK)
-                        result.remainingTokens shouldBe credentialCheckConfig.capacity
-                    }
                 }
 
                 context("대소문자와 앞뒤 공백만 다른 이메일로 요청할 때") {
@@ -206,7 +193,6 @@ class PasswordResetRateLimitServiceImplTest :
                             signupSend = defaultConfig,
                             signupCheck = defaultConfig,
                             login = defaultConfig,
-                            credentialCheck = defaultConfig,
                         )
 
                     it("정규화된 같은 버킷 키를 사용해야 한다") {
@@ -222,6 +208,44 @@ class PasswordResetRateLimitServiceImplTest :
                         service.tryConsume(" test@gsm.hs.kr ", PasswordResetRateLimitType.LOGIN)
 
                         bucketKeys shouldBe listOf("rate_limit:login:test@gsm.hs.kr", "rate_limit:login:test@gsm.hs.kr")
+                    }
+                }
+            }
+
+            describe("refund 메서드는") {
+                fun environment(enabled: Boolean) =
+                    PasswordResetRateLimitEnvironment(
+                        enabled = enabled,
+                        send = defaultConfig,
+                        verify = defaultConfig,
+                        change = defaultConfig,
+                        signupSend = defaultConfig,
+                        signupCheck = defaultConfig,
+                        login = defaultConfig,
+                    )
+
+                context("rate limit이 활성화되어 있을 때") {
+                    it("정규화된 이메일의 버킷에 토큰 1개를 되돌려야 한다") {
+                        val mockBucketBuilder = mockk<RemoteBucketBuilder<String>>()
+                        val mockBucket = mockk<BucketProxy>(relaxed = true)
+                        every { mockProxyManager.builder() } returns mockBucketBuilder
+                        every { mockBucketBuilder.build("rate_limit:login:test@gsm.hs.kr", any<Supplier<BucketConfiguration>>()) } returns
+                            mockBucket
+                        val service = PasswordResetRateLimitServiceImpl(mockProxyManager, environment(enabled = true))
+
+                        service.refund("Test@gsm.hs.kr", PasswordResetRateLimitType.LOGIN)
+
+                        verify(exactly = 1) { mockBucket.addTokens(1) }
+                    }
+                }
+
+                context("rate limit이 비활성화되어 있을 때") {
+                    it("버킷에 접근하지 않아야 한다") {
+                        val service = PasswordResetRateLimitServiceImpl(mockProxyManager, environment(enabled = false))
+
+                        service.refund("test@gsm.hs.kr", PasswordResetRateLimitType.LOGIN)
+
+                        verify(exactly = 0) { mockProxyManager.builder() }
                     }
                 }
             }

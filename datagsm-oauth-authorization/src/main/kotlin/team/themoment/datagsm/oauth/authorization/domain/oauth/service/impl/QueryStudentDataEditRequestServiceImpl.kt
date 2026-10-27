@@ -20,7 +20,7 @@ import team.themoment.datagsm.common.domain.student.entity.constant.StudentDataE
 import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRequestJpaRepository
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryStudentDataEditRequestService
 import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimitType
-import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimited
+import team.themoment.datagsm.oauth.authorization.global.security.service.PasswordResetRateLimitService
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
@@ -29,11 +29,17 @@ class QueryStudentDataEditRequestServiceImpl(
     private val studentDataEditRequestJpaRepository: StudentDataEditRequestJpaRepository,
     private val clubJpaRepository: ClubJpaRepository,
     private val passwordEncoder: PasswordEncoder,
+    private val passwordResetRateLimitService: PasswordResetRateLimitService,
 ) : QueryStudentDataEditRequestService {
-    // 비밀번호를 검증하는 또 하나의 입구라, 로그인 한도만 걸면 이쪽으로 대입 공격이 우회된다.
-    @PasswordResetRateLimited(type = PasswordResetRateLimitType.CREDENTIAL_CHECK)
     @Transactional(readOnly = true)
     override fun execute(reqDto: QueryStudentDataEditRequestReqDto): StudentDataEditRequestResDto {
+        // 비밀번호를 검증하는 또 하나의 입구라, 로그인과 같은 버킷에서 실패 횟수를 함께 센다.
+        // 버킷을 나누면 한 계정에 대한 시도 상한이 두 한도의 합으로 늘어난다.
+        val rateLimitResult = passwordResetRateLimitService.tryConsume(reqDto.email, PasswordResetRateLimitType.LOGIN)
+        if (!rateLimitResult.consumed) {
+            throw ExpectedException("로그인 시도 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.", HttpStatus.TOO_MANY_REQUESTS)
+        }
+
         val account =
             accountJpaRepository
                 .findByEmail(reqDto.email)
@@ -42,6 +48,7 @@ class QueryStudentDataEditRequestServiceImpl(
         if (!passwordEncoder.matches(reqDto.password, account.password)) {
             throw ExpectedException("이메일 또는 비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED)
         }
+        passwordResetRateLimitService.refund(reqDto.email, PasswordResetRateLimitType.LOGIN)
 
         if (account.objectType != AccountObjectType.STUDENT || account.objectId == null) {
             throw ExpectedException("학생 정보가 연결되지 않은 계정입니다.", HttpStatus.FORBIDDEN)

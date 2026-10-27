@@ -36,8 +36,8 @@ import team.themoment.datagsm.common.global.security.util.OpaqueTokenHashUtil
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthAuthorizeFlowService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueAuthorizationCodeService
 import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimitType
-import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimited
 import team.themoment.datagsm.oauth.authorization.global.security.service.OAuthClientRateLimitService
+import team.themoment.datagsm.oauth.authorization.global.security.service.PasswordResetRateLimitService
 import team.themoment.sdk.exception.ExpectedException
 import java.net.URI
 import java.security.SecureRandom
@@ -59,13 +59,12 @@ class CompleteOauthAuthorizeFlowServiceImpl(
     private val oauthEnvironment: OauthEnvironment,
     private val oauthClientRateLimitService: OAuthClientRateLimitService,
     private val applicationEventPublisher: ApplicationEventPublisher,
+    private val passwordResetRateLimitService: PasswordResetRateLimitService,
 ) : CompleteOauthAuthorizeFlowService {
     companion object {
         private val secureRandom = SecureRandom()
     }
 
-    // 클라이언트별 한도는 그 클라이언트의 모든 사용자가 나눠 쓰므로 한 계정에 대한 비밀번호 대입을 막지 못한다.
-    @PasswordResetRateLimited(type = PasswordResetRateLimitType.LOGIN)
     @Transactional
     override fun execute(reqDto: OauthAuthorizeSubmitReqDto): ResponseEntity<Void> {
         val stateEntity =
@@ -91,6 +90,10 @@ class CompleteOauthAuthorizeFlowServiceImpl(
             throw ExpectedException("이메일 또는 비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED)
         }
 
+        // 클라이언트별 한도는 그 클라이언트의 모든 사용자가 나눠 쓰므로 한 계정에 대한 비밀번호 대입을 막지 못한다.
+        // 유효한 state를 거친 요청만 차감해, 아무 토큰으로나 남의 계정 한도를 깎는 잠금 공격을 막는다.
+        consumeLoginAttempt(reqDto.email)
+
         val account =
             accountJpaRepository
                 .findByEmail(reqDto.email)
@@ -99,6 +102,8 @@ class CompleteOauthAuthorizeFlowServiceImpl(
         if (!passwordEncoder.matches(reqDto.password, account.password)) {
             throw ExpectedException("이메일 또는 비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED)
         }
+        // 비밀번호가 맞은 시도는 되돌려, 정상 사용자의 로그인·재시도가 한도를 소모하지 않게 한다.
+        passwordResetRateLimitService.refund(reqDto.email, PasswordResetRateLimitType.LOGIN)
 
         if (account.status != AccountStatus.ACTIVE) {
             throw ExpectedException("아직 승인되지 않은 계정입니다.", HttpStatus.FORBIDDEN)
@@ -311,6 +316,13 @@ class CompleteOauthAuthorizeFlowServiceImpl(
             autonomousClubName = student.autonomousClub?.name,
             githubId = student.githubId,
         )
+
+    private fun consumeLoginAttempt(email: String) {
+        val result = passwordResetRateLimitService.tryConsume(email, PasswordResetRateLimitType.LOGIN)
+        if (!result.consumed) {
+            throw ExpectedException("로그인 시도 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.", HttpStatus.TOO_MANY_REQUESTS)
+        }
+    }
 
     private fun generateOpaqueToken(): String =
         Base64

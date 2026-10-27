@@ -8,4 +8,9 @@ interface PasswordResetRateLimitService {
         email: String,
         type: PasswordResetRateLimitType,
     ): RateLimitConsumeResult
+
+    fun refund(
+        email: String,
+        type: PasswordResetRateLimitType,
+    )
 }

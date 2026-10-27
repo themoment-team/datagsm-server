@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
@@ -21,7 +22,10 @@ import team.themoment.datagsm.common.domain.student.dto.response.DataEditOptionR
 import team.themoment.datagsm.common.domain.student.entity.StudentDataEditRequestJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentDataEditField
 import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRequestJpaRepository
+import team.themoment.datagsm.common.global.dto.internal.RateLimitConsumeResult
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl.QueryStudentDataEditRequestServiceImpl
+import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimitType
+import team.themoment.datagsm.oauth.authorization.global.security.service.PasswordResetRateLimitService
 import team.themoment.sdk.exception.ExpectedException
 import java.util.Optional
 
@@ -32,6 +36,7 @@ class QueryStudentDataEditRequestServiceTest :
         val mockStudentDataEditRequestJpaRepository = mockk<StudentDataEditRequestJpaRepository>()
         val mockClubJpaRepository = mockk<ClubJpaRepository>()
         val mockPasswordEncoder = mockk<PasswordEncoder>()
+        val mockPasswordResetRateLimitService = mockk<PasswordResetRateLimitService>(relaxUnitFun = true)
 
         val service =
             QueryStudentDataEditRequestServiceImpl(
@@ -39,10 +44,16 @@ class QueryStudentDataEditRequestServiceTest :
                 mockStudentDataEditRequestJpaRepository,
                 mockClubJpaRepository,
                 mockPasswordEncoder,
+                mockPasswordResetRateLimitService,
             )
 
         afterEach {
             clearAllMocks()
+        }
+
+        beforeEach {
+            every { mockPasswordResetRateLimitService.tryConsume(any(), any()) } returns
+                RateLimitConsumeResult(consumed = true, remainingTokens = 9, secondsToWaitForRefill = 0)
         }
 
         describe("QueryStudentDataEditRequestService 클래스의") {
@@ -73,6 +84,30 @@ class QueryStudentDataEditRequestServiceTest :
 
                         exception.message shouldBe "이메일 또는 비밀번호가 일치하지 않습니다."
                         exception.statusCode shouldBe HttpStatus.UNAUTHORIZED
+                    }
+
+                    // 로그인과 같은 비밀번호 검증 입구라, 실패 횟수를 로그인 한도와 함께 센다.
+                    it("로그인 한도를 차감하고 되돌리지 않아야 한다") {
+                        shouldThrow<ExpectedException> { service.execute(reqDto) }
+
+                        verify(exactly = 1) { mockPasswordResetRateLimitService.tryConsume(testEmail, PasswordResetRateLimitType.LOGIN) }
+                        verify(exactly = 0) { mockPasswordResetRateLimitService.refund(any(), any()) }
+                    }
+                }
+
+                context("로그인 시도 한도를 소진한 계정으로 요청할 때") {
+                    val reqDto = QueryStudentDataEditRequestReqDto(email = testEmail, password = testPassword)
+
+                    beforeEach {
+                        every { mockPasswordResetRateLimitService.tryConsume(any(), any()) } returns
+                            RateLimitConsumeResult(consumed = false, remainingTokens = 0, secondsToWaitForRefill = 600)
+                    }
+
+                    it("비밀번호 검증 없이 429 예외가 발생해야 한다") {
+                        val exception = shouldThrow<ExpectedException> { service.execute(reqDto) }
+
+                        exception.statusCode shouldBe HttpStatus.TOO_MANY_REQUESTS
+                        verify(exactly = 0) { mockAccountJpaRepository.findByEmail(any()) }
                     }
                 }
 
@@ -113,6 +148,12 @@ class QueryStudentDataEditRequestServiceTest :
 
                         exception.message shouldBe "진행 중인 정보 수정 요청이 없습니다."
                         exception.statusCode shouldBe HttpStatus.NOT_FOUND
+                    }
+
+                    it("비밀번호가 맞았으므로 차감한 로그인 시도를 되돌려야 한다") {
+                        shouldThrow<ExpectedException> { service.execute(reqDto) }
+
+                        verify(exactly = 1) { mockPasswordResetRateLimitService.refund(testEmail, PasswordResetRateLimitType.LOGIN) }
                     }
                 }
 

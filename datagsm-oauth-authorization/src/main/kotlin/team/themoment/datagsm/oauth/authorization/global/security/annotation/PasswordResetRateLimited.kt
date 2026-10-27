@@ -15,5 +15,4 @@ enum class PasswordResetRateLimitType(
     SIGNUP_SEND_EMAIL("rate_limit:signup:send:"),
     SIGNUP_CHECK_CODE("rate_limit:signup:check:"),
     LOGIN("rate_limit:login:"),
-    CREDENTIAL_CHECK("rate_limit:credential:check:"),
 }

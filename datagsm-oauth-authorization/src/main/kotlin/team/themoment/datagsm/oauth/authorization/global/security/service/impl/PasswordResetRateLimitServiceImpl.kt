@@ -25,12 +25,7 @@ class PasswordResetRateLimitServiceImpl(
             return createDisabledResult(config.capacity)
         }
 
-        // 계정 조회는 이메일 대소문자를 구분하지 않으므로, 버킷 키도 정규화해야 대소문자를 바꿔 한도를 우회할 수 없다.
-        val bucket =
-            proxyManager.builder().build(
-                "${type.bucketPrefix}${email.trim().lowercase()}",
-            ) { createBucketConfiguration(config) }
-        val probe = bucket.tryConsumeAndReturnRemaining(1)
+        val probe = getBucket(email, type, config).tryConsumeAndReturnRemaining(1)
         return RateLimitConsumeResult(
             consumed = probe.isConsumed,
             remainingTokens = probe.remainingTokens,
@@ -46,8 +41,26 @@ class PasswordResetRateLimitServiceImpl(
             PasswordResetRateLimitType.SIGNUP_SEND_EMAIL -> passwordResetRateLimitEnvironment.signupSend
             PasswordResetRateLimitType.SIGNUP_CHECK_CODE -> passwordResetRateLimitEnvironment.signupCheck
             PasswordResetRateLimitType.LOGIN -> passwordResetRateLimitEnvironment.login
-            PasswordResetRateLimitType.CREDENTIAL_CHECK -> passwordResetRateLimitEnvironment.credentialCheck
         }
+
+    // 실패한 시도만 세야 하는 한도에서, 성공으로 판명된 시도의 차감을 되돌린다.
+    // 먼저 차감하고 나중에 되돌려야 동시에 몰려온 시도도 한도를 넘지 못한다.
+    override fun refund(
+        email: String,
+        type: PasswordResetRateLimitType,
+    ) {
+        if (!passwordResetRateLimitEnvironment.enabled) return
+        getBucket(email, type, getConfig(type)).addTokens(1)
+    }
+
+    // 계정 조회는 이메일 대소문자를 구분하지 않으므로, 버킷 키도 정규화해야 대소문자를 바꿔 한도를 우회할 수 없다.
+    private fun getBucket(
+        email: String,
+        type: PasswordResetRateLimitType,
+        config: PasswordResetRateLimitEnvironment.RateLimitConfig,
+    ) = proxyManager.builder().build(
+        "${type.bucketPrefix}${email.trim().lowercase()}",
+    ) { createBucketConfiguration(config) }
 
     private fun createDisabledResult(capacity: Long) =
         RateLimitConsumeResult(
