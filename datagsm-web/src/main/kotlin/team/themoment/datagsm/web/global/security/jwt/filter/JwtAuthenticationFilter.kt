@@ -14,6 +14,7 @@ import team.themoment.datagsm.web.global.security.authentication.WebUserAuthenti
 import team.themoment.datagsm.web.global.security.authentication.principal.WebUserPrincipal
 import team.themoment.datagsm.web.global.security.config.AuthenticationPathConfig
 import team.themoment.datagsm.web.global.security.jwt.JwtProvider
+import team.themoment.sdk.exception.ExpectedException
 import team.themoment.sdk.logging.logger.logger
 import tools.jackson.databind.ObjectMapper
 
@@ -58,14 +59,7 @@ class JwtAuthenticationFilter(
         }
 
         try {
-            val claims = jwtProvider.parseClaims(token)
-
-            // 다른 서비스가 받은 토큰에도 사용자의 role이 들어 있어, 출처를 확인하지 않으면 관리자 API까지 열린다.
-            if (!jwtProvider.isIssuedToAllowedClient(claims)) {
-                SecurityFilterResponseUtil.sendErrorResponse(response, objectMapper, "이 서비스에서 사용할 수 없는 토큰입니다.")
-                return
-            }
-
+            val claims = jwtProvider.parseAccessTokenClaims(token)
             val email = jwtProvider.getEmail(claims)
             val role = jwtProvider.getRole(claims)
             val authorities = listOf(role)
@@ -85,6 +79,10 @@ class JwtAuthenticationFilter(
             return
         } catch (_: SignatureException) {
             SecurityFilterResponseUtil.sendErrorResponse(response, objectMapper, "토큰 서명이 유효하지 않습니다.")
+            return
+        } catch (e: ExpectedException) {
+            logger().warn("Rejected JWT for path {} with reason {}", request.requestURI, e.message)
+            SecurityFilterResponseUtil.sendErrorResponse(response, objectMapper, e.message ?: "유효하지 않은 토큰입니다.")
             return
         } catch (e: Exception) {
             logger().error("JWT processing error", e)

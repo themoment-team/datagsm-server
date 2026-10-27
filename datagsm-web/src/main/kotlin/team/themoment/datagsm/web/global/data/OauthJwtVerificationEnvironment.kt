@@ -9,6 +9,11 @@ data class OauthJwtVerificationEnvironment(
     val allowedClientIds: List<String>,
 ) {
     init {
-        require(allowedClientIds.any { it.isNotBlank() }) { "spring.security.oauth-jwt.allowed-client-ids must not be empty" }
+        require(allowedClientIds.isNotEmpty() && allowedClientIds.all { it.isNotBlank() }) {
+            "spring.security.oauth-jwt.allowed-client-ids must be a non-empty list of non-blank client ids"
+        }
     }
+
+    val allowedClientIdSet: Set<String>
+        get() = allowedClientIds.map { it.trim() }.toSet()
 }

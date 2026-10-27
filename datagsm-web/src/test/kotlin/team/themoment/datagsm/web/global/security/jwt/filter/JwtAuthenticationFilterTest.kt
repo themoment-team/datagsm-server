@@ -35,16 +35,24 @@ class JwtAuthenticationFilterTest :
             )
         val filter = JwtAuthenticationFilter(JwtProvider(environment), ObjectMapper())
 
-        fun accessToken(clientId: String?): String =
+        fun signedToken(
+            subject: String? = "admin@gsm.hs.kr",
+            clientId: String? = webClientId,
+            role: String? = AccountRole.ADMIN.name,
+            scopes: List<String>? = listOf("datagsm:account:read"),
+        ): String =
             Jwts
                 .builder()
-                .subject("admin@gsm.hs.kr")
-                .claim("role", AccountRole.ADMIN.name)
+                .apply { subject?.let { subject(it) } }
+                .apply { role?.let { claim("role", it) } }
                 .apply { clientId?.let { claim("clientId", it) } }
+                .apply { scopes?.let { claim("scopes", it) } }
                 .issuedAt(Date())
                 .expiration(Date(System.currentTimeMillis() + 60_000))
                 .signWith(keyPair.private, Jwts.SIG.RS256)
                 .compact()
+
+        fun accessToken(clientId: String?): String = signedToken(clientId = clientId)
 
         fun requestWith(token: String) =
             MockHttpServletRequest("GET", "/v1/accounts").apply {
@@ -114,12 +122,52 @@ class JwtAuthenticationFilterTest :
             }
         }
 
+        describe("JwtAuthenticationFilter 클래스는 토큰 종류와 클레임을") {
+            fun assertRejected(token: String) {
+                val request = requestWith(token)
+                val response = MockHttpServletResponse()
+                val filterChain = mockk<FilterChain>(relaxed = true)
+
+                filter.doFilter(request, response, filterChain)
+
+                response.status shouldBe HttpStatus.UNAUTHORIZED.value()
+                SecurityContextHolder.getContext().authentication shouldBe null
+                verify(exactly = 0) { filterChain.doFilter(any(), any()) }
+            }
+
+            // refresh token도 같은 clientId를 가지므로, role 유무가 아니라 access token에만 있는 scopes로 종류를 구분한다.
+            context("허용된 클라이언트의 refresh token 형태(scopes 없음)일 때") {
+                it("role이 있더라도 401로 거절해야 한다") {
+                    assertRejected(signedToken(scopes = null))
+                }
+
+                it("role도 없는 실제 refresh token 형태도 401로 거절해야 한다") {
+                    assertRejected(signedToken(role = null, scopes = null))
+                }
+            }
+
+            context("sub 클레임이 없는 토큰일 때") {
+                it("401로 거절해야 한다") {
+                    assertRejected(signedToken(subject = null))
+                }
+            }
+        }
+
         describe("OauthJwtVerificationEnvironment 클래스는") {
             // 빈 목록이면 모든 로그인이 조용히 막히므로, 설정 누락과 같이 기동 단계에서 실패시킨다.
             context("허용 클라이언트 목록이 비어 있을 때") {
                 it("생성에 실패해야 한다") {
                     shouldThrow<IllegalArgumentException> {
                         OauthJwtVerificationEnvironment(publicKey = publicKeyPem, allowedClientIds = emptyList())
+                    }
+                }
+            }
+
+            // 꼬리 쉼표 같은 설정 오타가 빈 항목으로 조용히 섞이지 않게 한다.
+            context("허용 클라이언트 목록에 빈 항목이 섞여 있을 때") {
+                it("생성에 실패해야 한다") {
+                    shouldThrow<IllegalArgumentException> {
+                        OauthJwtVerificationEnvironment(publicKey = publicKeyPem, allowedClientIds = listOf(webClientId, " "))
                     }
                 }
             }
