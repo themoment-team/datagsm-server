@@ -17,7 +17,8 @@ data class MealRedisEntity(
     @Indexed
     val date: LocalDate,
     val type: MealType,
-    val menu: List<String>,
+    // Spring Data Redis는 빈 목록을 저장하지 않아 읽을 때 값이 없으므로 기본값으로 복원한다.
+    val menu: List<String> = emptyList(),
     val allergyInfo: List<String>?,
     val calories: String?,
     val originInfo: String?,
