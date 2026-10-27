@@ -135,6 +135,36 @@ class IdpSessionManagementServiceTest :
                         listOf(session(currentSessionId, myEmail), session(otherDeviceSessionId, myEmail))
                     every { mockIdpSessionRedisRepository.findAllByEmail(otherEmail) } returns
                         listOf(session(foreignSessionId, otherEmail))
+                    // 구현이 식별자로 직접 조회하는 방식으로 되돌아가면 아래 테스트가 실패하도록, 직접 조회 경로에도 세션을 걸어 둔다.
+                    every { mockIdpSessionRedisRepository.findById(handleOf(foreignSessionId)) } returns
+                        Optional.of(session(foreignSessionId, otherEmail))
+                    every { mockIdpSessionRedisRepository.findById(otherDeviceSessionId) } returns
+                        Optional.of(session(otherDeviceSessionId, myEmail))
+                }
+
+                context("세션을 조회할 때") {
+                    it("본인 계정의 세션 목록으로만 조회해야 한다") {
+                        deleteIdpSessionService.execute(handleOf(otherDeviceSessionId), currentSessionId)
+
+                        verify(exactly = 1) { mockIdpSessionRedisRepository.findAllByEmail(myEmail) }
+                        verify(exactly = 0) { mockIdpSessionRedisRepository.findAllByEmail(otherEmail) }
+                    }
+                }
+
+                // 이메일 인덱스에 다른 계정의 세션이 잘못 남아 있어도, 소유권은 코드에서 다시 확인한다.
+                context("본인 이메일 인덱스에 다른 계정의 세션이 섞여 있을 때") {
+                    it("그 세션은 삭제하지 않고 404가 반환되어야 한다") {
+                        every { mockIdpSessionRedisRepository.findAllByEmail(myEmail) } returns
+                            listOf(session(currentSessionId, myEmail), session(foreignSessionId, otherEmail))
+
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                deleteIdpSessionService.execute(handleOf(foreignSessionId), currentSessionId)
+                            }
+
+                        exception.statusCode shouldBe HttpStatus.NOT_FOUND
+                        verify(exactly = 0) { mockIdpSessionRedisRepository.deleteById(any()) }
+                    }
                 }
 
                 context("본인의 다른 기기 세션을 목록의 식별자로 종료할 때") {
