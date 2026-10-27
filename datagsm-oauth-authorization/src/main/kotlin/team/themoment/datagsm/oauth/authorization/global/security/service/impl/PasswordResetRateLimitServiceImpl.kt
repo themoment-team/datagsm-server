@@ -25,9 +25,10 @@ class PasswordResetRateLimitServiceImpl(
             return createDisabledResult(config.capacity)
         }
 
+        // 계정 조회는 이메일 대소문자를 구분하지 않으므로, 버킷 키도 정규화해야 대소문자를 바꿔 한도를 우회할 수 없다.
         val bucket =
             proxyManager.builder().build(
-                "${type.bucketPrefix}$email",
+                "${type.bucketPrefix}${email.trim().lowercase()}",
             ) { createBucketConfiguration(config) }
         val probe = bucket.tryConsumeAndReturnRemaining(1)
         return RateLimitConsumeResult(
@@ -44,6 +45,8 @@ class PasswordResetRateLimitServiceImpl(
             PasswordResetRateLimitType.MODIFY_PASSWORD -> passwordResetRateLimitEnvironment.change
             PasswordResetRateLimitType.SIGNUP_SEND_EMAIL -> passwordResetRateLimitEnvironment.signupSend
             PasswordResetRateLimitType.SIGNUP_CHECK_CODE -> passwordResetRateLimitEnvironment.signupCheck
+            PasswordResetRateLimitType.LOGIN -> passwordResetRateLimitEnvironment.login
+            PasswordResetRateLimitType.CREDENTIAL_CHECK -> passwordResetRateLimitEnvironment.credentialCheck
         }
 
     private fun createDisabledResult(capacity: Long) =

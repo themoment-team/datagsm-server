@@ -41,6 +41,8 @@ class PasswordResetRateLimitServiceImplTest :
                             change = defaultConfig,
                             signupSend = defaultConfig,
                             signupCheck = defaultConfig,
+                            login = defaultConfig,
+                            credentialCheck = defaultConfig,
                         )
 
                     PasswordResetRateLimitType.entries.forEach { type ->
@@ -64,6 +66,8 @@ class PasswordResetRateLimitServiceImplTest :
                             change = defaultConfig,
                             signupSend = defaultConfig,
                             signupCheck = defaultConfig,
+                            login = defaultConfig,
+                            credentialCheck = defaultConfig,
                         )
 
                     lateinit var mockBucketBuilder: RemoteBucketBuilder<String>
@@ -131,6 +135,18 @@ class PasswordResetRateLimitServiceImplTest :
                             refillTokens = 4L,
                             refillDurationMinutes = 2L,
                         )
+                    val loginConfig =
+                        PasswordResetRateLimitEnvironment.RateLimitConfig(
+                            capacity = 12L,
+                            refillTokens = 6L,
+                            refillDurationMinutes = 10L,
+                        )
+                    val credentialCheckConfig =
+                        PasswordResetRateLimitEnvironment.RateLimitConfig(
+                            capacity = 7L,
+                            refillTokens = 7L,
+                            refillDurationMinutes = 10L,
+                        )
                     val environment =
                         PasswordResetRateLimitEnvironment(
                             enabled = false,
@@ -139,6 +155,8 @@ class PasswordResetRateLimitServiceImplTest :
                             change = changeConfig,
                             signupSend = signupSendConfig,
                             signupCheck = signupCheckConfig,
+                            login = loginConfig,
+                            credentialCheck = credentialCheckConfig,
                         )
                     val service = PasswordResetRateLimitServiceImpl(mockProxyManager, environment)
 
@@ -165,6 +183,45 @@ class PasswordResetRateLimitServiceImplTest :
                     it("SIGNUP_CHECK_CODE 타입은 signupCheck config의 capacity를 사용해야 한다") {
                         val result = service.tryConsume("test@gsm.hs.kr", PasswordResetRateLimitType.SIGNUP_CHECK_CODE)
                         result.remainingTokens shouldBe signupCheckConfig.capacity
+                    }
+
+                    it("LOGIN 타입은 login config의 capacity를 사용해야 한다") {
+                        val result = service.tryConsume("test@gsm.hs.kr", PasswordResetRateLimitType.LOGIN)
+                        result.remainingTokens shouldBe loginConfig.capacity
+                    }
+
+                    it("CREDENTIAL_CHECK 타입은 credentialCheck config의 capacity를 사용해야 한다") {
+                        val result = service.tryConsume("test@gsm.hs.kr", PasswordResetRateLimitType.CREDENTIAL_CHECK)
+                        result.remainingTokens shouldBe credentialCheckConfig.capacity
+                    }
+                }
+
+                context("대소문자와 앞뒤 공백만 다른 이메일로 요청할 때") {
+                    val environment =
+                        PasswordResetRateLimitEnvironment(
+                            enabled = true,
+                            send = defaultConfig,
+                            verify = defaultConfig,
+                            change = defaultConfig,
+                            signupSend = defaultConfig,
+                            signupCheck = defaultConfig,
+                            login = defaultConfig,
+                            credentialCheck = defaultConfig,
+                        )
+
+                    it("정규화된 같은 버킷 키를 사용해야 한다") {
+                        val mockBucketBuilder = mockk<RemoteBucketBuilder<String>>()
+                        val mockBucket = mockk<BucketProxy>()
+                        val bucketKeys = mutableListOf<String>()
+                        every { mockProxyManager.builder() } returns mockBucketBuilder
+                        every { mockBucketBuilder.build(capture(bucketKeys), any<Supplier<BucketConfiguration>>()) } returns mockBucket
+                        every { mockBucket.tryConsumeAndReturnRemaining(1) } returns ConsumptionProbe.consumed(4L, 0L)
+                        val service = PasswordResetRateLimitServiceImpl(mockProxyManager, environment)
+
+                        service.tryConsume("Test@GSM.hs.kr", PasswordResetRateLimitType.LOGIN)
+                        service.tryConsume(" test@gsm.hs.kr ", PasswordResetRateLimitType.LOGIN)
+
+                        bucketKeys shouldBe listOf("rate_limit:login:test@gsm.hs.kr", "rate_limit:login:test@gsm.hs.kr")
                     }
                 }
             }

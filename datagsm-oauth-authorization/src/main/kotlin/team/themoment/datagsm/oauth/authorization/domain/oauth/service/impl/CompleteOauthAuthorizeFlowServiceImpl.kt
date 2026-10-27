@@ -35,6 +35,8 @@ import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.common.global.security.util.OpaqueTokenHashUtil
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.CompleteOauthAuthorizeFlowService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueAuthorizationCodeService
+import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimitType
+import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimited
 import team.themoment.datagsm.oauth.authorization.global.security.service.OAuthClientRateLimitService
 import team.themoment.sdk.exception.ExpectedException
 import java.net.URI
@@ -62,6 +64,8 @@ class CompleteOauthAuthorizeFlowServiceImpl(
         private val secureRandom = SecureRandom()
     }
 
+    // 클라이언트별 한도는 그 클라이언트의 모든 사용자가 나눠 쓰므로 한 계정에 대한 비밀번호 대입을 막지 못한다.
+    @PasswordResetRateLimited(type = PasswordResetRateLimitType.LOGIN)
     @Transactional
     override fun execute(reqDto: OauthAuthorizeSubmitReqDto): ResponseEntity<Void> {
         val stateEntity =

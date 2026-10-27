@@ -19,6 +19,8 @@ import team.themoment.datagsm.common.domain.student.entity.constant.NO_CLUB_ID
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentDataEditField
 import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRequestJpaRepository
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryStudentDataEditRequestService
+import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimitType
+import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimited
 import team.themoment.sdk.exception.ExpectedException
 
 @Service
@@ -28,6 +30,8 @@ class QueryStudentDataEditRequestServiceImpl(
     private val clubJpaRepository: ClubJpaRepository,
     private val passwordEncoder: PasswordEncoder,
 ) : QueryStudentDataEditRequestService {
+    // 비밀번호를 검증하는 또 하나의 입구라, 로그인 한도만 걸면 이쪽으로 대입 공격이 우회된다.
+    @PasswordResetRateLimited(type = PasswordResetRateLimitType.CREDENTIAL_CHECK)
     @Transactional(readOnly = true)
     override fun execute(reqDto: QueryStudentDataEditRequestReqDto): StudentDataEditRequestResDto {
         val account =

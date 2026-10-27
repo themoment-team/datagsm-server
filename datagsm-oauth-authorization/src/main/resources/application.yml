@@ -92,6 +92,14 @@ spring:
         capacity: 10
         refill-tokens: 10
         refill-duration-minutes: 5
+      login:
+        capacity: 10
+        refill-tokens: 10
+        refill-duration-minutes: 10
+      credential-check:
+        capacity: 5
+        refill-tokens: 5
+        refill-duration-minutes: 10
   web:
     error:
       whitelabel:
