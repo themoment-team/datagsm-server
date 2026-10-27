@@ -44,8 +44,7 @@ spring:
         url: ${DISCORD_EMERGENCY_ALERT_CHANNEL_WEBHOOK}
   security:
     cors:
-      allowed-origins:
-        - ${CORS_ALLOWED_ORIGINS:*}
+      allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}
     oauth-jwt:
       key-id: ${JWT_KEY_ID}
       private-key: ${JWT_PRIVATE_KEY}
