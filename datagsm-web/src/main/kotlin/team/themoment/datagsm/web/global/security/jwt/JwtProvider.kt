@@ -19,13 +19,13 @@ class JwtProvider(
     private val publicKey: PublicKey = loadPublicKey(oauthJwtEnvironment.publicKey)
     private val allowedClientIds: Set<String> = oauthJwtEnvironment.allowedClientIds.map { it.trim() }.toSet()
 
-    fun isIssuedToAllowedClient(token: String): Boolean = parseClaims(token)["clientId"] in allowedClientIds
+    fun isIssuedToAllowedClient(claims: Claims): Boolean = claims["clientId"] in allowedClientIds
 
-    fun getEmailFromToken(token: String): String = parseClaims(token).subject
+    fun getEmail(claims: Claims): String = claims.subject
 
-    fun getRoleFromToken(token: String): AccountRole {
+    fun getRole(claims: Claims): AccountRole {
         val roleName =
-            parseClaims(token)["role"] as? String
+            claims["role"] as? String
                 ?: throw ExpectedException("토큰에 역할 정보가 존재하지 않습니다.", HttpStatus.UNAUTHORIZED)
         return AccountRole.valueOf(roleName)
     }
@@ -37,7 +37,8 @@ class JwtProvider(
             null
         }
 
-    private fun parseClaims(token: String): Claims =
+    // 서명 검증 비용이 크므로 요청마다 한 번만 파싱하고, 나머지 판단은 파싱된 클레임으로 한다.
+    fun parseClaims(token: String): Claims =
         Jwts
             .parser()
             .verifyWith(publicKey)
