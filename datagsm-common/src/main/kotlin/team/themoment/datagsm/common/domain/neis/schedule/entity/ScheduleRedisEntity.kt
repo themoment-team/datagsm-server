@@ -21,5 +21,6 @@ data class ScheduleRedisEntity(
     val dayCategory: String?,
     val schoolCourseType: String?,
     val dayNightType: String?,
-    val targetGrades: List<Int>,
+    // Spring Data Redis는 빈 목록을 저장하지 않아 읽을 때 값이 없으므로 기본값으로 복원한다.
+    val targetGrades: List<Int> = emptyList(),
 )

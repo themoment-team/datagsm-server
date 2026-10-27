@@ -1,23 +1,16 @@
 package team.themoment.datagsm.common.domain.neis.schedule.repository
 
+import org.springframework.data.redis.core.RedisKeyValueTemplate
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Repository
 import team.themoment.datagsm.common.domain.neis.schedule.entity.ScheduleRedisEntity
-import tools.jackson.core.type.TypeReference
-import tools.jackson.databind.json.JsonMapper
-import tools.jackson.module.kotlin.kotlinModule
 import java.time.LocalDate
 
 @Repository
 class ScheduleRedisCustomRepositoryImpl(
     private val redisTemplate: RedisTemplate<String, String>,
+    private val redisKeyValueTemplate: RedisKeyValueTemplate,
 ) : ScheduleRedisCustomRepository {
-    private val jsonMapper =
-        JsonMapper
-            .builder()
-            .addModule(kotlinModule())
-            .build()
-
     override fun findByDateBetween(
         from: LocalDate,
         to: LocalDate,
@@ -55,33 +48,7 @@ class ScheduleRedisCustomRepositoryImpl(
         return ids
     }
 
-    private fun findEntitiesByIds(ids: Set<String>): List<ScheduleRedisEntity> {
-        if (ids.isEmpty()) return emptyList()
-
-        return ids.mapNotNull { id ->
-            val key = "schedule:$id"
-            val hash = redisTemplate.opsForHash<String, String>().entries(key)
-            if (hash.isEmpty()) null else convertHashToEntity(hash)
-        }
-    }
-
-    private fun convertHashToEntity(hash: Map<String, String>): ScheduleRedisEntity =
-        ScheduleRedisEntity(
-            id = hash["id"] ?: throw IllegalArgumentException("ScheduleRedisEntity ID cannot be null"),
-            schoolCode = hash["schoolCode"] ?: throw IllegalArgumentException("ScheduleRedisEntity schoolCode cannot be null"),
-            schoolName = hash["schoolName"] ?: throw IllegalArgumentException("ScheduleRedisEntity schoolName cannot be null"),
-            officeCode = hash["officeCode"] ?: throw IllegalArgumentException("ScheduleRedisEntity officeCode cannot be null"),
-            officeName = hash["officeName"] ?: throw IllegalArgumentException("ScheduleRedisEntity officeName cannot be null"),
-            date = LocalDate.parse(hash["date"] ?: throw IllegalArgumentException("ScheduleRedisEntity date cannot be null")),
-            academicYear = hash["academicYear"] ?: throw IllegalArgumentException("ScheduleRedisEntity academicYear cannot be null"),
-            eventName = hash["eventName"] ?: throw IllegalArgumentException("ScheduleRedisEntity eventName cannot be null"),
-            eventContent = hash["eventContent"],
-            dayCategory = hash["dayCategory"],
-            schoolCourseType = hash["schoolCourseType"],
-            dayNightType = hash["dayNightType"],
-            targetGrades =
-                hash["targetGrades"]?.let {
-                    jsonMapper.readValue(it, object : TypeReference<List<Int>>() {})
-                } ?: emptyList(),
-        )
+    // id 목록 조회만 직접 하고, 엔티티는 저장(saveAll)과 같은 Spring Data 변환기로 읽어야 목록 필드가 보존된다.
+    private fun findEntitiesByIds(ids: Set<String>): List<ScheduleRedisEntity> =
+        ids.mapNotNull { id -> redisKeyValueTemplate.findById(id, ScheduleRedisEntity::class.java).orElse(null) }
 }
