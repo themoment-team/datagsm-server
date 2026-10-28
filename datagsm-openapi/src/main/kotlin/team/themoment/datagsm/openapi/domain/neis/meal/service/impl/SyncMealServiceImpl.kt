@@ -76,10 +76,14 @@ class SyncMealServiceImpl(
     }
 
     // 형식이 어긋난 행 하나로 전체가 실패하면 재시도해도 결과가 같아, 그 행만 건너뛰고 나머지를 반영한다.
+    // Error까지 잡으면 시스템 장애가 행 하나의 경고로 묻히므로 Exception만 건너뛰고, 원인 추적을 위해 예외를 함께 남긴다.
     private fun convertOrSkip(dto: MealServiceDietInfo): MealRedisEntity? =
-        runCatching { convertToEntity(dto) }
-            .onFailure { logger().warn("Skipped invalid meal row for date {} with reason {}", dto.mealDate, it.message) }
-            .getOrNull()
+        try {
+            convertToEntity(dto)
+        } catch (e: Exception) {
+            logger().warn("Skipped invalid meal row for date {}", dto.mealDate, e)
+            null
+        }
 
     private fun convertToEntity(dto: MealServiceDietInfo): MealRedisEntity {
         val mealDate = LocalDate.parse(dto.mealDate, DATE_FORMATTER)
