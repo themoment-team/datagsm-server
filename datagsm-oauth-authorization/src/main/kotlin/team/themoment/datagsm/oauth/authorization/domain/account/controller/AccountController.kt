@@ -120,6 +120,7 @@ class AccountController(
             ApiResponse(responseCode = "400", description = "인증 코드 불일치", content = [Content()]),
             ApiResponse(responseCode = "404", description = "인증 코드가 존재하지 않음", content = [Content()]),
             ApiResponse(responseCode = "409", description = "이미 존재하는 이메일", content = [Content()]),
+            ApiResponse(responseCode = "429", description = "요청 횟수 초과", content = [Content()]),
         ],
     )
     @PostMapping
