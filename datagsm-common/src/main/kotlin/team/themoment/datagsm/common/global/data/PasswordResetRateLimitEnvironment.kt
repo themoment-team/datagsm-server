@@ -10,6 +10,7 @@ data class PasswordResetRateLimitEnvironment(
     val change: RateLimitConfig,
     val signupSend: RateLimitConfig,
     val signupCheck: RateLimitConfig,
+    val login: RateLimitConfig,
 ) {
     data class RateLimitConfig(
         val capacity: Long,
