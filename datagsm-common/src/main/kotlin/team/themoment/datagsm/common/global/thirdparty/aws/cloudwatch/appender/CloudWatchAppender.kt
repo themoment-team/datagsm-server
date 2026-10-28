@@ -1,6 +1,8 @@
 package team.themoment.datagsm.common.global.thirdparty.aws.cloudwatch.appender
 
+import ch.qos.logback.classic.PatternLayout
 import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.Layout
 import ch.qos.logback.core.UnsynchronizedAppenderBase
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.regions.Region
@@ -12,10 +14,13 @@ import software.amazon.awssdk.services.cloudwatchlogs.model.PutLogEventsRequest
 import software.amazon.awssdk.services.cloudwatchlogs.model.PutRetentionPolicyRequest
 import software.amazon.awssdk.services.cloudwatchlogs.model.ResourceAlreadyExistsException
 import software.amazon.awssdk.services.cloudwatchlogs.model.ResourceNotFoundException
+import java.nio.ByteBuffer
+import java.nio.charset.CodingErrorAction
 import java.util.UUID
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.concurrent.thread
 
 class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
@@ -24,13 +29,30 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
     var region: String = Region.AP_NORTHEAST_2.id()
     var maxBatchSize: Int = 50
     var maxBatchTimeMillis: Long = 10000
-    var maxBlockTimeMillis: Long = 5000
+    var queueCapacity: Int = 10000
     var retentionTimeDays: Int = 30
     var shutdownTimeoutMillis: Long = 5000
     var maxRetries: Int = 3
 
+    // 패턴의 %file:%line은 호출 스레드에서만 구할 수 있어, 큐에 넣기 전에 계산해 둔다.
+    var includeCallerData: Boolean = true
+    var layout: Layout<ILoggingEvent>? = null
+
+    internal var clientFactory: (String) -> CloudWatchLogsClient = { regionId ->
+        CloudWatchLogsClient
+            .builder()
+            .region(Region.of(regionId))
+            .credentialsProvider(
+                DefaultCredentialsProvider
+                    .builder()
+                    .build(),
+            ).build()
+    }
+
     private lateinit var cloudWatchClient: CloudWatchLogsClient
-    private val logQueue: BlockingQueue<ILoggingEvent> = LinkedBlockingQueue()
+    private lateinit var logQueue: BlockingQueue<ILoggingEvent>
+    private lateinit var activeLayout: Layout<ILoggingEvent>
+    private val droppedEventCount = AtomicLong()
     private var writerThread: Thread? = null
     private var actualLogStreamName: String? = null
 
@@ -48,22 +70,17 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
         }
         actualLogStreamName = "$logStreamNamePrefix${UUID.randomUUID()}"
         try {
-            cloudWatchClient =
-                CloudWatchLogsClient
-                    .builder()
-                    .region(Region.of(region))
-                    .credentialsProvider(
-                        DefaultCredentialsProvider
-                            .builder()
-                            .build(),
-                    ).build()
+            activeLayout = layout ?: createDefaultLayout()
+            logQueue = LinkedBlockingQueue(queueCapacity)
+            cloudWatchClient = clientFactory(region)
 
             initializeLogGroup()
             initializeLogStream()
 
             running = true
+            // non-daemon이면 기동 실패 등으로 stop()이 불리지 않을 때 JVM이 종료되지 못한다.
             writerThread =
-                thread(name = "CloudWatchAppender-Writer-$name") {
+                thread(name = "CloudWatchAppender-Writer-$name", isDaemon = true) {
                     runWriter()
                 }
 
@@ -79,10 +96,13 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
         writerThread?.interrupt()
         writerThread?.join(shutdownTimeoutMillis)
 
-        try {
-            flushLogs()
-        } catch (e: Exception) {
-            addError("Error flushing logs during shutdown", e)
+        // 설정 누락으로 시작하지 않은 appender도 logback 종료 시 stop()이 호출된다.
+        if (::logQueue.isInitialized) {
+            try {
+                flushLogs()
+            } catch (e: Exception) {
+                addError("Error flushing logs during shutdown", e)
+            }
         }
 
         if (::cloudWatchClient.isInitialized) {
@@ -102,16 +122,23 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
             return
         }
 
-        try {
-            val success = logQueue.offer(eventObject, maxBlockTimeMillis, TimeUnit.MILLISECONDS)
-            if (!success) {
-                addWarn("Log queue is full, dropping log event")
-            }
-        } catch (e: InterruptedException) {
-            Thread.currentThread().interrupt()
-            addError("Interrupted while adding log event to queue", e)
+        eventObject.prepareForDeferredProcessing()
+        if (includeCallerData) {
+            eventObject.callerData
+        }
+
+        // CloudWatch 장애 시 로그를 남기는 요청 스레드가 함께 멈추지 않도록 기다리지 않고 버린다.
+        if (!logQueue.offer(eventObject)) {
+            droppedEventCount.incrementAndGet()
         }
     }
+
+    private fun createDefaultLayout(): Layout<ILoggingEvent> =
+        PatternLayout().apply {
+            context = this@CloudWatchAppender.context
+            pattern = DEFAULT_PATTERN
+            start()
+        }
 
     private fun initializeLogGroup() {
         try {
@@ -207,27 +234,44 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
     private fun flushLogs() {
         val batch = mutableListOf<ILoggingEvent>()
         logQueue.drainTo(batch)
-        if (batch.isNotEmpty()) {
+        if (batch.isNotEmpty() || droppedEventCount.get() > 0) {
             flushBatch(batch)
         }
     }
 
     private fun flushBatch(batch: List<ILoggingEvent>) {
-        if (batch.isEmpty()) {
-            return
-        }
-
         try {
             val logEvents =
-                batch
-                    .map { event ->
+                (
+                    batch.map { event ->
                         InputLogEvent
                             .builder()
                             .timestamp(event.timeStamp)
-                            .message(event.formattedMessage)
+                            .message(truncateToMaxEventBytes(activeLayout.doLayout(event)))
                             .build()
-                    }.sortedBy { it.timestamp() }
+                    } + listOfNotNull(createDroppedEventsNotice())
+                ).sortedBy { it.timestamp() }
 
+            // 요청 하나의 크기 상한을 넘으면 묶음 전체가 거절되므로 크기 기준으로 나눠 보낸다.
+            splitBySize(logEvents).forEach { putWithRetry(it) }
+        } catch (e: Exception) {
+            addError("Failed to send log events to CloudWatch", e)
+        }
+    }
+
+    private fun createDroppedEventsNotice(): InputLogEvent? {
+        val droppedCount = droppedEventCount.getAndSet(0)
+        if (droppedCount == 0L) return null
+        addWarn("Dropped $droppedCount log events because the queue was full")
+        return InputLogEvent
+            .builder()
+            .timestamp(System.currentTimeMillis())
+            .message("[CloudWatchAppender] [WARN] - Dropped $droppedCount log events because the queue was full")
+            .build()
+    }
+
+    private fun putWithRetry(logEvents: List<InputLogEvent>) {
+        try {
             repeat(maxRetries) { retryCount ->
                 try {
                     val request =
@@ -249,6 +293,57 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
             }
         } catch (e: Exception) {
             addError("Failed to send log events to CloudWatch", e)
+        }
+    }
+
+    companion object {
+        private const val DEFAULT_PATTERN = "[%thread] [%level] %logger - %msg%n"
+
+        // CloudWatch는 이벤트마다 메시지 바이트에 26바이트를 더해 요청 크기를 계산한다.
+        private const val EVENT_OVERHEAD_BYTES = 26
+        private const val MAX_EVENT_BYTES = 256 * 1024 - EVENT_OVERHEAD_BYTES
+        private const val MAX_REQUEST_BYTES = 1024 * 1024
+        private const val MAX_EVENTS_PER_REQUEST = 10000
+        private const val TRUNCATED_SUFFIX = "...[truncated]"
+
+        internal fun truncateToMaxEventBytes(
+            message: String,
+            maxBytes: Int = MAX_EVENT_BYTES,
+        ): String {
+            val bytes = message.toByteArray(Charsets.UTF_8)
+            if (bytes.size <= maxBytes) return message
+
+            val suffixBytes = TRUNCATED_SUFFIX.toByteArray(Charsets.UTF_8).size
+            // 잘린 위치에 걸친 멀티바이트 문자는 버려서 깨진 문자가 남지 않게 한다.
+            val decoder =
+                Charsets.UTF_8
+                    .newDecoder()
+                    .onMalformedInput(CodingErrorAction.IGNORE)
+            val kept = decoder.decode(ByteBuffer.wrap(bytes, 0, maxBytes - suffixBytes)).toString()
+            return kept + TRUNCATED_SUFFIX
+        }
+
+        internal fun splitBySize(
+            logEvents: List<InputLogEvent>,
+            maxRequestBytes: Int = MAX_REQUEST_BYTES,
+        ): List<List<InputLogEvent>> {
+            val chunks = mutableListOf<List<InputLogEvent>>()
+            var current = mutableListOf<InputLogEvent>()
+            var currentBytes = 0
+
+            logEvents.forEach { event ->
+                val eventBytes = event.message().toByteArray(Charsets.UTF_8).size + EVENT_OVERHEAD_BYTES
+                val exceeds = currentBytes + eventBytes > maxRequestBytes || current.size >= MAX_EVENTS_PER_REQUEST
+                if (current.isNotEmpty() && exceeds) {
+                    chunks.add(current)
+                    current = mutableListOf()
+                    currentBytes = 0
+                }
+                current.add(event)
+                currentBytes += eventBytes
+            }
+            if (current.isNotEmpty()) chunks.add(current)
+            return chunks
         }
     }
 }
