@@ -29,7 +29,7 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
     var region: String = Region.AP_NORTHEAST_2.id()
     var maxBatchSize: Int = 50
     var maxBatchTimeMillis: Long = 10000
-    var queueCapacity: Int = 10000
+    var queueCapacity: Int = DEFAULT_QUEUE_CAPACITY
     var retentionTimeDays: Int = 30
     var shutdownTimeoutMillis: Long = 5000
     var maxRetries: Int = 3
@@ -71,7 +71,7 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
         actualLogStreamName = "$logStreamNamePrefix${UUID.randomUUID()}"
         try {
             activeLayout = layout ?: createDefaultLayout()
-            logQueue = LinkedBlockingQueue(queueCapacity)
+            logQueue = LinkedBlockingQueue(resolveQueueCapacity())
             cloudWatchClient = clientFactory(region)
 
             initializeLogGroup()
@@ -141,6 +141,13 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
         if (!logQueue.offer(eventObject)) {
             droppedEventCount.incrementAndGet()
         }
+    }
+
+    // 0 이하이면 LinkedBlockingQueue가 예외를 던져 appender가 아예 시작되지 못하므로 기본값으로 대신한다.
+    private fun resolveQueueCapacity(): Int {
+        if (queueCapacity > 0) return queueCapacity
+        addWarn("queueCapacity must be positive but was $queueCapacity, using $DEFAULT_QUEUE_CAPACITY")
+        return DEFAULT_QUEUE_CAPACITY
     }
 
     private fun createDefaultLayout(): Layout<ILoggingEvent> =
@@ -325,6 +332,7 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
 
     companion object {
         private const val DEFAULT_PATTERN = "[%thread] [%level] %logger - %msg%n"
+        private const val DEFAULT_QUEUE_CAPACITY = 10000
 
         // CloudWatch는 이벤트마다 메시지 바이트에 26바이트를 더해 요청 크기를 계산한다.
         private const val EVENT_OVERHEAD_BYTES = 26

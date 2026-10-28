@@ -191,6 +191,20 @@ class CloudWatchAppenderTest :
                 }
             }
 
+            describe("queueCapacity가 0 이하로 설정되면") {
+                it("기본 용량으로 대신해 정상적으로 시작해야 한다") {
+                    // Given
+                    val appender = createAppender { queueCapacity = 0 }
+
+                    // When
+                    appender.start()
+
+                    // Then
+                    appender.isStarted shouldBe true
+                    appender.stop()
+                }
+            }
+
             describe("설정 누락으로 시작하지 못한 appender를 종료하면") {
                 it("오류 상태를 남기지 않아야 한다") {
                     // Given
