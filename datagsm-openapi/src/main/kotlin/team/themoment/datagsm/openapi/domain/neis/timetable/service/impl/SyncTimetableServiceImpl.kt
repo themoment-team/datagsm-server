@@ -34,6 +34,7 @@ class SyncTimetableServiceImpl(
 
         var pageIndex = 1
         val pageSize = 1000
+        var skippedRowCount = 0
 
         do {
             val apiResponse =
@@ -53,7 +54,9 @@ class SyncTimetableServiceImpl(
                     ?.row
                     ?: emptyList()
 
-            allTimetableEntities.addAll(rows.mapNotNull { convertOrSkip(it) })
+            val convertedEntities = rows.mapNotNull { convertOrSkip(it) }
+            allTimetableEntities.addAll(convertedEntities)
+            skippedRowCount += rows.size - convertedEntities.size
             pageIndex++
             // 건너뛴 행이 있어도 다음 페이지를 받아야 하므로 변환 전 행 수로 판단한다.
         } while (rows.size == pageSize)
@@ -63,7 +66,12 @@ class SyncTimetableServiceImpl(
             // 전체를 지운 뒤 다시 넣으면 그 사이 조회가 빈 결과를 받으므로, 덮어쓴 뒤 이번에 받지 않은 항목만 지운다.
             val staleIds = timetableRedisRepository.findAllIds() - filledTimetableEntities.map { it.id }.toSet()
             timetableRedisRepository.saveAll(filledTimetableEntities)
-            timetableRedisRepository.deleteAllById(staleIds)
+            // 건너뛴 행은 id를 알 수 없어 그 행의 기존 데이터가 누락분으로 지워지므로, 건너뛴 행이 있으면 지우지 않는다.
+            if (skippedRowCount == 0) {
+                timetableRedisRepository.deleteAllById(staleIds)
+            } else {
+                logger().warn("Kept {} stale timetable entries because {} rows were skipped", staleIds.size, skippedRowCount)
+            }
         }
     }
 

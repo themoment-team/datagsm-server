@@ -238,6 +238,30 @@ class SyncMealServiceTest :
                     }
                 }
 
+                context("기존에 저장된 급식 행이 이번에 형식 오류로 건너뛰어졌을 때") {
+                    val fromDate = LocalDate.of(2025, 12, 16)
+                    val toDate = LocalDate.of(2025, 12, 17)
+
+                    beforeEach {
+                        every { mockNeisEnvironment.key } returns "test-api-key"
+                        every { mockNeisEnvironment.officeCode } returns "F10"
+                        every { mockNeisEnvironment.schoolCode } returns "7380292"
+                        // 석식 행의 유형 코드가 깨져 id를 만들 수 없으므로, 기존 석식은 누락분과 구분되지 않는다.
+                        stubMealPages(mockNeisApiClient, listOf(listOf(mealRow("20251216", "2"), mealRow("20251216", "X"))))
+                        every { mockMealRepository.findAllIds() } returns setOf("7380292_20251216_2", "7380292_20251216_3")
+                        every { mockMealRepository.saveAll(any<Iterable<MealRedisEntity>>()) } answers
+                            { firstArg<Iterable<MealRedisEntity>>().toList() }
+                        every { mockMealRepository.deleteAllById(any()) } returns Unit
+                    }
+
+                    it("정상 행은 저장하되 기존 데이터는 지우지 않아야 한다") {
+                        syncMealService.execute(fromDate, toDate)
+
+                        verify(exactly = 1) { mockMealRepository.saveAll(any<Iterable<MealRedisEntity>>()) }
+                        verify(exactly = 0) { mockMealRepository.deleteAllById(any()) }
+                    }
+                }
+
                 context("꽉 찬 페이지에서 일부 행을 건너뛰었을 때") {
                     val fromDate = LocalDate.of(2025, 12, 16)
                     val toDate = LocalDate.of(2025, 12, 17)
