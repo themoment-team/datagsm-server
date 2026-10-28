@@ -310,6 +310,10 @@ class CloudWatchAppenderTest :
                 truncated.removeSuffix("...[truncated]").all { it == '가' } shouldBe true
             }
 
+            it("상한이 잘림 표시보다 작아도 예외 없이 상한 이하로 반환해야 한다") {
+                CloudWatchAppender.truncateToMaxEventBytes("가".repeat(10), maxBytes = 5) shouldBe "...[t"
+            }
+
             it("상한 이하 메시지는 그대로 반환해야 한다") {
                 CloudWatchAppender.truncateToMaxEventBytes("short", maxBytes = 50) shouldBe "short"
             }

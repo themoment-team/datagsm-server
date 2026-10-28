@@ -349,6 +349,8 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
             if (bytes.size <= maxBytes) return message
 
             val suffixBytes = TRUNCATED_SUFFIX.toByteArray(Charsets.UTF_8).size
+            // 표시 문자열은 ASCII라 문자 수가 곧 바이트 수다.
+            if (maxBytes <= suffixBytes) return TRUNCATED_SUFFIX.take(maxOf(maxBytes, 0))
             // 잘린 위치에 걸친 멀티바이트 문자는 버려서 깨진 문자가 남지 않게 한다.
             val decoder =
                 Charsets.UTF_8
