@@ -92,9 +92,18 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
     }
 
     override fun stop() {
+        // 먼저 started를 내려 drain 이후에 들어와 버려지는 이벤트가 없게 한다.
+        super.stop()
         running = false
         writerThread?.interrupt()
         writerThread?.join(shutdownTimeoutMillis)
+
+        // writer가 아직 전송 중이면 같은 이벤트·레이아웃·클라이언트를 함께 쓰게 되므로 손대지 않는다.
+        // daemon 스레드라 JVM 종료를 막지 않는다.
+        if (writerThread?.isAlive == true) {
+            addWarn("Writer thread did not stop within $shutdownTimeoutMillis ms, skipping final flush")
+            return
+        }
 
         // 설정 누락으로 시작하지 않은 appender도 logback 종료 시 stop()이 호출된다.
         if (::logQueue.isInitialized) {
@@ -113,7 +122,6 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
             }
         }
 
-        super.stop()
         addInfo("CloudWatchAppender stopped")
     }
 

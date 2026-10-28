@@ -18,6 +18,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import io.mockk.verify
 import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClient
 import software.amazon.awssdk.services.cloudwatchlogs.model.InputLogEvent
 import software.amazon.awssdk.services.cloudwatchlogs.model.PutLogEventsRequest
@@ -135,6 +136,38 @@ class CloudWatchAppenderTest :
                     val writer = Thread.getAllStackTraces().keys.single { it.name == "CloudWatchAppender-Writer-test" }
                     writer.isDaemon shouldBe true
                     appender.stop()
+                }
+            }
+
+            describe("writer가 종료 대기 시간 안에 끝나지 않으면") {
+                it("전송 중인 writer와 겹치지 않도록 마지막 flush와 클라이언트 종료를 건너뛰어야 한다") {
+                    // Given
+                    val sendStarted = CountDownLatch(1)
+                    val releaseSend = CountDownLatch(1)
+                    every { client.putLogEvents(any<PutLogEventsRequest>()) } answers {
+                        sendStarted.countDown()
+                        // 인터럽트를 무시하고 전송을 계속하는 상황을 흉내 낸다.
+                        while (releaseSend.count > 0) {
+                            runCatching { releaseSend.await(5, TimeUnit.SECONDS) }
+                        }
+                        PutLogEventsResponse.builder().build()
+                    }
+                    val appender =
+                        createAppender {
+                            maxBatchSize = 1
+                            shutdownTimeoutMillis = 100
+                        }
+                    appender.start()
+                    appender.doAppend(event(Level.INFO, "slow"))
+                    sendStarted.await(5, TimeUnit.SECONDS) shouldBe true
+
+                    // When
+                    appender.stop()
+
+                    // Then
+                    verify(exactly = 0) { client.close() }
+                    verify(exactly = 1) { client.putLogEvents(any<PutLogEventsRequest>()) }
+                    releaseSend.countDown()
                 }
             }
 
