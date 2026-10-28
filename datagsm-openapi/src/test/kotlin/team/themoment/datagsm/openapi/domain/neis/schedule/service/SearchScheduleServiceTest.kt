@@ -216,6 +216,19 @@ class SearchScheduleServiceTest :
 
                         result.schedules.map { it.eventName } shouldBe listOf("개교기념일", "체육대회", "가정의 날")
                     }
+
+                    it("행사명 앞뒤 공백은 무시하고, 행사명까지 같으면 scheduleId 순으로 반환해야 한다") {
+                        every { mockScheduleRepository.findByDate(targetDate) } returns
+                            listOf(
+                                schedule("z", targetDate, "체육대회"),
+                                schedule("y", targetDate, "현장체험학습"),
+                                schedule("x", targetDate, "현장체험학습 "),
+                            )
+
+                        val result = searchScheduleService.execute(QueryScheduleReqDto(date = targetDate, fromDate = null, toDate = null))
+
+                        result.schedules.map { it.scheduleId } shouldBe listOf("z", "x", "y")
+                    }
                 }
             }
         }
