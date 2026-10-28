@@ -2,7 +2,7 @@ package team.themoment.datagsm.openapi.domain.neis.schedule.service
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldStartWith
+import io.kotest.matchers.string.shouldMatch
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -257,7 +257,8 @@ class SyncScheduleServiceTest :
                         val entities = saved.captured.toList()
                         entities.map { it.eventName } shouldBe listOf("개교기념일", "체육대회")
                         entities.map { it.id }.toSet().size shouldBe 2
-                        entities.forEach { it.id shouldStartWith "7380292_20250512_" }
+                        // 같은 학교·날짜 안의 해시 충돌 여유를 두기 위해 해시는 16자리(64비트)를 쓴다.
+                        entities.forEach { it.id shouldMatch Regex("7380292_20250512_[0-9a-f]{16}") }
                     }
                 }
 

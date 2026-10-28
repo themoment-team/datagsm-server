@@ -141,7 +141,7 @@ class SyncScheduleServiceImpl(
     }
 
     companion object {
-        private const val SCHEDULE_ID_HASH_LENGTH = 8
+        private const val SCHEDULE_ID_HASH_LENGTH = 16
         private const val ID_SOURCE_SEPARATOR = "\u001F"
         private val DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd")
     }
