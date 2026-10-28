@@ -162,7 +162,9 @@ class CloudWatchAppenderTest :
                     appender.stop()
 
                     // Then
+                    // 전송(300ms)이 종료 대기 시간(기본 5초) 안에 끝나므로, 끝까지 보낸 뒤 정상 종료 절차까지 마쳐야 한다.
                     sentMessages().filter { it.contains("in-flight") } shouldHaveSize 1
+                    verify(exactly = 1) { client.close() }
                 }
             }
 
