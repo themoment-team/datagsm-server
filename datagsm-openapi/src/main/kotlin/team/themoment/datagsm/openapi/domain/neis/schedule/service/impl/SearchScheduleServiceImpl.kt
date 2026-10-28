@@ -28,9 +28,12 @@ class SearchScheduleServiceImpl(
                 else -> scheduleRedisRepository.findAll().toList()
             }
 
+        // Redis 세트에서 읽어 순서가 매번 달라지므로, 같은 날 여러 일정이 일정한 순서로 나오게 정렬한다.
+        val sortedSchedules = schedules.sortedWith(compareBy({ it.date }, { it.eventName }))
+
         return ScheduleResDto(
             schedules =
-                schedules.map { schedule ->
+                sortedSchedules.map { schedule ->
                     ScheduleInfoResDto(
                         scheduleId = schedule.id,
                         schoolCode = schedule.schoolCode,

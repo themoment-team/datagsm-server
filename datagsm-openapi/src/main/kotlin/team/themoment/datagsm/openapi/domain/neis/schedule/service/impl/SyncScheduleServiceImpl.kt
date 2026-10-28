@@ -9,6 +9,7 @@ import team.themoment.datagsm.common.domain.neis.schedule.repository.ScheduleRed
 import team.themoment.datagsm.common.global.data.NeisEnvironment
 import team.themoment.datagsm.openapi.domain.neis.schedule.service.SyncScheduleService
 import team.themoment.datagsm.openapi.global.thirdparty.feign.neis.NeisApiClient
+import java.security.MessageDigest
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -65,7 +66,7 @@ class SyncScheduleServiceImpl(
 
     private fun convertToEntity(dto: SchoolScheduleInfo): ScheduleRedisEntity {
         val scheduleDate = LocalDate.parse(dto.scheduleDate, DATE_FORMATTER)
-        val scheduleId = "${dto.schoolCode}_${dto.scheduleDate}"
+        val scheduleId = createScheduleId(dto)
 
         val targetGrades =
             parseTargetGrades(
@@ -112,7 +113,20 @@ class SyncScheduleServiceImpl(
         ).filter { it.second == "Y" }
             .map { it.first }
 
+    // NEIS 학사일정에는 일정별 고유 ID가 없다. 날짜만으로 만들면 같은 날 일정이 서로 덮어쓰므로 행사명을 더하되,
+    // 한글·공백이 섞인 긴 값이 API의 scheduleId로 나가지 않도록 해시로 줄인다. 행사명이 같으면 동기화마다 같은 id가 된다.
+    private fun createScheduleId(dto: SchoolScheduleInfo): String {
+        val eventNameHash =
+            MessageDigest
+                .getInstance("SHA-256")
+                .digest(dto.eventName.trim().toByteArray(Charsets.UTF_8))
+                .joinToString("") { "%02x".format(it) }
+                .take(EVENT_NAME_HASH_LENGTH)
+        return "${dto.schoolCode}_${dto.scheduleDate}_$eventNameHash"
+    }
+
     companion object {
+        private const val EVENT_NAME_HASH_LENGTH = 8
         private val DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd")
     }
 }

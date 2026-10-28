@@ -1,9 +1,12 @@
 package team.themoment.datagsm.openapi.domain.neis.schedule.service
 
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldStartWith
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import team.themoment.datagsm.common.domain.neis.dto.internal.NeisScheduleApiResponse
 import team.themoment.datagsm.common.domain.neis.dto.internal.SchoolScheduleInfo
@@ -230,6 +233,100 @@ class SyncScheduleServiceTest :
                         verify(exactly = 0) { mockScheduleRepository.saveAll(any<Iterable<ScheduleRedisEntity>>()) }
                     }
                 }
+
+                context("같은 날 행사명이 다른 일정이 여러 개 올 때") {
+                    val fromDate = LocalDate.of(2025, 5, 1)
+                    val toDate = LocalDate.of(2025, 5, 31)
+                    val saved = slot<Iterable<ScheduleRedisEntity>>()
+
+                    beforeEach {
+                        every { mockNeisEnvironment.key } returns "test-api-key"
+                        every { mockNeisEnvironment.officeCode } returns "F10"
+                        every { mockNeisEnvironment.schoolCode } returns "7380292"
+                        stubSchedulePage(
+                            mockNeisApiClient,
+                            listOf(scheduleRow("20250512", "개교기념일"), scheduleRow("20250512", "체육대회")),
+                        )
+                        every { mockScheduleRepository.saveAll(capture(saved)) } answers { saved.captured.toList() }
+                        every { mockScheduleRepository.deleteAll() } returns Unit
+                    }
+
+                    it("서로 다른 id로 모두 저장해야 한다") {
+                        syncScheduleService.execute(fromDate, toDate)
+
+                        val entities = saved.captured.toList()
+                        entities.map { it.eventName } shouldBe listOf("개교기념일", "체육대회")
+                        entities.map { it.id }.toSet().size shouldBe 2
+                        entities.forEach { it.id shouldStartWith "7380292_20250512_" }
+                    }
+                }
+
+                context("같은 일정을 다시 동기화할 때") {
+                    val fromDate = LocalDate.of(2025, 5, 1)
+                    val toDate = LocalDate.of(2025, 5, 31)
+                    val saved = mutableListOf<List<ScheduleRedisEntity>>()
+
+                    beforeEach {
+                        every { mockNeisEnvironment.key } returns "test-api-key"
+                        every { mockNeisEnvironment.officeCode } returns "F10"
+                        every { mockNeisEnvironment.schoolCode } returns "7380292"
+                        stubSchedulePage(mockNeisApiClient, listOf(scheduleRow("20250512", "개교기념일")))
+                        every { mockScheduleRepository.saveAll(any<Iterable<ScheduleRedisEntity>>()) } answers {
+                            @Suppress("UNCHECKED_CAST")
+                            (firstArg() as Iterable<ScheduleRedisEntity>).toList().also { saved.add(it) }
+                        }
+                        every { mockScheduleRepository.deleteAll() } returns Unit
+                    }
+
+                    it("행사명이 같으면 매번 같은 id를 만들어야 한다") {
+                        syncScheduleService.execute(fromDate, toDate)
+                        syncScheduleService.execute(fromDate, toDate)
+
+                        saved[0].single().id shouldBe saved[1].single().id
+                    }
+                }
             }
         }
     })
+
+private fun scheduleRow(
+    scheduleDate: String,
+    eventName: String,
+) = SchoolScheduleInfo(
+    officeCode = "F10",
+    officeName = "광주광역시교육청",
+    schoolCode = "7380292",
+    schoolName = "광주소프트웨어마이스터고등학교",
+    academicYear = "2025",
+    scheduleDate = scheduleDate,
+    eventName = eventName,
+    eventContent = null,
+    dayCategory = "해당없음",
+    grade1EventYn = "Y",
+    grade2EventYn = "Y",
+    grade3EventYn = "Y",
+    grade4EventYn = null,
+    grade5EventYn = null,
+    grade6EventYn = null,
+    schoolCourseType = "고등학교",
+    dayNightType = "주간",
+    loadDateTime = null,
+)
+
+private fun stubSchedulePage(
+    neisApiClient: NeisApiClient,
+    rows: List<SchoolScheduleInfo>,
+) {
+    every {
+        neisApiClient.getSchoolSchedule(
+            key = any(),
+            pIndex = any(),
+            pSize = any(),
+            atptOfcdcScCode = any(),
+            sdSchulCode = any(),
+            aa_ymd = any(),
+            aa_from_ymd = any(),
+            aa_to_ymd = any(),
+        )
+    } returns NeisScheduleApiResponse(schoolSchedule = listOf(SchoolScheduleWrapper(head = null, row = rows)))
+}

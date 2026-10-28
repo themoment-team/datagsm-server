@@ -175,6 +175,48 @@ class SearchScheduleServiceTest :
                         verify(exactly = 1) { mockScheduleRepository.findAll() }
                     }
                 }
+
+                context("같은 날 일정이 여러 개 있을 때") {
+                    val targetDate = LocalDate.of(2025, 5, 12)
+
+                    fun schedule(
+                        id: String,
+                        date: LocalDate,
+                        eventName: String,
+                    ) = ScheduleRedisEntity(
+                        id = id,
+                        schoolCode = "7380292",
+                        schoolName = "광주소프트웨어마이스터고등학교",
+                        officeCode = "F10",
+                        officeName = "광주광역시교육청",
+                        date = date,
+                        academicYear = "2025",
+                        eventName = eventName,
+                        eventContent = null,
+                        dayCategory = "해당없음",
+                        schoolCourseType = "고등학교",
+                        dayNightType = "주간",
+                        targetGrades = listOf(1, 2, 3),
+                    )
+
+                    beforeEach {
+                        every { mockScheduleRepository.findByDateBetween(targetDate, targetDate.plusDays(1)) } returns
+                            listOf(
+                                schedule("c", targetDate.plusDays(1), "가정의 날"),
+                                schedule("b", targetDate, "체육대회"),
+                                schedule("a", targetDate, "개교기념일"),
+                            )
+                    }
+
+                    it("날짜와 행사명 순으로 모두 반환해야 한다") {
+                        val result =
+                            searchScheduleService.execute(
+                                QueryScheduleReqDto(date = null, fromDate = targetDate, toDate = targetDate.plusDays(1)),
+                            )
+
+                        result.schedules.map { it.eventName } shouldBe listOf("개교기념일", "체육대회", "가정의 날")
+                    }
+                }
             }
         }
     })
