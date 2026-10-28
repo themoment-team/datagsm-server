@@ -233,7 +233,9 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
                     lastFlushTime = now
                 }
             } catch (_: InterruptedException) {
-                addInfo("Writer thread interrupted, flushing remaining logs")
+                // stop()은 인터럽트하지 않는다. 외부에서 들어온 인터럽트는 무시하고 계속 돌되,
+                // 종료 중이면 루프를 빠져 아래에서 로컬 묶음을 마저 보낸다.
+                addInfo("Writer thread interrupted externally")
                 if (!running) {
                     break
                 }
