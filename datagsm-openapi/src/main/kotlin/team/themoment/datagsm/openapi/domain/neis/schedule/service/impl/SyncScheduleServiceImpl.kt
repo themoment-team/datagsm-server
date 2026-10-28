@@ -9,6 +9,7 @@ import team.themoment.datagsm.common.domain.neis.schedule.repository.ScheduleRed
 import team.themoment.datagsm.common.global.data.NeisEnvironment
 import team.themoment.datagsm.openapi.domain.neis.schedule.service.SyncScheduleService
 import team.themoment.datagsm.openapi.global.thirdparty.feign.neis.NeisApiClient
+import team.themoment.sdk.logging.logger.logger
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -46,22 +47,30 @@ class SyncScheduleServiceImpl(
                     aa_to_ymd = aaToYmd,
                 )
 
-            val schedules =
+            val rows =
                 apiResponse.schoolSchedule
                     ?.find { it.row != null }
                     ?.row
-                    ?.map { convertToEntity(it) }
                     ?: emptyList()
 
-            allScheduleEntities.addAll(schedules)
+            allScheduleEntities.addAll(rows.mapNotNull { convertOrSkip(it) })
             pageIndex++
-        } while (schedules.size == pageSize)
+            // 건너뛴 행이 있어도 다음 페이지를 받아야 하므로 변환 전 행 수로 판단한다.
+        } while (rows.size == pageSize)
 
         if (allScheduleEntities.isNotEmpty()) {
-            scheduleRedisRepository.deleteAll()
+            // 전체를 지운 뒤 다시 넣으면 그 사이 조회가 빈 결과를 받으므로, 덮어쓴 뒤 이번에 받지 않은 항목만 지운다.
+            val staleIds = scheduleRedisRepository.findAllIds() - allScheduleEntities.map { it.id }.toSet()
             scheduleRedisRepository.saveAll(allScheduleEntities)
+            scheduleRedisRepository.deleteAllById(staleIds)
         }
     }
+
+    // 형식이 어긋난 행 하나로 전체가 실패하면 재시도해도 결과가 같아, 그 행만 건너뛰고 나머지를 반영한다.
+    private fun convertOrSkip(dto: SchoolScheduleInfo): ScheduleRedisEntity? =
+        runCatching { convertToEntity(dto) }
+            .onFailure { logger().warn("Skipped invalid schedule row for date {} with reason {}", dto.scheduleDate, it.message) }
+            .getOrNull()
 
     private fun convertToEntity(dto: SchoolScheduleInfo): ScheduleRedisEntity {
         val scheduleDate = LocalDate.parse(dto.scheduleDate, DATE_FORMATTER)

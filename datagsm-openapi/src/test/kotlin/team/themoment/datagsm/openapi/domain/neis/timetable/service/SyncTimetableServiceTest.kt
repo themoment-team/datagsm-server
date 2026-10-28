@@ -108,7 +108,8 @@ class SyncTimetableServiceTest :
                             @Suppress("UNCHECKED_CAST")
                             (firstArg() as Iterable<TimetableRedisEntity>).toList()
                         }
-                        every { mockTimetableRepository.deleteAll() } returns Unit
+                        every { mockTimetableRepository.findAllIds() } returns emptySet()
+                        every { mockTimetableRepository.deleteAllById(any()) } returns Unit
                     }
 
                     it("NEIS API를 호출하고 데이터를 Redis에 저장해야 한다") {
@@ -126,7 +127,8 @@ class SyncTimetableServiceTest :
                             )
                         }
 
-                        verify(exactly = 1) { mockTimetableRepository.deleteAll() }
+                        verify(exactly = 0) { mockTimetableRepository.deleteAll() }
+                        verify(exactly = 1) { mockTimetableRepository.deleteAllById(any()) }
                         verify(exactly = 1) { mockTimetableRepository.saveAll(any<Iterable<TimetableRedisEntity>>()) }
                     }
                 }
@@ -200,7 +202,8 @@ class SyncTimetableServiceTest :
                             @Suppress("UNCHECKED_CAST")
                             (firstArg() as Iterable<TimetableRedisEntity>).toList()
                         }
-                        every { mockTimetableRepository.deleteAll() } returns Unit
+                        every { mockTimetableRepository.findAllIds() } returns emptySet()
+                        every { mockTimetableRepository.deleteAllById(any()) } returns Unit
                     }
 
                     it("1~7교시 슬롯을 모두 채우고 공강 교시는 공강으로 저장해야 한다") {
@@ -248,13 +251,15 @@ class SyncTimetableServiceTest :
                             @Suppress("UNCHECKED_CAST")
                             (firstArg() as Iterable<TimetableRedisEntity>).toList()
                         }
-                        every { mockTimetableRepository.deleteAll() } returns Unit
+                        every { mockTimetableRepository.findAllIds() } returns emptySet()
+                        every { mockTimetableRepository.deleteAllById(any()) } returns Unit
                     }
 
                     it("기존 데이터를 유지해야 한다") {
                         syncTimetableService.execute(fromDate, toDate)
 
                         verify(exactly = 0) { mockTimetableRepository.deleteAll() }
+                        verify(exactly = 0) { mockTimetableRepository.deleteAllById(any()) }
                         verify(exactly = 0) { mockTimetableRepository.saveAll(any<Iterable<TimetableRedisEntity>>()) }
                     }
                 }
@@ -295,13 +300,15 @@ class SyncTimetableServiceTest :
                             @Suppress("UNCHECKED_CAST")
                             (firstArg() as Iterable<TimetableRedisEntity>).toList()
                         }
-                        every { mockTimetableRepository.deleteAll() } returns Unit
+                        every { mockTimetableRepository.findAllIds() } returns emptySet()
+                        every { mockTimetableRepository.deleteAllById(any()) } returns Unit
                     }
 
                     it("기존 데이터를 유지해야 한다") {
                         syncTimetableService.execute(fromDate, toDate)
 
                         verify(exactly = 0) { mockTimetableRepository.deleteAll() }
+                        verify(exactly = 0) { mockTimetableRepository.deleteAllById(any()) }
                         verify(exactly = 0) { mockTimetableRepository.saveAll(any<Iterable<TimetableRedisEntity>>()) }
                     }
                 }

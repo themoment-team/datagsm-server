@@ -90,4 +90,11 @@ class TimetableRedisCustomRepositoryImpl(
             period = (hash["period"] ?: throw IllegalArgumentException("TimetableRedisEntity period cannot be null")).toInt(),
             subject = hash["subject"],
         )
+
+    // 키스페이스 세트에는 TTL로 만료된 id가 남아 있을 수 있으나, 없는 id의 삭제는 아무 일도 하지 않는다.
+    override fun findAllIds(): Set<String> = redisTemplate.opsForSet().members(KEYSPACE).orEmpty()
+
+    private companion object {
+        const val KEYSPACE = "timetable"
+    }
 }
