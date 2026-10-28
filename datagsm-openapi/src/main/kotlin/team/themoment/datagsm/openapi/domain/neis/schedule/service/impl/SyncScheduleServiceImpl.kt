@@ -9,6 +9,7 @@ import team.themoment.datagsm.common.domain.neis.schedule.repository.ScheduleRed
 import team.themoment.datagsm.common.global.data.NeisEnvironment
 import team.themoment.datagsm.openapi.domain.neis.schedule.service.SyncScheduleService
 import team.themoment.datagsm.openapi.global.thirdparty.feign.neis.NeisApiClient
+import team.themoment.sdk.logging.logger.logger
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -32,6 +33,7 @@ class SyncScheduleServiceImpl(
         val allScheduleEntities = mutableListOf<ScheduleRedisEntity>()
         var pageIndex = 1
         val pageSize = 1000
+        var skippedRowCount = 0
 
         do {
             val apiResponse =
@@ -46,22 +48,41 @@ class SyncScheduleServiceImpl(
                     aa_to_ymd = aaToYmd,
                 )
 
-            val schedules =
+            val rows =
                 apiResponse.schoolSchedule
                     ?.find { it.row != null }
                     ?.row
-                    ?.map { convertToEntity(it) }
                     ?: emptyList()
 
-            allScheduleEntities.addAll(schedules)
+            val convertedEntities = rows.mapNotNull { convertOrSkip(it) }
+            allScheduleEntities.addAll(convertedEntities)
+            skippedRowCount += rows.size - convertedEntities.size
             pageIndex++
-        } while (schedules.size == pageSize)
+            // 건너뛴 행이 있어도 다음 페이지를 받아야 하므로 변환 전 행 수로 판단한다.
+        } while (rows.size == pageSize)
 
         if (allScheduleEntities.isNotEmpty()) {
-            scheduleRedisRepository.deleteAll()
+            // 전체를 지운 뒤 다시 넣으면 그 사이 조회가 빈 결과를 받으므로, 덮어쓴 뒤 이번에 받지 않은 항목만 지운다.
+            val staleIds = scheduleRedisRepository.findAllIds() - allScheduleEntities.map { it.id }.toSet()
             scheduleRedisRepository.saveAll(allScheduleEntities)
+            // 건너뛴 행은 id를 알 수 없어 그 행의 기존 데이터가 누락분으로 지워지므로, 건너뛴 행이 있으면 지우지 않는다.
+            if (skippedRowCount == 0) {
+                scheduleRedisRepository.deleteAllById(staleIds)
+            } else {
+                logger().warn("Kept {} stale schedule entries because {} rows were skipped", staleIds.size, skippedRowCount)
+            }
         }
     }
+
+    // 형식이 어긋난 행 하나로 전체가 실패하면 재시도해도 결과가 같아, 그 행만 건너뛰고 나머지를 반영한다.
+    // Error까지 잡으면 시스템 장애가 행 하나의 경고로 묻히므로 Exception만 건너뛰고, 원인 추적을 위해 예외를 함께 남긴다.
+    private fun convertOrSkip(dto: SchoolScheduleInfo): ScheduleRedisEntity? =
+        try {
+            convertToEntity(dto)
+        } catch (e: Exception) {
+            logger().warn("Skipped invalid schedule row for date {}", dto.scheduleDate, e)
+            null
+        }
 
     private fun convertToEntity(dto: SchoolScheduleInfo): ScheduleRedisEntity {
         val scheduleDate = LocalDate.parse(dto.scheduleDate, DATE_FORMATTER)

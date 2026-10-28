@@ -9,8 +9,10 @@ import team.themoment.datagsm.common.domain.neis.timetable.repository.TimetableR
 import team.themoment.datagsm.common.global.data.NeisEnvironment
 import team.themoment.datagsm.openapi.domain.neis.timetable.service.SyncTimetableService
 import team.themoment.datagsm.openapi.global.thirdparty.feign.neis.NeisApiClient
+import team.themoment.sdk.logging.logger.logger
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 @Service
 class SyncTimetableServiceImpl(
@@ -33,6 +35,7 @@ class SyncTimetableServiceImpl(
 
         var pageIndex = 1
         val pageSize = 1000
+        val skippedRows = mutableListOf<TimetableInfo>()
 
         do {
             val apiResponse =
@@ -46,33 +49,63 @@ class SyncTimetableServiceImpl(
                     tiToYmd = tiToYmd,
                 )
 
-            val timetables =
+            val rows =
                 apiResponse.hisTimetable
                     ?.find { it.row != null }
                     ?.row
-                    ?.map { convertToEntity(it) }
                     ?: emptyList()
 
-            allTimetableEntities.addAll(timetables)
+            rows.forEach { row -> convertOrSkip(row)?.let { allTimetableEntities.add(it) } ?: skippedRows.add(row) }
             pageIndex++
-        } while (timetables.size == pageSize)
+            // 건너뛴 행이 있어도 다음 페이지를 받아야 하므로 변환 전 행 수로 판단한다.
+        } while (rows.size == pageSize)
 
         if (allTimetableEntities.isNotEmpty()) {
-            val filledTimetableEntities = fillEmptyPeriods(allTimetableEntities)
-            timetableRedisRepository.deleteAll()
+            val filledTimetableEntities = fillEmptyPeriods(allTimetableEntities, skippedRows)
+            // 전체를 지운 뒤 다시 넣으면 그 사이 조회가 빈 결과를 받으므로, 덮어쓴 뒤 이번에 받지 않은 항목만 지운다.
+            val staleIds = timetableRedisRepository.findAllIds() - filledTimetableEntities.map { it.id }.toSet()
             timetableRedisRepository.saveAll(filledTimetableEntities)
+            // 건너뛴 행은 id를 알 수 없어 그 행의 기존 데이터가 누락분으로 지워지므로, 건너뛴 행이 있으면 지우지 않는다.
+            if (skippedRows.isEmpty()) {
+                timetableRedisRepository.deleteAllById(staleIds)
+            } else {
+                logger().warn("Kept {} stale timetable entries because {} rows were skipped", staleIds.size, skippedRows.size)
+            }
         }
     }
 
-    private fun fillEmptyPeriods(timetables: List<TimetableRedisEntity>): List<TimetableRedisEntity> =
-        timetables
+    // 건너뛴 행이 속한 반은 그 교시에 실제 수업이 있었을 수 있어, 공강으로 채우면 같은 id의 기존 수업을 덮어쓴다.
+    private fun fillEmptyPeriods(
+        timetables: List<TimetableRedisEntity>,
+        skippedRows: List<TimetableInfo>,
+    ): List<TimetableRedisEntity> {
+        val skippedGroups = skippedRows.map { it.toGroupKeyOrNull() }
+        // 어느 반의 행인지조차 알 수 없으면 어떤 반을 덮어쓸지 모르므로 공강을 채우지 않는다.
+        if (skippedGroups.any { it == null }) return timetables
+        val unfillableGroups = skippedGroups.filterNotNull().toSet()
+
+        return timetables
             .groupBy { Triple(it.date, it.grade, it.classNum) }
-            .flatMap { (_, groupedTimetables) ->
+            .flatMap { (group, groupedTimetables) ->
+                if (group in unfillableGroups) return@flatMap groupedTimetables
                 val existingPeriods = groupedTimetables.associateBy { it.period }
                 (FIRST_PERIOD..LAST_PERIOD).map { period ->
                     existingPeriods[period] ?: createEmptyPeriod(groupedTimetables.first(), period)
                 }
             }
+    }
+
+    private fun TimetableInfo.toGroupKeyOrNull(): Triple<LocalDate, Int, Int>? {
+        val date =
+            try {
+                LocalDate.parse(timetableDate, DATE_FORMATTER)
+            } catch (_: DateTimeParseException) {
+                return null
+            }
+        val grade = grade.toIntOrNull() ?: return null
+        val classNum = classNum.toIntOrNull() ?: return null
+        return Triple(date, grade, classNum)
+    }
 
     private fun createEmptyPeriod(
         reference: TimetableRedisEntity,
@@ -87,6 +120,16 @@ class SyncTimetableServiceImpl(
             subject = EMPTY_PERIOD_SUBJECT,
         )
     }
+
+    // 형식이 어긋난 행 하나로 전체가 실패하면 재시도해도 결과가 같아, 그 행만 건너뛰고 나머지를 반영한다.
+    // Error까지 잡으면 시스템 장애가 행 하나의 경고로 묻히므로 Exception만 건너뛰고, 원인 추적을 위해 예외를 함께 남긴다.
+    private fun convertOrSkip(dto: TimetableInfo): TimetableRedisEntity? =
+        try {
+            convertToEntity(dto)
+        } catch (e: Exception) {
+            logger().warn("Skipped invalid timetable row for date {}", dto.timetableDate, e)
+            null
+        }
 
     private fun convertToEntity(dto: TimetableInfo): TimetableRedisEntity {
         val timetableDate = LocalDate.parse(dto.timetableDate, DATE_FORMATTER)

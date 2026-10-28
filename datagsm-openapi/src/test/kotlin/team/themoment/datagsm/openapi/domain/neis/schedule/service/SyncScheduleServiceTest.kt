@@ -117,7 +117,8 @@ class SyncScheduleServiceTest :
                             @Suppress("UNCHECKED_CAST")
                             (firstArg() as Iterable<ScheduleRedisEntity>).toList()
                         }
-                        every { mockScheduleRepository.deleteAll() } returns Unit
+                        every { mockScheduleRepository.findAllIds() } returns emptySet()
+                        every { mockScheduleRepository.deleteAllById(any()) } returns Unit
                     }
 
                     it("NEIS API를 호출하고 데이터를 Redis에 저장해야 한다") {
@@ -136,7 +137,8 @@ class SyncScheduleServiceTest :
                             )
                         }
 
-                        verify(exactly = 1) { mockScheduleRepository.deleteAll() }
+                        verify(exactly = 0) { mockScheduleRepository.deleteAll() }
+                        verify(exactly = 1) { mockScheduleRepository.deleteAllById(any()) }
                         verify(exactly = 1) { mockScheduleRepository.saveAll(any<Iterable<ScheduleRedisEntity>>()) }
                     }
                 }
@@ -172,13 +174,15 @@ class SyncScheduleServiceTest :
                             @Suppress("UNCHECKED_CAST")
                             (firstArg() as Iterable<ScheduleRedisEntity>).toList()
                         }
-                        every { mockScheduleRepository.deleteAll() } returns Unit
+                        every { mockScheduleRepository.findAllIds() } returns emptySet()
+                        every { mockScheduleRepository.deleteAllById(any()) } returns Unit
                     }
 
                     it("기존 데이터를 유지해야 한다") {
                         syncScheduleService.execute(fromDate, toDate)
 
                         verify(exactly = 0) { mockScheduleRepository.deleteAll() }
+                        verify(exactly = 0) { mockScheduleRepository.deleteAllById(any()) }
                         verify(exactly = 0) { mockScheduleRepository.saveAll(any<Iterable<ScheduleRedisEntity>>()) }
                     }
                 }
@@ -220,13 +224,15 @@ class SyncScheduleServiceTest :
                             @Suppress("UNCHECKED_CAST")
                             (firstArg() as Iterable<ScheduleRedisEntity>).toList()
                         }
-                        every { mockScheduleRepository.deleteAll() } returns Unit
+                        every { mockScheduleRepository.findAllIds() } returns emptySet()
+                        every { mockScheduleRepository.deleteAllById(any()) } returns Unit
                     }
 
                     it("기존 데이터를 유지해야 한다") {
                         syncScheduleService.execute(fromDate, toDate)
 
                         verify(exactly = 0) { mockScheduleRepository.deleteAll() }
+                        verify(exactly = 0) { mockScheduleRepository.deleteAllById(any()) }
                         verify(exactly = 0) { mockScheduleRepository.saveAll(any<Iterable<ScheduleRedisEntity>>()) }
                     }
                 }

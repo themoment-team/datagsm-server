@@ -3,6 +3,7 @@ package team.themoment.datagsm.common.domain.neis.meal.repository
 import org.springframework.data.redis.core.RedisKeyValueTemplate
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Repository
+import team.themoment.datagsm.common.domain.neis.meal.entity.MEAL_KEYSPACE
 import team.themoment.datagsm.common.domain.neis.meal.entity.MealRedisEntity
 import java.time.LocalDate
 
@@ -39,7 +40,7 @@ class MealRedisCustomRepositoryImpl(
         var currentDate = from
 
         while (!currentDate.isAfter(to)) {
-            val indexKey = "meal:date:$currentDate"
+            val indexKey = "$MEAL_KEYSPACE:date:$currentDate"
             val dateIds = redisTemplate.opsForSet().members(indexKey)
             dateIds?.forEach { id -> ids.add(id) }
             currentDate = currentDate.plusDays(1)
@@ -51,4 +52,7 @@ class MealRedisCustomRepositoryImpl(
     // id 목록 조회만 직접 하고, 엔티티는 저장(saveAll)과 같은 Spring Data 변환기로 읽어야 목록 필드가 보존된다.
     private fun findEntitiesByIds(ids: Set<String>): List<MealRedisEntity> =
         ids.mapNotNull { id -> redisKeyValueTemplate.findById(id, MealRedisEntity::class.java).orElse(null) }
+
+    // 키스페이스 세트에는 TTL로 만료된 id가 남아 있을 수 있으나, 없는 id의 삭제는 아무 일도 하지 않는다.
+    override fun findAllIds(): Set<String> = redisTemplate.opsForSet().members(MEAL_KEYSPACE).orEmpty()
 }

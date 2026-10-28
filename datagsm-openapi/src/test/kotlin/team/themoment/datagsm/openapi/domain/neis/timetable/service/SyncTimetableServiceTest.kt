@@ -108,7 +108,8 @@ class SyncTimetableServiceTest :
                             @Suppress("UNCHECKED_CAST")
                             (firstArg() as Iterable<TimetableRedisEntity>).toList()
                         }
-                        every { mockTimetableRepository.deleteAll() } returns Unit
+                        every { mockTimetableRepository.findAllIds() } returns emptySet()
+                        every { mockTimetableRepository.deleteAllById(any()) } returns Unit
                     }
 
                     it("NEIS API를 호출하고 데이터를 Redis에 저장해야 한다") {
@@ -126,7 +127,8 @@ class SyncTimetableServiceTest :
                             )
                         }
 
-                        verify(exactly = 1) { mockTimetableRepository.deleteAll() }
+                        verify(exactly = 0) { mockTimetableRepository.deleteAll() }
+                        verify(exactly = 1) { mockTimetableRepository.deleteAllById(any()) }
                         verify(exactly = 1) { mockTimetableRepository.saveAll(any<Iterable<TimetableRedisEntity>>()) }
                     }
                 }
@@ -200,7 +202,8 @@ class SyncTimetableServiceTest :
                             @Suppress("UNCHECKED_CAST")
                             (firstArg() as Iterable<TimetableRedisEntity>).toList()
                         }
-                        every { mockTimetableRepository.deleteAll() } returns Unit
+                        every { mockTimetableRepository.findAllIds() } returns emptySet()
+                        every { mockTimetableRepository.deleteAllById(any()) } returns Unit
                     }
 
                     it("1~7교시 슬롯을 모두 채우고 공강 교시는 공강으로 저장해야 한다") {
@@ -215,6 +218,51 @@ class SyncTimetableServiceTest :
                         savedEntities
                             .filter { it.period in listOf(2, 3, 4, 6, 7) }
                             .forEach { it.subject shouldBe "공강" }
+                    }
+                }
+
+                context("어떤 반의 교시 행이 형식 오류로 건너뛰어졌을 때") {
+                    val fromDate = LocalDate.of(2025, 3, 1)
+                    val toDate = LocalDate.of(2026, 2, 28)
+                    val savedEntitiesSlot = slot<Iterable<TimetableRedisEntity>>()
+
+                    beforeEach {
+                        every { mockNeisEnvironment.key } returns "test-api-key"
+                        every { mockNeisEnvironment.officeCode } returns "F10"
+                        every { mockNeisEnvironment.schoolCode } returns "7380292"
+                        val rows =
+                            listOf(
+                                timetableRow(classNum = "1", period = "1", subject = "국어"),
+                                // 1반 7교시가 숫자가 아니어서 건너뛰어진다.
+                                timetableRow(classNum = "1", period = "칠", subject = "수학"),
+                                timetableRow(classNum = "2", period = "1", subject = "영어"),
+                            )
+                        every {
+                            mockNeisApiClient.getHisTimetable(
+                                key = any(),
+                                pIndex = any(),
+                                pSize = any(),
+                                atptOfcdcScCode = any(),
+                                sdSchulCode = any(),
+                                tiFromYmd = any(),
+                                tiToYmd = any(),
+                            )
+                        } returns
+                            NeisTimetableApiResponse(hisTimetable = listOf(HisTimetableWrapper(head = null, row = rows)))
+                        every { mockTimetableRepository.saveAll(capture(savedEntitiesSlot)) } answers {
+                            @Suppress("UNCHECKED_CAST")
+                            (firstArg() as Iterable<TimetableRedisEntity>).toList()
+                        }
+                        every { mockTimetableRepository.findAllIds() } returns emptySet()
+                        every { mockTimetableRepository.deleteAllById(any()) } returns Unit
+                    }
+
+                    it("그 반은 공강으로 채우지 않고 다른 반만 채워야 한다") {
+                        syncTimetableService.execute(fromDate, toDate)
+
+                        val savedEntities = savedEntitiesSlot.captured.toList()
+                        savedEntities.filter { it.classNum == 1 }.map { it.period } shouldBe listOf(1)
+                        savedEntities.filter { it.classNum == 2 }.map { it.period } shouldContainExactlyInAnyOrder (1..7).toList()
                     }
                 }
 
@@ -248,13 +296,15 @@ class SyncTimetableServiceTest :
                             @Suppress("UNCHECKED_CAST")
                             (firstArg() as Iterable<TimetableRedisEntity>).toList()
                         }
-                        every { mockTimetableRepository.deleteAll() } returns Unit
+                        every { mockTimetableRepository.findAllIds() } returns emptySet()
+                        every { mockTimetableRepository.deleteAllById(any()) } returns Unit
                     }
 
                     it("기존 데이터를 유지해야 한다") {
                         syncTimetableService.execute(fromDate, toDate)
 
                         verify(exactly = 0) { mockTimetableRepository.deleteAll() }
+                        verify(exactly = 0) { mockTimetableRepository.deleteAllById(any()) }
                         verify(exactly = 0) { mockTimetableRepository.saveAll(any<Iterable<TimetableRedisEntity>>()) }
                     }
                 }
@@ -295,16 +345,37 @@ class SyncTimetableServiceTest :
                             @Suppress("UNCHECKED_CAST")
                             (firstArg() as Iterable<TimetableRedisEntity>).toList()
                         }
-                        every { mockTimetableRepository.deleteAll() } returns Unit
+                        every { mockTimetableRepository.findAllIds() } returns emptySet()
+                        every { mockTimetableRepository.deleteAllById(any()) } returns Unit
                     }
 
                     it("기존 데이터를 유지해야 한다") {
                         syncTimetableService.execute(fromDate, toDate)
 
                         verify(exactly = 0) { mockTimetableRepository.deleteAll() }
+                        verify(exactly = 0) { mockTimetableRepository.deleteAllById(any()) }
                         verify(exactly = 0) { mockTimetableRepository.saveAll(any<Iterable<TimetableRedisEntity>>()) }
                     }
                 }
             }
         }
     })
+
+private fun timetableRow(
+    classNum: String,
+    period: String,
+    subject: String,
+) = TimetableInfo(
+    officeCode = "F10",
+    officeName = "광주광역시교육청",
+    schoolCode = "7380292",
+    schoolName = "광주소프트웨어마이스터고등학교",
+    academicYear = "2025",
+    semester = "1",
+    timetableDate = "20250401",
+    grade = "1",
+    classNum = classNum,
+    period = period,
+    subject = subject,
+    loadDateTime = null,
+)
