@@ -97,7 +97,8 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
         // writer 대기와 남은 이벤트 전송이 함께 shutdownTimeoutMillis 안에 끝나도록 같은 마감 시각을 쓴다.
         val deadline = System.currentTimeMillis() + shutdownTimeoutMillis
         running = false
-        writerThread?.interrupt()
+        // 인터럽트하면 전송 중인 요청이 중단되어 그 묶음이 사라지므로 깨우지 않는다.
+        // writer는 큐 대기 시간(1초)마다 running을 확인해 남은 이벤트를 보내고 스스로 끝난다.
         writerThread?.join(shutdownTimeoutMillis)
 
         // writer가 아직 전송 중이면 같은 이벤트·레이아웃·클라이언트를 함께 쓰게 되므로 손대지 않는다.
