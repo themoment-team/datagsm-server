@@ -22,12 +22,16 @@ class ExpiredRedisEntryCleaner(
 ) {
     private val cleanupScript = DefaultRedisScript(CLEANUP_SCRIPT, Long::class.java)
 
-    fun cleanUp(): Map<String, Long> =
-        findExpiringKeyspaces().associateWith { keyspace ->
-            runCatching { cleanUpKeyspace(keyspace) }
-                .onFailure { logger().error("Failed to clean up expired entries in keyspace {}", keyspace, it) }
-                .getOrDefault(0L)
-        }
+    // 대상 엔티티는 배포 단위로 고정이므로 한 번만 찾는다. 실패하면 다음 실행에서 다시 찾는다.
+    private val expiringKeyspaces: List<String> by lazy { findExpiringKeyspaces() }
+
+    fun cleanUp(): Map<String, Long> {
+        val keyspaces =
+            runCatching { expiringKeyspaces }
+                .onFailure { logger().error("Failed to find expiring Redis keyspaces", it) }
+                .getOrElse { return emptyMap() }
+        return keyspaces.associateWith { cleanUpKeyspace(it) }
+    }
 
     internal fun findExpiringKeyspaces(): List<String> {
         val mappingContext = redisKeyValueAdapter.converter.mappingContext
@@ -43,17 +47,22 @@ class ExpiredRedisEntryCleaner(
             .sorted()
     }
 
+    // 키스페이스 하나가 실패해도 나머지는 계속 처리하고, 이미 지운 개수는 실패해도 그대로 보고한다.
     private fun cleanUpKeyspace(keyspace: String): Long {
         var removedCount = 0L
-        redisTemplate
-            .opsForSet()
-            .scan(keyspace, ScanOptions.scanOptions().count(SCAN_COUNT).build())
-            .use { cursor ->
-                cursor
-                    .asSequence()
-                    .chunked(BATCH_SIZE)
-                    .forEach { ids -> removedCount += removeExpired(keyspace, ids) }
-            }
+        try {
+            redisTemplate
+                .opsForSet()
+                .scan(keyspace, ScanOptions.scanOptions().count(SCAN_COUNT).build())
+                .use { cursor ->
+                    cursor
+                        .asSequence()
+                        .chunked(BATCH_SIZE)
+                        .forEach { ids -> removedCount += removeExpired(keyspace, ids) }
+                }
+        } catch (e: Exception) {
+            logger().error("Failed to clean up expired entries in keyspace {} after removing {}", keyspace, removedCount, e)
+        }
         return removedCount
     }
 
