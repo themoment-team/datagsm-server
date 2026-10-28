@@ -254,6 +254,9 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
         deadline: Long = Long.MAX_VALUE,
     ) {
         try {
+            // 안내 전송이 실패하면 다음 전송에서 다시 알리도록, 보낸 뒤에만 카운트를 차감한다.
+            val droppedCount = droppedEventCount.get()
+            val droppedNotice = createDroppedEventsNotice(droppedCount)
             val logEvents =
                 (
                     batch.map { event ->
@@ -262,7 +265,7 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
                             .timestamp(event.timeStamp)
                             .message(truncateToMaxEventBytes(activeLayout.doLayout(event)))
                             .build()
-                    } + listOfNotNull(createDroppedEventsNotice())
+                    } + listOfNotNull(droppedNotice)
                 ).sortedBy { it.timestamp() }
 
             // 요청 하나의 크기 상한을 넘으면 묶음 전체가 거절되므로 크기 기준으로 나눠 보낸다.
@@ -273,15 +276,17 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
                     addWarn("Skipped $skippedCount log events because the shutdown timeout elapsed")
                     return
                 }
-                putWithRetry(chunk)
+                val sent = putWithRetry(chunk)
+                if (sent && chunk.any { it === droppedNotice }) {
+                    droppedEventCount.addAndGet(-droppedCount)
+                }
             }
         } catch (e: Exception) {
             addError("Failed to send log events to CloudWatch", e)
         }
     }
 
-    private fun createDroppedEventsNotice(): InputLogEvent? {
-        val droppedCount = droppedEventCount.getAndSet(0)
+    private fun createDroppedEventsNotice(droppedCount: Long): InputLogEvent? {
         if (droppedCount == 0L) return null
         addWarn("Dropped $droppedCount log events because the queue was full")
         return InputLogEvent
@@ -291,7 +296,7 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
             .build()
     }
 
-    private fun putWithRetry(logEvents: List<InputLogEvent>) {
+    private fun putWithRetry(logEvents: List<InputLogEvent>): Boolean {
         try {
             repeat(maxRetries) { retryCount ->
                 try {
@@ -304,7 +309,7 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
                             .build()
 
                     cloudWatchClient.putLogEvents(request)
-                    return
+                    return true
                 } catch (e: ResourceNotFoundException) {
                     addError("Log group or stream not found, attempting to recreate", e)
                     initializeLogGroup()
@@ -315,6 +320,7 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
         } catch (e: Exception) {
             addError("Failed to send log events to CloudWatch", e)
         }
+        return false
     }
 
     companion object {

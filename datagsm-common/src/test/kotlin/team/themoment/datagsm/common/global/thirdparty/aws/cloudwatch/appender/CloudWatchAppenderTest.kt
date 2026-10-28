@@ -243,6 +243,42 @@ class CloudWatchAppenderTest :
                     messages.filter { it.contains("third") } shouldHaveSize 0
                     messages.single { it.contains("Dropped") } shouldContain "Dropped 1 log events"
                 }
+
+                it("버린 개수 안내 전송이 실패하면 다음 전송에서 다시 알려야 한다") {
+                    // Given
+                    val sendStarted = CountDownLatch(1)
+                    val releaseSend = CountDownLatch(1)
+                    var noticeFailed = false
+                    every { client.putLogEvents(any<PutLogEventsRequest>()) } answers {
+                        val request = firstArg<PutLogEventsRequest>()
+                        if (request.logEvents().any { it.message().contains("Dropped") } && !noticeFailed) {
+                            noticeFailed = true
+                            throw IllegalStateException("CloudWatch unavailable")
+                        }
+                        sentRequests.add(request)
+                        sendStarted.countDown()
+                        releaseSend.await(5, TimeUnit.SECONDS)
+                        PutLogEventsResponse.builder().build()
+                    }
+                    val appender =
+                        createAppender {
+                            maxBatchSize = 1
+                            queueCapacity = 1
+                        }
+                    appender.start()
+                    appender.doAppend(event(Level.INFO, "first"))
+                    sendStarted.await(5, TimeUnit.SECONDS) shouldBe true
+                    appender.doAppend(event(Level.INFO, "second"))
+                    appender.doAppend(event(Level.INFO, "third"))
+
+                    // When
+                    releaseSend.countDown()
+                    appender.stop()
+
+                    // Then
+                    noticeFailed shouldBe true
+                    sentMessages().single { it.contains("Dropped") } shouldContain "Dropped 1 log events"
+                }
             }
         }
 
