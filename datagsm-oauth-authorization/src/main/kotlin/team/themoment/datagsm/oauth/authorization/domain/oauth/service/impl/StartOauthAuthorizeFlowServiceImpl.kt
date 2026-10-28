@@ -19,6 +19,7 @@ import team.themoment.datagsm.oauth.authorization.domain.oauth.component.IdpSess
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueAuthorizationCodeService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.StartOauthAuthorizeFlowService
 import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
+import team.themoment.sdk.logging.logger.logger
 import java.net.URI
 import java.util.UUID
 
@@ -64,8 +65,13 @@ class StartOauthAuthorizeFlowServiceImpl(
         }
 
         if (codeChallenge != null) {
-            PkceChallengeMethod.fromOrNull(codeChallengeMethod)
-                ?: throw OAuthException.InvalidRequest("지원하지 않는 code_challenge_method입니다.")
+            val method =
+                PkceChallengeMethod.fromOrNull(codeChallengeMethod)
+                    ?: throw OAuthException.InvalidRequest("지원하지 않는 code_challenge_method입니다.")
+            // plain은 discovery에서 내렸지만 기존 SP를 위해 받는다. 차단 전에 사용처를 파악하려고 남긴다.
+            if (method == PkceChallengeMethod.PLAIN) {
+                logger().warn("Accepted deprecated PKCE plain method for clientId {}", clientId)
+            }
         }
 
         val requestedScopes =

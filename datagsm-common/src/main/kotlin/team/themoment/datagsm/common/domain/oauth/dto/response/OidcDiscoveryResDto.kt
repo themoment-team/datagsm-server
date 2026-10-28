@@ -23,9 +23,6 @@ data class OidcDiscoveryResDto(
     @field:JsonProperty("userinfo_endpoint")
     @field:Schema(description = "UserInfo 엔드포인트")
     val userinfoEndpoint: String,
-    @field:JsonProperty("end_session_endpoint")
-    @field:Schema(description = "로그아웃 엔드포인트")
-    val endSessionEndpoint: String,
     @field:JsonProperty("response_types_supported")
     val responseTypesSupported: List<String>,
     @field:JsonProperty("grant_types_supported")

@@ -33,12 +33,12 @@ class QueryOidcDiscoveryServiceImpl(
             tokenEndpoint = "$issuer/v1/oauth/token",
             jwksUri = "$issuer/v1/oauth/jwks",
             userinfoEndpoint = oauthEnvironment.userinfoUrl,
-            endSessionEndpoint = "$issuer/v1/oauth/logout",
             responseTypesSupported = listOf("code"),
             grantTypesSupported = GrantType.entries.map { it.value },
             subjectTypesSupported = listOf(SUBJECT_TYPE_PUBLIC),
             idTokenSigningAlgValuesSupported = listOf(SIGNING_ALGORITHM),
-            codeChallengeMethodsSupported = PkceChallengeMethod.entries.map { it.value },
+            // plain은 하위 호환을 위해 받기만 하고, 새로 연동하는 SP가 쓰지 않도록 광고하지 않는다.
+            codeChallengeMethodsSupported = listOf(PkceChallengeMethod.S256.value),
             scopesSupported =
                 listOf(
                     OAuthScope.OPENID,
@@ -47,7 +47,7 @@ class QueryOidcDiscoveryServiceImpl(
                     "$applicationId:${OAuthScope.CLUB_READ}",
                     "$applicationId:${OAuthScope.PROJECT_READ}",
                 ),
-            tokenEndpointAuthMethodsSupported = listOf("client_secret_post", "none"),
+            tokenEndpointAuthMethodsSupported = listOf("client_secret_basic", "client_secret_post", "none"),
             claimsSupported = listOf("iss", "sub", "aud", "exp", "iat", "nonce", "email"),
         )
     }
