@@ -317,6 +317,14 @@ class CloudWatchAppenderTest :
             it("상한 이하 메시지는 그대로 반환해야 한다") {
                 CloudWatchAppender.truncateToMaxEventBytes("short", maxBytes = 50) shouldBe "short"
             }
+
+            it("문자 수만으로 판단할 수 없는 경계의 멀티바이트 메시지도 바이트 기준으로 판단해야 한다") {
+                // 17자는 문자 수 빠른 경로(50 / 3 = 16자)를 벗어나지만 51바이트라 잘려야 한다.
+                val truncated = CloudWatchAppender.truncateToMaxEventBytes("가".repeat(17), maxBytes = 50)
+
+                truncated shouldEndWith "...[truncated]"
+                CloudWatchAppender.truncateToMaxEventBytes("가".repeat(16), maxBytes = 50) shouldBe "가".repeat(16)
+            }
         }
 
         describe("splitBySize 메서드는") {

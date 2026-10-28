@@ -340,11 +340,14 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
         private const val MAX_REQUEST_BYTES = 1024 * 1024
         private const val MAX_EVENTS_PER_REQUEST = 10000
         private const val TRUNCATED_SUFFIX = "...[truncated]"
+        private const val MAX_UTF8_BYTES_PER_CHAR = 3
 
         internal fun truncateToMaxEventBytes(
             message: String,
             maxBytes: Int = MAX_EVENT_BYTES,
         ): String {
+            // UTF-16 문자 하나는 UTF-8로 최대 3바이트이므로, 대부분의 짧은 메시지는 인코딩 없이 통과시킨다.
+            if (message.length <= maxBytes / MAX_UTF8_BYTES_PER_CHAR) return message
             val bytes = message.toByteArray(Charsets.UTF_8)
             if (bytes.size <= maxBytes) return message
 
