@@ -10,6 +10,7 @@ import team.themoment.datagsm.common.global.data.NeisEnvironment
 import team.themoment.datagsm.openapi.domain.neis.schedule.service.SyncScheduleService
 import team.themoment.datagsm.openapi.global.thirdparty.feign.neis.NeisApiClient
 import team.themoment.sdk.logging.logger.logger
+import java.security.MessageDigest
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -86,7 +87,7 @@ class SyncScheduleServiceImpl(
 
     private fun convertToEntity(dto: SchoolScheduleInfo): ScheduleRedisEntity {
         val scheduleDate = LocalDate.parse(dto.scheduleDate, DATE_FORMATTER)
-        val scheduleId = "${dto.schoolCode}_${dto.scheduleDate}"
+        val scheduleId = createScheduleId(dto)
 
         val targetGrades =
             parseTargetGrades(
@@ -106,7 +107,7 @@ class SyncScheduleServiceImpl(
             officeName = dto.officeName,
             date = scheduleDate,
             academicYear = dto.academicYear,
-            eventName = dto.eventName,
+            eventName = dto.eventName.trim(),
             eventContent = dto.eventContent,
             dayCategory = dto.dayCategory,
             schoolCourseType = dto.schoolCourseType,
@@ -133,7 +134,36 @@ class SyncScheduleServiceImpl(
         ).filter { it.second == "Y" }
             .map { it.first }
 
+    // NEIS 학사일정에는 일정별 고유 ID가 없다. 날짜만으로 만들면 같은 날 일정이 서로 덮어쓰므로 행을 구분하는 값을 더하되,
+    // 한글·공백이 섞인 긴 값이 API의 scheduleId로 나가지 않도록 해시로 줄인다. 내용이 같으면 동기화마다 같은 id가 된다.
+    // 같은 행사명이라도 학년·내용·구분이 다른 행으로 올 수 있어 함께 넣고, 값끼리 이어 붙어 모호해지지 않게 구분자를 둔다.
+    private fun createScheduleId(dto: SchoolScheduleInfo): String {
+        val idSource =
+            listOf(
+                dto.eventName.trim(),
+                dto.eventContent?.trim().orEmpty(),
+                dto.dayCategory?.trim().orEmpty(),
+                listOf(
+                    dto.grade1EventYn,
+                    dto.grade2EventYn,
+                    dto.grade3EventYn,
+                    dto.grade4EventYn,
+                    dto.grade5EventYn,
+                    dto.grade6EventYn,
+                ).joinToString("") { it ?: "N" },
+            ).joinToString(ID_SOURCE_SEPARATOR)
+        val idSourceHash =
+            MessageDigest
+                .getInstance("SHA-256")
+                .digest(idSource.toByteArray(Charsets.UTF_8))
+                .joinToString("") { "%02x".format(it) }
+                .take(SCHEDULE_ID_HASH_LENGTH)
+        return "${dto.schoolCode}_${dto.scheduleDate}_$idSourceHash"
+    }
+
     companion object {
+        private const val SCHEDULE_ID_HASH_LENGTH = 16
+        private const val ID_SOURCE_SEPARATOR = "\u001F"
         private val DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd")
     }
 }

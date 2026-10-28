@@ -7,7 +7,7 @@ import java.time.LocalDate
 @SdkExport
 @Schema(description = "학사일정 단건 정보")
 data class ScheduleInfoResDto(
-    @field:Schema(description = "학사일정 ID", example = "7430310_20251215")
+    @field:Schema(description = "학사일정 ID (학교코드_날짜_행사명 해시)", example = "7430310_20251215_3f9a1c2b7e4d8a06")
     val scheduleId: String,
     @field:Schema(description = "학교 코드", example = "7430310")
     val schoolCode: String,
