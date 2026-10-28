@@ -71,7 +71,7 @@ class CreateAccountServiceRateLimitTest :
                 }
 
                 context("한도가 남아 있으면") {
-                    it("가입 코드 검증 API와 같은 버킷을 차감한 뒤 계정 생성을 진행해야 한다") {
+                    it("가입 코드 검증 API와 같은 버킷을 차감한 뒤 이후 로직으로 진행해야 한다") {
                         // Given
                         every {
                             passwordResetRateLimitService.tryConsume(email, PasswordResetRateLimitType.SIGNUP_CHECK_CODE)
@@ -79,9 +79,11 @@ class CreateAccountServiceRateLimitTest :
                         every { accountJpaRepository.findByEmail(email) } returns Optional.of(mockk())
 
                         // When
-                        shouldThrow<ExpectedException> { createAccountService.execute(reqDto) }
+                        val exception = shouldThrow<ExpectedException> { createAccountService.execute(reqDto) }
 
                         // Then
+                        // 이미 가입된 이메일로 두어 이후 로직의 첫 분기(409)까지 도달했는지만 확인한다. 정상 가입 흐름은 CreateAccountServiceImplTest가 검증한다.
+                        exception.statusCode shouldBe HttpStatus.CONFLICT
                         verify(exactly = 1) {
                             passwordResetRateLimitService.tryConsume(email, PasswordResetRateLimitType.SIGNUP_CHECK_CODE)
                         }
