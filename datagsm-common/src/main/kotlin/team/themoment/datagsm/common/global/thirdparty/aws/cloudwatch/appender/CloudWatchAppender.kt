@@ -94,6 +94,8 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
     override fun stop() {
         // 먼저 started를 내려 drain 이후에 들어와 버려지는 이벤트가 없게 한다.
         super.stop()
+        // writer 대기와 남은 이벤트 전송이 함께 shutdownTimeoutMillis 안에 끝나도록 같은 마감 시각을 쓴다.
+        val deadline = System.currentTimeMillis() + shutdownTimeoutMillis
         running = false
         writerThread?.interrupt()
         writerThread?.join(shutdownTimeoutMillis)
@@ -108,7 +110,7 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
         // 설정 누락으로 시작하지 않은 appender도 logback 종료 시 stop()이 호출된다.
         if (::logQueue.isInitialized) {
             try {
-                flushLogs()
+                flushLogs(deadline)
             } catch (e: Exception) {
                 addError("Error flushing logs during shutdown", e)
             }
@@ -239,15 +241,18 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
         }
     }
 
-    private fun flushLogs() {
+    private fun flushLogs(deadline: Long) {
         val batch = mutableListOf<ILoggingEvent>()
         logQueue.drainTo(batch)
         if (batch.isNotEmpty() || droppedEventCount.get() > 0) {
-            flushBatch(batch)
+            flushBatch(batch, deadline)
         }
     }
 
-    private fun flushBatch(batch: List<ILoggingEvent>) {
+    internal fun flushBatch(
+        batch: List<ILoggingEvent>,
+        deadline: Long = Long.MAX_VALUE,
+    ) {
         try {
             val logEvents =
                 (
@@ -261,7 +266,15 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
                 ).sortedBy { it.timestamp() }
 
             // 요청 하나의 크기 상한을 넘으면 묶음 전체가 거절되므로 크기 기준으로 나눠 보낸다.
-            splitBySize(logEvents).forEach { putWithRetry(it) }
+            val chunks = splitBySize(logEvents)
+            chunks.forEachIndexed { index, chunk ->
+                if (System.currentTimeMillis() >= deadline) {
+                    val skippedCount = chunks.drop(index).sumOf { it.size }
+                    addWarn("Skipped $skippedCount log events because the shutdown timeout elapsed")
+                    return
+                }
+                putWithRetry(chunk)
+            }
         } catch (e: Exception) {
             addError("Failed to send log events to CloudWatch", e)
         }

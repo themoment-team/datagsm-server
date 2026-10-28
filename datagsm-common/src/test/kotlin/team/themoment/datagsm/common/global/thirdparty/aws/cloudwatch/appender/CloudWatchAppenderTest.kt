@@ -171,6 +171,26 @@ class CloudWatchAppenderTest :
                 }
             }
 
+            describe("종료 마감 시각이 지나면") {
+                it("남은 전송 묶음을 보내지 않고 건너뛴 개수를 남겨야 한다") {
+                    // Given
+                    val appender = createAppender()
+                    appender.start()
+                    // 이벤트 하나가 상한(약 256KB)까지 잘려 요청 하나에 4개씩만 들어가므로 3개 묶음으로 나뉜다.
+                    val events = (1..12).map { event(Level.INFO, "x".repeat(300 * 1024)) }
+
+                    // When
+                    appender.flushBatch(events, deadline = System.currentTimeMillis())
+
+                    // Then
+                    sentRequests shouldHaveSize 0
+                    loggerContext.statusManager.copyOfStatusList
+                        .single { it.message.startsWith("Skipped") }
+                        .message shouldBe "Skipped 12 log events because the shutdown timeout elapsed"
+                    appender.stop()
+                }
+            }
+
             describe("설정 누락으로 시작하지 못한 appender를 종료하면") {
                 it("오류 상태를 남기지 않아야 한다") {
                     // Given
