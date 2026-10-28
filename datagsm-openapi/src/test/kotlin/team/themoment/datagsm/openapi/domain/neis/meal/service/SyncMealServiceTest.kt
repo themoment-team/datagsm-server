@@ -282,6 +282,19 @@ class SyncMealServiceTest :
                         syncMealService.execute(fromDate, toDate)
 
                         savedIds.captured.map { it.id } shouldContain "7380292_20251217_3"
+                        // 서비스의 페이지 크기가 PAGE_SIZE와 달라지면 2페이지를 요청하지 않아 여기서 실패한다.
+                        verify(exactly = 1) {
+                            mockNeisApiClient.getMealServiceDietInfo(
+                                key = any(),
+                                pIndex = 2,
+                                pSize = PAGE_SIZE,
+                                atptOfcdcScCode = any(),
+                                sdSchulCode = any(),
+                                mlsvYmd = any(),
+                                mlsvFromYmd = any(),
+                                mlsvToYmd = any(),
+                            )
+                        }
                     }
                 }
             }
