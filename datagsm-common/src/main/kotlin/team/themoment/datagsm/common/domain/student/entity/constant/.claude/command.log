@@ -1,5 +1,0 @@
-[2026-06-24 17:51:23] cd datagsm-web/src/main/kotlin/team/themoment/datagsm/web/domain/student/service/impl; grep -n "generateStudentEventObject" GraduateStudentServiceImpl.kt | head; echo "=== generate fn ==="; sed -n '/private fun generateStudentEventObject/,/^    }/p' GraduateStudentServiceImpl.kt
-[2026-06-24 17:51:35] find datagsm-web -path "*student/service/impl*" -name "*.kt" | xargs grep -l "STUDENT_CHANGED\|generateStudentEventObject" 2>/dev/null
-[2026-06-24 17:51:45] cd /Users/zaman/Documents/BackEnd_Projects/datagsm-server && find datagsm-web -path "*student/service/impl*" -name "*.kt" | xargs grep -l "generateStudentEventObject" 2>/dev/null
-[2026-06-24 17:52:18] cd /Users/zaman/Documents/BackEnd_Projects/datagsm-server && grep -rl "generateStudentEventObject" datagsm-web/src/main/kotlin --include=*.kt
-[2026-06-24 17:52:26] cd /Users/zaman/Documents/BackEnd_Projects/datagsm-server && grep -rln "generateStudentEventObject" datagsm-web/src/main/kotlin
