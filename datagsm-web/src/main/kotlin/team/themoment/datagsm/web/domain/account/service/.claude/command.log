@@ -1,0 +1,35 @@
+[2026-09-27 21:15:39] cd /Users/zaman/Documents/Projects/BackEnd_Projects/datagsm-server && python3 - <<'EOF'
+p='datagsm-web/src/main/kotlin/team/themoment/datagsm/web/domain/account/controller/AccountController.kt'
+s=open(p).read()
+s=s.replace("""import team.themoment.datagsm.web.domain.account.service.QueryMyInfoService
+""","""import team.themoment.datagsm.web.domain.account.service.QueryMyInfoService
+import team.themoment.datagsm.web.domain.account.service.RejectTeacherAccountService
+""")
+s=s.replace("""    private val approveTeacherAccountService: ApproveTeacherAccountService,
+""","""    private val approveTeacherAccountService: ApproveTeacherAccountService,
+    private val rejectTeacherAccountService: RejectTeacherAccountService,
+""")
+s=s.rstrip()
+assert s.endswith("}")
+s=s[:-1]+"""
+    @Operation(
+        summary = "선생님 계정 승인 거절",
+        description = "승인 대기 중인 선생님 계정을 거절합니다. 계정과 선생님 정보가 삭제되어 같은 이메일로 다시 가입할 수 있습니다.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "거절 성공"),
+            ApiResponse(responseCode = "400", description = "선생님 계정이 아님", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "409", description = "이미 승인된 계정", content = [Content()]),
+        ],
+    )
+    @DeleteMapping("/{accountId}/approval")
+    fun rejectTeacherAccount(
+        @Parameter(description = "계정 ID") @PathVariable accountId: Long,
+    ) = rejectTeacherAccountService.execute(accountId)
+}
+"""
+open(p,'w').write(s)
+EOF
+tail -40 datagsm-web/src/main/kotlin/team/themoment/datagsm/web/domain/account/controller/AccountController.kt
