@@ -18,6 +18,9 @@ class JwtAuthenticationFilter(
     private val jwtProvider: JwtProvider,
     private val objectMapper: ObjectMapper,
 ) : OncePerRequestFilter() {
+    // token 엔드포인트는 Authorization 헤더로 클라이언트 인증(client_secret_basic)을 받으므로 JWT로 해석하지 않는다.
+    override fun shouldNotFilter(request: HttpServletRequest): Boolean = request.requestURI == TOKEN_ENDPOINT_PATH
+
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
@@ -68,5 +71,9 @@ class JwtAuthenticationFilter(
         }
 
         filterChain.doFilter(request, response)
+    }
+
+    private companion object {
+        const val TOKEN_ENDPOINT_PATH = "/v1/oauth/token"
     }
 }

@@ -40,6 +40,7 @@ class QueryUserInfoServiceImpl(
             }
 
         return AccountInfoResDto(
+            sub = account.email,
             id = account.id!!,
             email = account.email,
             role = account.role,
