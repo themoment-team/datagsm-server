@@ -5,8 +5,12 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.util.MultiValueMap
 import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -40,6 +44,7 @@ import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryJwkS
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryOauthSessionService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.QueryStudentDataEditRequestService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.StartOauthAuthorizeFlowService
+import team.themoment.datagsm.oauth.authorization.global.util.Oauth2TokenRequestReader
 
 @Tag(name = "OAuth", description = "OAuth 인증 관련 API")
 @RestController
@@ -104,6 +109,7 @@ class OauthController(
             ApiResponse(responseCode = "400", description = "세션 만료 또는 잘못된 요청", content = [Content()]),
             ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
             ApiResponse(responseCode = "422", description = "정보 수정 요청이 해소되지 않아 로그인할 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "429", description = "로그인 시도 횟수 초과", content = [Content()]),
         ],
     )
     fun authorizePost(
@@ -140,6 +146,7 @@ class OauthController(
             ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
             ApiResponse(responseCode = "403", description = "학생 정보가 연결되지 않은 계정", content = [Content()]),
             ApiResponse(responseCode = "404", description = "진행 중인 수정 요청이 없음", content = [Content()]),
+            ApiResponse(responseCode = "429", description = "로그인 시도 횟수 초과", content = [Content()]),
         ],
     )
     fun queryStudentDataEditRequirements(
@@ -175,10 +182,12 @@ class OauthController(
         @CookieValue(name = "\${spring.security.oauth.idp-session-cookie-name}", required = false) sessionId: String?,
     ): IdpSessionListResDto = queryIdpSessionService.execute(sessionId)
 
-    @DeleteMapping("/idp-sessions/{targetSessionId}")
+    @DeleteMapping("/idp-sessions/{targetSessionHandle}")
     @Operation(
         summary = "개별 IdP 세션 종료",
-        description = "지정한 세션을 종료합니다. 본인 계정의 세션만 종료할 수 있습니다.",
+        description =
+            "세션 목록 조회가 반환한 sessionId(세션 ID의 SHA-256 해시)로 해당 세션을 종료합니다. " +
+                "원본 세션 ID(쿠키 값)로는 404가 반환됩니다. 본인 계정의 세션만 종료할 수 있습니다.",
     )
     @ApiResponses(
         value = [
@@ -188,9 +197,9 @@ class OauthController(
         ],
     )
     fun deleteIdpSession(
-        @PathVariable targetSessionId: String,
+        @PathVariable targetSessionHandle: String,
         @CookieValue(name = "\${spring.security.oauth.idp-session-cookie-name}", required = false) sessionId: String?,
-    ): ResponseEntity<Void> = deleteIdpSessionService.execute(targetSessionId, sessionId)
+    ): ResponseEntity<Void> = deleteIdpSessionService.execute(targetSessionHandle, sessionId)
 
     @GetMapping("/sessions/{token}")
     @Operation(
@@ -235,5 +244,29 @@ class OauthController(
     @PostMapping("/token")
     fun issueOauth2Token(
         @RequestBody @Valid reqDto: Oauth2TokenReqDto,
-    ): Oauth2TokenResDto = oauth2TokenService.execute(reqDto)
+        @RequestHeader(HttpHeaders.AUTHORIZATION, required = false) authorization: String?,
+        response: HttpServletResponse,
+    ): Oauth2TokenResDto {
+        preventTokenCaching(response)
+        return oauth2TokenService.execute(Oauth2TokenRequestReader.applyBasicCredentials(reqDto, authorization))
+    }
+
+    // 표준 OAuth 라이브러리는 token 요청을 form 인코딩으로 보내므로 JSON 요청과 함께 받는다.
+    @Operation(hidden = true)
+    @PostMapping("/token", consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
+    fun issueOauth2TokenWithForm(
+        @RequestParam params: MultiValueMap<String, String>,
+        @RequestHeader(HttpHeaders.AUTHORIZATION, required = false) authorization: String?,
+        response: HttpServletResponse,
+    ): Oauth2TokenResDto {
+        preventTokenCaching(response)
+        val reqDto = Oauth2TokenRequestReader.fromForm(params)
+        return oauth2TokenService.execute(Oauth2TokenRequestReader.applyBasicCredentials(reqDto, authorization))
+    }
+
+    // RFC 6749 5.1: 토큰이 담긴 응답은 중간 캐시나 브라우저에 저장되면 안 된다.
+    private fun preventTokenCaching(response: HttpServletResponse) {
+        response.setHeader(HttpHeaders.CACHE_CONTROL, "no-store")
+        response.setHeader(HttpHeaders.PRAGMA, "no-cache")
+    }
 }

@@ -4,6 +4,8 @@ import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.annotation.Before
 import org.aspectj.lang.reflect.MethodSignature
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimited
@@ -11,8 +13,11 @@ import team.themoment.datagsm.oauth.authorization.global.security.service.Passwo
 import team.themoment.sdk.exception.ExpectedException
 import kotlin.reflect.full.memberProperties
 
+// 한도를 넘긴 요청이 트랜잭션을 열기 전에 거절되도록 트랜잭션 advice(LOWEST_PRECEDENCE)보다 바깥에서 실행한다.
+// HIGHEST_PRECEDENCE는 AspectJ의 ExposeInvocationInterceptor보다 앞서 실행되어 쓸 수 없다.
 @Aspect
 @Component
+@Order(Ordered.LOWEST_PRECEDENCE - 1)
 class PasswordResetRateLimitedAspect(
     private val passwordResetRateLimitService: PasswordResetRateLimitService,
 ) {

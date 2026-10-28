@@ -39,7 +39,6 @@ class QueryOidcDiscoveryServiceTest :
                         result.authorizationEndpoint shouldBe "https://oauth.authorization.datagsm.kr/v1/oauth/authorize"
                         result.tokenEndpoint shouldBe "https://oauth.authorization.datagsm.kr/v1/oauth/token"
                         result.jwksUri shouldBe "https://oauth.authorization.datagsm.kr/v1/oauth/jwks"
-                        result.endSessionEndpoint shouldBe "https://oauth.authorization.datagsm.kr/v1/oauth/logout"
                     }
 
                     it("UserInfo는 별도 호스트 설정값을 그대로 써야 한다") {
@@ -56,10 +55,16 @@ class QueryOidcDiscoveryServiceTest :
                             listOf("authorization_code", "refresh_token", "client_credentials")
                     }
 
-                    it("지원 PKCE 방식이 실제 구현과 일치해야 한다") {
+                    it("PKCE 방식은 S256만 광고해야 한다") {
                         val result = queryOidcDiscoveryService.execute()
 
-                        result.codeChallengeMethodsSupported.toSet() shouldBe setOf("plain", "S256")
+                        result.codeChallengeMethodsSupported shouldBe listOf("S256")
+                    }
+
+                    it("토큰 엔드포인트 클라이언트 인증 방식으로 client_secret_basic을 광고해야 한다") {
+                        val result = queryOidcDiscoveryService.execute()
+
+                        result.tokenEndpointAuthMethodsSupported shouldBe listOf("client_secret_basic", "client_secret_post", "none")
                     }
 
                     it("scope 목록에 openid와 애플리케이션 scope가 포함되어야 한다") {

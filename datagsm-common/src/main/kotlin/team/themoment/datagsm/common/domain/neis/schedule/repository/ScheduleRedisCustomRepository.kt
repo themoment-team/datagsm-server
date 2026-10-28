@@ -12,4 +12,6 @@ interface ScheduleRedisCustomRepository {
     fun findByDateGreaterThanEqual(fromDate: LocalDate): List<ScheduleRedisEntity>
 
     fun findByDateLessThanEqual(toDate: LocalDate): List<ScheduleRedisEntity>
+
+    fun findAllIds(): Set<String>
 }

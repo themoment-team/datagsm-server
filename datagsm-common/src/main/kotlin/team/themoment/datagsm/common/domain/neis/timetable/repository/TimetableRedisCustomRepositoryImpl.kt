@@ -2,6 +2,7 @@ package team.themoment.datagsm.common.domain.neis.timetable.repository
 
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Repository
+import team.themoment.datagsm.common.domain.neis.timetable.entity.TIMETABLE_KEYSPACE
 import team.themoment.datagsm.common.domain.neis.timetable.entity.TimetableRedisEntity
 import java.time.LocalDate
 
@@ -14,7 +15,7 @@ class TimetableRedisCustomRepositoryImpl(
         classNum: Int,
         date: LocalDate,
     ): List<TimetableRedisEntity> {
-        val ids = redisTemplate.opsForSet().members("timetable:date:$date") ?: emptySet()
+        val ids = redisTemplate.opsForSet().members("$TIMETABLE_KEYSPACE:date:$date") ?: emptySet()
         return findEntitiesByIds(ids).filter { it.grade == grade && it.classNum == classNum }
     }
 
@@ -56,7 +57,7 @@ class TimetableRedisCustomRepositoryImpl(
         var currentDate = from
 
         while (!currentDate.isAfter(to)) {
-            val indexKey = "timetable:date:$currentDate"
+            val indexKey = "$TIMETABLE_KEYSPACE:date:$currentDate"
             val dateIds = redisTemplate.opsForSet().members(indexKey)
             dateIds?.forEach { id -> ids.add(id) }
             currentDate = currentDate.plusDays(1)
@@ -69,7 +70,7 @@ class TimetableRedisCustomRepositoryImpl(
         if (ids.isEmpty()) return emptyList()
 
         return ids.mapNotNull { id ->
-            val key = "timetable:$id"
+            val key = "$TIMETABLE_KEYSPACE:$id"
             val hash = redisTemplate.opsForHash<String, String>().entries(key)
             if (hash.isEmpty()) null else convertHashToEntity(hash)
         }
@@ -90,4 +91,7 @@ class TimetableRedisCustomRepositoryImpl(
             period = (hash["period"] ?: throw IllegalArgumentException("TimetableRedisEntity period cannot be null")).toInt(),
             subject = hash["subject"],
         )
+
+    // 키스페이스 세트에는 TTL로 만료된 id가 남아 있을 수 있으나, 없는 id의 삭제는 아무 일도 하지 않는다.
+    override fun findAllIds(): Set<String> = redisTemplate.opsForSet().members(TIMETABLE_KEYSPACE).orEmpty()
 }
