@@ -9,9 +9,14 @@ data class CorsEnvironment(
     val allowedOrigins: List<String>,
 ) {
     init {
-        // 자격 증명을 허용하는 CORS에서 "*"는 요청 시점에야 예외가 나므로 기동 단계에서 막는다.
-        require(allowedOrigins.isNotEmpty() && allowedOrigins.all { it.isNotBlank() && it.trim() != "*" }) {
-            "spring.security.cors.allowed-origins must be a non-empty list of explicit origins"
+        // allowedOrigins는 패턴을 지원하지 않아 "*"나 경로가 섞인 값은 어떤 요청과도 매칭되지 않으므로 기동 단계에서 막는다.
+        require(allowedOrigins.isNotEmpty() && allowedOrigins.all { EXPLICIT_ORIGIN.matches(it) }) {
+            "spring.security.cors.allowed-origins must be a non-empty list of explicit origins (scheme://host[:port], wildcard not allowed)"
         }
+    }
+
+    private companion object {
+        // Spring이 끝의 슬래시 하나는 제거하고 비교하므로 허용한다.
+        val EXPLICIT_ORIGIN = Regex("^[a-zA-Z][a-zA-Z\\d+.-]*://[^/\\s*]+/?$")
     }
 }

@@ -36,6 +36,28 @@ class CorsEnvironmentTest :
                 }
             }
 
+            context("와일드카드 패턴이나 경로가 포함된 origin이 주어지면") {
+                it("allowedOrigins가 매칭하지 못하는 값이므로 바인딩에 실패한다") {
+                    listOf("https://*.datagsm.kr", "http://localhost:*", "https://datagsm.kr/login", "datagsm.kr").forEach { origin ->
+                        // When
+                        val exception = shouldThrow<BindException> { bind(origin) }
+
+                        // Then
+                        exception.rootCause().shouldBeInstanceOf<IllegalArgumentException>()
+                    }
+                }
+            }
+
+            context("끝에 슬래시가 붙은 origin이 주어지면") {
+                it("Spring이 슬래시를 제거하고 비교하므로 허용한다") {
+                    // When
+                    val environment = bind("https://datagsm.kr/")
+
+                    // Then
+                    environment.allowedOrigins shouldBe listOf("https://datagsm.kr/")
+                }
+            }
+
             context("빈 origin 항목이 포함되면") {
                 it("바인딩에 실패한다") {
                     // When
