@@ -177,10 +177,12 @@ class OauthController(
         @CookieValue(name = "\${spring.security.oauth.idp-session-cookie-name}", required = false) sessionId: String?,
     ): IdpSessionListResDto = queryIdpSessionService.execute(sessionId)
 
-    @DeleteMapping("/idp-sessions/{targetSessionId}")
+    @DeleteMapping("/idp-sessions/{targetSessionHandle}")
     @Operation(
         summary = "개별 IdP 세션 종료",
-        description = "지정한 세션을 종료합니다. 본인 계정의 세션만 종료할 수 있습니다.",
+        description =
+            "세션 목록 조회가 반환한 sessionId(세션 ID의 SHA-256 해시)로 해당 세션을 종료합니다. " +
+                "원본 세션 ID(쿠키 값)로는 404가 반환됩니다. 본인 계정의 세션만 종료할 수 있습니다.",
     )
     @ApiResponses(
         value = [
@@ -190,9 +192,9 @@ class OauthController(
         ],
     )
     fun deleteIdpSession(
-        @PathVariable targetSessionId: String,
+        @PathVariable targetSessionHandle: String,
         @CookieValue(name = "\${spring.security.oauth.idp-session-cookie-name}", required = false) sessionId: String?,
-    ): ResponseEntity<Void> = deleteIdpSessionService.execute(targetSessionId, sessionId)
+    ): ResponseEntity<Void> = deleteIdpSessionService.execute(targetSessionHandle, sessionId)
 
     @GetMapping("/sessions/{token}")
     @Operation(
