@@ -261,6 +261,36 @@ class SyncScheduleServiceTest :
                     }
                 }
 
+                context("같은 날 같은 행사명이 학년만 다른 행으로 올 때") {
+                    val fromDate = LocalDate.of(2025, 5, 1)
+                    val toDate = LocalDate.of(2025, 5, 31)
+                    val saved = slot<Iterable<ScheduleRedisEntity>>()
+
+                    beforeEach {
+                        every { mockNeisEnvironment.key } returns "test-api-key"
+                        every { mockNeisEnvironment.officeCode } returns "F10"
+                        every { mockNeisEnvironment.schoolCode } returns "7380292"
+                        stubSchedulePage(
+                            mockNeisApiClient,
+                            listOf(
+                                scheduleRow("20250512", "현장체험학습").copy(grade2EventYn = "N", grade3EventYn = "N"),
+                                scheduleRow("20250512", "현장체험학습 ").copy(grade1EventYn = "N", grade3EventYn = "N"),
+                            ),
+                        )
+                        every { mockScheduleRepository.saveAll(capture(saved)) } answers { saved.captured.toList() }
+                        every { mockScheduleRepository.deleteAll() } returns Unit
+                    }
+
+                    it("서로 다른 id로 모두 저장하고 행사명은 공백을 제거해 저장해야 한다") {
+                        syncScheduleService.execute(fromDate, toDate)
+
+                        val entities = saved.captured.toList()
+                        entities.map { it.id }.toSet().size shouldBe 2
+                        entities.map { it.eventName } shouldBe listOf("현장체험학습", "현장체험학습")
+                        entities.map { it.targetGrades } shouldBe listOf(listOf(1), listOf(2))
+                    }
+                }
+
                 context("같은 일정을 다시 동기화할 때") {
                     val fromDate = LocalDate.of(2025, 5, 1)
                     val toDate = LocalDate.of(2025, 5, 31)
