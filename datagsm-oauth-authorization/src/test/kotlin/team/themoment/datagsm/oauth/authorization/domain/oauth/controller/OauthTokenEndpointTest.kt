@@ -101,6 +101,19 @@ class OauthTokenEndpointTest :
 
                     captured.captured.scope shouldBe setOf("openid", "app:student:read")
                 }
+
+                it("빈 scope 문자열과 빈 배열은 생략한 것으로 보고 null로 받아야 한다") {
+                    listOf("\"\"", "[]").forEach { emptyScope ->
+                        mockMvc
+                            .post("/v1/oauth/token") {
+                                contentType = MediaType.APPLICATION_JSON
+                                content =
+                                    """{"grant_type":"refresh_token","client_id":"client-1","refresh_token":"rt","scope":$emptyScope}"""
+                            }.andExpect { status { isOk() } }
+
+                        captured.captured.scope shouldBe null
+                    }
+                }
             }
         }
     })

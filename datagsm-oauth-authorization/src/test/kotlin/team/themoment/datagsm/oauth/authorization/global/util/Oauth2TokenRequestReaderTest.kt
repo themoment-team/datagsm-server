@@ -40,6 +40,22 @@ class Oauth2TokenRequestReaderTest :
                         )
                 }
 
+                it("빈 scope는 생략한 것으로 보고 null로 두어야 한다") {
+                    // Given
+                    val params =
+                        LinkedMultiValueMap<String, String>().apply {
+                            add("grant_type", "refresh_token")
+                            add("refresh_token", "rt")
+                            add("scope", " ")
+                        }
+
+                    // When
+                    val result = Oauth2TokenRequestReader.fromForm(params)
+
+                    // Then
+                    result.scope shouldBe null
+                }
+
                 it("grant_type이 없으면 invalid_request로 거절해야 한다") {
                     val params = LinkedMultiValueMap<String, String>().apply { add("client_id", "client-1") }
 
