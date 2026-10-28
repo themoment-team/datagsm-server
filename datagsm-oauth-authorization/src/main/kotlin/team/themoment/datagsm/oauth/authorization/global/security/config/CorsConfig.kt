@@ -15,7 +15,7 @@ class CorsConfig(
     fun configure(): CorsConfigurationSource {
         val configuration =
             CorsConfiguration().apply {
-                allowedOrigins = corsEnvironment.trimmedAllowedOrigins
+                allowedOrigins = corsEnvironment.allowedOrigins
                 allowedMethods = listOf("*")
                 allowedHeaders = listOf("*")
                 allowCredentials = true

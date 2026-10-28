@@ -17,12 +17,12 @@ class CorsEnvironmentTest :
 
         describe("CorsEnvironment 클래스의") {
             context("쉼표로 구분한 origin 문자열이 주어지면") {
-                it("각 origin을 공백 없이 나눈다") {
+                it("바인딩 단계에서 각 origin의 앞뒤 공백을 제거해 나눈다") {
                     // When
                     val environment = bind("http://localhost:3000, https://datagsm.kr")
 
                     // Then
-                    environment.trimmedAllowedOrigins shouldBe listOf("http://localhost:3000", "https://datagsm.kr")
+                    environment.allowedOrigins shouldBe listOf("http://localhost:3000", "https://datagsm.kr")
                 }
             }
 

@@ -5,6 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 @ConfigurationProperties(prefix = "spring.security.cors")
 data class CorsEnvironment(
     // YAML 리스트 항목 하나에 쉼표로 넣으면 나뉘지 않으므로 쉼표로 구분한 단일 문자열로 받는다.
+    // 쉼표 목록을 나눌 때 바인더가 항목마다 앞뒤 공백을 제거하므로 이 값은 이미 정규화되어 있다.
     val allowedOrigins: List<String>,
 ) {
     init {
@@ -13,7 +14,4 @@ data class CorsEnvironment(
             "spring.security.cors.allowed-origins must be a non-empty list of explicit origins"
         }
     }
-
-    val trimmedAllowedOrigins: List<String>
-        get() = allowedOrigins.map { it.trim() }
 }
