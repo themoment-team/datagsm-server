@@ -114,6 +114,14 @@ class OauthTokenEndpointTest :
                         captured.captured.scope shouldBe null
                     }
                 }
+
+                it("문자열도 배열도 아닌 scope는 400으로 거절해야 한다") {
+                    mockMvc
+                        .post("/v1/oauth/token") {
+                            contentType = MediaType.APPLICATION_JSON
+                            content = """{"grant_type":"refresh_token","client_id":"client-1","refresh_token":"rt","scope":123}"""
+                        }.andExpect { status { isBadRequest() } }
+                }
             }
         }
     })

@@ -30,8 +30,8 @@ class OauthScopeSetDeserializer : ValueDeserializer<Set<String>?>() {
             }
 
             else -> {
-                @Suppress("UNCHECKED_CAST")
-                ctxt.handleUnexpectedToken(Set::class.java, p) as Set<String>
+                // handleUnexpectedToken은 등록된 문제 처리기가 임의 값을 돌려줄 수 있어, 항상 예외를 던지는 쪽을 쓴다.
+                ctxt.reportInputMismatch(this, "scope must be a space-delimited string or an array of strings")
             }
         }
 
