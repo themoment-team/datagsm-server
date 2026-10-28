@@ -24,6 +24,7 @@ import software.amazon.awssdk.services.cloudwatchlogs.model.InputLogEvent
 import software.amazon.awssdk.services.cloudwatchlogs.model.PutLogEventsRequest
 import software.amazon.awssdk.services.cloudwatchlogs.model.PutLogEventsResponse
 import java.util.Collections
+import java.util.UUID
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -127,13 +128,15 @@ class CloudWatchAppenderTest :
             describe("writer 스레드는") {
                 it("JVM 종료를 막지 않도록 daemon이어야 한다") {
                     // Given
-                    val appender = createAppender()
+                    // 앞선 테스트의 writer가 아직 살아 있어도 섞이지 않도록 이 테스트만의 이름을 쓴다.
+                    val appenderName = "daemon-check-${UUID.randomUUID()}"
+                    val appender = createAppender { name = appenderName }
 
                     // When
                     appender.start()
 
                     // Then
-                    val writer = Thread.getAllStackTraces().keys.single { it.name == "CloudWatchAppender-Writer-test" }
+                    val writer = Thread.getAllStackTraces().keys.single { it.name == "CloudWatchAppender-Writer-$appenderName" }
                     writer.isDaemon shouldBe true
                     appender.stop()
                 }
