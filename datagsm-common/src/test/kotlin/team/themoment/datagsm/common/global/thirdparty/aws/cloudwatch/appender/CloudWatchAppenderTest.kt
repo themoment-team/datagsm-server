@@ -166,6 +166,29 @@ class CloudWatchAppenderTest :
                 }
             }
 
+            describe("종료 대기 시간이 1초보다 짧으면") {
+                it("writer가 대기 중이던 묶음을 마감 전에 보내고 정상 종료해야 한다") {
+                    // Given
+                    val appender =
+                        createAppender {
+                            shutdownTimeoutMillis = 500
+                            maxBatchSize = 100
+                            maxBatchTimeMillis = 60_000
+                        }
+                    appender.start()
+                    appender.doAppend(event(Level.INFO, "pending"))
+                    // writer가 이벤트를 자기 묶음으로 꺼낸 뒤 다음 큐 대기에 들어간 상태에서 종료한다.
+                    Thread.sleep(200)
+
+                    // When
+                    appender.stop()
+
+                    // Then
+                    sentMessages().filter { it.contains("pending") } shouldHaveSize 1
+                    verify(exactly = 1) { client.close() }
+                }
+            }
+
             describe("writer가 종료 대기 시간 안에 끝나지 않으면") {
                 it("전송 중인 writer와 겹치지 않도록 마지막 flush와 클라이언트 종료를 건너뛰어야 한다") {
                     // Given
