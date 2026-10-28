@@ -60,7 +60,8 @@ export JWT_SECRET_KEY="your-secret-key"
 # NEIS API 키 (리소스 서버용)
 export NEIS_API_KEY="your-neis-api-key"
 
-# CORS 설정
+# CORS 설정 (필수, 기본값 없음)
+# 프론트엔드 출처가 바뀌면 OAUTH_FRONTEND_URL도 함께 바꿉니다.
 export CORS_ALLOWED_ORIGINS="http://localhost:3000,http://localhost:5173"
 
 # 메일 설정 (로컬 개발 - Gmail)
