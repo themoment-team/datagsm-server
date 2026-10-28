@@ -97,7 +97,8 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
         // writer 대기와 남은 이벤트 전송이 함께 shutdownTimeoutMillis 안에 끝나도록 같은 마감 시각을 쓴다.
         val deadline = System.currentTimeMillis() + shutdownTimeoutMillis
         running = false
-        writerThread?.interrupt()
+        // 인터럽트하면 전송 중인 요청이 중단되어 그 묶음이 사라지므로 깨우지 않는다.
+        // writer는 큐 대기 간격마다 running을 확인해 남은 이벤트를 보내고 스스로 끝난다.
         writerThread?.join(shutdownTimeoutMillis)
 
         // writer가 아직 전송 중이면 같은 이벤트·레이아웃·클라이언트를 함께 쓰게 되므로 손대지 않는다.
@@ -210,10 +211,12 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
     private fun runWriter() {
         val batch = mutableListOf<ILoggingEvent>()
         var lastFlushTime = System.currentTimeMillis()
+        // stop()은 인터럽트하지 않으므로, 종료 대기 시간 안에 running을 다시 확인하도록 대기 간격을 그보다 짧게 둔다.
+        val pollMillis = (shutdownTimeoutMillis / 2).coerceIn(MIN_POLL_MILLIS, MAX_POLL_MILLIS)
 
         while (running || logQueue.isNotEmpty()) {
             try {
-                val event = logQueue.poll(1000, TimeUnit.MILLISECONDS)
+                val event = logQueue.poll(pollMillis, TimeUnit.MILLISECONDS)
 
                 if (event != null) {
                     batch.add(event)
@@ -230,7 +233,9 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
                     lastFlushTime = now
                 }
             } catch (_: InterruptedException) {
-                addInfo("Writer thread interrupted, flushing remaining logs")
+                // stop()은 인터럽트하지 않는다. 외부에서 들어온 인터럽트는 무시하고 계속 돌되,
+                // 종료 중이면 루프를 빠져 아래에서 로컬 묶음을 마저 보낸다.
+                addInfo("Writer thread interrupted externally")
                 if (!running) {
                     break
                 }
@@ -333,6 +338,8 @@ class CloudWatchAppender : UnsynchronizedAppenderBase<ILoggingEvent>() {
     companion object {
         private const val DEFAULT_PATTERN = "[%thread] [%level] %logger - %msg%n"
         private const val DEFAULT_QUEUE_CAPACITY = 10000
+        private const val MIN_POLL_MILLIS = 10L
+        private const val MAX_POLL_MILLIS = 1000L
 
         // CloudWatch는 이벤트마다 메시지 바이트에 26바이트를 더해 요청 크기를 계산한다.
         private const val EVENT_OVERHEAD_BYTES = 26

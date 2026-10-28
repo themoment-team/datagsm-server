@@ -142,6 +142,55 @@ class CloudWatchAppenderTest :
                 }
             }
 
+            describe("종료할 때 writer가 전송 중이면") {
+                it("전송을 끊지 않고 끝까지 보내야 한다") {
+                    // Given
+                    val sendStarted = CountDownLatch(1)
+                    every { client.putLogEvents(any<PutLogEventsRequest>()) } answers {
+                        sendStarted.countDown()
+                        // 실제 SDK처럼 인터럽트되면 예외로 전송이 중단되고, 끝까지 가야만 전송된 것으로 기록한다.
+                        Thread.sleep(300)
+                        sentRequests.add(firstArg())
+                        PutLogEventsResponse.builder().build()
+                    }
+                    val appender = createAppender { maxBatchSize = 1 }
+                    appender.start()
+                    appender.doAppend(event(Level.INFO, "in-flight"))
+                    sendStarted.await(5, TimeUnit.SECONDS) shouldBe true
+
+                    // When
+                    appender.stop()
+
+                    // Then
+                    // 전송(300ms)이 종료 대기 시간(기본 5초) 안에 끝나므로, 끝까지 보낸 뒤 정상 종료 절차까지 마쳐야 한다.
+                    sentMessages().filter { it.contains("in-flight") } shouldHaveSize 1
+                    verify(exactly = 1) { client.close() }
+                }
+            }
+
+            describe("종료 대기 시간이 1초보다 짧으면") {
+                it("writer가 대기 중이던 묶음을 마감 전에 보내고 정상 종료해야 한다") {
+                    // Given
+                    val appender =
+                        createAppender {
+                            shutdownTimeoutMillis = 500
+                            maxBatchSize = 100
+                            maxBatchTimeMillis = 60_000
+                        }
+                    appender.start()
+                    appender.doAppend(event(Level.INFO, "pending"))
+                    // writer가 이벤트를 자기 묶음으로 꺼낸 뒤 다음 큐 대기에 들어간 상태에서 종료한다.
+                    Thread.sleep(200)
+
+                    // When
+                    appender.stop()
+
+                    // Then
+                    sentMessages().filter { it.contains("pending") } shouldHaveSize 1
+                    verify(exactly = 1) { client.close() }
+                }
+            }
+
             describe("writer가 종료 대기 시간 안에 끝나지 않으면") {
                 it("전송 중인 writer와 겹치지 않도록 마지막 flush와 클라이언트 종료를 건너뛰어야 한다") {
                     // Given
