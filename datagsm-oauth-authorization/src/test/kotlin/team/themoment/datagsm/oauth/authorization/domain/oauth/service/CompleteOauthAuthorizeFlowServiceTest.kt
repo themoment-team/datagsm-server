@@ -39,7 +39,9 @@ import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.common.global.dto.internal.RateLimitConsumeResult
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueAuthorizationCodeService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl.CompleteOauthAuthorizeFlowServiceImpl
+import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimitType
 import team.themoment.datagsm.oauth.authorization.global.security.service.OAuthClientRateLimitService
+import team.themoment.datagsm.oauth.authorization.global.security.service.PasswordResetRateLimitService
 import team.themoment.sdk.exception.ExpectedException
 import java.security.MessageDigest
 import java.util.Optional
@@ -60,6 +62,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
         val mockOauthEnvironment = mockk<OauthEnvironment>()
         val mockOauthClientRateLimitService = mockk<OAuthClientRateLimitService>()
         val mockApplicationEventPublisher = mockk<ApplicationEventPublisher>(relaxed = true)
+        val mockPasswordResetRateLimitService = mockk<PasswordResetRateLimitService>(relaxUnitFun = true)
 
         val completeOauthAuthorizeFlowService =
             CompleteOauthAuthorizeFlowServiceImpl(
@@ -76,6 +79,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                 mockOauthEnvironment,
                 mockOauthClientRateLimitService,
                 mockApplicationEventPublisher,
+                mockPasswordResetRateLimitService,
             )
 
         afterEach {
@@ -108,6 +112,8 @@ class CompleteOauthAuthorizeFlowServiceTest :
                     every { mockOauthEnvironment.idpSessionHandoffExpirationSeconds } returns idpSessionHandoffExpirationSeconds
                     every { mockOauthClientRateLimitService.tryConsumeAndReturnRemaining(any()) } returns
                         RateLimitConsumeResult(consumed = true, remainingTokens = 299, secondsToWaitForRefill = 0)
+                    every { mockPasswordResetRateLimitService.tryConsume(any(), any()) } returns
+                        RateLimitConsumeResult(consumed = true, remainingTokens = 9, secondsToWaitForRefill = 0)
                 }
 
                 context("유효한 토큰과 인증 정보가 주어졌을 때") {
@@ -240,6 +246,52 @@ class CompleteOauthAuthorizeFlowServiceTest :
 
                         verify(exactly = 1) { mockOauthAuthorizeStateRedisRepository.deleteById(testToken) }
                     }
+
+                    // 한도는 비밀번호 대입을 막기 위한 것이라, 비밀번호가 맞은 시도는 되돌려 실패만 남긴다.
+                    it("비밀번호가 맞으면 차감한 로그인 시도를 되돌려야 한다") {
+                        completeOauthAuthorizeFlowService.execute(reqDto)
+
+                        verify(exactly = 1) { mockPasswordResetRateLimitService.tryConsume(testEmail, PasswordResetRateLimitType.LOGIN) }
+                        verify(exactly = 1) { mockPasswordResetRateLimitService.refund(testEmail, PasswordResetRateLimitType.LOGIN) }
+                    }
+                }
+
+                context("로그인 시도 한도를 소진한 계정으로 요청할 때") {
+                    val reqDto =
+                        OauthAuthorizeSubmitReqDto(
+                            email = testEmail,
+                            password = "password123!",
+                            token = testToken,
+                        )
+
+                    beforeEach {
+                        every { mockOauthAuthorizeStateRedisRepository.findById(testToken) } returns
+                            Optional.of(
+                                OauthAuthorizeStateRedisEntity(
+                                    token = testToken,
+                                    clientId = testClientId,
+                                    redirectUri = testRedirectUri,
+                                    state = null,
+                                    codeChallenge = null,
+                                    codeChallengeMethod = null,
+                                    scopes = setOf("self:read"),
+                                    ttl = 600,
+                                ),
+                            )
+                        every { mockPasswordResetRateLimitService.tryConsume(any(), any()) } returns
+                            RateLimitConsumeResult(consumed = false, remainingTokens = 0, secondsToWaitForRefill = 600)
+                    }
+
+                    it("비밀번호 검증 없이 429 예외가 발생해야 한다") {
+                        val exception =
+                            shouldThrow<ExpectedException> {
+                                completeOauthAuthorizeFlowService.execute(reqDto)
+                            }
+
+                        exception.statusCode shouldBe HttpStatus.TOO_MANY_REQUESTS
+                        verify(exactly = 0) { mockAccountJpaRepository.findByEmail(any()) }
+                        verify(exactly = 0) { mockPasswordEncoder.matches(any(), any()) }
+                    }
                 }
 
                 context("토큰이 유효하지 않거나 만료되었을 때") {
@@ -262,6 +314,8 @@ class CompleteOauthAuthorizeFlowServiceTest :
 
                         exception.errorDescription shouldBe "인증 토큰이 유효하지 않거나 만료되었습니다. 다시 시도해주세요."
 
+                        // 유효한 state 없이 보낸 요청이 남의 계정 한도를 깎을 수 있으면 안 된다.
+                        verify(exactly = 0) { mockPasswordResetRateLimitService.tryConsume(any(), any()) }
                         verify(exactly = 0) { mockAccountJpaRepository.findByEmail(any()) }
                         verify(exactly = 0) { mockIssueAuthorizationCodeService.execute(any(), any(), any(), any(), any(), any(), any()) }
                     }
@@ -341,6 +395,15 @@ class CompleteOauthAuthorizeFlowServiceTest :
                         exception.statusCode shouldBe HttpStatus.UNAUTHORIZED
 
                         verify(exactly = 0) { mockIssueAuthorizationCodeService.execute(any(), any(), any(), any(), any(), any(), any()) }
+                    }
+
+                    it("실패한 시도로 남기고 되돌리지 않아야 한다") {
+                        shouldThrow<ExpectedException> {
+                            completeOauthAuthorizeFlowService.execute(reqDto)
+                        }
+
+                        verify(exactly = 1) { mockPasswordResetRateLimitService.tryConsume(testEmail, PasswordResetRateLimitType.LOGIN) }
+                        verify(exactly = 0) { mockPasswordResetRateLimitService.refund(any(), any()) }
                     }
                 }
 

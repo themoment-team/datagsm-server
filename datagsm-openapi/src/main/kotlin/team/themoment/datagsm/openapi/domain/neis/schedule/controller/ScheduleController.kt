@@ -24,7 +24,9 @@ class ScheduleController(
 ) {
     @Operation(
         summary = "학사일정 정보 검색",
-        description = "학사일정 정보를 검색합니다. date, fromDate, toDate 파라미터로 기간 조회 가능합니다.",
+        description =
+            "학사일정 정보를 검색합니다. date, fromDate, toDate 파라미터로 기간 조회 가능합니다. " +
+                "결과는 날짜, 행사명, scheduleId 순으로 정렬되어 반환됩니다.",
     )
     @ApiResponses(
         value = [

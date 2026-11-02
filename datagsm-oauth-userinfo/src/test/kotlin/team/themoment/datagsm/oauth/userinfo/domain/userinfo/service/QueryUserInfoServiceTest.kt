@@ -84,6 +84,7 @@ class QueryUserInfoServiceTest :
 
                         result.id shouldBe 1L
                         result.email shouldBe testEmail
+                        result.sub shouldBe testEmail
                         result.role shouldBe AccountRole.USER
                         result.objectType shouldBe null
                         result.student shouldBe null

@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity
 
 interface DeleteIdpSessionService {
     fun execute(
-        targetSessionId: String,
+        targetSessionHandle: String,
         sessionId: String?,
     ): ResponseEntity<Void>
 }

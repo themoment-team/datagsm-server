@@ -12,4 +12,6 @@ interface MealRedisCustomRepository {
     fun findByDateGreaterThanEqual(fromDate: LocalDate): List<MealRedisEntity>
 
     fun findByDateLessThanEqual(toDate: LocalDate): List<MealRedisEntity>
+
+    fun findAllIds(): Set<String>
 }

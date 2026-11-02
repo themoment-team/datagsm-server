@@ -10,7 +10,6 @@
     <region>ap-northeast-2</region>
     <maxBatchSize>50</maxBatchSize>
     <maxBatchTimeMillis>10000</maxBatchTimeMillis>
-    <maxBlockTimeMillis>5000</maxBlockTimeMillis>
     <retentionTimeDays>30</retentionTimeDays>
   </appender>
   <appender name="prod_aws_cloud_watch_log" class="team.themoment.datagsm.common.global.thirdparty.aws.cloudwatch.appender.CloudWatchAppender">
@@ -22,7 +21,6 @@
     <region>ap-northeast-2</region>
     <maxBatchSize>50</maxBatchSize>
     <maxBatchTimeMillis>10000</maxBatchTimeMillis>
-    <maxBlockTimeMillis>5000</maxBlockTimeMillis>
     <retentionTimeDays>30</retentionTimeDays>
   </appender>
   <property name="CONSOLE_LOG_PATTERN" value="%highlight(%-5level) %date{yyyy-MM-dd HH:mm:ss.SSS,Asia/Seoul} [%thread] %cyan([%C{0} :: %M :: %L]) - %msg%n"/>

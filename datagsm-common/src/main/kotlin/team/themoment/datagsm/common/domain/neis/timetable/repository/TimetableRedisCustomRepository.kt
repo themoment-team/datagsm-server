@@ -28,4 +28,6 @@ interface TimetableRedisCustomRepository {
         classNum: Int,
         toDate: LocalDate,
     ): List<TimetableRedisEntity>
+
+    fun findAllIds(): Set<String>
 }

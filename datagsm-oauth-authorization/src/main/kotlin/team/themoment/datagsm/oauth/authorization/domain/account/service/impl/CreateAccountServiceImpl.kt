@@ -15,6 +15,8 @@ import team.themoment.datagsm.common.domain.student.repository.StudentJpaReposit
 import team.themoment.datagsm.common.domain.teacher.entity.TeacherJpaEntity
 import team.themoment.datagsm.common.domain.teacher.repository.TeacherJpaRepository
 import team.themoment.datagsm.oauth.authorization.domain.account.service.CreateAccountService
+import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimitType
+import team.themoment.datagsm.oauth.authorization.global.security.annotation.PasswordResetRateLimited
 import team.themoment.datagsm.oauth.authorization.global.util.EmailCodeValidator
 import team.themoment.sdk.exception.ExpectedException
 
@@ -26,6 +28,8 @@ class CreateAccountServiceImpl(
     private val emailCodeRedisRepository: EmailCodeRedisRepository,
     private val passwordEncoder: PasswordEncoder,
 ) : CreateAccountService {
+    // 가입 코드를 다시 검사하므로, 검증 API와 버킷을 공유해야 이쪽으로 우회한 대입을 막을 수 있다.
+    @PasswordResetRateLimited(type = PasswordResetRateLimitType.SIGNUP_CHECK_CODE)
     @Transactional
     override fun execute(reqDto: CreateAccountReqDto): AccountJpaEntity {
         if (accountJpaRepository.findByEmail(reqDto.email).isPresent) {

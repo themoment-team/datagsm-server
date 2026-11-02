@@ -3,7 +3,7 @@ package team.themoment.datagsm.common.domain.oauth.dto.response
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class IdpSessionResDto(
-    @field:Schema(description = "세션 식별자. 개별 종료 요청에 사용합니다.")
+    @field:Schema(description = "세션 식별자. 개별 종료 요청에 사용합니다. 세션 쿠키 값이 아닌 해시값입니다.")
     val sessionId: String,
     @field:Schema(description = "로그인한 기기의 User-Agent. 기록되지 않은 세션은 null입니다.")
     val userAgent: String?,

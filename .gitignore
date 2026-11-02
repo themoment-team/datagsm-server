@@ -50,5 +50,6 @@ out/
 ### LLM Outputs ###
 PR_BODY.md
 .pr-tmp/
-/.claude/command.log
-/.codex/command.log
+**/.claude/command.log
+**/.codex/command.log
+.claude/settings.local.json

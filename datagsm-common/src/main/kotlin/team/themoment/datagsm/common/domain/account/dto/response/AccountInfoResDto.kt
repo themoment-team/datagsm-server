@@ -1,5 +1,7 @@
 package team.themoment.datagsm.common.domain.account.dto.response
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
@@ -10,6 +12,11 @@ import team.themoment.datagsm.common.domain.student.dto.response.StudentResDto
 import team.themoment.datagsm.common.domain.teacher.dto.response.TeacherResDto
 
 data class AccountInfoResDto(
+    // OIDC UserInfo의 필수 클레임. id_token, access token과 같은 값(email)을 쓰며, 내 정보 조회처럼 OIDC가 아닌 응답에서는 생략된다.
+    @field:JsonProperty("sub")
+    @field:JsonInclude(JsonInclude.Include.NON_NULL)
+    @field:Schema(description = "OIDC 사용자 식별자 (UserInfo 응답에만 포함, email과 같은 값)", example = "user@gsm.hs.kr")
+    val sub: String? = null,
     @field:Schema(description = "계정 ID", example = "1")
     val id: Long,
     @field:Schema(description = "계정 이메일", example = "user@gsm.hs.kr")

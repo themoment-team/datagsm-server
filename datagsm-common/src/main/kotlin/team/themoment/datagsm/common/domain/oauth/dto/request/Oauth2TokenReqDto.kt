@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAlias
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotBlank
+import tools.jackson.databind.annotation.JsonDeserialize
 
 data class Oauth2TokenReqDto(
     @field:NotBlank(message = "grant_type은 필수입니다.")
@@ -30,8 +31,9 @@ data class Oauth2TokenReqDto(
     @field:JsonProperty("refresh_token")
     @field:JsonAlias("refreshToken")
     val refreshToken: String? = null,
-    @param:Schema(description = "OAuth Scopes", example = "[\"self:read\"]")
+    @param:Schema(description = "OAuth Scopes (공백 구분 문자열 또는 배열)", example = "self:read")
     @field:JsonProperty("scope")
+    @field:JsonDeserialize(using = OauthScopeSetDeserializer::class)
     val scope: Set<String>? = null,
     @param:Schema(description = "PKCE Code Verifier", example = "dBjftJeSSVPxgS31dKTHlEpQMZlzvvMpqHN0KT9LM5E")
     @field:JsonProperty("code_verifier")
