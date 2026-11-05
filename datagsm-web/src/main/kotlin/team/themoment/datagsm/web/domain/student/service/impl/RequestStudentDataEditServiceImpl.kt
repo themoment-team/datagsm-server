@@ -4,11 +4,15 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
+import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
 import team.themoment.datagsm.common.domain.event.dto.payload.EventChangedData
 import team.themoment.datagsm.common.domain.event.dto.payload.StudentEventObject
 import team.themoment.datagsm.common.domain.event.entity.constant.EventType
+import team.themoment.datagsm.common.domain.oauth.repository.IdpSessionRedisRepository
+import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
 import team.themoment.datagsm.common.domain.student.dto.request.RequestStudentDataEditReqDto
 import team.themoment.datagsm.common.domain.student.entity.StudentDataEditRequestJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
@@ -22,6 +26,9 @@ import team.themoment.sdk.exception.ExpectedException
 class RequestStudentDataEditServiceImpl(
     private val studentJpaRepository: StudentJpaRepository,
     private val studentDataEditRequestJpaRepository: StudentDataEditRequestJpaRepository,
+    private val accountJpaRepository: AccountJpaRepository,
+    private val idpSessionRedisRepository: IdpSessionRedisRepository,
+    private val oauthRefreshTokenRedisRepository: OauthRefreshTokenRedisRepository,
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) : RequestStudentDataEditService {
     @Transactional
@@ -50,6 +57,8 @@ class RequestStudentDataEditServiceImpl(
             studentDataEditRequestJpaRepository.save(request)
         }
 
+        revokeLogins(students.mapNotNull { it.id })
+
         val news =
             students.mapIndexed { index, student ->
                 EventChangeItem(index, generateStudentEventObject(student))
@@ -63,6 +72,17 @@ class RequestStudentDataEditServiceImpl(
                 ),
             )
         }
+    }
+
+    // 수정 요청은 다음 로그인 때 강제되므로, 이미 로그인된 상태를 남겨두면 비워진 정보로 계속 서비스를 쓰게 된다.
+    // 세션과 refresh token을 끊어 다음 접근 때 로그인을 다시 거치게 한다.
+    private fun revokeLogins(studentIds: List<Long>) {
+        accountJpaRepository
+            .findAllByObjectTypeAndObjectIdIn(AccountObjectType.STUDENT, studentIds)
+            .forEach { account ->
+                idpSessionRedisRepository.deleteAll(idpSessionRedisRepository.findAllByEmail(account.email))
+                oauthRefreshTokenRedisRepository.deleteAll(oauthRefreshTokenRedisRepository.findAllByEmail(account.email))
+            }
     }
 
     private fun applyFieldReset(
