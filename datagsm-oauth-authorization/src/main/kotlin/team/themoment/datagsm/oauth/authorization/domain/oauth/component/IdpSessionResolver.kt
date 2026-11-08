@@ -3,11 +3,9 @@ package team.themoment.datagsm.oauth.authorization.domain.oauth.component
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
-import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountStatus
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.oauth.repository.IdpSessionRedisRepository
-import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRequestJpaRepository
 
 /**
  * IdP 세션 쿠키만으로 비밀번호 재입력을 생략해도 되는 계정인지 판별한다.
@@ -20,7 +18,7 @@ import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRe
 class IdpSessionResolver(
     private val idpSessionRedisRepository: IdpSessionRedisRepository,
     private val accountJpaRepository: AccountJpaRepository,
-    private val studentDataEditRequestJpaRepository: StudentDataEditRequestJpaRepository,
+    private val pendingStudentDataEditChecker: PendingStudentDataEditChecker,
 ) {
     fun resolveEligibleAccount(sessionId: String?): AccountJpaEntity? {
         if (sessionId.isNullOrBlank()) return null
@@ -31,11 +29,7 @@ class IdpSessionResolver(
 
         if (account.status != AccountStatus.ACTIVE) return null
 
-        val studentId = account.objectId
-        if (account.objectType == AccountObjectType.STUDENT && studentId != null) {
-            val hasPendingEditRequest = studentDataEditRequestJpaRepository.findByStudentId(studentId).isPresent
-            if (hasPendingEditRequest) return null
-        }
+        if (pendingStudentDataEditChecker.hasPendingRequest(account)) return null
 
         return account
     }

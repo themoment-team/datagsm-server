@@ -5,8 +5,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
-import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.application.repository.OAuthScopeJpaRepository
 import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
@@ -21,8 +19,8 @@ import team.themoment.datagsm.common.domain.oauth.entity.constant.PkceChallengeM
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
-import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRequestJpaRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
+import team.themoment.datagsm.oauth.authorization.domain.oauth.component.PendingStudentDataEditChecker
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.Oauth2TokenService
 import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
 import team.themoment.datagsm.oauth.authorization.global.security.jwt.JwtProvider
@@ -45,7 +43,7 @@ class Oauth2TokenServiceImpl(
     private val oauthScopeJpaRepository: OAuthScopeJpaRepository,
     private val oauthClientRateLimitService: OAuthClientRateLimitService,
     private val oauthEnvironment: OauthEnvironment,
-    private val studentDataEditRequestJpaRepository: StudentDataEditRequestJpaRepository,
+    private val pendingStudentDataEditChecker: PendingStudentDataEditChecker,
 ) : Oauth2TokenService {
     @Transactional
     override fun execute(reqDto: Oauth2TokenReqDto): Oauth2TokenResDto {
@@ -231,7 +229,7 @@ class Oauth2TokenServiceImpl(
 
         // 갱신은 로그인을 다시 거치지 않으므로, 여기서 막지 않으면 정보 수정 강제가 로그인 상태 유지로 우회된다.
         // 토큰을 폐기해 SP가 /authorize로 돌아오게 하고, 그곳에서 정보 수정 절차를 밟게 한다.
-        if (hasPendingStudentDataEditRequest(account)) {
+        if (pendingStudentDataEditChecker.hasPendingRequest(account)) {
             oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(email, clientIdFromToken)
             throw OAuthException.InvalidGrant("정보 수정이 필요합니다. 다시 로그인해주세요.")
         }
@@ -254,12 +252,6 @@ class Oauth2TokenServiceImpl(
             refreshToken = newRefreshToken,
             scope = formatScopes(grantedScopes, scopesToGrant),
         )
-    }
-
-    private fun hasPendingStudentDataEditRequest(account: AccountJpaEntity): Boolean {
-        val studentId = account.objectId ?: return false
-        if (account.objectType != AccountObjectType.STUDENT) return false
-        return studentDataEditRequestJpaRepository.findByStudentId(studentId).isPresent
     }
 
     private fun handleClientCredentials(reqDto: Oauth2TokenReqDto): Oauth2TokenResDto {

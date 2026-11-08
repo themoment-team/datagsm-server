@@ -29,6 +29,7 @@ import team.themoment.datagsm.common.domain.student.entity.StudentDataEditReques
 import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRequestJpaRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.oauth.authorization.domain.oauth.component.IdpSessionResolver
+import team.themoment.datagsm.oauth.authorization.domain.oauth.component.PendingStudentDataEditChecker
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.IssueAuthorizationCodeService
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl.StartOauthAuthorizeFlowServiceImpl
 import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
@@ -61,7 +62,7 @@ class StartOauthAuthorizeFlowServiceTest :
             IdpSessionResolver(
                 mockIdpSessionRedisRepository,
                 mockAccountJpaRepository,
-                mockStudentDataEditRequestJpaRepository,
+                PendingStudentDataEditChecker(mockStudentDataEditRequestJpaRepository),
             )
 
         val startOauthAuthorizeFlowService =

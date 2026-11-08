@@ -30,6 +30,7 @@ import team.themoment.datagsm.common.domain.student.entity.StudentDataEditReques
 import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRequestJpaRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.common.global.dto.internal.RateLimitConsumeResult
+import team.themoment.datagsm.oauth.authorization.domain.oauth.component.PendingStudentDataEditChecker
 import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
 import team.themoment.datagsm.oauth.authorization.global.security.jwt.JwtProvider
 import team.themoment.datagsm.oauth.authorization.global.security.service.OAuthClientRateLimitService
@@ -63,7 +64,7 @@ class Oauth2TokenServiceImplTest :
                 mockOAuthScopeJpaRepository,
                 mockOauthClientRateLimitService,
                 mockOauthEnvironment,
-                mockStudentDataEditRequestJpaRepository,
+                PendingStudentDataEditChecker(mockStudentDataEditRequestJpaRepository),
             )
 
         val mockApplication =
