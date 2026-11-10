@@ -20,6 +20,7 @@ import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
+import team.themoment.datagsm.oauth.authorization.domain.oauth.component.PendingStudentDataEditChecker
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.Oauth2TokenService
 import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
 import team.themoment.datagsm.oauth.authorization.global.security.jwt.JwtProvider
@@ -42,6 +43,7 @@ class Oauth2TokenServiceImpl(
     private val oauthScopeJpaRepository: OAuthScopeJpaRepository,
     private val oauthClientRateLimitService: OAuthClientRateLimitService,
     private val oauthEnvironment: OauthEnvironment,
+    private val pendingStudentDataEditChecker: PendingStudentDataEditChecker,
 ) : Oauth2TokenService {
     @Transactional
     override fun execute(reqDto: Oauth2TokenReqDto): Oauth2TokenResDto {
@@ -224,6 +226,13 @@ class Oauth2TokenServiceImpl(
             accountJpaRepository
                 .findByEmail(email)
                 .orElseThrow { ExpectedException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
+
+        // 갱신은 로그인을 다시 거치지 않으므로, 여기서 막지 않으면 정보 수정 강제가 로그인 상태 유지로 우회된다.
+        // 토큰을 폐기해 SP가 /authorize로 돌아오게 하고, 그곳에서 정보 수정 절차를 밟게 한다.
+        if (pendingStudentDataEditChecker.hasPendingRequest(account)) {
+            oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(email, clientIdFromToken)
+            throw OAuthException.InvalidGrant("정보 수정이 필요합니다. 다시 로그인해주세요.")
+        }
 
         val scopesToGrant = reqDto.scope ?: storedToken.scopes
         if (!storedToken.scopes.containsAll(scopesToGrant)) {

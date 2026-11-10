@@ -15,6 +15,7 @@ import team.themoment.datagsm.common.domain.student.entity.StudentJpaEntity
 import team.themoment.datagsm.common.domain.student.entity.constant.StudentDataEditField
 import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRequestJpaRepository
 import team.themoment.datagsm.common.domain.student.repository.StudentJpaRepository
+import team.themoment.datagsm.web.domain.student.dto.internal.StudentLoginRevocationRequested
 import team.themoment.datagsm.web.domain.student.service.RequestStudentDataEditService
 import team.themoment.sdk.exception.ExpectedException
 
@@ -49,6 +50,8 @@ class RequestStudentDataEditServiceImpl(
             mergeRequestedFields(request, reqDto.fields)
             studentDataEditRequestJpaRepository.save(request)
         }
+
+        applicationEventPublisher.publishEvent(StudentLoginRevocationRequested(students.mapNotNull { it.id }))
 
         val news =
             students.mapIndexed { index, student ->

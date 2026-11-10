@@ -11,6 +11,7 @@ import io.mockk.slot
 import io.mockk.verify
 import org.springframework.security.crypto.password.PasswordEncoder
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
 import team.themoment.datagsm.common.domain.application.entity.ApplicationJpaEntity
@@ -25,8 +26,11 @@ import team.themoment.datagsm.common.domain.oauth.entity.OauthRefreshTokenRedisE
 import team.themoment.datagsm.common.domain.oauth.exception.OAuthException
 import team.themoment.datagsm.common.domain.oauth.repository.OauthCodeRedisRepository
 import team.themoment.datagsm.common.domain.oauth.repository.OauthRefreshTokenRedisRepository
+import team.themoment.datagsm.common.domain.student.entity.StudentDataEditRequestJpaEntity
+import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRequestJpaRepository
 import team.themoment.datagsm.common.global.data.OauthEnvironment
 import team.themoment.datagsm.common.global.dto.internal.RateLimitConsumeResult
+import team.themoment.datagsm.oauth.authorization.domain.oauth.component.PendingStudentDataEditChecker
 import team.themoment.datagsm.oauth.authorization.global.data.OauthJwtProvisionEnvironment
 import team.themoment.datagsm.oauth.authorization.global.security.jwt.JwtProvider
 import team.themoment.datagsm.oauth.authorization.global.security.service.OAuthClientRateLimitService
@@ -46,6 +50,7 @@ class Oauth2TokenServiceImplTest :
         val mockOAuthScopeJpaRepository = mockk<OAuthScopeJpaRepository>()
         val mockOauthClientRateLimitService = mockk<OAuthClientRateLimitService>()
         val mockOauthEnvironment = mockk<OauthEnvironment>()
+        val mockStudentDataEditRequestJpaRepository = mockk<StudentDataEditRequestJpaRepository>()
 
         val service =
             Oauth2TokenServiceImpl(
@@ -59,6 +64,7 @@ class Oauth2TokenServiceImplTest :
                 mockOAuthScopeJpaRepository,
                 mockOauthClientRateLimitService,
                 mockOauthEnvironment,
+                PendingStudentDataEditChecker(mockStudentDataEditRequestJpaRepository),
             )
 
         val mockApplication =
@@ -580,6 +586,58 @@ class Oauth2TokenServiceImplTest :
 
                             exception.error shouldBe "invalid_scope"
                             exception.errorDescription shouldBe "재발급 요청한 권한 범위가 기존 권한 범위를 초과합니다."
+                        }
+                    }
+
+                    context("학생 계정에 해소되지 않은 정보 수정 요청이 있을 때") {
+                        val studentAccount =
+                            AccountJpaEntity().apply {
+                                email = "test@gsm.hs.kr"
+                                role = AccountRole.USER
+                                objectType = AccountObjectType.STUDENT
+                                objectId = 210L
+                            }
+
+                        beforeEach {
+                            every { mockAccountJpaRepository.findByEmail("test@gsm.hs.kr") } returns Optional.of(studentAccount)
+                            every { mockStudentDataEditRequestJpaRepository.findByStudentId(210L) } returns
+                                Optional.of(StudentDataEditRequestJpaEntity())
+                        }
+
+                        it("정보 수정을 우회하지 않도록 refresh token을 폐기하고 InvalidGrant 예외가 발생한다") {
+                            val exception =
+                                shouldThrow<OAuthException.InvalidGrant> {
+                                    service.execute(reqDto)
+                                }
+
+                            exception.error shouldBe "invalid_grant"
+                            verify(exactly = 1) {
+                                mockOauthRefreshTokenRedisRepository.deleteByEmailAndClientId("test@gsm.hs.kr", "test-client")
+                            }
+                            verify(exactly = 0) { mockOauthRefreshTokenRedisRepository.save(any()) }
+                            verify(exactly = 0) { mockJwtProvider.generateOauthAccessToken(any(), any(), any(), any()) }
+                        }
+                    }
+
+                    context("학생 계정에 정보 수정 요청이 없을 때") {
+                        val studentAccount =
+                            AccountJpaEntity().apply {
+                                email = "test@gsm.hs.kr"
+                                role = AccountRole.USER
+                                objectType = AccountObjectType.STUDENT
+                                objectId = 210L
+                            }
+
+                        beforeEach {
+                            every { mockAccountJpaRepository.findByEmail("test@gsm.hs.kr") } returns Optional.of(studentAccount)
+                            every { mockStudentDataEditRequestJpaRepository.findByStudentId(210L) } returns Optional.empty()
+                        }
+
+                        it("새로운 토큰이 발급된다") {
+                            val result = service.execute(reqDto)
+
+                            result.accessToken shouldBe "new-access-token"
+                            result.refreshToken shouldBe "new-refresh-token"
                         }
                     }
                 }

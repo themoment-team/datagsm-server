@@ -26,6 +26,7 @@ import team.themoment.datagsm.common.domain.oauth.repository.OauthConsentJpaRepo
 import team.themoment.datagsm.common.domain.student.entity.StudentDataEditRequestJpaEntity
 import team.themoment.datagsm.common.domain.student.repository.StudentDataEditRequestJpaRepository
 import team.themoment.datagsm.oauth.authorization.domain.oauth.component.IdpSessionResolver
+import team.themoment.datagsm.oauth.authorization.domain.oauth.component.PendingStudentDataEditChecker
 import team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl.CompleteOauthConsentServiceImpl
 import team.themoment.sdk.exception.ExpectedException
 import java.net.URI
@@ -47,7 +48,7 @@ class CompleteOauthConsentServiceTest :
             IdpSessionResolver(
                 mockIdpSessionRedisRepository,
                 mockAccountJpaRepository,
-                mockStudentDataEditRequestJpaRepository,
+                PendingStudentDataEditChecker(mockStudentDataEditRequestJpaRepository),
             )
 
         val completeOauthConsentService =
