@@ -1,5 +1,6 @@
 import com.gorylenko.GitPropertiesPluginExtension
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import kotlinx.kover.gradle.plugin.dsl.KoverProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 import test.TestSummaryPlugin
@@ -15,6 +16,7 @@ plugins {
     id(plugin.Plugins.KTLINT) version plugin.PluginVersions.KTLINT_VERSION apply false
     id(plugin.Plugins.GIT_PROPERTIES) version plugin.PluginVersions.GIT_PROPERTIES_VERSION apply false
     id(plugin.Plugins.MAVEN_PUBLISH) version plugin.PluginVersions.MAVEN_PUBLISH_VERSION apply false
+    id(plugin.Plugins.KOVER) version plugin.PluginVersions.KOVER_VERSION
 }
 
 group = "team.themoment"
@@ -32,6 +34,26 @@ val serviceModules =
         "datagsm-openapi",
         "datagsm-oauth-userinfo",
     )
+val coverageModules = serviceModules + "datagsm-common"
+
+dependencies {
+    coverageModules.forEach { kover(project(":$it")) }
+}
+
+// QueryDSL Q-classes generated next to entities by KSP. Applied to the merged and per-module reports alike.
+fun KoverProjectExtension.excludeQueryDslClasses() {
+    reports {
+        filters {
+            excludes {
+                classes("*.entity.Q*")
+            }
+        }
+    }
+}
+
+kover {
+    excludeQueryDslClasses()
+}
 
 subprojects {
     val isSharedModule = name == "datagsm-shared"
@@ -42,6 +64,12 @@ subprojects {
         apply(plugin = plugin.Plugins.SPRING_DEPENDENCY_MANAGEMENT)
     }
     apply(plugin = plugin.Plugins.KTLINT)
+    if (name in coverageModules) {
+        apply(plugin = plugin.Plugins.KOVER)
+        extensions.configure<KoverProjectExtension> {
+            excludeQueryDslClasses()
+        }
+    }
 
     if (!isSharedModule) {
         extensions.configure<JavaPluginExtension> {

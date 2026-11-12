@@ -1,12 +1,12 @@
-name: DataGSM stage CI Workflow
+name: DataGSM CI Workflow
 
 on:
+  # No branch filter: stacked PRs (based on another feature branch) must be verified too.
   pull_request:
-    branches:
-      - 'develop'
   push:
     branches:
       - 'develop'
+      - 'master'
   workflow_dispatch:
 
 concurrency:
@@ -15,49 +15,24 @@ concurrency:
 
 jobs:
   validate-title:
-    if: github.event_name == 'pull_request'
+    # Dependabot titles cannot follow the [scope] format.
+    if: github.event_name == 'pull_request' && github.event.pull_request.user.login != 'dependabot[bot]'
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
+      contents: read
 
     steps:
+      - name: Checkout Validation Script
+        uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/scripts
+
       - name: Validate PR Title
         uses: actions/github-script@v9
         with:
           script: |
-            const title = context.payload.pull_request.title;
-            const prNumber = context.payload.pull_request.number;
-            const allowedScopes = [
-              'global', 'account', 'auth', 'client', 'club',
-              'neis', 'oauth', 'project', 'student', 'utility',
-              'web', 'oauth', 'openapi', 'ci/cd', 'application', 'event'
-            ];
-
-            const versionPattern = /^v\d{8}\.\d+$/;
-            if (versionPattern.test(title)) {
-              return;
-            }
-
-            const titlePattern = /^\[([^\]]+)\]\s+(.+)$/;
-            const match = title.match(titlePattern);
-            if (!match) {
-              core.setFailed('Invalid title format. Use [scope] title or vYYYYMMDD.n format');
-              return;
-            }
-
-            const scopesPart = match[1];
-            const titlePart = match[2];
-
-            if (titlePart.includes(':')) {
-              core.setFailed('Colon (:) is not allowed in the title');
-              return;
-            }
-            const scopes = scopesPart.split(',').map(s => s.trim());
-            const invalidScopes = scopes.filter(scope => !allowedScopes.includes(scope));
-            if (invalidScopes.length > 0) {
-              core.setFailed(`Invalid scope(s): ${invalidScopes.join(', ')}`);
-              return;
-            }
+            const validateTitle = require('./.github/scripts/validate-title.js');
+            validateTitle({ core, title: context.payload.pull_request.title, allowVersion: true });
 
   setup-pr-metadata:
     if: github.event_name == 'pull_request'
@@ -71,21 +46,25 @@ jobs:
       - name: Setup PR Metadata
         env:
           GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          REPO: ${{ github.repository }}
         run: |
-          PR_NUMBER="${{ github.event.pull_request.number }}"
-          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
-          gh pr edit $PR_NUMBER --repo ${{ github.repository }} --add-label "waiting for review:검토 대기"
-          gh pr edit $PR_NUMBER --repo ${{ github.repository }} --add-assignee "$PR_AUTHOR"
+          gh pr edit "$PR_NUMBER" --repo "$REPO" --add-label "waiting for review:검토 대기"
+          gh pr edit "$PR_NUMBER" --repo "$REPO" --add-assignee "$PR_AUTHOR"
           ALL_REVIEWERS="wwwcomcomcomcom,ZaMan0806,hongjm0912"
           REVIEWERS=$(echo "$ALL_REVIEWERS" | tr ',' '\n' | grep -v "^${PR_AUTHOR}$" | tr '\n' ',' | sed 's/,$//')
           if [ -n "$REVIEWERS" ]; then
-            gh pr edit $PR_NUMBER --repo ${{ github.repository }} --add-reviewer "$REVIEWERS"
+            gh pr edit "$PR_NUMBER" --repo "$REPO" --add-reviewer "$REVIEWERS"
           fi
 
   build-and-test:
     runs-on: ubuntu-latest
     needs: [validate-title]
     if: always() && (needs.validate-title.result == 'success' || needs.validate-title.result == 'skipped')
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout Code
@@ -103,8 +82,34 @@ jobs:
           cache-read-only: false
           cache-cleanup: always
 
-      - name: Test with Gradle
-        run: ./gradlew build --parallel --build-cache
+      - name: Build and Test with Gradle
+        run: ./gradlew build koverXmlReport --parallel --build-cache
+
+      - name: Publish Test Report
+        if: ${{ !cancelled() }}
+        uses: mikepenz/action-junit-report@v6
+        with:
+          report_paths: '**/build/test-results/test/*.xml'
+          annotate_only: true
+          detailed_summary: true
+
+      - name: Upload Test Reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports
+          path: '**/build/reports/tests/'
+          retention-days: 7
+
+      - name: Comment Coverage on PR
+        if: github.event_name == 'pull_request' && github.event.pull_request.user.login != 'dependabot[bot]'
+        uses: madrapps/jacoco-report@v1.8.0
+        with:
+          paths: ${{ github.workspace }}/build/reports/kover/report.xml
+          token: ${{ github.token }}
+          title: Kover Coverage
+          update-comment: true
+          continue-on-error: true
 
       - name: Assemble type-only npm package
         run: ./gradlew :datagsm-shared:assembleTsPackage --build-cache
@@ -120,7 +125,8 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     needs: [validate-title, setup-pr-metadata, build-and-test]
-    if: always()
+    # Dependabot runs cannot read the Discord webhook secret.
+    if: always() && github.event.pull_request.user.login != 'dependabot[bot]'
 
     steps:
       - name: Determine Status
@@ -128,14 +134,14 @@ jobs:
         run: |
           if [[ "${{ needs.validate-title.result }}" == "failure" ]] || \
              [[ "${{ needs.build-and-test.result }}" == "failure" ]]; then
-            echo "status=failure" >> $GITHUB_OUTPUT
-            echo "color=0xFF4C4C" >> $GITHUB_OUTPUT
+            echo "status=failure" >> "$GITHUB_OUTPUT"
+            echo "color=0xFF4C4C" >> "$GITHUB_OUTPUT"
           elif [[ "${{ needs.build-and-test.result }}" == "success" ]]; then
-            echo "status=success" >> $GITHUB_OUTPUT
-            echo "color=0x4CAF50" >> $GITHUB_OUTPUT
+            echo "status=success" >> "$GITHUB_OUTPUT"
+            echo "color=0x4CAF50" >> "$GITHUB_OUTPUT"
           else
-            echo "status=cancelled" >> $GITHUB_OUTPUT
-            echo "color=0xFFA500" >> $GITHUB_OUTPUT
+            echo "status=cancelled" >> "$GITHUB_OUTPUT"
+            echo "color=0xFFA500" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Send Discord Notification
@@ -144,7 +150,7 @@ jobs:
           webhook: ${{ secrets.DISCORD_INFORMATION_ALERT_CHANNEL_WEBHOOK }}
           status: ${{ steps.status.outputs.status }}
           color: ${{ steps.status.outputs.color }}
-          title: "DataGSM Stage CI"
+          title: "DataGSM CI (${{ github.base_ref || github.ref_name }})"
           description: |
             **Validate Title:** ${{ needs.validate-title.result }}
             **Setup Metadata:** ${{ needs.setup-pr-metadata.result }}
