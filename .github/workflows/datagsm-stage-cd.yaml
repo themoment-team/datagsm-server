@@ -15,9 +15,10 @@ on:
         default: 'develop'
         type: string
 
+# Never cancel a running deploy midway; a newer run waits in the queue instead.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -27,7 +28,7 @@ jobs:
     uses: ./.github/workflows/datagsm-deploy.yaml
     with:
       environment: stage
-      ref: ${{ inputs.branch || github.event.workflow_run.head_branch || 'develop' }}
+      ref: ${{ inputs.branch || github.event.workflow_run.head_sha || 'develop' }}
     secrets: inherit
 
   notify:
