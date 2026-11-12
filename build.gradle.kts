@@ -1,5 +1,6 @@
 import com.gorylenko.GitPropertiesPluginExtension
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import kotlinx.kover.gradle.plugin.dsl.KoverProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 import test.TestSummaryPlugin
@@ -39,15 +40,19 @@ dependencies {
     coverageModules.forEach { kover(project(":$it")) }
 }
 
-kover {
+// QueryDSL Q-classes generated next to entities by KSP. Applied to the merged and per-module reports alike.
+fun KoverProjectExtension.excludeQueryDslClasses() {
     reports {
         filters {
             excludes {
-                // QueryDSL Q-classes generated next to entities by KSP.
                 classes("*.entity.Q*")
             }
         }
     }
+}
+
+kover {
+    excludeQueryDslClasses()
 }
 
 subprojects {
@@ -61,6 +66,9 @@ subprojects {
     apply(plugin = plugin.Plugins.KTLINT)
     if (name in coverageModules) {
         apply(plugin = plugin.Plugins.KOVER)
+        extensions.configure<KoverProjectExtension> {
+            excludeQueryDslClasses()
+        }
     }
 
     if (!isSharedModule) {
