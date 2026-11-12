@@ -113,6 +113,9 @@ sdk:
       - "/v3/api-docs/**"
       - "/swagger-ui/**"
       - "/actuator/**"
+      # the-sdk 로깅 필터가 본문을 먼저 읽으면 form 인코딩 요청의 파라미터가 사라진다.
+      # 요청에 client_secret·인가 코드, 응답에 토큰 원문이 있어 로그에 남기지 않는다.
+      - "/v1/oauth/token"
   response:
     enabled: true
     not-wrapping-urls:
