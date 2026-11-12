@@ -15,6 +15,7 @@ plugins {
     id(plugin.Plugins.KTLINT) version plugin.PluginVersions.KTLINT_VERSION apply false
     id(plugin.Plugins.GIT_PROPERTIES) version plugin.PluginVersions.GIT_PROPERTIES_VERSION apply false
     id(plugin.Plugins.MAVEN_PUBLISH) version plugin.PluginVersions.MAVEN_PUBLISH_VERSION apply false
+    id(plugin.Plugins.KOVER) version plugin.PluginVersions.KOVER_VERSION
 }
 
 group = "team.themoment"
@@ -32,6 +33,22 @@ val serviceModules =
         "datagsm-openapi",
         "datagsm-oauth-userinfo",
     )
+val coverageModules = serviceModules + "datagsm-common"
+
+dependencies {
+    coverageModules.forEach { kover(project(":$it")) }
+}
+
+kover {
+    reports {
+        filters {
+            excludes {
+                // QueryDSL Q-classes generated next to entities by KSP.
+                classes("*.entity.Q*")
+            }
+        }
+    }
+}
 
 subprojects {
     val isSharedModule = name == "datagsm-shared"
@@ -42,6 +59,9 @@ subprojects {
         apply(plugin = plugin.Plugins.SPRING_DEPENDENCY_MANAGEMENT)
     }
     apply(plugin = plugin.Plugins.KTLINT)
+    if (name in coverageModules) {
+        apply(plugin = plugin.Plugins.KOVER)
+    }
 
     if (!isSharedModule) {
         extensions.configure<JavaPluginExtension> {

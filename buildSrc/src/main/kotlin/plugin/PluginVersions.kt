@@ -8,4 +8,5 @@ object PluginVersions {
     const val KTLINT_VERSION = "14.2.0"
     const val GIT_PROPERTIES_VERSION = "2.5.7"
     const val MAVEN_PUBLISH_VERSION = "0.37.0"
+    const val KOVER_VERSION = "0.9.11"
 }

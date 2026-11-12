@@ -11,4 +11,5 @@ object Plugins {
     const val KTLINT = "org.jlleitschuh.gradle.ktlint"
     const val GIT_PROPERTIES = "com.gorylenko.gradle-git-properties"
     const val MAVEN_PUBLISH = "com.vanniktech.maven.publish"
+    const val KOVER = "org.jetbrains.kotlinx.kover"
 }
