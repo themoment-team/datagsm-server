@@ -16,6 +16,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
+    permissions:
+      contents: read
     env:
       PROFILE: ${{ inputs.environment }}
       SECRET_PREFIX: ${{ inputs.environment == 'prod' && 'PROD' || 'STAGE' }}
@@ -50,6 +52,10 @@ jobs:
           for module in $MODULES; do
             var="${module//-/_}"
             var="${var^^}"
+            if [ -z "${!var:-}" ]; then
+              echo "::error::Secret for $module is empty (SECRET_PREFIX=$SECRET_PREFIX)"
+              exit 1
+            fi
             mkdir -p "$module/src/main/resources"
             printf '%s\n' "${!var}" > "$module/src/main/resources/application-$PROFILE.yml"
           done
