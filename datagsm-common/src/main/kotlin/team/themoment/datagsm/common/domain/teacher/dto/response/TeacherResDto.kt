@@ -13,7 +13,7 @@ data class TeacherResDto(
     val email: String,
     @field:Schema(description = "소속 부서", example = "GRADE")
     val department: TeacherDepartment,
-    @field:Schema(description = "선생님 설명", example = "3학년 1반 담임선생님")
+    @field:Schema(description = "선생님 설명", example = "3학년 1반 담임선생님", nullable = true)
     val description: String?,
 ) {
     companion object {

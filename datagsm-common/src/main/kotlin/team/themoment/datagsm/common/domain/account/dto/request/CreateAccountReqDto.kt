@@ -20,14 +20,31 @@ data class CreateAccountReqDto(
     @field:NotBlank(message = "인증 코드는 필수입니다.")
     @param:Schema(description = "이메일 인증 코드", example = "12345678")
     val code: String,
-    @param:Schema(description = "가입 대상 종류 (STUDENT, TEACHER)", example = "STUDENT", defaultValue = "STUDENT")
+    @param:Schema(description = "가입 대상 종류 (STUDENT는 ACTIVE, TEACHER는 승인 대기 PENDING으로 생성)", example = "STUDENT", defaultValue = "STUDENT")
     val objectType: AccountObjectType = AccountObjectType.STUDENT,
     @field:Size(max = 10)
-    @param:Schema(description = "이름 (선생님 가입 시 필수)", example = "김선생", maxLength = 10)
+    @param:Schema(
+        description = "이름 (선생님 가입 시 필수, 학생 가입 시 무시)",
+        example = "김선생",
+        maxLength = 10,
+        nullable = true,
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+    )
     val name: String? = null,
-    @param:Schema(description = "소속 부서 (선생님 가입 시 필수)", example = "GRADE")
+    @param:Schema(
+        description = "소속 부서 (선생님 가입 시 필수, 학생 가입 시 무시)",
+        example = "GRADE",
+        nullable = true,
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+    )
     val department: TeacherDepartment? = null,
     @field:Size(max = 100)
-    @param:Schema(description = "선생님 설명 (선생님 가입 시 선택)", example = "3학년 1반 담임선생님", maxLength = 100)
+    @param:Schema(
+        description = "선생님 설명 (선생님 가입 시 선택, 학생 가입 시 무시)",
+        example = "3학년 1반 담임선생님",
+        maxLength = 100,
+        nullable = true,
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+    )
     val description: String? = null,
 )

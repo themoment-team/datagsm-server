@@ -35,11 +35,14 @@ class AccountController(
     private val checkSignupEmailService: CheckSignupEmailService,
     private val createAccountService: CreateAccountService,
 ) {
-    @Operation(summary = "비밀번호 재설정 이메일 발송", description = "비밀번호 재설정을 위한 인증 코드를 이메일로 발송합니다.")
+    @Operation(
+        summary = "비밀번호 재설정 이메일 발송",
+        description = "비밀번호 재설정을 위한 인증 코드를 이메일로 발송합니다. 계정이 없는 이메일도 존재 여부를 노출하지 않고 동일하게 204를 반환하며 메일은 발송하지 않습니다.",
+    )
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "인증 코드 발송 성공"),
-            ApiResponse(responseCode = "404", description = "존재하지 않는 이메일", content = [Content()]),
+            ApiResponse(responseCode = "204", description = "인증 코드 발송 성공", content = [Content()]),
+            ApiResponse(responseCode = "400", description = "요청 검증 실패 (이메일 형식 또는 길이)", content = [Content()]),
             ApiResponse(responseCode = "429", description = "요청 횟수 초과", content = [Content()]),
         ],
     )
@@ -53,8 +56,8 @@ class AccountController(
     @Operation(summary = "비밀번호 재설정 코드 검증", description = "이메일로 받은 인증 코드를 검증합니다.")
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "코드 검증 성공"),
-            ApiResponse(responseCode = "400", description = "인증 코드 불일치", content = [Content()]),
+            ApiResponse(responseCode = "204", description = "코드 검증 성공", content = [Content()]),
+            ApiResponse(responseCode = "400", description = "요청 검증 실패 / 인증 코드 불일치", content = [Content()]),
             ApiResponse(responseCode = "404", description = "인증 코드가 존재하지 않음", content = [Content()]),
             ApiResponse(responseCode = "429", description = "요청 횟수 초과", content = [Content()]),
         ],
@@ -66,11 +69,11 @@ class AccountController(
         checkPasswordResetCodeService.execute(reqDto)
     }
 
-    @Operation(summary = "비밀번호 변경", description = "검증된 인증 코드로 비밀번호를 변경합니다. 모든 Refresh Token이 무효화됩니다.")
+    @Operation(summary = "비밀번호 변경", description = "검증된 인증 코드로 비밀번호를 변경합니다. 모든 Refresh Token과 IdP 세션이 무효화되고 사용한 재설정 코드가 삭제됩니다.")
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "비밀번호 변경 성공"),
-            ApiResponse(responseCode = "400", description = "인증 코드 미검증 / 코드 불일치 / 이전 비밀번호와 동일", content = [Content()]),
+            ApiResponse(responseCode = "204", description = "비밀번호 변경 성공", content = [Content()]),
+            ApiResponse(responseCode = "400", description = "요청 검증 실패 / 인증 코드 미검증 / 코드 불일치 / 이전 비밀번호와 동일", content = [Content()]),
             ApiResponse(responseCode = "404", description = "인증 코드 또는 계정이 존재하지 않음", content = [Content()]),
             ApiResponse(responseCode = "429", description = "요청 횟수 초과", content = [Content()]),
         ],
@@ -82,10 +85,11 @@ class AccountController(
         modifyPasswordService.execute(reqDto)
     }
 
-    @Operation(summary = "회원가입 인증 코드 발송", description = "회원가입을 위한 이메일 인증 코드를 발송합니다.")
+    @Operation(summary = "회원가입 인증 코드 발송", description = "gsm.hs.kr 도메인 이메일에 회원가입 인증 코드를 발송합니다.")
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "인증 코드 발송 성공"),
+            ApiResponse(responseCode = "204", description = "인증 코드 발송 성공", content = [Content()]),
+            ApiResponse(responseCode = "400", description = "요청 검증 실패 / gsm.hs.kr 도메인이 아닌 이메일", content = [Content()]),
             ApiResponse(responseCode = "409", description = "이미 존재하는 이메일", content = [Content()]),
             ApiResponse(responseCode = "429", description = "요청 횟수 초과", content = [Content()]),
         ],
@@ -100,8 +104,8 @@ class AccountController(
     @Operation(summary = "회원가입 인증 코드 검증", description = "이메일로 받은 회원가입 인증 코드를 검증합니다.")
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "코드 검증 성공"),
-            ApiResponse(responseCode = "400", description = "인증 코드 불일치", content = [Content()]),
+            ApiResponse(responseCode = "204", description = "코드 검증 성공", content = [Content()]),
+            ApiResponse(responseCode = "400", description = "요청 검증 실패 / 인증 코드 불일치", content = [Content()]),
             ApiResponse(responseCode = "404", description = "인증 코드가 존재하지 않음", content = [Content()]),
             ApiResponse(responseCode = "429", description = "요청 횟수 초과", content = [Content()]),
         ],
@@ -113,13 +117,16 @@ class AccountController(
         checkSignupEmailService.execute(reqDto)
     }
 
-    @Operation(summary = "계정 생성", description = "검증된 이메일로 새로운 계정을 생성합니다.")
+    @Operation(
+        summary = "계정 생성",
+        description = "이메일 인증 코드를 확인하고 소비하여 새로운 계정을 생성합니다. 학생 계정은 ACTIVE, 선생님 계정은 관리자 승인 대기인 PENDING으로 생성됩니다. 선생님 가입 시 이름과 소속 부서가 필수입니다.",
+    )
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "계정 생성 성공"),
-            ApiResponse(responseCode = "400", description = "인증 코드 불일치", content = [Content()]),
+            ApiResponse(responseCode = "204", description = "계정 생성 성공", content = [Content()]),
+            ApiResponse(responseCode = "400", description = "요청 검증 실패 / 인증 코드 불일치 / 선생님 이름 또는 소속 부서 누락", content = [Content()]),
             ApiResponse(responseCode = "404", description = "인증 코드가 존재하지 않음", content = [Content()]),
-            ApiResponse(responseCode = "409", description = "이미 존재하는 이메일", content = [Content()]),
+            ApiResponse(responseCode = "409", description = "이미 계정 또는 선생님 정보가 존재하는 이메일", content = [Content()]),
             ApiResponse(
                 responseCode = "429",
                 description = "요청 횟수 초과 (회원가입 인증 코드 검증 API와 동일한 한도를 공유합니다)",
