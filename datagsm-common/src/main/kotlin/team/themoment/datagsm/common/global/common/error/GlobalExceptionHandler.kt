@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.multipart.MaxUploadSizeExceededException
 import org.springframework.web.servlet.NoHandlerFoundException
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
@@ -99,6 +100,13 @@ class GlobalExceptionHandler(
         logger().warn("Invalid request body {}", ex.message)
         logger().trace("Invalid request body details", ex)
         return createErrorResponse(HttpStatus.BAD_REQUEST, "요청 본문 형식이 올바르지 않습니다.")
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException::class)
+    fun methodArgumentTypeMismatchException(ex: MethodArgumentTypeMismatchException): ResponseEntity<CommonApiResponse<Nothing>> {
+        logger().warn("Rejected request argument with mismatched type {}", ex.message)
+        logger().trace("Rejected request argument with mismatched type details", ex)
+        return createErrorResponse(HttpStatus.BAD_REQUEST, "요청 값의 형식이 올바르지 않습니다.")
     }
 
     @ExceptionHandler(ConstraintViolationException::class)
