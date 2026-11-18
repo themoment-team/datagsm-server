@@ -8,13 +8,13 @@ import java.time.LocalDate
 @SdkExport
 @Schema(description = "급식 단건 정보")
 data class MealInfoResDto(
-    @field:Schema(description = "급식 ID", example = "7430310_20251215_2")
+    @field:Schema(description = "급식 ID", example = "7380292_20251215_2")
     val mealId: String,
-    @field:Schema(description = "학교 코드", example = "7430310")
+    @field:Schema(description = "학교 코드", example = "7380292")
     val schoolCode: String,
     @field:Schema(description = "학교명", example = "광주소프트웨어마이스터고등학교")
     val schoolName: String,
-    @field:Schema(description = "시도교육청 코드", example = "G10")
+    @field:Schema(description = "시도교육청 코드", example = "F10")
     val officeCode: String,
     @field:Schema(description = "시도교육청명", example = "광주광역시교육청")
     val officeName: String,
@@ -24,14 +24,14 @@ data class MealInfoResDto(
     val mealType: MealType,
     @field:Schema(description = "급식 메뉴 목록", example = "[\"쌀밥\", \"김치찌개\", \"돈까스\", \"배추김치\"]")
     val mealMenu: List<String>,
-    @field:Schema(description = "알레르기 정보 목록", example = "[\"1\", \"2\", \"5\", \"6\"]")
+    @field:Schema(description = "알레르기 정보 목록", example = "[\"1\", \"2\", \"5\", \"6\"]", nullable = true)
     val mealAllergyInfo: List<String>?,
-    @field:Schema(description = "칼로리 정보", example = "650.8 Kcal")
+    @field:Schema(description = "칼로리 정보", example = "650.8 Kcal", nullable = true)
     val mealCalories: String?,
-    @field:Schema(description = "원산지 정보", example = "쌀:국내산 돼지고기:국내산 배추김치:국내산")
+    @field:Schema(description = "원산지 정보", example = "쌀:국내산 돼지고기:국내산 배추김치:국내산", nullable = true)
     val originInfo: String?,
-    @field:Schema(description = "영양 정보", example = "단백질:25.0g 지방:15.0g 탄수화물:90.0g")
+    @field:Schema(description = "영양 정보", example = "단백질:25.0g 지방:15.0g 탄수화물:90.0g", nullable = true)
     val nutritionInfo: String?,
-    @field:Schema(description = "급식 인원수", example = "450")
+    @field:Schema(description = "급식 인원수", example = "450", nullable = true)
     val mealServeCount: Int?,
 )

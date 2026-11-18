@@ -7,17 +7,37 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 data class QueryTimetableReqDto(
-    @param:Schema(description = "학년 (1~3)")
+    @param:Schema(
+        description = "학년 (필수, 범위 검증 없음. 일치하는 데이터가 없으면 빈 목록 반환)",
+        example = "1",
+        requiredMode = Schema.RequiredMode.REQUIRED,
+    )
     val grade: Int,
-    @param:Schema(description = "반 (1~4)")
+    @param:Schema(
+        description = "반 (필수, 범위 검증 없음. 일치하는 데이터가 없으면 빈 목록 반환)",
+        example = "1",
+        requiredMode = Schema.RequiredMode.REQUIRED,
+    )
     val classNum: Int,
-    @param:Schema(description = "특정 날짜 (YYYY-MM-DD)")
+    @param:Schema(
+        description = "특정 날짜 (YYYY-MM-DD), fromDate/toDate와 동시 사용 불가",
+        nullable = true,
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+    )
     @param:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     val date: LocalDate? = null,
-    @param:Schema(description = "시작 날짜 (YYYY-MM-DD)")
+    @param:Schema(
+        description = "시작 날짜 (YYYY-MM-DD), date와 동시 사용 불가. toDate 없이 지정 가능",
+        nullable = true,
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+    )
     @param:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     val fromDate: LocalDate? = null,
-    @param:Schema(description = "종료 날짜 (YYYY-MM-DD)")
+    @param:Schema(
+        description = "종료 날짜 (YYYY-MM-DD), date와 동시 사용 불가. fromDate 이상이며 양쪽 지정 시 날짜 차이 365일 이하",
+        nullable = true,
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+    )
     @param:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     val toDate: LocalDate? = null,
 ) {
