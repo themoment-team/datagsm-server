@@ -41,6 +41,7 @@ class EventController(
             ApiResponse(responseCode = "200", description = "등록 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패 또는 Event 최대 개수 초과)", content = [Content()]),
             ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
         ],
     )
     @PostMapping
@@ -53,18 +54,24 @@ class EventController(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
             ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
         ],
     )
     @GetMapping
     fun getEvents(): EventListResDto = queryEventService.execute()
 
-    @Operation(summary = "Event 수정", description = "Event의 수신 URL 또는 구독 이벤트를 수정합니다.")
+    @Operation(
+        summary = "Event 수정",
+        description =
+            "현재 계정이 소유한 Event의 수신 URL 또는 구독 이벤트를 수정합니다. target_url을 전달하고 URL이 변경되거나 기존 검증 상태가 FAILED이면 " +
+                "verification_status를 PENDING으로 초기화하고 비동기로 재검증합니다. target_url이 null이면 재검증하지 않습니다.",
+    )
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "수정 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
             ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
-            ApiResponse(responseCode = "404", description = "Event를 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "계정 또는 현재 계정이 소유한 Event를 찾을 수 없음", content = [Content()]),
         ],
     )
     @PatchMapping("/{eventId}")
@@ -78,7 +85,7 @@ class EventController(
         value = [
             ApiResponse(responseCode = "200", description = "삭제 성공"),
             ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
-            ApiResponse(responseCode = "404", description = "Event를 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "계정 또는 현재 계정이 소유한 Event를 찾을 수 없음", content = [Content()]),
         ],
     )
     @DeleteMapping("/{eventId}")
