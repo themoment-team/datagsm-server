@@ -77,7 +77,7 @@ sdk:
   swagger:
     enabled: true
     title: "DataGSM OpenAPI Server API"
-    description: "DataGSM Read-Only Resource API with API Key Authentication"
+    description: "DataGSM Read/Write Resource API with API Key Authentication"
     version: "v1"
     group: "openapi-api"
     paths-to-match:
