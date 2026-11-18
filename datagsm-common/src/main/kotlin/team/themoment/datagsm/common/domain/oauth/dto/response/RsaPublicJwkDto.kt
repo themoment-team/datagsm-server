@@ -13,9 +13,9 @@ data class RsaPublicJwkDto(
     val n: String,
     @field:Schema(description = "RSA 공개키 지수 (Base64url)", example = "AQAB")
     val e: String,
-    @field:Schema(description = "키 용도", example = "sig", nullable = true)
+    @field:Schema(description = "키 용도. 현재 JWKS 응답에서는 지정하지 않아 null입니다.", nullable = true)
     val use: String? = null,
-    @field:Schema(description = "알고리즘", example = "RS256", nullable = true)
+    @field:Schema(description = "알고리즘. 현재 JWKS 응답에서는 지정하지 않아 null입니다.", nullable = true)
     val alg: String? = null,
 ) {
     companion object {
