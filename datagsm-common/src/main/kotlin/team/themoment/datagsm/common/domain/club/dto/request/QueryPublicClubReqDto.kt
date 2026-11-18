@@ -5,8 +5,8 @@ import team.themoment.datagsm.common.domain.club.entity.constant.ClubStatus
 import team.themoment.datagsm.common.domain.club.entity.constant.ClubType
 
 data class QueryPublicClubReqDto(
-    @param:Schema(description = "동아리 종류 (미입력 시 전체 조회)")
+    @param:Schema(description = "동아리 종류 (미입력 시 전체 조회)", nullable = true, requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     val clubType: ClubType? = null,
-    @param:Schema(description = "운영 상태 (미입력 시 전체 조회)")
+    @param:Schema(description = "운영 상태 (미입력 시 전체 조회)", nullable = true, requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     val clubStatus: ClubStatus? = null,
 )
