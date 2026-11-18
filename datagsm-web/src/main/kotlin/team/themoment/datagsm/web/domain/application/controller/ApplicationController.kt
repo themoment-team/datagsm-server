@@ -50,6 +50,7 @@ class ApplicationController(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
             ApiResponse(responseCode = "401", description = "인증되지 않은 요청", content = [Content()]),
+            ApiResponse(responseCode = "400", description = "페이지 번호 또는 크기 검증 실패", content = [Content()]),
         ],
     )
     @GetMapping
@@ -76,6 +77,7 @@ class ApplicationController(
             ApiResponse(responseCode = "200", description = "생성 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
             ApiResponse(responseCode = "401", description = "인증되지 않은 요청", content = [Content()]),
+            ApiResponse(responseCode = "409", description = "요청 내 권한 범위 이름이 중복됨", content = [Content()]),
         ],
     )
     @PostMapping
@@ -99,7 +101,7 @@ class ApplicationController(
         @RequestBody @Valid reqDto: ModifyApplicationReqDto,
     ): ApplicationResDto = modifyApplicationService.execute(id, reqDto)
 
-    @Operation(summary = "Application 삭제", description = "Application을 삭제합니다.")
+    @Operation(summary = "Application 삭제", description = "Application과 소속 권한 범위를 삭제하고, 모든 클라이언트에서 해당 Application의 권한 범위를 제거합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "삭제 성공"),
@@ -124,6 +126,7 @@ class ApplicationController(
             ApiResponse(responseCode = "401", description = "인증되지 않은 요청", content = [Content()]),
             ApiResponse(responseCode = "403", description = "권한이 없는 요청", content = [Content()]),
             ApiResponse(responseCode = "404", description = "Application을 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "409", description = "Application에 같은 이름의 권한 범위가 이미 존재함", content = [Content()]),
         ],
     )
     @PostMapping("/{id}/scopes")
@@ -132,7 +135,10 @@ class ApplicationController(
         @RequestBody @Valid reqDto: AddOAuthScopeReqDto,
     ): ApplicationResDto = addOAuthScopeService.execute(id, reqDto)
 
-    @Operation(summary = "OAuth 권한 범위 수정", description = "Application의 권한 범위를 수정합니다.")
+    @Operation(
+        summary = "OAuth 권한 범위 수정",
+        description = "Application의 권한 범위를 수정합니다. 기존 scopeName을 그대로 보내면 설명만 수정해도 409가 발생하며, 이름 중복 검사는 소유자 권한 검사보다 먼저 수행됩니다.",
+    )
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "수정 성공"),
@@ -140,6 +146,7 @@ class ApplicationController(
             ApiResponse(responseCode = "401", description = "인증되지 않은 요청", content = [Content()]),
             ApiResponse(responseCode = "403", description = "권한이 없는 요청", content = [Content()]),
             ApiResponse(responseCode = "404", description = "Application 또는 OAuth 권한 범위를 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "409", description = "같은 이름의 권한 범위가 존재함 (수정 대상 자신도 포함하며 소유자 권한 검사보다 먼저 확인)", content = [Content()]),
         ],
     )
     @PatchMapping("/{id}/scopes/{scopeId}")
@@ -149,7 +156,7 @@ class ApplicationController(
         @RequestBody @Valid reqDto: ModifyOAuthScopeReqDto,
     ): ApplicationResDto = modifyOAuthScopeService.execute(id, scopeId, reqDto)
 
-    @Operation(summary = "OAuth 권한 범위 삭제", description = "Application에서 권한 범위를 삭제합니다.")
+    @Operation(summary = "OAuth 권한 범위 삭제", description = "Application에서 권한 범위를 삭제하고 모든 클라이언트에서 해당 권한 범위를 제거합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "삭제 성공"),
