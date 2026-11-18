@@ -18,7 +18,7 @@ class CustomAccessDeniedHandler(
         response: HttpServletResponse,
         accessDeniedException: AccessDeniedException,
     ) {
-        val errorResponse = CommonApiResponse.error("접근 권한이 없습니다.", HttpStatus.FORBIDDEN)
+        val errorResponse = CommonApiResponse.error("접근 권한이 부족합니다.", HttpStatus.FORBIDDEN)
         response.status = HttpServletResponse.SC_FORBIDDEN
         response.contentType = "application/json"
         response.characterEncoding = "UTF-8"

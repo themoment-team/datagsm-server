@@ -105,7 +105,7 @@ class SecurityConfigTest :
                             response.contentType shouldBe "application/json;charset=UTF-8"
                             val body = ObjectMapper().readTree(response.contentAsString)
                             body["code"].asInt() shouldBe HttpStatus.FORBIDDEN.value()
-                            body["message"].asText() shouldBe "접근 권한이 없습니다."
+                            body["message"].asText() shouldBe "접근 권한이 부족합니다."
                         }
                     }
                 }
