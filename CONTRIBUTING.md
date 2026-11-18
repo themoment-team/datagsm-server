@@ -922,28 +922,23 @@ java -jar app.jar --spring.profiles.active=prod
 
 프로젝트는 GitHub Actions를 사용하여 자동화된 CI/CD를 운영합니다.
 
-#### Stage (develop 브랜치)
-
-- **트리거**: `develop` 브랜치에 대한 PR 및 Push
-- **워크플로우**: `.github/workflows/datagsm-stage-ci.yaml`
+- **트리거**: 모든 브랜치 대상 PR(스택 PR 포함), `develop`/`master` Push
+- **워크플로우**: `.github/workflows/datagsm-ci.yaml`
 - **작업**:
-  1. PR 제목 검증
+  1. PR 제목 검증 (`.github/scripts/validate-title.js`, 이슈 제목 검증과 공용)
   2. PR 메타데이터 설정 (라벨, Assignee, Reviewer)
-  3. JDK 25 빌드 및 테스트
-  4. Discord 알림
-
-#### Production (master 브랜치)
-
-- **트리거**: `master` 브랜치에 대한 PR 및 Push
-- **워크플로우**: `.github/workflows/datagsm-prod-ci.yaml`
-- **작업**: Stage와 동일
+  3. JDK 25 빌드 및 테스트, 실패한 테스트는 PR 주석과 Job Summary로 표시
+  4. Kover 커버리지 리포트를 PR 코멘트로 게시
+  5. Discord 알림
+- **워크플로우 린트**: `.github/workflows/**` 변경 시 `datagsm-workflow-lint.yaml`이 actionlint를 실행합니다. 로컬에서는 `actionlint`로 확인할 수 있습니다.
+- **의존성 업데이트**: Dependabot이 매주 월요일 `develop` 대상으로 GitHub Actions·Gradle 업데이트 PR을 생성합니다.
 
 ### CD 워크플로우
 
-CI가 성공하면 자동으로 배포가 진행됩니다:
+CI가 성공하면 자동으로 배포가 진행됩니다. 실제 배포 단계는 두 환경이 `.github/workflows/datagsm-deploy.yaml`을 공유합니다.
 
 - **Stage CD**: `.github/workflows/datagsm-stage-cd.yaml`
-- **Production CD**: `.github/workflows/datagsm-prod-cd.yaml`
+- **Production CD**: `.github/workflows/datagsm-prod-cd.yaml` (진행 중인 배포는 취소하지 않음)
 
 ### 로컬에서 CI 검증
 
@@ -954,7 +949,10 @@ PR을 생성하기 전에 로컬에서 CI 검증을 수행하세요:
 ./gradlew ktlintCheck
 
 # 빌드 및 테스트 (CI와 동일한 명령)
-./gradlew build --parallel --build-cache
+./gradlew build koverXmlReport --parallel --build-cache
+
+# 커버리지 HTML 리포트 (build/reports/kover/html/index.html)
+./gradlew koverHtmlReport
 
 # 모든 모듈 테스트
 ./gradlew test

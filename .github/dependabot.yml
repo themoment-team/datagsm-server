@@ -1,0 +1,30 @@
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: Asia/Seoul
+    commit-message:
+      prefix: "update(ci/cd)"
+    groups:
+      github-actions:
+        patterns: ["*"]
+
+  # Versions in buildSrc/src/main/kotlin/**/*Versions.kt are Kotlin constants that Dependabot
+  # cannot parse, so this mostly keeps the Gradle wrapper up to date.
+  - package-ecosystem: gradle
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: Asia/Seoul
+    commit-message:
+      prefix: "update(global)"
+    groups:
+      gradle:
+        patterns: ["*"]
