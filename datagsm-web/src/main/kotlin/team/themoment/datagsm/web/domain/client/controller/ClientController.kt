@@ -3,6 +3,7 @@ package team.themoment.datagsm.web.domain.client.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -41,22 +42,26 @@ class ClientController(
     private val searchClientService: SearchClientService,
     private val queryAvailableOauthScopesService: QueryAvailableOauthScopesService,
 ) {
-    @Operation(summary = "내 클라이언트 조회", description = "내가 등록한 클라이언트를 조회합니다.")
+    @Operation(
+        summary = "내 클라이언트 조회",
+        description = "내가 등록한 클라이언트를 조회합니다. page는 0 이상, size는 1 이상이어야 하며 size 상한은 없습니다. 현재 범위 검증이 없어 page < 0 또는 size < 1이면 500이 발생합니다.",
+    )
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
             ApiResponse(responseCode = "401", description = "인증되지 않은 요청", content = [Content()]),
+            ApiResponse(responseCode = "500", description = "page가 음수이거나 size가 1 미만인 경우", content = [Content()]),
         ],
     )
     @GetMapping("/my")
     fun getMyClient(
-        @Parameter(description = "페이지 번호")
+        @Parameter(description = "페이지 번호 (0 이상)", schema = Schema(minimum = "0"))
         @RequestParam(required = false, defaultValue = "0") page: Int,
-        @Parameter(description = "페이지 크기")
+        @Parameter(description = "페이지 크기 (1 이상, 상한 없음)", schema = Schema(minimum = "1"))
         @RequestParam(required = false, defaultValue = "100") size: Int,
     ): ClientListResDto = queryMyClientService.execute(page, size)
 
-    @Operation(summary = "어드민용 클라이언트 검색", description = "어드민이 등록된 클라이언트를 검색합니다.")
+    @Operation(summary = "어드민용 클라이언트 검색", description = "어드민이 등록된 클라이언트를 검색합니다. (ADMIN, ROOT 권한 필요)")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
@@ -116,10 +121,16 @@ class ClientController(
         return CommonApiResponse.success("Client를 성공적으로 삭제했습니다.")
     }
 
-    @Operation(summary = "사용 가능한 OAuth 권한 범위 조회", description = "OAuth 클라이언트에서 사용 가능한 권한 범위 목록을 카테고리별로 그룹핑하여 조회합니다.")
+    @Operation(
+        summary = "사용 가능한 OAuth 권한 범위 조회",
+        description =
+            "applicationName을 포함한 사용 가능 권한 범위의 평면 목록입니다. " +
+                "scope는 {applicationId}:{scopeName} 형식이며 클라이언트 생성 요청에 그대로 사용합니다.",
+    )
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
+            ApiResponse(responseCode = "401", description = "인증되지 않은 요청", content = [Content()]),
         ],
     )
     @GetMapping("/available-scopes")

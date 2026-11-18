@@ -15,7 +15,10 @@ data class CreateClientReqDto(
     @param:Schema(description = "서비스 명칭 (로그인 페이지 노출용)", example = "광주소프트웨어마이스터고등학교", maxLength = 100)
     val serviceName: String,
     @field:Size(min = 1)
-    @param:Schema(description = "Oauth Client에서 요청할 권한 목록", example = "[\"self:read\"]")
+    @param:Schema(
+        description = "요청할 권한 목록. GET /v1/clients/available-scopes의 scope 값({applicationId}:{scopeName})만 허용됩니다.",
+        example = "[\"a1b2c3d4-e5f6-7890-abcd-ef1234567890:profile\"]",
+    )
     val scopes: Set<String>,
     @param:Schema(
         description = "리다이렉트 URL 목록",

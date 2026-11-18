@@ -5,9 +5,9 @@ import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 
 data class SearchClientReqDto(
-    @param:Schema(description = "클라이언트 이름")
+    @param:Schema(description = "클라이언트 이름", nullable = true, requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     val clientName: String? = null,
-    @param:Schema(description = "서비스 명칭")
+    @param:Schema(description = "서비스 명칭", nullable = true, requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     val serviceName: String? = null,
     @field:Min(0)
     @param:Schema(description = "페이지 번호", defaultValue = "0", minimum = "0")
