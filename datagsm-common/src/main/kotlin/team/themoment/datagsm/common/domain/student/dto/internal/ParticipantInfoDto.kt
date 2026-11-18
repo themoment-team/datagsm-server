@@ -13,9 +13,9 @@ data class ParticipantInfoDto(
     val name: String,
     @field:Schema(description = "학생 이메일", example = "s24080@gsm.hs.kr")
     val email: String,
-    @field:Schema(description = "학번", example = "1201")
+    @field:Schema(description = "학번", example = "1201", nullable = true)
     val studentNumber: Int?,
-    @field:Schema(description = "학과", example = "SW_DEVELOPMENT", allowableValues = ["SW_DEVELOPMENT", "SMART_IOT", "AI"])
+    @field:Schema(description = "학과", example = "SW_DEVELOPMENT", allowableValues = ["SW_DEVELOPMENT", "SMART_IOT", "AI"], nullable = true)
     val major: Major?,
     @field:Schema(description = "성별", example = "MAN")
     val sex: Sex,

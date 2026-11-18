@@ -18,31 +18,31 @@ data class StudentResDto(
     val sex: Sex,
     @field:Schema(description = "이메일", example = "student@gsm.hs.kr")
     val email: String,
-    @field:Schema(description = "학년", example = "1")
+    @field:Schema(description = "학년", example = "1", nullable = true)
     val grade: Int?,
-    @field:Schema(description = "반", example = "1")
+    @field:Schema(description = "반", example = "1", nullable = true)
     val classNum: Int?,
-    @field:Schema(description = "번호", example = "1")
+    @field:Schema(description = "번호", example = "1", nullable = true)
     val number: Int?,
-    @field:Schema(description = "학번", example = "1101")
+    @field:Schema(description = "학번", example = "1101", nullable = true)
     val studentNumber: Int?,
-    @field:Schema(description = "학과", example = "SW_DEVELOPMENT", allowableValues = ["SW_DEVELOPMENT", "SMART_IOT", "AI"])
+    @field:Schema(description = "학과", example = "SW_DEVELOPMENT", allowableValues = ["SW_DEVELOPMENT", "SMART_IOT", "AI"], nullable = true)
     val major: Major?,
-    @field:Schema(description = "전공", example = "백엔드")
+    @field:Schema(description = "전공", example = "백엔드", nullable = true)
     val specialty: String?,
     @field:Schema(description = "역할", example = "GENERAL_STUDENT")
     val role: StudentRole,
-    @field:Schema(description = "기숙사 층", example = "3")
+    @field:Schema(description = "기숙사 층", example = "3", nullable = true)
     val dormitoryFloor: Int?,
-    @field:Schema(description = "기숙사 호실", example = "301")
+    @field:Schema(description = "기숙사 호실", example = "301", nullable = true)
     val dormitoryRoom: Int?,
-    @field:Schema(description = "전공 동아리")
+    @field:Schema(description = "전공 동아리", nullable = true)
     val majorClub: ClubSummaryDto?,
-    @field:Schema(description = "자율 동아리")
+    @field:Schema(description = "자율 동아리", nullable = true)
     val autonomousClub: ClubSummaryDto?,
-    @field:Schema(description = "GitHub 아이디", example = "torvalds")
+    @field:Schema(description = "GitHub 아이디", example = "torvalds", nullable = true)
     val githubId: String?,
-    @field:Schema(description = "GitHub 프로필 URL", example = "https://github.com/torvalds")
+    @field:Schema(description = "GitHub 프로필 URL", example = "https://github.com/torvalds", nullable = true)
     val githubUrl: String?,
 ) {
     companion object {

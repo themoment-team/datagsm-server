@@ -12,9 +12,9 @@ data class ParticipantCandidateResDto(
     val id: Long,
     @field:Schema(description = "이름", example = "홍길동")
     val name: String,
-    @field:Schema(description = "학번", example = "2105")
+    @field:Schema(description = "학번", example = "2105", nullable = true)
     val studentNumber: Int?,
-    @field:Schema(description = "학과", example = "SW_DEVELOPMENT")
+    @field:Schema(description = "학과", example = "SW_DEVELOPMENT", nullable = true)
     val major: Major?,
 ) {
     companion object {
