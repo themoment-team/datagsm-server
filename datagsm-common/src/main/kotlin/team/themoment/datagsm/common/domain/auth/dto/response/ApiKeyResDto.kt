@@ -6,7 +6,10 @@ import java.time.LocalDateTime
 data class ApiKeyResDto(
     @field:Schema(description = "API 키 ID", example = "1")
     val id: Long,
-    @field:Schema(description = "API 키 (생성 시 원본, 조회 시 마스킹)", example = "550e8400-e29b-41d4-a716-446655440000")
+    @field:Schema(
+        description = "API 키 (생성·로테이션·권한 범위 또는 설명 변경에 따른 재발급 시 원본, 조회·변경 없는 갱신·관리자 만료일 연장 시 마스킹)",
+        example = "550e8400-e29b-41d4-a716-446655440000",
+    )
     val apiKey: String,
     @field:Schema(description = "API 키 만료일시", example = "2024-12-31T23:59:59")
     val expiresAt: LocalDateTime,
@@ -14,6 +17,6 @@ data class ApiKeyResDto(
     val expiresInDays: Long,
     @field:Schema(description = "API 키 권한 범위 목록", example = "[\"student:read\", \"club:*\"]")
     val scopes: Set<String>,
-    @field:Schema(description = "API 키 설명", example = "프론트엔드 개발용 API 키")
+    @field:Schema(description = "API 키 설명", example = "프론트엔드 개발용 API 키", nullable = true)
     val description: String? = null,
 )

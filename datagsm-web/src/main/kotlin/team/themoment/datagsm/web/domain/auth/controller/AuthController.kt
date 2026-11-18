@@ -58,9 +58,10 @@ class AuthController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "API 키 생성 성공"),
-            ApiResponse(responseCode = "400", description = "학생 정보 없음 / 유효하지 않은 scope", content = [Content()]),
+            ApiResponse(responseCode = "400", description = "요청 검증 실패 / 유효하지 않거나 허용되지 않은 scope", content = [Content()]),
             ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
             ApiResponse(responseCode = "409", description = "이미 API 키가 존재함", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
         ],
     )
     @PostMapping("/api-keys/my")
@@ -68,12 +69,19 @@ class AuthController(
         @RequestBody @Valid reqDto: CreateApiKeyReqDto,
     ): ApiKeyResDto = createCurrentAccountApiKeyService.execute(reqDto)
 
-    @Operation(summary = "API 키 갱신", description = "기존 API 키를 갱신합니다. 권한범위도 변경할 수 있으며 변경 시 새로 API 키가 발급됩니다.")
+    @Operation(
+        summary = "API 키 갱신",
+        description =
+            "기존 API 키의 만료일을 갱신합니다. 권한 범위 또는 설명이 변경되면 새 키를 발급하고 원본을 반환하며 기존 키는 무효화됩니다. 둘 다 같으면 키를 유지하고 " +
+                "마스킹하여 반환합니다. 갱신 가능 기간을 지난 키는 삭제됩니다.",
+    )
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "API 키 갱신 성공"),
-            ApiResponse(responseCode = "400", description = "갱신 기간이 아님 / 학생 정보 없음 / 유효하지 않은 scope", content = [Content()]),
+            ApiResponse(responseCode = "400", description = "요청 검증 실패 / 유효하지 않거나 허용되지 않은 scope", content = [Content()]),
             ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "410", description = "API 키 갱신 가능 기간이 지남 (키 삭제됨)", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
         ],
     )
     @PutMapping("/api-keys/my")
@@ -87,6 +95,7 @@ class AuthController(
             ApiResponse(responseCode = "200", description = "API 키 로테이션 성공"),
             ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
             ApiResponse(responseCode = "410", description = "API 키 갱신 기간이 지남 (키 삭제됨)", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
         ],
     )
     @PostMapping("/api-keys/my/rotations")
@@ -96,8 +105,8 @@ class AuthController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "API 키 삭제 성공"),
-            ApiResponse(responseCode = "400", description = "학생 정보 없음", content = [Content()]),
             ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
         ],
     )
     @DeleteMapping("/api-keys/my")
@@ -106,11 +115,13 @@ class AuthController(
         return CommonApiResponse.success("API 키가 삭제되었습니다.")
     }
 
-    @Operation(summary = "ID로 API 키 삭제", description = "특정 ID를 가진 API 키를 삭제합니다. 관리자 전용 API입니다.")
+    @Operation(summary = "ID로 API 키 삭제", description = "특정 ID를 가진 API 키를 삭제합니다. 관리자 전용 API입니다. (ADMIN, ROOT 권한 필요)")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "API 키 삭제 성공"),
             ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "관리자 권한 없음", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
         ],
     )
     @DeleteMapping("/api-keys/{apiKeyId}")
@@ -123,12 +134,15 @@ class AuthController(
         return CommonApiResponse.success("API 키가 삭제되었습니다.")
     }
 
-    @Operation(summary = "ID로 API 키 만료일 연장", description = "특정 ID를 가진 API 키의 만료일을 연장합니다. 관리자 전용 API입니다.")
+    @Operation(summary = "ID로 API 키 만료일 연장", description = "특정 ID를 가진 API 키의 만료일을 연장합니다. 관리자 전용 API입니다. (ADMIN, ROOT 권한 필요)")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "API 키 연장 성공"),
+            ApiResponse(responseCode = "400", description = "연장 일수는 1~365일이어야 함 / 요청 검증 실패", content = [Content()]),
             ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음", content = [Content()]),
             ApiResponse(responseCode = "410", description = "API 키 갱신 기간이 지남 (키 삭제됨)", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "관리자 권한 없음", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
         ],
     )
     @PatchMapping("/api-keys/{apiKeyId}/expiration")
@@ -143,18 +157,20 @@ class AuthController(
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "API 키 조회 성공"),
-            ApiResponse(responseCode = "400", description = "학생 정보 없음", content = [Content()]),
             ApiResponse(responseCode = "404", description = "API 키를 찾을 수 없음 / 계정을 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
         ],
     )
     @GetMapping("/api-keys/my")
     fun getApiKey(): ApiKeyResDto = queryCurrentAccountApiKeyService.execute()
 
-    @Operation(summary = "API 키 검색", description = "필터 조건에 맞는 API 키를 검색합니다. API 키는 마스킹되어 반환됩니다.")
+    @Operation(summary = "API 키 검색", description = "필터 조건에 맞는 API 키를 검색합니다. API 키는 마스킹되어 반환됩니다. (ADMIN, ROOT 권한 필요)")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "검색 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "관리자 권한 없음", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
         ],
     )
     @GetMapping("/api-keys")
@@ -162,15 +178,17 @@ class AuthController(
         @Valid @ModelAttribute searchReq: SearchApiKeyReqDto,
     ): ApiKeySearchResDto = searchApiKeyService.execute(searchReq)
 
-    @Operation(summary = "역할별 사용 가능한 API 권한 범위 조회", description = "USER 또는 ADMIN 역할에서 사용 가능한 API 권한 범위 목록을 카테고리별로 그룹핑하여 조회합니다.")
+    @Operation(summary = "역할별 사용 가능한 API 권한 범위 조회", description = "역할별 사용 가능한 API 권한 범위를 카테고리별로 조회합니다. ROOT를 지정하면 빈 목록을 반환합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
+            ApiResponse(responseCode = "400", description = "유효하지 않은 역할 값", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
         ],
     )
     @GetMapping("/api-keys/available-scopes")
     fun getApiScopes(
-        @Parameter(description = "계정 역할 (USER 또는 ADMIN)", required = true)
+        @Parameter(description = "계정 역할 (USER, ADMIN, ROOT; ROOT는 빈 목록 반환)", required = true)
         @RequestParam
         role: AccountRole,
     ): ApiScopeGroupListResDto = queryApiScopeGroupService.execute(role)
@@ -180,6 +198,7 @@ class AuthController(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
             ApiResponse(responseCode = "404", description = "존재하지 않는 권한 범위", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
         ],
     )
     @GetMapping("/api-keys/scopes/{scopeName}")
