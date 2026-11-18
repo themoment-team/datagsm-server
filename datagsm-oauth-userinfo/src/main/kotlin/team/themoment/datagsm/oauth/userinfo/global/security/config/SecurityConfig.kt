@@ -17,6 +17,7 @@ import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.global.data.OAuthClientRateLimitEnvironment
 import team.themoment.datagsm.oauth.userinfo.global.data.OauthJwtVerificationEnvironment
 import team.themoment.datagsm.oauth.userinfo.global.security.filter.OAuthClientRateLimitFilter
+import team.themoment.datagsm.oauth.userinfo.global.security.handler.CustomAccessDeniedHandler
 import team.themoment.datagsm.oauth.userinfo.global.security.handler.CustomAuthenticationEntryPoint
 import team.themoment.datagsm.oauth.userinfo.global.security.jwt.JwtProvider
 import team.themoment.datagsm.oauth.userinfo.global.security.jwt.filter.JwtAuthenticationFilter
@@ -29,6 +30,7 @@ class SecurityConfig(
     @param:Qualifier("configure") private val corsConfigurationSource: CorsConfigurationSource,
     private val jwtProvider: JwtProvider,
     private val customAuthenticationEntryPoint: CustomAuthenticationEntryPoint,
+    private val customAccessDeniedHandler: CustomAccessDeniedHandler,
     private val objectMapper: ObjectMapper,
     private val oauthClientRateLimitService: OAuthClientRateLimitService,
     private val oauthClientRateLimitEnvironment: OAuthClientRateLimitEnvironment,
@@ -47,8 +49,10 @@ class SecurityConfig(
             .formLogin(FormLoginConfigurer<*>::disable)
             .logout(LogoutConfigurer<*>::disable)
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
-            .exceptionHandling { it.authenticationEntryPoint(customAuthenticationEntryPoint) }
-            .addFilterBefore(
+            .exceptionHandling {
+                it.authenticationEntryPoint(customAuthenticationEntryPoint)
+                it.accessDeniedHandler(customAccessDeniedHandler)
+            }.addFilterBefore(
                 JwtAuthenticationFilter(jwtProvider, objectMapper),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).addFilterAfter(

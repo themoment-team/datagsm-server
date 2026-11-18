@@ -19,6 +19,7 @@ import org.springframework.web.cors.CorsConfigurationSource
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.global.data.PublicApiRateLimitEnvironment
 import team.themoment.datagsm.web.global.security.filter.PublicApiRateLimitFilter
+import team.themoment.datagsm.web.global.security.handler.CustomAccessDeniedHandler
 import team.themoment.datagsm.web.global.security.handler.CustomAuthenticationEntryPoint
 import team.themoment.datagsm.web.global.security.jwt.JwtProvider
 import team.themoment.datagsm.web.global.security.jwt.filter.JwtAuthenticationFilter
@@ -32,6 +33,7 @@ class SecurityConfig(
     @param:Qualifier("configure") private val corsConfigurationSource: CorsConfigurationSource,
     private val jwtProvider: JwtProvider,
     private val customAuthenticationEntryPoint: CustomAuthenticationEntryPoint,
+    private val customAccessDeniedHandler: CustomAccessDeniedHandler,
     private val publicApiRateLimitService: PublicApiRateLimitService,
     private val publicApiRateLimitEnvironment: PublicApiRateLimitEnvironment,
     private val objectMapper: ObjectMapper,
@@ -45,8 +47,10 @@ class SecurityConfig(
             .formLogin(FormLoginConfigurer<*>::disable)
             .logout(LogoutConfigurer<*>::disable)
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
-            .exceptionHandling { it.authenticationEntryPoint(customAuthenticationEntryPoint) }
-            .addFilterBefore(
+            .exceptionHandling {
+                it.authenticationEntryPoint(customAuthenticationEntryPoint)
+                it.accessDeniedHandler(customAccessDeniedHandler)
+            }.addFilterBefore(
                 PublicApiRateLimitFilter(publicApiRateLimitService, publicApiRateLimitEnvironment, objectMapper),
                 UsernamePasswordAuthenticationFilter::class.java,
             ).addFilterBefore(
@@ -88,6 +92,8 @@ class SecurityConfig(
                     ).hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
                     .requestMatchers(HttpMethod.GET, "/v1/auth/api-keys")
                     .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
+                    .requestMatchers(HttpMethod.DELETE, "/v1/auth/api-keys/my")
+                    .authenticated()
                     .requestMatchers(HttpMethod.DELETE, "/v1/auth/api-keys/{apiKeyId}")
                     .hasAnyRole(AccountRole.ADMIN.name, AccountRole.ROOT.name)
                     .requestMatchers(HttpMethod.PATCH, "/v1/auth/api-keys/{apiKeyId}/expiration")
