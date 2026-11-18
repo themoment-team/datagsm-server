@@ -41,23 +41,26 @@ class AccountController(
     private val approveTeacherAccountService: ApproveTeacherAccountService,
     private val rejectTeacherAccountService: RejectTeacherAccountService,
 ) {
-    @Operation(summary = "내 정보 조회", description = "현재 로그인한 사용자의 계정 및 학생 정보를 조회합니다.")
+    @Operation(summary = "내 정보 조회", description = "현재 로그인한 사용자의 계정과 연결된 학생 또는 선생님 정보, 소속 동아리 및 참여 프로젝트를 조회합니다.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "내 정보 조회 성공"),
             ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
-            ApiResponse(responseCode = "403", description = "API Key 인증으로는 접근 불가", content = [Content()]),
             ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
         ],
     )
     @GetMapping("/my")
     fun getMyInfo(): AccountInfoResDto = queryMyInfoService.execute()
 
-    @Operation(summary = "회원 탈퇴", description = "현재 로그인한 계정을 탈퇴합니다.")
+    @Operation(
+        summary = "회원 탈퇴",
+        description = "현재 로그인한 계정과 소유한 API 키·클라이언트·애플리케이션·Event·동의 정보를 삭제합니다. 선생님 계정은 선생님 정보도 삭제하며, 모든 IdP 세션과 Refresh Token을 폐기합니다.",
+    )
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "탈퇴 성공"),
-            ApiResponse(responseCode = "401", description = "비밀번호 불일치", content = [Content()]),
+            ApiResponse(responseCode = "204", description = "탈퇴 성공", content = [Content()]),
+            ApiResponse(responseCode = "400", description = "요청 검증 실패 (비밀번호 누락 또는 공백)", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "인증 실패 / 비밀번호 불일치", content = [Content()]),
             ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
         ],
     )
@@ -66,11 +69,13 @@ class AccountController(
         @Valid @RequestBody reqDto: DeleteMyAccountReqDto,
     ) = deleteMyAccountService.execute(reqDto)
 
-    @Operation(summary = "계정 목록 조회", description = "필터 조건에 맞는 계정 목록을 조회합니다. 각 계정에 연결된 학생 정보가 포함됩니다.")
+    @Operation(summary = "계정 목록 조회", description = "필터 조건에 맞는 계정 목록을 조회합니다. 각 계정에 연결된 학생 또는 선생님 정보가 포함됩니다. (ADMIN, ROOT 권한 필요)")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "관리자 권한 없음", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
         ],
     )
     @GetMapping
@@ -78,11 +83,13 @@ class AccountController(
         @Valid @ModelAttribute queryReq: QueryAccountReqDto,
     ): AccountListResDto = queryAccountService.execute(queryReq)
 
-    @Operation(summary = "계정 단건 조회", description = "특정 계정의 정보를 조회합니다. 연결된 학생 정보가 포함됩니다.")
+    @Operation(summary = "계정 단건 조회", description = "특정 계정의 정보를 조회합니다. 연결된 학생 또는 선생님 정보가 포함됩니다. (ADMIN, ROOT 권한 필요)")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
             ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "관리자 권한 없음", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
         ],
     )
     @GetMapping("/{accountId}")
@@ -90,13 +97,14 @@ class AccountController(
         @Parameter(description = "계정 ID") @PathVariable accountId: Long,
     ): AccountResDto = queryAccountDetailService.execute(accountId)
 
-    @Operation(summary = "계정 권한 변경", description = "특정 계정의 역할을 변경합니다. 본인 및 최고 관리자 계정은 변경할 수 없습니다.")
+    @Operation(summary = "계정 권한 변경", description = "특정 계정의 역할을 변경합니다. 본인 및 최고 관리자 계정은 변경할 수 없으며 ROOT 권한을 부여할 수 없습니다. (ADMIN, ROOT 권한 필요)")
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "권한 변경 성공"),
+            ApiResponse(responseCode = "204", description = "권한 변경 성공", content = [Content()]),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
-            ApiResponse(responseCode = "403", description = "본인 또는 최고 관리자 계정 변경 불가", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "관리자 권한 없음 / 본인 또는 최고 관리자 계정 변경 불가 / ROOT 권한 부여 불가", content = [Content()]),
             ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
         ],
     )
     @PatchMapping("/{accountId}/role")
@@ -105,13 +113,15 @@ class AccountController(
         @RequestBody @Valid reqDto: ModifyAccountRoleReqDto,
     ) = modifyAccountRoleService.execute(accountId, reqDto)
 
-    @Operation(summary = "선생님 계정 승인", description = "승인 대기 중인 선생님 계정을 활성화합니다.")
+    @Operation(summary = "선생님 계정 승인", description = "승인 대기 중인 선생님 계정을 활성화합니다. (ADMIN, ROOT 권한 필요)")
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "승인 성공"),
+            ApiResponse(responseCode = "204", description = "승인 성공", content = [Content()]),
             ApiResponse(responseCode = "400", description = "선생님 계정이 아님", content = [Content()]),
             ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
             ApiResponse(responseCode = "409", description = "이미 승인된 계정", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "관리자 권한 없음", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
         ],
     )
     @PatchMapping("/{accountId}/approval")
@@ -121,14 +131,16 @@ class AccountController(
 
     @Operation(
         summary = "선생님 계정 승인 거절",
-        description = "승인 대기 중인 선생님 계정을 거절합니다. 계정과 선생님 정보가 삭제되어 같은 이메일로 다시 가입할 수 있습니다.",
+        description = "승인 대기 중인 선생님 계정을 거절합니다. 계정과 선생님 정보가 삭제되어 같은 이메일로 다시 가입할 수 있습니다. (ADMIN, ROOT 권한 필요)",
     )
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "거절 성공"),
+            ApiResponse(responseCode = "204", description = "거절 성공", content = [Content()]),
             ApiResponse(responseCode = "400", description = "선생님 계정이 아님", content = [Content()]),
             ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
             ApiResponse(responseCode = "409", description = "이미 승인된 계정", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "관리자 권한 없음", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "인증 실패", content = [Content()]),
         ],
     )
     @DeleteMapping("/{accountId}/approval")

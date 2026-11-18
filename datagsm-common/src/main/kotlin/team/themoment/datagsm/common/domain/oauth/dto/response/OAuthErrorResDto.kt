@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 data class OAuthErrorResDto(
     @field:JsonProperty("error")
     @field:Schema(
-        description = "OAuth2 error code",
+        description = "OAuth2 오류 코드",
         example = "invalid_grant",
         allowableValues = [
             "invalid_request",
@@ -21,9 +21,9 @@ data class OAuthErrorResDto(
     )
     val error: String,
     @field:JsonProperty("error_description")
-    @field:Schema(description = "Human-readable error description")
+    @field:Schema(description = "오류 상세 설명. 없으면 필드를 생략합니다.", nullable = true)
     val errorDescription: String? = null,
     @field:JsonProperty("error_uri")
-    @field:Schema(description = "URI for error documentation")
+    @field:Schema(description = "오류 문서 URI. 현재 지정하지 않아 필드를 생략합니다.", nullable = true)
     val errorUri: String? = null,
 )

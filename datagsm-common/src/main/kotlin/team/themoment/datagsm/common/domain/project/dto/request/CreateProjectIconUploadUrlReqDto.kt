@@ -8,13 +8,20 @@ import jakarta.validation.constraints.Positive
 data class CreateProjectIconUploadUrlReqDto(
     @field:NotBlank
     @param:Schema(
-        description = "업로드할 이미지의 Content-Type",
+        description = "업로드할 이미지의 Content-Type (앞뒤 공백 제거 및 소문자 변환 후 검사)",
         example = "image/png",
         allowableValues = ["image/png", "image/jpeg", "image/webp", "image/gif"],
+        requiredMode = Schema.RequiredMode.REQUIRED,
     )
     val contentType: String,
     @field:Positive
     @field:Max(5 * 1024 * 1024)
-    @param:Schema(description = "업로드할 이미지의 바이트 크기 (최대 5MB)", example = "204800")
+    @param:Schema(
+        description = "업로드할 이미지의 바이트 크기 (최대 5MB)",
+        example = "204800",
+        minimum = "1",
+        maximum = "5242880",
+        requiredMode = Schema.RequiredMode.REQUIRED,
+    )
     val contentLength: Long,
 )

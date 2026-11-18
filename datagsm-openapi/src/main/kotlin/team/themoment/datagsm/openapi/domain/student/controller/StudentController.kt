@@ -34,9 +34,15 @@ class StudentController(
     private val createStudentService: CreateStudentService,
     private val modifyStudentService: ModifyStudentService,
 ) {
-    @Operation(summary = "학생 정보 조회", description = "필터 조건에 맞는 학생 정보를 조회합니다.")
+    @Operation(
+        summary = "학생 정보 조회",
+        description = "계정이 연결된 학생 중 필터 조건에 맞는 정보를 조회합니다. 졸업생·자퇴생 조회에는 해당 include 플래그가 필요하며 onlyEnrolled가 우선합니다. (필요 scope: student:read)",
+    )
     @ApiResponses(
         value = [
+            ApiResponse(responseCode = "401", description = "인증 정보가 없거나 유효하지 않음", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "필요 scope가 없음", content = [Content()]),
+            ApiResponse(responseCode = "429", description = "API 키 요청 한도 초과", content = [Content()]),
             ApiResponse(responseCode = "200", description = "조회 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
         ],
@@ -47,13 +53,21 @@ class StudentController(
         @Valid @ModelAttribute queryReq: QueryStudentReqDto,
     ): StudentListResDto = queryStudentService.execute(queryReq)
 
-    @Operation(summary = "학생 생성", description = "새로운 학생 정보를 생성합니다.")
+    @Operation(
+        summary = "학생 생성",
+        description =
+            "새 학생을 생성합니다. role 기본값은 GENERAL_STUDENT이며 재학생은 학년·반·번호가 필수입니다. 졸업생은 학번·기숙사·동아리, 자퇴생은 " +
+                "기숙사·동아리를 지정할 수 없습니다. (필요 scope: student:write)",
+    )
     @ApiResponses(
         value = [
+            ApiResponse(responseCode = "401", description = "인증 정보가 없거나 유효하지 않음", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "필요 scope가 없음", content = [Content()]),
+            ApiResponse(responseCode = "429", description = "API 키 요청 한도 초과", content = [Content()]),
             ApiResponse(responseCode = "200", description = "생성 성공"),
-            ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
+            ApiResponse(responseCode = "400", description = "검증 실패, 재학생 학번 누락 또는 졸업생·자퇴생의 금지된 필드 지정", content = [Content()]),
             ApiResponse(responseCode = "404", description = "동아리를 찾을 수 없음", content = [Content()]),
-            ApiResponse(responseCode = "409", description = "이미 존재하는 학생", content = [Content()]),
+            ApiResponse(responseCode = "409", description = "이미 존재하는 이메일 또는 학번", content = [Content()]),
         ],
     )
     @RequireScope(ApiKeyScope.STUDENT_WRITE)
@@ -62,12 +76,21 @@ class StudentController(
         @RequestBody @Valid reqDto: CreateStudentReqDto,
     ): StudentResDto = createStudentService.execute(reqDto)
 
-    @Operation(summary = "학생 정보 수정", description = "기존 학생의 정보를 전체 교체합니다.")
+    @Operation(
+        summary = "학생 정보 수정",
+        description =
+            "재학생 정보를 교체하며 생략한 선택 필드는 null로 초기화합니다. 졸업생·자퇴생은 수정할 수 없고 role을 GRADUATE/WITHDRAWN으로 " +
+                "변경할 수도 없습니다. (필요 scope: student:write)",
+    )
     @ApiResponses(
         value = [
+            ApiResponse(responseCode = "401", description = "인증 정보가 없거나 유효하지 않음", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "필요 scope가 없음", content = [Content()]),
+            ApiResponse(responseCode = "429", description = "API 키 요청 한도 초과", content = [Content()]),
             ApiResponse(responseCode = "200", description = "수정 성공"),
-            ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
-            ApiResponse(responseCode = "404", description = "학생을 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "400", description = "검증 실패, 졸업생·자퇴생 수정 또는 해당 역할로 변경 요청", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "학생 또는 동아리를 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "409", description = "이미 존재하는 이메일 또는 학번", content = [Content()]),
         ],
     )
     @RequireScope(ApiKeyScope.STUDENT_WRITE)

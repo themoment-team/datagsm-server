@@ -14,17 +14,17 @@ import org.springframework.web.bind.annotation.RestController
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.web.domain.utility.service.ModifyAccountRoleService
 
-@Tag(name = "Utility", description = "개발용 유틸리티 API")
+@Tag(name = "Utility", description = "개발용 유틸리티 API (인증 불필요, prod 프로필에서 비활성)")
 @RestController
 @RequestMapping("/v1/utility")
 @Profile("!prod")
 class UtilityController(
     private val modifyAccountRoleService: ModifyAccountRoleService,
 ) {
-    @Operation(summary = "계정 권한 변경", description = "입력된 이메일에 해당하는 계정의 권한을 변경합니다.")
+    @Operation(summary = "계정 권한 변경", description = "입력된 이메일에 해당하는 계정의 권한을 변경합니다. 인증이 필요 없으며 prod 프로필에서는 비활성화됩니다.")
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "계정 권한 변경 성공"),
+            ApiResponse(responseCode = "204", description = "계정 권한 변경 성공", content = [Content()]),
             ApiResponse(responseCode = "400", description = "유효하지 않은 역할 값", content = [Content()]),
             ApiResponse(responseCode = "404", description = "계정을 찾을 수 없음", content = [Content()]),
         ],

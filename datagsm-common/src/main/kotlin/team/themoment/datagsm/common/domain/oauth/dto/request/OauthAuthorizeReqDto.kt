@@ -22,7 +22,8 @@ data class OauthAuthorizeReqDto(
     )
     val code_challenge: String? = null,
     @param:Schema(
-        description = "PKCE code challenge 메서드 (S256 or plain)",
+        description = "PKCE 메서드. 신규 연동은 S256을 사용합니다. plain은 하위 호환으로만 수용하며 Discovery에 광고하지 않습니다.",
+        allowableValues = ["S256", "plain"],
         example = "S256",
         requiredMode = Schema.RequiredMode.NOT_REQUIRED,
     )

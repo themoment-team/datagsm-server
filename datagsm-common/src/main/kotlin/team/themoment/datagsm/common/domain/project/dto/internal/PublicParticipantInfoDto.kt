@@ -9,6 +9,6 @@ import team.themoment.datagsm.ksp.annotation.SdkExport
 data class PublicParticipantInfoDto(
     @field:Schema(description = "학생 이름", example = "홍길동")
     val name: String,
-    @field:Schema(description = "학과", example = "SW_DEVELOPMENT")
+    @field:Schema(description = "학과", example = "SW_DEVELOPMENT", nullable = true)
     val major: Major?,
 )

@@ -21,7 +21,7 @@ data class TimetableInfoResDto(
     val timetableDate: LocalDate,
     @field:Schema(description = "학년도", example = "2025")
     val academicYear: String,
-    @field:Schema(description = "학기", example = "1")
+    @field:Schema(description = "학기", example = "1", nullable = true)
     val semester: String?,
     @field:Schema(description = "학년", example = "1")
     val grade: Int,
@@ -29,6 +29,6 @@ data class TimetableInfoResDto(
     val classNum: Int,
     @field:Schema(description = "교시", example = "1")
     val period: Int,
-    @field:Schema(description = "과목명", example = "국어")
+    @field:Schema(description = "과목명", example = "국어", nullable = true)
     val subject: String?,
 )

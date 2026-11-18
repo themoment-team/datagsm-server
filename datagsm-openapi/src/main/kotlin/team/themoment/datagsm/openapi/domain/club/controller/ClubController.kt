@@ -36,11 +36,19 @@ class ClubController(
     private val modifyClubService: ModifyClubService,
     private val deleteClubService: DeleteClubService,
 ) {
-    @Operation(summary = "동아리 정보 조회", description = "필터 조건에 맞는 동아리 정보를 조회합니다.")
+    @Operation(
+        summary = "동아리 정보 조회",
+        description =
+            "필터 조건은 AND로 적용합니다. 동아리 이름은 접두어로 검색하고 해당 페이지 결과가 없으면 부분 일치로 다시 검색합니다. 부원 목록에는 계정이 연결된 학생만 " +
+                "포함하며 부장은 계정 연결 여부와 무관하게 반환합니다. (필요 scope: club:read)",
+    )
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "API 키 누락, 형식 오류, 유효하지 않거나 만료된 키", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "필요 scope 부족", content = [Content()]),
+            ApiResponse(responseCode = "429", description = "API 키 요청 한도 초과 (Retry-After 헤더로 재시도 대기 시간 안내)", content = [Content()]),
         ],
     )
     @RequireScope(ApiKeyScope.CLUB_READ)
@@ -49,12 +57,19 @@ class ClubController(
         @Valid @ModelAttribute queryReq: QueryClubReqDto,
     ): ClubListResDto = queryClubService.execute(queryReq)
 
-    @Operation(summary = "동아리 생성", description = "새로운 동아리를 생성합니다.")
+    @Operation(
+        summary = "동아리 생성",
+        description = "새로운 동아리를 생성합니다. 존재하지 않는 부원 ID는 무시하며 응답에는 계정 연결 여부와 무관하게 조회된 부원을 포함합니다. (필요 scope: club:write)",
+    )
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "생성 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
-            ApiResponse(responseCode = "409", description = "이미 존재하는 동아리", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "부장으로 지정한 학생을 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "409", description = "이미 존재하는 동아리 이름", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "API 키 누락, 형식 오류, 유효하지 않거나 만료된 키", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "필요 scope 부족", content = [Content()]),
+            ApiResponse(responseCode = "429", description = "API 키 요청 한도 초과 (Retry-After 헤더로 재시도 대기 시간 안내)", content = [Content()]),
         ],
     )
     @RequireScope(ApiKeyScope.CLUB_WRITE)
@@ -63,12 +78,19 @@ class ClubController(
         @RequestBody @Valid reqDto: ClubReqDto,
     ): ClubResDto = createClubService.execute(reqDto)
 
-    @Operation(summary = "동아리 정보 수정", description = "기존 동아리의 정보를 전체 교체합니다.")
+    @Operation(
+        summary = "동아리 정보 수정",
+        description = "기존 동아리 정보와 소속 학생을 전체 교체합니다. 존재하지 않는 부원 ID는 무시하며 응답에는 계정 연결 여부와 무관하게 조회된 부원을 포함합니다. (필요 scope: club:write)",
+    )
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "수정 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
-            ApiResponse(responseCode = "404", description = "동아리를 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "404", description = "동아리 또는 부장으로 지정한 학생을 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "409", description = "이미 존재하는 동아리 이름", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "API 키 누락, 형식 오류, 유효하지 않거나 만료된 키", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "필요 scope 부족", content = [Content()]),
+            ApiResponse(responseCode = "429", description = "API 키 요청 한도 초과 (Retry-After 헤더로 재시도 대기 시간 안내)", content = [Content()]),
         ],
     )
     @RequireScope(ApiKeyScope.CLUB_WRITE)
@@ -78,11 +100,17 @@ class ClubController(
         @RequestBody @Valid reqDto: ClubReqDto,
     ): ClubResDto = modifyClubService.execute(clubId, reqDto)
 
-    @Operation(summary = "동아리 삭제", description = "기존 동아리를 삭제합니다.")
+    @Operation(
+        summary = "동아리 삭제",
+        description = "학생의 동아리 참조를 해제한 뒤 기존 동아리를 삭제합니다. (필요 scope: club:write)",
+    )
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "삭제 성공"),
+            ApiResponse(responseCode = "204", description = "삭제 성공 (본문 없음)", content = [Content()]),
             ApiResponse(responseCode = "404", description = "동아리를 찾을 수 없음", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "API 키 누락, 형식 오류, 유효하지 않거나 만료된 키", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "필요 scope 부족", content = [Content()]),
+            ApiResponse(responseCode = "429", description = "API 키 요청 한도 초과 (Retry-After 헤더로 재시도 대기 시간 안내)", content = [Content()]),
         ],
     )
     @RequireScope(ApiKeyScope.CLUB_WRITE)

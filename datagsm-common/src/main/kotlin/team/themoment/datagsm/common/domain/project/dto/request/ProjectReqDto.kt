@@ -11,53 +11,102 @@ import team.themoment.datagsm.common.domain.project.entity.constant.ProjectStatu
 data class ProjectReqDto(
     @field:NotBlank
     @field:Size(max = 100)
-    @param:Schema(description = "프로젝트 이름", example = "DataGSM 프로젝트", maxLength = 100)
+    @param:Schema(
+        description = "프로젝트 이름",
+        example = "DataGSM 프로젝트",
+        maxLength = 100,
+        requiredMode = Schema.RequiredMode.REQUIRED,
+    )
     val name: String,
     @field:NotBlank
     @field:Size(max = 500)
-    @param:Schema(description = "프로젝트 설명", example = "학교 데이터를 제공하는 API 서비스", maxLength = 500)
+    @param:Schema(
+        description = "프로젝트 설명",
+        example = "학교 데이터를 제공하는 API 서비스",
+        maxLength = 500,
+        requiredMode = Schema.RequiredMode.REQUIRED,
+    )
     val description: String,
     @field:Positive
-    @param:Schema(description = "프로젝트 시작 연도", example = "2024")
+    @param:Schema(
+        description = "프로젝트 시작 연도",
+        example = "2024",
+        requiredMode = Schema.RequiredMode.REQUIRED,
+        minimum = "1",
+    )
     val startYear: Int,
-    @param:Schema(description = "프로젝트 소유 동아리 ID (무소속인 경우 0 또는 null)", example = "1")
+    @param:Schema(
+        description = "프로젝트 소유 동아리 ID (무소속인 경우 0 또는 null)",
+        example = "1",
+        nullable = true,
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+    )
     val clubId: Long?,
-    @param:Schema(description = "프로젝트 참가자 학생 ID 목록", example = "[1, 2, 3]")
+    @param:Schema(description = "프로젝트 참가자 학생 ID 목록", example = "[1, 2, 3]", requiredMode = Schema.RequiredMode.REQUIRED)
     val participantIds: List<Long>,
-    @param:Schema(description = "프로젝트 운영 상태", example = "ACTIVE")
+    @param:Schema(
+        description = "생성 시 운영 상태 (기본 ACTIVE). 수정 시 무시하며 종료·재개 API로 변경",
+        example = "ACTIVE",
+        defaultValue = "ACTIVE",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+    )
     val status: ProjectStatus = ProjectStatus.ACTIVE,
     @param:Schema(
         description = "프로젝트 카테고리 목록 (TOY_PROJECT, TEAM, CLUB, IDEA_FESTIVAL, NOT_DEPLOYED 중 복수 선택 가능). 수정 시 생략하면 기존 값을 유지하고 빈 목록이면 모두 해제한다",
         example = "[\"TEAM\", \"CLUB\"]",
+        nullable = true,
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED,
     )
     val categories: Set<ProjectCategory>? = null,
     @field:Positive
-    @param:Schema(description = "프로젝트 종료 연도 (ENDED 시 설정)", example = "2025")
+    @param:Schema(
+        description = "생성 시 ENDED이면 필수이며 시작 연도 이상이어야 함. ACTIVE여도 전달한 값을 저장함. 수정 시 무시하지만 양수 검증은 적용됨",
+        example = "2025",
+        nullable = true,
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+        minimum = "1",
+    )
     val endYear: Int? = null,
     @field:Size(max = 20)
-    @param:Schema(description = "프로젝트 리포지토리 URL 목록", example = "[\"https://github.com/team/repo\"]")
+    @param:Schema(
+        description = "프로젝트 리포지토리 URL 목록",
+        example = "[\"https://github.com/team/repo\"]",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+    )
     val repositories: List<
         @Size(max = 300)
         String,
     > = emptyList(),
     @field:Size(max = 20)
-    @param:Schema(description = "프로젝트 기술 스택 목록", example = "[\"Kotlin\", \"Spring Boot\"]")
+    @param:Schema(
+        description = "프로젝트 기술 스택 목록",
+        example = "[\"Kotlin\", \"Spring Boot\"]",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+    )
     val techStacks: List<
         @Size(max = 50)
         String,
     > = emptyList(),
     @field:Size(max = 300)
     @param:Schema(
-        description = "아이콘 업로드 후 발급받은 S3 오브젝트 키. 생략하면 기존 값을 유지하고 빈 문자열이면 삭제한다",
+        description =
+            "web의 /v1/students/me/projects/icons/upload-url에서 발급받은 S3 오브젝트 키 (openapi에는 발급 API 없음). 설정된 접두사/36자리 " +
+                "키.png·jpg·webp·gif 형식만 허용하며 형식 오류는 400. 수정 시 생략 또는 null이면 유지하고 빈 문자열·공백이면 삭제한다",
         example = "project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png",
+        maxLength = 300,
+        nullable = true,
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED,
     )
     val iconKey: String? = null,
     @field:Size(max = 300)
     @field:Pattern(regexp = "^$|^https?://.*", message = "URL은 http:// 또는 https://로 시작해야 합니다.")
     @param:Schema(
-        description = "프로젝트 배포 URL. 생략하면 기존 값을 유지하고 빈 문자열이면 삭제한다",
+        description = "프로젝트 배포 URL. 생략 또는 null이면 기존 값을 유지하고 빈 문자열이면 삭제한다",
         example = "https://datagsm.kr",
         maxLength = 300,
+        pattern = "^$|^https?://.*",
+        nullable = true,
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED,
     )
     val deploymentUrl: String? = null,
 )

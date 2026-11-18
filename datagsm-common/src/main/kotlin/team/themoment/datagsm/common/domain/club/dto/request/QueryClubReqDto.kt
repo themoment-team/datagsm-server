@@ -11,16 +11,16 @@ import team.themoment.datagsm.common.global.constant.SortDirection
 
 data class QueryClubReqDto(
     @field:Positive
-    @param:Schema(description = "동아리 ID")
+    @param:Schema(description = "동아리 ID", minimum = "1", nullable = true, requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     val clubId: Long? = null,
-    @param:Schema(description = "동아리 이름")
+    @param:Schema(description = "동아리 이름", nullable = true, requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     val clubName: String? = null,
-    @param:Schema(description = "동아리 종류")
+    @param:Schema(description = "동아리 종류", nullable = true, requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     val clubType: ClubType? = null,
-    @param:Schema(description = "운영 상태")
+    @param:Schema(description = "운영 상태", nullable = true, requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     val clubStatus: ClubStatus? = null,
     @field:Positive
-    @param:Schema(description = "창설 학년도")
+    @param:Schema(description = "창설 학년도", minimum = "1", nullable = true, requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     val foundedYear: Int? = null,
     @field:Min(0)
     @param:Schema(description = "페이지 번호", defaultValue = "0", minimum = "0")
@@ -31,7 +31,11 @@ data class QueryClubReqDto(
     val size: Int = 100,
     @param:Schema(description = "부장을 부원 목록에 포함할지 여부", defaultValue = "false")
     val includeLeaderInParticipants: Boolean = false,
-    @param:Schema(description = "정렬 기준 (ID, NAME, TYPE, FOUNDED_YEAR, STATUS)")
+    @param:Schema(
+        description = "정렬 기준 (ID, NAME, TYPE, FOUNDED_YEAR, STATUS)",
+        nullable = true,
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+    )
     val sortBy: ClubSortBy? = null,
     @param:Schema(description = "정렬 방향 (ASC, DESC)", defaultValue = "ASC")
     val sortDirection: SortDirection = SortDirection.ASC,

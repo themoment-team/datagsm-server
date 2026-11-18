@@ -6,6 +6,6 @@ import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 
 data class ModifyAccountRoleReqDto(
     @field:NotNull(message = "변경할 역할은 필수입니다.")
-    @param:Schema(description = "변경할 계정 역할 (ADMIN, USER)")
+    @param:Schema(description = "변경할 계정 역할 (ADMIN, USER; ROOT 요청 시 403)")
     val role: AccountRole,
 )

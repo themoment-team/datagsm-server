@@ -10,6 +10,13 @@ data class UpdateMyGithubIdReqDto(
     @field:Size(max = 39)
     @field:Pattern(regexp = "^[a-zA-Z0-9]([a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$", message = "유효하지 않은 GitHub 아이디 형식입니다.")
     @field:JsonProperty("githubId")
-    @param:Schema(description = "GitHub 아이디", example = "torvalds", maxLength = 39)
+    @param:Schema(
+        description = "GitHub 아이디 (null이면 초기화)",
+        example = "torvalds",
+        maxLength = 39,
+        pattern = "^[a-zA-Z0-9]([a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$",
+        nullable = true,
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+    )
     val githubId: String?,
 )

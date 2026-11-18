@@ -23,11 +23,11 @@ data class CreateApplicationReqDto(
             regexp = "^[a-z0-9_-]+$",
             message = "scopeName은 소문자 영문, 숫자, 언더스코어, 하이픈만 포함할 수 있습니다. (콜론 불가)",
         )
-        @param:Schema(description = "권한 범위 이름", example = "profile")
+        @param:Schema(description = "권한 범위 이름", example = "profile", minLength = 1, maxLength = 100, pattern = "^[a-z0-9_-]+$")
         val scopeName: String,
         @field:NotBlank
         @field:Size(max = 255)
-        @param:Schema(description = "권한 범위 설명", example = "사용자 프로필 정보 조회")
+        @param:Schema(description = "권한 범위 설명", example = "사용자 프로필 정보 조회", minLength = 1, maxLength = 255)
         val description: String,
     )
 }

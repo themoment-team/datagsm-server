@@ -13,6 +13,6 @@ data class ProjectSummaryDto(
     val name: String,
     @field:Schema(description = "프로젝트 상태", example = "ACTIVE")
     val status: ProjectStatus,
-    @field:Schema(description = "소속 동아리")
+    @field:Schema(description = "소속 동아리", nullable = true)
     val club: ClubSummaryDto?,
 )
