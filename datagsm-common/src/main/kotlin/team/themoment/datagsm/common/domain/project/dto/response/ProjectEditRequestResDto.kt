@@ -12,7 +12,7 @@ import java.time.LocalDateTime
 data class ProjectEditRequestResDto(
     @field:Schema(description = "신청 ID", example = "1")
     val id: Long,
-    @field:Schema(description = "수정 대상 프로젝트 ID (신규 생성 신청이면 null)", example = "10")
+    @field:Schema(description = "수정 대상 프로젝트 ID (신규 생성 신청이면 null)", example = "10", nullable = true)
     val originalProjectId: Long?,
     @field:Schema(description = "신청자 정보")
     val requestedBy: ParticipantInfoDto,
@@ -24,16 +24,17 @@ data class ProjectEditRequestResDto(
     val startYear: Int,
     @field:Schema(description = "프로젝트 카테고리 목록 (미분류이면 빈 목록)")
     val categories: Set<ProjectCategory>,
-    @field:Schema(description = "프로젝트 아이콘 URL", example = "https://cdn.datagsm.kr/project-icons/uuid.png")
+    @field:Schema(description = "프로젝트 아이콘 URL", example = "https://cdn.datagsm.kr/project-icons/uuid.png", nullable = true)
     val iconUrl: String?,
     @field:Schema(
         description = "프로젝트 아이콘 오브젝트 키. 수정 시 생략하면 이 값이 유지된다",
         example = "project-icons/3f2504e0-4f89-11d3-9a0c-0305e82c3301.png",
+        nullable = true,
     )
     val iconKey: String?,
-    @field:Schema(description = "프로젝트 배포 URL", example = "https://datagsm.kr")
+    @field:Schema(description = "프로젝트 배포 URL", example = "https://datagsm.kr", nullable = true)
     val deploymentUrl: String?,
-    @field:Schema(description = "프로젝트 소유 동아리 정보")
+    @field:Schema(description = "프로젝트 소유 동아리 정보", nullable = true)
     val club: ClubSummaryDto?,
     @field:Schema(description = "프로젝트 참여자 목록")
     val participants: List<ParticipantInfoDto>,
@@ -43,10 +44,10 @@ data class ProjectEditRequestResDto(
     val techStacks: List<String>,
     @field:Schema(description = "신청 상태")
     val requestStatus: ProjectRequestStatus,
-    @field:Schema(description = "거절 사유 (거절된 경우에만 존재)")
+    @field:Schema(description = "거절 사유 (거절된 경우에만 존재)", nullable = true)
     val rejectReason: String?,
     @field:Schema(description = "신청 일시")
     val requestedAt: LocalDateTime,
-    @field:Schema(description = "처리 일시 (수락/거절된 경우에만 존재)")
+    @field:Schema(description = "처리 일시 (수락/거절된 경우에만 존재)", nullable = true)
     val processedAt: LocalDateTime?,
 )

@@ -4,6 +4,11 @@ import io.swagger.v3.oas.annotations.media.Schema
 import team.themoment.datagsm.common.domain.project.entity.constant.ProjectRequestStatus
 
 data class QueryMyProjectReqDto(
-    @param:Schema(description = "신청 상태 필터 (미입력 시 전체 조회)", example = "PENDING")
+    @param:Schema(
+        description = "신청 상태 필터 (미입력 시 전체 조회)",
+        example = "PENDING",
+        nullable = true,
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+    )
     val requestStatus: ProjectRequestStatus? = null,
 )

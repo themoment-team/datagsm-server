@@ -17,17 +17,17 @@ data class PublicProjectResDto(
     val description: String,
     @field:Schema(description = "프로젝트 서비스 시작 연도", example = "2024")
     val startYear: Int,
-    @field:Schema(description = "프로젝트 종료 연도", example = "2025")
+    @field:Schema(description = "프로젝트 종료 연도", example = "2025", nullable = true)
     val endYear: Int?,
     @field:Schema(description = "프로젝트 운영 상태")
     val status: ProjectStatus,
     @field:Schema(description = "프로젝트 카테고리 목록 (미분류이면 빈 목록)")
     val categories: Set<ProjectCategory>,
-    @field:Schema(description = "프로젝트 아이콘 URL", example = "https://cdn.datagsm.kr/project-icons/uuid.png")
+    @field:Schema(description = "프로젝트 아이콘 URL", example = "https://cdn.datagsm.kr/project-icons/uuid.png", nullable = true)
     val iconUrl: String?,
-    @field:Schema(description = "프로젝트 배포 URL", example = "https://datagsm.kr")
+    @field:Schema(description = "프로젝트 배포 URL", example = "https://datagsm.kr", nullable = true)
     val deploymentUrl: String?,
-    @field:Schema(description = "프로젝트 소유 동아리 정보")
+    @field:Schema(description = "프로젝트 소유 동아리 정보", nullable = true)
     val club: ClubSummaryDto?,
     @field:Schema(description = "프로젝트 참여자 목록")
     val participants: List<PublicParticipantInfoDto>,

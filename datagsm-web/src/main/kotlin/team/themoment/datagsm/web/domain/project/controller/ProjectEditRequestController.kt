@@ -31,11 +31,16 @@ class ProjectEditRequestController(
     private val acceptProjectRequestService: AcceptProjectRequestService,
     private val rejectProjectRequestService: RejectProjectRequestService,
 ) {
-    @Operation(summary = "프로젝트 신청 목록 조회", description = "상태 조건에 맞는 프로젝트 신청 목록을 조회합니다.")
+    @Operation(
+        summary = "프로젝트 신청 목록 조회",
+        description = "상태 조건에 맞는 프로젝트 신청 목록을 조회합니다. (ADMIN, ROOT 권한 필요)",
+    )
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "로그인 인증 정보가 없거나 유효하지 않음", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "ADMIN, ROOT 권한이 없음", content = [Content()]),
         ],
     )
     @GetMapping
@@ -43,10 +48,15 @@ class ProjectEditRequestController(
         @Valid @ModelAttribute queryReq: QueryProjectEditRequestReqDto,
     ): ProjectEditRequestListResDto = queryProjectEditRequestService.execute(queryReq)
 
-    @Operation(summary = "프로젝트 신청 상세 조회", description = "프로젝트 신청 단건의 상세 정보를 조회합니다.")
+    @Operation(
+        summary = "프로젝트 신청 상세 조회",
+        description = "프로젝트 신청 단건의 상세 정보를 조회합니다. (ADMIN, ROOT 권한 필요)",
+    )
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "조회 성공"),
+            ApiResponse(responseCode = "401", description = "로그인 인증 정보가 없거나 유효하지 않음", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "ADMIN, ROOT 권한이 없음", content = [Content()]),
             ApiResponse(responseCode = "404", description = "신청 내역을 찾을 수 없음", content = [Content()]),
         ],
     )
@@ -55,10 +65,15 @@ class ProjectEditRequestController(
         @Parameter(description = "신청 ID") @PathVariable requestId: Long,
     ): ProjectEditRequestResDto = queryProjectEditRequestService.executeById(requestId)
 
-    @Operation(summary = "프로젝트 신청 수락", description = "신청 내용을 공식 프로젝트 데이터에 반영합니다.")
+    @Operation(
+        summary = "프로젝트 신청 수락",
+        description = "신청 내용을 공식 프로젝트 데이터에 반영합니다. (ADMIN, ROOT 권한 필요)",
+    )
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "수락 성공"),
+            ApiResponse(responseCode = "401", description = "로그인 인증 정보가 없거나 유효하지 않음", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "ADMIN, ROOT 권한이 없음", content = [Content()]),
             ApiResponse(responseCode = "404", description = "신청 내역을 찾을 수 없음", content = [Content()]),
             ApiResponse(responseCode = "409", description = "이미 처리된 신청이거나 중복된 프로젝트 이름", content = [Content()]),
         ],
@@ -68,11 +83,16 @@ class ProjectEditRequestController(
         @Parameter(description = "신청 ID") @PathVariable requestId: Long,
     ): ProjectResDto = acceptProjectRequestService.execute(requestId)
 
-    @Operation(summary = "프로젝트 신청 거절", description = "거절 사유와 함께 신청을 거절합니다. 기존 프로젝트 데이터는 변경되지 않습니다.")
+    @Operation(
+        summary = "프로젝트 신청 거절",
+        description = "거절 사유와 함께 신청을 거절합니다. 기존 프로젝트 데이터는 변경되지 않습니다. (ADMIN, ROOT 권한 필요)",
+    )
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "거절 성공"),
+            ApiResponse(responseCode = "204", description = "거절 성공", content = [Content()]),
             ApiResponse(responseCode = "400", description = "잘못된 요청 (거절 사유 누락)", content = [Content()]),
+            ApiResponse(responseCode = "401", description = "로그인 인증 정보가 없거나 유효하지 않음", content = [Content()]),
+            ApiResponse(responseCode = "403", description = "ADMIN, ROOT 권한이 없음", content = [Content()]),
             ApiResponse(responseCode = "404", description = "신청 내역을 찾을 수 없음", content = [Content()]),
             ApiResponse(responseCode = "409", description = "이미 처리된 신청", content = [Content()]),
         ],
