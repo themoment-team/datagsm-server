@@ -14,12 +14,7 @@ Based on the user's request or changed files, choose the appropriate scope:
 | Specific module     | `./gradlew :<module>:test`                           |
 | All modules         | `./gradlew test`                                     |
 
-Discover available modules at runtime (full name for Gradle commands, no `datagsm-` prefix for display):
-
-```bash
-sh "${CLAUDE_SKILL_DIR}/scripts/discover-modules.sh"   # display names (prefix stripped)
-grep '^[[:space:]]*include' settings.gradle.kts | grep -oE '"[^"]+"' | tr -d '"'  # full names for :module:test
-```
+Discover available modules at runtime from the project structure (e.g., `settings.gradle.kts`, `package.json` workspaces, `pom.xml` modules).
 
 ## Run Tests
 

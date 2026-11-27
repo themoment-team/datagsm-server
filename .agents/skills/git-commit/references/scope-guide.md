@@ -6,43 +6,37 @@
 
 Always use a domain name. Only fall back to a module name when the change is genuinely cross-cutting (affects multiple domains or the entire module).
 
-## Discover Domains at Runtime
+## Discover Scope at Runtime
 
-Run this before selecting a scope — do not use a hardcoded list:
+Do not use a hardcoded list. Determine scope from:
 
-```bash
-sh .agents/skills/git-commit/scripts/discover-domains.sh
-```
+1. `git diff --name-only` — look at changed file paths
+2. Directory structure — infer domain/module from path segments (e.g., `src/auth/`, `packages/user/`, `services/payment/`)
+3. Existing `AGENTS.md` files applicable to the changed paths, and any relevant `.claude/rules/` or `CONTRIBUTING.md` conventions
 
-Use the output as the candidate domain scope list.
+Respect the scope of nested `AGENTS.md` files. Skip missing documents and do not create them. Explicit project scope conventions take precedence over this guide’s domain-first default; otherwise infer the scope from changed paths and recent commits, and label it as inferred rather than citing a missing document.
 
-## Discover Modules at Runtime
+Do not invent a priority between conflicting reference documents. Follow an explicitly documented project choice; otherwise report the conflict before choosing a scope for the affected commit.
 
-Run this to get the module list (strips `datagsm-` prefix for use as scope):
-
-```bash
-sh .agents/skills/git-commit/scripts/discover-modules.sh
-```
-
-Module scopes are secondary — use only when changes are cross-cutting across multiple domains within that module.
+For Codex, respect the runtime-selected file in each directory: `AGENTS.override.md`, then `AGENTS.md`, then configured fallback filenames. Do not reapply a file superseded by that selection. A document audit may still review a superseded file as content, without treating it as active authority.
 
 ## Module / Cross-cutting Names (Secondary)
 
-| Scope    | When to use                                                             |
-|----------|-------------------------------------------------------------------------|
-| `global` | Affects multiple modules                                                |
-| `ci/cd`  | Build / deployment pipelines                                            |
-| (module) | Changes scoped to an entire module (use name without `datagsm-` prefix) |
+| Scope    | When to use                              |
+|----------|------------------------------------------|
+| `global` | Affects multiple modules or the whole project |
+| `ci/cd`  | Build / deployment pipelines             |
+| (module) | Changes scoped to one module but multiple domains |
 
-## Wrong vs Correct Examples
+## Examples
 
-| Wrong                       | Correct                      | Reason                            |
-|-----------------------------|------------------------------|-----------------------------------|
-| `fix(web): API 키 삭제 버그 수정`  | `fix(auth): API 키 삭제 버그 수정`  | API key is auth domain            |
-| `update(common): 학생 엔티티 수정` | `update(student): 엔티티 필드 추가` | Student entity is student domain  |
-| `add(web): 학생 조회 필터 추가`     | `add(student): 학생 조회 필터 추가`  | Student feature is student domain |
+| Wrong | Correct | Reason |
+|-------|---------|--------|
+| `fix(module): 로그인 버그 수정` | `fix(auth): 로그인 버그 수정` | auth is the domain |
+| `update(common): 유저 엔티티 수정` | `update(user): 엔티티 필드 추가` | user entity belongs to user domain |
+| `add(module): 결제 필터 추가` | `add(payment): 결제 필터 추가` | payment feature is payment domain |
 
-## Correct Module Name Usage
+## Correct Cross-cutting Usage
 
 ```
 refactor(global): 공통 예외 처리 로직 개선
