@@ -30,6 +30,7 @@ jobs:
             const allowedScopes = [
               'global', 'account', 'auth', 'client', 'club',
               'neis', 'oauth', 'project', 'student', 'utility',
+              'teacher', 'userinfo', 'shared', 'ksp',
               'web', 'oauth', 'openapi', 'ci/cd', 'application', 'event'
             ];
 
