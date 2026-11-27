@@ -1,5 +1,15 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'root=\"$(git rev-parse --show-toplevel 2>/dev/null || pwd)\"; hook=\"$root/.codex/hooks/session-start.sh\"; if [[ ! -f \"$hook\" ]]; then hook=\"$root/.codex/hooks/dispatcher/session-start.sh\"; fi; if [[ -f \"$hook\" ]]; then exec bash \"$hook\"; fi; exit 0'"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "hooks": [

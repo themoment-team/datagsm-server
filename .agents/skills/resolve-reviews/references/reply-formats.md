@@ -1,6 +1,6 @@
 # GitHub Reply Formats
 
-Use these templates when posting inline replies in Step 5.
+Use these templates when posting inline replies in Step 6.
 Always quote `comment_id` to prevent shell injection.
 All replies must be written in Korean.
 
