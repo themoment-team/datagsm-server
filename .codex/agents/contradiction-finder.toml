@@ -18,15 +18,25 @@ You are a read-only consistency auditor. Your job is to find contradictions acro
 
 ## Step 1 — Collect All Source Material
 
+### Project Instructions
+
+Read existing `AGENTS.md` files that apply to each target path, from the repository root down to the target file's parent directory. More specific instructions override broader ones only within their subtree; do not apply a sibling directory's rules globally. Honor applicable instructions already supplied by the runtime.
+
+`AGENTS.md` is optional. Read the other convention files listed below when they exist, and skip missing files or directories. Do not create a missing instruction file unless the user requests it. Cite only files and sections actually read. If no document covers a topic, use existing code and tool configuration as evidence and label inferred conventions separately from documented rules.
+
+**Rule conflicts**: Follow the runtime instructions, path scopes, and any precedence explicitly defined by the project. Other convention documents are supporting references; do not invent a ranking between tool-specific guides and project documentation. If no applicable instruction resolves a conflict, cite both sources and leave the affected change unapplied while continuing independent work. Intentional scoped overrides are not contradictions.
+
+For Codex, respect the runtime-selected file in each directory: `AGENTS.override.md`, then `AGENTS.md`, then configured fallback filenames. Do not reapply a file superseded by that selection. A document audit may still review a superseded file as content, without treating it as active authority.
+
 ### Rule Files (discover dynamically)
 ```bash
 find .claude/rules -name "*.md" 2>/dev/null
 ```
-Read every file returned. These files are the primary rule source.
+Discover each rule’s path scope first, then read the bodies relevant to the target paths.
 
 ### Documentation
-Read these files in full:
-- `AGENTS.md`
+Read these files in full when present:
+- `AGENTS.md` files applicable to the target paths
 - `CONTRIBUTING.md`
 - `.gemini/styleguide.md`
 - `.github/copilot-instructions.md`
@@ -50,7 +60,7 @@ After reading all rule files in Step 1, extract the topics they define (e.g., DT
 
 Do not use a hardcoded topic list — derive topics from the rule files you actually read. Common areas include but are not limited to: annotation targets, `@Transactional` placement, DTO naming, logging language/format, exception message constraints, `@RequestParam` vs `@ModelAttribute` threshold, injection style, commit scope convention, `val`/`var` preference.
 
-**Authority order**: `AGENTS.md` > applicable `.claude/rules/**` > `.gemini/styleguide.md` > `CONTRIBUTING.md`. When AGENTS.md states a rule, any conflicting statement in another document is a contradiction. When AGENTS.md is silent, use the applicable `.claude/rules/**` before `.gemini/styleguide.md` and `CONTRIBUTING.md`.
+Apply the conflict handling and path scopes from Step 1. Compare rules only where their scopes overlap. If no convention documents exist, report L1–L3 as not assessable for documented rules and continue L4 with any available agent definitions.
 
 Distinguish:
 - **Hard contradiction**: Rule A says X, Rule B says not-X
@@ -97,10 +107,10 @@ If a single rule has more than 20 violations, report the count and the first 3 s
 
 For each agent file in `.claude/agents/*.md`, `.codex/agents/*.toml`, and each skill file in `.claude/skills/**/*.md`, read the body and check:
 
-1. **kotlin-convention-validator**: Does it check all rules listed in AGENTS.md §핵심 코딩 규칙? Are any rules missing or stated differently?
+1. **kotlin-convention-validator**: Does it check the applicable coding rules found in Step 1? Are any rules missing or stated differently?
 2. **kotlin-test-fixer**: Does it reference Kotest as the test framework (not JUnit directly)?
-3. **All skill files** that reference project conventions: Do they cite the correct priority order (AGENTS.md > applicable .claude/rules/** > .gemini/styleguide.md > CONTRIBUTING.md)?
-4. **Any agent/skill** that states a rule contradicting AGENTS.md (e.g., allowing a forbidden pattern in a specific context)?
+3. **All skill files** that reference project conventions: Do they follow the conflict handling, path scopes, and missing-file handling from Step 1?
+4. **Any agent/skill** that states a rule contradicting an applicable documented rule (e.g., allowing a forbidden pattern in a specific context)?
 
 Also check `.agents/skills/**/*.md` independently for the same issues.
 
