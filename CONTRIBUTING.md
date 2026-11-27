@@ -263,12 +263,14 @@ git checkout -b refactor/optimize-club-query
 **기본 원칙: 도메인명을 우선 사용하고, 모듈명은 횡단관심사에서만 사용**합니다.
 
 **도메인 레벨:**
-- `account`, `application`, `auth`, `client`, `club`, `neis`, `oauth`, `project`, `student`, `utility`
+- `account`, `application`, `auth`, `client`, `club`, `event`, `neis`, `oauth`, `project`, `student`, `teacher`, `userinfo`, `utility`
 - 특정 기능이나 도메인에 관련된 변경사항에 사용
+- 각 모듈의 `domain/` 바로 아래 디렉터리명이 도메인명입니다
 
 **모듈 레벨 (횡단관심사만):**
-- `web`, `oauth`, `openapi`, `global`
+- `web`, `oauth`, `openapi`, `shared`, `ksp`, `global`
 - 여러 모듈에 걸친 변경사항이나 공통 설정, 보안, 유틸리티 등에만 사용
+- `shared`, `ksp`는 도메인이 없는 모듈이므로 해당 모듈 변경에 사용
 
 **기타:**
 - `ci/cd` - CI/CD 파이프라인 관련 변경
@@ -308,8 +310,8 @@ vYYYYMMDD.n (릴리즈용)
 ```
 
 **유효한 Scope:**
-- **도메인명 (기본 사용)**: `account`, `application`, `auth`, `client`, `club`, `neis`, `oauth`, `project`, `student`, `utility`
-- **모듈명 (횡단관심사만)**: `web`, `oauth`, `openapi`, `global`
+- **도메인명 (기본 사용)**: `account`, `application`, `auth`, `client`, `club`, `event`, `neis`, `oauth`, `project`, `student`, `teacher`, `userinfo`, `utility`
+- **모듈명 (횡단관심사만)**: `web`, `oauth`, `openapi`, `shared`, `ksp`, `global`
 - **기타**: `global`, `ci/cd`
 
 **Scope 선택 규칙:**

@@ -60,7 +60,9 @@ Gradle 빌드에는 **Java 25**를 사용합니다.
 
 - 형식: `type(scope): 설명` — 설명은 한국어, 마침표 없이 작성합니다.
 - 타입: `add` / `update` / `fix` / `refactor` / `ci/cd` / `docs` / `test` / `merge`
-- 스코프: `auth`, `student`, `club`, `application` 등 도메인명. 여러 도메인에 걸친 변경만 `global`, `ci/cd`, `web`, `openapi`, `oauth`를 사용합니다.
+- 스코프: 도메인명을 우선합니다. 도메인은 `**/domain/` 바로 아래 디렉터리명이며, 그 위의 모듈명이 아닙니다(`datagsm-openapi/.../domain/student/` → `student`).
+- 모듈 스코프 `web`, `openapi`, `oauth`, `shared`, `ksp`와 `global`, `ci/cd`는 여러 도메인에 걸친 변경이나 도메인이 없는 모듈(`shared`, `ksp`) 변경에만 사용합니다.
+- PR 제목: `[scope] 제목` 또는 릴리즈용 `vYYYYMMDD.n`. 제목에 콜론(`:`)을 쓰지 않습니다(CI 검사).
 
 ## 작업 시 확인
 
