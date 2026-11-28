@@ -28,7 +28,10 @@ GitHub Actions matrix용 JSON을 stdout으로 출력합니다.
 환경변수:
   APP_ID           - GitHub App ID
   APP_PRIVATE_KEY  - GitHub App Private Key (.pem 전체 내용)
-  SOURCE_REPO      - 제외할 소스 레포 (기본값: themoment-team/themoment-ai-harness-sync)
+  SOURCE_PREFIX    - 동기화 액션이 원본 파일을 찾을 때 manifest src 앞에 붙일 경로 (예: harness/)
+  TARGET_REPO      - 이 레포만 동기화 (owner/repository, 선택)
+
+원본 레포도 App이 설치되어 있으면 다른 레포와 같이 동기화 대상에 포함됩니다.
 """
 from __future__ import annotations
 
@@ -274,13 +277,21 @@ def resolve_files(
     return list(selected.values())
 
 
-def build_sync_config(full_name: str, files: list[tuple[str, str]], base_branch: str) -> str:
+def build_sync_config(
+    full_name: str,
+    files: list[tuple[str, str]],
+    base_branch: str,
+    source_prefix: str = "",
+) -> str:
     """BetaHuhn/repo-file-sync-action용 YAML 설정 문자열을 생성합니다 (레포 1개).
 
     repo 식별자에 '@<base_branch>'를 붙여 액션이 sync 브랜치를 base_branch에서
     분기하고 PR도 그 브랜치로 보내도록 한다. 이걸 지정하지 않으면 액션이 레포의
     GitHub 기본 브랜치(예: master)에서 분기하는데, base_branch(develop)가 기본
     브랜치보다 앞서 있으면 이미 동기화된 내용이 phantom diff로 PR에 올라온다.
+
+    manifest의 src는 하네스 폴더 기준 경로이고 액션은 워크스페이스 루트 기준으로
+    파일을 찾으므로, 하네스가 하위 폴더에 있으면 source_prefix를 앞에 붙인다.
     """
     if not files:
         return "group: []"
@@ -291,7 +302,7 @@ def build_sync_config(full_name: str, files: list[tuple[str, str]], base_branch:
     buf.write(f"      {full_name}@{base_branch}\n")
     buf.write("    files:\n")
     for src, dest in files:
-        buf.write(f"      - source: {src}\n")
+        buf.write(f"      - source: {source_prefix}{src}\n")
         buf.write(f"        dest: {dest}\n")
     return buf.getvalue()
 
@@ -299,7 +310,9 @@ def build_sync_config(full_name: str, files: list[tuple[str, str]], base_branch:
 def main():
     app_id = os.environ.get("APP_ID")
     private_key = os.environ.get("APP_PRIVATE_KEY")
-    source_repo = os.environ.get("SOURCE_REPO", "themoment-team/themoment-ai-harness-sync")
+    source_prefix = os.environ.get("SOURCE_PREFIX", "")
+    if source_prefix and not source_prefix.endswith("/"):
+        source_prefix += "/"
     target_repo = os.environ.get("TARGET_REPO")
 
     if not app_id or not private_key:
@@ -319,7 +332,7 @@ def main():
     matrix: list[dict] = []
 
     # 보고서용 통계
-    total_repos = 0        # source repo 제외, 설치에 연결된 전체 레포 수
+    total_repos = 0        # 설치에 연결된 전체 레포 수
     skipped_disabled = 0   # enabled: false 로 동기화를 끈 수
     skipped_open_pr = 0    # 열린 sync PR이 있어 건너뛴 수
     skipped_no_files = 0   # 대상 파일이 없어 건너뛴 수
@@ -342,8 +355,6 @@ def main():
         for repo in repos:
             full_name = repo["full_name"]
             target_repo_found = target_repo_found or full_name == target_repo
-            if full_name == source_repo:
-                continue
 
             total_repos += 1
             default_branch = repo.get("default_branch", "main")
@@ -420,7 +431,7 @@ def main():
                 "base_branch": base_branch,
                 "language": language,
                 "pr_labels": SYNC_PR_LABEL if pr_label_enabled else "",
-                "config": build_sync_config(full_name, files, base_branch),
+                "config": build_sync_config(full_name, files, base_branch, source_prefix),
             })
 
     if target_repo and not target_repo_found:

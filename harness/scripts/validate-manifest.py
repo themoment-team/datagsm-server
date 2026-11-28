@@ -474,9 +474,12 @@ def _git(root: Path, *args: str) -> str:
 
 
 def changed_files(root: Path, base: str) -> list[str]:
-    """base와 갈라진 지점 이후 바뀐 파일. 커밋 전에도 쓸 수 있도록 작업 트리와 추적되지 않은 파일을 포함한다."""
+    """base와 갈라진 지점 이후 바뀐 파일. 커밋 전에도 쓸 수 있도록 작업 트리와 추적되지 않은 파일을 포함한다.
+
+    하네스가 저장소의 하위 폴더에 있을 수 있으므로 --relative로 root 아래 변경만 root 기준 경로로 받는다.
+    """
     merge_base = _git(root, "merge-base", base, "HEAD").strip()
-    tracked = _git(root, "diff", "--name-only", merge_base).splitlines()
+    tracked = _git(root, "diff", "--name-only", "--relative", merge_base).splitlines()
     untracked = _git(root, "ls-files", "--others", "--exclude-standard").splitlines()
     return sorted({line for line in tracked + untracked if line})
 

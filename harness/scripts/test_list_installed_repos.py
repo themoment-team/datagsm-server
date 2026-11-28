@@ -111,6 +111,21 @@ class ResolveFilesTest(unittest.TestCase):
         self.assertEqual(with_hook[0][0], MODULE.SETTINGS_WITH_HOOKS)
 
 
+class BuildSyncConfigTest(unittest.TestCase):
+    def test_prefixes_source_but_not_destination(self):
+        config = MODULE.build_sync_config("acme/api", [(".claude/skills/a/", ".claude/skills/a/")], "develop", "harness/")
+        self.assertIn("      acme/api@develop\n", config)
+        self.assertIn("      - source: harness/.claude/skills/a/\n", config)
+        self.assertIn("        dest: .claude/skills/a/\n", config)
+
+    def test_keeps_source_unchanged_without_prefix(self):
+        config = MODULE.build_sync_config("acme/api", [("a/", "a/")], "main")
+        self.assertIn("      - source: a/\n", config)
+
+    def test_empty_files_produce_empty_group(self):
+        self.assertEqual(MODULE.build_sync_config("acme/api", [], "main", "harness/"), "group: []")
+
+
 class GhApiTest(unittest.TestCase):
     def call_api(self, pages):
         with patch.object(MODULE.subprocess, "run") as run:

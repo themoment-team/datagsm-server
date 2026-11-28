@@ -127,7 +127,7 @@ def main() -> None:
                 "--head", sync_branch,
                 "--base", base_branch,
                 "--title", "chore: remove orphaned files from previous sync",
-                "--body", "Automated cleanup: removes files renamed or deleted in themoment-ai-harness-sync.",
+                "--body", "Automated cleanup: removes files renamed or deleted in the AI harness (themoment-team/datagsm-server).",
             ]
             if args.pr_label:
                 create_cmd += ["--label", args.pr_label]
