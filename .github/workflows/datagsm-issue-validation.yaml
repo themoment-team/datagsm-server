@@ -21,7 +21,7 @@ jobs:
               'global', 'account', 'auth', 'client', 'club',
               'neis', 'oauth', 'project', 'student', 'utility',
               'teacher', 'userinfo', 'shared', 'ksp',
-              'web', 'oauth', 'openapi', 'ci/cd', 'application', 'event'
+              'web', 'openapi', 'ci/cd', 'application', 'event'
             ];
             const titlePattern = /^\[([^\]]+)\]\s+(.+)$/;
             const match = title.match(titlePattern);
