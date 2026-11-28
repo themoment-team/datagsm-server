@@ -2,6 +2,7 @@ package team.themoment.datagsm.oauth.authorization.domain.oauth.service
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
@@ -18,6 +19,8 @@ import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountStatus
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
+import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
+import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.club.entity.ClubJpaEntity
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthAuthorizeSubmitReqDto
@@ -57,6 +60,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
         val mockIdpSessionRedisRepository = mockk<IdpSessionRedisRepository>(relaxed = true)
         val mockIdpSessionHandoffRedisRepository = mockk<IdpSessionHandoffRedisRepository>(relaxed = true)
         val mockOauthConsentJpaRepository = mockk<OauthConsentJpaRepository>(relaxed = true)
+        val mockClientJpaRepository = mockk<ClientJpaRepository>()
         val mockIssueAuthorizationCodeService = mockk<IssueAuthorizationCodeService>()
         val mockPasswordEncoder = mockk<PasswordEncoder>()
         val mockOauthEnvironment = mockk<OauthEnvironment>()
@@ -74,6 +78,7 @@ class CompleteOauthAuthorizeFlowServiceTest :
                 mockIdpSessionRedisRepository,
                 mockIdpSessionHandoffRedisRepository,
                 mockOauthConsentJpaRepository,
+                mockClientJpaRepository,
                 mockIssueAuthorizationCodeService,
                 mockPasswordEncoder,
                 mockOauthEnvironment,
@@ -81,6 +86,11 @@ class CompleteOauthAuthorizeFlowServiceTest :
                 mockApplicationEventPublisher,
                 mockPasswordResetRateLimitService,
             )
+
+        // client를 찾지 못하면 기존과 같이 상태에 저장된 scope를 그대로 기록한다.
+        beforeEach {
+            every { mockClientJpaRepository.findById(any()) } returns Optional.empty()
+        }
 
         afterEach {
             clearAllMocks()
@@ -239,6 +249,25 @@ class CompleteOauthAuthorizeFlowServiceTest :
 
                         verify(exactly = 1) { mockOauthConsentJpaRepository.upsertConsent(1L, testClientId) }
                         scopeSlot.toSet() shouldBe setOf("self:read")
+                    }
+
+                    it("로그인 도중 client에서 제거된 scope는 동의 기록에 남지 않아야 한다") {
+                        val scopeSlot = mutableListOf<String>()
+                        every {
+                            mockOauthConsentJpaRepository.addScopeIfAbsent(7L, capture(scopeSlot))
+                        } returns Unit
+                        every { mockClientJpaRepository.findById(testClientId) } returns
+                            Optional.of(
+                                ClientJpaEntity().apply {
+                                    id = testClientId
+                                    scopes.add("self:write")
+                                },
+                            )
+
+                        completeOauthAuthorizeFlowService.execute(reqDto)
+
+                        verify(exactly = 1) { mockOauthConsentJpaRepository.upsertConsent(1L, testClientId) }
+                        scopeSlot.shouldBeEmpty()
                     }
 
                     it("Redis에서 인증 상태가 삭제되어야 한다") {

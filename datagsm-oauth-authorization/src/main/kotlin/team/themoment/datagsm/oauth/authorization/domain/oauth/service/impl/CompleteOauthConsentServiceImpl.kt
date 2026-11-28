@@ -4,6 +4,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthConsentReqDto
 import team.themoment.datagsm.common.domain.oauth.dto.response.OauthConsentResDto
 import team.themoment.datagsm.common.domain.oauth.entity.OauthAuthorizeStateRedisEntity
@@ -21,6 +22,7 @@ import java.nio.charset.StandardCharsets
 class CompleteOauthConsentServiceImpl(
     private val oauthAuthorizeStateRedisRepository: OauthAuthorizeStateRedisRepository,
     private val oauthConsentJpaRepository: OauthConsentJpaRepository,
+    private val clientJpaRepository: ClientJpaRepository,
     private val issueAuthorizationCodeService: IssueAuthorizationCodeService,
     private val idpSessionResolver: IdpSessionResolver,
 ) : CompleteOauthConsentService {
@@ -64,7 +66,7 @@ class CompleteOauthConsentServiceImpl(
         oauthAuthorizeStateRedisRepository.deleteById(reqDto.token)
 
         val accountId = requireNotNull(account.id) { "Persisted account must have an id" }
-        recordConsent(accountId, stateEntity.clientId, stateEntity.scopes)
+        recordConsent(accountId, stateEntity.clientId, retainCurrentScopes(stateEntity.clientId, stateEntity.scopes))
 
         return OauthConsentResDto(redirectUrl = redirectUrl)
     }
@@ -96,6 +98,13 @@ class CompleteOauthConsentServiceImpl(
     //
     // 이 자리에서 실패하면 특히 곤란하다. 인가 코드는 이미 Redis에 저장돼 롤백되지 않으므로,
     // 사용자는 500을 받는데 코드만 남는 상태가 된다.
+    // 로그인·동의 도중 client에서 제거된 scope는 동의 기록에 남기지 않는다.
+    // 남겨 두면 나중에 같은 scope가 다시 추가될 때 동의 화면 없이 통과된다.
+    private fun retainCurrentScopes(
+        clientId: String,
+        scopes: Set<String>,
+    ): Set<String> = clientJpaRepository.findByIdOrNull(clientId)?.retainCurrentScopes(scopes) ?: scopes
+
     private fun recordConsent(
         accountId: Long,
         clientId: String,

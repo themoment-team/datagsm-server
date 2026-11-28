@@ -14,6 +14,7 @@ import jakarta.persistence.Table
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 import team.themoment.datagsm.common.domain.account.entity.AccountJpaEntity
+import team.themoment.datagsm.common.domain.client.entity.constant.OAuthScope
 import team.themoment.datagsm.common.global.converter.StringSetConverter
 
 @Table(
@@ -56,4 +57,9 @@ class ClientJpaEntity {
     @ManyToOne(optional = false)
     @JoinColumn(name = "account_id", nullable = false)
     lateinit var account: AccountJpaEntity
+
+    // 발급 당시의 scope 중 지금도 이 클라이언트에 남아 있는 것만 남긴다.
+    // openid는 client scope에 저장되지 않는 OIDC 프로토콜 scope라 비교하지 않고 유지한다.
+    fun retainCurrentScopes(grantedScopes: Set<String>): Set<String> =
+        grantedScopes.filter { it == OAuthScope.OPENID || it in scopes }.toSet()
 }

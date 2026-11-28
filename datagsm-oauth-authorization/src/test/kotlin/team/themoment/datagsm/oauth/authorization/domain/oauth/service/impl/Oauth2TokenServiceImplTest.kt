@@ -167,6 +167,49 @@ class Oauth2TokenServiceImplTest :
                         }
                     }
 
+                    context("인가 코드 발급 후 client에서 일부 scope가 제거되었을 때") {
+                        beforeEach {
+                            every { mockOauthCodeRedisRepository.findById("test-code") } returns
+                                Optional.of(code.copy(scopes = setOf("self:read", "self:write")))
+                        }
+
+                        it("제거된 scope는 access token과 refresh token 모두에서 빠진다") {
+                            val result = service.execute(reqDto)
+
+                            result.scope shouldBe "self:read"
+                            verify {
+                                mockOauthRefreshTokenRedisRepository.save(match { it.scopes == setOf("self:read") })
+                            }
+                        }
+                    }
+
+                    context("인가 코드 발급 후 client에서 권한 scope가 모두 제거되었을 때") {
+                        val clientWithoutCodeScopes =
+                            ClientJpaEntity().apply {
+                                id = "test-client"
+                                secret = "hashed-secret"
+                                redirectUrls = setOf("https://example.com/callback")
+                                scopes.add("admin:write")
+                            }
+
+                        beforeEach {
+                            every { mockClientJpaRepository.findById("test-client") } returns
+                                Optional.of(clientWithoutCodeScopes)
+                        }
+
+                        it("인가 코드를 폐기하고 InvalidGrant 예외가 발생한다") {
+                            val exception =
+                                shouldThrow<OAuthException.InvalidGrant> {
+                                    service.execute(reqDto)
+                                }
+
+                            exception.errorDescription shouldBe "클라이언트의 권한 범위가 변경되었습니다. 다시 로그인해주세요."
+                            verify(exactly = 1) { mockOauthCodeRedisRepository.delete(code) }
+                            verify(exactly = 0) { mockOauthCodeRedisRepository.claimUsage(any(), any(), any()) }
+                            verify(exactly = 0) { mockJwtProvider.generateOauthAccessToken(any(), any(), any(), any()) }
+                        }
+                    }
+
                     context("같은 인가 코드의 사용권을 다른 요청이 이미 선점했을 때") {
                         beforeEach {
                             every { mockOauthCodeRedisRepository.claimUsage(any(), any(), any()) } returns false

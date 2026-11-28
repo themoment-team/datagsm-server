@@ -1,6 +1,7 @@
 package team.themoment.datagsm.oauth.authorization.domain.oauth.service.impl
 
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -10,6 +11,7 @@ import org.springframework.web.util.UriComponentsBuilder
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjectType
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountStatus
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
+import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.club.repository.ClubJpaRepository
 import team.themoment.datagsm.common.domain.event.dto.internal.EventDispatchRequested
 import team.themoment.datagsm.common.domain.event.dto.payload.EventChangeItem
@@ -54,6 +56,7 @@ class CompleteOauthAuthorizeFlowServiceImpl(
     private val idpSessionRedisRepository: IdpSessionRedisRepository,
     private val idpSessionHandoffRedisRepository: IdpSessionHandoffRedisRepository,
     private val oauthConsentJpaRepository: OauthConsentJpaRepository,
+    private val clientJpaRepository: ClientJpaRepository,
     private val issueAuthorizationCodeService: IssueAuthorizationCodeService,
     private val passwordEncoder: PasswordEncoder,
     private val oauthEnvironment: OauthEnvironment,
@@ -128,7 +131,7 @@ class CompleteOauthAuthorizeFlowServiceImpl(
         oauthAuthorizeStateRedisRepository.deleteById(reqDto.token)
 
         val accountId = requireNotNull(account.id) { "Persisted account must have an id" }
-        recordConsent(accountId, clientId, scopes)
+        recordConsent(accountId, clientId, retainCurrentScopes(clientId, scopes))
 
         val handoffUrl = createSessionHandoff(account.email, clientId, redirectUrl)
 
@@ -190,6 +193,13 @@ class CompleteOauthAuthorizeFlowServiceImpl(
     //
     // 이 자리에서 실패하면 특히 곤란하다. 인가 코드와 세션은 이미 Redis에 저장돼
     // 롤백되지 않으므로, 사용자는 500을 받는데 코드만 남는 상태가 된다.
+    // 로그인·동의 도중 client에서 제거된 scope는 동의 기록에 남기지 않는다.
+    // 남겨 두면 나중에 같은 scope가 다시 추가될 때 동의 화면 없이 통과된다.
+    private fun retainCurrentScopes(
+        clientId: String,
+        scopes: Set<String>,
+    ): Set<String> = clientJpaRepository.findByIdOrNull(clientId)?.retainCurrentScopes(scopes) ?: scopes
+
     private fun recordConsent(
         accountId: Long,
         clientId: String,
