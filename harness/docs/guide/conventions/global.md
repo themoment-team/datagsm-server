@@ -1,6 +1,6 @@
 ---
 title: 전역 컨벤션
-description: 커밋, PR, 브랜치 공통 규칙
+description: 프로젝트 지침, 커밋·PR 규칙, 파일 네이밍
 order: 50
 ---
 
@@ -20,71 +20,21 @@ order: 50
 
 ### 문서 유지 원칙
 
-루트 `AGENTS.md`에는 공통 제약과 상세 문서 위치를 간결하게 둡니다. 이 저장소의 운영 문서는 `docs/guide/`에서 관리하며, Wiki 대응 문서도 같은 변경에서 점검합니다. 개별 설치되는 스킬·에이전트에는 실행에 필요한 지침을 남겨 타깃 레포에 하네스 원본 문서가 없어도 사용할 수 있게 합니다.
+루트 `AGENTS.md`에는 공통 제약과 상세 문서 위치를 간결하게 둡니다. 이 저장소의 운영 문서는 `docs/guide/`에서 관리합니다. 개별 설치되는 스킬·에이전트에는 실행에 필요한 지침을 남겨 타깃 레포에 하네스 원본 문서가 없어도 사용할 수 있게 합니다.
 
 이 구조는 상세 지식을 저장소 문서로 분리하는 [OpenAI의 하네스 설계 사례](https://openai.com/index/harness-engineering/)와 필요한 맥락을 작업 중에 읽는 [Anthropic의 컨텍스트 설계 원칙](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)을 참고한 선택입니다. 실제 성능 향상을 입증하는 벤치마크 결과를 뜻하지는 않습니다.
 
-## 커밋 컨벤션
+## 커밋·PR·브랜치 컨벤션
+
+하네스 원본은 datagsm-server 저장소의 `harness/`에 있으므로 커밋 메시지, PR 제목, 브랜치 이름은 저장소 루트 `AGENTS.md`와 `CONTRIBUTING.md`를 따릅니다. 하네스 원본만 바꾸는 변경은 `global` 스코프를 씁니다.
 
 ```
-type(scope): 한국어 설명
-```
-
-### type
-
-| type | 사용 시점 |
-|------|----------|
-| `add` | 새 스킬·에이전트·설정 추가 |
-| `update` | 기존 항목 개선·수정 |
-| `fix` | 오류 수정 |
-| `docs` | README·Wiki 등 문서 변경 |
-| `ci/cd` | 워크플로우·스크립트 변경 |
-| `refactor` | 구조 개선 (기능 변경 없음) |
-
-### scope
-
-| scope | 대상 |
-|-------|------|
-| `global` | 여러 스코프에 걸친 변경, 프로젝트 메타 파일 |
-| `claude` | `.claude/` 하위 파일 |
-| `codex` | `.codex/`, `.agents/` 하위 파일 |
-| `gemini` | `.gemini/` 하위 파일 |
-| `copilot` | `.github/copilot-instructions.md` |
-
-### 설명 규칙
-
-- 한국어, 마침표 없음
-- 명사형으로 끝내기 (`추가`, `수정`, `개선`)
-- 50자 이내
-
-**예시**
-
-```
-add(claude): systematic-debugging 스킬 추가
+add(global): systematic-debugging 스킬 추가
 update(global): write-pr 스킬 레퍼런스 경로 수정
-docs(global): README 동기화 방식 설명 업데이트
-ci/cd(global): 파일 동기화 워크플로우 추가
+ci/cd(ci/cd): 하네스 동기화 워크플로 수정
 ```
 
-## PR 컨벤션
-
-- 제목: 커밋 컨벤션과 동일한 형식
-- 라벨: `harness-sync` (자동 동기화 PR), `enhancement`, `bug`, `documentation`
-- 자동 동기화 PR은 리뷰 후 머지 — 무조건 Auto-merge 금지
-
-## 브랜치 컨벤션
-
-```
-type/scope-description
-```
-
-**예시**
-
-```
-add/claude-new-skill
-update/global-sync-workflow
-fix/codex-hook-path
-```
+타깃 레포에 열리는 자동 동기화 PR은 리뷰 후 머지합니다. Auto-merge로 바로 반영하지 않습니다.
 
 ## 파일 네이밍
 

@@ -26,8 +26,7 @@ GitHub App 설치 후 이 설정을 기본 브랜치에 두면 Claude Code 스�
 ## 문서
 
 ### 설정
-- [GitHub App 설정](./github-app-setup.md) — App 설치, 로그인과 레포 접근 권한
-- [대시보드 사용법](./dashboard-guide.md) — 설정 PR 생성과 즉시 동기화
+- [GitHub App 설정](./github-app-setup.md) — App 설치, 권한과 secret
 - [동기화 설정](./sync-configuration.md) — 그룹 선택, 훅 활성화, 버전 고정 등 동기화 항목 제어
 
 ### 레퍼런스

@@ -9,7 +9,7 @@ order: 130
 Claude Code에서 `/skill-name` 으로 직접 호출하는 스킬 목록입니다.
 
 > 각 스킬은 `.claude/skills/<name>/` 에 위치하며, Claude가 컨텍스트를 보고 자동 제안하기도 합니다.
-> 분류는 `sync-manifest.yml`의 `domain` 값(`frontend` / `backend` / `common`)을 따르며, 대시보드 동기화 항목 화면도 같은 기준으로 묶어 보여 줍니다.
+> 분류는 `sync-manifest.yml`의 `domain` 값(`frontend` / `backend` / `common`)을 따르며, 동기화 항목 화면도 같은 기준으로 묶어 보여 줍니다.
 
 ---
 

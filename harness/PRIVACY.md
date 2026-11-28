@@ -33,4 +33,4 @@ Authentication uses short-lived GitHub App installation tokens (valid for 1 hour
 ## Contact
 
 For questions or concerns about this policy, open an issue at:  
-https://github.com/themoment-team/themoment-ai-harness-sync/issues
+https://github.com/themoment-team/datagsm-server/issues

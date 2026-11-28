@@ -1,19 +1,26 @@
 ---
 title: GitHub App 설정
-description: AI Harness GitHub App 설치와 대시보드 로그인 설정
+description: AI Harness GitHub App 설치, 권한과 secret
 order: 20
 ---
 
 # GitHub App 설정
 
-GitHub App을 대상 레포에 설치하면 Harness가 설치 범위 안의 파일을 읽고 동기화 PR을 만들 수 있습니다.
+GitHub App을 대상 레포에 설치하면 하네스가 설치 범위 안의 `.harness/sync.yml`을 읽고 동기화 PR을 만들 수 있습니다. App을 새로 설치한 레포는 다음 동기화 실행부터 자동으로 대상에 포함됩니다.
 
-대시보드 로그인은 GitHub App의 사용자 인증을 사용합니다. Callback URL에는 배포 주소의 다음 경로를 등록합니다.
+## 권한
 
-```text
-https://dashboard.example.com/api/auth/callback/github
-```
+| 권한 | 용도 |
+|------|------|
+| Contents (Read & Write) | `.harness/sync.yml` 읽기, 동기화 브랜치에 파일 커밋 |
+| Pull requests (Read & Write) | 동기화 PR 생성과 제목·대상 브랜치 수정 |
+| Metadata (Read) | 설치된 레포 이름과 기본 브랜치 확인 |
 
-로컬 개발 주소는 `http://localhost:3000/api/auth/callback/github`입니다.
+## Secret
 
-프로젝트를 대시보드에서 설정하려면 해당 레포의 `write` 이상 권한이 필요합니다.
+동기화 워크플로(`.github/workflows/datagsm-harness-sync.yaml`)는 datagsm-server 저장소의 Actions secret으로 App에 인증합니다.
+
+| Secret | 값 |
+|--------|----|
+| `HARNESS_APP_ID` | GitHub App ID |
+| `HARNESS_APP_PRIVATE_KEY` | App private key(`.pem`) 전체 내용 |

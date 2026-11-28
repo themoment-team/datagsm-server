@@ -1,4 +1,4 @@
-# themoment-ai-harness-sync 동기화 설정
+# AI 하네스(themoment-team/datagsm-server) 동기화 설정
 # 이 파일을 sync.yml로 이름을 바꾸고 .harness/ 디렉터리에 배치하세요
 #
 # 사용 가능한 그룹: claude, codex, gemini
@@ -67,7 +67,7 @@ groups:
 #                               #    반드시 base_branch: develop 로 지정하라. 안 그러면
 #                               #    이미 동기화된 내용이 phantom diff로 PR에 계속 올라온다.
 # language: ko                  # PR 제목·본문 언어 (기본값: en)
-#                               #   en: "Sync files from themoment-ai-harness-sync"
+#                               #   en: "Sync files from AI harness"
 #                               #   ko: "[global] {가장 규모가 큰 커밋의 ': ' 이후 텍스트}"
 # pr_label: false               # sync PR에 'harness sync:하네스 동기화' 라벨을 붙일지 (기본값: true)
 #                               # false 로 두면 라벨을 붙이지 않는다 (cleanup PR 포함)

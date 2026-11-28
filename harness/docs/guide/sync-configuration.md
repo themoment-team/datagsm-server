@@ -25,12 +25,12 @@ order: 30
 
 자동 동기화 워크플로우는 다음 시점에 실행됩니다:
 
-1. **메인 브랜치 푸시 시 (`push`):**
-   - 하네스 레포의 `main` 브랜치에 변경 사항이 푸시(push)될 때 즉시 각 타깃 레포에 동기화 PR이 생성됩니다.
+1. **기본 브랜치 반영 시 (`push`):**
+   - datagsm-server의 `master` 브랜치에 `harness/` 변경이 반영되면 즉시 각 타깃 레포에 동기화 PR이 생성됩니다.
 2. **매일 정기 실행 (`schedule`):**
    - 매일 00:00 UTC (한국 시간 기준 **오전 09:00**)에 자동으로 실행되어 전체 타깃 레포의 상태를 동기화합니다.
 3. **수동 실행 (`workflow_dispatch`):**
-   - 대시보드의 **지금 동기화** 또는 하네스 레포의 GitHub Actions에서 특정 설치 레포를 동기화할 수 있습니다.
+   - datagsm-server의 GitHub Actions에서 `Sync AI Harness files` 워크플로에 `target_repo`를 넣어 특정 설치 레포만 동기화할 수 있습니다.
 
 ## 설정 파일 위치
 
@@ -272,12 +272,12 @@ diff가 없어 **PR이 아예 생성되지 않고**, 실제로 다를 때만 정
 
 | 값 | PR 제목 | PR 본문 |
 |----|---------|---------|
-| `en` (기본) | `Sync files from themoment-ai-harness-sync` | 영어 |
+| `en` (기본) | `Sync files from AI harness` | 영어 |
 | `ko` | `[global] {가장 규모가 큰 커밋의 ': ' 이후 텍스트}` | 한국어 |
 
-`ko` 설정 시 제목은 해당 sync를 유발한 하네스 커밋 중 변경 파일 수가 가장 많은 커밋의 메시지에서 `: ` 이후 부분을 추출합니다.
+`ko` 설정 시 제목은 해당 sync를 유발한 커밋 중 `harness/`를 바꾼 일반 커밋(머지 커밋 제외)에서 `harness/` 변경 파일 수가 가장 많은 커밋의 메시지에서 `: ` 이후 부분을 추출합니다.
 
-예시: 하네스에 `update(claude): write-pr 스킬 개선` 커밋이 push되면 → PR 제목 `[global] write-pr 스킬 개선`
+예시: `update(global): write-pr 스킬 개선` 커밋이 `master`에 반영되면 → PR 제목 `[global] write-pr 스킬 개선`
 
 ```yaml
 language: ko
