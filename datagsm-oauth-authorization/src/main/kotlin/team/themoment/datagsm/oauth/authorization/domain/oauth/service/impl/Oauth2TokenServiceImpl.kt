@@ -234,8 +234,19 @@ class Oauth2TokenServiceImpl(
             throw OAuthException.InvalidGrant("정보 수정이 필요합니다. 다시 로그인해주세요.")
         }
 
-        val scopesToGrant = reqDto.scope ?: storedToken.scopes
-        if (!storedToken.scopes.containsAll(scopesToGrant)) {
+        // 사용자가 동의한 scope(저장된 scope) 중 client에 아직 남아 있는 것만 부여한다.
+        // client에 새로 추가된 scope는 동의를 받지 않았으므로 넓히지 않고, 제거된 scope는 더 이상 이어지지 않게 한다.
+        // openid는 client scope에 없는 프로토콜 지시자라 비교 대상에서 제외한다.
+        // 처음부터 openid만 동의받은 토큰은 client 변경과 무관하므로, 권한 scope가 있었다가 모두 빠진 경우에만 실패시킨다.
+        val storedPermissionScopes = storedToken.scopes - OAuthScope.OPENID
+        val allowedScopes = storedToken.scopes.filter { it == OAuthScope.OPENID || it in client.scopes }.toSet()
+        if (storedPermissionScopes.isNotEmpty() && (allowedScopes - OAuthScope.OPENID).isEmpty()) {
+            oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(email, clientIdFromToken)
+            throw OAuthException.InvalidGrant("클라이언트의 권한 범위가 변경되었습니다. 다시 로그인해주세요.")
+        }
+
+        val scopesToGrant = reqDto.scope ?: allowedScopes
+        if (!allowedScopes.containsAll(scopesToGrant)) {
             throw OAuthException.InvalidScope("재발급 요청한 권한 범위가 기존 권한 범위를 초과합니다.")
         }
         val grantedScopes = stringsToScopes(scopesToGrant)
@@ -243,7 +254,7 @@ class Oauth2TokenServiceImpl(
         val newAccessToken = jwtProvider.generateOauthAccessToken(email, account.role, clientIdFromToken, grantedScopes)
         val newRefreshToken = jwtProvider.generateOauthRefreshToken(email, clientIdFromToken)
 
-        saveRefreshToken(email, clientIdFromToken, newRefreshToken, storedToken.scopes)
+        saveRefreshToken(email, clientIdFromToken, newRefreshToken, allowedScopes)
 
         return Oauth2TokenResDto(
             accessToken = newAccessToken,

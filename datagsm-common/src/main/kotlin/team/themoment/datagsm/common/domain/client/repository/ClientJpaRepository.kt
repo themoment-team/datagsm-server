@@ -1,6 +1,8 @@
 package team.themoment.datagsm.common.domain.client.repository
 
+import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -12,6 +14,12 @@ interface ClientJpaRepository :
     JpaRepository<ClientJpaEntity, String>,
     ClientJpaCustomRepository {
     fun deleteAllByAccount(account: AccountJpaEntity)
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT c FROM ClientJpaEntity c WHERE c.id = :id")
+    fun findByIdForUpdate(
+        @Param("id") id: String,
+    ): ClientJpaEntity?
 
     @Modifying
     @Query("DELETE FROM tb_client_scope WHERE scope = :scope", nativeQuery = true)

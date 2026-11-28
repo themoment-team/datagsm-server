@@ -88,11 +88,18 @@ class ClientController(
         @RequestBody @Valid reqDto: CreateClientReqDto,
     ) = createClientService.execute(reqDto)
 
-    @Operation(summary = "클라이언트 정보 수정", description = "기존 클라이언트의 정보를 수정합니다.")
+    @Operation(
+        summary = "클라이언트 정보 수정",
+        description = "기존 클라이언트의 정보를 수정합니다. scopes를 포함하면 클라이언트의 권한 목록을 해당 값으로 교체합니다.",
+    )
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "수정 성공"),
-            ApiResponse(responseCode = "400", description = "잘못된 요청 (검증 실패)", content = [Content()]),
+            ApiResponse(
+                responseCode = "400",
+                description = "잘못된 요청 (검증 실패 또는 허용되지 않는 OAuth 권한 포함)",
+                content = [Content()],
+            ),
             ApiResponse(responseCode = "401", description = "인증되지 않은 요청", content = [Content()]),
             ApiResponse(responseCode = "403", description = "권한이 없는 요청", content = [Content()]),
             ApiResponse(responseCode = "404", description = "클라이언트를 찾을 수 없음", content = [Content()]),

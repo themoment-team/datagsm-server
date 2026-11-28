@@ -518,21 +518,36 @@ class Oauth2TokenServiceImplTest :
                         result.scope shouldBe "self:read"
                     }
 
-                    it("client scope가 변경되어도 저장된 scope를 사용한다") {
-                        val clientWithDifferentScopes =
+                    it("client에 새 scope가 추가되어도 동의받은 저장된 scope만 사용한다") {
+                        val clientWithAddedScope =
                             ClientJpaEntity().apply {
                                 id = "test-client"
                                 secret = "hashed-secret"
-                                scopes.add("admin:write") // storedToken.scopes와 다름
+                                scopes.addAll(setOf("self:read", "admin:write"))
                             }
-                        every { mockClientJpaRepository.findById("test-client") } returns Optional.of(clientWithDifferentScopes)
+                        every { mockClientJpaRepository.findById("test-client") } returns Optional.of(clientWithAddedScope)
 
                         val result = service.execute(reqDto)
 
                         result.scope shouldBe "self:read"
+                        verify {
+                            mockOauthRefreshTokenRedisRepository.save(match { it.scopes == setOf("self:read") })
+                        }
                     }
 
-                    context("scope 파라미터를 지정한 경우") {
+                    it("저장된 scope에 없는 openid를 요청하면 InvalidScope 예외가 발생한다") {
+                        val openidReqDto = reqDto.copy(scope = setOf(OAuthScope.OPENID))
+
+                        val exception =
+                            shouldThrow<OAuthException.InvalidScope> {
+                                service.execute(openidReqDto)
+                            }
+
+                        exception.error shouldBe "invalid_scope"
+                        verify(exactly = 0) { mockOauthRefreshTokenRedisRepository.save(any()) }
+                    }
+
+                    context("client에서 저장된 scope 일부가 제거되었을 때") {
                         val multiScopeStoredToken =
                             OauthRefreshTokenRedisEntity(
                                 id = "test@gsm.hs.kr:test-client",
@@ -547,6 +562,178 @@ class Oauth2TokenServiceImplTest :
                             every {
                                 mockOauthRefreshTokenRedisRepository.findByEmailAndClientId("test@gsm.hs.kr", "test-client")
                             } returns Optional.of(multiScopeStoredToken)
+                        }
+
+                        it("제거된 scope는 access token과 새 refresh token 모두에서 빠진다") {
+                            val result = service.execute(reqDto)
+
+                            result.scope shouldBe "self:read"
+                            verify {
+                                mockOauthRefreshTokenRedisRepository.save(match { it.scopes == setOf("self:read") })
+                            }
+                        }
+
+                        it("제거된 scope를 명시적으로 요청하면 InvalidScope 예외가 발생한다") {
+                            val removedScopeReqDto = reqDto.copy(scope = setOf("self:write"))
+
+                            val exception =
+                                shouldThrow<OAuthException.InvalidScope> {
+                                    service.execute(removedScopeReqDto)
+                                }
+
+                            exception.error shouldBe "invalid_scope"
+                            verify(exactly = 0) { mockOauthRefreshTokenRedisRepository.save(any()) }
+                        }
+
+                        it("남은 scope와 제거된 scope를 섞어 요청해도 InvalidScope 예외가 발생한다") {
+                            val mixedScopeReqDto = reqDto.copy(scope = setOf("self:read", "self:write"))
+
+                            val exception =
+                                shouldThrow<OAuthException.InvalidScope> {
+                                    service.execute(mixedScopeReqDto)
+                                }
+
+                            exception.error shouldBe "invalid_scope"
+                            verify(exactly = 0) { mockOauthRefreshTokenRedisRepository.save(any()) }
+                        }
+                    }
+
+                    context("client에서 저장된 scope가 모두 제거되었을 때") {
+                        val clientWithoutStoredScopes =
+                            ClientJpaEntity().apply {
+                                id = "test-client"
+                                secret = "hashed-secret"
+                                scopes.add("admin:write")
+                            }
+
+                        beforeEach {
+                            every { mockClientJpaRepository.findById("test-client") } returns
+                                Optional.of(clientWithoutStoredScopes)
+                        }
+
+                        it("refresh token을 폐기하고 다시 로그인하도록 InvalidGrant 예외가 발생한다") {
+                            val exception =
+                                shouldThrow<OAuthException.InvalidGrant> {
+                                    service.execute(reqDto)
+                                }
+
+                            exception.error shouldBe "invalid_grant"
+                            exception.errorDescription shouldBe "클라이언트의 권한 범위가 변경되었습니다. 다시 로그인해주세요."
+                            verify(exactly = 1) {
+                                mockOauthRefreshTokenRedisRepository.deleteByEmailAndClientId("test@gsm.hs.kr", "test-client")
+                            }
+                            verify(exactly = 0) { mockOauthRefreshTokenRedisRepository.save(any()) }
+                            verify(exactly = 0) { mockJwtProvider.generateOauthAccessToken(any(), any(), any(), any()) }
+                            verify(exactly = 0) { mockOAuthScopeJpaRepository.findAllByApplicationIdIn(any()) }
+                        }
+
+                        it("저장된 scope에 openid가 함께 있어도 InvalidGrant 예외가 발생한다") {
+                            val openidStoredToken =
+                                OauthRefreshTokenRedisEntity(
+                                    id = "test@gsm.hs.kr:test-client",
+                                    email = "test@gsm.hs.kr",
+                                    clientId = "test-client",
+                                    token = "valid-refresh-token",
+                                    scopes = setOf(OAuthScope.OPENID, "self:read"),
+                                    ttl = 2592000L,
+                                )
+                            every {
+                                mockOauthRefreshTokenRedisRepository.findByEmailAndClientId("test@gsm.hs.kr", "test-client")
+                            } returns Optional.of(openidStoredToken)
+
+                            val exception =
+                                shouldThrow<OAuthException.InvalidGrant> {
+                                    service.execute(reqDto)
+                                }
+
+                            exception.errorDescription shouldBe "클라이언트의 권한 범위가 변경되었습니다. 다시 로그인해주세요."
+                            verify(exactly = 1) {
+                                mockOauthRefreshTokenRedisRepository.deleteByEmailAndClientId("test@gsm.hs.kr", "test-client")
+                            }
+                            verify(exactly = 0) { mockOauthRefreshTokenRedisRepository.save(any()) }
+                        }
+                    }
+
+                    context("저장된 scope에 openid가 포함되어 있을 때") {
+                        val openidStoredToken =
+                            OauthRefreshTokenRedisEntity(
+                                id = "test@gsm.hs.kr:test-client",
+                                email = "test@gsm.hs.kr",
+                                clientId = "test-client",
+                                token = "valid-refresh-token",
+                                scopes = setOf(OAuthScope.OPENID, "self:read"),
+                                ttl = 2592000L,
+                            )
+
+                        beforeEach {
+                            every {
+                                mockOauthRefreshTokenRedisRepository.findByEmailAndClientId("test@gsm.hs.kr", "test-client")
+                            } returns Optional.of(openidStoredToken)
+                        }
+
+                        it("client scope에 openid가 없어도 openid를 유지한다") {
+                            val result = service.execute(reqDto)
+
+                            result.scope.split(" ").toSet() shouldBe setOf(OAuthScope.OPENID, "self:read")
+                            verify {
+                                mockOauthRefreshTokenRedisRepository.save(
+                                    match { it.scopes == setOf(OAuthScope.OPENID, "self:read") },
+                                )
+                            }
+                        }
+                    }
+
+                    context("저장된 scope가 openid뿐일 때") {
+                        val openidOnlyStoredToken =
+                            OauthRefreshTokenRedisEntity(
+                                id = "test@gsm.hs.kr:test-client",
+                                email = "test@gsm.hs.kr",
+                                clientId = "test-client",
+                                token = "valid-refresh-token",
+                                scopes = setOf(OAuthScope.OPENID),
+                                ttl = 2592000L,
+                            )
+
+                        beforeEach {
+                            every {
+                                mockOauthRefreshTokenRedisRepository.findByEmailAndClientId("test@gsm.hs.kr", "test-client")
+                            } returns Optional.of(openidOnlyStoredToken)
+                            every { mockOAuthScopeJpaRepository.findAllByApplicationIdIn(emptySet()) } returns emptyList()
+                        }
+
+                        it("client scope와 무관하게 openid로 정상 재발급된다") {
+                            val result = service.execute(reqDto)
+
+                            result.accessToken shouldBe "new-access-token"
+                            result.scope shouldBe OAuthScope.OPENID
+                            verify {
+                                mockOauthRefreshTokenRedisRepository.save(match { it.scopes == setOf(OAuthScope.OPENID) })
+                            }
+                        }
+                    }
+
+                    context("scope 파라미터를 지정한 경우") {
+                        val multiScopeStoredToken =
+                            OauthRefreshTokenRedisEntity(
+                                id = "test@gsm.hs.kr:test-client",
+                                email = "test@gsm.hs.kr",
+                                clientId = "test-client",
+                                token = "valid-refresh-token",
+                                scopes = setOf("self:read", "self:write"),
+                                ttl = 2592000L,
+                            )
+                        val multiScopeClient =
+                            ClientJpaEntity().apply {
+                                id = "test-client"
+                                secret = "hashed-secret"
+                                scopes.addAll(setOf("self:read", "self:write"))
+                            }
+
+                        beforeEach {
+                            every {
+                                mockOauthRefreshTokenRedisRepository.findByEmailAndClientId("test@gsm.hs.kr", "test-client")
+                            } returns Optional.of(multiScopeStoredToken)
+                            every { mockClientJpaRepository.findById("test-client") } returns Optional.of(multiScopeClient)
                         }
 
                         it("reqDto.scope가 storedToken scope의 부분집합이면 허용된다") {

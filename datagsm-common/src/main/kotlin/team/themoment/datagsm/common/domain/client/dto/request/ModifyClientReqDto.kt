@@ -24,6 +24,16 @@ data class ModifyClientReqDto(
         requiredMode = Schema.RequiredMode.NOT_REQUIRED,
     )
     val serviceName: String? = null,
+    @field:Size(min = 1)
+    @param:Schema(
+        description =
+            "요청할 권한 목록 (수정할 경우에만 포함). 기존 목록을 이 값으로 교체합니다. " +
+                "GET /v1/clients/available-scopes의 scope 값({applicationId}:{scopeName})만 허용됩니다.",
+        example = "[\"a1b2c3d4-e5f6-7890-abcd-ef1234567890:account_read\"]",
+        nullable = true,
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+    )
+    val scopes: Set<String>? = null,
     @param:Schema(
         description = "리다이렉트 URL 목록 (수정할 경우에만 포함)",
         example = "[\"https://example.com/callback\", \"https://app.example.com/oauth/callback\"]",
