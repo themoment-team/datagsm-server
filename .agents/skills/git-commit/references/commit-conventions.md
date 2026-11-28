@@ -19,12 +19,12 @@ Use **domain names** as scope, not module names:
 fix(auth): OAuth 토큰 발급 로직 수정
 update(student): 학생 조회 필터 추가
 
-// WRONG — module names as scope
+// WRONG — module name for a single-domain change
 fix(web): 버그 수정
 update(common): 엔티티 수정
 ```
 
-Use module-level scope **only** for cross-cutting concerns:
+Use a module name or `global` **only** for cross-cutting changes — several domains within one module, or the whole project (see `scope-guide.md`):
 
 ```
 refactor(global): 공통 예외 처리 구조 개선
