@@ -1,0 +1,49 @@
+name: Validate AI Harness
+
+# master에 반영되면 datagsm-harness-sync가 바로 대상 레포로 배포하므로, PR 단계에서 manifest와 배포 파일을 검사한다
+on:
+  pull_request:
+    paths:
+      - 'harness/**'
+      - '.github/workflows/datagsm-harness-*.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: harness-validate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  harness:
+    name: manifest · scripts
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: harness
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # Claude/Codex 한쪽만 수정된 항목을 찾으려면 base 커밋까지 history가 필요하다
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install pyyaml -q
+
+      - name: Validate manifest and harness files
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [[ -n "$BASE_SHA" ]]; then
+            python3 scripts/validate-manifest.py --base "$BASE_SHA"
+          else
+            python3 scripts/validate-manifest.py
+          fi
+
+      - name: Test scripts
+        run: python3 -m unittest discover -s scripts -p 'test_*.py' -v
