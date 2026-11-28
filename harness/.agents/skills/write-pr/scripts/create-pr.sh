@@ -19,12 +19,19 @@ case "$CURRENT" in
   *)          BASE=$(gh pr view --json baseRefName -q .baseRefName 2>/dev/null || echo "develop") ;;
 esac
 
-if ! git ls-remote --exit-code --heads origin "$BASE" >/dev/null 2>&1; then
+REMOTE_STATUS=0
+git ls-remote --exit-code --heads origin "$BASE" >/dev/null 2>&1 || REMOTE_STATUS=$?
+if [ "$REMOTE_STATUS" -eq 2 ]; then
   DEFAULT_BASE=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name 2>/dev/null || true)
-  if [ -n "$DEFAULT_BASE" ]; then
-    echo "WARNING: Base branch '$BASE' does not exist on origin. Using default branch '$DEFAULT_BASE'." >&2
-    BASE="$DEFAULT_BASE"
+  if [ -z "$DEFAULT_BASE" ] || [ "$DEFAULT_BASE" = "$CURRENT" ]; then
+    echo "ERROR: Base branch '$BASE' does not exist on origin and no usable default branch was found." >&2
+    exit 1
   fi
+  echo "WARNING: Base branch '$BASE' does not exist on origin. Using default branch '$DEFAULT_BASE'." >&2
+  BASE="$DEFAULT_BASE"
+elif [ "$REMOTE_STATUS" -ne 0 ]; then
+  echo "ERROR: Could not check base branch '$BASE' on origin (git ls-remote exit $REMOTE_STATUS)." >&2
+  exit 1
 fi
 
 if [ -n "$LABEL" ]; then
