@@ -13,6 +13,7 @@ DataGSM은 광주소프트웨어마이스터고등학교의 학생·동아리·�
 - `datagsm-web`: 사용자·관리자 기능, Excel 처리
 - `datagsm-shared`: Maven/npm으로 배포하는 Kotlin Multiplatform 타입 정의
 - `datagsm-ksp-processor`: `datagsm-common`의 `@KmpExport`에서 KMP/TypeScript 타입 생성
+- `harness/`: 다른 레포로 배포하는 AI 하네스 원본(Gradle 모듈 아님). 이 경로를 작업할 때는 `harness/AGENTS.md`를 따릅니다. 루트 `.claude/`·`.agents/`·`.codex/`·`.gemini/` 중 동기화로 받은 파일은 sync PR이 덮어쓰므로 `harness/`의 원본을 고칩니다.
 
 서비스 모듈은 `controller/`, `service/`, `repository/`, `entity/`, `dto/` 계층을 사용합니다. 공통 Entity/DTO는 `datagsm-common/src/main/kotlin/team/themoment/datagsm/common/domain/`, 예외 처리는 같은 Kotlin 루트의 `global/common/error/`에 있습니다. `/v1/health`는 공통 모듈의 `global/controller/HealthController.kt`가 제공합니다.
 

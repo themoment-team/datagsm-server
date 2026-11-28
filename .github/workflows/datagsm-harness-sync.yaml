@@ -1,0 +1,281 @@
+name: Sync AI Harness files
+run-name: Sync AI Harness files${{ inputs.target_repo && format(' · {0}', inputs.target_repo) || '' }}
+
+# 하네스 원본은 harness/ 아래에 있다. 기본 브랜치(master)에 반영된 원본만 배포한다
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'harness/**'
+  workflow_dispatch:
+    inputs:
+      target_repo:
+        description: 동기화할 설치 레포 (owner/repository)
+        required: false
+        type: string
+  schedule:
+    - cron: '0 0 * * *'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.list.outputs.matrix }}
+      stats: ${{ steps.list.outputs.stats }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install dependencies
+        run: pip install PyJWT cryptography pyyaml -q
+      - name: List installations and build matrix
+        id: list
+        env:
+          APP_ID: ${{ secrets.HARNESS_APP_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.HARNESS_APP_PRIVATE_KEY }}
+          SOURCE_PREFIX: harness/
+          TARGET_REPO: ${{ inputs.target_repo }}
+        run: |
+          matrix=$(python3 harness/scripts/list-installed-repos.py)
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
+
+  sync:
+    needs: prepare
+    if: ${{ needs.prepare.outputs.matrix != '[]' }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: harness-sync-${{ matrix.installation.repo }}
+      cancel-in-progress: false
+    # 잡 이름을 레포별로 유일하게 만들어 report 잡이 실패 레그의 로그를 찾을 수 있게 한다
+    name: sync ${{ matrix.installation.repo }}
+    strategy:
+      matrix:
+        installation: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+      # 개별 레그 실패가 다른 레그를 취소하지 않게 한다
+      fail-fast: false
+    steps:
+      # PR 제목을 고를 때 push 범위의 커밋 기록이 필요하다
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # 아래 스텝들은 모두 continue-on-error로 감싸 잡 자체는 항상 성공한다.
+      # 진짜 결과는 각 스텝의 outcome을 읽어 마지막 Record 스텝이 기록한다.
+      - name: Generate token
+        id: app-token
+        continue-on-error: true
+        uses: tibdex/github-app-token@v2
+        with:
+          app_id: ${{ secrets.HARNESS_APP_ID }}
+          private_key: ${{ secrets.HARNESS_APP_PRIVATE_KEY }}
+          installation_retrieval_mode: id
+          installation_retrieval_payload: ${{ matrix.installation.inst_id }}
+
+      - name: Verify base branch exists
+        id: basecheck
+        if: steps.app-token.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          repo="${{ matrix.installation.repo }}"
+          base="${{ matrix.installation.base_branch }}"
+          # /branches/{name} 은 정확 매칭이 아니라 없는 브랜치에도 기본 브랜치를
+          # 돌려주므로 못 쓴다. git/ref/heads 는 정확 매칭이라 없으면 404,
+          # 커밋이 하나도 없는 빈 저장소는 409(empty)를 준다.
+          if err=$(gh api "/repos/$repo/git/ref/heads/$base" 2>&1); then
+            echo "reason=ok" >> "$GITHUB_OUTPUT"
+          else
+            if echo "$err" | grep -qi "empty"; then
+              echo "reason=repo-empty" >> "$GITHUB_OUTPUT"
+            else
+              echo "reason=base-branch-missing" >> "$GITHUB_OUTPUT"
+            fi
+            exit 1
+          fi
+
+      - name: Write sync config
+        if: steps.basecheck.outcome == 'success'
+        run: echo '${{ matrix.installation.config }}' > /tmp/sync.yml
+      - name: Show sync config
+        if: steps.basecheck.outcome == 'success'
+        run: cat /tmp/sync.yml
+
+      - name: Compute PR metadata
+        id: pr-meta
+        if: steps.basecheck.outcome == 'success'
+        env:
+          LANG_SETTING: ${{ matrix.installation.language }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          if [ "$LANG_SETTING" = "ko" ]; then
+            if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ] || [ -z "$BEFORE_SHA" ]; then
+              RANGE="HEAD~5..HEAD"
+            else
+              RANGE="$BEFORE_SHA..HEAD"
+            fi
+            # 이 레포에는 서버 코드 커밋과 릴리즈 머지 커밋이 섞여 있으므로 harness/를 바꾼 일반 커밋만 본다
+            COMMIT_MSG=$(git log --no-merges --format="%H %s" "$RANGE" -- harness/ 2>/dev/null | while read hash subject; do
+              count=$(git diff-tree --no-commit-id -r "$hash" --name-only -- harness/ 2>/dev/null | wc -l)
+              printf '%d\t%s\n' "$count" "$subject"
+            done | sort -rn | head -1 | cut -f2-)
+            [ -z "$COMMIT_MSG" ] && COMMIT_MSG=$(git log -1 --no-merges --format="%s" -- harness/)
+            DESCRIPTION="${COMMIT_MSG#*: }"
+            echo "title=[global] $DESCRIPTION" >> "$GITHUB_OUTPUT"
+            {
+              echo 'body<<EOF'
+              echo 'AI 하네스(themoment-team/datagsm-server)에서 파일이 자동으로 동기화되었습니다.'
+              echo 'EOF'
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "title=Sync files from AI harness" >> "$GITHUB_OUTPUT"
+            {
+              echo 'body<<EOF'
+              echo 'Automated file sync from the AI harness (themoment-team/datagsm-server).'
+              echo 'EOF'
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Sync files
+        id: sync
+        if: steps.basecheck.outcome == 'success'
+        continue-on-error: true
+        uses: BetaHuhn/repo-file-sync-action@v1
+        with:
+          GH_INSTALLATION_TOKEN: ${{ steps.app-token.outputs.token }}
+          CONFIG_PATH: /tmp/sync.yml
+          PR_LABELS: ${{ matrix.installation.pr_labels }}
+          BRANCH_PREFIX: ${{ matrix.installation.branch_prefix }}
+          COMMIT_PREFIX: "chore"
+          COMMIT_EACH_FILE: false
+          PR_BODY: ${{ steps.pr-meta.outputs.body }}
+
+      # BetaHuhn 액션에는 PR_TITLE 입력이 없어 제목을 직접 지정할 수 없다.
+      # 액션이 만든 sync PR의 제목을 pr-meta에서 계산한 값으로 덮어쓴다.
+      - name: Set sync PR title
+        if: steps.sync.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_TITLE: ${{ steps.pr-meta.outputs.title }}
+        run: |
+          repo="${{ matrix.installation.repo }}"
+          branch="${{ matrix.installation.branch_prefix }}${{ matrix.installation.base_branch }}"
+          num=$(gh pr list --repo "$repo" --state open --head "$branch" \
+                  --json number --jq '.[0].number // empty')
+          if [ -n "$num" ] && [ -n "$PR_TITLE" ]; then
+            echo "set PR #$num title: $PR_TITLE"
+            gh pr edit "$num" --repo "$repo" --title "$PR_TITLE"
+          else
+            echo "no open sync PR ($branch) or empty title — skip"
+          fi
+      - name: Delete orphaned files
+        if: steps.sync.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          pip install pyyaml -q
+          python3 harness/scripts/apply-deletions.py \
+            --repo "${{ matrix.installation.repo }}" \
+            --branch-prefix "${{ matrix.installation.branch_prefix }}" \
+            --base-branch "${{ matrix.installation.base_branch }}" \
+            --pr-label "${{ matrix.installation.pr_labels }}"
+      - name: Retarget open sync PRs to base branch
+        if: steps.sync.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh pr list \
+            --repo "${{ matrix.installation.repo }}" \
+            --state open \
+            --json number,headRefName \
+            --jq '.[] | select(.headRefName | startswith("${{ matrix.installation.branch_prefix }}")) | .number' \
+          | xargs -r -I{} gh pr edit {} \
+              --repo "${{ matrix.installation.repo }}" \
+              --base "${{ matrix.installation.base_branch }}"
+
+      - name: Record result
+        if: always()
+        env:
+          REPO: ${{ matrix.installation.repo }}
+          SERVER_URL: ${{ github.server_url }}
+          JOB_NAME: sync ${{ matrix.installation.repo }}
+          BASE_BRANCH: ${{ matrix.installation.base_branch }}
+          TOKEN_OUTCOME: ${{ steps.app-token.outcome }}
+          BASE_OUTCOME: ${{ steps.basecheck.outcome }}
+          BASE_REASON: ${{ steps.basecheck.outputs.reason }}
+          SYNC_OUTCOME: ${{ steps.sync.outcome }}
+        run: |
+          mkdir -p results
+          python3 harness/scripts/record-sync-result.py > "results/result-${{ strategy.job-index }}.json"
+          cat "results/result-${{ strategy.job-index }}.json"
+
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sync-result-${{ strategy.job-index }}
+          path: results/result-${{ strategy.job-index }}.json
+          retention-days: 3
+
+  report:
+    runs-on: ubuntu-latest
+    needs: [prepare, sync]
+    if: always()
+    steps:
+      - uses: actions/checkout@v6
+      - name: Download results
+        if: needs.sync.result != 'skipped'
+        uses: actions/download-artifact@v4
+        with:
+          pattern: sync-result-*
+          path: results
+          merge-multiple: true
+      - name: Render report to job summary
+        env:
+          RESULTS_DIR: results
+          STATS: ${{ needs.prepare.outputs.stats }}
+          PREPARE_RESULT: ${{ needs.prepare.result }}
+          SYNC_RESULT: ${{ needs.sync.result }}
+          GH_REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          SERVER_URL: ${{ github.server_url }}
+          GH_TOKEN: ${{ github.token }}
+        run: python3 harness/scripts/render-sync-report.py
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [prepare, sync]
+    if: always()
+    steps:
+      - name: Determine Status
+        id: status
+        run: |
+          if [[ "${{ needs.prepare.result }}" == "failure" ]] || \
+             [[ "${{ needs.sync.result }}" == "failure" ]]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "color=0xFF4C4C" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.sync.result }}" == "success" ]] || \
+               [[ "${{ needs.sync.result }}" == "skipped" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "color=0x4CAF50" >> $GITHUB_OUTPUT
+          else
+            echo "status=cancelled" >> $GITHUB_OUTPUT
+            echo "color=0xFFA500" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Discord Notification
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_INFORMATION_ALERT_CHANNEL_WEBHOOK }}
+          status: ${{ steps.status.outputs.status }}
+          color: ${{ steps.status.outputs.color }}
+          title: "AI Harness Sync"
+          description: |
+            **대상 레포:** ${{ inputs.target_repo || '전체 설치 레포' }}
+            **Prepare:** ${{ needs.prepare.result }}
+            **Sync:** ${{ needs.sync.result }}

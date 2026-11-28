@@ -1,0 +1,656 @@
+# 동기화 가능한 개별 항목 목록
+# 각 대상 레포는 .harness/sync.yml에서 groups/overrides로 원하는 항목을 선택합니다
+# 새 스킬/에이전트 추가 시 이 목록도 업데이트하세요
+#
+# domain: 스킬·에이전트의 분류 (frontend / backend / common)
+#   동기화 항목 화면과 README 분류에만 쓰이며, 동기화 대상 선택(groups/overrides)에는 영향이 없다.
+#   스킬·에이전트 항목에는 반드시 지정한다 (scripts/validate-manifest.py가 누락을 검사한다. 버전 고정 항목은 제외).
+#
+# 버전 아카이브 규칙:
+#   breaking change 전에 기존 파일을 _archive/<name>/<vN>/ 에 복사하고
+#   아래와 같이 @version ID로 등록한다. groups: [] 로 opt-in 전용 유지.
+#
+#   - id: claude/skills/git-commit@v1
+#     src: .claude/skills/_archive/git-commit/v1/
+#     dest: .claude/skills/git-commit/
+#     groups: []
+#
+#   타깃 레포 .harness/sync.yml:
+#     overrides:
+#       claude/skills/git-commit: "v1"   # 문자열 = 버전 고정
+items:
+  # ── Claude skills ────────────────────────────────────────────
+  - id: claude/skills/api-design
+    src: .claude/skills/api-design/
+    dest: .claude/skills/api-design/
+    groups: [claude]
+    domain: backend
+
+  - id: claude/skills/git-commit
+    src: .claude/skills/git-commit/
+    dest: .claude/skills/git-commit/
+    groups: [claude]
+    domain: common
+
+  - id: claude/skills/kotest-guide
+    src: .claude/skills/kotest-guide/
+    dest: .claude/skills/kotest-guide/
+    groups: [claude]
+    domain: backend
+
+  - id: claude/skills/kotlin-spring-arch
+    src: .claude/skills/kotlin-spring-arch/
+    dest: .claude/skills/kotlin-spring-arch/
+    groups: [claude]
+    domain: backend
+
+  - id: claude/skills/migration-guide
+    src: .claude/skills/migration-guide/
+    dest: .claude/skills/migration-guide/
+    groups: [claude]
+    domain: backend
+
+  - id: claude/skills/planning
+    src: .claude/skills/planning/
+    dest: .claude/skills/planning/
+    groups: [claude]
+    domain: common
+
+  - id: claude/skills/resolve-reviews
+    src: .claude/skills/resolve-reviews/
+    dest: .claude/skills/resolve-reviews/
+    groups: [claude]
+    domain: common
+
+  - id: claude/skills/security-checklist
+    src: .claude/skills/security-checklist/
+    dest: .claude/skills/security-checklist/
+    groups: [claude]
+    domain: backend
+
+  - id: claude/skills/systematic-debugging
+    src: .claude/skills/systematic-debugging/
+    dest: .claude/skills/systematic-debugging/
+    groups: [claude]
+    domain: common
+
+  - id: claude/skills/test
+    src: .claude/skills/test/
+    dest: .claude/skills/test/
+    groups: [claude]
+    domain: common
+
+  - id: claude/skills/write-pr
+    src: .claude/skills/write-pr/
+    dest: .claude/skills/write-pr/
+    groups: [claude]
+    domain: common
+
+  - id: claude/skills/docker
+    src: .claude/skills/docker/
+    dest: .claude/skills/docker/
+    groups: [claude]
+    domain: common
+
+  - id: claude/skills/database-schema
+    src: .claude/skills/database-schema/
+    dest: .claude/skills/database-schema/
+    groups: [claude]
+    domain: backend
+
+  - id: claude/skills/the-sdk
+    src: .claude/skills/the-sdk/
+    dest: .claude/skills/the-sdk/
+    groups: [claude]
+    domain: backend
+
+  - id: claude/skills/the-sdk@v1
+    src: .claude/skills/_archive/the-sdk/v1/
+    dest: .claude/skills/the-sdk/
+    groups: []
+    domain: backend
+
+  - id: claude/skills/java-spring-arch
+    src: .claude/skills/java-spring-arch/
+    dest: .claude/skills/java-spring-arch/
+    groups: [claude]
+    domain: backend
+
+  - id: claude/skills/nextjs-fsd-architecture
+    src: .claude/skills/nextjs-fsd-architecture/
+    dest: .claude/skills/nextjs-fsd-architecture/
+    groups: [claude]
+    domain: frontend
+
+  - id: claude/skills/nextjs-fsd-architecture@v1
+    src: .claude/skills/_archive/nextjs-fsd-architecture/v1/
+    dest: .claude/skills/nextjs-fsd-architecture/
+    groups: []
+    domain: frontend
+
+  - id: claude/skills/tailwind-shadcn
+    src: .claude/skills/tailwind-shadcn/
+    dest: .claude/skills/tailwind-shadcn/
+    groups: [claude]
+    domain: frontend
+
+  - id: claude/skills/data-and-forms
+    src: .claude/skills/data-and-forms/
+    dest: .claude/skills/data-and-forms/
+    groups: [claude]
+    domain: frontend
+
+  - id: claude/skills/react-conventions
+    src: .claude/skills/react-conventions/
+    dest: .claude/skills/react-conventions/
+    groups: [claude]
+    domain: frontend
+
+  - id: claude/skills/humanizer
+    src: .claude/skills/humanizer/
+    dest: .claude/skills/humanizer/
+    groups: [claude]
+    domain: common
+
+  - id: claude/skills/ponytail
+    src: .claude/skills/ponytail/
+    dest: .claude/skills/ponytail/
+    groups: [claude]
+    domain: common
+
+  - id: claude/skills/ponytail-audit
+    src: .claude/skills/ponytail-audit/
+    dest: .claude/skills/ponytail-audit/
+    groups: [claude]
+    domain: common
+
+  # React/Next.js 프로젝트에서만 overrides로 활성화한다.
+  - id: claude/skills/react-best-practices
+    src: .claude/skills/react-best-practices/
+    dest: .claude/skills/react-best-practices/
+    groups: []
+    domain: frontend
+
+  # ── Next.js FSD project files (opt-in) ────────────────────────
+  # 대상 프로젝트의 기존 설정을 덮어쓰므로 FSD 프로젝트에서만 overrides로 활성화한다.
+  - id: nextjs/fsd/steiger-config
+    src: .claude/skills/nextjs-fsd-architecture/references/steiger.config.mjs
+    dest: steiger.config.mjs
+    groups: []
+
+  - id: nextjs/fsd/steiger-config@v1
+    src: .claude/skills/_archive/nextjs-fsd-architecture/v1/references/steiger.config.mjs
+    dest: steiger.config.mjs
+    groups: []
+
+  # v1(`views` 레이아웃) 전용입니다. v2는 steiger가 `_pages`를 직접 검사하므로 필요하지 않습니다.
+  - id: nextjs/fsd/dependency-check
+    src: .claude/skills/_archive/nextjs-fsd-architecture/v1/scripts/check-fsd-dependencies.mjs
+    dest: scripts/check-fsd-dependencies.mjs
+    groups: []
+
+  # ── Claude agents ─────────────────────────────────────────────
+  - id: claude/agents/contradiction-finder
+    src: .claude/agents/contradiction-finder.md
+    dest: .claude/agents/contradiction-finder.md
+    groups: [claude]
+    domain: common
+
+  - id: claude/agents/kotlin-convention-validator
+    src: .claude/agents/kotlin-convention-validator.md
+    dest: .claude/agents/kotlin-convention-validator.md
+    groups: [claude]
+    domain: backend
+
+  - id: claude/agents/frontend-convention-validator
+    src: .claude/agents/frontend-convention-validator.md
+    dest: .claude/agents/frontend-convention-validator.md
+    groups: [claude]
+    domain: frontend
+
+  - id: claude/agents/frontend-convention-validator@v1
+    src: .claude/agents/_archive/frontend-convention-validator/v1.md
+    dest: .claude/agents/frontend-convention-validator.md
+    groups: []
+    domain: frontend
+
+  - id: claude/agents/doc-polisher
+    src: .claude/agents/doc-polisher.md
+    dest: .claude/agents/doc-polisher.md
+    groups: [claude]
+    domain: common
+
+  - id: claude/agents/prompt-polisher
+    src: .claude/agents/prompt-polisher.md
+    dest: .claude/agents/prompt-polisher.md
+    groups: [claude]
+    domain: common
+
+  - id: claude/agents/kotlin-test-fixer
+    src: .claude/agents/kotlin-test-fixer.md
+    dest: .claude/agents/kotlin-test-fixer.md
+    groups: [claude]
+    domain: backend
+
+  - id: claude/agents/web-researcher
+    src: .claude/agents/web-researcher.md
+    dest: .claude/agents/web-researcher.md
+    groups: [claude]
+    domain: common
+
+  # ── Claude hooks ──────────────────────────────────────────────
+  - id: claude/hooks/dispatcher
+    src: .claude/hooks/dispatcher/
+    dest: .claude/hooks/
+    groups: []
+
+  - id: claude/settings
+    src: .claude/settings.json
+    dest: .claude/settings.json
+    groups: []
+
+  - id: claude/hooks/logging
+    src: .claude/hooks/modules/logging/
+    dest: .claude/hooks/modules/logging/
+    groups: []
+
+  - id: claude/hooks/command-guard
+    src: .claude/hooks/modules/command-guard/
+    dest: .claude/hooks/modules/command-guard/
+    groups: []
+
+  - id: claude/hooks/ktlint
+    src: .claude/hooks/modules/ktlint/
+    dest: .claude/hooks/modules/ktlint/
+    groups: []
+
+  - id: claude/hooks/gradle-test
+    src: .claude/hooks/modules/gradle-test/
+    dest: .claude/hooks/modules/gradle-test/
+    groups: []
+
+  - id: claude/hooks/biome
+    src: .claude/hooks/modules/biome/
+    dest: .claude/hooks/modules/biome/
+    groups: []
+
+  - id: claude/hooks/eslint
+    src: .claude/hooks/modules/eslint/
+    dest: .claude/hooks/modules/eslint/
+    groups: []
+
+  - id: claude/hooks/spotless
+    src: .claude/hooks/modules/spotless/
+    dest: .claude/hooks/modules/spotless/
+    groups: []
+
+  - id: claude/hooks/ts-check
+    src: .claude/hooks/modules/ts-check/
+    dest: .claude/hooks/modules/ts-check/
+    groups: []
+
+  - id: claude/hooks/prettier
+    src: .claude/hooks/modules/prettier/
+    dest: .claude/hooks/modules/prettier/
+    groups: []
+
+  - id: claude/hooks/secret-guard
+    src: .claude/hooks/modules/secret-guard/
+    dest: .claude/hooks/modules/secret-guard/
+    groups: []
+
+  - id: claude/hooks/jest
+    src: .claude/hooks/modules/jest/
+    dest: .claude/hooks/modules/jest/
+    groups: []
+
+  - id: claude/hooks/vitest
+    src: .claude/hooks/modules/vitest/
+    dest: .claude/hooks/modules/vitest/
+    groups: []
+
+  - id: claude/hooks/ruff
+    src: .claude/hooks/modules/ruff/
+    dest: .claude/hooks/modules/ruff/
+    groups: []
+
+  # claude/skills/ponytail 의 SKILL.md를 읽어 세션 시작 시 주입한다
+  - id: claude/hooks/ponytail
+    src: .claude/hooks/modules/ponytail/
+    dest: .claude/hooks/modules/ponytail/
+    groups: []
+
+  # ── Codex (OpenAI Codex / Agents CLI) skills ─────────────────
+  - id: codex/skills/api-design
+    src: .agents/skills/api-design/
+    dest: .agents/skills/api-design/
+    groups: [codex]
+    domain: backend
+
+  - id: codex/skills/git-commit
+    src: .agents/skills/git-commit/
+    dest: .agents/skills/git-commit/
+    groups: [codex]
+    domain: common
+
+  - id: codex/skills/kotest-guide
+    src: .agents/skills/kotest-guide/
+    dest: .agents/skills/kotest-guide/
+    groups: [codex]
+    domain: backend
+
+  - id: codex/skills/kotlin-spring-arch
+    src: .agents/skills/kotlin-spring-arch/
+    dest: .agents/skills/kotlin-spring-arch/
+    groups: [codex]
+    domain: backend
+
+  - id: codex/skills/migration-guide
+    src: .agents/skills/migration-guide/
+    dest: .agents/skills/migration-guide/
+    groups: [codex]
+    domain: backend
+
+  - id: codex/skills/planning
+    src: .agents/skills/planning/
+    dest: .agents/skills/planning/
+    groups: [codex]
+    domain: common
+
+  - id: codex/skills/resolve-reviews
+    src: .agents/skills/resolve-reviews/
+    dest: .agents/skills/resolve-reviews/
+    groups: [codex]
+    domain: common
+
+  - id: codex/skills/security-checklist
+    src: .agents/skills/security-checklist/
+    dest: .agents/skills/security-checklist/
+    groups: [codex]
+    domain: backend
+
+  - id: codex/skills/systematic-debugging
+    src: .agents/skills/systematic-debugging/
+    dest: .agents/skills/systematic-debugging/
+    groups: [codex]
+    domain: common
+
+  - id: codex/skills/test
+    src: .agents/skills/test/
+    dest: .agents/skills/test/
+    groups: [codex]
+    domain: common
+
+  - id: codex/skills/write-pr
+    src: .agents/skills/write-pr/
+    dest: .agents/skills/write-pr/
+    groups: [codex]
+    domain: common
+
+  - id: codex/skills/docker
+    src: .agents/skills/docker/
+    dest: .agents/skills/docker/
+    groups: [codex]
+    domain: common
+
+  - id: codex/skills/database-schema
+    src: .agents/skills/database-schema/
+    dest: .agents/skills/database-schema/
+    groups: [codex]
+    domain: backend
+
+  - id: codex/skills/the-sdk
+    src: .agents/skills/the-sdk/
+    dest: .agents/skills/the-sdk/
+    groups: [codex]
+    domain: backend
+
+  - id: codex/skills/the-sdk@v1
+    src: .agents/skills/_archive/the-sdk/v1/
+    dest: .agents/skills/the-sdk/
+    groups: []
+    domain: backend
+
+  - id: codex/skills/java-spring-arch
+    src: .agents/skills/java-spring-arch/
+    dest: .agents/skills/java-spring-arch/
+    groups: [codex]
+    domain: backend
+
+  - id: codex/skills/nextjs-fsd-architecture
+    src: .agents/skills/nextjs-fsd-architecture/
+    dest: .agents/skills/nextjs-fsd-architecture/
+    groups: [codex]
+    domain: frontend
+
+  - id: codex/skills/nextjs-fsd-architecture@v1
+    src: .agents/skills/_archive/nextjs-fsd-architecture/v1/
+    dest: .agents/skills/nextjs-fsd-architecture/
+    groups: []
+    domain: frontend
+
+  - id: codex/skills/tailwind-shadcn
+    src: .agents/skills/tailwind-shadcn/
+    dest: .agents/skills/tailwind-shadcn/
+    groups: [codex]
+    domain: frontend
+
+  - id: codex/skills/data-and-forms
+    src: .agents/skills/data-and-forms/
+    dest: .agents/skills/data-and-forms/
+    groups: [codex]
+    domain: frontend
+
+  - id: codex/skills/react-conventions
+    src: .agents/skills/react-conventions/
+    dest: .agents/skills/react-conventions/
+    groups: [codex]
+    domain: frontend
+
+  - id: codex/skills/humanizer
+    src: .agents/skills/humanizer/
+    dest: .agents/skills/humanizer/
+    groups: [codex]
+    domain: common
+
+  - id: codex/skills/ponytail
+    src: .agents/skills/ponytail/
+    dest: .agents/skills/ponytail/
+    groups: [codex]
+    domain: common
+
+  - id: codex/skills/ponytail-audit
+    src: .agents/skills/ponytail-audit/
+    dest: .agents/skills/ponytail-audit/
+    groups: [codex]
+    domain: common
+
+  # React/Next.js 프로젝트에서만 overrides로 활성화한다.
+  - id: codex/skills/react-best-practices
+    src: .agents/skills/react-best-practices/
+    dest: .agents/skills/react-best-practices/
+    groups: []
+    domain: frontend
+
+  # ── Codex agents (custom subagents) ───────────────────────────
+  - id: codex/agents/contradiction-finder
+    src: .codex/agents/contradiction-finder.toml
+    dest: .codex/agents/contradiction-finder.toml
+    groups: [codex]
+    domain: common
+
+  - id: codex/agents/kotlin-convention-validator
+    src: .codex/agents/kotlin-convention-validator.toml
+    dest: .codex/agents/kotlin-convention-validator.toml
+    groups: [codex]
+    domain: backend
+
+  - id: codex/agents/frontend-convention-validator
+    src: .codex/agents/frontend-convention-validator.toml
+    dest: .codex/agents/frontend-convention-validator.toml
+    groups: [codex]
+    domain: frontend
+
+  - id: codex/agents/frontend-convention-validator@v1
+    src: .codex/agents/_archive/frontend-convention-validator/v1.toml
+    dest: .codex/agents/frontend-convention-validator.toml
+    groups: []
+    domain: frontend
+
+  - id: codex/agents/doc-polisher
+    src: .codex/agents/doc-polisher.toml
+    dest: .codex/agents/doc-polisher.toml
+    groups: [codex]
+    domain: common
+
+  - id: codex/agents/prompt-polisher
+    src: .codex/agents/prompt-polisher.toml
+    dest: .codex/agents/prompt-polisher.toml
+    groups: [codex]
+    domain: common
+
+  - id: codex/agents/kotlin-test-fixer
+    src: .codex/agents/kotlin-test-fixer.toml
+    dest: .codex/agents/kotlin-test-fixer.toml
+    groups: [codex]
+    domain: backend
+
+  - id: codex/agents/web-researcher
+    src: .codex/agents/web-researcher.toml
+    dest: .codex/agents/web-researcher.toml
+    groups: [codex]
+    domain: common
+
+  # ── Codex config & hooks ──────────────────────────────────────
+  - id: codex/config
+    src: .codex/config.toml
+    dest: .codex/config.toml
+    groups: [codex]
+
+  - id: codex/hooks/dispatcher
+    src: .codex/hooks/dispatcher/
+    dest: .codex/hooks/
+    groups: []
+
+  - id: codex/hooks/logging
+    src: .codex/hooks/modules/logging/
+    dest: .codex/hooks/modules/logging/
+    groups: []
+
+  - id: codex/hooks/command-guard
+    src: .codex/hooks/modules/command-guard/
+    dest: .codex/hooks/modules/command-guard/
+    groups: []
+
+  - id: codex/hooks/ktlint
+    src: .codex/hooks/modules/ktlint/
+    dest: .codex/hooks/modules/ktlint/
+    groups: []
+
+  - id: codex/hooks/gradle-test
+    src: .codex/hooks/modules/gradle-test/
+    dest: .codex/hooks/modules/gradle-test/
+    groups: []
+
+  - id: codex/hooks/biome
+    src: .codex/hooks/modules/biome/
+    dest: .codex/hooks/modules/biome/
+    groups: []
+
+  - id: codex/hooks/eslint
+    src: .codex/hooks/modules/eslint/
+    dest: .codex/hooks/modules/eslint/
+    groups: []
+
+  - id: codex/hooks/spotless
+    src: .codex/hooks/modules/spotless/
+    dest: .codex/hooks/modules/spotless/
+    groups: []
+
+  - id: codex/hooks/ts-check
+    src: .codex/hooks/modules/ts-check/
+    dest: .codex/hooks/modules/ts-check/
+    groups: []
+
+  - id: codex/hooks/prettier
+    src: .codex/hooks/modules/prettier/
+    dest: .codex/hooks/modules/prettier/
+    groups: []
+
+  - id: codex/hooks/secret-guard
+    src: .codex/hooks/modules/secret-guard/
+    dest: .codex/hooks/modules/secret-guard/
+    groups: []
+
+  - id: codex/hooks/jest
+    src: .codex/hooks/modules/jest/
+    dest: .codex/hooks/modules/jest/
+    groups: []
+
+  - id: codex/hooks/vitest
+    src: .codex/hooks/modules/vitest/
+    dest: .codex/hooks/modules/vitest/
+    groups: []
+
+  - id: codex/hooks/ruff
+    src: .codex/hooks/modules/ruff/
+    dest: .codex/hooks/modules/ruff/
+    groups: []
+
+  # codex/skills/ponytail 의 SKILL.md를 읽어 세션 시작 시 주입한다
+  - id: codex/hooks/ponytail
+    src: .codex/hooks/modules/ponytail/
+    dest: .codex/hooks/modules/ponytail/
+    groups: []
+
+  - id: codex/hooks-json
+    src: .codex/hooks.json
+    dest: .codex/hooks.json
+    groups: []
+
+  # ── Gemini ────────────────────────────────────────────────────
+  - id: gemini/settings
+    src: .gemini/settings.json
+    dest: .gemini/settings.json
+    groups: [gemini]
+
+# .harness-sync.yml이 없는 레포에 적용할 기본 그룹
+defaults:
+  - claude
+  - codex
+  - gemini
+
+# 파일/디렉터리 이름 변경 또는 삭제 시 타깃 레포에서 제거할 경로 목록
+# 스크립트가 열려 있는 sync PR 브랜치에 삭제 커밋을 얹거나 없으면 새 PR을 생성합니다
+# 정리가 완료된 항목은 이 목록에서 제거해도 됩니다
+#
+# 예시:
+#   deletions:
+#     - dest: .claude/skills/old-skill-name/
+#       reason: "new-skill-name 으로 이름 변경"
+#       since: "2026-05-29"
+deletions:
+  - dest: .claude/skills/nextjs-turborepo-fsd/
+    reason: "nextjs-fsd-architecture v2의 Turborepo 절로 통합"
+    since: "2026-11-12"
+  - dest: .agents/skills/nextjs-turborepo-fsd/
+    reason: "nextjs-fsd-architecture v2의 Turborepo 절로 통합"
+    since: "2026-11-12"
+  - dest: .claude/skills/nextjs-package-boundaries/
+    reason: "nextjs-fsd-architecture v2의 Turborepo 절로 통합"
+    since: "2026-11-12"
+  - dest: .agents/skills/nextjs-package-boundaries/
+    reason: "nextjs-fsd-architecture v2의 Turborepo 절로 통합"
+    since: "2026-11-12"
+  - dest: .claude/skills/tanstack-query-zod/
+    reason: "data-and-forms 로 이름 변경"
+    since: "2026-11-12"
+  - dest: .agents/skills/tanstack-query-zod/
+    reason: "data-and-forms 로 이름 변경"
+    since: "2026-11-12"
+  - dest: .claude/hooks/modules/kotest/
+    reason: "gradle-test 로 이름 변경 (프레임워크 중립)"
+    since: "2026-06-19"
+  - dest: .codex/hooks/modules/kotest/
+    reason: "gradle-test 로 이름 변경 (프레임워크 중립)"
+    since: "2026-06-19"
