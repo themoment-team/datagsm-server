@@ -1,0 +1,22 @@
+# AI tool logs & temp files
+.claude/command.log
+.codex/command.log
+.pr-tmp/
+.worktrees/
+PR_BODY.md
+
+### IntelliJ IDEA ###
+.idea/
+*.iml
+*.iws
+*.ipr
+
+### macOS ###
+.DS_Store
+
+### Tool internals ###
+.antigravitycli/
+
+### Python ###
+__pycache__/
+*.py[cod]

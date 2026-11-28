@@ -1,0 +1,10 @@
+* text=auto eol=lf
+
+*.sh       text eol=lf
+*.bat      text eol=crlf
+*.md       text eol=lf linguist-detectable
+*.yaml     text eol=lf linguist-detectable
+*.yml      text eol=lf linguist-detectable
+*.json     text eol=lf linguist-detectable
+*.toml     text eol=lf
+*.ts       text eol=lf
