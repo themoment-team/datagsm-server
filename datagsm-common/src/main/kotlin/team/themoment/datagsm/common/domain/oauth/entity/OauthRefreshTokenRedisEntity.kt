@@ -19,6 +19,11 @@ data class OauthRefreshTokenRedisEntity(
     val ttl: Long,
 ) {
     companion object {
+        fun idOf(
+            email: String,
+            clientId: String,
+        ): String = "$email:$clientId"
+
         fun of(
             email: String,
             clientId: String,
@@ -27,7 +32,7 @@ data class OauthRefreshTokenRedisEntity(
             ttl: Long,
         ): OauthRefreshTokenRedisEntity =
             OauthRefreshTokenRedisEntity(
-                id = "$email:$clientId",
+                id = idOf(email, clientId),
                 email = email,
                 clientId = clientId,
                 token = token,

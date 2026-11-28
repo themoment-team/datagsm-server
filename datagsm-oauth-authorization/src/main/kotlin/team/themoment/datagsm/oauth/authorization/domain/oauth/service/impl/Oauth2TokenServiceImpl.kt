@@ -218,7 +218,7 @@ class Oauth2TokenServiceImpl(
                 refreshToken.toByteArray(),
             )
         ) {
-            oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(email, clientIdFromToken)
+            revokeRefreshToken(email, clientIdFromToken)
             throw OAuthException.InvalidGrant("Refresh Token이 유효하지 않거나 만료되었습니다.")
         }
 
@@ -230,7 +230,7 @@ class Oauth2TokenServiceImpl(
         // 갱신은 로그인을 다시 거치지 않으므로, 여기서 막지 않으면 정보 수정 강제가 로그인 상태 유지로 우회된다.
         // 토큰을 폐기해 SP가 /authorize로 돌아오게 하고, 그곳에서 정보 수정 절차를 밟게 한다.
         if (pendingStudentDataEditChecker.hasPendingRequest(account)) {
-            oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(email, clientIdFromToken)
+            revokeRefreshToken(email, clientIdFromToken)
             throw OAuthException.InvalidGrant("정보 수정이 필요합니다. 다시 로그인해주세요.")
         }
 
@@ -241,7 +241,7 @@ class Oauth2TokenServiceImpl(
         val storedPermissionScopes = storedToken.scopes - OAuthScope.OPENID
         val allowedScopes = storedToken.scopes.filter { it == OAuthScope.OPENID || it in client.scopes }.toSet()
         if (storedPermissionScopes.isNotEmpty() && (allowedScopes - OAuthScope.OPENID).isEmpty()) {
-            oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(email, clientIdFromToken)
+            revokeRefreshToken(email, clientIdFromToken)
             throw OAuthException.InvalidGrant("클라이언트의 권한 범위가 변경되었습니다. 다시 로그인해주세요.")
         }
 
@@ -350,13 +350,20 @@ class Oauth2TokenServiceImpl(
             }.toSet()
     }
 
+    private fun revokeRefreshToken(
+        email: String,
+        clientId: String,
+    ) {
+        oauthRefreshTokenRedisRepository.deleteById(OauthRefreshTokenRedisEntity.idOf(email, clientId))
+    }
+
     private fun saveRefreshToken(
         email: String,
         clientId: String,
         token: String,
         scopes: Set<String>,
     ) {
-        oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(email, clientId)
+        revokeRefreshToken(email, clientId)
         val ttlSeconds = jwtEnvironment.refreshTokenExpiration / 1000
         val entity =
             OauthRefreshTokenRedisEntity.of(

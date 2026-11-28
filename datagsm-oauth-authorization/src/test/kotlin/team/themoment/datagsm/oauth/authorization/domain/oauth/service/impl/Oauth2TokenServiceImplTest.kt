@@ -140,7 +140,7 @@ class Oauth2TokenServiceImplTest :
                         every { mockJwtProvider.generateOauthRefreshToken(any(), any()) } returns "refresh-token"
                         every { mockJwtEnvironment.accessTokenExpiration } returns 3600000L
                         every { mockJwtEnvironment.refreshTokenExpiration } returns 2592000000L
-                        every { mockOauthRefreshTokenRedisRepository.deleteByEmailAndClientId(any(), any()) } returns Unit
+                        every { mockOauthRefreshTokenRedisRepository.deleteById(any()) } returns Unit
                         every { mockOauthRefreshTokenRedisRepository.save(any()) } answers { firstArg() }
                         every { mockOauthCodeRedisRepository.delete(any()) } returns Unit
                         every { mockOAuthScopeJpaRepository.findAllByApplicationIdIn(setOf("self")) } returns listOf(mockScopeEntity)
@@ -247,7 +247,7 @@ class Oauth2TokenServiceImplTest :
                         every { mockJwtProvider.generateOauthRefreshToken(any(), any()) } returns "refresh-token"
                         every { mockJwtEnvironment.accessTokenExpiration } returns 3600000L
                         every { mockJwtEnvironment.refreshTokenExpiration } returns 2592000000L
-                        every { mockOauthRefreshTokenRedisRepository.deleteByEmailAndClientId(any(), any()) } returns Unit
+                        every { mockOauthRefreshTokenRedisRepository.deleteById(any()) } returns Unit
                         every { mockOauthRefreshTokenRedisRepository.save(any()) } answers { firstArg() }
                         every { mockOauthCodeRedisRepository.delete(any()) } returns Unit
                         every { mockOAuthScopeJpaRepository.findAllByApplicationIdIn(setOf("self")) } returns listOf(mockScopeEntity)
@@ -408,7 +408,7 @@ class Oauth2TokenServiceImplTest :
                         every { mockJwtProvider.generateIdToken(any(), any(), any()) } returns "id-token"
                         every { mockJwtEnvironment.accessTokenExpiration } returns 3600000L
                         every { mockJwtEnvironment.refreshTokenExpiration } returns 2592000000L
-                        every { mockOauthRefreshTokenRedisRepository.deleteByEmailAndClientId(any(), any()) } returns Unit
+                        every { mockOauthRefreshTokenRedisRepository.deleteById(any()) } returns Unit
                         every { mockOauthRefreshTokenRedisRepository.save(any()) } answers { firstArg() }
                         every { mockOauthCodeRedisRepository.delete(any()) } returns Unit
                         every { mockOAuthScopeJpaRepository.findAllByApplicationIdIn(setOf("self")) } returns listOf(mockScopeEntity)
@@ -495,7 +495,7 @@ class Oauth2TokenServiceImplTest :
                         every { mockJwtProvider.generateOauthRefreshToken(any(), any()) } returns "new-refresh-token"
                         every { mockJwtEnvironment.accessTokenExpiration } returns 3600000L
                         every { mockJwtEnvironment.refreshTokenExpiration } returns 2592000000L
-                        every { mockOauthRefreshTokenRedisRepository.deleteByEmailAndClientId(any(), any()) } returns Unit
+                        every { mockOauthRefreshTokenRedisRepository.deleteById(any()) } returns Unit
                         every { mockOauthRefreshTokenRedisRepository.save(any()) } answers { firstArg() }
                         every { mockOAuthScopeJpaRepository.findAllByApplicationIdIn(setOf("self")) } returns listOf(mockScopeEntity)
                     }
@@ -620,7 +620,7 @@ class Oauth2TokenServiceImplTest :
                             exception.error shouldBe "invalid_grant"
                             exception.errorDescription shouldBe "클라이언트의 권한 범위가 변경되었습니다. 다시 로그인해주세요."
                             verify(exactly = 1) {
-                                mockOauthRefreshTokenRedisRepository.deleteByEmailAndClientId("test@gsm.hs.kr", "test-client")
+                                mockOauthRefreshTokenRedisRepository.deleteById("test@gsm.hs.kr:test-client")
                             }
                             verify(exactly = 0) { mockOauthRefreshTokenRedisRepository.save(any()) }
                             verify(exactly = 0) { mockJwtProvider.generateOauthAccessToken(any(), any(), any(), any()) }
@@ -648,7 +648,7 @@ class Oauth2TokenServiceImplTest :
 
                             exception.errorDescription shouldBe "클라이언트의 권한 범위가 변경되었습니다. 다시 로그인해주세요."
                             verify(exactly = 1) {
-                                mockOauthRefreshTokenRedisRepository.deleteByEmailAndClientId("test@gsm.hs.kr", "test-client")
+                                mockOauthRefreshTokenRedisRepository.deleteById("test@gsm.hs.kr:test-client")
                             }
                             verify(exactly = 0) { mockOauthRefreshTokenRedisRepository.save(any()) }
                         }
@@ -709,6 +709,29 @@ class Oauth2TokenServiceImplTest :
                             verify {
                                 mockOauthRefreshTokenRedisRepository.save(match { it.scopes == setOf(OAuthScope.OPENID) })
                             }
+                        }
+                    }
+
+                    context("저장된 refresh token과 요청한 refresh token이 다를 때") {
+                        val rotatedStoredToken = storedToken.copy(token = "rotated-refresh-token")
+
+                        beforeEach {
+                            every {
+                                mockOauthRefreshTokenRedisRepository.findByEmailAndClientId("test@gsm.hs.kr", "test-client")
+                            } returns Optional.of(rotatedStoredToken)
+                        }
+
+                        it("저장된 refresh token을 id로 삭제하고 InvalidGrant 예외가 발생한다") {
+                            val exception =
+                                shouldThrow<OAuthException.InvalidGrant> {
+                                    service.execute(reqDto)
+                                }
+
+                            exception.error shouldBe "invalid_grant"
+                            verify(exactly = 1) {
+                                mockOauthRefreshTokenRedisRepository.deleteById("test@gsm.hs.kr:test-client")
+                            }
+                            verify(exactly = 0) { mockOauthRefreshTokenRedisRepository.save(any()) }
                         }
                     }
 
@@ -799,7 +822,7 @@ class Oauth2TokenServiceImplTest :
 
                             exception.error shouldBe "invalid_grant"
                             verify(exactly = 1) {
-                                mockOauthRefreshTokenRedisRepository.deleteByEmailAndClientId("test@gsm.hs.kr", "test-client")
+                                mockOauthRefreshTokenRedisRepository.deleteById("test@gsm.hs.kr:test-client")
                             }
                             verify(exactly = 0) { mockOauthRefreshTokenRedisRepository.save(any()) }
                             verify(exactly = 0) { mockJwtProvider.generateOauthAccessToken(any(), any(), any(), any()) }

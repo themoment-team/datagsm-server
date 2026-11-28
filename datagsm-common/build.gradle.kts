@@ -75,6 +75,7 @@ dependencies {
     testImplementation(dependency.Dependencies.KOTEST_RUNNER)
     testImplementation(dependency.Dependencies.KOTEST_FRAMEWORK)
     testImplementation(dependency.Dependencies.MOCKK)
+    testImplementation(dependency.Dependencies.TESTCONTAINERS)
     testRuntimeOnly(dependency.Dependencies.JUNIT_PLATFORM_LAUNCHER)
 }
 
