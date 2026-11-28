@@ -19,8 +19,9 @@ jobs:
             const issueNumber = context.payload.issue.number;
             const allowedScopes = [
               'global', 'account', 'auth', 'client', 'club',
-              'neis', 'oauth', 'project', 'student',
-              'web', 'oauth', 'openapi', 'ci/cd', 'application', 'event'
+              'neis', 'oauth', 'project', 'student', 'utility',
+              'teacher', 'userinfo', 'shared', 'ksp',
+              'web', 'openapi', 'ci/cd', 'application', 'event'
             ];
             const titlePattern = /^\[([^\]]+)\]\s+(.+)$/;
             const match = title.match(titlePattern);
