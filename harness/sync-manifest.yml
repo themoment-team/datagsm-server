@@ -3,8 +3,8 @@
 # 새 스킬/에이전트 추가 시 이 목록도 업데이트하세요
 #
 # domain: 스킬·에이전트의 분류 (frontend / backend / common)
-#   대시보드 동기화 항목 화면과 README 분류에만 쓰이며, 동기화 대상 선택(groups/overrides)에는 영향이 없다.
-#   스킬·에이전트 항목에는 반드시 지정한다 (dashboard parse-manifest 테스트가 누락을 검사한다).
+#   동기화 항목 화면과 README 분류에만 쓰이며, 동기화 대상 선택(groups/overrides)에는 영향이 없다.
+#   스킬·에이전트 항목에는 반드시 지정한다 (scripts/validate-manifest.py가 누락을 검사한다. 버전 고정 항목은 제외).
 #
 # 버전 아카이브 규칙:
 #   breaking change 전에 기존 파일을 _archive/<name>/<vN>/ 에 복사하고

@@ -4,6 +4,7 @@ sync-manifest.yml과 배포 대상 파일을 검사합니다. PR 검증 워크�
 
 에러 (exit 1):
   - manifest 형식: 필수 키, id 중복, 버전 고정 항목(`<id>@vN`) 규칙, defaults, deletions
+  - 스킬·에이전트 항목의 domain(frontend / backend / common)
   - src 경로가 실제로 있는지, 디렉터리/파일 구분(끝의 `/`)이 맞는지
   - manifest에 등록되지 않은 스킬·에이전트·훅 모듈
   - SKILL.md와 Claude 에이전트 frontmatter, Codex 에이전트 TOML, JSON 설정 문법
@@ -14,7 +15,7 @@ sync-manifest.yml과 배포 대상 파일을 검사합니다. PR 검증 워크�
 
 사용법:
   python3 scripts/validate-manifest.py
-  python3 scripts/validate-manifest.py --base origin/main
+  python3 scripts/validate-manifest.py --base origin/develop
 """
 from __future__ import annotations
 
@@ -45,6 +46,8 @@ _SYNC_SPEC.loader.exec_module(_SYNC)
 SETTINGS_BASE: str = _SYNC.SETTINGS_BASE
 
 VERSIONED_ID = re.compile(r"^(?P<base>[^@]+)@(?P<version>v\d+)$")
+DOMAIN_REQUIRED_ID = re.compile(r"^[^/]+/(skills|agents)/")
+DOMAINS = {"frontend", "backend", "common"}
 FRONTMATTER = re.compile(r"^---\r?\n(.*?)\r?\n---\r?\n", re.S)
 TOML_LITERAL_INSTRUCTIONS = re.compile(r"^developer_instructions\s*=\s*'''", re.M)
 TOML_ERROR_LINE = re.compile(r"\(at line (\d+), column \d+\)")
@@ -252,6 +255,18 @@ def check_manifest(root: Path, report: Report) -> list[dict]:
 
         if "@" in item_id and not VERSIONED_ID.match(item_id):
             report.error(MANIFEST_NAME, f"{where}: 버전 고정 id는 `<id>@v<숫자>` 형식이어야 합니다", line)
+
+        # 동기화 항목 화면이 스킬·에이전트를 domain으로 묶으므로 누락되면 분류에서 빠진다. 버전 고정 항목은 기준 항목을 따른다
+        if (
+            DOMAIN_REQUIRED_ID.match(item_id)
+            and not VERSIONED_ID.match(item_id)
+            and item.get("domain") not in DOMAINS
+        ):
+            report.error(
+                MANIFEST_NAME,
+                f"{where}: 스킬·에이전트 항목의 `domain`은 {' / '.join(sorted(DOMAINS))} 중 하나여야 합니다",
+                line,
+            )
 
         items.append(item)
 
@@ -529,7 +544,7 @@ def _print(findings: list[Finding], level: str, github: bool) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--base", help="이 커밋과 갈라진 뒤 Claude/Codex 한쪽만 수정된 항목을 경고합니다. 커밋하지 않은 변경도 포함합니다 (예: origin/main)")
+    parser.add_argument("--base", help="이 커밋과 갈라진 뒤 Claude/Codex 한쪽만 수정된 항목을 경고합니다. 커밋하지 않은 변경도 포함합니다 (예: origin/develop)")
     parser.add_argument("--root", type=Path, default=ROOT, help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
 

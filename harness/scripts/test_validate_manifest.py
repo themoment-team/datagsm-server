@@ -22,21 +22,25 @@ items:
   - id: claude/skills/demo
     src: .claude/skills/demo/
     dest: .claude/skills/demo/
+    domain: common
     groups: [claude]
 
   - id: codex/skills/demo
     src: .agents/skills/demo/
     dest: .agents/skills/demo/
+    domain: common
     groups: [codex]
 
   - id: claude/agents/helper
     src: .claude/agents/helper.md
     dest: .claude/agents/helper.md
+    domain: common
     groups: [claude]
 
   - id: codex/agents/helper
     src: .codex/agents/helper.toml
     dest: .codex/agents/helper.toml
+    domain: common
     groups: [codex]
 
   - id: claude/hooks/guard
@@ -126,7 +130,7 @@ class ValidateManifestTest(unittest.TestCase):
         self.replace("sync-manifest.yml", "src: .agents/skills/demo/", "src: .agents/skills/nope/")
         report = self.run_validate()
         lines = [e.line for e in report.errors if "src 디렉터리가 없습니다" in e.message]
-        self.assertEqual(lines, [7])
+        self.assertEqual(lines, [8])
 
     def test_directory_src_without_trailing_slash(self):
         self.replace("sync-manifest.yml", "src: .claude/skills/demo/", "src: .claude/skills/demo")
@@ -147,6 +151,17 @@ class ValidateManifestTest(unittest.TestCase):
     def test_duplicate_dest(self):
         self.replace("sync-manifest.yml", "dest: .agents/skills/demo/", "dest: .claude/skills/demo/")
         self.assert_error(self.run_validate(), "`codex/skills/demo`: dest(.claude/skills/demo/)가 `claude/skills/demo`와 겹칩니다")
+
+    def test_skill_and_agent_require_domain(self):
+        self.replace("sync-manifest.yml", "    dest: .claude/skills/demo/\n    domain: common\n", "    dest: .claude/skills/demo/\n")
+        self.replace("sync-manifest.yml", "    dest: .codex/agents/helper.toml\n    domain: common\n", "    dest: .codex/agents/helper.toml\n    domain: mobile\n")
+        report = self.run_validate()
+        self.assert_error(report, "`claude/skills/demo`: 스킬·에이전트 항목의 `domain`은")
+        self.assert_error(report, "`codex/agents/helper`: 스킬·에이전트 항목의 `domain`은")
+
+    def test_hook_does_not_require_domain(self):
+        report = self.run_validate()
+        self.assertFalse(any("guard" in e.message for e in report.errors))
 
     def test_path_outside_repo(self):
         self.replace("sync-manifest.yml", "dest: .agents/skills/demo/", "dest: ../outside/")
@@ -338,6 +353,7 @@ class ValidateManifestTest(unittest.TestCase):
             "  - id: codex/agents/helper\n"
             "    src: .codex/agents/helper.toml\n"
             "    dest: .codex/agents/helper.toml\n"
+            "    domain: common\n"
             "    groups: [codex]\n\n",
             "",
         )
