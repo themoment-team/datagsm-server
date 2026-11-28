@@ -123,8 +123,15 @@ class Oauth2TokenServiceImpl(
                 .findByEmail(oauthCode.email)
                 .orElseThrow { ExpectedException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND) }
 
-        val scopesToGrant = reqDto.scope ?: oauthCode.scopes
-        if (!oauthCode.scopes.containsAll(scopesToGrant)) {
+        // 인가 코드는 authorize 시작 시점의 scope를 담고 있으므로, 그 사이 client에서 제거된 scope는 여기서 걸러낸다.
+        val allowedScopes = client.retainCurrentScopes(oauthCode.scopes)
+        if (lostAllPermissionScopes(oauthCode.scopes, allowedScopes)) {
+            oauthCodeRedisRepository.delete(oauthCode)
+            throw OAuthException.InvalidGrant("클라이언트의 권한 범위가 변경되었습니다. 다시 로그인해주세요.")
+        }
+
+        val scopesToGrant = reqDto.scope ?: allowedScopes
+        if (!allowedScopes.containsAll(scopesToGrant)) {
             throw OAuthException.InvalidScope("요청한 scope가 인가 코드의 scope를 초과합니다.")
         }
         val grantedScopes = stringsToScopes(scopesToGrant)
@@ -218,7 +225,7 @@ class Oauth2TokenServiceImpl(
                 refreshToken.toByteArray(),
             )
         ) {
-            oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(email, clientIdFromToken)
+            revokeRefreshToken(email, clientIdFromToken)
             throw OAuthException.InvalidGrant("Refresh Token이 유효하지 않거나 만료되었습니다.")
         }
 
@@ -230,12 +237,20 @@ class Oauth2TokenServiceImpl(
         // 갱신은 로그인을 다시 거치지 않으므로, 여기서 막지 않으면 정보 수정 강제가 로그인 상태 유지로 우회된다.
         // 토큰을 폐기해 SP가 /authorize로 돌아오게 하고, 그곳에서 정보 수정 절차를 밟게 한다.
         if (pendingStudentDataEditChecker.hasPendingRequest(account)) {
-            oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(email, clientIdFromToken)
+            revokeRefreshToken(email, clientIdFromToken)
             throw OAuthException.InvalidGrant("정보 수정이 필요합니다. 다시 로그인해주세요.")
         }
 
-        val scopesToGrant = reqDto.scope ?: storedToken.scopes
-        if (!storedToken.scopes.containsAll(scopesToGrant)) {
+        // 사용자가 동의한 scope(저장된 scope) 중 client에 아직 남아 있는 것만 부여한다.
+        // client에 새로 추가된 scope는 동의를 받지 않았으므로 넓히지 않고, 제거된 scope는 더 이상 이어지지 않게 한다.
+        val allowedScopes = client.retainCurrentScopes(storedToken.scopes)
+        if (lostAllPermissionScopes(storedToken.scopes, allowedScopes)) {
+            revokeRefreshToken(email, clientIdFromToken)
+            throw OAuthException.InvalidGrant("클라이언트의 권한 범위가 변경되었습니다. 다시 로그인해주세요.")
+        }
+
+        val scopesToGrant = reqDto.scope ?: allowedScopes
+        if (!allowedScopes.containsAll(scopesToGrant)) {
             throw OAuthException.InvalidScope("재발급 요청한 권한 범위가 기존 권한 범위를 초과합니다.")
         }
         val grantedScopes = stringsToScopes(scopesToGrant)
@@ -243,7 +258,7 @@ class Oauth2TokenServiceImpl(
         val newAccessToken = jwtProvider.generateOauthAccessToken(email, account.role, clientIdFromToken, grantedScopes)
         val newRefreshToken = jwtProvider.generateOauthRefreshToken(email, clientIdFromToken)
 
-        saveRefreshToken(email, clientIdFromToken, newRefreshToken, storedToken.scopes)
+        saveRefreshToken(email, clientIdFromToken, newRefreshToken, allowedScopes)
 
         return Oauth2TokenResDto(
             accessToken = newAccessToken,
@@ -339,13 +354,26 @@ class Oauth2TokenServiceImpl(
             }.toSet()
     }
 
+    // 처음부터 openid만 동의받은 경우는 client 변경과 무관하므로, 권한 scope가 있었다가 모두 빠진 경우만 해당한다.
+    private fun lostAllPermissionScopes(
+        grantedScopes: Set<String>,
+        allowedScopes: Set<String>,
+    ): Boolean = (grantedScopes - OAuthScope.OPENID).isNotEmpty() && (allowedScopes - OAuthScope.OPENID).isEmpty()
+
+    private fun revokeRefreshToken(
+        email: String,
+        clientId: String,
+    ) {
+        oauthRefreshTokenRedisRepository.deleteById(OauthRefreshTokenRedisEntity.idOf(email, clientId))
+    }
+
     private fun saveRefreshToken(
         email: String,
         clientId: String,
         token: String,
         scopes: Set<String>,
     ) {
-        oauthRefreshTokenRedisRepository.deleteByEmailAndClientId(email, clientId)
+        revokeRefreshToken(email, clientId)
         val ttlSeconds = jwtEnvironment.refreshTokenExpiration / 1000
         val entity =
             OauthRefreshTokenRedisEntity.of(

@@ -104,6 +104,7 @@ object Dependencies {
     const val SPRING_SECURITY_TEST = "org.springframework.security:spring-security-test"
     const val JUNIT_PLATFORM_LAUNCHER = "org.junit.platform:junit-platform-launcher"
     const val MOCKK = "io.mockk:mockk:${MOCKK_VERSION}"
+    const val TESTCONTAINERS = "org.testcontainers:testcontainers"
 
     // BOM
     const val SPRING_BOOT_BOM = "org.springframework.boot:spring-boot-dependencies:${plugin.PluginVersions.SPRING_BOOT_VERSION}"

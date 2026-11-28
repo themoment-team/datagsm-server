@@ -15,6 +15,8 @@ import team.themoment.datagsm.common.domain.account.entity.constant.AccountObjec
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountRole
 import team.themoment.datagsm.common.domain.account.entity.constant.AccountStatus
 import team.themoment.datagsm.common.domain.account.repository.AccountJpaRepository
+import team.themoment.datagsm.common.domain.client.entity.ClientJpaEntity
+import team.themoment.datagsm.common.domain.client.repository.ClientJpaRepository
 import team.themoment.datagsm.common.domain.oauth.dto.request.OauthConsentReqDto
 import team.themoment.datagsm.common.domain.oauth.entity.IdpSessionRedisEntity
 import team.themoment.datagsm.common.domain.oauth.entity.OauthAuthorizeStateRedisEntity
@@ -37,6 +39,7 @@ class CompleteOauthConsentServiceTest :
 
         val mockOauthAuthorizeStateRedisRepository = mockk<OauthAuthorizeStateRedisRepository>(relaxed = true)
         val mockOauthConsentJpaRepository = mockk<OauthConsentJpaRepository>(relaxed = true)
+        val mockClientJpaRepository = mockk<ClientJpaRepository>()
         val mockIssueAuthorizationCodeService = mockk<IssueAuthorizationCodeService>(relaxed = true)
         val mockIdpSessionRedisRepository = mockk<IdpSessionRedisRepository>(relaxed = true)
         val mockAccountJpaRepository = mockk<AccountJpaRepository>(relaxed = true)
@@ -55,9 +58,15 @@ class CompleteOauthConsentServiceTest :
             CompleteOauthConsentServiceImpl(
                 mockOauthAuthorizeStateRedisRepository,
                 mockOauthConsentJpaRepository,
+                mockClientJpaRepository,
                 mockIssueAuthorizationCodeService,
                 idpSessionResolver,
             )
+
+        // client를 찾지 못하면 기존과 같이 상태에 저장된 scope를 그대로 기록한다.
+        beforeEach {
+            every { mockClientJpaRepository.findById(any()) } returns Optional.empty()
+        }
 
         afterEach {
             clearAllMocks()
@@ -135,6 +144,27 @@ class CompleteOauthConsentServiceTest :
 
                         verify(exactly = 1) { mockOauthConsentJpaRepository.upsertConsent(1L, testClientId) }
                         scopeSlot.toSet() shouldBe testScopes
+                    }
+
+                    it("동의 도중 client에서 제거된 scope는 동의 기록에 남지 않아야 한다") {
+                        val scopeSlot = mutableListOf<String>()
+                        every {
+                            mockOauthConsentJpaRepository.addScopeIfAbsent(7L, capture(scopeSlot))
+                        } returns Unit
+                        every { mockClientJpaRepository.findById(testClientId) } returns
+                            Optional.of(
+                                ClientJpaEntity().apply {
+                                    id = testClientId
+                                    scopes.add("datagsm:account_read")
+                                },
+                            )
+
+                        completeOauthConsentService.execute(
+                            OauthConsentReqDto(testToken, approved = true),
+                            testSessionId,
+                        )
+
+                        scopeSlot.toSet() shouldBe setOf("datagsm:account_read")
                     }
 
                     it("재사용되지 않도록 state 토큰을 소비해야 한다") {
